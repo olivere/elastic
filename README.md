@@ -84,22 +84,36 @@ Find some typical usage scenarios below:
 
     // Index a tweet (using JSON serialization)
     tweet1 := Tweet{User: "olivere", Message: "Take Five"}
-    put1, err :=
-client.Index().Index("twitter").Type("tweet").Id("1").BodyJson(tweet1).Do()
+    put1, err := client.Index().
+        Index("twitter").
+        Type("tweet").
+        Id("1").
+        BodyJson(tweet1).
+        Do()
     
     // Index a second tweet (by string)
     tweet2 := `{"user" : "olivere", "message" : "It's a Raggy Waltz"}`
-    put2, err :=
-client.Index().Index("twitter").Type("tweet").Id("2").BodyString(tweet2).Do()
+    put2, err := client.Index().
+        Index("twitter").
+        Type("tweet").
+        Id("2").
+        BodyString(tweet2).
+        Do()
 
     // Get tweet with specified ID
-    get1, err :=
-client.Get().Index("twitter").Type("tweet").Id("1").Do()
+    get1, err := client.Get().
+        Index("twitter").
+        Type("tweet").
+        Id("1").
+        Do()
     
     // Search with a term query
     termQuery := elastic.NewTermQuery("user", "olivere")
-    termQueryResult, err :=
-client.Search().Index("twitter").Query(&termQuery).From(0).Size(10).Do()
+    termQueryResult, err := client.Search().
+        Index("twitter").
+        Query(&termQuery).
+        From(0).Size(10).
+        Do()
 
     // TODO examples of other queries/filters
 
