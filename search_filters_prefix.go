@@ -10,10 +10,10 @@ package elastic
 // http://www.elasticsearch.org/guide/reference/query-dsl/prefix-filter.html
 type PrefixFilter struct {
 	Filter
-	name  string
-	prefix string
-	cache  *bool
-	cacheKey string
+	name       string
+	prefix     string
+	cache      *bool
+	cacheKey   string
 	filterName string
 }
 
@@ -45,7 +45,7 @@ func (f PrefixFilter) Source() interface{} {
 	// }
 
 	source := make(map[string]interface{})
-	
+
 	params := make(map[string]interface{})
 	source["prefix"] = params
 
@@ -61,8 +61,7 @@ func (f PrefixFilter) Source() interface{} {
 
 	if f.cacheKey != "" {
 		params["_cache_key"] = f.cacheKey
-	}	
+	}
 
 	return source
 }
-

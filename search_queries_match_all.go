@@ -10,7 +10,7 @@ type MatchAllQuery struct {
 	Query
 
 	normsField string
-	boost *float32
+	boost      *float32
 }
 
 // Creates a new match all query.

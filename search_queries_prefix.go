@@ -10,9 +10,9 @@ package elastic
 // http://www.elasticsearch.org/guide/reference/query-dsl/prefix-query.html
 type PrefixQuery struct {
 	Query
-	name  string
-	prefix string
-	boost  *float32
+	name    string
+	prefix  string
+	boost   *float32
 	rewrite string
 }
 
@@ -35,7 +35,7 @@ func (q PrefixQuery) Rewrite(rewrite string) PrefixQuery {
 // Creates the query source for the prefix query.
 func (q PrefixQuery) Source() interface{} {
 	// {
-	//   "prefix" : { 
+	//   "prefix" : {
 	//     "user" :  {
 	//       "prefix" : "ki",
 	//       "boost" : 2.0
@@ -54,7 +54,7 @@ func (q PrefixQuery) Source() interface{} {
 		subQuery := make(map[string]interface{})
 
 		subQuery["prefix"] = q.prefix
-		
+
 		if q.boost != nil {
 			subQuery["boost"] = *q.boost
 		}
@@ -68,4 +68,3 @@ func (q PrefixQuery) Source() interface{} {
 
 	return source
 }
-

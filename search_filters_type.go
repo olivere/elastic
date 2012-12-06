@@ -25,7 +25,7 @@ func (f TypeFilter) Source() interface{} {
 	// }
 
 	source := make(map[string]interface{})
-	
+
 	params := make(map[string]interface{})
 	source["type"] = params
 
@@ -33,4 +33,3 @@ func (f TypeFilter) Source() interface{} {
 
 	return source
 }
-

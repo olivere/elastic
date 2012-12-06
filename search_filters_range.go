@@ -9,14 +9,14 @@ package elastic
 // http://www.elasticsearch.org/guide/reference/query-dsl/range-filter.html
 type RangeFilter struct {
 	Filter
-	name string
-	from *interface{}
-	to   *interface{}
+	name         string
+	from         *interface{}
+	to           *interface{}
 	includeLower bool
 	includeUpper bool
-	cache  *bool
-	cacheKey string
-	filterName string
+	cache        *bool
+	cacheKey     string
+	filterName   string
 }
 
 func NewRangeFilter(name string) RangeFilter {
@@ -93,7 +93,7 @@ func (f RangeFilter) Source() interface{} {
 	// }
 
 	source := make(map[string]interface{})
-	
+
 	rangeQ := make(map[string]interface{})
 	source["range"] = rangeQ
 
@@ -115,9 +115,7 @@ func (f RangeFilter) Source() interface{} {
 
 	if f.cacheKey != "" {
 		rangeQ["_cache_key"] = f.cacheKey
-	}	
+	}
 
 	return source
 }
-
-

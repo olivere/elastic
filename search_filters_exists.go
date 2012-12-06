@@ -9,7 +9,7 @@ package elastic
 // http://www.elasticsearch.org/guide/reference/query-dsl/exists-filter.html
 type ExistsFilter struct {
 	Filter
-	name string
+	name       string
 	filterName string
 }
 
@@ -31,7 +31,7 @@ func (f ExistsFilter) Source() interface{} {
 	// }
 
 	source := make(map[string]interface{})
-	
+
 	params := make(map[string]interface{})
 	source["exists"] = params
 
@@ -39,4 +39,3 @@ func (f ExistsFilter) Source() interface{} {
 
 	return source
 }
-

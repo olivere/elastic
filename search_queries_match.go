@@ -182,7 +182,6 @@ func (q MatchQuery) Source() interface{} {
 		query["fuzzy_rewrite"] = q.fuzzyRewrite
 	}
 
-
 	if q.lenient != nil {
 		query["lenient"] = *q.lenient
 	}

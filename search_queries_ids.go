@@ -9,9 +9,9 @@ package elastic
 // http://www.elasticsearch.org/guide/reference/query-dsl/ids-query.html
 type IdsQuery struct {
 	Query
-	types       []string
-	values      []string
-	filterName  string
+	types      []string
+	values     []string
+	filterName string
 }
 
 // Creates a new ids query.
@@ -39,7 +39,7 @@ func (q IdsQuery) Source() interface{} {
 	//	"ids" : {
 	//		"type" : "my_type",
 	//		"values" : ["1", "4", "100"]
-    //	}
+	//	}
 	// }
 
 	source := make(map[string]interface{})

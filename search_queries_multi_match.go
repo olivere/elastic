@@ -9,33 +9,33 @@ import (
 )
 
 // The multi_match query builds further on top of the match query by allowing multiple fields to be specified.
-// For more details, see: 
+// For more details, see:
 // http://www.elasticsearch.org/guide/reference/query-dsl/multi-match-query.html
 type MultiMatchQuery struct {
 	Query
-	text  interface{}
-	fields []string
-	fieldBoosts map[string]*float32
-	_type               *MatchQueryType
-	operator            *Operator
-	analyzer            string
-	boost               *float32
-	slop                *int
-	fuzziness           string
-	prefixLength        *int
-	maxExpansions       *int
-	minimumShouldMatch  string
-	rewrite             string
-	fuzzyRewrite        string
-	useDisMax           *bool
-	tieBreaker          *int
-	lenient             *bool
+	text               interface{}
+	fields             []string
+	fieldBoosts        map[string]*float32
+	_type              *MatchQueryType
+	operator           *Operator
+	analyzer           string
+	boost              *float32
+	slop               *int
+	fuzziness          string
+	prefixLength       *int
+	maxExpansions      *int
+	minimumShouldMatch string
+	rewrite            string
+	fuzzyRewrite       string
+	useDisMax          *bool
+	tieBreaker         *int
+	lenient            *bool
 }
 
 func NewMultiMatchQuery(text interface{}, fields ...string) MultiMatchQuery {
 	q := MultiMatchQuery{
-		text: text,
-		fields: make([]string, 0),
+		text:        text,
+		fields:      make([]string, 0),
 		fieldBoosts: make(map[string]*float32),
 	}
 	q.fields = append(q.fields, fields...)

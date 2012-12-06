@@ -9,10 +9,10 @@ package elastic
 // http://www.elasticsearch.org/guide/reference/query-dsl/term-filter.html
 type TermFilter struct {
 	Filter
-	name  string
-	value interface{}
-	cache  *bool
-	cacheKey string
+	name       string
+	value      interface{}
+	cache      *bool
+	cacheKey   string
 	filterName string
 }
 
@@ -44,7 +44,7 @@ func (f TermFilter) Source() interface{} {
 	// }
 
 	source := make(map[string]interface{})
-	
+
 	params := make(map[string]interface{})
 	source["term"] = params
 
@@ -60,8 +60,7 @@ func (f TermFilter) Source() interface{} {
 
 	if f.cacheKey != "" {
 		params["_cache_key"] = f.cacheKey
-	}	
+	}
 
 	return source
 }
-

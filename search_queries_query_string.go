@@ -14,37 +14,37 @@ import (
 type QueryStringQuery struct {
 	Query
 
-	queryString string
-	defaultField string
-	defaultOper *Operator
-	analyzer string
-	quoteAnalyzer string
-	quoteFieldSuffix string
+	queryString               string
+	defaultField              string
+	defaultOper               *Operator
+	analyzer                  string
+	quoteAnalyzer             string
+	quoteFieldSuffix          string
 	autoGeneratePhraseQueries *bool
-	allowLeadingWildcard *bool
-	lowercaseExpandedTerms *bool
-	enablePositionIncrements *bool
-	analyzeWildcard *bool
-	boost *float32
-	fuzzyMinSim *float32
-	fuzzyPrefixLength *int
-	fuzzyMaxExpansions *int
-	fuzzyRewrite string
-	phraseSlop *int
-	fields []string
-	fieldBoosts map[string]*float32
-	useDisMax *bool
-	tieBreaker *float32
-	rewrite string
-	minimumShouldMatch string
-	lenient *bool
+	allowLeadingWildcard      *bool
+	lowercaseExpandedTerms    *bool
+	enablePositionIncrements  *bool
+	analyzeWildcard           *bool
+	boost                     *float32
+	fuzzyMinSim               *float32
+	fuzzyPrefixLength         *int
+	fuzzyMaxExpansions        *int
+	fuzzyRewrite              string
+	phraseSlop                *int
+	fields                    []string
+	fieldBoosts               map[string]*float32
+	useDisMax                 *bool
+	tieBreaker                *float32
+	rewrite                   string
+	minimumShouldMatch        string
+	lenient                   *bool
 }
 
 // Creates a new query string query.
 func NewQueryStringQuery(queryString string) QueryStringQuery {
 	q := QueryStringQuery{
 		queryString: queryString,
-		fields: make([]string, 0),
+		fields:      make([]string, 0),
 		fieldBoosts: make(map[string]*float32),
 	}
 	return q
@@ -168,7 +168,7 @@ func (q QueryStringQuery) Source() interface{} {
 	//      "default_field" : "content",
 	//      "query" : "this AND that OR thus"
 	//    }
-    // }
+	// }
 
 	source := make(map[string]interface{})
 
