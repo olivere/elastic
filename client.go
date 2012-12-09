@@ -82,6 +82,12 @@ func (c *Client) Get() *GetService {
 	return builder
 }
 
+// Check if a document exists.
+func (c *Client) Exists() *ExistsService {
+	builder := NewExistsService(c)
+	return builder
+}
+
 // Count documents.
 func (c *Client) Count(indices ...string) *CountService {
 	builder := NewCountService(c)
@@ -93,5 +99,17 @@ func (c *Client) Count(indices ...string) *CountService {
 func (c *Client) Search(indices ...string) *SearchService {
 	builder := NewSearchService(c)
 	builder.Indices(indices...)
+	return builder
+}
+
+// Flush.
+func (c *Client) Flush() *FlushService {
+	builder := NewFlushService(c)
+	return builder
+}
+
+// Bulk.
+func (c *Client) Bulk() *BulkService {
+	builder := NewBulkService(c)
 	return builder
 }

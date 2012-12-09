@@ -128,8 +128,8 @@ func (b *GetService) Do() (*GetResult, error) {
 // -- Result of a get request.
 
 type GetResult struct {
-	Index  string          `json:"_index"`
-	Type   string          `json:"_type"`
-	Id     string          `json:"_id"`
-	Source json.RawMessage `json:"source,omitempty"`
+	Index  string           `json:"_index"`
+	Type   string           `json:"_type"`
+	Id     string           `json:"_id"`
+	Source *json.RawMessage `json:"_source,omitempty"`
 }

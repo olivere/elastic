@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"encoding/json"
 	"net/http"
 	"testing"
 )
@@ -12,6 +13,11 @@ import (
 const (
 	testIndexName = "elastic-test"
 )
+
+type tweet struct {
+	User    string `json:"user"`
+	Message string `json:"message"`
+}
 
 func setupTestClient(t *testing.T) *Client {
 	client, err := NewClient(http.DefaultClient)
@@ -23,6 +29,22 @@ func setupTestClient(t *testing.T) *Client {
 
 	return client
 }
+
+func setupTestClientAndCreateIndex(t *testing.T) *Client {
+	client := setupTestClient(t)
+
+	// Create index
+	createIndex, err := client.CreateIndex(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !createIndex.Ok {
+		t.Errorf("expected CreateIndexResult.Ok %q; got %q", true, createIndex.Ok)
+	}
+
+	return client
+}
+
 
 func TestIndexLifecycle(t *testing.T) {
 	client := setupTestClient(t)
@@ -103,3 +125,86 @@ func TestIndexExistScenarios(t *testing.T) {
 		t.Fatalf("expected index exists to return %q, got %q\n", true, indexExists)
 	}
 }
+
+func TestDocumentLifecycle(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}
+
+	// Add a document
+	indexResult, err := client.Index().
+		Index(testIndexName).
+		Type("tweet").
+		Id("1").
+		BodyJson(&tweet1).
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !indexResult.Ok {
+		t.Errorf("expected IndexResult.Ok %q; got %q", true, indexResult.Ok)
+	}
+
+	// Exists
+	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id("1").Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !exists {
+		t.Errorf("expected exists %q; got %q", true, exists)
+	}
+
+	// Get document
+	getResult, err := client.Get().
+		Index(testIndexName).
+		Type("tweet").
+		Id("1").
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if getResult.Index != testIndexName {
+		t.Errorf("expected GetResult.Index %q; got %q", testIndexName, getResult.Index)
+	}
+	if getResult.Type != "tweet" {
+		t.Errorf("expected GetResult.Type %q; got %q", "tweet", getResult.Type)
+	}
+	if getResult.Id != "1" {
+		t.Errorf("expected GetResult.Id %q; got %q", "1", getResult.Id)
+	}
+	if getResult.Source == nil {
+		t.Errorf("expected GetResult.Source to be != nil; got nil")
+	}
+
+	// Decode the Source field
+	var tweetGot tweet
+	err = json.Unmarshal(*getResult.Source, &tweetGot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tweetGot.User != tweet1.User {
+		t.Errorf("expected Tweet.User to be %q; got %q", tweet1.User, tweetGot.User)
+	}
+	if tweetGot.Message != tweet1.Message {
+		t.Errorf("expected Tweet.Message to be %q; got %q", tweet1.Message, tweetGot.Message)
+	}
+
+	// Delete document again
+	deleteResult, err := client.Delete().Index(testIndexName).Type("tweet").Id("1").Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !deleteResult.Ok {
+		t.Errorf("expected DeleteResult.Ok %q; got %q", true, deleteResult.Ok)
+	}
+
+	// Exists
+	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id("1").Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if exists {
+		t.Errorf("expected exists %q; got %q", false, exists)
+	}
+}
+

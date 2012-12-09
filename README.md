@@ -29,12 +29,14 @@ not thoroughly tested).
 * Search
 * Count
 * Delete By Query
+* Bulk
 
 ### Indices
 
 * Create Index
 * Delete Index
 * Indices Exists
+* Flush
 
 ### Queries
 
