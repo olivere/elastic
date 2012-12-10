@@ -58,6 +58,13 @@ not thoroughly tested).
 * Term
 * Type
 
+### Facets
+
+* Terms
+* Range
+* Histogram
+* Date histogram
+
 ## Installation
 
 Grab the code with `go get github.com/olivere/elastic`.
@@ -114,6 +121,7 @@ Find some typical usage scenarios below:
     termQueryResult, err := client.Search().
         Index("twitter").
         Query(&termQuery).
+        Sort("user", true).
         From(0).Size(10).
         Do()
 

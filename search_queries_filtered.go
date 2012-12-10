@@ -9,14 +9,22 @@ package elastic
 // http://www.elasticsearch.org/guide/reference/query-dsl/filtered-query.html
 type FilteredQuery struct {
 	Query
-	query  Query
-	filter *Filter
-	boost  *float32
+	query   Query
+	filters []Filter
+	boost   *float32
 }
 
 // Creates a new filtered query.
-func NewFilteredQuery(query Query, filter *Filter) FilteredQuery {
-	q := FilteredQuery{query: query, filter: filter}
+func NewFilteredQuery(query Query) FilteredQuery {
+	q := FilteredQuery{
+		query:   query,
+		filters: make([]Filter, 0),
+	}
+	return q
+}
+
+func (q FilteredQuery) Filter(filter Filter) FilteredQuery {
+	q.filters = append(q.filters, filter)
 	return q
 }
 
@@ -47,8 +55,16 @@ func (q FilteredQuery) Source() interface{} {
 
 	filtered["query"] = q.query.Source()
 
-	if q.filter != nil {
-		filtered["filter"] = (*q.filter).Source()
+	if len(q.filters) == 1 {
+		filtered["filter"] = q.filters[0].Source()
+	} else if len(q.filters) > 1 {
+		anded := make([]map[string]interface{}, 0)
+		filtered["filter"] = anded
+		for _, f := range q.filters {
+			andElem := make(map[string]interface{})
+			andElem["and"] = f.Source()
+			anded = append(anded, andElem)
+		}
 	}
 
 	if q.boost != nil {

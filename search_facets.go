@@ -4,17 +4,9 @@
 
 package elastic
 
+// Represents a glimpse into the data.
+// For more details about facets, visit:
+// http://elasticsearch.org/guide/reference/api/search/facets/
 type Facet interface {
-	Name() string
-	Type() string
-	Source() string
-}
-
-type Facets struct {
-	Facets []*Facet
-}
-
-func (f *Facets) ByName(name string) (*Facet, bool) {
-	// TODO implement this
-	return nil, false
+	Source() interface{}
 }

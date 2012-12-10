@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
+	"time"
 )
 
 const (
@@ -15,8 +16,10 @@ const (
 )
 
 type tweet struct {
-	User    string `json:"user"`
-	Message string `json:"message"`
+	User     string    `json:"user"`
+	Message  string    `json:"message"`
+	Retweets int       `json:"retweets"`
+	Created  time.Time `json:"created,omitempty"`
 }
 
 func setupTestClient(t *testing.T) *Client {

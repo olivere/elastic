@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -25,9 +26,18 @@ const (
 	Count                               // 5
 )
 
+// Information about sorting a field.
+type SortInfo struct {
+	Field          string
+	Ascending      bool
+	Missing        *interface{}
+	IgnoreUnmapped bool
+}
+
 // Search for documents in ElasticSearch.
 type SearchService struct {
 	client     *Client
+	pretty     bool
 	searchType SearchType
 	indices    []string
 	queryHint  string
@@ -42,9 +52,9 @@ type SearchService struct {
 	size       *int
 	explain    *bool
 	version    *bool
-	sorts      map[string]bool
+	sorts      []SortInfo
 	fields     []string
-	facets     []Facet
+	facets     map[string]Facet
 	debug      bool
 }
 
@@ -53,12 +63,18 @@ func NewSearchService(client *Client) *SearchService {
 		client:     client,
 		searchType: QueryThenFetch,
 		filters:    make([]Filter, 0),
-		sorts:      make(map[string]bool),
+		sorts:      make([]SortInfo, 0),
 		fields:     make([]string, 0),
-		facets:     make([]Facet, 0),
+		facets:     make(map[string]Facet, 0),
 		debug:      false,
+		pretty:     false,
 	}
 	return builder
+}
+
+func (s *SearchService) Pretty(pretty bool) *SearchService {
+	s.pretty = pretty
+	return s
 }
 
 func (s *SearchService) Debug(debug bool) *SearchService {
@@ -128,13 +144,13 @@ func (s *SearchService) Query(query Query) *SearchService {
 	return s
 }
 
-func (s *SearchService) AddFilter(filter Filter) *SearchService {
+func (s *SearchService) Filter(filter Filter) *SearchService {
 	s.filters = append(s.filters, filter)
 	return s
 }
 
-func (s *SearchService) AddFacet(facet Facet) *SearchService {
-	s.facets = append(s.facets, facet)
+func (s *SearchService) Facet(name string, facet Facet) *SearchService {
+	s.facets[name] = facet
 	return s
 }
 
@@ -163,8 +179,13 @@ func (s *SearchService) Version(version bool) *SearchService {
 	return s
 }
 
-func (s *SearchService) AddSort(field string, ascending bool) *SearchService {
-	s.sorts[field] = ascending
+func (s *SearchService) Sort(field string, ascending bool) *SearchService {
+	s.sorts = append(s.sorts, SortInfo{Field: field, Ascending: ascending})
+	return s
+}
+
+func (s *SearchService) SortWithInfo(info SortInfo) *SearchService {
+	s.sorts = append(s.sorts, info)
 	return s
 }
 
@@ -189,6 +210,13 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	// Search
 	urls += "/_search"
 
+	// Parameters
+	params := make(url.Values)
+	if s.pretty {
+		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	}
+	urls += "?" + params.Encode()
+
 	// Set up a new request
 	req, err := s.client.NewRequest("POST", urls)
 	if err != nil {
@@ -197,15 +225,13 @@ func (s *SearchService) Do() (*SearchResult, error) {
 
 	// Set body
 	body := make(map[string]interface{})
+
+	// Query
 	if s.query != nil {
 		body["query"] = s.query.Source()
 	}
-	if s.from != nil && *s.from > 0 {
-		body["from"] = *s.from
-	}
-	if s.size != nil && *s.size > 0 {
-		body["size"] = *s.size
-	}
+
+	// Filters
 	if len(s.filters) == 1 {
 		body["filter"] = s.filters[0].Source()
 	} else if len(s.filters) > 1 {
@@ -217,6 +243,50 @@ func (s *SearchService) Do() (*SearchResult, error) {
 		f["and"] = andedFilters
 		body["filter"] = f
 	}
+
+	// Facets
+	if len(s.facets) >= 1 {
+		// "facets" : {
+		//   "manufacturer" : {
+		//     "terms" : { ... }
+		//   },
+		//   "price" : {
+		//     "range" : { ... }
+		//   }
+		// }
+		facetsMap := make(map[string]interface{})
+		body["facets"] = facetsMap
+
+		for field, facet := range s.facets {
+			facetsMap[field] = facet.Source()
+		}
+	}
+
+	// Limit/Offset
+	if s.from != nil && *s.from > 0 {
+		body["from"] = *s.from
+	}
+	if s.size != nil && *s.size > 0 {
+		body["size"] = *s.size
+	}
+
+	// Sort
+	if len(s.sorts) > 0 {
+		sortSlice := make([]interface{}, 0)
+		for _, info := range s.sorts {
+			sortProp := make(map[string]interface{})
+			if info.Ascending {
+				sortProp["order"] = "asc"
+			} else {
+				sortProp["order"] = "desc"
+			}
+			sortElem := make(map[string]interface{})
+			sortElem[info.Field] = sortProp
+			sortSlice = append(sortSlice, sortElem)
+		}
+		body["sort"] = sortSlice
+	}
+
 	req.SetBodyJson(body)
 
 	if s.debug {
@@ -247,25 +317,26 @@ func (s *SearchService) Do() (*SearchResult, error) {
 }
 
 type SearchResult struct {
-	TookInMillis int64       `json:"took"`
-	ScrollId     string      `json:"_scroll_id,omitempty"`
-	Hits         *SearchHits `json:"hits"`
-	Facets       *Facets     `json:"facets"`
-	TimedOut     bool        `json:"timed_out"`
+	TookInMillis int64        `json:"took"`
+	ScrollId     string       `json:"_scroll_id"`
+	Hits         *SearchHits  `json:"hits"`
+	Facets       SearchFacets `json:"facets"`
+	TimedOut     bool         `json:"timed_out"`
 }
 
 type SearchHits struct {
 	TotalHits int64        `json:"total"`
-	MaxScore  *float64     `json:"max_score,omitempty"`
+	MaxScore  *float64     `json:"max_score"`
 	Hits      []*SearchHit `json:"hits"`
 }
 
 type SearchHit struct {
-	Score   float64          `json:"_score"`
+	Score   *float64         `json:"_score"`
 	Index   string           `json:"_index"`
 	Id      string           `json:"_id"`
 	Type    string           `json:"_type"`
-	Version int64            `json:"_version"`
+	Version *int64           `json:"_version"`
+	Sort    *[]interface{}   `json:"sort"`
 	Source  *json.RawMessage `json:"_source"`
 
 	// Explanation
@@ -273,4 +344,44 @@ type SearchHit struct {
 	// HighlightFields
 	// SortValues
 	// MatchedFilters
+}
+
+// Facets
+
+type SearchFacets map[string]*SearchFacet
+
+type SearchFacet struct {
+	Type    string             `json:"_type"`
+	Missing int                `json:"missing"`
+	Total   int                `json:"total"`
+	Other   int                `json:"other"`
+	Terms   []searchFacetTerm  `json:"terms"`
+	Ranges  []searchFacetRange `json:"ranges"`
+	Entries []searchFacetEntry `json:"entries"`
+}
+
+type searchFacetTerm struct {
+	Term  string `json:"term"`
+	Count int    `json:"count"`
+}
+
+type searchFacetRange struct {
+	From       *float64 `json:"from"`
+	To         *float64 `json:"to"`
+	Count      int      `json:"count"`
+	Min        *float64 `json:"min"`
+	Max        *float64 `json:"max"`
+	TotalCount int      `json:"total_count"`
+	Total      *float64 `json:"total"`
+	Mean       *float64 `json:"mean"`
+}
+
+type searchFacetEntry struct {
+	// Key for this facet, e.g. in histograms
+	Key   interface{} `json:"key"`
+	// Date histograms contain the number of milliseconds as date:
+	// If e.Time = 1293840000000, then: Time.at(1293840000000/1000) => 2011-01-01
+	Time  int64       `json:"time"`
+	// Number of hits for this facet
+	Count int         `json:"count"`
 }
