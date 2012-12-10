@@ -201,6 +201,10 @@ func (q QueryStringQuery) Source() interface{} {
 		query["tie_breaker"] = *q.tieBreaker
 	}
 
+	if q.useDisMax != nil {
+		query["use_dis_max"] = *q.useDisMax
+	}
+
 	if q.defaultOper != "" {
 		query["default_operator"] = q.defaultOper
 	}
