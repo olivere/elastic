@@ -11,19 +11,6 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
-	"time"
-)
-
-// Search types
-type SearchType int
-
-const (
-	DfsQueryThenFetch SearchType = iota // 0
-	QueryThenFetch                      // 1 (=default)
-	DfsQueryAndFetch                    // 2
-	QueryAndFetch                       // 3
-	Scan                                // 4
-	Count                               // 5
 )
 
 // Information about sorting a field.
@@ -38,13 +25,13 @@ type SortInfo struct {
 type SearchService struct {
 	client     *Client
 	pretty     bool
-	searchType SearchType
+	searchType string
 	indices    []string
 	queryHint  string
 	routing    string
 	preference string
 	types      []string
-	timeout    *time.Duration
+	timeout    string
 	query      Query
 	filters    []Filter
 	minScore   *float64
@@ -61,7 +48,6 @@ type SearchService struct {
 func NewSearchService(client *Client) *SearchService {
 	builder := &SearchService{
 		client:     client,
-		searchType: QueryThenFetch,
 		filters:    make([]Filter, 0),
 		sorts:      make([]SortInfo, 0),
 		fields:     make([]string, 0),
@@ -70,16 +56,6 @@ func NewSearchService(client *Client) *SearchService {
 		pretty:     false,
 	}
 	return builder
-}
-
-func (s *SearchService) Pretty(pretty bool) *SearchService {
-	s.pretty = pretty
-	return s
-}
-
-func (s *SearchService) Debug(debug bool) *SearchService {
-	s.debug = debug
-	return s
 }
 
 func (s *SearchService) Index(index string) *SearchService {
@@ -114,7 +90,27 @@ func (s *SearchService) Types(types ...string) *SearchService {
 	return s
 }
 
-func (s *SearchService) SearchType(searchType SearchType) *SearchService {
+func (s *SearchService) Pretty(pretty bool) *SearchService {
+	s.pretty = pretty
+	return s
+}
+
+func (s *SearchService) Debug(debug bool) *SearchService {
+	s.debug = debug
+	return s
+}
+
+func (s *SearchService) Timeout(timeout string) *SearchService {
+	s.timeout = timeout
+	return s
+}
+
+func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
+	s.timeout = fmt.Sprintf("%dms", timeoutInMillis)
+	return s
+}
+
+func (s *SearchService) SearchType(searchType string) *SearchService {
 	s.searchType = searchType
 	return s
 }
@@ -131,11 +127,6 @@ func (s *SearchService) Preference(preference string) *SearchService {
 
 func (s *SearchService) QueryHint(queryHint string) *SearchService {
 	s.queryHint = queryHint
-	return s
-}
-
-func (s *SearchService) Timeout(timeout *time.Duration) *SearchService {
-	s.timeout = timeout
 	return s
 }
 
@@ -214,6 +205,12 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	params := make(url.Values)
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	}
+	if s.timeout != "" {
+		params.Set("timeout", s.timeout)
+	}
+	if s.searchType != "" {
+		params.Set("search_type", s.searchType)
 	}
 	urls += "?" + params.Encode()
 

@@ -105,8 +105,9 @@ func TestSearchSorting(t *testing.T) {
 		Index(testIndexName).
 		Query(&all).
 		Sort("created", false).
-		Pretty(true).
-		Debug(true).
+		Timeout("1s").
+		// Pretty(true).
+		// Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
