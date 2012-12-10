@@ -63,7 +63,7 @@ func (s *FlushService) Do() (*FlushResult, error) {
 		for _, index := range s.indices {
 			indexPart = append(indexPart, cleanPathString(index))
 		}
-		urls += strings.Join(indexPart, ",")
+		urls += strings.Join(indexPart, ",") + "/"
 	}
 	urls += "_flush"
 

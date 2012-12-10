@@ -45,7 +45,6 @@ func setupTestClientAndCreateIndex(t *testing.T) *Client {
 	return client
 }
 
-
 func TestIndexLifecycle(t *testing.T) {
 	client := setupTestClient(t)
 
@@ -207,4 +206,3 @@ func TestDocumentLifecycle(t *testing.T) {
 		t.Errorf("expected exists %q; got %q", false, exists)
 	}
 }
-

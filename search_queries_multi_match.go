@@ -17,7 +17,7 @@ type MultiMatchQuery struct {
 	fields             []string
 	fieldBoosts        map[string]*float32
 	_type              *MatchQueryType
-	operator           *Operator
+	operator           string
 	analyzer           string
 	boost              *float32
 	slop               *int
@@ -58,8 +58,8 @@ func (q MultiMatchQuery) Type(_type MatchQueryType) MultiMatchQuery {
 	return q
 }
 
-func (q MultiMatchQuery) Operator(operator Operator) MultiMatchQuery {
-	q.operator = &operator
+func (q MultiMatchQuery) Operator(operator string) MultiMatchQuery {
+	q.operator = operator
 	return q
 }
 
@@ -165,12 +165,8 @@ func (q MultiMatchQuery) Source() interface{} {
 		}
 	}
 
-	if q.operator != nil {
-		if *q.operator == And {
-			multiMatch["operator"] = "and"
-		} else if *q.operator == Or {
-			multiMatch["operator"] = "or"
-		}
+	if q.operator != "" {
+		multiMatch["operator"] = q.operator
 	}
 
 	if q.analyzer != "" {

@@ -30,7 +30,7 @@ type MatchQuery struct {
 	name                string
 	value               interface{}
 	_type               *MatchQueryType
-	operator            *Operator
+	operator            string
 	analyzer            string
 	boost               *float32
 	slop                *int
@@ -55,8 +55,8 @@ func (q MatchQuery) Type(_type MatchQueryType) MatchQuery {
 	return q
 }
 
-func (q MatchQuery) Operator(operator Operator) MatchQuery {
-	q.operator = &operator
+func (q MatchQuery) Operator(operator string) MatchQuery {
+	q.operator = operator
 	return q
 }
 
@@ -142,12 +142,8 @@ func (q MatchQuery) Source() interface{} {
 		}
 	}
 
-	if q.operator != nil {
-		if *q.operator == And {
-			query["operator"] = "and"
-		} else if *q.operator == Or {
-			query["operator"] = "or"
-		}
+	if q.operator != "" {
+		query["operator"] = q.operator
 	}
 
 	if q.boost != nil {

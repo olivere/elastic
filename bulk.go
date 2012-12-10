@@ -20,35 +20,35 @@ type BulkService struct {
 	requests []BulkableRequest
 	//replicationType string
 	//consistencyLevel string
-	refresh  *bool
-	debug    bool
+	refresh *bool
+	debug   bool
 }
 
 func NewBulkService(client *Client) *BulkService {
 	builder := &BulkService{
-		client: client,
+		client:   client,
 		requests: make([]BulkableRequest, 0),
-		debug: false,
+		debug:    false,
 	}
 	return builder
 }
 
-func (s *BulkService) Index(index string) (*BulkService) {
+func (s *BulkService) Index(index string) *BulkService {
 	s.index = index
 	return s
 }
 
-func (s *BulkService) Type(_type string) (*BulkService) {
+func (s *BulkService) Type(_type string) *BulkService {
 	s._type = _type
 	return s
 }
 
-func (s *BulkService) Debug(debug bool) (*BulkService) {
+func (s *BulkService) Debug(debug bool) *BulkService {
 	s.debug = debug
 	return s
 }
 
-func (s *BulkService) Add(r BulkableRequest) (*BulkService) {
+func (s *BulkService) Add(r BulkableRequest) *BulkService {
 	s.requests = append(s.requests, r)
 	return s
 }
@@ -133,36 +133,31 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	return ret, nil
 }
 
-
 // Response to bulk execution.
 type BulkResponse struct {
 	Took int `json:"took"`
 }
-
-
 
 // Generic interface to bulkable requests.
 type BulkableRequest interface {
 	Source() ([]string, error)
 }
 
-
-
 // Bulk request to add document to ElasticSearch.
 type BulkIndexRequest struct {
 	BulkableRequest
-	Index      string
-	Type       string
-	Id         string
-	Data       interface{}
+	Index string
+	Type  string
+	Id    string
+	Data  interface{}
 }
 
-func NewBulkIndexRequest(index,_type,id string, data interface{}) *BulkIndexRequest {
+func NewBulkIndexRequest(index, _type, id string, data interface{}) *BulkIndexRequest {
 	return &BulkIndexRequest{
 		Index: index,
-		Type: _type,
-		Id: id,
-		Data: data,
+		Type:  _type,
+		Id:    id,
+		Data:  data,
 	}
 }
 
@@ -210,21 +205,19 @@ func (r BulkIndexRequest) Source() ([]string, error) {
 	return lines, nil
 }
 
-
-
 // Bulk request to remove document from ElasticSearch.
 type BulkDeleteRequest struct {
 	BulkableRequest
-	Index  string
-	Type   string
-	Id     string
+	Index string
+	Type  string
+	Id    string
 }
 
-func NewBulkDeleteRequest(index,_type,id string) *BulkDeleteRequest {
+func NewBulkDeleteRequest(index, _type, id string) *BulkDeleteRequest {
 	return &BulkDeleteRequest{
 		Index: index,
-		Type: _type,
-		Id: id,
+		Type:  _type,
+		Id:    id,
 	}
 }
 
@@ -258,6 +251,6 @@ func (r BulkDeleteRequest) Source() ([]string, error) {
 	}
 
 	lines[0] = string(body)
-	
+
 	return lines, nil
 }

@@ -11,15 +11,15 @@ import (
 )
 
 type ExistsService struct {
-	client     *Client
-	index      string
-	_type      string
-	id         string
+	client *Client
+	index  string
+	_type  string
+	id     string
 }
 
 func NewExistsService(client *Client) *ExistsService {
 	builder := &ExistsService{
-		client:   client,
+		client: client,
 	}
 	return builder
 }

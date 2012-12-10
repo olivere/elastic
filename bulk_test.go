@@ -55,7 +55,6 @@ func TestBulk(t *testing.T) {
 	}
 }
 
-
 func TestBulkWithIndexSetOnClient(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 

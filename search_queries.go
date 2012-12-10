@@ -4,14 +4,6 @@
 
 package elastic
 
-// Search operator
-type Operator int
-
-const (
-	Or Operator = iota // 0
-	And
-)
-
 // Represents the generic query interface.
 // A querys' only purpose is to return the
 // source of the query as a JSON-serializable

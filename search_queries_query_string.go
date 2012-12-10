@@ -16,7 +16,7 @@ type QueryStringQuery struct {
 
 	queryString               string
 	defaultField              string
-	defaultOper               *Operator
+	defaultOper               string
 	analyzer                  string
 	quoteAnalyzer             string
 	quoteFieldSuffix          string
@@ -76,8 +76,8 @@ func (q QueryStringQuery) TieBreaker(tieBreaker float32) QueryStringQuery {
 	return q
 }
 
-func (q QueryStringQuery) DefaultOperator(operator Operator) QueryStringQuery {
-	q.defaultOper = &operator
+func (q QueryStringQuery) DefaultOperator(operator string) QueryStringQuery {
+	q.defaultOper = operator
 	return q
 }
 
@@ -201,12 +201,8 @@ func (q QueryStringQuery) Source() interface{} {
 		query["tie_breaker"] = *q.tieBreaker
 	}
 
-	if q.defaultOper != nil {
-		if *q.defaultOper == And {
-			query["default_operator"] = "and"
-		} else if *q.defaultOper == Or {
-			query["default_operator"] = "or"
-		}
+	if q.defaultOper != "" {
+		query["default_operator"] = q.defaultOper
 	}
 
 	if q.analyzer != "" {

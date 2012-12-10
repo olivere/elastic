@@ -247,30 +247,30 @@ func (s *SearchService) Do() (*SearchResult, error) {
 }
 
 type SearchResult struct {
-	TookInMillis int64  `json:"took"`
-	ScrollId     string `json:"_scroll_id,omitempty"`
-	Hits         *SearchHits
-	Facets       *Facets
-	TimedOut     bool `json:"timed_out"`
+	TookInMillis int64       `json:"took"`
+	ScrollId     string      `json:"_scroll_id,omitempty"`
+	Hits         *SearchHits `json:"hits"`
+	Facets       *Facets     `json:"facets"`
+	TimedOut     bool        `json:"timed_out"`
+}
+
+type SearchHits struct {
+	TotalHits int64        `json:"total"`
+	MaxScore  *float64     `json:"max_score,omitempty"`
+	Hits      []*SearchHit `json:"hits"`
 }
 
 type SearchHit struct {
-	Score   float64
-	Index   string
-	Id      string
-	Type    string
-	Version int64
-	Source  *json.RawMessage
+	Score   float64          `json:"_score"`
+	Index   string           `json:"_index"`
+	Id      string           `json:"_id"`
+	Type    string           `json:"_type"`
+	Version int64            `json:"_version"`
+	Source  *json.RawMessage `json:"_source"`
 
 	// Explanation
 	// Shard
 	// HighlightFields
 	// SortValues
 	// MatchedFilters
-}
-
-type SearchHits struct {
-	TotalHits int64
-	MaxScore  *float64
-	Hits      []*SearchHit
 }
