@@ -28,7 +28,7 @@ type MultiMatchQuery struct {
 	rewrite            string
 	fuzzyRewrite       string
 	useDisMax          *bool
-	tieBreaker         *int
+	tieBreaker         *float32
 	lenient            *bool
 }
 
@@ -113,7 +113,7 @@ func (q MultiMatchQuery) UseDisMax(useDisMax bool) MultiMatchQuery {
 	return q
 }
 
-func (q MultiMatchQuery) TieBreaker(tieBreaker int) MultiMatchQuery {
+func (q MultiMatchQuery) TieBreaker(tieBreaker float32) MultiMatchQuery {
 	q.tieBreaker = &tieBreaker
 	return q
 }
