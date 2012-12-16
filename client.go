@@ -113,3 +113,9 @@ func (c *Client) Bulk() *BulkService {
 	builder := NewBulkService(c)
 	return builder
 }
+
+// Aliases.
+func (c *Client) Alias() *AliasService {
+	builder := NewAliasService(c)
+	return builder
+}

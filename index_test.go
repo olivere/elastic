@@ -13,6 +13,7 @@ import (
 
 const (
 	testIndexName = "elastic-test"
+	testIndexName2 = "elastic-test2"
 )
 
 type tweet struct {
@@ -29,6 +30,7 @@ func setupTestClient(t *testing.T) *Client {
 	}
 
 	client.DeleteIndex(testIndexName).Do()
+	client.DeleteIndex(testIndexName2).Do()
 
 	return client
 }
@@ -43,6 +45,15 @@ func setupTestClientAndCreateIndex(t *testing.T) *Client {
 	}
 	if !createIndex.Ok {
 		t.Errorf("expected CreateIndexResult.Ok %q; got %q", true, createIndex.Ok)
+	}
+
+	// Create second index
+	createIndex2, err := client.CreateIndex(testIndexName2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !createIndex2.Ok {
+		t.Errorf("expected CreateIndexResult.Ok %q; got %q", true, createIndex2.Ok)
 	}
 
 	return client

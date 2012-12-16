@@ -27,12 +27,13 @@ not thoroughly tested).
 * Delete
 * Get
 * Search
-* Count
+* Count (not completed)
 * Delete By Query
 * Bulk
 
 ### Indices
 
+* Aliases
 * Create Index
 * Delete Index
 * Indices Exists
