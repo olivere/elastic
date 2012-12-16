@@ -26,6 +26,8 @@ type aliasAction struct {
 	Index   string
 	// Alias name
 	Alias   string
+	// Filter
+	Filter  *Filter
 }
 
 func NewAliasService(client *Client) *AliasService {
@@ -48,6 +50,12 @@ func (s *AliasService) Debug(debug bool) *AliasService {
 
 func (s *AliasService) Add(indexName string, aliasName string) *AliasService {
 	action := aliasAction{Type: "add", Index: indexName, Alias: aliasName}
+	s.actions = append(s.actions, action)
+	return s
+}
+
+func (s *AliasService) AddWithFilter(indexName string, aliasName string, filter *Filter) *AliasService {
+	action := aliasAction{Type: "add", Index: indexName, Alias: aliasName, Filter: filter}
 	s.actions = append(s.actions, action)
 	return s
 }
@@ -84,6 +92,9 @@ func (s *AliasService) Do() (*AliasResult, error) {
 		detailsJson := make(map[string]interface{})
 		detailsJson["index"] = action.Index
 		detailsJson["alias"] = action.Alias
+		if action.Filter != nil {
+			detailsJson["filter"] = (*action.Filter).Source()
+		}
 		actionJson[action.Type] = detailsJson
 		actionsJson = append(actionsJson, actionJson)
 	}
