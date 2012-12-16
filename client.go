@@ -114,8 +114,14 @@ func (c *Client) Bulk() *BulkService {
 	return builder
 }
 
-// Aliases.
+// Add and remove aliases.
 func (c *Client) Alias() *AliasService {
 	builder := NewAliasService(c)
+	return builder
+}
+
+// Get aliases by index name(s).
+func (c *Client) Aliases() *AliasesService {
+	builder := NewAliasesService(c)
 	return builder
 }
