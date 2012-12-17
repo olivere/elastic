@@ -23,7 +23,7 @@ type AliasesService struct {
 
 func NewAliasesService(client *Client) *AliasesService {
 	builder := &AliasesService{
-		client: client,
+		client:  client,
 		indices: make([]string, 0),
 	}
 	return builder
@@ -149,11 +149,11 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 // -- Result of an alias request.
 
 type AliasesResult struct {
-	Indices   map[string]indexResult
+	Indices map[string]indexResult
 }
 
 type indexResult struct {
-	Aliases   []aliasResult
+	Aliases []aliasResult
 }
 
 type aliasResult struct {
@@ -168,7 +168,7 @@ func (ar AliasesResult) IndicesByAlias(aliasName string) []string {
 			if aliasInfo.AliasName == aliasName {
 				indices = append(indices, indexName)
 			}
-		} 
+		}
 	}
 
 	return indices

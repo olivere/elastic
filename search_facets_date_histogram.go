@@ -8,21 +8,21 @@ package elastic
 // See: http://www.elasticsearch.org/guide/reference/api/search/facets/date-histogram-facet.html
 type DateHistogramFacet struct {
 	Facet
-	global       *bool
-	field        string
-	keyField     string
-	valueField   string
-	interval     string
-	postZone     string
-	preZone      string
-	factor       *int
-	preOffset    string
-	postOffset   string
+	global     *bool
+	field      string
+	keyField   string
+	valueField string
+	interval   string
+	postZone   string
+	preZone    string
+	factor     *int
+	preOffset  string
+	postOffset string
 }
 
 func NewDateHistogramFacet(field string) DateHistogramFacet {
 	return DateHistogramFacet{
-		field:  field,
+		field: field,
 	}
 }
 

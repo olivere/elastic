@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 )
 
 type BulkService struct {
@@ -21,6 +22,7 @@ type BulkService struct {
 	//replicationType string
 	//consistencyLevel string
 	refresh *bool
+	pretty  bool
 	debug   bool
 }
 
@@ -28,6 +30,7 @@ func NewBulkService(client *Client) *BulkService {
 	builder := &BulkService{
 		client:   client,
 		requests: make([]BulkableRequest, 0),
+		pretty:   false,
 		debug:    false,
 	}
 	return builder
@@ -40,6 +43,11 @@ func (s *BulkService) Index(index string) *BulkService {
 
 func (s *BulkService) Type(_type string) *BulkService {
 	s._type = _type
+	return s
+}
+
+func (s *BulkService) Pretty(pretty bool) *BulkService {
+	s.pretty = pretty
 	return s
 }
 
@@ -93,7 +101,12 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	}
 	urls += "_bulk"
 
-	// TODO params
+	// Parameters
+	params := make(url.Values)
+	if s.pretty {
+		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	}
+	urls += "?" + params.Encode()
 
 	// Set up a new request
 	req, err := s.client.NewRequest("POST", urls)

@@ -21,18 +21,18 @@ type AliasService struct {
 
 type aliasAction struct {
 	// "add" or "remove"
-	Type    string
+	Type string
 	// Index name
-	Index   string
+	Index string
 	// Alias name
-	Alias   string
+	Alias string
 	// Filter
-	Filter  *Filter
+	Filter *Filter
 }
 
 func NewAliasService(client *Client) *AliasService {
 	builder := &AliasService{
-		client: client,
+		client:  client,
 		actions: make([]aliasAction, 0),
 	}
 	return builder

@@ -47,13 +47,13 @@ type SearchService struct {
 
 func NewSearchService(client *Client) *SearchService {
 	builder := &SearchService{
-		client:     client,
-		filters:    make([]Filter, 0),
-		sorts:      make([]SortInfo, 0),
-		fields:     make([]string, 0),
-		facets:     make(map[string]Facet, 0),
-		debug:      false,
-		pretty:     false,
+		client:  client,
+		filters: make([]Filter, 0),
+		sorts:   make([]SortInfo, 0),
+		fields:  make([]string, 0),
+		facets:  make(map[string]Facet, 0),
+		debug:   false,
+		pretty:  false,
 	}
 	return builder
 }
@@ -375,10 +375,10 @@ type searchFacetRange struct {
 
 type searchFacetEntry struct {
 	// Key for this facet, e.g. in histograms
-	Key   interface{} `json:"key"`
+	Key interface{} `json:"key"`
 	// Date histograms contain the number of milliseconds as date:
 	// If e.Time = 1293840000000, then: Time.at(1293840000000/1000) => 2011-01-01
-	Time  int64       `json:"time"`
+	Time int64 `json:"time"`
 	// Number of hits for this facet
-	Count int         `json:"count"`
+	Count int `json:"count"`
 }

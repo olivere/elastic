@@ -20,25 +20,37 @@ func TestAliases(t *testing.T) {
 
 	// Add tweets to first index
 	_, err = client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	// Add tweets to second index
 	_, err = client.Index().Index(testIndexName2).Type("tweet").Id("3").BodyJson(&tweet3).Do()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Flush
 	_, err = client.Flush().Index(testIndexName).Do()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	_, err = client.Flush().Index(testIndexName2).Do()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Alias should not yet exist
 	aliasesResult1, err := client.Aliases().
 		Indices(testIndexName, testIndexName2).
 		//Pretty(true).Debug(true).
 		Do()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(aliasesResult1.Indices) != 2 {
 		t.Errorf("expected len(AliasesResult.Indices) = %d; got %d", 2, len(aliasesResult1.Indices))
 	}
@@ -48,25 +60,27 @@ func TestAliases(t *testing.T) {
 		}
 	}
 
-
 	// Add both indices to a new alias
 	aliasCreate, err := client.Alias().
 		Add(testIndexName, testAliasName).
 		Add(testIndexName2, testAliasName).
 		//Pretty(true).Debug(true).
 		Do()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !aliasCreate.Ok {
 		t.Errorf("expected AliasResult.Ok %q; got %q", true, aliasCreate.Ok)
 	}
-
 
 	// Alias should now exist
 	aliasesResult2, err := client.Aliases().
 		Indices(testIndexName, testIndexName2).
 		//Pretty(true).Debug(true).
 		Do()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(aliasesResult2.Indices) != 2 {
 		t.Errorf("expected len(AliasesResult.Indices) = %d; got %d", 2, len(aliasesResult2.Indices))
 	}
@@ -75,7 +89,6 @@ func TestAliases(t *testing.T) {
 			t.Errorf("expected len(AliasesResult.Indices[%s].Aliases) = %d; got %d", indexName, 1, len(indexDetails.Aliases))
 		}
 	}
-
 
 	// Check the reverse function:
 	indexInfo1, found := aliasesResult2.Indices[testIndexName]
@@ -87,7 +100,6 @@ func TestAliases(t *testing.T) {
 		t.Errorf("expected alias %s to include index %s; got %v", testAliasName, testIndexName, aliasFound)
 	}
 
-
 	// Check the reverse function:
 	indexInfo2, found := aliasesResult2.Indices[testIndexName2]
 	if !found {
@@ -98,22 +110,23 @@ func TestAliases(t *testing.T) {
 		t.Errorf("expected alias %s to include index %s; got %v", testAliasName, testIndexName2, aliasFound)
 	}
 
-
-
 	// Remove first index should remove two tweets, so should only yield 1
 	aliasRemove1, err := client.Alias().
 		Remove(testIndexName, testAliasName).
 		//Pretty(true).Debug(true).
 		Do()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !aliasRemove1.Ok {
 		t.Errorf("expected AliasResult.Ok %q; got %q", true, aliasRemove1.Ok)
 	}
 
-
 	// Alias should now exist only for index 2
 	aliasesResult3, err := client.Aliases().Indices(testIndexName, testIndexName2).Do()
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(aliasesResult3.Indices) != 2 {
 		t.Errorf("expected len(AliasesResult.Indices) = %d; got %d", 2, len(aliasesResult3.Indices))
 	}

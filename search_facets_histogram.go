@@ -18,7 +18,7 @@ type HistogramFacet struct {
 
 func NewHistogramFacet(field string) HistogramFacet {
 	return HistogramFacet{
-		field:  field,
+		field: field,
 	}
 }
 

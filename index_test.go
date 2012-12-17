@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	testIndexName = "elastic-test"
+	testIndexName  = "elastic-test"
 	testIndexName2 = "elastic-test2"
 )
 

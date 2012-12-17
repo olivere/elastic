@@ -41,22 +41,24 @@ func TestAliasLifecycle(t *testing.T) {
 
 	// Flush
 	_, err = client.Flush().Index(testIndexName).Do()
-	if err != nil { t.Fatal(err) }
-	_, err = client.Flush().Index(testIndexName2).Do()
-	if err != nil { t.Fatal(err) }
-
-
-	/*
-	// Alias should not yet exist
-	aliasesResult1, err := client.Aliases().Do()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(aliasesResult1.Indices) != 0 {
-		t.Errorf("expected len(AliasesResult.Indices) = %d; got %d", 0, len(aliasesResult1.Indices))
+	_, err = client.Flush().Index(testIndexName2).Do()
+	if err != nil {
+		t.Fatal(err)
 	}
-	*/
 
+	/*
+		// Alias should not yet exist
+		aliasesResult1, err := client.Aliases().Do()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(aliasesResult1.Indices) != 0 {
+			t.Errorf("expected len(AliasesResult.Indices) = %d; got %d", 0, len(aliasesResult1.Indices))
+		}
+	*/
 
 	// Add both indices to a new alias
 	aliasCreate, err := client.Alias().
@@ -71,7 +73,6 @@ func TestAliasLifecycle(t *testing.T) {
 		t.Errorf("expected AliasResult.Ok %q; got %q", true, aliasCreate.Ok)
 	}
 
-
 	// Search should return all 3 tweets
 	matchAll := NewMatchAllQuery()
 	searchResult1, err := client.Search().Index(testAliasName).Query(&matchAll).Do()
@@ -85,19 +86,16 @@ func TestAliasLifecycle(t *testing.T) {
 		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 3, searchResult1.Hits.TotalHits)
 	}
 
-
 	/*
-	// Alias should return both indices
-	aliasesResult2, err := client.Aliases().Do()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(aliasesResult2.Indices) != 2 {
-		t.Errorf("expected len(AliasesResult.Indices) = %d; got %d", 2, len(aliasesResult2.Indices))
-	}
+		// Alias should return both indices
+		aliasesResult2, err := client.Aliases().Do()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(aliasesResult2.Indices) != 2 {
+			t.Errorf("expected len(AliasesResult.Indices) = %d; got %d", 2, len(aliasesResult2.Indices))
+		}
 	*/
-
-
 
 	// Remove first index should remove two tweets, so should only yield 1
 	aliasRemove1, err := client.Alias().

@@ -181,7 +181,6 @@ func TestSearchFacets(t *testing.T) {
 		t.Errorf("expected searchResult.Facets[\"retweets\"][2].To = %q; got %q", nil, facet.Ranges[2].To)
 	}
 
-
 	// Search for histogram facet should return (facet, true)
 	facet, found = searchResult.Facets["retweetsHistogram"]
 	if !found {
@@ -211,7 +210,6 @@ func TestSearchFacets(t *testing.T) {
 		t.Errorf("expected searchResult.Facets[\"retweetsHistogram\"].Entries[1].Count = %q; got %q", 1, facet.Entries[1].Count)
 	}
 
-
 	// Search for histogram facet with time interval should return (facet, true)
 	facet, found = searchResult.Facets["retweetsTimeHisto"]
 	if !found {
@@ -220,7 +218,6 @@ func TestSearchFacets(t *testing.T) {
 	if facet == nil {
 		t.Errorf("expected searchResult.Facets[\"retweetsTimeHisto\"] != nil; got nil")
 	}
-
 
 	// Search for date histogram facet
 	facet, found = searchResult.Facets["dateHisto"]
