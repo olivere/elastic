@@ -64,7 +64,7 @@ func (f TermsFacet) Source() interface{} {
 	}
 
 	if f.global != nil {
-		opts["global"] = *f.global
+		source["global"] = *f.global
 	}
 
 	if f.size != nil {
