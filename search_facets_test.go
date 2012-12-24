@@ -69,6 +69,9 @@ func TestSearchFacets(t *testing.T) {
 	// Date Histogram Facet by creation date
 	dateHisto := NewDateHistogramFacet("created").Interval("year")
 
+	// Query Facet
+	queryFacet := NewQueryFacet(NewTermQuery("user", "olivere")).Order("term").Global(true)
+
 	// Run query
 	searchResult, err := client.Search().Index(testIndexName).
 		Query(&all).
@@ -77,8 +80,8 @@ func TestSearchFacets(t *testing.T) {
 		Facet("retweetsHistogram", retweetsHistoFacet).
 		Facet("retweetsTimeHisto", retweetsTimeHistoFacet).
 		Facet("dateHisto", dateHisto).
-		// Pretty(true).
-		// Debug(true).
+		Facet("queryFacet", queryFacet).
+		Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
