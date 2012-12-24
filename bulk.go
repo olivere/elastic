@@ -7,6 +7,7 @@ package elastic
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
@@ -24,6 +25,7 @@ type BulkService struct {
 	refresh *bool
 	pretty  bool
 	debug   bool
+	debugOnError bool
 }
 
 func NewBulkService(client *Client) *BulkService {
@@ -32,8 +34,13 @@ func NewBulkService(client *Client) *BulkService {
 		requests: make([]BulkableRequest, 0),
 		pretty:   false,
 		debug:    false,
+		debugOnError: false,
 	}
 	return builder
+}
+
+func (s *BulkService) reset() {
+	s.requests = make([]BulkableRequest, 0)
 }
 
 func (s *BulkService) Index(index string) *BulkService {
@@ -46,6 +53,11 @@ func (s *BulkService) Type(_type string) *BulkService {
 	return s
 }
 
+func (s *BulkService) Refresh(refresh bool) *BulkService {
+	s.refresh = &refresh
+	return s
+}
+
 func (s *BulkService) Pretty(pretty bool) *BulkService {
 	s.pretty = pretty
 	return s
@@ -53,6 +65,11 @@ func (s *BulkService) Pretty(pretty bool) *BulkService {
 
 func (s *BulkService) Debug(debug bool) *BulkService {
 	s.debug = debug
+	return s
+}
+
+func (s *BulkService) DebugOnError(debug bool) *BulkService {
+	s.debugOnError = debug
 	return s
 }
 
@@ -85,6 +102,11 @@ func (s *BulkService) bodyAsString() (string, error) {
 }
 
 func (s *BulkService) Do() (*BulkResponse, error) {
+	// No actions?
+	if s.NumberOfActions() == 0 {
+		return nil, errors.New("elastic: No bulk actions to commit")
+	}
+
 	// Get body
 	body, err := s.bodyAsString()
 	if err != nil {
@@ -106,6 +128,9 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
+	if s.refresh != nil {
+		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
+	}
 	urls += "?" + params.Encode()
 
 	// Set up a new request
@@ -126,9 +151,21 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	// Get response
 	res, err := s.client.c.Do((*http.Request)(req))
 	if err != nil {
+		if s.debugOnError {
+			out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
+			fmt.Printf("%s\n", string(out))
+			out, _ = httputil.DumpResponse(res, true)
+			fmt.Printf("%s\n", string(out))
+		}
 		return nil, err
 	}
 	if err := checkResponse(res); err != nil {
+		if s.debugOnError {
+			out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
+			fmt.Printf("%s\n", string(out))
+			out, _ = httputil.DumpResponse(res, true)
+			fmt.Printf("%s\n", string(out))
+		}
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -141,8 +178,16 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 
 	ret := new(BulkResponse)
 	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		if s.debugOnError {
+			out, _ := httputil.DumpResponse(res, true)
+			fmt.Printf("%s\n", string(out))
+		}
 		return nil, err
 	}
+
+	// Reset so the request can be reused
+	s.reset()
+
 	return ret, nil
 }
 
@@ -213,6 +258,8 @@ func (r BulkIndexRequest) Source() ([]string, error) {
 			return nil, err
 		}
 		lines[1] = string(body)
+	} else {
+		lines[1] = "{}"
 	}
 
 	return lines, nil
