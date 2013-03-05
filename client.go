@@ -102,6 +102,13 @@ func (c *Client) Search(indices ...string) *SearchService {
 	return builder
 }
 
+// Scan through documents.
+func (c *Client) Scan(indices ...string) *ScanService {
+	builder := NewScanService(c)
+	builder.Indices(indices...)
+	return builder
+}
+
 // Flush.
 func (c *Client) Flush() *FlushService {
 	builder := NewFlushService(c)

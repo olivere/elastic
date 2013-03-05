@@ -81,7 +81,7 @@ func TestSearchFacets(t *testing.T) {
 		Facet("retweetsTimeHisto", retweetsTimeHistoFacet).
 		Facet("dateHisto", dateHisto).
 		Facet("queryFacet", queryFacet).
-		Pretty(true).Debug(true).
+		//Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

@@ -7,7 +7,8 @@ client for
 
 ## Status
 
-This is a work in progress, not production ready.
+This is a work in progress. It's not a 1.0 version, but we consider
+it stable enough and use it in production.
 
 ElasticSearch has quite a few features. A lot of them are
 not yet implemented in Elastic (see below for details). 
@@ -65,6 +66,10 @@ not thoroughly tested).
 * Range
 * Histogram
 * Date histogram
+
+### Scan
+
+Scrolling through documents (via `search_type=scan`) is implemented.
 
 ## Installation
 
