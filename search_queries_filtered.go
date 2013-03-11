@@ -58,6 +58,16 @@ func (q FilteredQuery) Source() interface{} {
 	if len(q.filters) == 1 {
 		filtered["filter"] = q.filters[0].Source()
 	} else if len(q.filters) > 1 {
+		filter := make(map[string]interface{})
+		filtered["filter"] = filter
+		and := make(map[string]interface{})
+		filter["and"] = and
+		filters := make([]interface{}, 0)
+		for _, f := range q.filters {
+			filters = append(filters, f.Source())
+		}
+		and["filters"] = filters
+		/*
 		anded := make([]map[string]interface{}, 0)
 		filtered["filter"] = anded
 		for _, f := range q.filters {
@@ -65,6 +75,7 @@ func (q FilteredQuery) Source() interface{} {
 			andElem["and"] = f.Source()
 			anded = append(anded, andElem)
 		}
+		*/
 	}
 
 	if q.boost != nil {
