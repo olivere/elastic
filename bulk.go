@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 )
 
 type BulkService struct {
@@ -198,6 +199,7 @@ type BulkResponse struct {
 
 // Generic interface to bulkable requests.
 type BulkableRequest interface {
+	fmt.Stringer
 	Source() ([]string, error)
 }
 
@@ -217,6 +219,14 @@ func NewBulkIndexRequest(index, _type, id string, data interface{}) *BulkIndexRe
 		Id:    id,
 		Data:  data,
 	}
+}
+
+func (r BulkIndexRequest) String() string {
+	lines, err := r.Source()
+	if err == nil {
+		return strings.Join(lines, "\n")
+	}
+	return fmt.Sprintf("error: %v", err)
 }
 
 func (r BulkIndexRequest) Source() ([]string, error) {
@@ -253,11 +263,22 @@ func (r BulkIndexRequest) Source() ([]string, error) {
 
 	// "field1" ...
 	if r.Data != nil {
-		body, err := json.Marshal(r.Data)
-		if err != nil {
-			return nil, err
+		switch t := r.Data.(type) {
+		default:
+			body, err := json.Marshal(r.Data)
+			if err != nil {
+				return nil, err
+			}
+			lines[1] = string(body)
+		case json.RawMessage:
+			lines[1] = string(t)
+		case *json.RawMessage:
+			lines[1] = string(*t)
+		case string:
+			lines[1] = t
+		case *string:
+			lines[1] = *t
 		}
-		lines[1] = string(body)
 	} else {
 		lines[1] = "{}"
 	}
@@ -279,6 +300,14 @@ func NewBulkDeleteRequest(index, _type, id string) *BulkDeleteRequest {
 		Type:  _type,
 		Id:    id,
 	}
+}
+
+func (r BulkDeleteRequest) String() string {
+	lines, err := r.Source()
+	if err == nil {
+		return strings.Join(lines, "\n")
+	}
+	return fmt.Sprintf("error: %v", err)
 }
 
 func (r BulkDeleteRequest) Source() ([]string, error) {
