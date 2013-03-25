@@ -29,22 +29,22 @@ var (
 
 // ScanService manages a cursor through documents in ElasticSearch.
 type ScanService struct {
-	client     *Client
-	indices    []string
-	types      []string
-	keepAlive  string
-	query      Query
-	size       *int
-	pretty     bool
-	debug      bool
+	client    *Client
+	indices   []string
+	types     []string
+	keepAlive string
+	query     Query
+	size      *int
+	pretty    bool
+	debug     bool
 }
 
 func NewScanService(client *Client) *ScanService {
 	builder := &ScanService{
-		client:  client,
-		query:   NewMatchAllQuery(),
-		debug:   false,
-		pretty:  false,
+		client: client,
+		query:  NewMatchAllQuery(),
+		debug:  false,
+		pretty: false,
 	}
 	return builder
 }
@@ -67,15 +67,15 @@ func (s *ScanService) Indices(indices ...string) *ScanService {
 
 func (s *ScanService) Type(typ string) *ScanService {
 	if s.types == nil {
-		s.types= make([]string, 0)
+		s.types = make([]string, 0)
 	}
 	s.types = append(s.types, typ)
 	return s
 }
 
-func (s *ScanService) Types(types...string) *ScanService {
+func (s *ScanService) Types(types ...string) *ScanService {
 	if s.types == nil {
-		s.types= make([]string, 0)
+		s.types = make([]string, 0)
 	}
 	s.types = append(s.types, types...)
 	return s
@@ -115,7 +115,7 @@ func (s *ScanService) Size(size int) *ScanService {
 	return s
 }
 
-func (s *ScanService) Do() (*scanCursor, error) {
+func (s *ScanService) Do() (*ScanCursor, error) {
 	// Build url
 	urls := "/"
 
@@ -196,38 +196,38 @@ func (s *ScanService) Do() (*scanCursor, error) {
 		return nil, err
 	}
 
-	cursor := newScanCursor(s.client, s.keepAlive, s.pretty, s.debug, searchResult)
+	cursor := NewScanCursor(s.client, s.keepAlive, s.pretty, s.debug, searchResult)
 
 	return cursor, nil
 }
 
 // scanCursor represents a single page of results from
 // an Elasticsearch Scan operation.
-type scanCursor struct {
-	Results      *SearchResult
+type ScanCursor struct {
+	Results *SearchResult
 
-	client       *Client
-	keepAlive    string
-	pretty       bool
-	debug        bool
-	currentPage  int
+	client      *Client
+	keepAlive   string
+	pretty      bool
+	debug       bool
+	currentPage int
 }
 
 // newScanCursor returns a new initialized instance
 // of scanCursor.
-func newScanCursor(client *Client, keepAlive string, pretty, debug bool, searchResult *SearchResult) *scanCursor {
-	return &scanCursor{
-		client: client,
+func NewScanCursor(client *Client, keepAlive string, pretty, debug bool, searchResult *SearchResult) *ScanCursor {
+	return &ScanCursor{
+		client:    client,
 		keepAlive: keepAlive,
-		pretty: pretty,
-		debug: debug,
-		Results: searchResult,
+		pretty:    pretty,
+		debug:     debug,
+		Results:   searchResult,
 	}
 }
 
 // TotalHits is a convenience method that returns the number
 // of hits the cursor will iterate through.
-func (c *scanCursor) TotalHits() int64 {
+func (c *ScanCursor) TotalHits() int64 {
 	if c.Results.Hits == nil {
 		return 0
 	}
@@ -236,9 +236,9 @@ func (c *scanCursor) TotalHits() int64 {
 
 // Next returns the next search result or nil when all
 // documents have been scanned.
-// 
+//
 // Usage:
-//   
+//
 //   for {
 //     res, err := cursor.Next()
 //     if err == elastic.EOS {
@@ -250,8 +250,8 @@ func (c *scanCursor) TotalHits() int64 {
 //     }
 //     // Work with res
 //   }
-// 
-func (c *scanCursor) Next() (*SearchResult, error) {
+//
+func (c *ScanCursor) Next() (*SearchResult, error) {
 	if c.currentPage > 0 {
 		if c.Results.Hits == nil || len(c.Results.Hits.Hits) == 0 || c.Results.Hits.TotalHits == 0 {
 			return nil, EOS
@@ -313,4 +313,3 @@ func (c *scanCursor) Next() (*SearchResult, error) {
 
 	return c.Results, nil
 }
-
