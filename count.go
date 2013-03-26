@@ -4,30 +4,116 @@
 
 package elastic
 
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"strings"
+)
+
+// CountService is a convenient service for determining the
+// number of documents in an index. Use SearchService with
+// a SearchType of count for counting with queries etc.
 type CountService struct {
 	client  *Client
 	indices []string
+	debug   bool
+	pretty  bool
 }
 
 func NewCountService(client *Client) *CountService {
 	builder := &CountService{
 		client: client,
+		debug:  false,
+		pretty: false,
 	}
 	return builder
 }
 
-func (b *CountService) Index(index string) *CountService {
-	if b.indices == nil {
-		b.indices = make([]string, 0)
+func (s *CountService) Index(index string) *CountService {
+	if s.indices == nil {
+		s.indices = make([]string, 0)
 	}
-	b.indices = append(b.indices, index)
-	return b
+	s.indices = append(s.indices, index)
+	return s
 }
 
-func (b *CountService) Indices(indices ...string) *CountService {
-	if b.indices == nil {
-		b.indices = make([]string, 0)
+func (s *CountService) Indices(indices ...string) *CountService {
+	if s.indices == nil {
+		s.indices = make([]string, 0)
 	}
-	b.indices = append(b.indices, indices...)
-	return b
+	s.indices = append(s.indices, indices...)
+	return s
+}
+
+func (s *CountService) Pretty(pretty bool) *CountService {
+	s.pretty = pretty
+	return s
+}
+
+func (s *CountService) Debug(debug bool) *CountService {
+	s.debug = debug
+	return s
+}
+
+func (s *CountService) Do() (int64, error) {
+	// Build url
+	urls := "/"
+
+	// Indices part
+	indexPart := make([]string, 0)
+	for _, index := range s.indices {
+		indexPart = append(indexPart, cleanPathString(index))
+	}
+	urls += strings.Join(indexPart, ",")
+
+	// Search
+	urls += "/_search"
+
+	// Parameters
+	params := make(url.Values)
+	params.Set("search_type", "count")
+	if s.pretty {
+		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	}
+	urls += "?" + params.Encode()
+
+	// Set up a new request
+	req, err := s.client.NewRequest("GET", urls)
+	if err != nil {
+		return 0, err
+	}
+
+	if s.debug {
+		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
+		fmt.Printf("%s\n", string(out))
+	}
+
+	// Get response
+	res, err := s.client.c.Do((*http.Request)(req))
+	if err != nil {
+		return 0, err
+	}
+	if err := checkResponse(res); err != nil {
+		return 0, err
+	}
+	defer res.Body.Close()
+
+	if s.debug {
+		out, _ := httputil.DumpResponse(res, true)
+		fmt.Printf("%s\n", string(out))
+	}
+
+	ret := new(SearchResult)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return 0, err
+	}
+
+	if ret != nil && ret.Hits != nil {
+		return int64(ret.Hits.TotalHits), nil
+	} else {
+		return int64(0), nil
+	}
 }
