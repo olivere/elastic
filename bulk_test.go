@@ -36,6 +36,10 @@ func TestBulk(t *testing.T) {
 		t.Errorf("expected bulkResponse to be != nil; got nil")
 	}
 
+	if bulkRequest.NumberOfActions() != 0 {
+		t.Errorf("expected bulkRequest.NumberOfActions %q; got %q", 0, bulkRequest.NumberOfActions())
+	}
+
 	// Document with Id="1" should not exist
 	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id("1").Do()
 	if err != nil {
