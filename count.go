@@ -113,7 +113,7 @@ func (s *CountService) Do() (int64, error) {
 
 	if ret != nil && ret.Hits != nil {
 		return int64(ret.Hits.TotalHits), nil
-	} else {
-		return int64(0), nil
 	}
+
+	return int64(0), nil
 }
