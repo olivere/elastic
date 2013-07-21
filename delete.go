@@ -95,7 +95,9 @@ func (s *DeleteService) Do() (*DeleteResult, error) {
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
-	urls += "?" + params.Encode()
+	if len(params) > 0 {
+		urls += "?" + params.Encode()
+	}
 
 	// Set up a new request
 	req, err := s.client.NewRequest("DELETE", urls)
@@ -134,9 +136,9 @@ func (s *DeleteService) Do() (*DeleteResult, error) {
 
 type DeleteResult struct {
 	Ok      bool   `json:"ok"`
-	Found   bool   `json:"found"`
 	Index   string `json:"_index"`
 	Type    string `json:"_type"`
 	Id      string `json:"_id"`
 	Version int64  `json:"_version"`
+	Found   bool   `json:"found"`
 }

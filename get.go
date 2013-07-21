@@ -99,7 +99,9 @@ func (b *GetService) Do() (*GetResult, error) {
 	urls = strings.Replace(urls, "{id}", cleanPathString(b.id), 1)
 
 	params := make(url.Values)
-	urls += params.Encode()
+	if len(params) > 0 {
+		urls += params.Encode()
+	}
 
 	// Set up a new request
 	req, err := b.client.NewRequest("GET", urls)
@@ -132,4 +134,5 @@ type GetResult struct {
 	Type   string           `json:"_type"`
 	Id     string           `json:"_id"`
 	Source *json.RawMessage `json:"_source,omitempty"`
+	Exists bool             `json:"exists"`
 }
