@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strings"
 )
@@ -20,6 +21,8 @@ type DeleteService struct {
 	routing string
 	refresh *bool
 	version *int
+	pretty  bool
+	debug   bool
 }
 
 func NewDeleteService(client *Client) *DeleteService {
@@ -61,6 +64,16 @@ func (s *DeleteService) Version(version int) *DeleteService {
 	return s
 }
 
+func (s *DeleteService) Pretty(pretty bool) *DeleteService {
+	s.pretty = pretty
+	return s
+}
+
+func (s *DeleteService) Debug(debug bool) *DeleteService {
+	s.debug = debug
+	return s
+}
+
 func (s *DeleteService) Do() (*DeleteResult, error) {
 	// Build url
 	urls := "/{index}/{type}/{id}"
@@ -79,12 +92,20 @@ func (s *DeleteService) Do() (*DeleteResult, error) {
 	if s.routing != "" {
 		params.Set("routing", fmt.Sprintf("%s", s.routing))
 	}
+	if s.pretty {
+		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	}
 	urls += "?" + params.Encode()
 
 	// Set up a new request
 	req, err := s.client.NewRequest("DELETE", urls)
 	if err != nil {
 		return nil, err
+	}
+
+	if s.debug {
+		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
+		fmt.Printf("%s\n", string(out))
 	}
 
 	// Get response
@@ -96,6 +117,12 @@ func (s *DeleteService) Do() (*DeleteResult, error) {
 		return nil, err
 	}
 	defer res.Body.Close()
+
+	if s.debug {
+		out, _ := httputil.DumpResponse(res, true)
+		fmt.Printf("%s\n", string(out))
+	}
+
 	ret := new(DeleteResult)
 	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
 		return nil, err

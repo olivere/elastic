@@ -6,7 +6,11 @@ package elastic
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"strings"
 )
 
@@ -27,6 +31,8 @@ type IndexService struct {
 	id         string
 	bodyString string
 	bodyJson   interface{}
+	pretty     bool
+	debug      bool
 }
 
 func NewIndexService(client *Client) *IndexService {
@@ -61,12 +67,29 @@ func (b *IndexService) BodyJson(json interface{}) *IndexService {
 	return b
 }
 
+func (b *IndexService) Pretty(pretty bool) *IndexService {
+	b.pretty = pretty
+	return b
+}
+
+func (b *IndexService) Debug(debug bool) *IndexService {
+	b.debug = debug
+	return b
+}
+
 func (b *IndexService) Do() (*IndexResult, error) {
 	// Build url
 	urls := "/{index}/{type}/{id}"
 	urls = strings.Replace(urls, "{index}", cleanPathString(b.index), 1)
 	urls = strings.Replace(urls, "{type}", cleanPathString(b._type), 1)
 	urls = strings.Replace(urls, "{id}", cleanPathString(b.id), 1)
+
+	// Parameters
+	params := make(url.Values)
+	if b.pretty {
+		params.Set("pretty", fmt.Sprintf("%v", b.pretty))
+	}
+	urls += "?" + params.Encode()
 
 	// Set up a new request
 	req, err := b.client.NewRequest("PUT", urls)
@@ -81,6 +104,11 @@ func (b *IndexService) Do() (*IndexResult, error) {
 		req.SetBodyString(b.bodyString)
 	}
 
+	if b.debug {
+		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
+		log.Printf("%s\n", string(out))
+	}
+
 	// Get response
 	res, err := b.client.c.Do((*http.Request)(req))
 	if err != nil {
@@ -90,6 +118,12 @@ func (b *IndexService) Do() (*IndexResult, error) {
 		return nil, err
 	}
 	defer res.Body.Close()
+
+	if b.debug {
+		out, _ := httputil.DumpResponse(res, true)
+		log.Printf("%s\n", string(out))
+	}
+
 	ret := new(IndexResult)
 	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
 		return nil, err
