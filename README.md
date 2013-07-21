@@ -142,7 +142,7 @@ Here's a list of the API status.
 * `regexp` (missing)
 * `script` (missing)
 * `term` (ok)
-* `terms` (missing)
+* `terms` (ok)
 * `nested` (missing)
 
 ### Facets
