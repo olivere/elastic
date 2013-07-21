@@ -23,6 +23,13 @@ type CountService struct {
 	pretty  bool
 }
 
+// CountResult is the result returned from using the Count API
+// (http://www.elasticsearch.org/guide/reference/api/count/)
+type CountResult struct {
+	Count  int64      `json:"count"`
+	Shards shardsInfo `json:"_shards,omitempty"`
+}
+
 func NewCountService(client *Client) *CountService {
 	builder := &CountService{
 		client: client,
@@ -70,11 +77,10 @@ func (s *CountService) Do() (int64, error) {
 	urls += strings.Join(indexPart, ",")
 
 	// Search
-	urls += "/_search"
+	urls += "/_count"
 
 	// Parameters
 	params := make(url.Values)
-	params.Set("search_type", "count")
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
@@ -106,13 +112,13 @@ func (s *CountService) Do() (int64, error) {
 		fmt.Printf("%s\n", string(out))
 	}
 
-	ret := new(SearchResult)
+	ret := new(CountResult)
 	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
 		return 0, err
 	}
 
-	if ret != nil && ret.Hits != nil {
-		return int64(ret.Hits.TotalHits), nil
+	if ret != nil {
+		return ret.Count, nil
 	}
 
 	return int64(0), nil
