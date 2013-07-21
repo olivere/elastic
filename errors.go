@@ -12,7 +12,9 @@ import (
 )
 
 func checkResponse(res *http.Response) error {
-	if res.StatusCode >= 200 && res.StatusCode <= 299 {
+	// 200-299 and 404 are valid status codes
+	if (res.StatusCode >= 200 && res.StatusCode <= 299) ||
+		res.StatusCode == http.StatusNotFound {
 		return nil
 	}
 	slurp, err := ioutil.ReadAll(res.Body)
