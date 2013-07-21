@@ -84,7 +84,9 @@ func (s *CountService) Do() (int64, error) {
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
-	urls += "?" + params.Encode()
+	if len(params) > 0 {
+		urls += "?" + params.Encode()
+	}
 
 	// Set up a new request
 	req, err := s.client.NewRequest("GET", urls)

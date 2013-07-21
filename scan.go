@@ -153,7 +153,9 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	if s.size != nil && *s.size > 0 {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
 	}
-	urls += "?" + params.Encode()
+	if len(params) > 0 {
+		urls += "?" + params.Encode()
+	}
 
 	// Set up a new request
 	req, err := s.client.NewRequest("POST", urls)

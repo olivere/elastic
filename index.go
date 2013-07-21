@@ -89,7 +89,9 @@ func (b *IndexService) Do() (*IndexResult, error) {
 	if b.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", b.pretty))
 	}
-	urls += "?" + params.Encode()
+	if len(params) > 0 {
+		urls += "?" + params.Encode()
+	}
 
 	// Set up a new request
 	req, err := b.client.NewRequest("PUT", urls)

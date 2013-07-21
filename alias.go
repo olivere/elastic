@@ -81,7 +81,9 @@ func (s *AliasService) Do() (*AliasResult, error) {
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
-	urls += "?" + params.Encode()
+	if len(params) > 0 {
+		urls += "?" + params.Encode()
+	}
 
 	// Actions
 	body := make(map[string]interface{})

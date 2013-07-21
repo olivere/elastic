@@ -76,7 +76,9 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
-	urls += "?" + params.Encode()
+	if len(params) > 0 {
+		urls += "?" + params.Encode()
+	}
 
 	if s.debug {
 		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)

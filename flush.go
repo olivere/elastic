@@ -75,7 +75,9 @@ func (s *FlushService) Do() (*FlushResult, error) {
 	if s.full != nil {
 		params.Set("full", fmt.Sprintf("%v", *s.full))
 	}
-	urls += "?" + params.Encode()
+	if len(params) > 0 {
+		urls += "?" + params.Encode()
+	}
 
 	// Set up a new request
 	req, err := s.client.NewRequest("POST", urls)

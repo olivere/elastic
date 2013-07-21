@@ -20,15 +20,14 @@ type GetService struct {
 	routing    string
 	preference string
 	fields     []string
-	refresh    bool
-	realtime   bool
+	refresh    *bool
+	realtime   *bool
 }
 
 func NewGetService(client *Client) *GetService {
 	builder := &GetService{
-		client:   client,
-		_type:    "_all",
-		realtime: true,
+		client: client,
+		_type:  "_all",
 	}
 	return builder
 }
@@ -82,12 +81,12 @@ func (b *GetService) Fields(fields ...string) *GetService {
 }
 
 func (b *GetService) Refresh(refresh bool) *GetService {
-	b.refresh = refresh
+	b.refresh = &refresh
 	return b
 }
 
 func (b *GetService) Realtime(realtime bool) *GetService {
-	b.realtime = realtime
+	b.realtime = &realtime
 	return b
 }
 
@@ -99,8 +98,23 @@ func (b *GetService) Do() (*GetResult, error) {
 	urls = strings.Replace(urls, "{id}", cleanPathString(b.id), 1)
 
 	params := make(url.Values)
+	if b.realtime != nil {
+		params.Add("realtime", fmt.Sprintf("%v", *b.realtime))
+	}
+	if len(b.fields) > 0 {
+		params.Add("fields", strings.Join(b.fields, ","))
+	}
+	if b.routing != "" {
+		params.Add("routing", b.routing)
+	}
+	if b.preference != "" {
+		params.Add("preference", b.preference)
+	}
+	if b.refresh != nil {
+		params.Add("refresh", fmt.Sprintf("%v", *b.refresh))
+	}
 	if len(params) > 0 {
-		urls += params.Encode()
+		urls += "?" + params.Encode()
 	}
 
 	// Set up a new request

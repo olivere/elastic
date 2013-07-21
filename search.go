@@ -212,7 +212,9 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	if s.searchType != "" {
 		params.Set("search_type", s.searchType)
 	}
-	urls += "?" + params.Encode()
+	if len(params) > 0 {
+		urls += "?" + params.Encode()
+	}
 
 	// Set up a new request
 	req, err := s.client.NewRequest("POST", urls)

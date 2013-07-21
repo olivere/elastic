@@ -23,18 +23,18 @@ type BulkService struct {
 	requests []BulkableRequest
 	//replicationType string
 	//consistencyLevel string
-	refresh *bool
-	pretty  bool
-	debug   bool
+	refresh      *bool
+	pretty       bool
+	debug        bool
 	debugOnError bool
 }
 
 func NewBulkService(client *Client) *BulkService {
 	builder := &BulkService{
-		client:   client,
-		requests: make([]BulkableRequest, 0),
-		pretty:   false,
-		debug:    false,
+		client:       client,
+		requests:     make([]BulkableRequest, 0),
+		pretty:       false,
+		debug:        false,
 		debugOnError: false,
 	}
 	return builder
@@ -132,7 +132,9 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	if s.refresh != nil {
 		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
 	}
-	urls += "?" + params.Encode()
+	if len(params) > 0 {
+		urls += "?" + params.Encode()
+	}
 
 	// Set up a new request
 	req, err := s.client.NewRequest("POST", urls)
@@ -171,7 +173,7 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	}
 	defer res.Body.Close()
 
-	// Debug	
+	// Debug
 	if s.debug {
 		out, _ := httputil.DumpResponse(res, true)
 		fmt.Printf("%s\n", string(out))
