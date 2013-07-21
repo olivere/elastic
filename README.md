@@ -107,7 +107,7 @@ Here's a list of the API status.
 * `span_term` (missing)
 * `term` (ok)
 * `terms` (missing)
-* `common` (missing)
+* `common` (ok)
 * `top_children` (missing)
 * `wildcard` (missing)
 * `nested` (missing)
