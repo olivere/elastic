@@ -124,7 +124,9 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	for _, index := range s.indices {
 		indexPart = append(indexPart, cleanPathString(index))
 	}
-	urls += strings.Join(indexPart, ",")
+	if len(indexPart) > 0 {
+		urls += strings.Join(indexPart, ",")
+	}
 
 	// Types
 	typesPart := make([]string, 0)
@@ -132,8 +134,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 		typesPart = append(typesPart, cleanPathString(typ))
 	}
 	if len(typesPart) > 0 {
-		urls += "/"
-		urls += strings.Join(typesPart, ",")
+		urls += "/" + strings.Join(typesPart, ",")
 	}
 
 	// Search

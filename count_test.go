@@ -44,4 +44,22 @@ func TestCount(t *testing.T) {
 	if count != 3 {
 		t.Errorf("expected Count = %d; got %d", 3, count)
 	}
+
+	// Count documents
+	count, err = client.Count(testIndexName).Type("tweet").Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 3 {
+		t.Errorf("expected Count = %d; got %d", 3, count)
+	}
+
+	// Count documents
+	count, err = client.Count(testIndexName).Type("gezwitscher").Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 0 {
+		t.Errorf("expected Count = %d; got %d", 0, count)
+	}
 }

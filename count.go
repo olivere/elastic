@@ -19,6 +19,7 @@ import (
 type CountService struct {
 	client  *Client
 	indices []string
+	types   []string
 	debug   bool
 	pretty  bool
 }
@@ -55,6 +56,22 @@ func (s *CountService) Indices(indices ...string) *CountService {
 	return s
 }
 
+func (s *CountService) Type(typ string) *CountService {
+	if s.types == nil {
+		s.types = make([]string, 0)
+	}
+	s.types = append(s.types, typ)
+	return s
+}
+
+func (s *CountService) Types(types ...string) *CountService {
+	if s.types == nil {
+		s.types = make([]string, 0)
+	}
+	s.types = append(s.types, types...)
+	return s
+}
+
 func (s *CountService) Pretty(pretty bool) *CountService {
 	s.pretty = pretty
 	return s
@@ -74,7 +91,18 @@ func (s *CountService) Do() (int64, error) {
 	for _, index := range s.indices {
 		indexPart = append(indexPart, cleanPathString(index))
 	}
-	urls += strings.Join(indexPart, ",")
+	if len(indexPart) > 0 {
+		urls += strings.Join(indexPart, ",")
+	}
+
+	// Types part
+	typesPart := make([]string, 0)
+	for _, typ := range s.types {
+		typesPart = append(typesPart, cleanPathString(typ))
+	}
+	if len(typesPart) > 0 {
+		urls += "/" + strings.Join(typesPart, ",")
+	}
 
 	// Search
 	urls += "/_count"
