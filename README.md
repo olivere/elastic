@@ -84,7 +84,7 @@ Here's a list of the API status.
 * `custom_score` (missing)
 * `custom_boost_factor` (missing)
 * `constant_score` (missing)
-* `dis_max` (missing)
+* `dis_max` (ok)
 * `field` (missing)
 * `filtered` (ok)
 * `flt` (missing)
