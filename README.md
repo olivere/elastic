@@ -111,7 +111,7 @@ Here's a list of the API status.
 * `top_children` (missing)
 * `wildcard` (missing)
 * `nested` (missing)
-* `custom_filters_score` (missing)
+* `custom_filters_score` (ok)
 * `indices` (missing)
 * `text` (missing)
 * `geo_shape` (missing)
