@@ -110,7 +110,7 @@ Here's a list of the API status.
 * `common` (ok)
 * `top_children` (missing)
 * `wildcard` (missing)
-* `nested` (missing)
+* `nested` (ok)
 * `custom_filters_score` (ok)
 * `indices` (missing)
 * `text` (missing)
