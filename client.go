@@ -102,6 +102,13 @@ func (c *Client) Search(indices ...string) *SearchService {
 	return builder
 }
 
+// Suggest returns an interface to return suggestions.
+func (c *Client) Suggest(indices ...string) *SuggestService {
+	builder := NewSuggestService(c)
+	builder.Indices(indices...)
+	return builder
+}
+
 // Scan through documents.
 func (c *Client) Scan(indices ...string) *ScanService {
 	builder := NewScanService(c)

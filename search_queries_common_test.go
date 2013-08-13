@@ -44,7 +44,6 @@ func TestSearchQueriesCommon(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("%v", searchResult)
 	if searchResult.Hits == nil {
 		t.Errorf("expected SearchResult.Hits != nil; got nil")
 	}

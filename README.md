@@ -74,6 +74,32 @@ Here's a list of the API status.
 * Nodes Hot Threads (missing)
 * Cluster reroute (missing)
 
+### Search
+
+* Request Body (ok)
+* URI Request (missing)
+* Query (ok)
+* Filter (ok)
+* From/Size (ok)
+* Indices/Types (ok)
+* Sort (ok)
+* Rescore (missing)
+* Term Suggest (ok)
+* Phrase Suggest (ok)
+* Completion Suggest (incomplete)
+* Highlighting (missing)
+* Fields (missing)
+* Script Fields (missing)
+* Preference (ok)
+* Facets (ok)
+* Named Filters (ok)
+* Search Type (ok)
+* Index Boost (missing)
+* Scroll (ok)
+* Explain (ok)
+* Version (ok)
+* Min Score (ok)
+
 ### Queries
 
 * `match` (ok)

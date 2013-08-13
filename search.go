@@ -23,26 +23,28 @@ type SortInfo struct {
 
 // Search for documents in ElasticSearch.
 type SearchService struct {
-	client     *Client
-	pretty     bool
-	searchType string
-	indices    []string
-	queryHint  string
-	routing    string
-	preference string
-	types      []string
-	timeout    string
-	query      Query
-	filters    []Filter
-	minScore   *float64
-	from       *int
-	size       *int
-	explain    *bool
-	version    *bool
-	sorts      []SortInfo
-	fields     []string
-	facets     map[string]Facet
-	debug      bool
+	client            *Client
+	pretty            bool
+	searchType        string
+	indices           []string
+	queryHint         string
+	routing           string
+	preference        string
+	types             []string
+	timeout           string
+	query             Query
+	filters           []Filter
+	globalSuggestText string
+	suggesters        []Suggester
+	minScore          *float64
+	from              *int
+	size              *int
+	explain           *bool
+	version           *bool
+	sorts             []SortInfo
+	fields            []string
+	facets            map[string]Facet
+	debug             bool
 }
 
 func NewSearchService(client *Client) *SearchService {
@@ -137,6 +139,16 @@ func (s *SearchService) Query(query Query) *SearchService {
 
 func (s *SearchService) Filter(filter Filter) *SearchService {
 	s.filters = append(s.filters, filter)
+	return s
+}
+
+func (s *SearchService) GlobalSuggestText(globalText string) *SearchService {
+	s.globalSuggestText = globalText
+	return s
+}
+
+func (s *SearchService) Suggester(suggester Suggester) *SearchService {
+	s.suggesters = append(s.suggesters, suggester)
 	return s
 }
 
@@ -243,6 +255,21 @@ func (s *SearchService) Do() (*SearchResult, error) {
 		body["filter"] = f
 	}
 
+	// Suggesters
+	if len(s.suggesters) > 0 {
+		suggesters := make(map[string]interface{})
+
+		for _, s := range s.suggesters {
+			suggesters[s.Name()] = s.Source(false)
+		}
+
+		if s.globalSuggestText != "" {
+			suggesters["text"] = s.globalSuggestText
+		}
+
+		body["suggest"] = suggesters
+	}
+
 	// Facets
 	if len(s.facets) >= 1 {
 		// "facets" : {
@@ -316,11 +343,12 @@ func (s *SearchService) Do() (*SearchResult, error) {
 }
 
 type SearchResult struct {
-	TookInMillis int64        `json:"took"`
-	ScrollId     string       `json:"_scroll_id"`
-	Hits         *SearchHits  `json:"hits"`
-	Facets       SearchFacets `json:"facets"`
-	TimedOut     bool         `json:"timed_out"`
+	TookInMillis int64         `json:"took"`
+	ScrollId     string        `json:"_scroll_id"`
+	Hits         *SearchHits   `json:"hits"`
+	Suggest      SearchSuggest `json:"suggest"`
+	Facets       SearchFacets  `json:"facets"`
+	TimedOut     bool          `json:"timed_out"`
 }
 
 type SearchHits struct {
@@ -343,6 +371,23 @@ type SearchHit struct {
 	// HighlightFields
 	// SortValues
 	// MatchedFilters
+}
+
+// Suggest
+
+type SearchSuggest map[string][]SearchSuggestion
+
+type SearchSuggestion struct {
+	Text    string                   `json:"text"`
+	Offset  int                      `json:"offset"`
+	Length  int                      `json:"length"`
+	Options []SearchSuggestionOption `json:"options"`
+}
+
+type SearchSuggestionOption struct {
+	Text  string  `json:"text"`
+	Score float32 `json:"score"`
+	Freq  int     `json:"freq"`
 }
 
 // Facets
