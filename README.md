@@ -81,7 +81,7 @@ Here's a list of the API status.
 * `bool` (ok)
 * `boosting` (missing)
 * `ids` (ok)
-* `custom_score` (missing)
+* `custom_score` (ok)
 * `custom_boost_factor` (missing)
 * `constant_score` (missing)
 * `dis_max` (ok)
