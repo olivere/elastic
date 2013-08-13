@@ -143,7 +143,7 @@ Here's a list of the API status.
 * `script` (missing)
 * `term` (ok)
 * `terms` (ok)
-* `nested` (missing)
+* `nested` (ok)
 
 ### Facets
 
