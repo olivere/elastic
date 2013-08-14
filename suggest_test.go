@@ -47,7 +47,7 @@ func TestSuggestService(t *testing.T) {
 		Index(testIndexName).
 		Suggester(termSuggester).
 		Suggester(phraseSuggester).
-		Debug(true).Pretty(true).
+		// Debug(true).Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
