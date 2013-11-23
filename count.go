@@ -20,6 +20,7 @@ type CountService struct {
 	client  *Client
 	indices []string
 	types   []string
+	query   Query
 	debug   bool
 	pretty  bool
 }
@@ -72,6 +73,11 @@ func (s *CountService) Types(types ...string) *CountService {
 	return s
 }
 
+func (s *CountService) Query(query Query) *CountService {
+	s.query = query
+	return s
+}
+
 func (s *CountService) Pretty(pretty bool) *CountService {
 	s.pretty = pretty
 	return s
@@ -117,9 +123,14 @@ func (s *CountService) Do() (int64, error) {
 	}
 
 	// Set up a new request
-	req, err := s.client.NewRequest("GET", urls)
+	req, err := s.client.NewRequest("POST", urls)
 	if err != nil {
 		return 0, err
+	}
+
+	// Set body if there is a query set
+	if s.query != nil {
+		req.SetBodyJson(s.query.Source())
 	}
 
 	if s.debug {
