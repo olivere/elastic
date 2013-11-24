@@ -81,6 +81,17 @@ func TestSearchFacets(t *testing.T) {
 	// Query Facet
 	queryFacet := NewQueryFacet(NewTermQuery("user", "olivere")).Order("term").Global(true)
 
+	// Range Facet by creation date
+	dateRangeFacet := NewRangeFacet("created").Lt("2012-01-01").Between("2012-01-01", "2013-01-01").Gt("2013-01-01")
+
+	// Range Facet with time.Time by creation date
+	d20120101 := time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC)
+	d20130101 := time.Date(2013, 1, 1, 0, 0, 0, 0, time.UTC)
+	dateRangeWithTimeFacet := NewRangeFacet("created").
+		Lt(d20120101).
+		Between(d20120101, d20130101).
+		Gt(d20130101)
+
 	// Run query
 	searchResult, err := client.Search().Index(testIndexName).
 		Query(&all).
@@ -91,6 +102,8 @@ func TestSearchFacets(t *testing.T) {
 		Facet("dateHisto", dateHisto).
 		Facet("createdWithKeyValue", dateHistoWithKeyValue).
 		Facet("queryFacet", queryFacet).
+		Facet("dateRangeFacet", dateRangeFacet).
+		Facet("dateRangeWithTimeFacet", dateRangeWithTimeFacet).
 		//Pretty(true).Debug(true).
 		Do()
 	if err != nil {
@@ -305,6 +318,138 @@ func TestSearchFacets(t *testing.T) {
 	}
 	if facet.Entries[1].Mean != 54.0 {
 		t.Errorf("expected searchResult.Facets[\"createdWithKeyValue\"].Entries[1].Mean = %v; got %v", 54.0, facet.Entries[1].Mean)
+	}
+
+	// Search for date range facet
+	facet, found = searchResult.Facets["dateRangeFacet"]
+	if !found {
+		t.Errorf("expected searchResult.Facets[\"dateRangeFacet\"] = %v; got %v", true, found)
+	}
+	if facet == nil {
+		t.Errorf("expected searchResult.Facets[\"dateRangeFacet\"] != nil; got nil")
+	}
+	if len(facet.Ranges) != 3 {
+		t.Errorf("expected len(searchResult.Facets[\"dateRangeFacet\"].Ranges) = %v; got %v", 3, len(facet.Ranges))
+	}
+	if facet.Ranges[0].From != nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[0].From to be nil")
+	}
+	if facet.Ranges[0].To == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[0].To to be != nil")
+	}
+	if *facet.Ranges[0].To != 1.325376e+12 {
+		t.Errorf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[0].To = %v; got %v", 1.325376e+12, *facet.Ranges[0].To)
+	}
+	if facet.Ranges[0].ToStr == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[0].ToStr to be != nil")
+	}
+	if *facet.Ranges[0].ToStr != "2012-01-01" {
+		t.Errorf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[0].ToStr = %v; got %v", "2012-01-01", *facet.Ranges[0].ToStr)
+	}
+	if facet.Ranges[1].From == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[1].From to be != nil")
+	}
+	if *facet.Ranges[1].From != 1.325376e+12 {
+		t.Errorf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[1].From = %v; got %v", 1.325376e+12, *facet.Ranges[1].From)
+	}
+	if facet.Ranges[1].FromStr == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[1].FromStr to be != nil")
+	}
+	if *facet.Ranges[1].FromStr != "2012-01-01" {
+		t.Errorf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[1].FromStr = %v; got %v", "2012-01-01", *facet.Ranges[1].FromStr)
+	}
+	if facet.Ranges[1].To == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[1].To to be != nil")
+	}
+	if *facet.Ranges[1].To != 1.3569984e+12 {
+		t.Errorf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[1].To = %v; got %v", 1.3569984e+12, *facet.Ranges[1].To)
+	}
+	if facet.Ranges[1].ToStr == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[1].ToStr to be != nil")
+	}
+	if *facet.Ranges[1].ToStr != "2013-01-01" {
+		t.Errorf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[1].ToStr = %v; got %v", "2013-01-01", *facet.Ranges[1].ToStr)
+	}
+	if facet.Ranges[2].To != nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[2].To to be nil")
+	}
+	if facet.Ranges[2].From == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[2].From to be != nil")
+	}
+	if *facet.Ranges[2].From != 1.3569984e+12 {
+		t.Errorf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[2].From = %v; got %v", 1.3569984e+12, *facet.Ranges[2].From)
+	}
+	if facet.Ranges[2].FromStr == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[2].FromStr to be != nil")
+	}
+	if *facet.Ranges[2].FromStr != "2013-01-01" {
+		t.Errorf("expected searchResult.Facets[\"dateRangeFacet\"].Ranges[2].FromStr = %v; got %v", "2013-01-01", *facet.Ranges[2].FromStr)
+	}
+
+	// Search for date range facet
+	facet, found = searchResult.Facets["dateRangeWithTimeFacet"]
+	if !found {
+		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"] = %v; got %v", true, found)
+	}
+	if facet == nil {
+		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"] != nil; got nil")
+	}
+	if len(facet.Ranges) != 3 {
+		t.Errorf("expected len(searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges) = %v; got %v", 3, len(facet.Ranges))
+	}
+	if facet.Ranges[0].From != nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[0].From to be nil")
+	}
+	if facet.Ranges[0].To == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[0].To to be != nil")
+	}
+	if *facet.Ranges[0].To != 1.325376e+12 {
+		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[0].To = %v; got %v", 1.325376e+12, *facet.Ranges[0].To)
+	}
+	if facet.Ranges[0].ToStr == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[0].ToStr to be != nil")
+	}
+	if *facet.Ranges[0].ToStr != "2012-01-01T00:00:00Z" {
+		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[0].ToStr = %v; got %v", "2012-01-01T00:00:00Z", *facet.Ranges[0].ToStr)
+	}
+	if facet.Ranges[1].From == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[1].From to be != nil")
+	}
+	if *facet.Ranges[1].From != 1.325376e+12 {
+		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[1].From = %v; got %v", 1.325376e+12, *facet.Ranges[1].From)
+	}
+	if facet.Ranges[1].FromStr == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[1].FromStr to be != nil")
+	}
+	if *facet.Ranges[1].FromStr != "2012-01-01T00:00:00Z" {
+		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[1].FromStr = %v; got %v", "2012-01-01T00:00:00Z", *facet.Ranges[1].FromStr)
+	}
+	if facet.Ranges[1].To == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[1].To to be != nil")
+	}
+	if *facet.Ranges[1].To != 1.3569984e+12 {
+		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[1].To = %v; got %v", 1.3569984e+12, *facet.Ranges[1].To)
+	}
+	if facet.Ranges[1].ToStr == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[1].ToStr to be != nil")
+	}
+	if *facet.Ranges[1].ToStr != "2013-01-01T00:00:00Z" {
+		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[1].ToStr = %v; got %v", "2013-01-01T00:00:00Z", *facet.Ranges[1].ToStr)
+	}
+	if facet.Ranges[2].To != nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[2].To to be nil")
+	}
+	if facet.Ranges[2].From == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[2].From to be != nil")
+	}
+	if *facet.Ranges[2].From != 1.3569984e+12 {
+		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[2].From = %v; got %v", 1.3569984e+12, *facet.Ranges[2].From)
+	}
+	if facet.Ranges[2].FromStr == nil {
+		t.Fatalf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[2].FromStr to be != nil")
+	}
+	if *facet.Ranges[2].FromStr != "2013-01-01T00:00:00Z" {
+		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[2].FromStr = %v; got %v", "2013-01-01T00:00:00Z", *facet.Ranges[2].FromStr)
 	}
 
 }

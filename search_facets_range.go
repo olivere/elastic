@@ -4,6 +4,10 @@
 
 package elastic
 
+import (
+	"time"
+)
+
 // Range Facet
 // See: http://www.elasticsearch.org/guide/reference/api/search/facets/range-facet.html
 type RangeFacet struct {
@@ -16,8 +20,8 @@ type RangeFacet struct {
 }
 
 type rangeFacetRange struct {
-	From *float64
-	To   *float64
+	From interface{}
+	To   interface{}
 }
 
 func NewRangeFacet(field string) RangeFacet {
@@ -32,18 +36,18 @@ func (f RangeFacet) Global(global bool) RangeFacet {
 	return f
 }
 
-func (f RangeFacet) Lt(to float64) RangeFacet {
-	f.ranges = append(f.ranges, rangeFacetRange{From: nil, To: &to})
+func (f RangeFacet) Lt(to interface{}) RangeFacet {
+	f.ranges = append(f.ranges, rangeFacetRange{From: nil, To: to})
 	return f
 }
 
-func (f RangeFacet) Between(from, to float64) RangeFacet {
-	f.ranges = append(f.ranges, rangeFacetRange{From: &from, To: &to})
+func (f RangeFacet) Between(from, to interface{}) RangeFacet {
+	f.ranges = append(f.ranges, rangeFacetRange{From: from, To: to})
 	return f
 }
 
-func (f RangeFacet) Gt(from float64) RangeFacet {
-	f.ranges = append(f.ranges, rangeFacetRange{From: &from, To: nil})
+func (f RangeFacet) Gt(from interface{}) RangeFacet {
+	f.ranges = append(f.ranges, rangeFacetRange{From: from, To: nil})
 	return f
 }
 
@@ -78,10 +82,24 @@ func (f RangeFacet) Source() interface{} {
 	for _, rng := range f.ranges {
 		r := make(map[string]interface{})
 		if rng.From != nil {
-			r["from"] = *rng.From
+			switch from := rng.From.(type) {
+			case int, int16, int32, int64, float32, float64:
+				r["from"] = from
+			case time.Time:
+				r["from"] = from.Format(time.RFC3339)
+			case string:
+				r["from"] = from
+			}
 		}
 		if rng.To != nil {
-			r["to"] = *rng.To
+			switch to := rng.To.(type) {
+			case int, int16, int32, int64, float32, float64:
+				r["to"] = to
+			case time.Time:
+				r["to"] = to.Format(time.RFC3339)
+			case string:
+				r["to"] = to
+			}
 		}
 		ranges = append(ranges, r)
 	}

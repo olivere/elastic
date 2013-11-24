@@ -411,7 +411,9 @@ type searchFacetTerm struct {
 
 type searchFacetRange struct {
 	From       *float64 `json:"from"`
+	FromStr    *string  `json:"from_str"`
 	To         *float64 `json:"to"`
+	ToStr      *string  `json:"to_str"`
 	Count      int      `json:"count"`
 	Min        *float64 `json:"min"`
 	Max        *float64 `json:"max"`
