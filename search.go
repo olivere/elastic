@@ -428,4 +428,19 @@ type searchFacetEntry struct {
 	Time int64 `json:"time"`
 	// Number of hits for this facet
 	Count int `json:"count"`
+	// Min is either a string like "Infinity" or a float64.
+	// This is returned with some DateHistogram facets.
+	Min interface{} `json:"min,omitempty"`
+	// Max is either a string like "-Infinity" or a float64
+	// This is returned with some DateHistogram facets.
+	Max interface{} `json:"max,omitempty"`
+	// Total is the sum of all entries on the recorded Time
+	// This is returned with some DateHistogram facets.
+	Total float64 `json:"total,omitempty"`
+	// TotalCount is the number of entries for Total
+	// This is returned with some DateHistogram facets.
+	TotalCount int `json:"total_count,omitempty"`
+	// Mean is the mean value
+	// This is returned with some DateHistogram facets.
+	Mean float64 `json:"mean,omitempty"`
 }
