@@ -7,25 +7,109 @@ client for
 
 ## Status
 
-This is a work in progress. Although it's not a 1.0 version,
-we use it in production.
+We use Elastic in production for more than a year.
+The reason it doesn't have the 1.0 version tag is
+that it's incomplete.
 
 ElasticSearch has quite a few features. A lot of them are
 not yet implemented in Elastic (see below for details).
-However, it's should be straightforward to implement
-the missing pieces. I'm accepting pull requests :-)
+I add features and APIs as required. It's straightforward
+to implement missing pieces. I'm accepting pull requests :-)
 
 Having said that, I hope you find the project useful. Fork it
-as you like. Be prepared for structural changes as well.
-As I said: This is still a work-in-progress.
+as you like. There might be some structural changes as well.
+As I said: It's not 1.0 yet.
 
-Here's a list of the API status.
+## Usage
+
+Show, don't tell:
+
+    // Import Elastic
+    import (
+      "github.com/olivere/elastic"
+    )
+
+    // Obtain a client.
+    // You can provide your own HTTP client here.
+    client, err := elastic.NewClient(http.DefaultClient)
+
+    // Check if a specified index exists.
+    exists, err := client.IndexExists("twitter").Do()
+    if exists {
+        // Index does exist
+    }
+
+    // Create a new index.
+    createIndex, err := client.CreateIndex("twitter").Do()
+
+    // Index a tweet (using JSON serialization)
+    tweet1 := Tweet{User: "olivere", Message: "Take Five"}
+    put1, err := client.Index().
+        Index("twitter").
+        Type("tweet").
+        Id("1").
+        BodyJson(tweet1).
+        Do()
+
+    // Index a second tweet (by string)
+    tweet2 := `{"user" : "olivere", "message" : "It's a Raggy Waltz"}`
+    put2, err := client.Index().
+        Index("twitter").
+        Type("tweet").
+        Id("2").
+        BodyString(tweet2).
+        Do()
+
+    // Get tweet with specified ID
+    get1, err := client.Get().
+        Index("twitter").
+        Type("tweet").
+        Id("1").
+        Do()
+
+    // Search with a term query
+    termQuery := elastic.NewTermQuery("user", "olivere")
+    termQueryResult, err := client.Search().
+        Index("twitter").
+        Query(&termQuery).
+        Sort("user", true).
+        From(0).Size(10).
+        Do()
+
+    // TODO examples of other queries/filters
+
+    // Delete an index.
+    deleteIndex, err := client.DeleteIndex("twitter").Do()
+
+If you have more than one Elasticsearch server, you can specify
+all their URLs when creating a client:
+
+    // Obtain a client that uses two servers.
+    client, err := elastic.NewClient(http.DefaultClient,
+        "http://127.0.0.1:9200", "http://127.0.0.2:9200")
+
+The client will ping the Elasticsearch servers periodically and
+check if they are available. The first that is available will be
+used for subsequent requests. In case no Elasticsearch server is
+available, creating a new request (via `NewRequest`) will fail
+with error `ErrNoClient`. While this method is not very sophisticated
+and might result in timeouts, it is robust enough for our use cases.
+Pull requests are welcome.
+
+## Installation
+
+Grab the code with `go get github.com/olivere/elastic`.
+
+## API Status
+
+Here's the current API status.
 
 ### Core
 
 * Index (ok)
-* Delete (ok)
 * Get (ok)
+* Delete (ok)
+* Update (missing)
 * Multi Get (missing)
 * Search (ok)
 * Multi Search (missing)
@@ -33,7 +117,7 @@ Here's a list of the API status.
 * Bulk (ok)
 * Bulk UDP (missing)
 * Count (ok)
-* Delete By Query (ok)
+* Delete By Query (missing)
 * More like this (missing)
 * Validate (missing)
 * Explain (missing)
@@ -72,7 +156,7 @@ Here's a list of the API status.
 * Nodes Stats (missing)
 * Nodes Shutdown (missing)
 * Nodes Hot Threads (missing)
-* Cluster reroute (missing)
+* Cluster Reroute (missing)
 
 ### Search
 
@@ -186,72 +270,6 @@ Here's a list of the API status.
 ### Scan
 
 Scrolling through documents (via `search_type=scan`) is implemented.
-
-## Installation
-
-Grab the code with `go get github.com/olivere/elastic`.
-
-## Example code
-
-Find some typical usage scenarios below:
-
-    // Import Elastic
-    import (
-      "github.com/olivere/elastic"
-    )
-
-    // Obtain a client.
-    // You can provide your own HTTP client here.
-    client, err := elastic.NewClient(http.DefaultClient)
-
-    // Check if a specified index exists.
-    exists, err := client.IndexExists("twitter").Do()
-    if exists {
-        // Index does exist
-    }
-
-    // Create a new index.
-    createIndex, err := client.CreateIndex("twitter").Do()
-
-    // Index a tweet (using JSON serialization)
-    tweet1 := Tweet{User: "olivere", Message: "Take Five"}
-    put1, err := client.Index().
-        Index("twitter").
-        Type("tweet").
-        Id("1").
-        BodyJson(tweet1).
-        Do()
-
-    // Index a second tweet (by string)
-    tweet2 := `{"user" : "olivere", "message" : "It's a Raggy Waltz"}`
-    put2, err := client.Index().
-        Index("twitter").
-        Type("tweet").
-        Id("2").
-        BodyString(tweet2).
-        Do()
-
-    // Get tweet with specified ID
-    get1, err := client.Get().
-        Index("twitter").
-        Type("tweet").
-        Id("1").
-        Do()
-
-    // Search with a term query
-    termQuery := elastic.NewTermQuery("user", "olivere")
-    termQueryResult, err := client.Search().
-        Index("twitter").
-        Query(&termQuery).
-        Sort("user", true).
-        From(0).Size(10).
-        Do()
-
-    // TODO examples of other queries/filters
-
-    // Delete an index.
-    deleteIndex, err := client.DeleteIndex("twitter").Do()
-
 
 ## Credits
 
