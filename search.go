@@ -77,17 +77,18 @@ func (s *SearchService) Indices(indices ...string) *SearchService {
 	return s
 }
 
-func (s *SearchService) Type(_type string) *SearchService {
+func (s *SearchService) Type(typ string) *SearchService {
 	if s.types == nil {
-		s.types = make([]string, 0)
+		s.types = []string{typ}
+	} else {
+		s.types = append(s.types, typ)
 	}
-	s.types = append(s.types, _type)
 	return s
 }
 
 func (s *SearchService) Types(types ...string) *SearchService {
 	if s.types == nil {
-		s.types = make([]string, 0)
+		s.types = make([]string, len(types))
 	}
 	s.types = append(s.types, types...)
 	return s
@@ -214,7 +215,14 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	}
 	urls += strings.Join(indexPart, ",")
 
-	// TODO Types part
+	// Types part
+	if len(s.types) > 0 {
+		typesPart := make([]string, 0)
+		for _, typ := range s.types {
+			typesPart = append(typesPart, cleanPathString(typ))
+		}
+		urls += strings.Join(typesPart, ",")
+	}
 
 	// Search
 	urls += "/_search"

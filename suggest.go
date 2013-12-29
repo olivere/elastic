@@ -91,7 +91,7 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	}
 	urls += strings.Join(indexPart, ",")
 
-	// TODO Types part
+	// Types part
 	typesPart := make([]string, 0)
 	for _, typ := range s.types {
 		typesPart = append(typesPart, cleanPathString(typ))
