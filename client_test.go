@@ -35,7 +35,7 @@ func TestMultipleUrls(t *testing.T) {
 }
 
 func TestFindingActiveClient(t *testing.T) {
-	client, err := NewClient(http.DefaultClient, "http://localhost:9201", "http://localhost:9200")
+	client, err := NewClient(http.DefaultClient, "http://localhost:19200", "http://localhost:9200")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,13 +45,14 @@ func TestFindingActiveClient(t *testing.T) {
 	if !client.hasActive {
 		t.Errorf("expected to have active connection, got: %v", client.hasActive)
 	}
-	if client.activeUrl != "http://localhost:9200" {
-		t.Errorf("expected active url to be http://localhost:9200, got: %v", client.activeUrl)
+	expected := "http://localhost:9200"
+	if client.activeUrl != expected {
+		t.Errorf("expected active url to be %s, got: %v", expected, client.activeUrl)
 	}
 }
 
 func TestFindingNoActiveClient(t *testing.T) {
-	client, err := NewClient(http.DefaultClient, "http://localhost:9201", "http://localhost:9202")
+	client, err := NewClient(http.DefaultClient, "http://localhost:19200", "http://localhost:19201")
 	if err != nil {
 		t.Fatal(err)
 	}
