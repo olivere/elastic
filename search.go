@@ -34,6 +34,7 @@ type SearchService struct {
 	timeout           string
 	query             Query
 	filters           []Filter
+	highlight         *Highlight
 	globalSuggestText string
 	suggesters        []Suggester
 	minScore          *float64
@@ -139,6 +140,11 @@ func (s *SearchService) Query(query Query) *SearchService {
 
 func (s *SearchService) Filter(filter Filter) *SearchService {
 	s.filters = append(s.filters, filter)
+	return s
+}
+
+func (s *SearchService) Highlight(highlight *Highlight) *SearchService {
+	s.highlight = highlight
 	return s
 }
 
@@ -255,6 +261,11 @@ func (s *SearchService) Do() (*SearchResult, error) {
 		body["filter"] = f
 	}
 
+	// Highlight
+	if s.highlight != nil {
+		body["highlight"] = s.highlight.Source()
+	}
+
 	// Suggesters
 	if len(s.suggesters) > 0 {
 		suggesters := make(map[string]interface{})
@@ -358,13 +369,14 @@ type SearchHits struct {
 }
 
 type SearchHit struct {
-	Score   *float64         `json:"_score"`
-	Index   string           `json:"_index"`
-	Id      string           `json:"_id"`
-	Type    string           `json:"_type"`
-	Version *int64           `json:"_version"`
-	Sort    *[]interface{}   `json:"sort"`
-	Source  *json.RawMessage `json:"_source"`
+	Score     *float64           `json:"_score"`
+	Index     string             `json:"_index"`
+	Id        string             `json:"_id"`
+	Type      string             `json:"_type"`
+	Version   *int64             `json:"_version"`
+	Sort      *[]interface{}     `json:"sort"`
+	Highlight SearchHitHighlight `json:"highlight"`
+	Source    *json.RawMessage   `json:"_source"`
 
 	// Explanation
 	// Shard
@@ -446,3 +458,5 @@ type searchFacetEntry struct {
 	// This is returned with some DateHistogram facets.
 	Mean float64 `json:"mean,omitempty"`
 }
+
+type SearchHitHighlight map[string][]string
