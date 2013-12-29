@@ -47,7 +47,7 @@ func TestHighlightWithTermQuery(t *testing.T) {
 	query := NewPrefixQuery("message", "golang")
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Highlight(&hl).
+		Highlight(hl).
 		Query(&query).
 		//Debug(true).Pretty(true).
 		Do()

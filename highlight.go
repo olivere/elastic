@@ -4,7 +4,7 @@ package elastic
 // For details, see:
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html
 type Highlight struct {
-	fields            []HighlighterField
+	fields            []*HighlighterField
 	tagsSchema        string
 	preTags           []string
 	postTags          []string
@@ -19,9 +19,9 @@ type Highlight struct {
 	forceSource       *bool
 }
 
-func NewHighlight() Highlight {
-	hl := Highlight{
-		fields:   make([]HighlighterField, 0),
+func NewHighlight() *Highlight {
+	hl := &Highlight{
+		fields:   make([]*HighlighterField, 0),
 		preTags:  make([]string, 0),
 		postTags: make([]string, 0),
 		options:  make(map[string]interface{}),
@@ -29,74 +29,74 @@ func NewHighlight() Highlight {
 	return hl
 }
 
-func (hl Highlight) Fields(fields ...HighlighterField) Highlight {
+func (hl *Highlight) Fields(fields ...*HighlighterField) *Highlight {
 	hl.fields = append(hl.fields, fields...)
 	return hl
 }
 
-func (hl Highlight) Field(name string, fragmentSize int) Highlight {
+func (hl *Highlight) Field(name string, fragmentSize int) *Highlight {
 	field := NewHighlighterField(name).FragmentSize(fragmentSize)
 	hl.fields = append(hl.fields, field)
 	return hl
 }
 
-func (hl Highlight) TagsSchema(tagsSchema string) Highlight {
+func (hl *Highlight) TagsSchema(tagsSchema string) *Highlight {
 	hl.tagsSchema = tagsSchema
 	return hl
 }
 
-func (hl Highlight) Encoder(encoder string) Highlight {
+func (hl *Highlight) Encoder(encoder string) *Highlight {
 	hl.encoder = encoder
 	return hl
 }
 
-func (hl Highlight) PreTags(preTags ...string) Highlight {
+func (hl *Highlight) PreTags(preTags ...string) *Highlight {
 	hl.preTags = append(hl.preTags, preTags...)
 	return hl
 }
 
-func (hl Highlight) PostTags(postTags ...string) Highlight {
+func (hl *Highlight) PostTags(postTags ...string) *Highlight {
 	hl.postTags = append(hl.postTags, postTags...)
 	return hl
 }
 
-func (hl Highlight) Order(order string) Highlight {
+func (hl *Highlight) Order(order string) *Highlight {
 	hl.order = order
 	return hl
 }
 
-func (hl Highlight) HighlighterType(typ string) Highlight {
+func (hl *Highlight) HighlighterType(typ string) *Highlight {
 	hl.highlighterType = typ
 	return hl
 }
 
-func (hl Highlight) Fragmenter(fragmenter string) Highlight {
+func (hl *Highlight) Fragmenter(fragmenter string) *Highlight {
 	hl.fragmenter = fragmenter
 	return hl
 }
 
-func (hl Highlight) HighlighQuery(query Query) Highlight {
+func (hl *Highlight) HighlighQuery(query Query) *Highlight {
 	hl.highlightQuery = query
 	return hl
 }
 
-func (hl Highlight) NoMatchSize(size int) Highlight {
+func (hl *Highlight) NoMatchSize(size int) *Highlight {
 	hl.noMatchSize = &size
 	return hl
 }
 
-func (hl Highlight) Options(options map[string]interface{}) Highlight {
+func (hl *Highlight) Options(options map[string]interface{}) *Highlight {
 	hl.options = options
 	return hl
 }
 
-func (hl Highlight) ForceSource(forceSource bool) Highlight {
+func (hl *Highlight) ForceSource(forceSource bool) *Highlight {
 	hl.forceSource = &forceSource
 	return hl
 }
 
 // Creates the query source for the bool query.
-func (hl Highlight) Source() interface{} {
+func (hl *Highlight) Source() interface{} {
 	highlightS := make(map[string]interface{})
 
 	if hl.tagsSchema != "" {
@@ -168,8 +168,8 @@ type HighlighterField struct {
 	forceSource       *bool
 }
 
-func NewHighlighterField(name string) HighlighterField {
-	return HighlighterField{
+func NewHighlighterField(name string) *HighlighterField {
+	return &HighlighterField{
 		Name:            name,
 		fragmentSize:    -1,
 		numOfFragments:  -1,
@@ -183,92 +183,92 @@ func NewHighlighterField(name string) HighlighterField {
 	}
 }
 
-func (f HighlighterField) PreTags(preTags ...string) HighlighterField {
+func (f *HighlighterField) PreTags(preTags ...string) *HighlighterField {
 	f.preTags = append(f.preTags, preTags...)
 	return f
 }
 
-func (f HighlighterField) PostTags(postTags ...string) HighlighterField {
+func (f *HighlighterField) PostTags(postTags ...string) *HighlighterField {
 	f.postTags = append(f.postTags, postTags...)
 	return f
 }
 
-func (f HighlighterField) FragmentSize(size int) HighlighterField {
+func (f *HighlighterField) FragmentSize(size int) *HighlighterField {
 	f.fragmentSize = size
 	return f
 }
 
-func (f HighlighterField) FragmentOffset(offset int) HighlighterField {
+func (f *HighlighterField) FragmentOffset(offset int) *HighlighterField {
 	f.fragmentOffset = offset
 	return f
 }
 
-func (f HighlighterField) NumOfFragments(num int) HighlighterField {
+func (f *HighlighterField) NumOfFragments(num int) *HighlighterField {
 	f.numOfFragments = num
 	return f
 }
 
-func (f HighlighterField) HighlightFilter(highlightFilter bool) HighlighterField {
+func (f *HighlighterField) HighlightFilter(highlightFilter bool) *HighlighterField {
 	f.highlightFilter = &highlightFilter
 	return f
 }
 
-func (f HighlighterField) Order(order string) HighlighterField {
+func (f *HighlighterField) Order(order string) *HighlighterField {
 	f.order = order
 	return f
 }
 
-func (f HighlighterField) RequireFieldMatch(require bool) HighlighterField {
+func (f *HighlighterField) RequireFieldMatch(require bool) *HighlighterField {
 	f.requireFieldMatch = &require
 	return f
 }
 
-func (f HighlighterField) BoundaryMaxScan(maxScan int) HighlighterField {
+func (f *HighlighterField) BoundaryMaxScan(maxScan int) *HighlighterField {
 	f.boundaryMaxScan = maxScan
 	return f
 }
 
-func (f HighlighterField) BoundaryChars(chars []rune) HighlighterField {
+func (f *HighlighterField) BoundaryChars(chars []rune) *HighlighterField {
 	f.boundaryChars = chars
 	return f
 }
 
-func (f HighlighterField) HighlighterType(typ string) HighlighterField {
+func (f *HighlighterField) HighlighterType(typ string) *HighlighterField {
 	f.highlighterType = typ
 	return f
 }
 
-func (f HighlighterField) Fragmenter(fragmenter string) HighlighterField {
+func (f *HighlighterField) Fragmenter(fragmenter string) *HighlighterField {
 	f.fragmenter = fragmenter
 	return f
 }
 
-func (f HighlighterField) HighlightQuery(query Query) HighlighterField {
+func (f *HighlighterField) HighlightQuery(query Query) *HighlighterField {
 	f.highlightQuery = query
 	return f
 }
 
-func (f HighlighterField) NoMatchSize(size int) HighlighterField {
+func (f *HighlighterField) NoMatchSize(size int) *HighlighterField {
 	f.noMatchSize = &size
 	return f
 }
 
-func (f HighlighterField) MatchedFields(fields ...string) HighlighterField {
+func (f *HighlighterField) MatchedFields(fields ...string) *HighlighterField {
 	f.matchedFields = append(f.matchedFields, fields...)
 	return f
 }
 
-func (f HighlighterField) Options(options map[string]interface{}) HighlighterField {
+func (f *HighlighterField) Options(options map[string]interface{}) *HighlighterField {
 	f.options = options
 	return f
 }
 
-func (f HighlighterField) ForceSource(forceSource bool) HighlighterField {
+func (f *HighlighterField) ForceSource(forceSource bool) *HighlighterField {
 	f.forceSource = &forceSource
 	return f
 }
 
-func (f HighlighterField) Source() interface{} {
+func (f *HighlighterField) Source() interface{} {
 	source := make(map[string]interface{})
 	if len(f.preTags) > 0 {
 		source["pre_tags"] = f.preTags
