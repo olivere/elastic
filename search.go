@@ -221,6 +221,7 @@ func (s *SearchService) Do() (*SearchResult, error) {
 		for _, typ := range s.types {
 			typesPart = append(typesPart, cleanPathString(typ))
 		}
+		urls += "/"
 		urls += strings.Join(typesPart, ",")
 	}
 
