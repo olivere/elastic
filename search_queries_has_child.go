@@ -66,7 +66,7 @@ func (q HasChildQuery) Source() interface{} {
 	source["has_child"] = query
 
 	query["query"] = q.query.Source()
-	query["child_type"] = q.childType
+	query["type"] = q.childType
 	if q.boost != nil {
 		query["boost"] = *q.boost
 	}

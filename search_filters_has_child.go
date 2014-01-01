@@ -81,7 +81,7 @@ func (f HasChildFilter) Source() interface{} {
 		filter["filter"] = f.filter.Source()
 	}
 
-	filter["child_type"] = f.childType
+	filter["type"] = f.childType
 	if f.filterName != "" {
 		filter["_name"] = f.filterName
 	}
