@@ -16,7 +16,7 @@ type MultiMatchQuery struct {
 	text               interface{}
 	fields             []string
 	fieldBoosts        map[string]*float32
-	_type              *MatchQueryType
+	typ                *MatchQueryType
 	operator           string
 	analyzer           string
 	boost              *float32
@@ -30,6 +30,9 @@ type MultiMatchQuery struct {
 	useDisMax          *bool
 	tieBreaker         *float32
 	lenient            *bool
+	cutoffFrequency    *float32
+	zeroTermsQuery     *ZeroTermsQuery
+	queryName          string
 }
 
 func NewMultiMatchQuery(text interface{}, fields ...string) MultiMatchQuery {
@@ -53,8 +56,8 @@ func (q MultiMatchQuery) FieldWithBoost(field string, boost float32) MultiMatchQ
 	return q
 }
 
-func (q MultiMatchQuery) Type(_type MatchQueryType) MultiMatchQuery {
-	q._type = &_type
+func (q MultiMatchQuery) Type(typ MatchQueryType) MultiMatchQuery {
+	q.typ = &typ
 	return q
 }
 
@@ -123,6 +126,21 @@ func (q MultiMatchQuery) Lenient(lenient bool) MultiMatchQuery {
 	return q
 }
 
+func (q MultiMatchQuery) CutoffFrequency(cutoff float32) MultiMatchQuery {
+	q.cutoffFrequency = &cutoff
+	return q
+}
+
+func (q MultiMatchQuery) ZeroTermsQuery(zeroTermsQuery ZeroTermsQuery) MultiMatchQuery {
+	q.zeroTermsQuery = &zeroTermsQuery
+	return q
+}
+
+func (q MultiMatchQuery) QueryName(queryName string) MultiMatchQuery {
+	q.queryName = queryName
+	return q
+}
+
 func (q MultiMatchQuery) Source() interface{} {
 	//
 	// {
@@ -155,12 +173,12 @@ func (q MultiMatchQuery) Source() interface{} {
 		multiMatch["fields"] = fields
 	}
 
-	if q._type != nil {
-		if *q._type == Boolean {
+	if q.typ != nil {
+		if *q.typ == Boolean {
 			multiMatch["type"] = "boolean"
-		} else if *q._type == Phrase {
+		} else if *q.typ == Phrase {
 			multiMatch["type"] = "phrase"
-		} else if *q._type == PhrasePrefix {
+		} else if *q.typ == PhrasePrefix {
 			multiMatch["type"] = "phrase_prefix"
 		}
 	}
@@ -168,54 +186,50 @@ func (q MultiMatchQuery) Source() interface{} {
 	if q.operator != "" {
 		multiMatch["operator"] = q.operator
 	}
-
 	if q.analyzer != "" {
 		multiMatch["analyzer"] = q.analyzer
 	}
-
 	if q.boost != nil {
 		multiMatch["boost"] = *q.boost
 	}
-
 	if q.slop != nil {
 		multiMatch["slop"] = *q.slop
 	}
-
 	if q.fuzziness != "" {
 		multiMatch["fuzziness"] = q.fuzziness
 	}
-
 	if q.prefixLength != nil {
 		multiMatch["prefix_length"] = *q.prefixLength
 	}
-
 	if q.maxExpansions != nil {
 		multiMatch["max_expansions"] = *q.maxExpansions
 	}
-
 	if q.minimumShouldMatch != "" {
 		multiMatch["minimum_should_match"] = q.minimumShouldMatch
 	}
-
 	if q.rewrite != "" {
 		multiMatch["rewrite"] = q.rewrite
 	}
-
 	if q.fuzzyRewrite != "" {
 		multiMatch["fuzzy_rewrite"] = q.fuzzyRewrite
 	}
-
 	if q.useDisMax != nil {
 		multiMatch["use_dis_max"] = *q.useDisMax
 	}
-
 	if q.tieBreaker != nil {
 		multiMatch["tie_breaker"] = *q.tieBreaker
 	}
-
 	if q.lenient != nil {
 		multiMatch["lenient"] = *q.lenient
 	}
-
+	if q.cutoffFrequency != nil {
+		multiMatch["cutoff_frequency"] = *q.cutoffFrequency
+	}
+	if q.zeroTermsQuery != nil {
+		multiMatch["zero_terms_query"] = q.zeroTermsQuery
+	}
+	if q.queryName != "" {
+		multiMatch["_name"] = q.queryName
+	}
 	return source
 }

@@ -5,20 +5,24 @@
 package elastic
 
 // Filters documents that only have the provided ids.
+// Note, this filter does not require the _id field to be indexed
+// since it works using the _uid field.
 // For more details, see
-// http://www.elasticsearch.org/guide/reference/query-dsl/ids-query.html
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-ids-query.html
 type IdsQuery struct {
 	Query
-	types      []string
-	values     []string
-	filterName string
+	types     []string
+	values    []string
+	boost     float32
+	queryName string
 }
 
-// Creates a new ids query.
+// NewIdsQuery creates a new ids query.
 func NewIdsQuery(types ...string) IdsQuery {
 	q := IdsQuery{
 		types:  types,
 		values: make([]string, 0),
+		boost:  -1.0,
 	}
 	return q
 }
@@ -28,8 +32,13 @@ func (q IdsQuery) Ids(ids ...string) IdsQuery {
 	return q
 }
 
-func (q IdsQuery) FilterName(filterName string) IdsQuery {
-	q.filterName = filterName
+func (q IdsQuery) Boost(boost float32) IdsQuery {
+	q.boost = boost
+	return q
+}
+
+func (q IdsQuery) QueryName(queryName string) IdsQuery {
+	q.queryName = queryName
 	return q
 }
 
@@ -57,9 +66,11 @@ func (q IdsQuery) Source() interface{} {
 	// values
 	query["values"] = q.values
 
-	// filter name
-	if q.filterName != "" {
-		query["_name"] = q.filterName
+	if q.boost != -1.0 {
+		query["boost"] = q.boost
+	}
+	if q.queryName != "" {
+		query["_name"] = q.queryName
 	}
 
 	return source

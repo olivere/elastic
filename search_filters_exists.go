@@ -31,11 +31,11 @@ func (f ExistsFilter) Source() interface{} {
 	// }
 
 	source := make(map[string]interface{})
-
 	params := make(map[string]interface{})
 	source["exists"] = params
-
 	params["field"] = f.name
-
+	if f.filterName != "" {
+		params["_name"] = f.filterName
+	}
 	return source
 }

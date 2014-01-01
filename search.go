@@ -333,6 +333,11 @@ func (s *SearchService) Do() (*SearchResult, error) {
 		body["sort"] = sortSlice
 	}
 
+	// Fields
+	if len(s.fields) > 0 {
+		body["fields"] = s.fields
+	}
+
 	req.SetBodyJson(body)
 
 	if s.debug {
@@ -378,14 +383,15 @@ type SearchHits struct {
 }
 
 type SearchHit struct {
-	Score     *float64           `json:"_score"`
-	Index     string             `json:"_index"`
-	Id        string             `json:"_id"`
-	Type      string             `json:"_type"`
-	Version   *int64             `json:"_version"`
-	Sort      *[]interface{}     `json:"sort"`
-	Highlight SearchHitHighlight `json:"highlight"`
-	Source    *json.RawMessage   `json:"_source"`
+	Score     *float64               `json:"_score"`
+	Index     string                 `json:"_index"`
+	Id        string                 `json:"_id"`
+	Type      string                 `json:"_type"`
+	Version   *int64                 `json:"_version"`
+	Sort      *[]interface{}         `json:"sort"`
+	Highlight SearchHitHighlight     `json:"highlight"`
+	Source    *json.RawMessage       `json:"_source"`
+	Fields    map[string]interface{} `json:"fields"`
 
 	// Explanation
 	// Shard

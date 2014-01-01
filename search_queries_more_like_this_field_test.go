@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestMoreLikeThisField(t *testing.T) {
+func TestMoreLikeThisFieldQuery(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}

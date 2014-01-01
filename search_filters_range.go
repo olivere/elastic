@@ -17,6 +17,7 @@ type RangeFilter struct {
 	cache        *bool
 	cacheKey     string
 	filterName   string
+	execution    string
 }
 
 func NewRangeFilter(name string) RangeFilter {
@@ -83,6 +84,11 @@ func (f RangeFilter) FilterName(filterName string) RangeFilter {
 	return f
 }
 
+func (f RangeFilter) Execution(execution string) RangeFilter {
+	f.execution = execution
+	return f
+}
+
 func (f RangeFilter) Source() interface{} {
 	// {
 	//   "range" : {
@@ -115,6 +121,10 @@ func (f RangeFilter) Source() interface{} {
 
 	if f.cacheKey != "" {
 		rangeQ["_cache_key"] = f.cacheKey
+	}
+
+	if f.execution != "" {
+		rangeQ["execution"] = f.execution
 	}
 
 	return source

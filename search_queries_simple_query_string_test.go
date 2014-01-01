@@ -6,6 +6,19 @@ import (
 )
 
 func TestSimpleQueryStringQuery(t *testing.T) {
+	q := NewSimpleQueryStringQuery(`"fried eggs" +(eggplant | potato) -frittata`)
+	data, err := json.Marshal(q.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"simple_query_string":{"query":"\"fried eggs\" +(eggplant | potato) -frittata"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSimpleQueryStringQueryExec(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}

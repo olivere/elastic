@@ -5,15 +5,17 @@
 package elastic
 
 // Filters documents matching the provided document / mapping type.
+// Note, this filter can work even when the _type field is not indexed
+// (using the _uid field).
 // For details, see:
-// http://www.elasticsearch.org/guide/reference/query-dsl/type-filter.html
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-type-filter.html
 type TypeFilter struct {
 	Filter
-	_type string
+	typ string
 }
 
-func NewTypeFilter(_type string) TypeFilter {
-	f := TypeFilter{_type: _type}
+func NewTypeFilter(typ string) TypeFilter {
+	f := TypeFilter{typ: typ}
 	return f
 }
 
@@ -23,13 +25,9 @@ func (f TypeFilter) Source() interface{} {
 	//     "value" : "..."
 	//   }
 	// }
-
 	source := make(map[string]interface{})
-
 	params := make(map[string]interface{})
 	source["type"] = params
-
-	params["value"] = f._type
-
+	params["value"] = f.typ
 	return source
 }

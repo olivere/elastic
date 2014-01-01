@@ -92,25 +92,19 @@ func (f NestedFilter) Source() interface{} {
 	if f.query != nil {
 		params["query"] = f.query.Source()
 	}
-
 	if f.filter != nil {
 		params["filter"] = f.filter.Source()
 	}
-
 	if f.join != nil {
 		params["join"] = *f.join
 	}
-
 	params["path"] = f.path
-
 	if f.filterName != "" {
 		params["_name"] = f.filterName
 	}
-
 	if f.cache != nil {
 		params["_cache"] = *f.cache
 	}
-
 	if f.cacheKey != "" {
 		params["_cache_key"] = f.cacheKey
 	}

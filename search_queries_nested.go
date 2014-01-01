@@ -17,11 +17,12 @@ type NestedQuery struct {
 	path      string
 	scoreMode string
 	boost     *float32
+	queryName string
 }
 
 // Creates a new nested_query query.
-func NewNestedQuery() NestedQuery {
-	return NestedQuery{}
+func NewNestedQuery(path string) NestedQuery {
+	return NestedQuery{path: path}
 }
 
 func (q NestedQuery) Query(query Query) NestedQuery {
@@ -46,6 +47,11 @@ func (q NestedQuery) ScoreMode(scoreMode string) NestedQuery {
 
 func (q NestedQuery) Boost(boost float32) NestedQuery {
 	q.boost = &boost
+	return q
+}
+
+func (q NestedQuery) QueryName(queryName string) NestedQuery {
+	q.queryName = queryName
 	return q
 }
 
@@ -78,31 +84,21 @@ func (q NestedQuery) Source() interface{} {
 
 	nq := make(map[string]interface{})
 	query["nested"] = nq
-
-	// query
 	if q.query != nil {
 		nq["query"] = q.query.Source()
 	}
-
-	// filter
 	if q.filter != nil {
 		nq["filter"] = q.filter.Source()
 	}
-
-	// path
-	if q.path != "" {
-		nq["path"] = q.scoreMode
-	}
-
-	// scoreMode
+	nq["path"] = q.path
 	if q.scoreMode != "" {
 		nq["score_mode"] = q.scoreMode
 	}
-
-	// boost
 	if q.boost != nil {
 		nq["boost"] = *q.boost
 	}
-
+	if q.queryName != "" {
+		nq["_name"] = q.queryName
+	}
 	return query
 }

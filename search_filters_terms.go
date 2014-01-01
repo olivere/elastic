@@ -11,20 +11,18 @@ type TermsFilter struct {
 	Filter
 	name       string
 	values     []interface{}
-	execution  string
 	cache      *bool
 	cacheKey   string
 	filterName string
+	execution  string
 }
 
 func NewTermsFilter(name string, values ...interface{}) TermsFilter {
-	f := TermsFilter{name: name, values: make([]interface{}, 0)}
-	f.values = values
-	return f
-}
-
-func (f TermsFilter) Execution(mode string) TermsFilter {
-	f.execution = mode
+	f := TermsFilter{
+		name:   name,
+		values: make([]interface{}, 0),
+	}
+	f.values = append(f.values, values...)
 	return f
 }
 
@@ -43,6 +41,11 @@ func (f TermsFilter) FilterName(filterName string) TermsFilter {
 	return f
 }
 
+func (f TermsFilter) Execution(execution string) TermsFilter {
+	f.execution = execution
+	return f
+}
+
 func (f TermsFilter) Source() interface{} {
 	// {
 	//   "terms" : {
@@ -51,24 +54,18 @@ func (f TermsFilter) Source() interface{} {
 	// }
 
 	source := make(map[string]interface{})
-
 	params := make(map[string]interface{})
 	source["terms"] = params
-
 	params[f.name] = f.values
-
 	if f.filterName != "" {
 		params["_name"] = f.filterName
 	}
-
 	if f.execution != "" {
 		params["execution"] = f.execution
 	}
-
 	if f.cache != nil {
 		params["_cache"] = *f.cache
 	}
-
 	if f.cacheKey != "" {
 		params["_cache_key"] = f.cacheKey
 	}

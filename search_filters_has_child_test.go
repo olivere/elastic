@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestHasChildFilterTest(t *testing.T) {
+func TestHasChildFilter(t *testing.T) {
 	f := NewHasChildFilter("blog_tag")
 	f = f.Query(NewTermQuery("tag", "something"))
 	data, err := json.Marshal(f.Source())

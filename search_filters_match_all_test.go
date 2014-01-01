@@ -5,15 +5,14 @@ import (
 	"testing"
 )
 
-func TestHasParentFilter(t *testing.T) {
-	f := NewHasParentFilter("blog")
-	f = f.Query(NewTermQuery("tag", "something"))
+func TestMatchAllFilter(t *testing.T) {
+	f := NewMatchAllFilter()
 	data, err := json.Marshal(f.Source())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"has_parent":{"parent_type":"blog","query":{"term":{"tag":"something"}}}}`
+	expected := `{"match_all":{}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

@@ -16,6 +16,8 @@ type BoolQuery struct {
 	boost              *float32
 	disableCoord       *bool
 	minimumShouldMatch string
+	adjustPureNegative *bool
+	queryName          string
 }
 
 // Creates a new bool query.
@@ -28,18 +30,18 @@ func NewBoolQuery() BoolQuery {
 	return q
 }
 
-func (q BoolQuery) Must(query Query) BoolQuery {
-	q.mustClauses = append(q.mustClauses, query)
+func (q BoolQuery) Must(queries ...Query) BoolQuery {
+	q.mustClauses = append(q.mustClauses, queries...)
 	return q
 }
 
-func (q BoolQuery) MustNot(query Query) BoolQuery {
-	q.mustNotClauses = append(q.mustNotClauses, query)
+func (q BoolQuery) MustNot(queries ...Query) BoolQuery {
+	q.mustNotClauses = append(q.mustNotClauses, queries...)
 	return q
 }
 
-func (q BoolQuery) Should(query Query) BoolQuery {
-	q.shouldClauses = append(q.shouldClauses, query)
+func (q BoolQuery) Should(queries ...Query) BoolQuery {
+	q.shouldClauses = append(q.shouldClauses, queries...)
 	return q
 }
 
@@ -55,6 +57,16 @@ func (q BoolQuery) DisableCoord(disableCoord bool) BoolQuery {
 
 func (q BoolQuery) MinimumShouldMatch(minimumShouldMatch string) BoolQuery {
 	q.minimumShouldMatch = minimumShouldMatch
+	return q
+}
+
+func (q BoolQuery) AdjustPureNegative(adjustPureNegative bool) BoolQuery {
+	q.adjustPureNegative = &adjustPureNegative
+	return q
+}
+
+func (q BoolQuery) QueryName(queryName string) BoolQuery {
+	q.queryName = queryName
 	return q
 }
 
@@ -119,6 +131,22 @@ func (q BoolQuery) Source() interface{} {
 			clauses = append(clauses, subQuery.Source())
 		}
 		boolClause["should"] = clauses
+	}
+
+	if q.boost != nil {
+		boolClause["boost"] = *q.boost
+	}
+	if q.disableCoord != nil {
+		boolClause["disable_coord"] = *q.disableCoord
+	}
+	if q.minimumShouldMatch != "" {
+		boolClause["minimum_should_match"] = q.minimumShouldMatch
+	}
+	if q.adjustPureNegative != nil {
+		boolClause["adjust_pure_negative"] = *q.adjustPureNegative
+	}
+	if q.queryName != "" {
+		boolClause["_name"] = q.queryName
 	}
 
 	return query
