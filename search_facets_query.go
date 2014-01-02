@@ -7,21 +7,19 @@ package elastic
 // Query Facet
 // See: http://www.elasticsearch.org/guide/reference/api/search/facets/query-facet.html
 type QueryFacet struct {
-	Facet
-	global   *bool
-	scope    string
-	query    Query
-	nested   string
-	filters  []Filter
-	size     *int
-	order    string
+	facetFilter Filter
+	global      *bool
+	nested      string
+	mode        string
+	query       Query
 }
 
-func NewQueryFacet(query Query) QueryFacet {
-	f := QueryFacet{
-		query: query,
-		filters: make([]Filter, 0),
-	}
+func NewQueryFacet() QueryFacet {
+	return QueryFacet{}
+}
+
+func (f QueryFacet) FacetFilter(filter Facet) QueryFacet {
+	f.facetFilter = filter
 	return f
 }
 
@@ -30,25 +28,13 @@ func (f QueryFacet) Global(global bool) QueryFacet {
 	return f
 }
 
-func (f QueryFacet) Size(size int) QueryFacet {
-	f.size = &size
-	return f
-}
-
-// Valid order options are: "count" (default), "term",
-// "reverse_count", and "reverse_term".
-func (f QueryFacet) Order(order string) QueryFacet {
-	f.order = order
-	return f
-}
-
-func (f QueryFacet) Scope(scope string) QueryFacet {
-	f.scope = scope
-	return f
-}
-
 func (f QueryFacet) Nested(nested string) QueryFacet {
 	f.nested = nested
+	return f
+}
+
+func (f QueryFacet) Mode(mode string) QueryFacet {
+	f.mode = mode
 	return f
 }
 
@@ -57,46 +43,24 @@ func (f QueryFacet) Query(query Query) QueryFacet {
 	return f
 }
 
-func (f QueryFacet) Filter(filter Filter) QueryFacet {
-	f.filters = append(f.filters, filter)
-	return f
+func (f QueryFacet) addFilterFacetAndGlobal(source map[string]interface{}) {
+	if f.facetFilter != nil {
+		source["facet_filter"] = f.facetFilter.Source()
+	}
+	if f.nested != "" {
+		source["nested"] = f.nested
+	}
+	if f.global != nil {
+		source["global"] = *f.global
+	}
+	if f.mode != "" {
+		source["mode"] = f.mode
+	}
 }
 
 func (f QueryFacet) Source() interface{} {
 	source := make(map[string]interface{})
+	f.addFilterFacetAndGlobal(source)
 	source["query"] = f.query.Source()
-
-	if f.global != nil {
-		source["global"] = *f.global
-	}
-
-	if f.size != nil {
-		source["size"] = *f.size
-	}
-
-	if f.order != "" {
-		source["order"] = f.order
-	}
-
-	if f.nested != "" {
-		source["nested"] = f.nested
-	}
-
-	if f.scope != "" {
-		source["scope"] = f.scope
-	}
-
-	if len(f.filters) == 1 {
-		source["facet_filter"] = f.filters[0].Source()
-	} else if len(f.filters) > 1 {
-		ff := make(map[string]interface{})
-		andedFilters := make([]interface{}, 0)
-		for _, filter := range f.filters {
-			andedFilters = append(andedFilters, filter.Source())
-		}
-		ff["and"] = andedFilters
-		source["facet_filter"] = ff
-	}
-
 	return source
 }

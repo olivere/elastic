@@ -263,11 +263,11 @@ Here's the current API status.
 * Range (ok)
 * Histogram (ok)
 * Date Histogram (ok)
-* Filter (missing)
+* Filter (ok)
 * Query (ok)
-* Statistical (missing)
-* Terms Stats (missing)
-* Geo Distance (missing)
+* Statistical (ok)
+* Terms Stats (ok)
+* Geo Distance (ok)
 
 ### Scan
 

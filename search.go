@@ -54,7 +54,7 @@ func NewSearchService(client *Client) *SearchService {
 		filters: make([]Filter, 0),
 		sorts:   make([]SortInfo, 0),
 		fields:  make([]string, 0),
-		facets:  make(map[string]Facet, 0),
+		facets:  make(map[string]Facet),
 		debug:   false,
 		pretty:  false,
 	}
@@ -291,7 +291,7 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	}
 
 	// Facets
-	if len(s.facets) >= 1 {
+	if len(s.facets) > 0 {
 		// "facets" : {
 		//   "manufacturer" : {
 		//     "terms" : { ... }

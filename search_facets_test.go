@@ -58,36 +58,36 @@ func TestSearchFacets(t *testing.T) {
 	all := NewMatchAllQuery()
 
 	// Terms Facet by user name
-	userFacet := NewTermsFacet("user").Size(10).Order("count")
+	userFacet := NewTermsFacet().Field("user").Size(10).Order("count")
 
 	// Range Facet by retweets
-	retweetsFacet := NewRangeFacet("retweets").Lt(10).Between(10, 100).Gt(100)
+	retweetsFacet := NewRangeFacet().Field("retweets").Lt(10).Between(10, 100).Gt(100)
 
 	// Histogram Facet by retweets
-	retweetsHistoFacet := NewHistogramFacet("retweets").Interval(100)
+	retweetsHistoFacet := NewHistogramFacet().KeyField("retweets").Interval(100)
 
 	// Histogram Facet with time interval by retweets
-	retweetsTimeHistoFacet := NewHistogramFacet("retweets").TimeInterval("1m")
+	retweetsTimeHistoFacet := NewHistogramFacet().KeyField("retweets").TimeInterval("1m")
 
 	// Date Histogram Facet by creation date
-	dateHisto := NewDateHistogramFacet("created").Interval("year")
+	dateHisto := NewDateHistogramFacet().Field("created").Interval("year")
 
 	// Date Histogram Facet with Key and Value field by creation date
-	dateHistoWithKeyValue := NewDateHistogramFacet("createdWithKeyValue").
+	dateHistoWithKeyValue := NewDateHistogramFacet().
 		Interval("year").
 		KeyField("created").
 		ValueField("retweets")
 
 	// Query Facet
-	queryFacet := NewQueryFacet(NewTermQuery("user", "olivere")).Order("term").Global(true)
+	queryFacet := NewQueryFacet().Query(NewTermQuery("user", "olivere")).Global(true)
 
 	// Range Facet by creation date
-	dateRangeFacet := NewRangeFacet("created").Lt("2012-01-01").Between("2012-01-01", "2013-01-01").Gt("2013-01-01")
+	dateRangeFacet := NewRangeFacet().Field("created").Lt("2012-01-01").Between("2012-01-01", "2013-01-01").Gt("2013-01-01")
 
 	// Range Facet with time.Time by creation date
 	d20120101 := time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC)
 	d20130101 := time.Date(2013, 1, 1, 0, 0, 0, 0, time.UTC)
-	dateRangeWithTimeFacet := NewRangeFacet("created").
+	dateRangeWithTimeFacet := NewRangeFacet().Field("created").
 		Lt(d20120101).
 		Between(d20120101, d20130101).
 		Gt(d20130101)
