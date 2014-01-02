@@ -200,6 +200,7 @@ Here's the current API status.
 * `filtered` (ok)
 * `flt` (missing)
 * `flt_field` (missing)
+* `function_score` (ok)
 * `fuzzy` (missing)
 * `has_child` (ok)
 * `has_parent` (ok)
