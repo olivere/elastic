@@ -4,23 +4,6 @@
 
 package elastic
 
-// Match query types
-type MatchQueryType int
-
-const (
-	Boolean MatchQueryType = iota // 0
-	Phrase
-	PhrasePrefix
-)
-
-// Zero terms query
-type ZeroTermsQuery int
-
-const (
-	None ZeroTermsQuery = iota // 0
-	All
-)
-
 // Match query is a family of match queries that
 // accept text/numerics/dates, analyzes it, and
 // constructs a query out of it. For more details,
@@ -29,7 +12,7 @@ type MatchQuery struct {
 	Query
 	name                string
 	value               interface{}
-	_type               *MatchQueryType
+	matchQueryType      string
 	operator            string
 	analyzer            string
 	boost               *float32
@@ -42,7 +25,7 @@ type MatchQuery struct {
 	fuzzyRewrite        string
 	lenient             *bool
 	fuzzyTranspositions *bool
-	zeroTermsQuery      *ZeroTermsQuery
+	zeroTermsQuery      string
 }
 
 func NewMatchQuery(name string, value interface{}) MatchQuery {
@@ -50,8 +33,9 @@ func NewMatchQuery(name string, value interface{}) MatchQuery {
 	return q
 }
 
-func (q MatchQuery) Type(_type MatchQueryType) MatchQuery {
-	q._type = &_type
+// Type can be "boolean", "phrase", or "phrase_prefix".
+func (q MatchQuery) Type(matchQueryType string) MatchQuery {
+	q.matchQueryType = matchQueryType
 	return q
 }
 
@@ -115,8 +99,9 @@ func (q MatchQuery) FuzzyTranspositions(fuzzyTranspositions bool) MatchQuery {
 	return q
 }
 
-func (q MatchQuery) ZeroTermsQuery(zeroTermsQuery ZeroTermsQuery) MatchQuery {
-	q.zeroTermsQuery = &zeroTermsQuery
+// ZeroTermsQuery can be "all" or "none".
+func (q MatchQuery) ZeroTermsQuery(zeroTermsQuery string) MatchQuery {
+	q.zeroTermsQuery = zeroTermsQuery
 	return q
 }
 
@@ -132,14 +117,8 @@ func (q MatchQuery) Source() interface{} {
 
 	query["query"] = q.value
 
-	if q._type != nil {
-		if *q._type == Boolean {
-			query["type"] = "boolean"
-		} else if *q._type == Phrase {
-			query["type"] = "phrase"
-		} else if *q._type == PhrasePrefix {
-			query["type"] = "phrase_prefix"
-		}
+	if q.matchQueryType != "" {
+		query["type"] = q.matchQueryType
 	}
 
 	if q.operator != "" {
@@ -186,12 +165,8 @@ func (q MatchQuery) Source() interface{} {
 		query["fuzzy_transpositions"] = *q.fuzzyTranspositions
 	}
 
-	if q.zeroTermsQuery != nil {
-		if *q.zeroTermsQuery == None {
-			query["zero_terms_query"] = "none"
-		} else if *q.zeroTermsQuery == All {
-			query["zero_terms_query"] = "all"
-		}
+	if q.zeroTermsQuery != "" {
+		query["zero_terms_query"] = q.zeroTermsQuery
 	}
 
 	return source

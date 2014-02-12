@@ -16,7 +16,7 @@ type MultiMatchQuery struct {
 	text               interface{}
 	fields             []string
 	fieldBoosts        map[string]*float32
-	typ                *MatchQueryType
+	matchQueryType     string
 	operator           string
 	analyzer           string
 	boost              *float32
@@ -31,7 +31,7 @@ type MultiMatchQuery struct {
 	tieBreaker         *float32
 	lenient            *bool
 	cutoffFrequency    *float32
-	zeroTermsQuery     *ZeroTermsQuery
+	zeroTermsQuery     string
 	queryName          string
 }
 
@@ -56,8 +56,9 @@ func (q MultiMatchQuery) FieldWithBoost(field string, boost float32) MultiMatchQ
 	return q
 }
 
-func (q MultiMatchQuery) Type(typ MatchQueryType) MultiMatchQuery {
-	q.typ = &typ
+// Type can be "boolean", "phrase", or "phrase_prefix".
+func (q MultiMatchQuery) Type(matchQueryType string) MultiMatchQuery {
+	q.matchQueryType = matchQueryType
 	return q
 }
 
@@ -131,8 +132,9 @@ func (q MultiMatchQuery) CutoffFrequency(cutoff float32) MultiMatchQuery {
 	return q
 }
 
-func (q MultiMatchQuery) ZeroTermsQuery(zeroTermsQuery ZeroTermsQuery) MultiMatchQuery {
-	q.zeroTermsQuery = &zeroTermsQuery
+// ZeroTermsQuery can be "all" or "none".
+func (q MultiMatchQuery) ZeroTermsQuery(zeroTermsQuery string) MultiMatchQuery {
+	q.zeroTermsQuery = zeroTermsQuery
 	return q
 }
 
@@ -173,14 +175,8 @@ func (q MultiMatchQuery) Source() interface{} {
 		multiMatch["fields"] = fields
 	}
 
-	if q.typ != nil {
-		if *q.typ == Boolean {
-			multiMatch["type"] = "boolean"
-		} else if *q.typ == Phrase {
-			multiMatch["type"] = "phrase"
-		} else if *q.typ == PhrasePrefix {
-			multiMatch["type"] = "phrase_prefix"
-		}
+	if q.matchQueryType != "" {
+		multiMatch["type"] = q.matchQueryType
 	}
 
 	if q.operator != "" {
@@ -225,7 +221,7 @@ func (q MultiMatchQuery) Source() interface{} {
 	if q.cutoffFrequency != nil {
 		multiMatch["cutoff_frequency"] = *q.cutoffFrequency
 	}
-	if q.zeroTermsQuery != nil {
+	if q.zeroTermsQuery != "" {
 		multiMatch["zero_terms_query"] = q.zeroTermsQuery
 	}
 	if q.queryName != "" {
