@@ -136,6 +136,5 @@ func (s *AliasService) Do() (*AliasResult, error) {
 // -- Result of an alias request.
 
 type AliasResult struct {
-	Ok  bool `json:"ok"`
-	Ack bool `json:"acknowledged"`
+	Acknowledged bool `json:"acknowledged"`
 }

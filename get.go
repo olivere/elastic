@@ -148,5 +148,5 @@ type GetResult struct {
 	Type   string           `json:"_type"`
 	Id     string           `json:"_id"`
 	Source *json.RawMessage `json:"_source,omitempty"`
-	Exists bool             `json:"exists"`
+	Found  bool             `json:"found"`
 }

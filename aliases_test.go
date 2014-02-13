@@ -69,8 +69,8 @@ func TestAliases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !aliasCreate.Ok {
-		t.Errorf("expected AliasResult.Ok %q; got %q", true, aliasCreate.Ok)
+	if !aliasCreate.Acknowledged {
+		t.Errorf("expected AliasResult.Acknowledged %q; got %q", true, aliasCreate.Acknowledged)
 	}
 
 	// Alias should now exist
@@ -118,8 +118,8 @@ func TestAliases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !aliasRemove1.Ok {
-		t.Errorf("expected AliasResult.Ok %q; got %q", true, aliasRemove1.Ok)
+	if !aliasRemove1.Acknowledged {
+		t.Errorf("expected AliasResult.Acknowledged %q; got %q", true, aliasRemove1.Acknowledged)
 	}
 
 	// Alias should now exist only for index 2

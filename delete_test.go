@@ -50,9 +50,6 @@ func TestDelete(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Ok != true {
-		t.Errorf("expected Ok = true; got %v", res.Ok)
-	}
 	if res.Found != true {
 		t.Errorf("expected Found = true; got %v", res.Found)
 	}
@@ -72,9 +69,6 @@ func TestDelete(t *testing.T) {
 	res, err = client.Delete().Index(testIndexName).Type("tweet").Id("99").Refresh(true).Do()
 	if err != nil {
 		t.Fatal(err)
-	}
-	if res.Ok != true {
-		t.Errorf("expected Ok = true; got %v", res.Ok)
 	}
 	if res.Found != false {
 		t.Errorf("expected Found = false; got %v", res.Found)

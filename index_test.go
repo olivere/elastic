@@ -43,8 +43,8 @@ func setupTestClientAndCreateIndex(t *testing.T) *Client {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !createIndex.Ok {
-		t.Errorf("expected CreateIndexResult.Ok %q; got %q", true, createIndex.Ok)
+	if createIndex == nil {
+		t.Errorf("expected result to be != nil; got: %v", createIndex)
 	}
 
 	// Create second index
@@ -52,8 +52,8 @@ func setupTestClientAndCreateIndex(t *testing.T) *Client {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !createIndex2.Ok {
-		t.Errorf("expected CreateIndexResult.Ok %q; got %q", true, createIndex2.Ok)
+	if createIndex2 == nil {
+		t.Errorf("expected result to be != nil; got: %v", createIndex2)
 	}
 
 	return client
@@ -67,11 +67,8 @@ func TestIndexLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !createIndex.Ok {
-		t.Errorf("expected CreateIndexResult.Ok %q; got %q", true, createIndex.Ok)
-	}
-	if !createIndex.Ack {
-		t.Errorf("expected CreateIndexResult.Ack %q; got %q", true, createIndex.Ack)
+	if !createIndex.Acknowledged {
+		t.Errorf("expected CreateIndexResult.Acknowledged %q; got %q", true, createIndex.Acknowledged)
 	}
 
 	// Check if index exists
@@ -88,11 +85,8 @@ func TestIndexLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !deleteIndex.Ok {
-		t.Errorf("expected DeleteIndexResult.Ok %q; got %q", true, deleteIndex.Ok)
-	}
-	if !deleteIndex.Ack {
-		t.Errorf("expected DeleteIndexResult.Ack %q; got %q", true, deleteIndex.Ack)
+	if !deleteIndex.Acknowledged {
+		t.Errorf("expected DeleteIndexResult.Acknowledged %q; got %q", true, deleteIndex.Acknowledged)
 	}
 
 	// Check if index exists
@@ -122,11 +116,8 @@ func TestIndexExistScenarios(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !createIndex.Ok {
-		t.Errorf("expected CreateIndexResult.Ok %q; got %q", true, createIndex.Ok)
-	}
-	if !createIndex.Ack {
-		t.Errorf("expected CreateIndexResult.Ack %q; got %q", true, createIndex.Ack)
+	if !createIndex.Acknowledged {
+		t.Errorf("expected CreateIndexResult.Ack %q; got %q", true, createIndex.Acknowledged)
 	}
 
 	// Should return true if index does not exist
@@ -154,8 +145,8 @@ func TestDocumentLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !indexResult.Ok {
-		t.Errorf("expected IndexResult.Ok %q; got %q", true, indexResult.Ok)
+	if indexResult == nil {
+		t.Errorf("expected result to be != nil; got: %v", indexResult)
 	}
 
 	// Exists
@@ -207,8 +198,8 @@ func TestDocumentLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !deleteResult.Ok {
-		t.Errorf("expected DeleteResult.Ok %q; got %q", true, deleteResult.Ok)
+	if deleteResult == nil {
+		t.Errorf("expected result to be != nil; got: %v", deleteResult)
 	}
 
 	// Exists

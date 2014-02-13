@@ -135,10 +135,9 @@ func (s *DeleteService) Do() (*DeleteResult, error) {
 // -- Result of a delete request.
 
 type DeleteResult struct {
-	Ok      bool   `json:"ok"`
+	Found   bool   `json:"found"`
 	Index   string `json:"_index"`
 	Type    string `json:"_type"`
 	Id      string `json:"_id"`
 	Version int64  `json:"_version"`
-	Found   bool   `json:"found"`
 }
