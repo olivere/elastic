@@ -20,6 +20,7 @@ type IndexResult struct {
 	Type    string `json:"_type"`
 	Id      string `json:"_id"`
 	Version int    `json:"_version"`
+	Created bool   `json:"created"`
 }
 
 // The Index service adds documents to ElasticSearch.
