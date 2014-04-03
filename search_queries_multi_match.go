@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"fmt"
+	"strings"
 )
 
 // The multi_match query builds further on top of the match query by allowing multiple fields to be specified.
@@ -16,8 +17,8 @@ type MultiMatchQuery struct {
 	text               interface{}
 	fields             []string
 	fieldBoosts        map[string]*float32
-	matchQueryType     string
-	operator           string
+	matchQueryType     string // best_fields, most_fields, cross_fields, phrase, phrase_prefix
+	operator           string // and / or
 	analyzer           string
 	boost              *float32
 	slop               *int
@@ -56,9 +57,29 @@ func (q MultiMatchQuery) FieldWithBoost(field string, boost float32) MultiMatchQ
 	return q
 }
 
-// Type can be "boolean", "phrase", or "phrase_prefix".
+// Type can be: "best_fields", "boolean", "most_fields", "cross_fields",
+// "phrase", or "phrase_prefix".
 func (q MultiMatchQuery) Type(matchQueryType string) MultiMatchQuery {
-	q.matchQueryType = matchQueryType
+	zero := float32(0.0)
+	one := float32(1.0)
+
+	switch strings.ToLower(matchQueryType) {
+	default: // best_fields / boolean
+		q.matchQueryType = "best_fields"
+		q.tieBreaker = &zero
+	case "most_fields":
+		q.matchQueryType = "most_fields"
+		q.tieBreaker = &one
+	case "cross_fields":
+		q.matchQueryType = "cross_fields"
+		q.tieBreaker = &zero
+	case "phrase":
+		q.matchQueryType = "phrase"
+		q.tieBreaker = &zero
+	case "phrase_prefix":
+		q.matchQueryType = "phrase_prefix"
+		q.tieBreaker = &zero
+	}
 	return q
 }
 
@@ -112,6 +133,7 @@ func (q MultiMatchQuery) FuzzyRewrite(fuzzyRewrite string) MultiMatchQuery {
 	return q
 }
 
+// Deprecated.
 func (q MultiMatchQuery) UseDisMax(useDisMax bool) MultiMatchQuery {
 	q.useDisMax = &useDisMax
 	return q

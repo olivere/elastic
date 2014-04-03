@@ -12,8 +12,8 @@ type MatchQuery struct {
 	Query
 	name                string
 	value               interface{}
-	matchQueryType      string
-	operator            string
+	matchQueryType      string // boolean, phrase, phrase_prefix
+	operator            string // or / and
 	analyzer            string
 	boost               *float32
 	slop                *int
@@ -26,6 +26,8 @@ type MatchQuery struct {
 	lenient             *bool
 	fuzzyTranspositions *bool
 	zeroTermsQuery      string
+	cutoffFrequency     *float32
+	queryName           string
 }
 
 func NewMatchQuery(name string, value interface{}) MatchQuery {
@@ -105,6 +107,16 @@ func (q MatchQuery) ZeroTermsQuery(zeroTermsQuery string) MatchQuery {
 	return q
 }
 
+func (q MatchQuery) CutoffFrequency(cutoff float32) MatchQuery {
+	q.cutoffFrequency = &cutoff
+	return q
+}
+
+func (q MatchQuery) QueryName(queryName string) MatchQuery {
+	q.queryName = queryName
+	return q
+}
+
 func (q MatchQuery) Source() interface{} {
 	// {"match":{"name":{"query":"value","type":"boolean/phrase"}}}
 	source := make(map[string]interface{})
@@ -120,53 +132,47 @@ func (q MatchQuery) Source() interface{} {
 	if q.matchQueryType != "" {
 		query["type"] = q.matchQueryType
 	}
-
 	if q.operator != "" {
 		query["operator"] = q.operator
 	}
-
 	if q.boost != nil {
 		query["boost"] = *q.boost
 	}
-
 	if q.slop != nil {
 		query["slop"] = *q.slop
 	}
-
 	if q.fuzziness != "" {
 		query["fuzziness"] = q.fuzziness
 	}
-
 	if q.prefixLength != nil {
 		query["prefix_length"] = *q.prefixLength
 	}
-
 	if q.maxExpansions != nil {
 		query["max_expansions"] = *q.maxExpansions
 	}
-
 	if q.minimumShouldMatch != "" {
 		query["minimum_should_match"] = q.minimumShouldMatch
 	}
-
 	if q.rewrite != "" {
 		query["rewrite"] = q.rewrite
 	}
-
 	if q.fuzzyRewrite != "" {
 		query["fuzzy_rewrite"] = q.fuzzyRewrite
 	}
-
 	if q.lenient != nil {
 		query["lenient"] = *q.lenient
 	}
-
 	if q.fuzzyTranspositions != nil {
 		query["fuzzy_transpositions"] = *q.fuzzyTranspositions
 	}
-
 	if q.zeroTermsQuery != "" {
 		query["zero_terms_query"] = q.zeroTermsQuery
+	}
+	if q.cutoffFrequency != nil {
+		query["cutoff_frequency"] = q.cutoffFrequency
+	}
+	if q.queryName != "" {
+		query["_name"] = q.queryName
 	}
 
 	return source
