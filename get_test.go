@@ -50,8 +50,8 @@ func TestGet(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Exists != true {
-		t.Errorf("expected Exists = true; got %v", res.Exists)
+	if res.Found != true {
+		t.Errorf("expected Found = true; got %v", res.Found)
 	}
 	if res.Source == nil {
 		t.Errorf("expected Source != nil; got %v", res.Source)
@@ -62,8 +62,8 @@ func TestGet(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Exists != false {
-		t.Errorf("expected Exists = false; got %v", res.Exists)
+	if res.Found != false {
+		t.Errorf("expected Found = false; got %v", res.Found)
 	}
 	if res.Source != nil {
 		t.Errorf("expected Source == nil; got %v", res.Source)

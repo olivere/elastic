@@ -15,7 +15,7 @@ import (
 
 const (
 	// Current version.
-	Version = "0.2"
+	Version = "1.0.beta1"
 
 	// defaultUrl to be used as base for Elasticsearch requests.
 	defaultUrl = "http://localhost:9200"

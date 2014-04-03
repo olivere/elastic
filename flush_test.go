@@ -16,7 +16,7 @@ func TestFlush(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !res.Ok {
-		t.Errorf("expected FlushResult.Ok %q; got %q", true, res.Ok)
+	if res == nil {
+		t.Errorf("expected res to be != nil; got: %v", res)
 	}
 }

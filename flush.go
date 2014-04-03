@@ -110,6 +110,5 @@ type shardsInfo struct {
 }
 
 type FlushResult struct {
-	Ok     bool       `json:"ok"`
 	Shards shardsInfo `json:"_shards"`
 }

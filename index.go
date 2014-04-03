@@ -16,11 +16,11 @@ import (
 
 // The result of indexing a document in ElasticSearch.
 type IndexResult struct {
-	Ok      bool   `json:"ok"`
 	Index   string `json:"_index"`
 	Type    string `json:"_type"`
 	Id      string `json:"_id"`
 	Version int    `json:"_version"`
+	Created bool   `json:"created"`
 }
 
 // The Index service adds documents to ElasticSearch.

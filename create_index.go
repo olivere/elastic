@@ -66,6 +66,5 @@ func (b *CreateIndexService) Do() (*CreateIndexResult, error) {
 // -- Result of a create index request.
 
 type CreateIndexResult struct {
-	Ok  bool `json:"ok"`
-	Ack bool `json:"acknowledged"`
+	Acknowledged bool `json:"acknowledged"`
 }

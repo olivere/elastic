@@ -57,6 +57,5 @@ func (b *DeleteIndexService) Do() (*DeleteIndexResult, error) {
 // -- Result of a delete index request.
 
 type DeleteIndexResult struct {
-	Ok  bool `json:"ok"`
-	Ack bool `json:"acknowledged"`
+	Acknowledged bool `json:"acknowledged"`
 }

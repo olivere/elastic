@@ -130,7 +130,9 @@ func (s *CountService) Do() (int64, error) {
 
 	// Set body if there is a query set
 	if s.query != nil {
-		req.SetBodyJson(s.query.Source())
+		query := make(map[string]interface{})
+		query["query"] = s.query.Source()
+		req.SetBodyJson(query)
 	}
 
 	if s.debug {
