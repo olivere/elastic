@@ -20,6 +20,7 @@ type tweet struct {
 	User     string    `json:"user"`
 	Message  string    `json:"message"`
 	Retweets int       `json:"retweets"`
+	Image    string    `json:"image,omitempty"`
 	Created  time.Time `json:"created,omitempty"`
 }
 
