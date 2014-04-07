@@ -11,6 +11,11 @@ We use Elastic in production for more than a year.
 The reason it doesn't have the 1.0 version tag is
 that it's incomplete.
 
+Elastic supports and has been tested in production with
+the following Elasticsearch versions: 0.90, 1.0, 1.1.
+However, we will keep a focus on 1.1 because that's the
+version we use in our projects.
+
 ElasticSearch has quite a few features. A lot of them are
 not yet implemented in Elastic (see below for details).
 I add features and APIs as required. It's straightforward
@@ -269,6 +274,31 @@ Here's the current API status.
 * Statistical (ok)
 * Terms Stats (ok)
 * Geo Distance (ok)
+
+### Aggregations
+
+* min (ok)
+* max (ok)
+* sum (ok)
+* avg (ok)
+* stats (ok)
+* extended stats (ok)
+* value count (ok)
+* percentiles (ok)
+* cardinality (ok)
+* global (ok)
+* filter (ok)
+* missing (ok)
+* nested (missing)
+* terms (ok)
+* significant terms (ok)
+* range (ok)
+* date range (ok)
+* ipv4 range (missing)
+* histogram (ok)
+* date histogram (ok)
+* geo distance (missing)
+* geohash grid (missing)
 
 ### Scan
 
