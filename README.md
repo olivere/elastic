@@ -289,7 +289,7 @@ Here's the current API status.
 * global (ok)
 * filter (ok)
 * missing (ok)
-* nested (missing)
+* nested (ok)
 * terms (ok)
 * significant terms (ok)
 * range (ok)
@@ -297,7 +297,7 @@ Here's the current API status.
 * ipv4 range (missing)
 * histogram (ok)
 * date histogram (ok)
-* geo distance (missing)
+* geo distance (ok)
 * geohash grid (missing)
 
 ### Scan

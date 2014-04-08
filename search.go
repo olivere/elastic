@@ -394,13 +394,22 @@ func (s *SearchService) Do() (*SearchResult, error) {
 }
 
 type SearchResult struct {
-	TookInMillis int64              `json:"took"`
-	ScrollId     string             `json:"_scroll_id"`
-	Hits         *SearchHits        `json:"hits"`
-	Suggest      SearchSuggest      `json:"suggest"`
-	Facets       SearchFacets       `json:"facets"`
-	Aggregations SearchAggregations `json:"aggregations"`
-	TimedOut     bool               `json:"timed_out"`
+	TookInMillis int64                      `json:"took"`
+	ScrollId     string                     `json:"_scroll_id"`
+	Hits         *SearchHits                `json:"hits"`
+	Suggest      SearchSuggest              `json:"suggest"`
+	Facets       SearchFacets               `json:"facets"`
+	Aggregations map[string]json.RawMessage `json:"aggregations"` // see search_aggs.go
+	TimedOut     bool                       `json:"timed_out"`
+}
+
+// GetAggregation returns the aggregation with the specified name.
+func (res *SearchResult) GetAggregation(name string) (*SearchAggregation, bool) {
+	agg, found := res.Aggregations[name]
+	if !found {
+		return nil, false
+	}
+	return NewSearchAggregation(name, agg), true
 }
 
 type SearchHits struct {
@@ -501,56 +510,7 @@ type searchFacetEntry struct {
 	Mean float64 `json:"mean,omitempty"`
 }
 
-// Aggregations
-
-type SearchAggregations map[string]*SearchAggregation
-
-type SearchAggregation struct {
-	DocCount      int                       `json:"doc_count,omitempty"`
-	Value         float64                   `json:"value,omitempty"`
-	ValueAsString string                    `json:"value_as_string,omitempty"`
-	Buckets       []searchAggregationBucket `json:"buckets,omitempty"`
-	// Number of hits for this aggregation.
-	// This is returned e.g. with the stats aggregate.
-	Count int `json:"count,omitempty"`
-	// Min is either a string like "Infinity" or a float64.
-	// This is returned e.g. with the stats aggregate.
-	Min interface{} `json:"min,omitempty"`
-	// Max is either a string like "-Infinity" or a float64
-	// This is returned e.g. with the stats aggregate.
-	Max interface{} `json:"max,omitempty"`
-	// Avg is either a string like "-Infinity" or a float64
-	// This is returned e.g. with the stats aggregate.
-	Avg interface{} `json:"avg,omitempty"`
-	// Sum is either a string like "-Infinity" or a float64
-	// This is returned e.g. with the stats aggregate.
-	Sum interface{} `json:"sum,omitempty"`
-	// SumOfSquares is either a string like "-Infinity" or a float64
-	// This is returned e.g. with the extended stats aggregate.
-	SumOfSquares interface{} `json:"sum_of_squares,omitempty"`
-	// Variance is either a string like "-Infinity" or a float64
-	// This is returned e.g. with the extended stats aggregate.
-	Variance interface{} `json:"variance,omitempty"`
-	// StdDeviation is either a string like "-Infinity" or a float64
-	// This is returned e.g. with the extended stats aggregate.
-	StdDeviation interface{} `json:"std_deviation,omitempty"`
-
-	// TODO(oe) How do we read the results of e.g. a percentiles aggregation?
-	// TODO(oe) How do we read the results of sub-aggregations?
-}
-
-type searchAggregationBucket struct {
-	Key          interface{} `json:"key,omitempty"`
-	KeyAsString  *string     `json:"key_as_string,omitempty"`
-	DocCount     int         `json:"doc_count,omitempty"`
-	From         *float64    `json:"from,omitempty"`
-	FromAsString *string     `json:"from_as_string,omitempty"`
-	To           *float64    `json:"to,omitempty"`
-	ToAsString   *string     `json:"to_as_string,omitempty"`
-	Score        *float64    `json:"score,omitempty"`    // significant_terms
-	BgCount      *int        `json:"bg_count,omitempty"` // significant_terms
-
-}
+// Aggregations (see search_aggs.go)
 
 // Highlighting
 
