@@ -448,9 +448,10 @@ type SearchSuggestion struct {
 }
 
 type SearchSuggestionOption struct {
-	Text  string  `json:"text"`
-	Score float32 `json:"score"`
-	Freq  int     `json:"freq"`
+	Text    string      `json:"text"`
+	Score   float32     `json:"score"`
+	Freq    int         `json:"freq"`
+	Payload interface{} `json:"payload"`
 }
 
 // Facets
