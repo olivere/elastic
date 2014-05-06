@@ -96,7 +96,9 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	for _, typ := range s.types {
 		typesPart = append(typesPart, cleanPathString(typ))
 	}
-	urls += strings.Join(typesPart, ",")
+	if len(typesPart) > 0 {
+		urls += "/" + strings.Join(typesPart, ",")
+	}
 
 	// Suggest
 	urls += "/_suggest"
