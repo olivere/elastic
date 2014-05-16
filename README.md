@@ -245,7 +245,7 @@ Here's the current API status.
 * `geo_bbox` (missing)
 * `geo_distance` (missing)
 * `geo_distance_range` (missing)
-* `geo_polygon` (missing)
+* `geo_polygon` (ok)
 * `geo_shape` (missing)
 * `has_child` (ok)
 * `has_parent` (ok)
