@@ -250,7 +250,7 @@ Here's the current API status.
 * `has_child` (ok)
 * `has_parent` (ok)
 * `match_all` (ok)
-* `missing` (missing)
+* `missing` (ok)
 * `not` (ok)
 * `numeric_range` (missing)
 * `or` (ok)
