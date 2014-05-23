@@ -124,9 +124,13 @@ func (sa *SearchAggregation) ValueCount() (*SearchAggregationValueCount, bool) {
 // Percentiles treats this aggregation as a percentiles aggregation.
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-aggregations-metrics-percentile-aggregation.html
 func (sa *SearchAggregation) Percentiles() (*SearchAggregationPercentiles, bool) {
-	values := make(map[string]interface{})
-	if err := json.Unmarshal(sa.raw, &values); err != nil {
+	agg := make(map[string]interface{})
+	if err := json.Unmarshal(sa.raw, &agg); err != nil {
 		return nil, false
+	}
+	values := make(map[string]interface{})
+	if vals, found := agg["values"].(map[string]interface{}); found {
+		values = vals
 	}
 	return &SearchAggregationPercentiles{Values: values}, true
 }

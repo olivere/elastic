@@ -362,7 +362,7 @@ func TestSearchAggregates(t *testing.T) {
 		t.Errorf("expected searchResult.Aggregations[\"percentilesRetweets\"] != nil; got nil")
 	}
 	if len(percentilesAggRes.Values) != 7 {
-		t.Fatalf("expected len(searchResult.Aggregations[\"percentilesRetweets\"].Values) == 7; got %v", len(percentilesAggRes.Values))
+		t.Fatalf("expected len(searchResult.Aggregations[\"percentilesRetweets\"].Values) == 7; got %v\nValues are: %#v", len(percentilesAggRes.Values), percentilesAggRes.Values)
 	}
 	if percentilesAggRes.Values["0.0"] != nil {
 		t.Errorf("expected searchResult.Aggregations[\"percentilesRetweets\"].Values[\"0.0\"] == nil; got %v", percentilesAggRes.Values["0.0"])
