@@ -21,7 +21,6 @@ type SuggestService struct {
 	routing    string
 	preference string
 	indices    []string
-	types      []string
 	suggesters []Suggester
 }
 
@@ -29,7 +28,6 @@ func NewSuggestService(client *Client) *SuggestService {
 	builder := &SuggestService{
 		client:     client,
 		indices:    make([]string, 0),
-		types:      make([]string, 0),
 		suggesters: make([]Suggester, 0),
 	}
 	return builder
@@ -42,16 +40,6 @@ func (s *SuggestService) Index(index string) *SuggestService {
 
 func (s *SuggestService) Indices(indices ...string) *SuggestService {
 	s.indices = append(s.indices, indices...)
-	return s
-}
-
-func (s *SuggestService) Type(typ string) *SuggestService {
-	s.types = append(s.types, typ)
-	return s
-}
-
-func (s *SuggestService) Types(types ...string) *SuggestService {
-	s.types = append(s.types, types...)
 	return s
 }
 
@@ -90,15 +78,6 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 		indexPart = append(indexPart, cleanPathString(index))
 	}
 	urls += strings.Join(indexPart, ",")
-
-	// Types part
-	typesPart := make([]string, 0)
-	for _, typ := range s.types {
-		typesPart = append(typesPart, cleanPathString(typ))
-	}
-	if len(typesPart) > 0 {
-		urls += "/" + strings.Join(typesPart, ",")
-	}
 
 	// Suggest
 	urls += "/_suggest"
