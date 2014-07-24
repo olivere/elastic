@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"encoding/json"
+	"strings"
 )
 
 // Aggregations can be seen as a unit-of-work that build
@@ -199,6 +200,87 @@ func (sa *SearchAggregation) Nested() (*SearchAggregationNested, bool) {
 	return agg, true
 }
 
+// TopHits treats this aggregation as a top_hits aggregation.
+// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-hits-aggregation.html
+func (sa *SearchAggregation) TopHits() (*SearchAggregationTopHits, bool) {
+	agg := new(SearchAggregationTopHits)
+	if err := json.Unmarshal(sa.raw, &agg); err != nil {
+		return nil, false
+	}
+
+	// TODO: There must be a better way than to decode again.
+
+	// The TopHits aggregation results look like this:
+	//
+	//    "top-tags" : {
+	//      "buckets" : [ {
+	//        "key" : "golang",
+	//        "doc_count" : 2,
+	//        "top_tag_hits" : {
+	//          "hits" : {
+	//            "total" : 2,
+	//            "max_score" : 1.0,
+	//            "hits" : [ {
+	//              "_index" : "elastic-test",
+	//              "_type" : "tweet",
+	//              "_id" : "1",
+	//              "_score" : 1.0,
+	//              "_source":{"user":"olivere","message":"Welcome to Golang and ElasticSearch.","retweets":108,"image":"http://golang.org/doc/gopher/gophercolor.png","created":"2012-12-12T17:38:34Z","tags":["golang","elasticsearch"]},
+	//              "sort" : [ 1355333914000 ]
+	//            }, {
+	//              "_index" : "elastic-test",
+	//              "_type" : "tweet",
+	//              "_id" : "2",
+	//              "_score" : 1.0,
+	//              "_source":{"user":"olivere","message":"Another unrelated topic.","retweets":0,"created":"2012-10-10T08:12:03Z","tags":["golang"]},
+	//              "sort" : [ 1349856723000 ]
+	//            } ]
+	//          }
+	//        }
+	//      }, {
+	//      	...
+	//      } ]
+	//    }
+	//
+	// We now try to find the "top_tag_hits" key in every bucket and
+	// decode the JSON below the "hits" key in the result.
+	aggdata := make(map[string]interface{})
+	if err := json.Unmarshal(sa.raw, &aggdata); err != nil {
+		return nil, false
+	}
+	bucketsintf, found := aggdata["buckets"]
+	if !found {
+		return nil, false
+	}
+	buckets, ok := bucketsintf.([]interface{})
+	if !ok {
+		return nil, false
+	}
+	// Find all entries of the form "*_hits" and save them as SearchHit instances
+	for i, bucketintf := range buckets {
+		keys, ok := bucketintf.(map[string]interface{})
+		if ok {
+			for key, value := range keys {
+				if strings.HasSuffix(key, "_hits") {
+					valuehits, ok := value.(map[string]interface{})
+					if ok {
+						bytedata, err := json.Marshal(valuehits["hits"])
+						if err != nil {
+							return nil, false
+						}
+						hits := new(SearchHits)
+						if err := json.Unmarshal(bytedata, hits); err != nil {
+							return nil, false
+						}
+						agg.Buckets[i].Hits = hits
+					}
+				}
+			}
+		}
+	}
+	return agg, true
+}
+
 // Terms treats this aggregation as a terms aggregation.
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-aggregations-bucket-terms-aggregation.html
 func (sa *SearchAggregation) Terms() (*SearchAggregationTerms, bool) {
@@ -343,6 +425,10 @@ type SearchAggregationNested struct {
 	ValueAsString string `json:"value_as_string,omitempty"`
 }
 
+type SearchAggregationTopHits struct {
+	Buckets []*searchAggregationBucket `json:"buckets,omitempty"`
+}
+
 type SearchAggregationTerms struct {
 	Buckets []*searchAggregationBucket `json:"buckets,omitempty"`
 }
@@ -383,4 +469,5 @@ type searchAggregationBucket struct {
 	Unit         string      `json:"unit,omitempty"`
 	Score        *float64    `json:"score,omitempty"`    // significant_terms
 	BgCount      *int        `json:"bg_count,omitempty"` // significant_terms
+	Hits         *SearchHits `json:"-"`                  // top_hits
 }

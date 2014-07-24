@@ -22,6 +22,7 @@ type tweet struct {
 	Retweets int       `json:"retweets"`
 	Image    string    `json:"image,omitempty"`
 	Created  time.Time `json:"created,omitempty"`
+	Tags     []string  `json:"tags,omitempty"`
 }
 
 func setupTestClient(t *testing.T) *Client {

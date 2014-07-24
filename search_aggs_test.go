@@ -19,18 +19,21 @@ func TestSearchAggregates(t *testing.T) {
 		Retweets: 108,
 		Message:  "Welcome to Golang and ElasticSearch.",
 		Image:    "http://golang.org/doc/gopher/gophercolor.png",
+		Tags:     []string{"golang", "elasticsearch"},
 		Created:  time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{
 		User:     "olivere",
 		Retweets: 0,
 		Message:  "Another unrelated topic.",
+		Tags:     []string{"golang"},
 		Created:  time.Date(2012, 10, 10, 8, 12, 03, 0, time.UTC),
 	}
 	tweet3 := tweet{
 		User:     "sandrae",
 		Retweets: 12,
 		Message:  "Cycling is fun.",
+		Tags:     []string{"sports", "cycling"},
 		Created:  time.Date(2011, 11, 11, 10, 58, 12, 0, time.UTC),
 	}
 
@@ -82,6 +85,8 @@ func TestSearchAggregates(t *testing.T) {
 	missingImageAgg := NewMissingAggregation().Field("image")
 	retweetsHistoAgg := NewHistogramAggregation().Field("retweets").Interval(100)
 	dateHistoAgg := NewDateHistogramAggregation().Field("created").Interval("year")
+	topTagsHitsAgg := NewTopHitsAggregation().Sort("created", false).Size(5).FetchSource(true)
+	topTagsAgg := NewTermsAggregation().Field("tags").Size(3).SubAggregation("top_tag_hits", topTagsHitsAgg)
 
 	// Run query
 	searchResult, err := client.Search().Index(testIndexName).
@@ -105,6 +110,7 @@ func TestSearchAggregates(t *testing.T) {
 		Aggregation("retweetsHisto", retweetsHistoAgg).
 		Aggregation("dateHisto", dateHistoAgg).
 		Aggregation("retweetsFilter", retweetsFilterAgg).
+		Aggregation("top-tags", topTagsAgg).
 		Pretty(true).Debug(true).
 		Do()
 	if err != nil {
@@ -686,5 +692,60 @@ func TestSearchAggregates(t *testing.T) {
 	}
 	if *dateHistoRes.Buckets[1].KeyAsString != "2012-01-01T00:00:00.000Z" {
 		t.Errorf("expected searchResult.Aggregations[\"dateHisto\"].Buckets[1].KeyAsString = %v; got %v", "2012-01-01T00:00:00.000Z", dateHistoRes.Buckets[1].KeyAsString)
+	}
+
+	// topHits
+	agg, found = searchResult.GetAggregation("top-tags")
+	if !found {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"] = %v; got %v", true, found)
+	}
+	if agg == nil {
+		t.Fatalf("expected searchResult.Aggregations[\"top-tags\"] != nil; got nil")
+	}
+	topHitsRes, found := agg.TopHits()
+	if !found {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"] = %v; got %v", true, found)
+	}
+	if topHitsRes == nil {
+		t.Fatalf("expected searchResult.Aggregations[\"top-tags\"] != nil; got nil")
+	}
+	if len(topHitsRes.Buckets) != 3 {
+		t.Errorf("expected len(searchResult.Aggregations[\"top-tags\"].Buckets) = %v; got %v", 3, len(topHitsRes.Buckets))
+	}
+	if topHitsRes.Buckets[0].DocCount != 2 {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"].Buckets[0].DocCount = %v; got %v", 2, topHitsRes.Buckets[0].DocCount)
+	}
+	if topHitsRes.Buckets[0].Key != "golang" {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"].Buckets[0].Key = %v; got %v", "golang", topHitsRes.Buckets[0].Key)
+	}
+	if topHitsRes.Buckets[0].Hits == nil {
+		t.Fatal("expected searchResult.Aggregations[\"top-tags\"].Buckets[0].Hits != nil; got nil")
+	}
+	if topHitsRes.Buckets[0].Hits.TotalHits != 2 {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"].Buckets[0].Hits.TotalHits = %v; got %v", 2, topHitsRes.Buckets[0].Hits.TotalHits)
+	}
+	if topHitsRes.Buckets[1].DocCount != 1 {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"].Buckets[1].DocCount = %v; got %v", 1, topHitsRes.Buckets[1].DocCount)
+	}
+	if topHitsRes.Buckets[1].Key != "cycling" {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"].Buckets[1].Key = %v; got %v", "cycling", topHitsRes.Buckets[1].Key)
+	}
+	if topHitsRes.Buckets[1].Hits == nil {
+		t.Fatal("expected searchResult.Aggregations[\"top-tags\"].Buckets[1].Hits != nil; got nil")
+	}
+	if topHitsRes.Buckets[1].Hits.TotalHits != 1 {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"].Buckets[1].Hits.TotalHits = %v; got %v", 1, topHitsRes.Buckets[1].Hits.TotalHits)
+	}
+	if topHitsRes.Buckets[2].DocCount != 1 {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"].Buckets[2].DocCount = %v; got %v", 1, topHitsRes.Buckets[2].DocCount)
+	}
+	if topHitsRes.Buckets[2].Key != "elasticsearch" {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"].Buckets[2].Key = %v; got %v", "elasticsearch", topHitsRes.Buckets[2].Key)
+	}
+	if topHitsRes.Buckets[2].Hits == nil {
+		t.Fatal("expected searchResult.Aggregations[\"top-tags\"].Buckets[2].Hits != nil; got nil")
+	}
+	if topHitsRes.Buckets[2].Hits.TotalHits != 1 {
+		t.Errorf("expected searchResult.Aggregations[\"top-tags\"].Buckets[2].Hits.TotalHits = %v; got %v", 1, topHitsRes.Buckets[2].Hits.TotalHits)
 	}
 }

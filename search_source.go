@@ -133,7 +133,7 @@ func (s *SearchSource) Highlight(highlight *Highlight) *SearchSource {
 	return s
 }
 
-func (s *SearchSource) Highlighter(highlight *Highlight) *Highlight {
+func (s *SearchSource) Highlighter() *Highlight {
 	if s.highlight == nil {
 		s.highlight = NewHighlight()
 	}
