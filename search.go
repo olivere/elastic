@@ -13,50 +13,24 @@ import (
 	"strings"
 )
 
-// Information about sorting a field.
-type SortInfo struct {
-	Field          string
-	Ascending      bool
-	Missing        *interface{}
-	IgnoreUnmapped bool
-}
-
 // Search for documents in ElasticSearch.
 type SearchService struct {
-	client            *Client
-	pretty            bool
-	searchType        string
-	indices           []string
-	queryHint         string
-	routing           string
-	preference        string
-	types             []string
-	timeout           string
-	query             Query
-	filters           []Filter
-	highlight         *Highlight
-	globalSuggestText string
-	suggesters        []Suggester
-	minScore          *float64
-	from              *int
-	size              *int
-	explain           *bool
-	version           *bool
-	sorts             []SortInfo
-	fields            []string
-	facets            map[string]Facet
-	aggregations      map[string]Aggregation
-	debug             bool
+	client       *Client
+	searchSource *SearchSource
+	pretty       bool
+	searchType   string
+	indices      []string
+	queryHint    string
+	routing      string
+	preference   string
+	types        []string
+	debug        bool
 }
 
 func NewSearchService(client *Client) *SearchService {
 	builder := &SearchService{
 		client:       client,
-		filters:      make([]Filter, 0),
-		sorts:        make([]SortInfo, 0),
-		fields:       make([]string, 0),
-		facets:       make(map[string]Facet),
-		aggregations: make(map[string]Aggregation),
+		searchSource: NewSearchSource(),
 		debug:        false,
 		pretty:       false,
 	}
@@ -107,12 +81,12 @@ func (s *SearchService) Debug(debug bool) *SearchService {
 }
 
 func (s *SearchService) Timeout(timeout string) *SearchService {
-	s.timeout = timeout
+	s.searchSource = s.searchSource.Timeout(timeout)
 	return s
 }
 
 func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
-	s.timeout = fmt.Sprintf("%dms", timeoutInMillis)
+	s.searchSource = s.searchSource.TimeoutInMillis(timeoutInMillis)
 	return s
 }
 
@@ -137,77 +111,79 @@ func (s *SearchService) QueryHint(queryHint string) *SearchService {
 }
 
 func (s *SearchService) Query(query Query) *SearchService {
-	s.query = query
+	s.searchSource = s.searchSource.Query(query)
 	return s
 }
 
-func (s *SearchService) Filter(filter Filter) *SearchService {
-	s.filters = append(s.filters, filter)
+// PostFilter is executed as the last filter. It only affects the
+// search hits but not facets.
+func (s *SearchService) PostFilter(postFilter Filter) *SearchService {
+	s.searchSource = s.searchSource.PostFilter(postFilter)
 	return s
 }
 
 func (s *SearchService) Highlight(highlight *Highlight) *SearchService {
-	s.highlight = highlight
+	s.searchSource = s.searchSource.Highlight(highlight)
 	return s
 }
 
 func (s *SearchService) GlobalSuggestText(globalText string) *SearchService {
-	s.globalSuggestText = globalText
+	s.searchSource = s.searchSource.GlobalSuggestText(globalText)
 	return s
 }
 
 func (s *SearchService) Suggester(suggester Suggester) *SearchService {
-	s.suggesters = append(s.suggesters, suggester)
+	s.searchSource = s.searchSource.Suggester(suggester)
 	return s
 }
 
 func (s *SearchService) Facet(name string, facet Facet) *SearchService {
-	s.facets[name] = facet
+	s.searchSource = s.searchSource.Facet(name, facet)
 	return s
 }
 
 func (s *SearchService) Aggregation(name string, aggregation Aggregation) *SearchService {
-	s.aggregations[name] = aggregation
+	s.searchSource = s.searchSource.Aggregation(name, aggregation)
 	return s
 }
 
 func (s *SearchService) MinScore(minScore float64) *SearchService {
-	s.minScore = &minScore
+	s.searchSource = s.searchSource.MinScore(minScore)
 	return s
 }
 
 func (s *SearchService) From(from int) *SearchService {
-	s.from = &from
+	s.searchSource = s.searchSource.From(from)
 	return s
 }
 
 func (s *SearchService) Size(size int) *SearchService {
-	s.size = &size
+	s.searchSource = s.searchSource.Size(size)
 	return s
 }
 
 func (s *SearchService) Explain(explain bool) *SearchService {
-	s.explain = &explain
+	s.searchSource = s.searchSource.Explain(explain)
 	return s
 }
 
 func (s *SearchService) Version(version bool) *SearchService {
-	s.version = &version
+	s.searchSource = s.searchSource.Version(version)
 	return s
 }
 
 func (s *SearchService) Sort(field string, ascending bool) *SearchService {
-	s.sorts = append(s.sorts, SortInfo{Field: field, Ascending: ascending})
+	s.searchSource = s.searchSource.Sort(field, ascending)
 	return s
 }
 
 func (s *SearchService) SortWithInfo(info SortInfo) *SearchService {
-	s.sorts = append(s.sorts, info)
+	s.searchSource = s.searchSource.SortWithInfo(info)
 	return s
 }
 
 func (s *SearchService) Fields(fields ...string) *SearchService {
-	s.fields = append(s.fields, fields...)
+	s.searchSource = s.searchSource.Fields(fields...)
 	return s
 }
 
@@ -240,9 +216,6 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
-	if s.timeout != "" {
-		params.Set("timeout", s.timeout)
-	}
 	if s.searchType != "" {
 		params.Set("search_type", s.searchType)
 	}
@@ -257,114 +230,7 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	}
 
 	// Set body
-	body := make(map[string]interface{})
-
-	// Query
-	if s.query != nil {
-		body["query"] = s.query.Source()
-	}
-
-	// Filters
-	if len(s.filters) == 1 {
-		body["filter"] = s.filters[0].Source()
-	} else if len(s.filters) > 1 {
-		f := make(map[string]interface{})
-		andedFilters := make([]interface{}, 0)
-		for _, filter := range s.filters {
-			andedFilters = append(andedFilters, filter.Source())
-		}
-		f["and"] = andedFilters
-		body["filter"] = f
-	}
-
-	// Highlight
-	if s.highlight != nil {
-		body["highlight"] = s.highlight.Source()
-	}
-
-	// Suggesters
-	if len(s.suggesters) > 0 {
-		suggesters := make(map[string]interface{})
-
-		for _, s := range s.suggesters {
-			suggesters[s.Name()] = s.Source(false)
-		}
-
-		if s.globalSuggestText != "" {
-			suggesters["text"] = s.globalSuggestText
-		}
-
-		body["suggest"] = suggesters
-	}
-
-	// Facets
-	if len(s.facets) > 0 {
-		// "facets" : {
-		//   "manufacturer" : {
-		//     "terms" : { ... }
-		//   },
-		//   "price" : {
-		//     "range" : { ... }
-		//   }
-		// }
-		facetsMap := make(map[string]interface{})
-		body["facets"] = facetsMap
-
-		for field, facet := range s.facets {
-			facetsMap[field] = facet.Source()
-		}
-	}
-
-	// Aggregations
-	if len(s.aggregations) > 0 {
-		// "aggregations" : {
-		//     "<aggregation_name>" : {
-		//         "<aggregation_type>" : {
-		//             <aggregation_body>
-		//         }
-		//         [,"aggregations" : { [<sub_aggregation>]+ } ]?
-		//     }
-		//     [,"<aggregation_name_2>" : { ... } ]*
-		// }
-		aggsMap := make(map[string]interface{})
-		body["aggregations"] = aggsMap
-
-		for name, aggregate := range s.aggregations {
-			aggsMap[name] = aggregate.Source()
-		}
-	}
-
-	// Limit/Offset
-	if s.from != nil && *s.from > 0 {
-		body["from"] = *s.from
-	}
-	if s.size != nil && *s.size > 0 {
-		body["size"] = *s.size
-	}
-
-	// Sort
-	if len(s.sorts) > 0 {
-		sortSlice := make([]interface{}, 0)
-		for _, info := range s.sorts {
-			sortProp := make(map[string]interface{})
-			if info.Ascending {
-				sortProp["order"] = "asc"
-			} else {
-				sortProp["order"] = "desc"
-			}
-			sortElem := make(map[string]interface{})
-			sortElem[info.Field] = sortProp
-			sortSlice = append(sortSlice, sortElem)
-		}
-		body["sort"] = sortSlice
-	}
-
-	// Fields
-	if len(s.fields) > 0 {
-		body["fields"] = s.fields
-	}
-
-	req.SetBodyJson(body)
+	req.SetBodyJson(s.searchSource.Source())
 
 	if s.debug {
 		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
