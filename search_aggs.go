@@ -351,6 +351,16 @@ func (sa *SearchAggregation) GeoDistance() (*SearchAggregationGeoDistance, bool)
 	return agg, true
 }
 
+// GeoBounds treats this aggregation as a geo_bounds aggregation.
+// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geobounds-aggregation.html
+func (sa *SearchAggregation) GeoBounds() (*SearchAggregationGeoBounds, bool) {
+	agg := new(SearchAggregationGeoBounds)
+	if err := json.Unmarshal(sa.raw, &agg); err != nil {
+		return nil, false
+	}
+	return agg, true
+}
+
 type SearchAggregationMin struct {
 	Value         interface{} `json:"value"`
 	ValueAsString string      `json:"value_as_string,omitempty"`
@@ -456,6 +466,19 @@ type SearchAggregationDateHistogram struct {
 
 type SearchAggregationGeoDistance struct {
 	Buckets []*searchAggregationBucket `json:"buckets,omitempty"`
+}
+
+type SearchAggregationGeoBounds struct {
+	Bounds struct {
+		TopLeft struct {
+			Latitude  float64 `json:"lat"`
+			Longitude float64 `json:"lon"`
+		} `json:"top_left"`
+		BottomRight struct {
+			Latitude  float64 `json:"lat"`
+			Longitude float64 `json:"lon"`
+		} `json:"bottom_right"`
+	} `json:"bounds"`
 }
 
 type searchAggregationBucket struct {

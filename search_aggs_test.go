@@ -20,6 +20,7 @@ func TestSearchAggregates(t *testing.T) {
 		Message:  "Welcome to Golang and ElasticSearch.",
 		Image:    "http://golang.org/doc/gopher/gophercolor.png",
 		Tags:     []string{"golang", "elasticsearch"},
+		Location: "48.1333,11.5667", // lat,lon
 		Created:  time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{
@@ -27,6 +28,7 @@ func TestSearchAggregates(t *testing.T) {
 		Retweets: 0,
 		Message:  "Another unrelated topic.",
 		Tags:     []string{"golang"},
+		Location: "48.1189,11.4289", // lat,lon
 		Created:  time.Date(2012, 10, 10, 8, 12, 03, 0, time.UTC),
 	}
 	tweet3 := tweet{
@@ -34,6 +36,7 @@ func TestSearchAggregates(t *testing.T) {
 		Retweets: 12,
 		Message:  "Cycling is fun.",
 		Tags:     []string{"sports", "cycling"},
+		Location: "47.7167,11.7167", // lat,lon
 		Created:  time.Date(2011, 11, 11, 10, 58, 12, 0, time.UTC),
 	}
 
@@ -87,6 +90,7 @@ func TestSearchAggregates(t *testing.T) {
 	dateHistoAgg := NewDateHistogramAggregation().Field("created").Interval("year")
 	topTagsHitsAgg := NewTopHitsAggregation().Sort("created", false).Size(5).FetchSource(true)
 	topTagsAgg := NewTermsAggregation().Field("tags").Size(3).SubAggregation("top_tag_hits", topTagsHitsAgg)
+	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
 
 	// Run query
 	searchResult, err := client.Search().Index(testIndexName).
@@ -111,6 +115,7 @@ func TestSearchAggregates(t *testing.T) {
 		Aggregation("dateHisto", dateHistoAgg).
 		Aggregation("retweetsFilter", retweetsFilterAgg).
 		Aggregation("top-tags", topTagsAgg).
+		Aggregation("viewport", geoBoundsAgg).
 		Pretty(true).Debug(true).
 		Do()
 	if err != nil {
@@ -747,5 +752,21 @@ func TestSearchAggregates(t *testing.T) {
 	}
 	if topHitsRes.Buckets[2].Hits.TotalHits != 1 {
 		t.Errorf("expected searchResult.Aggregations[\"top-tags\"].Buckets[2].Hits.TotalHits = %v; got %v", 1, topHitsRes.Buckets[2].Hits.TotalHits)
+	}
+
+	// viewport via geo_bounds (1.3.0 has an error in that it doesn't output the aggregation name)
+	agg, found = searchResult.GetAggregation("viewport")
+	if !found {
+		t.Errorf("expected searchResult.Aggregations[\"viewport\"] = %v; got %v", true, found)
+	}
+	if agg == nil {
+		t.Fatalf("expected searchResult.Aggregations[\"viewport\"] != nil; got nil")
+	}
+	geoBoundsRes, found := agg.GeoBounds()
+	if !found {
+		t.Errorf("expected searchResult.Aggregations[\"viewport\"] = %v; got %v", true, found)
+	}
+	if geoBoundsRes == nil {
+		t.Errorf("expected searchResult.Aggregations[\"viewport\"] != nil; got nil")
 	}
 }

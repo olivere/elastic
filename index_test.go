@@ -14,6 +14,23 @@ import (
 const (
 	testIndexName  = "elastic-test"
 	testIndexName2 = "elastic-test2"
+	testMapping    = `
+{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"tweet":{
+			"properties":{
+				"location":{
+					"type":"geo_point"
+				}
+			}
+		}
+	}
+}
+`
 )
 
 type tweet struct {
@@ -23,6 +40,7 @@ type tweet struct {
 	Image    string    `json:"image,omitempty"`
 	Created  time.Time `json:"created,omitempty"`
 	Tags     []string  `json:"tags,omitempty"`
+	Location string    `json:"location,omitempty"`
 }
 
 func setupTestClient(t *testing.T) *Client {
@@ -41,7 +59,7 @@ func setupTestClientAndCreateIndex(t *testing.T) *Client {
 	client := setupTestClient(t)
 
 	// Create index
-	createIndex, err := client.CreateIndex(testIndexName).Do()
+	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,7 +68,7 @@ func setupTestClientAndCreateIndex(t *testing.T) *Client {
 	}
 
 	// Create second index
-	createIndex2, err := client.CreateIndex(testIndexName2).Do()
+	createIndex2, err := client.CreateIndex(testIndexName2).Body(testMapping).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
