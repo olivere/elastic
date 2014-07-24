@@ -4,87 +4,88 @@
 
 package elastic
 
-// PercentilesAggregation
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-aggregation.html
-type PercentilesAggregation struct {
+// PercentileRanksAggregation
+// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-rank-aggregation.html
+type PercentileRanksAggregation struct {
 	field           string
 	script          string
 	lang            string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
-	percentiles     []float64
+	values          []float64
 	compression     *float64
 	estimator       string
 }
 
-func NewPercentilesAggregation() PercentilesAggregation {
-	a := PercentilesAggregation{
+func NewPercentileRanksAggregation() PercentileRanksAggregation {
+	a := PercentileRanksAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
-		percentiles:     make([]float64, 0),
+		values:          make([]float64, 0),
 	}
 	return a
 }
 
-func (a PercentilesAggregation) Field(field string) PercentilesAggregation {
+func (a PercentileRanksAggregation) Field(field string) PercentileRanksAggregation {
 	a.field = field
 	return a
 }
 
-func (a PercentilesAggregation) Script(script string) PercentilesAggregation {
+func (a PercentileRanksAggregation) Script(script string) PercentileRanksAggregation {
 	a.script = script
 	return a
 }
 
-func (a PercentilesAggregation) Lang(lang string) PercentilesAggregation {
+func (a PercentileRanksAggregation) Lang(lang string) PercentileRanksAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a PercentilesAggregation) Param(name string, value interface{}) PercentilesAggregation {
+func (a PercentileRanksAggregation) Param(name string, value interface{}) PercentileRanksAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a PercentilesAggregation) SubAggregation(name string, subAggregation Aggregation) PercentilesAggregation {
+func (a PercentileRanksAggregation) SubAggregation(name string, subAggregation Aggregation) PercentileRanksAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
-func (a PercentilesAggregation) Percentiles(percentiles ...float64) PercentilesAggregation {
-	a.percentiles = make([]float64, 0)
-	a.percentiles = append(a.percentiles, percentiles...)
+func (a PercentileRanksAggregation) Values(values ...float64) PercentileRanksAggregation {
+	a.values = make([]float64, 0)
+	a.values = append(a.values, values...)
 	return a
 }
 
-func (a PercentilesAggregation) Compression(compression float64) PercentilesAggregation {
+func (a PercentileRanksAggregation) Compression(compression float64) PercentileRanksAggregation {
 	a.compression = &compression
 	return a
 }
 
-func (a PercentilesAggregation) Estimator(estimator string) PercentilesAggregation {
+func (a PercentileRanksAggregation) Estimator(estimator string) PercentileRanksAggregation {
 	a.estimator = estimator
 	return a
 }
 
-func (a PercentilesAggregation) Source() interface{} {
+func (a PercentileRanksAggregation) Source() interface{} {
 	// Example:
 	//	{
 	//    "aggs" : {
 	//      "load_time_outlier" : {
-	//           "percentiles" : {
-	//               "field" : "load_time"
-	//           }
+	//         "percentile_ranks" : {
+	//           "field" : "load_time"
+	//           "values" : [15, 30]
+	//         }
 	//       }
 	//    }
 	//	}
 	// This method returns only the
-	//   { "percentiles" : { "field" : "load_time" } }
+	//   { "percentile_ranks" : { "field" : "load_time", "values" : [15, 30] } }
 	// part.
 
 	source := make(map[string]interface{})
 	opts := make(map[string]interface{})
-	source["percentiles"] = opts
+	source["percentile_ranks"] = opts
 
 	// ValuesSourceAggregationBuilder
 	if a.field != "" {
@@ -99,8 +100,8 @@ func (a PercentilesAggregation) Source() interface{} {
 	if len(a.params) > 0 {
 		opts["params"] = a.params
 	}
-	if len(a.percentiles) > 0 {
-		opts["percents"] = a.percentiles
+	if len(a.values) > 0 {
+		opts["values"] = a.values
 	}
 	if a.compression != nil {
 		opts["compression"] = *a.compression

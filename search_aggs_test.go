@@ -69,6 +69,7 @@ func TestSearchAggregates(t *testing.T) {
 	extstatsRetweetsAgg := NewExtendedStatsAggregation().Field("retweets")
 	valueCountRetweetsAgg := NewValueCountAggregation().Field("retweets")
 	percentilesRetweetsAgg := NewPercentilesAggregation().Field("retweets")
+	percentileRanksRetweetsAgg := NewPercentileRanksAggregation().Field("retweets").Values(25, 50, 75)
 	cardinalityAgg := NewCardinalityAggregation().Field("user")
 	retweetsFilterAgg := NewFilterAggregation().Filter(
 		NewRangeFilter("created").Gte("2012-01-01").Lte("2012-12-31")).
@@ -95,6 +96,7 @@ func TestSearchAggregates(t *testing.T) {
 		Aggregation("extstatsRetweets", extstatsRetweetsAgg).
 		Aggregation("valueCountRetweets", valueCountRetweetsAgg).
 		Aggregation("percentilesRetweets", percentilesRetweetsAgg).
+		Aggregation("percentileRanksRetweets", percentileRanksRetweetsAgg).
 		Aggregation("usersCardinality", cardinalityAgg).
 		Aggregation("significantTerms", significantTermsAgg).
 		Aggregation("retweetsRange", retweetsRangeAgg).
@@ -375,6 +377,37 @@ func TestSearchAggregates(t *testing.T) {
 	}
 	if percentilesAggRes.Values["99.0"] != 106.08 {
 		t.Errorf("expected searchResult.Aggregations[\"percentilesRetweets\"].Values[\"1.0\"] == %v; got %v", 106.08, percentilesAggRes.Values["99.0"])
+	}
+
+	// percentileRanksRetweets
+	agg, found = searchResult.GetAggregation("percentileRanksRetweets")
+	if !found {
+		t.Errorf("expected searchResult.Aggregations[\"percentileRanksRetweets\"] = %v; got %v", true, found)
+	}
+	if agg == nil {
+		t.Fatalf("expected searchResult.Aggregations[\"percentileRanksRetweets\"] != nil; got nil")
+	}
+	percentileRanksAggRes, found := agg.PercentileRanks()
+	if !found {
+		t.Errorf("expected searchResult.Aggregations[\"percentileRanksRetweets\"] = %v; got %v", true, found)
+	}
+	if percentileRanksAggRes == nil {
+		t.Errorf("expected searchResult.Aggregations[\"percentileRanksRetweets\"] != nil; got nil")
+	}
+	if len(percentileRanksAggRes.Values) != 3 {
+		t.Fatalf("expected len(searchResult.Aggregations[\"percentileRanksRetweets\"].Values) == 3; got %v\nValues are: %#v", len(percentileRanksAggRes.Values), percentileRanksAggRes.Values)
+	}
+	if percentileRanksAggRes.Values["0.0"] != nil {
+		t.Errorf("expected searchResult.Aggregations[\"percentileRanksRetweets\"].Values[\"0.0\"] == nil; got %v", percentileRanksAggRes.Values["0.0"])
+	}
+	if percentileRanksAggRes.Values["25.0"] != 21.180555555555557 {
+		t.Errorf("expected searchResult.Aggregations[\"percentileRanksRetweets\"].Values[\"25.0\"] == %v; got %v", 21.180555555555557, percentileRanksAggRes.Values["25.0"])
+	}
+	if percentileRanksAggRes.Values["50.0"] != 29.86111111111111 {
+		t.Errorf("expected searchResult.Aggregations[\"percentileRanksRetweets\"].Values[\"50.0\"] == %v; got %v", 29.86111111111111, percentileRanksAggRes.Values["50.0"])
+	}
+	if percentileRanksAggRes.Values["75.0"] != 38.54166666666667 {
+		t.Errorf("expected searchResult.Aggregations[\"percentileRanksRetweets\"].Values[\"75.0\"] == %v; got %v", 38.54166666666667, percentileRanksAggRes.Values["75.0"])
 	}
 
 	// usersCardinality

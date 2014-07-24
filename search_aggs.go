@@ -135,6 +135,20 @@ func (sa *SearchAggregation) Percentiles() (*SearchAggregationPercentiles, bool)
 	return &SearchAggregationPercentiles{Values: values}, true
 }
 
+// PercentileRanks treats this aggregation as a percentile ranks aggregation.
+// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-rank-aggregation.html#search-aggregations-metrics-percentile-rank-aggregation
+func (sa *SearchAggregation) PercentileRanks() (*SearchAggregationPercentileRanks, bool) {
+	agg := make(map[string]interface{})
+	if err := json.Unmarshal(sa.raw, &agg); err != nil {
+		return nil, false
+	}
+	values := make(map[string]interface{})
+	if vals, found := agg["values"].(map[string]interface{}); found {
+		values = vals
+	}
+	return &SearchAggregationPercentileRanks{Values: values}, true
+}
+
 // Cardinality treats this aggregation as a cardinality aggregation.
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-aggregations-metrics-cardinality-aggregation.html
 func (sa *SearchAggregation) Cardinality() (*SearchAggregationCardinality, bool) {
@@ -300,6 +314,10 @@ type SearchAggregationValueCount struct {
 }
 
 type SearchAggregationPercentiles struct {
+	Values map[string]interface{}
+}
+
+type SearchAggregationPercentileRanks struct {
 	Values map[string]interface{}
 }
 
