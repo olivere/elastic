@@ -196,7 +196,9 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 
 // Response to bulk execution.
 type BulkResponse struct {
-	Took int `json:"took"`
+	Took   int `json:"took"`
+	Errors bool
+	Items  []map[string]map[string]interface{}
 }
 
 // Generic interface to bulkable requests.
