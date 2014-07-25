@@ -23,8 +23,15 @@ const (
 	"mappings":{
 		"tweet":{
 			"properties":{
+				"tags":{
+					"type":"string"
+				},
 				"location":{
 					"type":"geo_point"
+				},
+				"suggest_field":{
+					"type":"completion",
+					"payloads":true
 				}
 			}
 		}
@@ -34,13 +41,14 @@ const (
 )
 
 type tweet struct {
-	User     string    `json:"user"`
-	Message  string    `json:"message"`
-	Retweets int       `json:"retweets"`
-	Image    string    `json:"image,omitempty"`
-	Created  time.Time `json:"created,omitempty"`
-	Tags     []string  `json:"tags,omitempty"`
-	Location string    `json:"location,omitempty"`
+	User     string        `json:"user"`
+	Message  string        `json:"message"`
+	Retweets int           `json:"retweets"`
+	Image    string        `json:"image,omitempty"`
+	Created  time.Time     `json:"created,omitempty"`
+	Tags     []string      `json:"tags,omitempty"`
+	Location string        `json:"location,omitempty"`
+	Suggest  *SuggestField `json:"suggest_field,omitempty"`
 }
 
 func setupTestClient(t *testing.T) *Client {
