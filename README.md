@@ -7,23 +7,25 @@ client for
 
 ## Status
 
-We use Elastic in production for more than a year.
-The reason it doesn't have the 1.0 version tag is
-that it's incomplete.
+We use Elastic in production for more than two years now.
+Although Elastic is quite stable from our experience, we don't have
+a stable API yet. The reason for this is that Elasticsearch changes quite
+often and at a fast pace. At this moment we focus on features, not on a
+stable API. Having said that, there have been no huge changes for the last
+12 months that required you to rewrite your application from scratch.
+More often than not it's renaming APIs and adding/removing features
+so that we are in sync with the Elasticsearch API.
 
 Elastic supports and has been tested in production with
-the following Elasticsearch versions: 0.90, 1.0, 1.1.
-However, we will keep a focus on 1.1 because that's the
-version we use in our projects.
+the following Elasticsearch versions: 0.90, 1.0, 1.1, 1.2, and 1.3.
 
-ElasticSearch has quite a few features. A lot of them are
+Elasticsearch has quite a few features. A lot of them are
 not yet implemented in Elastic (see below for details).
 I add features and APIs as required. It's straightforward
 to implement missing pieces. I'm accepting pull requests :-)
 
 Having said that, I hope you find the project useful. Fork it
-as you like. There might be some structural changes as well.
-As I said: It's not 1.0 yet.
+as you like.
 
 ## Usage
 
@@ -109,150 +111,150 @@ Grab the code with `go get github.com/olivere/elastic`.
 
 Here's the current API status.
 
-### Core
+### APIs
 
+* Search APIs
+  - Most queries, filters, facets, aggregations etc. implemented (see below)
 * Index (ok)
 * Get (ok)
 * Delete (ok)
 * Update (missing)
 * Multi Get (missing)
-* Search (ok)
-* Multi Search (missing)
-* Percolate (missing)
 * Bulk (ok)
 * Bulk UDP (missing)
-* Count (ok)
 * Delete By Query (missing)
-* More like this (missing)
+* Term vectors (missing)
+* Multi term vectors (missing)
+* Count (ok)
 * Validate (missing)
 * Explain (missing)
+* Search (ok)
+* Search shards (missing)
+* Search template (missing)
+* Facets (most implemented -- see below)
+* Aggregates (most implemented -- see below)
+* Multi Search (missing)
+* Percolate (missing)
+* Delete By Query (missing)
+* More like this (missing)
+* Benchmark (missing)
 
 ### Indices
 
-* Aliases (ok)
+* Create index (ok)
+* Delete index (ok)
+* Indices exists (ok)
+* Open/close index (missing)
+* Put mapping (missing)
+* Get mapping (missing)
+* Get field mapping (missing)
+* Types exist (missing)
+* Delete mapping (missing)
+* Index aliases (ok)
+* Update indices settings (missing)
+* Get settings (missing)
 * Analyze (missing)
-* Create Index (ok)
-* Delete Index (ok)
-* Open/Close Index (missing)
-* Get Settings (missing)
-* Get Mapping (missing)
-* Put Mapping (missing)
-* Delete Mapping (missing)
+* Index templates (missing)
+* Warmers (missing)
+* Status (missing)
+* Indices stats (missing)
+* Indices segments (missing)
+* Indices recovery (missing)
+* Clear cache (missing)
+* Flush (ok)
 * Refresh (missing)
 * Optimize (missing)
-* Flush (ok)
+
+### Snapshot and Restore
+
 * Snapshot (missing)
-* Update Settings (missing)
-* Templates (missing)
-* Warmers (missing)
-* Stats (missing)
-* Status (missing)
-* Segments (missing)
-* Clear Cache (missing)
-* Indices Exists (ok)
-* Types Exists (missing)
+* Restore (missing)
+* Snapshot status (missing)
+* Monitoring snapshot/restore progress (missing)
+* Partial restore (missing)
+
+### Cat APIs
+
+Not implemented. Those are better suited for operating with Elasticsearch
+on the command line.
 
 ### Cluster
 
 * Health (missing)
 * State (missing)
-* Update Settings (missing)
-* Nodes Info (missing)
-* Nodes Stats (missing)
-* Nodes Shutdown (missing)
-* Nodes Hot Threads (missing)
-* Cluster Reroute (missing)
+* Stats (missing)
+* Pending cluster tasks (missing)
+* Cluster reroute (missing)
+* Cluster update settings (missing)
+* Nodes stats (missing)
+* Nodes info (missing)
+* Nodes hot_threads (missing)
+* Nodes shutdown (missing)
 
-### Search
+### Query DSL
 
-* Request Body (ok)
-* URI Request (missing)
-* Query (ok)
-* Filter (ok)
-* From/Size (ok)
-* Indices/Types (ok)
-* Sort (ok)
-* Rescore (missing)
-* Term Suggest (ok)
-* Phrase Suggest (ok)
-* Completion Suggest (incomplete)
-* Highlighting (missing)
-* Fields (missing)
-* Script Fields (missing)
-* Preference (ok)
-* Facets (ok)
-* Named Filters (ok)
-* Search Type (ok)
-* Index Boost (missing)
-* Scroll (ok)
-* Explain (ok)
-* Version (ok)
-* Min Score (ok)
-
-### Queries
+#### Queries
 
 * `match` (ok)
 * `multi_match` (ok)
 * `bool` (ok)
 * `boosting` (missing)
-* `ids` (ok)
-* `custom_score` (ok)
-* `custom_filters_score` (ok)
-* `custom_boost_factor` (missing)
+* `common_terms` (missing)
 * `constant_score` (missing)
 * `dis_max` (ok)
-* `field` (missing)
 * `filtered` (ok)
 * `flt` (missing)
 * `flt_field` (missing)
 * `function_score` (ok)
 * `fuzzy` (missing)
+* `geo_shape` (missing)
 * `has_child` (ok)
 * `has_parent` (ok)
+* `ids` (ok)
+* `indices` (missing)
 * `match_all` (ok)
 * `mlt` (ok)
 * `mlt_field` (ok)
+* `nested` (ok)
 * `prefix` (ok)
 * `query_string` (ok)
 * `simple_query_string` (ok)
 * `range` (ok)
 * `regexp` (missing)
 * `span_first` (missing)
-* `span_multi` (missing)
+* `span_multi_term` (missing)
 * `span_near` (missing)
 * `span_not` (missing)
 * `span_or` (missing)
 * `span_term` (missing)
 * `term` (ok)
 * `terms` (ok)
-* `common` (ok)
 * `top_children` (missing)
 * `wildcard` (missing)
-* `nested` (ok)
-* `custom_filters_score` (ok)
-* `indices` (missing)
-* `text` (missing)
-* `geo_shape` (missing)
+* `minimum_should_match` (missing)
+* `multi_term_query_rewrite` (missing)
+* `template_query` (missing)
 
-### Filters
+#### Filters
 
 * `and` (ok)
 * `bool` (ok)
 * `exists` (ok)
-* `ids` (ok)
-* `limit` (ok)
-* `type` (ok)
-* `geo_bbox` (missing)
+* `geo_bounding_box` (missing)
 * `geo_distance` (missing)
 * `geo_distance_range` (missing)
 * `geo_polygon` (ok)
-* `geo_shape` (missing)
+* `geoshape` (missing)
+* `geohash` (missing)
 * `has_child` (ok)
 * `has_parent` (ok)
+* `ids` (ok)
+* `indices` (missing)
+* `limit` (ok)
 * `match_all` (ok)
 * `missing` (ok)
+* `nested` (ok)
 * `not` (ok)
-* `numeric_range` (missing)
 * `or` (ok)
 * `prefix` (ok)
 * `query` (missing)
@@ -261,7 +263,7 @@ Here's the current API status.
 * `script` (missing)
 * `term` (ok)
 * `terms` (ok)
-* `nested` (ok)
+* `type` (ok)
 
 ### Facets
 
@@ -285,11 +287,15 @@ Here's the current API status.
 * extended stats (ok)
 * value count (ok)
 * percentiles (ok)
+* percentile ranks (ok)
 * cardinality (ok)
+* geo bounds (ok)
+* top hits (ok)
 * global (ok)
 * filter (ok)
 * missing (ok)
 * nested (ok)
+* reverse nested (missing)
 * terms (ok)
 * significant terms (ok)
 * range (ok)

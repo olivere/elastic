@@ -19,6 +19,11 @@ func (r *Rescore) IsEmpty() bool {
 	return r.rescorer == nil
 }
 
+func (r *Rescore) Rescorer(rescorer Rescorer) *Rescore {
+	r.rescorer = rescorer
+	return r
+}
+
 func (r *Rescore) Source() interface{} {
 	source := make(map[string]interface{})
 	if r.windowSize != nil {

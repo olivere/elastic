@@ -39,7 +39,6 @@ func NewSearchSource() *SearchSource {
 		size:            -1,
 		trackScores:     false,
 		sorts:           make([]SortInfo, 0),
-		fieldNames:      make([]string, 0),
 		fieldDataFields: make([]string, 0),
 		scriptFields:    make([]*ScriptField, 0),
 		partialFields:   make([]*PartialField, 0),
@@ -175,11 +174,17 @@ func (s *SearchSource) FetchSourceContext(fetchSourceContext *FetchSourceContext
 }
 
 func (s *SearchSource) Fields(fieldNames ...string) *SearchSource {
+	if s.fieldNames == nil {
+		s.fieldNames = make([]string, 0)
+	}
 	s.fieldNames = append(s.fieldNames, fieldNames...)
 	return s
 }
 
 func (s *SearchSource) Field(fieldName string) *SearchSource {
+	if s.fieldNames == nil {
+		s.fieldNames = make([]string, 0)
+	}
 	s.fieldNames = append(s.fieldNames, fieldName)
 	return s
 }
@@ -260,12 +265,13 @@ func (s *SearchSource) Source() interface{} {
 		source["_source"] = s.fetchSourceContext.Source()
 	}
 
-	switch len(s.fieldNames) {
-	case 0:
-	case 1:
-		source["fields"] = s.fieldNames[0]
-	default:
-		source["fields"] = s.fieldNames
+	if s.fieldNames != nil {
+		switch len(s.fieldNames) {
+		case 1:
+			source["fields"] = s.fieldNames[0]
+		default:
+			source["fields"] = s.fieldNames
+		}
 	}
 
 	if len(s.fieldDataFields) > 0 {
