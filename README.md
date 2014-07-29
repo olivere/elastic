@@ -119,7 +119,7 @@ Here's the current API status.
 * Get (ok)
 * Delete (ok)
 * Update (missing)
-* Multi Get (missing)
+* Multi Get (ok)
 * Bulk (ok)
 * Bulk UDP (missing)
 * Delete By Query (missing)

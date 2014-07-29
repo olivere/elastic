@@ -165,6 +165,12 @@ func (c *Client) Get() *GetService {
 	return builder
 }
 
+// MultiGet retrieves multiple documents in one roundtrip.
+func (c *Client) MultiGet() *MultiGetService {
+	builder := NewMultiGetService(c)
+	return builder
+}
+
 // Exists checks if a document exists.
 func (c *Client) Exists() *ExistsService {
 	builder := NewExistsService(c)
