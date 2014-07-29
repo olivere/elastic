@@ -162,8 +162,8 @@ Here's the current API status.
 * Indices recovery (missing)
 * Clear cache (missing)
 * Flush (ok)
-* Refresh (missing)
-* Optimize (missing)
+* Refresh (ok)
+* Optimize (ok)
 
 ### Snapshot and Restore
 

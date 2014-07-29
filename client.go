@@ -210,6 +210,20 @@ func (c *Client) Scan(indices ...string) *ScanService {
 	return builder
 }
 
+// Optimize asks Elasticsearch to optimize one or more indices.
+func (c *Client) Optimize(indices ...string) *OptimizeService {
+	builder := NewOptimizeService(c)
+	builder.Indices(indices...)
+	return builder
+}
+
+// Refresh asks Elasticsearch to refresh one or more indices.
+func (c *Client) Refresh(indices ...string) *RefreshService {
+	builder := NewRefreshService(c)
+	builder.Indices(indices...)
+	return builder
+}
+
 // Flush asks Elasticsearch to free memory from the index and
 // flush data to disk.
 func (c *Client) Flush() *FlushService {
