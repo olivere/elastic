@@ -176,7 +176,7 @@ func TestSearchSpecificFields(t *testing.T) {
 		Index(testIndexName).
 		Query(&all).
 		Fields("message").
-		Debug(true).
+		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

@@ -116,7 +116,7 @@ func TestSearchAggregates(t *testing.T) {
 		Aggregation("retweetsFilter", retweetsFilterAgg).
 		Aggregation("top-tags", topTagsAgg).
 		Aggregation("viewport", geoBoundsAgg).
-		Pretty(true).Debug(true).
+		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

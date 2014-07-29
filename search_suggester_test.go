@@ -219,7 +219,7 @@ func TestCompletionSuggester(t *testing.T) {
 		Index(testIndexName).
 		Query(&all).
 		Suggester(cs).
-		Debug(true).Pretty(true).
+		// Debug(true).Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

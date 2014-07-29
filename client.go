@@ -15,7 +15,7 @@ import (
 
 const (
 	// Current version.
-	Version = "1.3"
+	Version = "1.3.1"
 
 	// defaultUrl to be used as base for Elasticsearch requests.
 	defaultUrl = "http://localhost:9200"
@@ -189,6 +189,11 @@ func (c *Client) Search(indices ...string) *SearchService {
 	builder := NewSearchService(c)
 	builder.Indices(indices...)
 	return builder
+}
+
+// MultiSearch is the entry point for multi searches.
+func (c *Client) MultiSearch() *MultiSearchService {
+	return NewMultiSearchService(c)
 }
 
 // Suggest returns an interface to return suggestions.

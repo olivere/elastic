@@ -267,6 +267,7 @@ type SearchResult struct {
 	Facets       SearchFacets               `json:"facets"`
 	Aggregations map[string]json.RawMessage `json:"aggregations"` // see search_aggs.go
 	TimedOut     bool                       `json:"timed_out"`
+	Error        string                     `json:"error,omitempty"` // used in MultiSearch only
 }
 
 // GetAggregation returns the aggregation with the specified name.
