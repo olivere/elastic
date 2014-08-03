@@ -58,10 +58,10 @@ func (f AndFilter) Source() interface{} {
 	source["and"] = params
 
 	filters := make([]interface{}, 0)
-	params["filters"] = filters
 	for _, filter := range f.filters {
 		filters = append(filters, filter.Source())
 	}
+	params["filters"] = filters
 
 	if f.cache != nil {
 		params["_cache"] = *f.cache

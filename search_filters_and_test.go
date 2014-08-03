@@ -24,3 +24,16 @@ func TestAndFilter(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestAndFilterViaNew(t *testing.T) {
+	f := NewAndFilter(NewTermFilter("user", "olivere"))
+	data, err := json.Marshal(f.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"and":{"filters":[{"term":{"user":"olivere"}}]}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
