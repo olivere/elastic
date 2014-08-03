@@ -16,12 +16,11 @@ type AndFilter struct {
 }
 
 func NewAndFilter(filters ...Filter) AndFilter {
-	f := AndFilter{}
+	f := AndFilter{
+		filters: make([]Filter, 0),
+	}
 	if len(filters) > 0 {
-		f.filters = make([]Filter, len(filters))
 		f.filters = append(f.filters, filters...)
-	} else {
-		f.filters = make([]Filter, 0)
 	}
 	return f
 }
@@ -58,10 +57,10 @@ func (f AndFilter) Source() interface{} {
 	params := make(map[string]interface{})
 	source["and"] = params
 
-	filters := make([]interface{}, len(f.filters))
+	filters := make([]interface{}, 0)
 	params["filters"] = filters
-	for i, filter := range f.filters {
-		filters[i] = filter.Source()
+	for _, filter := range f.filters {
+		filters = append(filters, filter.Source())
 	}
 
 	if f.cache != nil {
