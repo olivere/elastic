@@ -196,7 +196,9 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 
 // Response to bulk execution.
 type BulkResponse struct {
-	Took int `json:"took"`
+	Took   int `json:"took"`
+	Errors bool
+	Items  []map[string]map[string]interface{}
 }
 
 // Generic interface to bulkable requests.
@@ -241,6 +243,89 @@ func (r BulkIndexRequest) Source() ([]string, error) {
 	command := make(map[string]interface{})
 	indexCommand := make(map[string]interface{})
 	command["index"] = indexCommand
+	if r.Index != "" {
+		indexCommand["_index"] = r.Index
+	}
+	if r.Type != "" {
+		indexCommand["_type"] = r.Type
+	}
+	if r.Id != "" {
+		indexCommand["_id"] = r.Id
+	}
+	// TODO _version
+	// TODO _version_type
+	// TODO _routing
+	// TODO _percolate
+	// TODO _parent
+	// TODO _timestamp
+	// TODO _ttl
+	line, err := json.Marshal(command)
+	if err != nil {
+		return nil, err
+	}
+	lines[0] = string(line)
+
+	// "field1" ...
+	if r.Data != nil {
+		switch t := r.Data.(type) {
+		default:
+			body, err := json.Marshal(r.Data)
+			if err != nil {
+				return nil, err
+			}
+			lines[1] = string(body)
+		case json.RawMessage:
+			lines[1] = string(t)
+		case *json.RawMessage:
+			lines[1] = string(*t)
+		case string:
+			lines[1] = t
+		case *string:
+			lines[1] = *t
+		}
+	} else {
+		lines[1] = "{}"
+	}
+
+	return lines, nil
+}
+
+// Bulk request to update document in ElasticSearch.
+type BulkUpdateRequest struct {
+	BulkableRequest
+	Index string
+	Type  string
+	Id    string
+	Data  interface{}
+}
+
+func NewBulkUpdateRequest(index, _type, id string, data interface{}) *BulkUpdateRequest {
+	return &BulkUpdateRequest{
+		Index: index,
+		Type:  _type,
+		Id:    id,
+		Data:  data,
+	}
+}
+
+func (r BulkUpdateRequest) String() string {
+	lines, err := r.Source()
+	if err == nil {
+		return strings.Join(lines, "\n")
+	}
+	return fmt.Sprintf("error: %v", err)
+}
+
+func (r BulkUpdateRequest) Source() ([]string, error) {
+	// { "index" : { "_index" : "test", "_type" : "type1", "_id" : "1" } }
+	// { "field1" : "value1" }
+
+	lines := make([]string, 2)
+
+	// "index" ...
+	command := make(map[string]interface{})
+	indexCommand := make(map[string]interface{})
+	command["update"] = indexCommand
 	if r.Index != "" {
 		indexCommand["_index"] = r.Index
 	}
