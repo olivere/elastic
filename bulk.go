@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 )
 
 type BulkService struct {
@@ -23,6 +22,7 @@ type BulkService struct {
 	requests []BulkableRequest
 	//replicationType string
 	//consistencyLevel string
+	timeout      string
 	refresh      *bool
 	pretty       bool
 	debug        bool
@@ -51,6 +51,11 @@ func (s *BulkService) Index(index string) *BulkService {
 
 func (s *BulkService) Type(_type string) *BulkService {
 	s._type = _type
+	return s
+}
+
+func (s *BulkService) Timeout(timeout string) *BulkService {
+	s.timeout = timeout
 	return s
 }
 
@@ -132,6 +137,9 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	if s.refresh != nil {
 		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
 	}
+	if s.timeout != "" {
+		params.Set("timeout", s.timeout)
+	}
 	if len(params) > 0 {
 		urls += "?" + params.Encode()
 	}
@@ -194,154 +202,111 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	return ret, nil
 }
 
-// Response to bulk execution.
+// BulkResponse is a response to a bulk execution.
+//
+// Example:
+// {
+//   "took":3,
+//   "errors":false,
+//   "items":[{
+//     "index":{
+//       "_index":"index1",
+//       "_type":"tweet",
+//       "_id":"1",
+//       "_version":3,
+//       "status":201
+//     }
+//   },{
+//     "index":{
+//       "_index":"index2",
+//       "_type":"tweet",
+//       "_id":"2",
+//       "_version":3,
+//       "status":200
+//     }
+//   },{
+//     "delete":{
+//       "_index":"index1",
+//       "_type":"tweet",
+//       "_id":"1",
+//       "_version":4,
+//       "status":200,
+//       "found":true
+//     }
+//   },{
+//     "update":{
+//       "_index":"index2",
+//       "_type":"tweet",
+//       "_id":"2",
+//       "_version":4,
+//       "status":200
+//     }
+//   }]
+// }
 type BulkResponse struct {
-	Took int `json:"took"`
+	Took   int                            `json:"took,omitempty"`
+	Errors bool                           `json:"errors,omitempty"`
+	Items  []map[string]*BulkResponseItem `json:"items,omitempty"`
 }
 
-// Generic interface to bulkable requests.
-type BulkableRequest interface {
-	fmt.Stringer
-	Source() ([]string, error)
+// BulkResponseItem is the result of a single bulk request.
+type BulkResponseItem struct {
+	Index   string `json:"_index,omitempty"`
+	Type    string `json:"_type,omitempty"`
+	Id      string `json:"_id,omitempty"`
+	Version int    `json:"_version,omitempty"`
+	Status  int    `json:"status,omitempty"`
+	Found   bool   `json:"found,omitempty"`
 }
 
-// Bulk request to add document to ElasticSearch.
-type BulkIndexRequest struct {
-	BulkableRequest
-	Index string
-	Type  string
-	Id    string
-	Data  interface{}
+// Indexed returns all bulk request results of "index" actions.
+func (r *BulkResponse) Indexed() []*BulkResponseItem {
+	return r.ByAction("index")
 }
 
-func NewBulkIndexRequest(index, _type, id string, data interface{}) *BulkIndexRequest {
-	return &BulkIndexRequest{
-		Index: index,
-		Type:  _type,
-		Id:    id,
-		Data:  data,
-	}
+// Created returns all bulk request results of "create" actions.
+func (r *BulkResponse) Created() []*BulkResponseItem {
+	return r.ByAction("create")
 }
 
-func (r BulkIndexRequest) String() string {
-	lines, err := r.Source()
-	if err == nil {
-		return strings.Join(lines, "\n")
-	}
-	return fmt.Sprintf("error: %v", err)
+// Updated returns all bulk request results of "update" actions.
+func (r *BulkResponse) Updated() []*BulkResponseItem {
+	return r.ByAction("update")
 }
 
-func (r BulkIndexRequest) Source() ([]string, error) {
-	// { "index" : { "_index" : "test", "_type" : "type1", "_id" : "1" } }
-	// { "field1" : "value1" }
+// Deleted returns all bulk request results of "delete" actions.
+func (r *BulkResponse) Deleted() []*BulkResponseItem {
+	return r.ByAction("delete")
+}
 
-	lines := make([]string, 2)
-
-	// "index" ...
-	command := make(map[string]interface{})
-	indexCommand := make(map[string]interface{})
-	command["index"] = indexCommand
-	if r.Index != "" {
-		indexCommand["_index"] = r.Index
+// ByAction returns all bulk request results of a certain action,
+// e.g. "index" or "delete".
+func (r *BulkResponse) ByAction(action string) []*BulkResponseItem {
+	if r.Items == nil {
+		return nil
 	}
-	if r.Type != "" {
-		indexCommand["_type"] = r.Type
-	}
-	if r.Id != "" {
-		indexCommand["_id"] = r.Id
-	}
-	// TODO _version
-	// TODO _version_type
-	// TODO _routing
-	// TODO _percolate
-	// TODO _parent
-	// TODO _timestamp
-	// TODO _ttl
-	line, err := json.Marshal(command)
-	if err != nil {
-		return nil, err
-	}
-	lines[0] = string(line)
-
-	// "field1" ...
-	if r.Data != nil {
-		switch t := r.Data.(type) {
-		default:
-			body, err := json.Marshal(r.Data)
-			if err != nil {
-				return nil, err
-			}
-			lines[1] = string(body)
-		case json.RawMessage:
-			lines[1] = string(t)
-		case *json.RawMessage:
-			lines[1] = string(*t)
-		case string:
-			lines[1] = t
-		case *string:
-			lines[1] = *t
+	items := make([]*BulkResponseItem, 0)
+	for _, item := range r.Items {
+		if result, found := item[action]; found {
+			items = append(items, result)
 		}
-	} else {
-		lines[1] = "{}"
 	}
-
-	return lines, nil
+	return items
 }
 
-// Bulk request to remove document from ElasticSearch.
-type BulkDeleteRequest struct {
-	BulkableRequest
-	Index string
-	Type  string
-	Id    string
-}
-
-func NewBulkDeleteRequest(index, _type, id string) *BulkDeleteRequest {
-	return &BulkDeleteRequest{
-		Index: index,
-		Type:  _type,
-		Id:    id,
+// ById returns all bulk request results of a given document id,
+// regardless of the action ("index", "delete" etc.).
+func (r *BulkResponse) ById(id string) []*BulkResponseItem {
+	if r.Items == nil {
+		return nil
 	}
-}
-
-func (r BulkDeleteRequest) String() string {
-	lines, err := r.Source()
-	if err == nil {
-		return strings.Join(lines, "\n")
+	items := make([]*BulkResponseItem, 0)
+	for _, item := range r.Items {
+		for _, result := range item {
+			if result.Id == id {
+				items = append(items, result)
+			}
+		}
 	}
-	return fmt.Sprintf("error: %v", err)
-}
-
-func (r BulkDeleteRequest) Source() ([]string, error) {
-	lines := make([]string, 1)
-
-	source := make(map[string]interface{})
-	data := make(map[string]interface{})
-	source["delete"] = data
-
-	if r.Index != "" {
-		data["_index"] = r.Index
-	}
-	if r.Type != "" {
-		data["_type"] = r.Type
-	}
-	if r.Id != "" {
-		data["_id"] = r.Id
-	}
-	// TODO _version
-	// TODO _version_type
-	// TODO _routing
-	// TODO _percolate
-	// TODO _parent
-	// TODO _timestamp
-	// TODO _ttl
-
-	body, err := json.Marshal(source)
-	if err != nil {
-		return nil, err
-	}
-
-	lines[0] = string(body)
-
-	return lines, nil
+	return items
 }
