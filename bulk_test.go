@@ -25,7 +25,7 @@ func TestBulk(t *testing.T) {
 	bulkRequest = bulkRequest.Add(delete1Req)
 
 	if bulkRequest.NumberOfActions() != 3 {
-		t.Errorf("expected bulkRequest.NumberOfActions %q; got %q", 3, bulkRequest.NumberOfActions())
+		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 3, bulkRequest.NumberOfActions())
 	}
 
 	bulkResponse, err := bulkRequest.Do()
@@ -37,7 +37,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	if bulkRequest.NumberOfActions() != 0 {
-		t.Errorf("expected bulkRequest.NumberOfActions %q; got %q", 0, bulkRequest.NumberOfActions())
+		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 0, bulkRequest.NumberOfActions())
 	}
 
 	// Document with Id="1" should not exist
@@ -46,7 +46,7 @@ func TestBulk(t *testing.T) {
 		t.Fatal(err)
 	}
 	if exists {
-		t.Errorf("expected exists %q; got %q", false, exists)
+		t.Errorf("expected exists %v; got %v", false, exists)
 	}
 
 	// Document with Id="2" should exist
@@ -55,7 +55,7 @@ func TestBulk(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !exists {
-		t.Errorf("expected exists %q; got %q", true, exists)
+		t.Errorf("expected exists %v; got %v", true, exists)
 	}
 
 	// Update
@@ -69,7 +69,7 @@ func TestBulk(t *testing.T) {
 	bulkRequest = bulkRequest.Add(update1Req)
 
 	if bulkRequest.NumberOfActions() != 1 {
-		t.Errorf("expected bulkRequest.NumberOfActions %q; got %q", 1, bulkRequest.NumberOfActions())
+		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 1, bulkRequest.NumberOfActions())
 	}
 
 	bulkResponse, err = bulkRequest.Do()
@@ -81,7 +81,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	if bulkRequest.NumberOfActions() != 0 {
-		t.Errorf("expected bulkRequest.NumberOfActions %q; got %q", 0, bulkRequest.NumberOfActions())
+		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 0, bulkRequest.NumberOfActions())
 	}
 
 	// Document with Id="1" should have a retweets count of 42
@@ -124,7 +124,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 	bulkRequest = bulkRequest.Add(delete1Req)
 
 	if bulkRequest.NumberOfActions() != 3 {
-		t.Errorf("expected bulkRequest.NumberOfActions %q; got %q", 3, bulkRequest.NumberOfActions())
+		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 3, bulkRequest.NumberOfActions())
 	}
 
 	bulkResponse, err := bulkRequest.Do() // .Debug(true).Do()
@@ -141,7 +141,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 		t.Fatal(err)
 	}
 	if exists {
-		t.Errorf("expected exists %q; got %q", false, exists)
+		t.Errorf("expected exists %v; got %v", false, exists)
 	}
 
 	// Document with Id="2" should exist
@@ -150,7 +150,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !exists {
-		t.Errorf("expected exists %q; got %q", true, exists)
+		t.Errorf("expected exists %v; got %v", true, exists)
 	}
 }
 

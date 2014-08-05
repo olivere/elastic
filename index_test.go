@@ -96,7 +96,7 @@ func TestIndexLifecycle(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !createIndex.Acknowledged {
-		t.Errorf("expected CreateIndexResult.Acknowledged %q; got %q", true, createIndex.Acknowledged)
+		t.Errorf("expected CreateIndexResult.Acknowledged %v; got %v", true, createIndex.Acknowledged)
 	}
 
 	// Check if index exists
@@ -114,7 +114,7 @@ func TestIndexLifecycle(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !deleteIndex.Acknowledged {
-		t.Errorf("expected DeleteIndexResult.Acknowledged %q; got %q", true, deleteIndex.Acknowledged)
+		t.Errorf("expected DeleteIndexResult.Acknowledged %v; got %v", true, deleteIndex.Acknowledged)
 	}
 
 	// Check if index exists
@@ -136,7 +136,7 @@ func TestIndexExistScenarios(t *testing.T) {
 		t.Fatal(err)
 	}
 	if indexExists {
-		t.Fatalf("expected index exists to return %q, got %q\n", false, indexExists)
+		t.Fatalf("expected index exists to return %v, got %v", false, indexExists)
 	}
 
 	// Create index
@@ -145,7 +145,7 @@ func TestIndexExistScenarios(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !createIndex.Acknowledged {
-		t.Errorf("expected CreateIndexResult.Ack %q; got %q", true, createIndex.Acknowledged)
+		t.Errorf("expected CreateIndexResult.Ack %v; got %v", true, createIndex.Acknowledged)
 	}
 
 	// Should return true if index does not exist
@@ -154,7 +154,7 @@ func TestIndexExistScenarios(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !indexExists {
-		t.Fatalf("expected index exists to return %q, got %q\n", true, indexExists)
+		t.Fatalf("expected index exists to return %v, got %v", true, indexExists)
 	}
 }
 
@@ -183,7 +183,7 @@ func TestDocumentLifecycle(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !exists {
-		t.Errorf("expected exists %q; got %q", true, exists)
+		t.Errorf("expected exists %v; got %v", true, exists)
 	}
 
 	// Get document
@@ -236,6 +236,6 @@ func TestDocumentLifecycle(t *testing.T) {
 		t.Fatal(err)
 	}
 	if exists {
-		t.Errorf("expected exists %q; got %q", false, exists)
+		t.Errorf("expected exists %v; got %v", false, exists)
 	}
 }
