@@ -46,7 +46,7 @@ func TestScan(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	if cursor.Results == nil {
 		t.Errorf("expected results != nil; got nil")
 	}
@@ -134,7 +134,7 @@ func TestScanWithQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	if cursor.Results == nil {
 		t.Errorf("expected results != nil; got nil")
 	}
