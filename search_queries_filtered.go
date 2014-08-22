@@ -68,13 +68,13 @@ func (q FilteredQuery) Source() interface{} {
 		}
 		and["filters"] = filters
 		/*
-		anded := make([]map[string]interface{}, 0)
-		filtered["filter"] = anded
-		for _, f := range q.filters {
-			andElem := make(map[string]interface{})
-			andElem["and"] = f.Source()
-			anded = append(anded, andElem)
-		}
+			anded := make([]map[string]interface{}, 0)
+			filtered["filter"] = anded
+			for _, f := range q.filters {
+				andElem := make(map[string]interface{})
+				andElem["and"] = f.Source()
+				anded = append(anded, andElem)
+			}
 		*/
 	}
 
