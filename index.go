@@ -94,7 +94,7 @@ func (b *IndexService) Do() (*IndexResult, error) {
 	}
 
 	// Set up a new request
-	req, err := b.client.NewRequest("PUT", urls)
+	req, err := b.client.NewRequest("POST", urls)
 	if err != nil {
 		return nil, err
 	}
