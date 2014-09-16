@@ -239,3 +239,88 @@ func TestDocumentLifecycle(t *testing.T) {
 		t.Errorf("expected exists %v; got %v", false, exists)
 	}
 }
+
+func TestDocumentLifecycleWithAutomaticIDGeneration(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}
+
+	// Add a document
+	indexResult, err := client.Index().
+		Index(testIndexName).
+		Type("tweet").
+		BodyJson(&tweet1).
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if indexResult == nil {
+		t.Errorf("expected result to be != nil; got: %v", indexResult)
+	}
+	if indexResult.Id == "" {
+		t.Fatalf("expected Es to generate an automatic ID, got: %v", indexResult.Id)
+	}
+	id := indexResult.Id
+
+	// Exists
+	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id(id).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !exists {
+		t.Errorf("expected exists %v; got %v", true, exists)
+	}
+
+	// Get document
+	getResult, err := client.Get().
+		Index(testIndexName).
+		Type("tweet").
+		Id(id).
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if getResult.Index != testIndexName {
+		t.Errorf("expected GetResult.Index %q; got %q", testIndexName, getResult.Index)
+	}
+	if getResult.Type != "tweet" {
+		t.Errorf("expected GetResult.Type %q; got %q", "tweet", getResult.Type)
+	}
+	if getResult.Id != id {
+		t.Errorf("expected GetResult.Id %q; got %q", id, getResult.Id)
+	}
+	if getResult.Source == nil {
+		t.Errorf("expected GetResult.Source to be != nil; got nil")
+	}
+
+	// Decode the Source field
+	var tweetGot tweet
+	err = json.Unmarshal(*getResult.Source, &tweetGot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tweetGot.User != tweet1.User {
+		t.Errorf("expected Tweet.User to be %q; got %q", tweet1.User, tweetGot.User)
+	}
+	if tweetGot.Message != tweet1.Message {
+		t.Errorf("expected Tweet.Message to be %q; got %q", tweet1.Message, tweetGot.Message)
+	}
+
+	// Delete document again
+	deleteResult, err := client.Delete().Index(testIndexName).Type("tweet").Id(id).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if deleteResult == nil {
+		t.Errorf("expected result to be != nil; got: %v", deleteResult)
+	}
+
+	// Exists
+	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id(id).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if exists {
+		t.Errorf("expected exists %v; got %v", false, exists)
+	}
+}

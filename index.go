@@ -79,10 +79,22 @@ func (b *IndexService) Debug(debug bool) *IndexService {
 
 func (b *IndexService) Do() (*IndexResult, error) {
 	// Build url
-	urls := "/{index}/{type}/{id}"
-	urls = strings.Replace(urls, "{index}", cleanPathString(b.index), 1)
-	urls = strings.Replace(urls, "{type}", cleanPathString(b._type), 1)
-	urls = strings.Replace(urls, "{id}", cleanPathString(b.id), 1)
+	var urls, method string
+	if b.id != "" {
+		// Create document with manual id
+		method = "PUT"
+		urls = "/{index}/{type}/{id}"
+		urls = strings.Replace(urls, "{index}", cleanPathString(b.index), 1)
+		urls = strings.Replace(urls, "{type}", cleanPathString(b._type), 1)
+		urls = strings.Replace(urls, "{id}", cleanPathString(b.id), 1)
+	} else {
+		// Automatic ID generation
+		// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs-index_.html#index-creation
+		method = "POST"
+		urls = "/{index}/{type}/"
+		urls = strings.Replace(urls, "{index}", cleanPathString(b.index), 1)
+		urls = strings.Replace(urls, "{type}", cleanPathString(b._type), 1)
+	}
 
 	// Parameters
 	params := make(url.Values)
@@ -94,7 +106,7 @@ func (b *IndexService) Do() (*IndexResult, error) {
 	}
 
 	// Set up a new request
-	req, err := b.client.NewRequest("PUT", urls)
+	req, err := b.client.NewRequest(method, urls)
 	if err != nil {
 		return nil, err
 	}
