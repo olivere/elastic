@@ -203,9 +203,19 @@ func (c *Client) Suggest(indices ...string) *SuggestService {
 	return builder
 }
 
-// Scan through documents.
+// Scan through documents. Use this to iterate inside a server process
+// where the results will be processed without returning them to a client.
 func (c *Client) Scan(indices ...string) *ScanService {
 	builder := NewScanService(c)
+	builder.Indices(indices...)
+	return builder
+}
+
+// Scroll through documents. Use this to efficiently scroll through results
+// while returning the results to a client. Use Scan when you don't need
+// to return requests to a client (i.e. not paginating via request/response).
+func (c *Client) Scroll(indices ...string) *ScrollService {
+	builder := NewScrollService(c)
 	builder.Indices(indices...)
 	return builder
 }
