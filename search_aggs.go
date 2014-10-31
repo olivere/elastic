@@ -1,4 +1,4 @@
-// Copyright 2012 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -225,7 +225,7 @@ func (sa *SearchAggregation) TopHits() (*SearchAggregationTopHits, bool) {
 	//              "_type" : "tweet",
 	//              "_id" : "1",
 	//              "_score" : 1.0,
-	//              "_source":{"user":"olivere","message":"Welcome to Golang and ElasticSearch.","retweets":108,"image":"http://golang.org/doc/gopher/gophercolor.png","created":"2012-12-12T17:38:34Z","tags":["golang","elasticsearch"]},
+	//              "_source":{"user":"olivere","message":"Welcome to Golang and Elasticsearch.","retweets":108,"image":"http://golang.org/doc/gopher/gophercolor.png","created":"2012-12-12T17:38:34Z","tags":["golang","elasticsearch"]},
 	//              "sort" : [ 1355333914000 ]
 	//            }, {
 	//              "_index" : "elastic-test",

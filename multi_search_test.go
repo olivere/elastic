@@ -11,7 +11,7 @@ func TestMultiSearch(t *testing.T) {
 
 	tweet1 := tweet{
 		User:    "olivere",
-		Message: "Welcome to Golang and ElasticSearch.",
+		Message: "Welcome to Golang and Elasticsearch.",
 		Tags:    []string{"golang", "elasticsearch"},
 	}
 	tweet2 := tweet{
@@ -117,7 +117,7 @@ func TestMultiSearchWithOneRequest(t *testing.T) {
 
 	tweet1 := tweet{
 		User:    "olivere",
-		Message: "Welcome to Golang and ElasticSearch.",
+		Message: "Welcome to Golang and Elasticsearch.",
 		Tags:    []string{"golang", "elasticsearch"},
 	}
 	tweet2 := tweet{

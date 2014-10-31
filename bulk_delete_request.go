@@ -8,7 +8,7 @@ import (
 
 // -- Bulk delete request --
 
-// Bulk request to remove document from ElasticSearch.
+// Bulk request to remove document from Elasticsearch.
 type BulkDeleteRequest struct {
 	BulkableRequest
 	index       string

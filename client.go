@@ -1,4 +1,4 @@
-// Copyright 2012 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	// Current version.
+	// Version is the current version of Elastic.
 	Version = "1.3.1"
 
 	// defaultUrl to be used as base for Elasticsearch requests.
@@ -29,9 +29,9 @@ var (
 	ErrNoClient = errors.New("no active client")
 )
 
-// Client is an ElasticSearch client. Create one by calling NewClient.
+// Client is an Elasticsearch client. Create one by calling NewClient.
 type Client struct {
-	urls []string // urls is a list of all clients for ElasticSearch queries
+	urls []string // urls is a list of all clients for Elasticsearch queries
 
 	c *http.Client // c is the net/http Client to use for requests
 
@@ -40,7 +40,7 @@ type Client struct {
 	hasActive bool       // true if we have an active connection
 }
 
-// Creates a new client to work with ElasticSearch.
+// NewClient creates a new client to work with Elasticsearch.
 func NewClient(client *http.Client, urls ...string) (*Client, error) {
 	if client == nil {
 		return nil, errors.New("client is nil")
@@ -120,14 +120,14 @@ func (c *Client) pingUrls() {
 	c.hasActive = false
 }
 
-// CreateIndex starts the service to create a new index.
+// CreateIndex returns a service to create a new index.
 func (c *Client) CreateIndex(name string) *CreateIndexService {
 	builder := NewCreateIndexService(c)
 	builder.Index(name)
 	return builder
 }
 
-// DeleteIndex starts the service to delete an index.
+// DeleteIndex returns a service to delete an index.
 func (c *Client) DeleteIndex(name string) *DeleteIndexService {
 	builder := NewDeleteIndexService(c)
 	builder.Index(name)
@@ -196,7 +196,7 @@ func (c *Client) MultiSearch() *MultiSearchService {
 	return NewMultiSearchService(c)
 }
 
-// Suggest returns an interface to return suggestions.
+// Suggest returns a service to return suggestions.
 func (c *Client) Suggest(indices ...string) *SuggestService {
 	builder := NewSuggestService(c)
 	builder.Indices(indices...)

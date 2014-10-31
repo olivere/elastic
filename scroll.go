@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-// ScrollService manages a cursor through documents in ElasticSearch.
+// ScrollService manages a cursor through documents in Elasticsearch.
 type ScrollService struct {
 	client    *Client
 	indices   []string

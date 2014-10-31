@@ -1,4 +1,4 @@
-// Copyright 2012 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -12,7 +12,7 @@ import (
 func TestBulk(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
 	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("1").Doc(tweet1)
@@ -111,7 +111,7 @@ func TestBulk(t *testing.T) {
 func TestBulkWithIndexSetOnClient(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
 	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("1").Doc(tweet1)
@@ -157,7 +157,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 func TestBulkRequestsSerialization(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
 	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("1").Doc(tweet1)
@@ -181,7 +181,7 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	}
 
 	expected := `{"index":{"_id":"1","_index":"` + testIndexName + `","_type":"tweet"}}
-{"user":"olivere","message":"Welcome to Golang and ElasticSearch.","retweets":0,"created":"0001-01-01T00:00:00Z"}
+{"user":"olivere","message":"Welcome to Golang and Elasticsearch.","retweets":0,"created":"0001-01-01T00:00:00Z"}
 {"create":{"_id":"2","_index":"` + testIndexName + `","_type":"tweet"}}
 {"user":"sandrae","message":"Dancing all night long. Yeah.","retweets":0,"created":"0001-01-01T00:00:00Z"}
 {"delete":{"_id":"1","_index":"` + testIndexName + `","_type":"tweet"}}

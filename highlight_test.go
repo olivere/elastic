@@ -1,4 +1,4 @@
-// Copyright 2012 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -96,7 +96,7 @@ func TestHighlighterWithExplicitFieldOrder(t *testing.T) {
 func TestHighlightWithTermQuery(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun to do."}
 
@@ -159,7 +159,7 @@ func TestHighlightWithTermQuery(t *testing.T) {
 		if len(hl) != 1 {
 			t.Fatalf("expected to have one highlight for field \"message\"; got %d", len(hl))
 		}
-		expected := "Welcome to <em>Golang</em> and ElasticSearch."
+		expected := "Welcome to <em>Golang</em> and Elasticsearch."
 		if hl[0] != expected {
 			t.Errorf("expected to have highlight \"%s\"; got \"%s\"", expected, hl[0])
 		}

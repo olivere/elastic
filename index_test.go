@@ -1,4 +1,4 @@
-// Copyright 2012 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -161,7 +161,7 @@ func TestIndexExistScenarios(t *testing.T) {
 func TestDocumentLifecycle(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 
 	// Add a document
 	indexResult, err := client.Index().
@@ -243,7 +243,7 @@ func TestDocumentLifecycle(t *testing.T) {
 func TestDocumentLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 
 	// Add a document
 	indexResult, err := client.Index().

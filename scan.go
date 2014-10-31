@@ -1,4 +1,4 @@
-// Copyright 2012 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -27,7 +27,7 @@ var (
 	ErrNoScrollId = errors.New("elastic: No scrollId")
 )
 
-// ScanService manages a cursor through documents in ElasticSearch.
+// ScanService manages a cursor through documents in Elasticsearch.
 type ScanService struct {
 	client    *Client
 	indices   []string

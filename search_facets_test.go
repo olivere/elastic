@@ -1,4 +1,4 @@
-// Copyright 2012 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -17,7 +17,7 @@ func TestSearchFacets(t *testing.T) {
 	tweet1 := tweet{
 		User:     "olivere",
 		Retweets: 108,
-		Message:  "Welcome to Golang and ElasticSearch.",
+		Message:  "Welcome to Golang and Elasticsearch.",
 		Created:  time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{

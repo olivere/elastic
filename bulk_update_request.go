@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Bulk request to update document in ElasticSearch.
+// Bulk request to update document in Elasticsearch.
 type BulkUpdateRequest struct {
 	BulkableRequest
 	index string

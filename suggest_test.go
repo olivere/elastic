@@ -1,4 +1,4 @@
-// Copyright 2012 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -14,11 +14,11 @@ func TestSuggestService(t *testing.T) {
 
 	tweet1 := tweet{
 		User:     "olivere",
-		Message:  "Welcome to Golang and ElasticSearch.",
+		Message:  "Welcome to Golang and Elasticsearch.",
 		Tags:     []string{"golang", "elasticsearch"},
 		Location: "48.1333,11.5667", // lat,lon
 		Suggest: NewSuggestField().
-			Input("Welcome to Golang and ElasticSearch.", "Golang and Elasticsearch").
+			Input("Welcome to Golang and Elasticsearch.", "Golang and Elasticsearch").
 			Output("Golang and Elasticsearch: An introduction.").
 			Weight(0),
 	}

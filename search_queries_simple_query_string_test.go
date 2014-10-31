@@ -21,7 +21,7 @@ func TestSimpleQueryStringQuery(t *testing.T) {
 func TestSimpleQueryStringQueryExec(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and ElasticSearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
@@ -47,7 +47,7 @@ func TestSimpleQueryStringQueryExec(t *testing.T) {
 	}
 
 	// Match all should return all documents
-	query := NewSimpleQueryStringQuery("+Golang +ElasticSearch")
+	query := NewSimpleQueryStringQuery("+Golang +Elasticsearch")
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Query(&query).

@@ -1,4 +1,4 @@
-// Copyright 2012 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-// The result of indexing a document in ElasticSearch.
+// IndexResult is the result of indexing a document in Elasticsearch.
 type IndexResult struct {
 	Index   string `json:"_index"`
 	Type    string `json:"_type"`
@@ -23,7 +23,7 @@ type IndexResult struct {
 	Created bool   `json:"created"`
 }
 
-// The Index service adds documents to ElasticSearch.
+// IndexService adds documents to Elasticsearch.
 type IndexService struct {
 	client      *Client
 	index       string
