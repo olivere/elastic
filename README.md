@@ -229,7 +229,6 @@ Here's the current API status.
 - [x] Multi Get
 - [x] Bulk
 - [ ] Bulk UDP
-- [ ] Delete By Query
 - [ ] Term vectors
 - [ ] Multi term vectors
 - [x] Count
@@ -415,7 +414,8 @@ on the command line.
 
 ### Scan
 
-Scrolling through documents (via `search_type=scan`) is implemented.
+Scrolling through documents (e.g. `search_type=scan`) are implemented via
+the `Scroll` and `Scan` services.
 
 ## Credits
 
