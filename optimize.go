@@ -11,6 +11,8 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 type OptimizeService struct {
@@ -85,7 +87,13 @@ func (s *OptimizeService) Do() (*OptimizeResult, error) {
 	// Indices part
 	indexPart := make([]string, 0)
 	for _, index := range s.indices {
-		indexPart = append(indexPart, cleanPathString(index))
+		index, err := uritemplates.Expand("{index}", map[string]string{
+			"index": index,
+		})
+		if err != nil {
+			return nil, err
+		}
+		indexPart = append(indexPart, index)
 	}
 	if len(indexPart) > 0 {
 		urls += strings.Join(indexPart, ",")

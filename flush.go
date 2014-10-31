@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 type FlushService struct {
@@ -61,7 +63,13 @@ func (s *FlushService) Do() (*FlushResult, error) {
 	if len(s.indices) > 0 {
 		indexPart := make([]string, 0)
 		for _, index := range s.indices {
-			indexPart = append(indexPart, cleanPathString(index))
+			index, err := uritemplates.Expand("{index}", map[string]string{
+				"index": index,
+			})
+			if err != nil {
+				return nil, err
+			}
+			indexPart = append(indexPart, index)
 		}
 		urls += strings.Join(indexPart, ",") + "/"
 	}

@@ -12,6 +12,8 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 type AliasesService struct {
@@ -50,13 +52,21 @@ func (s *AliasesService) Indices(indexNames ...string) *AliasesService {
 }
 
 func (s *AliasesService) Do() (*AliasesResult, error) {
+	var err error
+
 	// Build url
 	urls := "/"
 
 	// Indices part
 	indexPart := make([]string, 0)
 	for _, index := range s.indices {
-		indexPart = append(indexPart, cleanPathString(index))
+		index, err = uritemplates.Expand("{index}", map[string]string{
+			"index": index,
+		})
+		if err != nil {
+			return nil, err
+		}
+		indexPart = append(indexPart, index)
 	}
 	urls += strings.Join(indexPart, ",")
 

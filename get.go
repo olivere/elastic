@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 type GetService struct {
@@ -92,10 +94,14 @@ func (b *GetService) Realtime(realtime bool) *GetService {
 
 func (b *GetService) Do() (*GetResult, error) {
 	// Build url
-	urls := "/{index}/{type}/{id}"
-	urls = strings.Replace(urls, "{index}", cleanPathString(b.index), 1)
-	urls = strings.Replace(urls, "{type}", cleanPathString(b._type), 1)
-	urls = strings.Replace(urls, "{id}", cleanPathString(b.id), 1)
+	urls, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
+		"index": b.index,
+		"type":  b._type,
+		"id":    b.id,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	params := make(url.Values)
 	if b.realtime != nil {

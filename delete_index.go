@@ -7,7 +7,8 @@ package elastic
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 type DeleteIndexService struct {
@@ -29,8 +30,12 @@ func (b *DeleteIndexService) Index(index string) *DeleteIndexService {
 
 func (b *DeleteIndexService) Do() (*DeleteIndexResult, error) {
 	// Build url
-	urls := "/{index}/"
-	urls = strings.Replace(urls, "{index}", cleanPathString(b.index), 1)
+	urls, err := uritemplates.Expand("/{index}/", map[string]string{
+		"index": b.index,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Set up a new request
 	req, err := b.client.NewRequest("DELETE", urls)

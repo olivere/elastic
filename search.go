@@ -11,6 +11,8 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // Search for documents in Elasticsearch.
@@ -194,7 +196,13 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	// Indices part
 	indexPart := make([]string, 0)
 	for _, index := range s.indices {
-		indexPart = append(indexPart, cleanPathString(index))
+		index, err := uritemplates.Expand("{index}", map[string]string{
+			"index": index,
+		})
+		if err != nil {
+			return nil, err
+		}
+		indexPart = append(indexPart, index)
 	}
 	urls += strings.Join(indexPart, ",")
 
@@ -202,7 +210,13 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	if len(s.types) > 0 {
 		typesPart := make([]string, 0)
 		for _, typ := range s.types {
-			typesPart = append(typesPart, cleanPathString(typ))
+			typ, err := uritemplates.Expand("{type}", map[string]string{
+				"type": typ,
+			})
+			if err != nil {
+				return nil, err
+			}
+			typesPart = append(typesPart, typ)
 		}
 		urls += "/"
 		urls += strings.Join(typesPart, ",")

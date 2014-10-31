@@ -7,7 +7,8 @@ package elastic
 import (
 	"fmt"
 	"net/http"
-	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 type IndexExistsService struct {
@@ -29,8 +30,12 @@ func (b *IndexExistsService) Index(index string) *IndexExistsService {
 
 func (b *IndexExistsService) Do() (bool, error) {
 	// Build url
-	urls := "/{index}"
-	urls = strings.Replace(urls, "{index}", cleanPathString(b.index), 1)
+	urls, err := uritemplates.Expand("/{index}", map[string]string{
+		"index": b.index,
+	})
+	if err != nil {
+		return false, err
+	}
 
 	// Set up a new request
 	req, err := b.client.NewRequest("HEAD", urls)

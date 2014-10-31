@@ -11,6 +11,8 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // SuggestService returns suggestions for text.
@@ -75,7 +77,13 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	// Indices part
 	indexPart := make([]string, 0)
 	for _, index := range s.indices {
-		indexPart = append(indexPart, cleanPathString(index))
+		index, err := uritemplates.Expand("{index}", map[string]string{
+			"index": index,
+		})
+		if err != nil {
+			return nil, err
+		}
+		indexPart = append(indexPart, index)
 	}
 	urls += strings.Join(indexPart, ",")
 

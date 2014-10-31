@@ -6,14 +6,19 @@ package elastic
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
-	"strings"
+	"net/http/httputil"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 type CreateIndexService struct {
 	client *Client
 	index  string
 	body   string
+	pretty bool
+	debug  bool
 }
 
 func NewCreateIndexService(client *Client) *CreateIndexService {
@@ -33,10 +38,24 @@ func (b *CreateIndexService) Body(body string) *CreateIndexService {
 	return b
 }
 
+func (b *CreateIndexService) Pretty(pretty bool) *CreateIndexService {
+	b.pretty = pretty
+	return b
+}
+
+func (b *CreateIndexService) Debug(debug bool) *CreateIndexService {
+	b.debug = debug
+	return b
+}
+
 func (b *CreateIndexService) Do() (*CreateIndexResult, error) {
 	// Build url
-	urls := "/{index}/"
-	urls = strings.Replace(urls, "{index}", cleanPathString(b.index), 1)
+	urls, err := uritemplates.Expand("/{index}/", map[string]string{
+		"index": b.index,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Set up a new request
 	req, err := b.client.NewRequest("PUT", urls)
@@ -47,6 +66,11 @@ func (b *CreateIndexService) Do() (*CreateIndexResult, error) {
 	// Set body
 	req.SetBodyString(b.body)
 
+	if b.debug {
+		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
+		log.Printf("%s\n", string(out))
+	}
+
 	// Get response
 	res, err := b.client.c.Do((*http.Request)(req))
 	if err != nil {
@@ -56,6 +80,12 @@ func (b *CreateIndexService) Do() (*CreateIndexResult, error) {
 		return nil, err
 	}
 	defer res.Body.Close()
+
+	if b.debug {
+		out, _ := httputil.DumpResponse(res, true)
+		log.Printf("%s\n", string(out))
+	}
+
 	ret := new(CreateIndexResult)
 	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
 		return nil, err

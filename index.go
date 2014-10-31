@@ -11,7 +11,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // IndexResult is the result of indexing a document in Elasticsearch.
@@ -143,16 +144,19 @@ func (b *IndexService) Do() (*IndexResult, error) {
 		// Create document with manual id
 		method = "PUT"
 		urls = "/{index}/{type}/{id}"
-		urls = strings.Replace(urls, "{index}", cleanPathString(b.index), 1)
-		urls = strings.Replace(urls, "{type}", cleanPathString(b._type), 1)
-		urls = strings.Replace(urls, "{id}", cleanPathString(b.id), 1)
 	} else {
 		// Automatic ID generation
 		// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs-index_.html#index-creation
 		method = "POST"
 		urls = "/{index}/{type}/"
-		urls = strings.Replace(urls, "{index}", cleanPathString(b.index), 1)
-		urls = strings.Replace(urls, "{type}", cleanPathString(b._type), 1)
+	}
+	urls, err := uritemplates.Expand(urls, map[string]string{
+		"index": b.index,
+		"type":  b._type,
+		"id":    b.id,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	// Parameters

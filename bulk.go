@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 type BulkService struct {
@@ -122,10 +124,22 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	// Build url
 	urls := "/"
 	if s.index != "" {
-		urls += cleanPathString(s.index) + "/"
+		index, err := uritemplates.Expand("{index}", map[string]string{
+			"index": s.index,
+		})
+		if err != nil {
+			return nil, err
+		}
+		urls += index + "/"
 	}
 	if s._type != "" {
-		urls += cleanPathString(s._type) + "/"
+		typ, err := uritemplates.Expand("{type}", map[string]string{
+			"type": s._type,
+		})
+		if err != nil {
+			return nil, err
+		}
+		urls += typ + "/"
 	}
 	urls += "_bulk"
 

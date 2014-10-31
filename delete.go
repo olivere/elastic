@@ -10,7 +10,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 type DeleteService struct {
@@ -76,10 +77,14 @@ func (s *DeleteService) Debug(debug bool) *DeleteService {
 
 func (s *DeleteService) Do() (*DeleteResult, error) {
 	// Build url
-	urls := "/{index}/{type}/{id}"
-	urls = strings.Replace(urls, "{index}", cleanPathString(s.index), 1)
-	urls = strings.Replace(urls, "{type}", cleanPathString(s._type), 1)
-	urls = strings.Replace(urls, "{id}", cleanPathString(s.id), 1)
+	urls, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
+		"index": s.index,
+		"type":  s._type,
+		"id":    s.id,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Parameters
 	params := make(url.Values)
