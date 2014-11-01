@@ -7,7 +7,7 @@ go:
 env:
   matrix:
     - ES_VERSION=1.3.4
-    - ES_VERSION=1.4.0.Beta1
+    #- ES_VERSION=1.4.0.Beta1
 
 before_script:
   - mkdir ${HOME}/elasticsearch
