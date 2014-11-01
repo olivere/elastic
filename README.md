@@ -3,6 +3,8 @@
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/)
 client for [Google Go](http://www.golang.org/).
 
+[![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=master)](https://travis-ci.org/olivere/elastic.svg?branch=master)
+
 ## Status
 
 We use Elastic in production for more than two years now.
