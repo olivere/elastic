@@ -1,0 +1,23 @@
+language: go
+
+go:
+  - 1.2
+  - 1.3
+  - tip
+
+env:
+  matrix:
+    - ES_VERSION=1.0.3
+    - ES_VERSION=1.1.2
+    - ES_VERSION=1.2.4
+    - ES_VERSION=1.3.4
+    - ES_VERSION=1.4.0.Beta1
+
+before_script:
+  - mkdir ${HOME}/elasticsearch
+  - wget http://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+  - tar -xzf elasticsearch-${ES_VERSION}.tar.gz -C ${HOME}/elasticsearch
+  - ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/bin/elasticsearch >/dev/null &
+
+script:
+  - go test
