@@ -1,15 +1,11 @@
 language: go
 
 go:
-  - 1.2
   - 1.3
   - tip
 
 env:
   matrix:
-    - ES_VERSION=1.0.3
-    - ES_VERSION=1.1.2
-    - ES_VERSION=1.2.4
     - ES_VERSION=1.3.4
     - ES_VERSION=1.4.0.Beta1
 
