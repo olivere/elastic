@@ -17,5 +17,5 @@ before_script:
   - mkdir ${HOME}/elasticsearch
   - wget http://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
   - tar -xzf elasticsearch-${ES_VERSION}.tar.gz -C ${HOME}/elasticsearch
-  - ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/bin/elasticsearch &
+  - ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/bin/elasticsearch >& /dev/null &
   - sleep 15
