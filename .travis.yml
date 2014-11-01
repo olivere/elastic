@@ -1,23 +1,25 @@
 language: go
 
 go:
-  - 1.2
+  #- 1.2
   - 1.3
-  - tip
+  #- tip
 
 env:
   matrix:
-    - ES_VERSION=1.0.3
-    - ES_VERSION=1.1.2
-    - ES_VERSION=1.2.4
+    #- ES_VERSION=1.0.3
+    #- ES_VERSION=1.1.2
+    #- ES_VERSION=1.2.4
     - ES_VERSION=1.3.4
-    - ES_VERSION=1.4.0.Beta1
+    #- ES_VERSION=1.4.0.Beta1
+
+#services:
+#  - elasticsearch
 
 before_script:
   - mkdir ${HOME}/elasticsearch
   - wget http://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
   - tar -xzf elasticsearch-${ES_VERSION}.tar.gz -C ${HOME}/elasticsearch
-  - ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/bin/elasticsearch >/dev/null &
+  - ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/bin/elasticsearch &
+  - sleep 10
 
-script:
-  - go test
