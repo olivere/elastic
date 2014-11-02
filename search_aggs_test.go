@@ -77,17 +77,15 @@ func TestSearchAggregates(t *testing.T) {
 	percentilesRetweetsAgg := NewPercentilesAggregation().Field("retweets")
 	percentileRanksRetweetsAgg := NewPercentileRanksAggregation().Field("retweets").Values(25, 50, 75)
 	cardinalityAgg := NewCardinalityAggregation().Field("user")
+	significantTermsAgg := NewSignificantTermsAggregation().Field("message")
+	retweetsRangeAgg := NewRangeAggregation().Field("retweets").Lt(10).Between(10, 100).Gt(100)
+	dateRangeAgg := NewDateRangeAggregation().Field("created").Lt("2012-01-01").Between("2012-01-01", "2013-01-01").Gt("2013-01-01")
+	missingTagsAgg := NewMissingAggregation().Field("tags")
+	retweetsHistoAgg := NewHistogramAggregation().Field("retweets").Interval(100)
+	dateHistoAgg := NewDateHistogramAggregation().Field("created").Interval("year")
 	retweetsFilterAgg := NewFilterAggregation().Filter(
 		NewRangeFilter("created").Gte("2012-01-01").Lte("2012-12-31")).
 		SubAggregation("avgRetweets", NewAvgAggregation().Field("retweets"))
-	significantTermsAgg := NewSignificantTermsAggregation().Field("message")
-	retweetsRangeAgg := NewRangeAggregation().Field("retweets").
-		Lt(10).Between(10, 100).Gt(100)
-	dateRangeAgg := NewDateRangeAggregation().Field("created").
-		Lt("2012-01-01").Between("2012-01-01", "2013-01-01").Gt("2013-01-01")
-	missingImageAgg := NewMissingAggregation().Field("image")
-	retweetsHistoAgg := NewHistogramAggregation().Field("retweets").Interval(100)
-	dateHistoAgg := NewDateHistogramAggregation().Field("created").Interval("year")
 	topTagsHitsAgg := NewTopHitsAggregation().Sort("created", false).Size(5).FetchSource(true)
 	topTagsAgg := NewTermsAggregation().Field("tags").Size(3).SubAggregation("top_tag_hits", topTagsHitsAgg)
 	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
@@ -110,7 +108,7 @@ func TestSearchAggregates(t *testing.T) {
 		Aggregation("significantTerms", significantTermsAgg).
 		Aggregation("retweetsRange", retweetsRangeAgg).
 		Aggregation("dateRange", dateRangeAgg).
-		Aggregation("missingImage", missingImageAgg).
+		Aggregation("missingTags", missingTagsAgg).
 		Aggregation("retweetsHisto", retweetsHistoAgg).
 		Aggregation("dateHisto", dateHistoAgg).
 		Aggregation("retweetsFilter", retweetsFilterAgg).
@@ -606,23 +604,23 @@ func TestSearchAggregates(t *testing.T) {
 		t.Errorf("expected searchResult.Aggregations[\"dateRange\"].Buckets[2].FromAsString = %v; got %v", "2013-01-01T00:00:00.000Z", *dateRangeRes.Buckets[2].FromAsString)
 	}
 
-	// missingImage
-	agg, found = searchResult.GetAggregation("missingImage")
+	// missingTags
+	agg, found = searchResult.GetAggregation("missingTags")
 	if !found {
-		t.Errorf("expected searchResult.Aggregations[\"missingImage\"] = %v; got %v", true, found)
+		t.Errorf("expected searchResult.Aggregations[\"missingTags\"] = %v; got %v", true, found)
 	}
 	if agg == nil {
-		t.Fatalf("expected searchResult.Aggregations[\"missingImage\"] != nil; got nil")
+		t.Fatalf("expected searchResult.Aggregations[\"missingTags\"] != nil; got nil")
 	}
 	missingRes, found := agg.Missing()
 	if !found {
-		t.Errorf("expected searchResult.Aggregations[\"missingImage\"] = %v; got %v", true, found)
+		t.Errorf("expected searchResult.Aggregations[\"missingTags\"] = %v; got %v", true, found)
 	}
 	if missingRes == nil {
-		t.Fatalf("expected searchResult.Aggregations[\"missingImage\"] != nil; got nil")
+		t.Fatalf("expected searchResult.Aggregations[\"missingTags\"] != nil; got nil")
 	}
-	if missingRes.DocCount != 2 {
-		t.Errorf("expected searchResult.Aggregations[\"missingImage\"].DocCount = %v; got %v", 2, missingRes.DocCount)
+	if missingRes.DocCount != 0 {
+		t.Errorf("expected searchResult.Aggregations[\"missingTags\"].DocCount = %v; got %v", 0, missingRes.DocCount)
 	}
 
 	// retweetsHisto
