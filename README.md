@@ -161,13 +161,13 @@ if err != nil {
 // Search with a term query
 termQuery := elastic.NewTermQuery("user", "olivere")
 searchResult, err := client.Search().
-    Index("twitter").
-    Query(&termQuery).
-    Sort("user", true).
-    From(0).Size(10).
-    Debug(true).  // Print request and response to stdout
-    Pretty(true). // Pretty print request and response JSON
-    Do()
+    Index("twitter").   // search in index "twitter"
+    Query(&termQuery).  // specify the query
+    Sort("user", true). // sort by "user" field, ascending
+    From(0).Size(10).   // take documents 0-9
+    Debug(true).        // print request and response to stdout
+    Pretty(true).       // pretty print request and response JSON
+    Do()                // execute
 if err != nil {
     // Handle error
     panic(err)
@@ -186,7 +186,7 @@ if searchResult.Hits != nil {
         // hit.Index contains the name of the index
 
         // Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
-        t := &Tweet{}
+        var t Tweet
         err := json.Unmarshal(*hit.Source, &t)
         if err != nil {
             // Deserialization failed
