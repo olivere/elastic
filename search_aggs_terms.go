@@ -14,23 +14,31 @@ type TermsAggregation struct {
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
 
-	size           *int
-	shardSize      *int
-	minDocCount    *int
-	valueType      string
-	order          string
-	orderAsc       bool
-	includePattern string
-	includeFlags   *int
-	excludePattern string
-	excludeFlags   *int
-	executionHint  string
+	size                  *int
+	shardSize             *int
+	requiredSize          *int
+	minDocCount           *int
+	shardMinDocCount      *int
+	valueType             string
+	order                 string
+	orderAsc              bool
+	includePattern        string
+	includeFlags          *int
+	excludePattern        string
+	excludeFlags          *int
+	executionHint         string
+	collectionMode        string
+	showTermDocCountError *bool
+	includeTerms          []string
+	excludeTerms          []string
 }
 
 func NewTermsAggregation() TermsAggregation {
 	a := TermsAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation, 0),
+		includeTerms:    make([]string, 0),
+		excludeTerms:    make([]string, 0),
 	}
 	return a
 }
@@ -65,13 +73,23 @@ func (a TermsAggregation) Size(size int) TermsAggregation {
 	return a
 }
 
-func (a TermsAggregation) SharedSize(shardSize int) TermsAggregation {
+func (a TermsAggregation) RequiredSize(requiredSize int) TermsAggregation {
+	a.requiredSize = &requiredSize
+	return a
+}
+
+func (a TermsAggregation) ShardSize(shardSize int) TermsAggregation {
 	a.shardSize = &shardSize
 	return a
 }
 
 func (a TermsAggregation) MinDocCount(minDocCount int) TermsAggregation {
 	a.minDocCount = &minDocCount
+	return a
+}
+
+func (a TermsAggregation) ShardMinDocCount(shardMinDocCount int) TermsAggregation {
+	a.shardMinDocCount = &shardMinDocCount
 	return a
 }
 
@@ -186,6 +204,27 @@ func (a TermsAggregation) ExecutionHint(hint string) TermsAggregation {
 	return a
 }
 
+// Collection mode can be depth_first or breadth_first as of 1.4.0.
+func (a TermsAggregation) CollectionMode(collectionMode string) TermsAggregation {
+	a.collectionMode = collectionMode
+	return a
+}
+
+func (a TermsAggregation) ShowTermDocCountError(showTermDocCountError bool) TermsAggregation {
+	a.showTermDocCountError = &showTermDocCountError
+	return a
+}
+
+func (a TermsAggregation) IncludeTerms(terms ...string) TermsAggregation {
+	a.includeTerms = append(a.includeTerms, terms...)
+	return a
+}
+
+func (a TermsAggregation) ExcludeTerms(terms ...string) TermsAggregation {
+	a.excludeTerms = append(a.excludeTerms, terms...)
+	return a
+}
+
 func (a TermsAggregation) Source() interface{} {
 	// Example:
 	//	{
@@ -231,8 +270,20 @@ func (a TermsAggregation) Source() interface{} {
 	if a.shardSize != nil && *a.shardSize >= 0 {
 		opts["shard_size"] = *a.shardSize
 	}
+	if a.requiredSize != nil && *a.requiredSize >= 0 {
+		opts["required_size"] = *a.requiredSize
+	}
 	if a.minDocCount != nil && *a.minDocCount >= 0 {
 		opts["min_doc_count"] = *a.minDocCount
+	}
+	if a.shardMinDocCount != nil && *a.shardMinDocCount >= 0 {
+		opts["shard_min_doc_count"] = *a.shardMinDocCount
+	}
+	if a.showTermDocCountError != nil {
+		opts["show_term_doc_count_error"] = *a.showTermDocCountError
+	}
+	if a.collectionMode != "" {
+		opts["collect_mode"] = a.collectionMode
 	}
 	if a.valueType != "" {
 		opts["value_type"] = a.valueType
@@ -246,6 +297,9 @@ func (a TermsAggregation) Source() interface{} {
 		}
 		opts["order"] = o
 	}
+	if len(a.includeTerms) > 0 {
+		opts["include"] = a.includeTerms
+	}
 	if a.includePattern != "" {
 		if a.includeFlags == nil || *a.includeFlags == 0 {
 			opts["include"] = a.includePattern
@@ -255,6 +309,9 @@ func (a TermsAggregation) Source() interface{} {
 			p["flags"] = *a.includeFlags
 			opts["include"] = p
 		}
+	}
+	if len(a.excludeTerms) > 0 {
+		opts["exclude"] = a.excludeTerms
 	}
 	if a.excludePattern != "" {
 		if a.excludeFlags == nil || *a.excludeFlags == 0 {

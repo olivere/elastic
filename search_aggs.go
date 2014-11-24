@@ -281,6 +281,16 @@ func (sa *SearchAggregation) TopHits() (*SearchAggregationTopHits, bool) {
 	return agg, true
 }
 
+// Children treats this aggregation as a children aggregation.
+// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-children-aggregation.html
+func (sa *SearchAggregation) Children() (*SearchAggregationChildren, bool) {
+	agg := new(SearchAggregationChildren)
+	if err := json.Unmarshal(sa.raw, &agg); err != nil {
+		return nil, false
+	}
+	return agg, true
+}
+
 // Terms treats this aggregation as a terms aggregation.
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-aggregations-bucket-terms-aggregation.html
 func (sa *SearchAggregation) Terms() (*SearchAggregationTerms, bool) {
@@ -439,8 +449,15 @@ type SearchAggregationTopHits struct {
 	Buckets []*searchAggregationBucket `json:"buckets,omitempty"`
 }
 
+type SearchAggregationChildren struct {
+	DocCount int                        `json:"doc_count,omitempty"`
+	Buckets  []*searchAggregationBucket `json:"buckets,omitempty"`
+}
+
 type SearchAggregationTerms struct {
-	Buckets []*searchAggregationBucket `json:"buckets,omitempty"`
+	DocCountErrorUpperBound int                        `json:"doc_count_error_upper_bound,omitempty"`
+	SumOfOtherDocCounts     int                        `json:"sum_other_doc_count,omitempty"`
+	Buckets                 []*searchAggregationBucket `json:"buckets,omitempty"`
 }
 
 type SearchAggregationSignificantTerms struct {
@@ -482,15 +499,17 @@ type SearchAggregationGeoBounds struct {
 }
 
 type searchAggregationBucket struct {
-	Key          interface{} `json:"key,omitempty"`
-	KeyAsString  *string     `json:"key_as_string,omitempty"`
-	DocCount     int         `json:"doc_count,omitempty"`
-	From         *float64    `json:"from,omitempty"`
-	FromAsString *string     `json:"from_as_string,omitempty"`
-	To           *float64    `json:"to,omitempty"`
-	ToAsString   *string     `json:"to_as_string,omitempty"`
-	Unit         string      `json:"unit,omitempty"`
-	Score        *float64    `json:"score,omitempty"`    // significant_terms
-	BgCount      *int        `json:"bg_count,omitempty"` // significant_terms
-	Hits         *SearchHits `json:"-"`                  // top_hits
+	Key                     interface{} `json:"key,omitempty"`
+	KeyAsString             *string     `json:"key_as_string,omitempty"`
+	DocCount                int         `json:"doc_count,omitempty"`
+	DocCountError           int         `json:"doc_count_error,omitempty"`
+	DocCountErrorUpperBound int         `json:"doc_count_error_upper_bound,omitempty"`
+	From                    *float64    `json:"from,omitempty"`
+	FromAsString            *string     `json:"from_as_string,omitempty"`
+	To                      *float64    `json:"to,omitempty"`
+	ToAsString              *string     `json:"to_as_string,omitempty"`
+	Unit                    string      `json:"unit,omitempty"`
+	Score                   *float64    `json:"score,omitempty"`    // significant_terms
+	BgCount                 *int        `json:"bg_count,omitempty"` // significant_terms
+	Hits                    *SearchHits `json:"-"`                  // top_hits
 }
