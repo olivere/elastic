@@ -311,10 +311,10 @@ on the command line.
 - [ ] `constant_score`
 - [x] `dis_max`
 - [x] `filtered`
-- [ ] `flt`
-- [ ] `flt_field`
+- [x] `fuzzy_like_this_query` (`flt`)
+- [x] `fuzzy_like_this_field_query` (`flt_field`)
 - [x] `function_score`
-- [ ] `fuzzy`
+- [x] `fuzzy`
 - [ ] `geo_shape`
 - [x] `has_child`
 - [x] `has_parent`
@@ -399,11 +399,14 @@ on the command line.
 - [x] cardinality
 - [x] geo bounds
 - [x] top hits
+- [ ] scripted metric
 - [x] global
 - [x] filter
+- [ ] filters
 - [x] missing
 - [x] nested
 - [ ] reverse nested
+- [x] children
 - [x] terms
 - [x] significant terms
 - [x] range
