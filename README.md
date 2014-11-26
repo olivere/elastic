@@ -402,7 +402,7 @@ on the command line.
 - [ ] scripted metric
 - [x] global
 - [x] filter
-- [ ] filters
+- [x] filters
 - [x] missing
 - [x] nested
 - [ ] reverse nested

@@ -89,6 +89,7 @@ func TestSearchAggregates(t *testing.T) {
 	topTagsHitsAgg := NewTopHitsAggregation().Sort("created", false).Size(5).FetchSource(true)
 	topTagsAgg := NewTermsAggregation().Field("tags").Size(3).SubAggregation("top_tag_hits", topTagsHitsAgg)
 	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
+	countByUserAgg := NewFiltersAggregation().Filters(NewTermFilter("user", "olivere"), NewTermFilter("user", "sandrae"))
 
 	// Run query
 	searchResult, err := client.Search().Index(testIndexName).
@@ -114,6 +115,7 @@ func TestSearchAggregates(t *testing.T) {
 		Aggregation("retweetsFilter", retweetsFilterAgg).
 		Aggregation("top-tags", topTagsAgg).
 		Aggregation("viewport", geoBoundsAgg).
+		Aggregation("countByUser", countByUserAgg).
 		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
@@ -766,5 +768,30 @@ func TestSearchAggregates(t *testing.T) {
 	}
 	if geoBoundsRes == nil {
 		t.Errorf("expected searchResult.Aggregations[\"viewport\"] != nil; got nil")
+	}
+
+	// Filters agg "countByUser"
+	agg, found = searchResult.GetAggregation("countByUser")
+	if !found {
+		t.Errorf("expected searchResult.Aggregations[\"countByUser\"] = %v; got %v", true, found)
+	}
+	if agg == nil {
+		t.Fatalf("expected searchResult.Aggregations[\"countByUser\"] != nil; got nil")
+	}
+	countByUserAggRes, found := agg.Filters()
+	if !found {
+		t.Errorf("expected searchResult.Aggregations[\"countByUser\"] = %v; got %v", true, found)
+	}
+	if countByUserAggRes == nil {
+		t.Fatalf("expected searchResult.Aggregations[\"countByUser\"] != nil; got nil")
+	}
+	if len(countByUserAggRes.Buckets) != 2 {
+		t.Errorf("expected len(searchResult.Aggregations[\"countByUser\"].Buckets) = %v; got %v", 2, len(countByUserAggRes.Buckets))
+	}
+	if countByUserAggRes.Buckets[0].DocCount != 2 {
+		t.Errorf("expected searchResult.Aggregations[\"countByUser\"].Buckets[0].DocCount = %v; got %v", 2, countByUserAggRes.Buckets[0].DocCount)
+	}
+	if countByUserAggRes.Buckets[1].DocCount != 1 {
+		t.Errorf("expected searchResult.Aggregations[\"countByUser\"].Buckets[1].DocCount = %v; got %v", 1, countByUserAggRes.Buckets[1].DocCount)
 	}
 }

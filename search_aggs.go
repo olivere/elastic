@@ -170,10 +170,20 @@ func (sa *SearchAggregation) Global() (*SearchAggregationGlobal, bool) {
 	return agg, true
 }
 
-// Global treats this aggregation as a filter aggregation.
+// Filter treats this aggregation as a filter aggregation.
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-aggregations-bucket-filter-aggregation.html
 func (sa *SearchAggregation) Filter() (*SearchAggregationFilter, bool) {
 	agg := new(SearchAggregationFilter)
+	if err := json.Unmarshal(sa.raw, &agg); err != nil {
+		return nil, false
+	}
+	return agg, true
+}
+
+// Filters treats this aggregation as a filters aggregation.
+// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filters-aggregation.html
+func (sa *SearchAggregation) Filters() (*SearchAggregationFilters, bool) {
+	agg := new(SearchAggregationFilters)
 	if err := json.Unmarshal(sa.raw, &agg); err != nil {
 		return nil, false
 	}
@@ -434,6 +444,10 @@ type SearchAggregationGlobal struct {
 
 type SearchAggregationFilter struct {
 	DocCount int `json:"doc_count,omitempty"`
+}
+
+type SearchAggregationFilters struct {
+	Buckets []*searchAggregationBucket
 }
 
 type SearchAggregationMissing struct {

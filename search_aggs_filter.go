@@ -36,14 +36,11 @@ func (a FilterAggregation) Source() interface{} {
 	//	{
 	//    "aggs" : {
 	//         "in_stock_products" : {
-	//             "filter" : { "range" : { "stock" : { "gt" : 0 } } },
-	//             "aggs" : {
-	//                 "avg_price" : { "avg" : { "field" : "price" } }
-	//             }
+	//             "filter" : { "range" : { "stock" : { "gt" : 0 } } }
 	//         }
 	//    }
 	//	}
-	// This method returns only the { "global" : {} } part.
+	// This method returns only the { "filter" : {} } part.
 
 	source := make(map[string]interface{})
 	source["filter"] = a.filter.Source()
