@@ -120,6 +120,23 @@ func (c *Client) pingUrls() {
 	c.hasActive = false
 }
 
+// ElasticsearchVersion returns the version number of Elasticsearch
+// running on the given URL.
+func (c *Client) ElasticsearchVersion(url string) (string, error) {
+	res, _, err := c.Ping().URL(url).Do()
+	if err != nil {
+		return "", err
+	}
+	return res.Version.Number, nil
+}
+
+// Ping checks if a given node in a cluster exists and (optionally)
+// returns some basic information about the Elasticsearch server,
+// e.g. the Elasticsearch version number.
+func (c *Client) Ping() *PingService {
+	return NewPingService(c)
+}
+
 // CreateIndex returns a service to create a new index.
 func (c *Client) CreateIndex(name string) *CreateIndexService {
 	builder := NewCreateIndexService(c)

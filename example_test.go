@@ -32,6 +32,22 @@ func Example() {
 		panic(err)
 	}
 
+	// Ping the Elasticsearch server to get e.g. the version number
+	info, err := client.Ping().Do()
+	if err != nil {
+		// Handle error
+		panic(err)
+	}
+	fmt.Printf("Elasticsearch version %s", info.Version.Number)
+
+	// Getting the ES version number is quite common, so there's a shortcut
+	esversion, err := client.ElasticsearchVersion("http://127.0.0.1:9200")
+	if err != nil {
+		// Handle error
+		panic(err)
+	}
+	fmt.Printf("Elasticsearch version %s", esversion)
+
 	// Use the IndexExists service to check if a specified index exists.
 	exists, err := client.IndexExists("twitter").Do()
 	if err != nil {

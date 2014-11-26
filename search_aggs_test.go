@@ -14,6 +14,11 @@ import (
 func TestSearchAggregates(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
+	esversion, err := client.ElasticsearchVersion(defaultUrl)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	tweet1 := tweet{
 		User:     "olivere",
 		Retweets: 108,
@@ -41,7 +46,7 @@ func TestSearchAggregates(t *testing.T) {
 	}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,34 +95,34 @@ func TestSearchAggregates(t *testing.T) {
 	topTagsAgg := NewTermsAggregation().Field("tags").Size(3).SubAggregation("top_tag_hits", topTagsHitsAgg)
 	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
 
-	// TODO breaks builds for ES version < 1.4.0
-	//countByUserAgg := NewFiltersAggregation().Filters(NewTermFilter("user", "olivere"), NewTermFilter("user", "sandrae"))
-
 	// Run query
-	searchResult, err := client.Search().Index(testIndexName).
-		Query(&all).
-		Aggregation("global", globalAgg).
-		Aggregation("users", usersAgg).
-		Aggregation("avgRetweets", avgRetweetsAgg).
-		Aggregation("minRetweets", minRetweetsAgg).
-		Aggregation("maxRetweets", maxRetweetsAgg).
-		Aggregation("sumRetweets", sumRetweetsAgg).
-		Aggregation("statsRetweets", statsRetweetsAgg).
-		Aggregation("extstatsRetweets", extstatsRetweetsAgg).
-		Aggregation("valueCountRetweets", valueCountRetweetsAgg).
-		Aggregation("percentilesRetweets", percentilesRetweetsAgg).
-		Aggregation("percentileRanksRetweets", percentileRanksRetweetsAgg).
-		Aggregation("usersCardinality", cardinalityAgg).
-		Aggregation("significantTerms", significantTermsAgg).
-		Aggregation("retweetsRange", retweetsRangeAgg).
-		Aggregation("dateRange", dateRangeAgg).
-		Aggregation("missingTags", missingTagsAgg).
-		Aggregation("retweetsHisto", retweetsHistoAgg).
-		Aggregation("dateHisto", dateHistoAgg).
-		Aggregation("retweetsFilter", retweetsFilterAgg).
-		Aggregation("top-tags", topTagsAgg).
-		Aggregation("viewport", geoBoundsAgg).
-		// Aggregation("countByUser", countByUserAgg).  	// TODO breaks builds for ES version < 1.4.0
+	builder := client.Search().Index(testIndexName).Query(&all)
+	builder = builder.Aggregation("global", globalAgg)
+	builder = builder.Aggregation("users", usersAgg)
+	builder = builder.Aggregation("avgRetweets", avgRetweetsAgg)
+	builder = builder.Aggregation("minRetweets", minRetweetsAgg)
+	builder = builder.Aggregation("maxRetweets", maxRetweetsAgg)
+	builder = builder.Aggregation("sumRetweets", sumRetweetsAgg)
+	builder = builder.Aggregation("statsRetweets", statsRetweetsAgg)
+	builder = builder.Aggregation("extstatsRetweets", extstatsRetweetsAgg)
+	builder = builder.Aggregation("valueCountRetweets", valueCountRetweetsAgg)
+	builder = builder.Aggregation("percentilesRetweets", percentilesRetweetsAgg)
+	builder = builder.Aggregation("percentileRanksRetweets", percentileRanksRetweetsAgg)
+	builder = builder.Aggregation("usersCardinality", cardinalityAgg)
+	builder = builder.Aggregation("significantTerms", significantTermsAgg)
+	builder = builder.Aggregation("retweetsRange", retweetsRangeAgg)
+	builder = builder.Aggregation("dateRange", dateRangeAgg)
+	builder = builder.Aggregation("missingTags", missingTagsAgg)
+	builder = builder.Aggregation("retweetsHisto", retweetsHistoAgg)
+	builder = builder.Aggregation("dateHisto", dateHistoAgg)
+	builder = builder.Aggregation("retweetsFilter", retweetsFilterAgg)
+	builder = builder.Aggregation("top-tags", topTagsAgg)
+	builder = builder.Aggregation("viewport", geoBoundsAgg)
+	if esversion >= "1.4" {
+		countByUserAgg := NewFiltersAggregation().Filters(NewTermFilter("user", "olivere"), NewTermFilter("user", "sandrae"))
+		builder = builder.Aggregation("countByUser", countByUserAgg)
+	}
+	searchResult, err := builder.
 		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
@@ -772,8 +777,7 @@ func TestSearchAggregates(t *testing.T) {
 		t.Errorf("expected searchResult.Aggregations[\"viewport\"] != nil; got nil")
 	}
 
-	/*
-		// TODO breaks builds for ES version < 1.4.0
+	if esversion >= "1.4" {
 		// Filters agg "countByUser"
 		agg, found = searchResult.GetAggregation("countByUser")
 		if !found {
@@ -798,5 +802,5 @@ func TestSearchAggregates(t *testing.T) {
 		if countByUserAggRes.Buckets[1].DocCount != 1 {
 			t.Errorf("expected searchResult.Aggregations[\"countByUser\"].Buckets[1].DocCount = %v; got %v", 1, countByUserAggRes.Buckets[1].DocCount)
 		}
-	*/
+	}
 }

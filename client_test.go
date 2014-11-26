@@ -73,3 +73,17 @@ func TestFindingNoActiveClient(t *testing.T) {
 		t.Errorf("expected no request, got: %v", req)
 	}
 }
+
+func TestElasticsearchVersion(t *testing.T) {
+	client, err := NewClient(http.DefaultClient)
+	if err != nil {
+		t.Fatal(err)
+	}
+	version, err := client.ElasticsearchVersion(defaultUrl)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version == "" {
+		t.Errorf("expected a version number, got: %q", version)
+	}
+}
