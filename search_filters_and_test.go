@@ -25,7 +25,7 @@ func TestAndFilter(t *testing.T) {
 	}
 }
 
-func TestAndFilterViaNew(t *testing.T) {
+func TestNewAndFilter1(t *testing.T) {
 	f := NewAndFilter(NewTermFilter("user", "olivere"))
 	data, err := json.Marshal(f.Source())
 	if err != nil {
@@ -33,6 +33,21 @@ func TestAndFilterViaNew(t *testing.T) {
 	}
 	got := string(data)
 	expected := `{"and":{"filters":[{"term":{"user":"olivere"}}]}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestNewAndFilter2(t *testing.T) {
+	tf := NewTermsFilter("user", "oliver", "test")
+	mf := NewMissingFilter("user")
+	f := NewAndFilter(tf, mf)
+	data, err := json.Marshal(f.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"and":{"filters":[{"terms":{"user":["oliver","test"]}},{"missing":{"field":"user"}}]}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

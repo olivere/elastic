@@ -16,12 +16,11 @@ type OrFilter struct {
 }
 
 func NewOrFilter(filters ...Filter) OrFilter {
-	f := OrFilter{}
+	f := OrFilter{
+		filters: make([]Filter, 0),
+	}
 	if len(filters) > 0 {
-		f.filters = make([]Filter, len(filters))
 		f.filters = append(f.filters, filters...)
-	} else {
-		f.filters = make([]Filter, 0)
 	}
 	return f
 }
