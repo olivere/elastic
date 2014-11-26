@@ -24,3 +24,10 @@ func TestNotFilter(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestNotFilterAdd(t *testing.T) {
+	terms := NewTermsFilter("user", []string{"olivere", "test"})
+	missing := NewMissingFilter("user")
+	f := NewNotFilter(&terms, &missing)
+	f.Source()
+}
