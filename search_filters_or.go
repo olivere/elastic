@@ -18,7 +18,7 @@ type OrFilter struct {
 func NewOrFilter(filters ...Filter) OrFilter {
 	f := OrFilter{}
 	if len(filters) > 0 {
-		f.filters = make([]Filter, len(filters))
+		f.filters = make([]Filter, 0, len(filters))
 		f.filters = append(f.filters, filters...)
 	} else {
 		f.filters = make([]Filter, 0)

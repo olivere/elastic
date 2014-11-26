@@ -16,11 +16,12 @@ type AndFilter struct {
 }
 
 func NewAndFilter(filters ...Filter) AndFilter {
-	f := AndFilter{
-		filters: make([]Filter, 0),
-	}
+	f := AndFilter{}
 	if len(filters) > 0 {
+		f.filters = make([]Filter, 0, len(filters))
 		f.filters = append(f.filters, filters...)
+	} else {
+		f.filters = make([]Filter, 0)
 	}
 	return f
 }
