@@ -30,9 +30,6 @@ func TestPingGet(t *testing.T) {
 	if res.Name == "" {
 		t.Errorf("expected Name != \"\"; got %q", res.Name)
 	}
-	if res.ClusterName == "" {
-		t.Errorf("expected ClusterName != \"\"; got %q", res.ClusterName)
-	}
 	if res.Version.Number == "" {
 		t.Errorf("expected Version.Number != \"\"; got %q", res.Version.Number)
 	}

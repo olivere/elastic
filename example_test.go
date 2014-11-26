@@ -33,12 +33,12 @@ func Example() {
 	}
 
 	// Ping the Elasticsearch server to get e.g. the version number
-	info, err := client.Ping().Do()
+	info, code, err := client.Ping().Do()
 	if err != nil {
 		// Handle error
 		panic(err)
 	}
-	fmt.Printf("Elasticsearch version %s", info.Version.Number)
+	fmt.Printf("Elasticsearch returned with code %d and version %s", code, info.Version.Number)
 
 	// Getting the ES version number is quite common, so there's a shortcut
 	esversion, err := client.ElasticsearchVersion("http://127.0.0.1:9200")
