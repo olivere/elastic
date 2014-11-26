@@ -25,7 +25,7 @@ func TestOrFilter(t *testing.T) {
 	}
 }
 
-func TestAndFilterAdd(t *testing.T) {
+func TestOrFilterAdd(t *testing.T) {
 	terms := NewTermsFilter("user", []string{"olivere", "test"})
 	missing := NewMissingFilter("user")
 	f := NewOrFilter(&terms, &missing)
