@@ -5,72 +5,40 @@ import (
 	"testing"
 )
 
-func TestSingleUrl(t *testing.T) {
+func TestClientSingleConnection(t *testing.T) {
 	client, err := NewClient(http.DefaultClient)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(client.urls) != 1 {
-		t.Fatalf("expected 1 default client url, got: %v", client.urls)
+	if len(client.pool.conns) != 1 {
+		t.Fatalf("expected a pool of 1 connection, got: %v", len(client.pool.conns))
 	}
-	if client.urls[0] != defaultUrl {
-		t.Errorf("expected default client url of %s, got: %s", defaultUrl, client.urls[0])
+	if client.pool.conns[0].url != defaultUrl {
+		t.Errorf("expected default client connection url of %s, got: %s", defaultUrl, client.pool.conns[0].url)
 	}
 }
 
-func TestMultipleUrls(t *testing.T) {
+func TestClientMultipleConnections(t *testing.T) {
 	client, err := NewClient(http.DefaultClient, "http://localhost:9200", "http://localhost:9201")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(client.urls) != 2 {
-		t.Fatalf("expected 2 default client urls, got: %v", client.urls)
+	if len(client.pool.conns) != 2 {
+		t.Fatalf("expected a pool of 2 connections, got: %v", len(client.pool.conns))
 	}
-	if client.urls[0] != "http://localhost:9200" {
-		t.Errorf("expected 1st client url of %s, got: %s", "http://localhost:9200", client.urls[0])
+	if client.pool.conns[0].url != "http://localhost:9200" {
+		t.Errorf("expected 1st connection url of %s, got: %s", "http://localhost:9200", client.pool.conns[0].url)
 	}
-	if client.urls[1] != "http://localhost:9201" {
-		t.Errorf("expected 2nd client url of %s, got: %s", "http://localhost:9201", client.urls[0])
+	broken := client.pool.conns[0].IsBroken()
+	if broken {
+		t.Errorf("expected 1st connection url of %s to not be broken, got: %s", client.pool.conns[0].url, broken)
 	}
-}
-
-func TestFindingActiveClient(t *testing.T) {
-	client, err := NewClient(http.DefaultClient, "http://localhost:19200", "http://localhost:9200")
-	if err != nil {
-		t.Fatal(err)
+	if client.pool.conns[1].url != "http://localhost:9201" {
+		t.Errorf("expected 2nd connection url of %s, got: %s", "http://localhost:9201", client.pool.conns[1].url)
 	}
-	if len(client.urls) != 2 {
-		t.Fatalf("expected 2 default client urls, got: %v", client.urls)
-	}
-	if !client.hasActive {
-		t.Errorf("expected to have active connection, got: %v", client.hasActive)
-	}
-	expected := "http://localhost:9200"
-	if client.activeUrl != expected {
-		t.Errorf("expected active url to be %s, got: %v", expected, client.activeUrl)
-	}
-}
-
-func TestFindingNoActiveClient(t *testing.T) {
-	client, err := NewClient(http.DefaultClient, "http://localhost:19200", "http://localhost:19201")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(client.urls) != 2 {
-		t.Fatalf("expected 2 default client urls, got: %v", client.urls)
-	}
-	if client.hasActive {
-		t.Errorf("expected to not have an active connection, got: %v", client.hasActive)
-	}
-	if client.activeUrl != "" {
-		t.Errorf("expected no active url, got: %v", client.activeUrl)
-	}
-	req, err := client.NewRequest("HEAD", "/")
-	if err != ErrNoClient {
-		t.Errorf("expected ErrNoClient, got: %v", err)
-	}
-	if req != nil {
-		t.Errorf("expected no request, got: %v", req)
+	broken = client.pool.conns[1].IsBroken()
+	if !broken {
+		t.Errorf("expected 2nd connection url of %s to be broken, got: %s", client.pool.conns[1].url, broken)
 	}
 }
 
