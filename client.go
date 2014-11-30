@@ -164,6 +164,12 @@ func (c *Client) Index() *IndexService {
 	return builder
 }
 
+// Update a document.
+func (c *Client) Update() *UpdateService {
+	builder := NewUpdateService(c)
+	return builder
+}
+
 // Delete a document.
 func (c *Client) Delete() *DeleteService {
 	builder := NewDeleteService(c)

@@ -67,7 +67,7 @@ func Example() {
 	}
 
 	// Index a tweet (using JSON serialization)
-	tweet1 := Tweet{User: "olivere", Message: "Take Five"}
+	tweet1 := Tweet{User: "olivere", Message: "Take Five", Retweets: 0}
 	put1, err := client.Index().
 		Index("twitter").
 		Type("tweet").
@@ -154,6 +154,18 @@ func Example() {
 	} else {
 		// No hits
 		fmt.Print("Found no tweets\n")
+	}
+
+	// Update a tweet by the update API of Elasticsearch.
+	// We just increment the number of retweets.
+	update, err := client.Update().Index("twitter").Type("tweet").Id("1").
+		Script("ctx._source.retweets += num").
+		ScriptParams(map[string]interface{}{"num": 1}).
+		Upsert(map[string]interface{}{"retweets": 0}).
+		Do()
+	if err != nil {
+		// Handle error
+		panic(err)
 	}
 
 	// ...

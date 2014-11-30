@@ -92,6 +92,22 @@ if err != nil {
     panic(err)
 }
 
+// Ping the Elasticsearch server to get e.g. the version number
+info, code, err := client.Ping().Do()
+if err != nil {
+    // Handle error
+    panic(err)
+}
+fmt.Printf("Elasticsearch returned with code %d and version %s", code, info.Version.Number)
+
+// Getting the ES version number is quite common, so there's a shortcut
+esversion, err := client.ElasticsearchVersion("http://127.0.0.1:9200")
+if err != nil {
+    // Handle error
+    panic(err)
+}
+fmt.Printf("Elasticsearch version %s", esversion)
+
 // Use the IndexExists service to check if a specified index exists.
 exists, err := client.IndexExists("twitter").Do()
 if err != nil {
@@ -111,7 +127,7 @@ if !exists {
 }
 
 // Index a tweet (using JSON serialization)
-tweet1 := Tweet{User: "olivere", Message: "Take Five"}
+tweet1 := Tweet{User: "olivere", Message: "Take Five", Retweets: 0}
 put1, err := client.Index().
     Index("twitter").
     Type("tweet").
@@ -200,6 +216,19 @@ if searchResult.Hits != nil {
     fmt.Print("Found no tweets\n")
 }
 
+
+// Update a tweet by the update API of Elasticsearch.
+// We just increment the number of retweets.
+update, err := client.Update().Index("twitter").Type("tweet").Id("1").
+    Script("ctx._source.retweets += num").
+    ScriptParams(map[string]interface{}{"num": 1}).
+    Upsert(map[string]interface{}{"retweets": 0}).
+    Do()
+if err != nil {
+    // Handle error
+    panic(err)
+}
+
 // ...
 
 // Delete an index.
@@ -227,7 +256,7 @@ Here's the current API status.
 - [x] Index
 - [x] Get
 - [x] Delete
-- [ ] Update
+- [x] Update
 - [x] Multi Get
 - [x] Bulk
 - [ ] Bulk UDP
