@@ -480,7 +480,7 @@ following things in mind before submitting your pull request:
 Thanks a lot for the great folks working hard on
 [Elasticsearch](http://www.elasticsearch.org/)
 and
-[Google Go](http://www.golang.org/).
+[Go](http://www.golang.org/).
 
 ## LICENSE
 
