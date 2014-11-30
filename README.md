@@ -228,6 +228,7 @@ if err != nil {
     // Handle error
     panic(err)
 }
+fmt.Printf("New version of tweet %q is now %d", update.Id, update.Version)
 
 // ...
 

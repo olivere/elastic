@@ -167,6 +167,7 @@ func Example() {
 		// Handle error
 		panic(err)
 	}
+	fmt.Printf("New version of tweet %q is now %d", update.Id, update.Version)
 
 	// ...
 
