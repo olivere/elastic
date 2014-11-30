@@ -14,7 +14,8 @@ func TestUpdateViaScript(t *testing.T) {
 	update := client.Update().
 		Index("test").Type("type1").Id("1").
 		Script("ctx._source.tags += tag").
-		ScriptParams(map[string]interface{}{"tag": "blue"})
+		ScriptParams(map[string]interface{}{"tag": "blue"}).
+		ScriptLang("groovy")
 	urls, err := update.url()
 	if err != nil {
 		t.Fatalf("expected to return URL, got: %v", err)
@@ -32,7 +33,7 @@ func TestUpdateViaScript(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected = `{"params":{"tag":"blue"},"script":"ctx._source.tags += tag"}`
+	expected = `{"lang":"groovy","params":{"tag":"blue"},"script":"ctx._source.tags += tag"}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
@@ -192,6 +193,7 @@ func TestUpdateViaScriptIntegration(t *testing.T) {
 	update, err := client.Update().Index(testIndexName).Type("tweet").Id("1").
 		Script("ctx._source.retweets += num").
 		ScriptParams(map[string]interface{}{"num": increment}).
+		ScriptLang("groovy"). // Use "groovy" as default language as 1.3 uses MVEL by default
 		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
