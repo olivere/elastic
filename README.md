@@ -7,7 +7,7 @@ client for [Google Go](http://www.golang.org/).
 
 ## Status
 
-We use Elastic in production for more than two years now.
+We use Elastic in production for more than three years now.
 Although Elastic is quite stable from our experience, we don't have
 a stable API yet. The reason for this is that Elasticsearch changes quite
 often and at a fast pace. At this moment we focus on features, not on a
@@ -17,15 +17,15 @@ More often than not it's renaming APIs and adding/removing features
 so that we are in sync with the Elasticsearch API.
 
 Elastic supports and has been tested in production with
-the following Elasticsearch versions: 0.90, 1.0, 1.1, 1.2, and 1.3.
+the following Elasticsearch versions: 0.90, 1.0, 1.1, 1.2, 1.3, and 1.4.
 
 Elasticsearch has quite a few features. A lot of them are
 not yet implemented in Elastic (see below for details).
 I add features and APIs as required. It's straightforward
-to implement missing pieces. I'm accepting pull requests :-)
+to implement missing pieces. I'm accepting pull requests
+(see [How to contribute](#how-to-contribute)).
 
-Having said that, I hope you find the project useful. Fork it
-as you like.
+Having said that, I hope you find the project useful.
 
 ## Usage
 
@@ -43,14 +43,17 @@ if err != nil {
 
 Notice that you can pass your own http.Client implementation here. You can
 also pass more than one URL to a client. Elastic pings the URLs periodically
-and takes the first to succeed. By doing this periodically, Elastic provides
-automatic failover, e.g. when an Elasticsearch server goes down during
-updates.
+to check for broken connections. By doing this periodically, Elastic provides
+simple and automatic failover, e.g. when an Elasticsearch server goes down
+during maintenance.
+
+Elastic uses simple round-robin between all connections for load-balancing.
 
 If no Elasticsearch server is available, services will fail when creating
 a new request and will return `ErrNoClient`. While this method is not very
 sophisticated and might result in timeouts, it is robust enough for our
-use cases. Pull requests are welcome.
+use cases. You might use a retry mechanism in your application to guard
+against these kinds of problems.
 
 ```go
 client, err := elastic.NewClient(http.DefaultClient, "http://1.2.3.4:9200", "http://1.2.3.5:9200")
