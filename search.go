@@ -274,24 +274,27 @@ func (s *SearchService) Do() (*SearchResult, error) {
 }
 
 type SearchResult struct {
-	TookInMillis int64                      `json:"took"`
-	ScrollId     string                     `json:"_scroll_id"`
-	Hits         *SearchHits                `json:"hits"`
-	Suggest      SearchSuggest              `json:"suggest"`
-	Facets       SearchFacets               `json:"facets"`
-	Aggregations map[string]json.RawMessage `json:"aggregations"` // see search_aggs.go
-	TimedOut     bool                       `json:"timed_out"`
-	Error        string                     `json:"error,omitempty"` // used in MultiSearch only
+	TookInMillis int64         `json:"took"`
+	ScrollId     string        `json:"_scroll_id"`
+	Hits         *SearchHits   `json:"hits"`
+	Suggest      SearchSuggest `json:"suggest"`
+	Facets       SearchFacets  `json:"facets"`
+	Aggregations Aggregations  `json:"aggregations"` // see search_aggs.go
+	//Aggregations map[string]json.RawMessage `json:"aggregations"`          // see search_aggs.go
+	TimedOut bool   `json:"timed_out"`
+	Error    string `json:"error,omitempty"` // used in MultiSearch only
 }
 
+/*
 // GetAggregation returns the aggregation with the specified name.
-func (res *SearchResult) GetAggregation(name string) (*SearchAggregation, bool) {
+func (res *SearchResult) GetAggregation(name string) (*Aggregations, bool) {
 	agg, found := res.Aggregations[name]
 	if !found {
 		return nil, false
 	}
 	return NewSearchAggregation(name, agg), true
 }
+*/
 
 type SearchHits struct {
 	TotalHits int64        `json:"total"`
