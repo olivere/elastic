@@ -454,7 +454,7 @@ the `Scroll` and `Scan` services.
 
 ## How to contribute
 
-Read [the contribution guidelines](https://github.com/olivere/elastic/CONTRIBUTING.md).
+Read [the contribution guidelines](https://github.com/olivere/elastic/blob/master/CONTRIBUTING.md).
 
 ## Credits
 
