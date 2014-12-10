@@ -435,17 +435,17 @@ on the command line.
 - [x] filters
 - [x] missing
 - [x] nested
-- [ ] reverse nested
+- [x] reverse nested
 - [x] children
 - [x] terms
 - [x] significant terms
 - [x] range
 - [x] date range
-- [ ] ipv4 range
+- [x] ipv4 range
 - [x] histogram
 - [x] date histogram
 - [x] geo distance
-- [ ] geohash grid
+- [x] geohash grid
 
 ### Scan
 
