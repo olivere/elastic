@@ -260,6 +260,45 @@ func (fn FactorFunction) Source() interface{} {
 	return fn.boostFactor
 }
 
+// -- Field value factor --
+
+type FieldValueFactorFunction struct {
+	field    string
+	factor   *float64
+	modifier string
+}
+
+func NewFieldValueFactorFunction() FieldValueFactorFunction {
+	return FieldValueFactorFunction{}
+}
+
+func (fn FieldValueFactorFunction) Name() string {
+	return "field_value_factor"
+}
+
+func (fn FieldValueFactorFunction) Field(field string) FieldValueFactorFunction {
+	fn.field = field
+	return fn
+}
+
+func (fn FieldValueFactorFunction) BoostFactor(boost float64) FieldValueFactorFunction {
+	fn.factor = &boost
+	return fn
+}
+
+func (fn FieldValueFactorFunction) Modifier(modifier string) FieldValueFactorFunction {
+	fn.modifier = modifier
+	return fn
+}
+
+func (fn FieldValueFactorFunction) Source() interface{} {
+	source := make(map[string]interface{})
+	source["field"] = fn.field
+	source["factor"] = fn.factor
+	source["modifier"] = fn.modifier
+	return source
+}
+
 // -- Random --
 
 type RandomFunction struct {
