@@ -47,7 +47,7 @@ func TestFunctionScoreQueryWithNilFilter(t *testing.T) {
 func TestFieldValueFactor(t *testing.T) {
 	q := NewFunctionScoreQuery().
 		Query(NewTermQuery("name.last", "banon")).
-		AddScoreFunc(NewFieldValueFactorFunction().Modifier("sqrt").BoostFactor(2).Field("income")).
+		AddScoreFunc(NewFieldValueFactorFunction().Modifier("sqrt").Factor(2).Field("income")).
 		Boost(2.0).
 		MaxBoost(12.0).
 		BoostMode("multiply").

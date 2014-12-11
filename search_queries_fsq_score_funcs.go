@@ -1,5 +1,9 @@
 package elastic
 
+import (
+	"strings"
+)
+
 // ScoreFunction is used in combination with the Function Score Query.
 type ScoreFunction interface {
 	Name() string
@@ -262,40 +266,57 @@ func (fn FactorFunction) Source() interface{} {
 
 // -- Field value factor --
 
+// FieldValueFactorFunction is a function score function that allows you
+// to use a field from a document to influence the score.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_field_value_factor.
 type FieldValueFactorFunction struct {
 	field    string
 	factor   *float64
 	modifier string
 }
 
+// NewFieldValueFactorFunction creates a new FieldValueFactorFunction.
 func NewFieldValueFactorFunction() FieldValueFactorFunction {
 	return FieldValueFactorFunction{}
 }
 
+// Name of the function score function.
 func (fn FieldValueFactorFunction) Name() string {
 	return "field_value_factor"
 }
 
+// Field is the field to be extracted from the document.
 func (fn FieldValueFactorFunction) Field(field string) FieldValueFactorFunction {
 	fn.field = field
 	return fn
 }
 
-func (fn FieldValueFactorFunction) BoostFactor(boost float64) FieldValueFactorFunction {
-	fn.factor = &boost
+// Factor is the (optional) factor to multiply the field with. If you do not
+// specify a factor, the default is 1.
+func (fn FieldValueFactorFunction) Factor(factor float64) FieldValueFactorFunction {
+	fn.factor = &factor
 	return fn
 }
 
+// Modifier to apply to the field value. It can be one of: none, log, log1p,
+// log2p, ln, ln1p, ln2p, square, sqrt, or reciprocal. Defaults to: none.
 func (fn FieldValueFactorFunction) Modifier(modifier string) FieldValueFactorFunction {
 	fn.modifier = modifier
 	return fn
 }
 
+// Source returns the JSON to be serialized into the query.
 func (fn FieldValueFactorFunction) Source() interface{} {
 	source := make(map[string]interface{})
-	source["field"] = fn.field
-	source["factor"] = fn.factor
-	source["modifier"] = fn.modifier
+	if fn.field != "" {
+		source["field"] = fn.field
+	}
+	if fn.factor != nil {
+		source["factor"] = *fn.factor
+	}
+	if fn.modifier != "" {
+		source["modifier"] = strings.ToLower(fn.modifier)
+	}
 	return source
 }
 
