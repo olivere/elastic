@@ -29,6 +29,9 @@ type SearchService struct {
 	debug        bool
 }
 
+// NewSearchService creates a new service for searching in Elasticsearch.
+// You typically do not create the service yourself manually, but access
+// it via client.Search().
 func NewSearchService(client *Client) *SearchService {
 	builder := &SearchService{
 		client:       client,
@@ -39,6 +42,7 @@ func NewSearchService(client *Client) *SearchService {
 	return builder
 }
 
+// Index sets the name of the index to use for search.
 func (s *SearchService) Index(index string) *SearchService {
 	if s.indices == nil {
 		s.indices = make([]string, 0)
@@ -47,6 +51,7 @@ func (s *SearchService) Index(index string) *SearchService {
 	return s
 }
 
+// Indices sets the names of the indices to use for search.
 func (s *SearchService) Indices(indices ...string) *SearchService {
 	if s.indices == nil {
 		s.indices = make([]string, 0)
@@ -55,6 +60,7 @@ func (s *SearchService) Indices(indices ...string) *SearchService {
 	return s
 }
 
+// Type restricts the search for the given type.
 func (s *SearchService) Type(typ string) *SearchService {
 	if s.types == nil {
 		s.types = []string{typ}
@@ -64,6 +70,7 @@ func (s *SearchService) Type(typ string) *SearchService {
 	return s
 }
 
+// Types allows to restrict the search to a list of types.
 func (s *SearchService) Types(types ...string) *SearchService {
 	if s.types == nil {
 		s.types = make([]string, len(types))
@@ -72,36 +79,50 @@ func (s *SearchService) Types(types ...string) *SearchService {
 	return s
 }
 
+// Pretty enables the caller to indent the JSON output. Use it in combination
+// with Debug to see what Elasticsearch actually returned.
 func (s *SearchService) Pretty(pretty bool) *SearchService {
 	s.pretty = pretty
 	return s
 }
 
+// Debug enables the user to print the output of the search to os.Stdout
+// when calling Do.
 func (s *SearchService) Debug(debug bool) *SearchService {
 	s.debug = debug
 	return s
 }
 
+// Timeout sets the timeout to use, e.g. "1s" or "1000ms".
 func (s *SearchService) Timeout(timeout string) *SearchService {
 	s.searchSource = s.searchSource.Timeout(timeout)
 	return s
 }
 
+// TimeoutInMillis sets the timeout in milliseconds.
 func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
 	s.searchSource = s.searchSource.TimeoutInMillis(timeoutInMillis)
 	return s
 }
 
+// SearchType sets the search operation type. Valid values are:
+// "query_then_fetch", "query_and_fetch", "dfs_query_then_fetch",
+// "dfs_query_and_fetch", "count", "scan".
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-search-type.html#search-request-search-type
+// for details.
 func (s *SearchService) SearchType(searchType string) *SearchService {
 	s.searchType = searchType
 	return s
 }
 
+// Routing allows for (a comma-separated) list of specific routing values.
 func (s *SearchService) Routing(routing string) *SearchService {
 	s.routing = routing
 	return s
 }
 
+// Preference specifies the node or shard the operation should be
+// performed on (default: "random").
 func (s *SearchService) Preference(preference string) *SearchService {
 	s.preference = preference
 	return s
@@ -112,83 +133,128 @@ func (s *SearchService) QueryHint(queryHint string) *SearchService {
 	return s
 }
 
+// Query sets the query to perform, e.g. MatchAllQuery.
 func (s *SearchService) Query(query Query) *SearchService {
 	s.searchSource = s.searchSource.Query(query)
 	return s
 }
 
 // PostFilter is executed as the last filter. It only affects the
-// search hits but not facets.
+// search hits but not facets. See
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-post-filter.html
+// for details.
 func (s *SearchService) PostFilter(postFilter Filter) *SearchService {
 	s.searchSource = s.searchSource.PostFilter(postFilter)
 	return s
 }
 
+// Highlight sets the highlighting. See
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html
+// for details.
 func (s *SearchService) Highlight(highlight *Highlight) *SearchService {
 	s.searchSource = s.searchSource.Highlight(highlight)
 	return s
 }
 
+// GlobalSuggestText sets the global text for suggesters. See
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters.html#global-suggest
+// for details.
 func (s *SearchService) GlobalSuggestText(globalText string) *SearchService {
 	s.searchSource = s.searchSource.GlobalSuggestText(globalText)
 	return s
 }
 
+// Suggester sets the suggester. See
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters.html
+// for details.
 func (s *SearchService) Suggester(suggester Suggester) *SearchService {
 	s.searchSource = s.searchSource.Suggester(suggester)
 	return s
 }
 
+// Facet adds a facet to the search. See
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html
+// to get an overview of Elasticsearch facets.
 func (s *SearchService) Facet(name string, facet Facet) *SearchService {
 	s.searchSource = s.searchSource.Facet(name, facet)
 	return s
 }
 
+// Aggregation adds an aggregation to the search. See
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations.html
+// for an overview of aggregations in Elasticsearch.
 func (s *SearchService) Aggregation(name string, aggregation Aggregation) *SearchService {
 	s.searchSource = s.searchSource.Aggregation(name, aggregation)
 	return s
 }
 
+// MinScore excludes documents which have a score less than the minimum
+// specified here. See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-min-score.html.
 func (s *SearchService) MinScore(minScore float64) *SearchService {
 	s.searchSource = s.searchSource.MinScore(minScore)
 	return s
 }
 
+// From defines the offset from the first result you want to fetch.
+// Use it in combination with Size to paginate through results.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-from-size.html
+// for details.
 func (s *SearchService) From(from int) *SearchService {
 	s.searchSource = s.searchSource.From(from)
 	return s
 }
 
+// Size defines the maximum number of hits to be returned.
+// Use it in combination with From to paginate through results.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-from-size.html
+// for details.
 func (s *SearchService) Size(size int) *SearchService {
 	s.searchSource = s.searchSource.Size(size)
 	return s
 }
 
+// Explain can be enabled to provide an explanation for each hit and how its
+// score was computed.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-explain.html
+// for details.
 func (s *SearchService) Explain(explain bool) *SearchService {
 	s.searchSource = s.searchSource.Explain(explain)
 	return s
 }
 
+// Version can be set to true to return a version for each search hit.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-version.html.
 func (s *SearchService) Version(version bool) *SearchService {
 	s.searchSource = s.searchSource.Version(version)
 	return s
 }
 
+// Sort the results by the given field, in the given order.
+// Use the alternative SortWithInfo to use a struct to define the sorting.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
+// for detailed documentation of sorting.
 func (s *SearchService) Sort(field string, ascending bool) *SearchService {
 	s.searchSource = s.searchSource.Sort(field, ascending)
 	return s
 }
 
+// SortWithInfo defines how to sort results.
+// Use the Sort func for a shortcut.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
+// for detailed documentation of sorting.
 func (s *SearchService) SortWithInfo(info SortInfo) *SearchService {
 	s.searchSource = s.searchSource.SortWithInfo(info)
 	return s
 }
 
+// Fields tells Elasticsearch to only load specific fields from a search hit.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-fields.html.
 func (s *SearchService) Fields(fields ...string) *SearchService {
 	s.searchSource = s.searchSource.Fields(fields...)
 	return s
 }
 
+// Do executes the search and returns a SearchResult.
 func (s *SearchService) Do() (*SearchResult, error) {
 	// Build url
 	urls := "/"
@@ -273,45 +339,36 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	return ret, nil
 }
 
+// SearchResult is the result of a search in Elasticsearch.
 type SearchResult struct {
-	TookInMillis int64         `json:"took"`
-	ScrollId     string        `json:"_scroll_id"`
-	Hits         *SearchHits   `json:"hits"`
-	Suggest      SearchSuggest `json:"suggest"`
-	Facets       SearchFacets  `json:"facets"`
-	Aggregations Aggregations  `json:"aggregations"` // see search_aggs.go
-	//Aggregations map[string]json.RawMessage `json:"aggregations"`          // see search_aggs.go
-	TimedOut bool   `json:"timed_out"`
-	Error    string `json:"error,omitempty"` // used in MultiSearch only
+	TookInMillis int64         `json:"took"`            // search time in milliseconds
+	ScrollId     string        `json:"_scroll_id"`      // only used with Scroll and Scan operations
+	Hits         *SearchHits   `json:"hits"`            // the actual search hits
+	Suggest      SearchSuggest `json:"suggest"`         // results from suggesters
+	Facets       SearchFacets  `json:"facets"`          // results from facets
+	Aggregations Aggregations  `json:"aggregations"`    // results from aggregations
+	TimedOut     bool          `json:"timed_out"`       // true if the search timed out
+	Error        string        `json:"error,omitempty"` // used in MultiSearch only
 }
 
-/*
-// GetAggregation returns the aggregation with the specified name.
-func (res *SearchResult) GetAggregation(name string) (*Aggregations, bool) {
-	agg, found := res.Aggregations[name]
-	if !found {
-		return nil, false
-	}
-	return NewSearchAggregation(name, agg), true
-}
-*/
-
+// SearchHits specifies the list of search hits.
 type SearchHits struct {
-	TotalHits int64        `json:"total"`
-	MaxScore  *float64     `json:"max_score"`
-	Hits      []*SearchHit `json:"hits"`
+	TotalHits int64        `json:"total"`     // total number of hits found
+	MaxScore  *float64     `json:"max_score"` // maximum score of all hits
+	Hits      []*SearchHit `json:"hits"`      // the actual hits returned
 }
 
+// SearchHit is a single hit.
 type SearchHit struct {
-	Score     *float64               `json:"_score"`
-	Index     string                 `json:"_index"`
-	Id        string                 `json:"_id"`
-	Type      string                 `json:"_type"`
-	Version   *int64                 `json:"_version"`
-	Sort      *[]interface{}         `json:"sort"`
-	Highlight SearchHitHighlight     `json:"highlight"`
-	Source    *json.RawMessage       `json:"_source"`
-	Fields    map[string]interface{} `json:"fields"`
+	Score     *float64               `json:"_score"`    // computed score
+	Index     string                 `json:"_index"`    // index name
+	Id        string                 `json:"_id"`       // external or internal
+	Type      string                 `json:"_type"`     // type
+	Version   *int64                 `json:"_version"`  // version number, when Version is set to true in SearchService
+	Sort      []interface{}          `json:"sort"`      // sort information
+	Highlight SearchHitHighlight     `json:"highlight"` // highlighter information
+	Source    *json.RawMessage       `json:"_source"`   // stored document source
+	Fields    map[string]interface{} `json:"fields"`    // returned fields
 
 	// Explanation
 	// Shard
@@ -322,8 +379,12 @@ type SearchHit struct {
 
 // Suggest
 
+// SearchSuggest is a map of suggestions.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters.html.
 type SearchSuggest map[string][]SearchSuggestion
 
+// SearchSuggestion is a single search suggestion.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters.html.
 type SearchSuggestion struct {
 	Text    string                   `json:"text"`
 	Offset  int                      `json:"offset"`
@@ -331,6 +392,8 @@ type SearchSuggestion struct {
 	Options []SearchSuggestionOption `json:"options"`
 }
 
+// SearchSuggestionOption is an option of a SearchSuggestion.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters.html.
 type SearchSuggestionOption struct {
 	Text    string      `json:"text"`
 	Score   float32     `json:"score"`
@@ -340,8 +403,12 @@ type SearchSuggestionOption struct {
 
 // Facets
 
+// SearchFacets is a map of facets.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html.
 type SearchFacets map[string]*SearchFacet
 
+// SearchFacet is a single facet.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html.
 type SearchFacet struct {
 	Type    string             `json:"_type"`
 	Missing int                `json:"missing"`
@@ -352,11 +419,15 @@ type SearchFacet struct {
 	Entries []searchFacetEntry `json:"entries"`
 }
 
+// searchFacetTerm is the result of a terms facet.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets-terms-facet.html.
 type searchFacetTerm struct {
 	Term  string `json:"term"`
 	Count int    `json:"count"`
 }
 
+// searchFacetRange is the result of a range facet.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets-range-facet.html.
 type searchFacetRange struct {
 	From       *float64 `json:"from"`
 	FromStr    *string  `json:"from_str"`
@@ -370,6 +441,8 @@ type searchFacetRange struct {
 	Mean       *float64 `json:"mean"`
 }
 
+// searchFacetEntry is a general facet entry.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html
 type searchFacetEntry struct {
 	// Key for this facet, e.g. in histograms
 	Key interface{} `json:"key"`
@@ -399,4 +472,7 @@ type searchFacetEntry struct {
 
 // Highlighting
 
+// SearchHitHighlight is the highlight information of a search hit.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html
+// for a general discussion of highlighting.
 type SearchHitHighlight map[string][]string
