@@ -257,6 +257,7 @@ Here's the current API status.
 - [x] Index
 - [x] Get
 - [x] Delete
+- [x] Delete By Query
 - [x] Update
 - [x] Multi Get
 - [x] Bulk
@@ -273,7 +274,6 @@ Here's the current API status.
 - [x] Aggregates (most are implemented, see below)
 - [x] Multi Search
 - [ ] Percolate
-- [ ] Delete By Query
 - [ ] More like this
 - [ ] Benchmark
 
