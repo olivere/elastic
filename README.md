@@ -368,7 +368,7 @@ on the command line.
 - [x] `term`
 - [x] `terms`
 - [ ] `top_children`
-- [ ] `wildcard`
+- [x] `wildcard`
 - [ ] `minimum_should_match`
 - [ ] `multi_term_query_rewrite`
 - [ ] `template_query`
