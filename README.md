@@ -1,5 +1,8 @@
 # Elastic
 
+This is my fork repository for olivere/elastic to add a basic support for 
+wildcard queries.
+
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/)
 client for [Google Go](http://www.golang.org/).
 
