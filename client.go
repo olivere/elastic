@@ -158,6 +158,20 @@ func (c *Client) IndexExists(name string) *IndexExistsService {
 	return builder
 }
 
+// OpenIndex opens an index.
+func (c *Client) OpenIndex(name string) *OpenIndexService {
+	builder := NewOpenIndexService(c)
+	builder.Index(name)
+	return builder
+}
+
+// CloseIndex closes an index.
+func (c *Client) CloseIndex(name string) *CloseIndexService {
+	builder := NewCloseIndexService(c)
+	builder.Index(name)
+	return builder
+}
+
 // Index a document.
 func (c *Client) Index() *IndexService {
 	builder := NewIndexService(c)

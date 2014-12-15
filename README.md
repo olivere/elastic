@@ -282,7 +282,7 @@ Here's the current API status.
 - [x] Create index
 - [x] Delete index
 - [x] Indices exists
-- [ ] Open/close index
+- [x] Open/close index
 - [ ] Put mapping
 - [ ] Get mapping
 - [ ] Get field mapping

@@ -158,6 +158,47 @@ func TestIndexExistScenarios(t *testing.T) {
 	}
 }
 
+func TestIndexOpenAndClose(t *testing.T) {
+	client := setupTestClient(t)
+
+	// Create index
+	createIndex, err := client.CreateIndex(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !createIndex.Acknowledged {
+		t.Errorf("expected CreateIndexResult.Acknowledged %v; got %v", true, createIndex.Acknowledged)
+	}
+	defer func() {
+		// Delete index
+		deleteIndex, err := client.DeleteIndex(testIndexName).Do()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !deleteIndex.Acknowledged {
+			t.Errorf("expected DeleteIndexResult.Acknowledged %v; got %v", true, deleteIndex.Acknowledged)
+		}
+	}()
+
+	// Close index
+	cresp, err := client.CloseIndex(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !cresp.Acknowledged {
+		t.Fatalf("expected close index of %q to be acknowledged\n", testIndexName)
+	}
+
+	// Open index again
+	oresp, err := client.OpenIndex(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !oresp.Acknowledged {
+		t.Fatalf("expected open index of %q to be acknowledged\n", testIndexName)
+	}
+}
+
 func TestDocumentLifecycle(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
