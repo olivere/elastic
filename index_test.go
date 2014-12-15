@@ -180,19 +180,19 @@ func TestIndexOpenAndClose(t *testing.T) {
 		}
 	}()
 
-	waitForGreen := func() {
-		// Wait for status green
-		res, err := client.ClusterHealth().WaitForStatus("green").Timeout("15s").Do()
+	waitForYellow := func() {
+		// Wait for status yellow
+		res, err := client.ClusterHealth().WaitForStatus("yellow").Timeout("15s").Do()
 		if err != nil {
 			t.Fatal(err)
 		}
 		if res != nil && res.TimedOut {
-			t.Fatalf("cluster time out waiting for status %q", "green")
+			t.Fatalf("cluster time out waiting for status %q", "yellow")
 		}
 	}
 
-	// Wait for status green
-	waitForGreen()
+	// Wait for cluster
+	waitForYellow()
 
 	// Close index
 	cresp, err := client.CloseIndex(testIndexName).Do()
@@ -203,8 +203,8 @@ func TestIndexOpenAndClose(t *testing.T) {
 		t.Fatalf("expected close index of %q to be acknowledged\n", testIndexName)
 	}
 
-	// Wait for status green
-	waitForGreen()
+	// Wait for cluster
+	waitForYellow()
 
 	// Open index again
 	oresp, err := client.OpenIndex(testIndexName).Do()
@@ -214,9 +214,6 @@ func TestIndexOpenAndClose(t *testing.T) {
 	if !oresp.Acknowledged {
 		t.Fatalf("expected open index of %q to be acknowledged\n", testIndexName)
 	}
-
-	// Wait for status green
-	waitForGreen()
 }
 
 func TestDocumentLifecycle(t *testing.T) {
