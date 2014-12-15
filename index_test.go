@@ -180,19 +180,19 @@ func TestIndexOpenAndClose(t *testing.T) {
 		}
 	}()
 
-	flush := func() {
-		// Flush
-		flushresp, err := client.Flush().Refresh(true).Do()
+	waitForGreen := func() {
+		// Wait for status green
+		res, err := client.ClusterHealth().WaitForStatus("green").Timeout("15s").Do()
 		if err != nil {
 			t.Fatal(err)
 		}
-		if flushresp.Shards.Failed > 0 {
-			t.Fatalf("expected not failed shards on flush; got: %d", flushresp.Shards.Failed)
+		if res != nil && res.TimedOut {
+			t.Fatalf("cluster time out waiting for status %q", "green")
 		}
 	}
 
-	// Flush
-	flush()
+	// Wait for status green
+	waitForGreen()
 
 	// Close index
 	cresp, err := client.CloseIndex(testIndexName).Do()
@@ -203,8 +203,8 @@ func TestIndexOpenAndClose(t *testing.T) {
 		t.Fatalf("expected close index of %q to be acknowledged\n", testIndexName)
 	}
 
-	// Flush
-	flush()
+	// Wait for status green
+	waitForGreen()
 
 	// Open index again
 	oresp, err := client.OpenIndex(testIndexName).Do()
@@ -215,8 +215,8 @@ func TestIndexOpenAndClose(t *testing.T) {
 		t.Fatalf("expected open index of %q to be acknowledged\n", testIndexName)
 	}
 
-	// Flush again
-	flush()
+	// Wait for status green
+	waitForGreen()
 }
 
 func TestDocumentLifecycle(t *testing.T) {
