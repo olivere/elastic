@@ -189,7 +189,14 @@ func TestIndexOpenAndClose(t *testing.T) {
 		t.Fatalf("expected close index of %q to be acknowledged\n", testIndexName)
 	}
 
-	time.Sleep(3*time.Second)
+	// Flush
+	flushresp, err := client.Flush().Refresh(true).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if flushresp.Shards.Failed > 0 {
+		t.Fatalf("expected not failed shards on flush; got: %d", flushresp.Shards.Failed)
+	}
 
 	// Open index again
 	oresp, err := client.OpenIndex(testIndexName).Do()
@@ -198,6 +205,15 @@ func TestIndexOpenAndClose(t *testing.T) {
 	}
 	if !oresp.Acknowledged {
 		t.Fatalf("expected open index of %q to be acknowledged\n", testIndexName)
+	}
+
+	// Flush again
+	flushresp, err = client.Flush().Refresh(true).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if flushresp.Shards.Failed > 0 {
+		t.Fatalf("expected not failed shards on flush; got: %d", flushresp.Shards.Failed)
 	}
 }
 
