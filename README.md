@@ -318,7 +318,7 @@ on the command line.
 
 ### Cluster
 
-- [ ] Health
+- [x] Health
 - [ ] State
 - [ ] Stats
 - [ ] Pending cluster tasks
