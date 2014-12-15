@@ -180,6 +180,20 @@ func TestIndexOpenAndClose(t *testing.T) {
 		}
 	}()
 
+	flush := func() {
+		// Flush
+		flushresp, err := client.Flush().Refresh(true).Do()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if flushresp.Shards.Failed > 0 {
+			t.Fatalf("expected not failed shards on flush; got: %d", flushresp.Shards.Failed)
+		}
+	}
+
+	// Flush
+	flush()
+
 	// Close index
 	cresp, err := client.CloseIndex(testIndexName).Do()
 	if err != nil {
@@ -190,13 +204,7 @@ func TestIndexOpenAndClose(t *testing.T) {
 	}
 
 	// Flush
-	flushresp, err := client.Flush().Refresh(true).Do()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if flushresp.Shards.Failed > 0 {
-		t.Fatalf("expected not failed shards on flush; got: %d", flushresp.Shards.Failed)
-	}
+	flush()
 
 	// Open index again
 	oresp, err := client.OpenIndex(testIndexName).Do()
@@ -208,13 +216,7 @@ func TestIndexOpenAndClose(t *testing.T) {
 	}
 
 	// Flush again
-	flushresp, err = client.Flush().Refresh(true).Do()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if flushresp.Shards.Failed > 0 {
-		t.Fatalf("expected not failed shards on flush; got: %d", flushresp.Shards.Failed)
-	}
+	flush()
 }
 
 func TestDocumentLifecycle(t *testing.T) {
