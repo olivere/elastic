@@ -189,6 +189,8 @@ func TestIndexOpenAndClose(t *testing.T) {
 		t.Fatalf("expected close index of %q to be acknowledged\n", testIndexName)
 	}
 
+	time.Sleep(3*time.Second)
+
 	// Open index again
 	oresp, err := client.OpenIndex(testIndexName).Do()
 	if err != nil {
