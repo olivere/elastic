@@ -3,7 +3,10 @@
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/)
 client for [Google Go](http://www.golang.org/).
 
-[![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=master)](https://travis-ci.org/olivere/elastic.svg?branch=master)
+[![Build Status](https://travis-ci.org/olivere/elastic)](https://travis-ci.org/olivere/elastic.svg?branch=master)
+[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/olivere/elastic)
+[![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/olivere/elastic/master/LICENSE)
+
 
 ## Status
 
