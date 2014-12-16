@@ -319,7 +319,7 @@ on the command line.
 ### Cluster
 
 - [x] Health
-- [ ] State
+- [x] State
 - [ ] Stats
 - [ ] Pending cluster tasks
 - [ ] Cluster reroute

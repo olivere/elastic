@@ -38,63 +38,65 @@ func NewClusterHealthService(client *Client) *ClusterHealthService {
 	return &ClusterHealthService{client: client, indices: make([]string, 0)}
 }
 
-// Index is documented as: Limit the information returned to a specific index.
+// Index limits the information returned to a specific index.
 func (s *ClusterHealthService) Index(index string) *ClusterHealthService {
 	s.indices = make([]string, 0)
 	s.indices = append(s.indices, index)
 	return s
 }
 
-// Indices is documented as: Limit the information returned to a specific index.
+// Indices limits the information returned to specific indices.
 func (s *ClusterHealthService) Indices(indices ...string) *ClusterHealthService {
 	s.indices = make([]string, 0)
 	s.indices = append(s.indices, indices...)
 	return s
 }
 
-// MasterTimeout is documented as: Explicit operation timeout for connection to master node.
+// MasterTimeout specifies an explicit operation timeout for connection to master node.
 func (s *ClusterHealthService) MasterTimeout(masterTimeout string) *ClusterHealthService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
-// Timeout is documented as: Explicit operation timeout.
+// Timeout specifies an explicit operation timeout.
 func (s *ClusterHealthService) Timeout(timeout string) *ClusterHealthService {
 	s.timeout = timeout
 	return s
 }
 
-// WaitForActiveShards is documented as: Wait until the specified number of shards is active.
+// WaitForActiveShards can be used to wait until the specified number of shards are active.
 func (s *ClusterHealthService) WaitForActiveShards(waitForActiveShards int) *ClusterHealthService {
 	s.waitForActiveShards = &waitForActiveShards
 	return s
 }
 
-// WaitForNodes is documented as: Wait until the specified number of nodes is available.
+// WaitForNodes can be used to wait until the specified number of nodes are available.
 func (s *ClusterHealthService) WaitForNodes(waitForNodes string) *ClusterHealthService {
 	s.waitForNodes = waitForNodes
 	return s
 }
 
-// WaitForRelocatingShards is documented as: Wait until the specified number of relocating shards is finished.
+// WaitForRelocatingShards can be used to wait until the specified number of relocating shards is finished.
 func (s *ClusterHealthService) WaitForRelocatingShards(waitForRelocatingShards int) *ClusterHealthService {
 	s.waitForRelocatingShards = &waitForRelocatingShards
 	return s
 }
 
-// WaitForStatus is documented as: Wait until cluster is in a specific state.
+// WaitForStatus can be used to wait until the cluster is in a specific state.
+// Valid values are: green, yellow, or red.
 func (s *ClusterHealthService) WaitForStatus(waitForStatus string) *ClusterHealthService {
 	s.waitForStatus = waitForStatus
 	return s
 }
 
-// Level is documented as: Specify the level of detail for returned information.
+// Level specifies the level of detail for returned information.
 func (s *ClusterHealthService) Level(level string) *ClusterHealthService {
 	s.level = level
 	return s
 }
 
-// Local is documented as: Return local information, do not retrieve the state from master node (default: false).
+// Local indicates whether to return local information. If it is true,
+// we do not retrieve the state from master node (default: false).
 func (s *ClusterHealthService) Local(local bool) *ClusterHealthService {
 	s.local = &local
 	return s
@@ -113,10 +115,10 @@ func (s *ClusterHealthService) buildURL() (string, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.waitForRelocatingShards != nil {
-		params.Set("waitForRelocatingShards", fmt.Sprintf("%d", *s.waitForRelocatingShards))
+		params.Set("wait_for_relocating_shards", fmt.Sprintf("%d", *s.waitForRelocatingShards))
 	}
 	if s.waitForStatus != "" {
-		params.Set("waitForStatus", s.waitForStatus)
+		params.Set("wait_for_status", s.waitForStatus)
 	}
 	if s.level != "" {
 		params.Set("level", s.level)
@@ -125,16 +127,16 @@ func (s *ClusterHealthService) buildURL() (string, error) {
 		params.Set("local", fmt.Sprintf("%v", *s.local))
 	}
 	if s.masterTimeout != "" {
-		params.Set("masterTimeout", s.masterTimeout)
+		params.Set("master_timeout", s.masterTimeout)
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)
 	}
 	if s.waitForActiveShards != nil {
-		params.Set("waitForActiveShards", fmt.Sprintf("%d", *s.waitForActiveShards))
+		params.Set("wait_for_active_shards", fmt.Sprintf("%d", *s.waitForActiveShards))
 	}
 	if s.waitForNodes != "" {
-		params.Set("waitForNodes", s.waitForNodes)
+		params.Set("wait_for_nodes", s.waitForNodes)
 	}
 	if len(params) > 0 {
 		urls += "?" + params.Encode()

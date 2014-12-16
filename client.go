@@ -296,7 +296,12 @@ func (c *Client) Aliases() *AliasesService {
 	return builder
 }
 
-// ClusterHealth retrieves the status of the cluster.
+// ClusterHealth retrieves the health of the cluster.
 func (c *Client) ClusterHealth() *ClusterHealthService {
 	return NewClusterHealthService(c)
+}
+
+// ClusterState retrieves the state of the cluster.
+func (c *Client) ClusterState() *ClusterStateService {
+	return NewClusterStateService(c)
 }

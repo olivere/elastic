@@ -23,3 +23,46 @@ func TestClusterHealth(t *testing.T) {
 		t.Fatalf("expected status %q; got: %q", "green", res.Status)
 	}
 }
+
+func TestClusterHealthURLs(t *testing.T) {
+	tests := []struct {
+		Service  *ClusterHealthService
+		Expected string
+	}{
+		{
+			Service: &ClusterHealthService{
+				indices: []string{},
+			},
+			Expected: "/_cluster/health/",
+		},
+		{
+			Service: &ClusterHealthService{
+				indices: []string{"twitter"},
+			},
+			Expected: "/_cluster/health/twitter",
+		},
+		{
+			Service: &ClusterHealthService{
+				indices: []string{"twitter", "gplus"},
+			},
+			Expected: "/_cluster/health/twitter%2Cgplus",
+		},
+		{
+			Service: &ClusterHealthService{
+				indices:       []string{"twitter"},
+				waitForStatus: "yellow",
+			},
+			Expected: "/_cluster/health/twitter?wait_for_status=yellow",
+		},
+	}
+
+	for _, test := range tests {
+		got, err := test.Service.buildURL()
+		if err != nil {
+			t.Fatalf("expected no error; got: %v", err)
+		}
+		if got != test.Expected {
+			t.Errorf("expected URL = %q; got: %q", test.Expected, got)
+		}
+	}
+}

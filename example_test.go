@@ -373,9 +373,7 @@ func ExampleClusterHealth() {
 	if res == nil {
 		panic(err)
 	}
-	if res.Status != "green" {
-		log.Println("cluster is green")
-	}
+	fmt.Println("Cluster status is %q", res.Status)
 }
 
 func ExampleClusterHealth_WaitForGreen() {
@@ -389,7 +387,23 @@ func ExampleClusterHealth_WaitForGreen() {
 	if err != nil {
 		panic(err)
 	}
-	if res != nil && res.TimedOut {
-		log.Printf("time out waiting for cluster status %q\n", "green")
+	if res.TimedOut {
+		fmt.Printf("time out waiting for cluster status %q\n", "green")
+	} else {
+		fmt.Printf("cluster status is %q\n", res.Status)
 	}
+}
+
+func ExampleClusterState() {
+	client, err := elastic.NewClient(http.DefaultClient)
+	if err != nil {
+		panic(err)
+	}
+
+	// Get cluster state
+	res, err := client.ClusterState().Metric("version").Do()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Cluster %q has version %d", res.ClusterName, res.Version)
 }
