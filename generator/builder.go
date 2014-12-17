@@ -158,7 +158,6 @@ func (api *Api) WriteHeader() {
 	fmt.Fprintf(out, "\t\"net/url\"\n")
 	fmt.Fprintf(out, "\t\"strings\"\n")
 	fmt.Fprintf(out, "\n")
-	fmt.Fprintf(out, "\t\"github.com/olivere/elastic\"\n")
 	fmt.Fprintf(out, "\t\"github.com/olivere/elastic/uritemplates\"\n")
 	fmt.Fprintf(out, ")\n\n")
 
@@ -182,7 +181,7 @@ func (api *Api) WriteService() {
 		fmt.Fprintf(out, "// %s is documented at %s.\n", api.ServiceName(), api.Documentation)
 	}
 	fmt.Fprintf(out, "type %s struct {\n", api.ServiceName())
-	fmt.Fprintf(out, "\tclient\t*elastic.Client\n")
+	fmt.Fprintf(out, "\tclient\t*Client\n")
 	fmt.Fprintf(out, "\tdebug\tbool\n")
 	fmt.Fprintf(out, "\tpretty\tbool\n")
 
@@ -203,6 +202,29 @@ func (api *Api) WriteService() {
 		fmt.Fprintf(out, "\tbodyJson\tinterface{}\n")
 		fmt.Fprintf(out, "\tbodyString\tstring\n")
 	}
+	fmt.Fprintf(out, "}\n\n")
+
+	// Write New... method
+	fmt.Fprintf(out, "// New%s creates a new %s.\n", api.ServiceName(), api.ServiceName())
+	fmt.Fprintf(out, "func New%s(client *Client) *%s {\n", api.ServiceName(), api.ServiceName())
+	fmt.Fprintf(out, "\treturn &%s{\n", api.ServiceName())
+	fmt.Fprintf(out, "\t\tclient: client,\n")
+	fieldsWritten = make(map[string]bool)
+	for name, p := range api.URL.Parts {
+		if p.IsSlice() {
+			fmt.Fprintf(out, "\t\t%s:\tmake(%s, 0),\n", p.VariableName(), p.TypeName())
+			fieldsWritten[name] = true
+		}
+	}
+	for name, p := range api.URL.Params {
+		if found, _ := fieldsWritten[name]; !found {
+			if p.IsSlice() {
+				fmt.Fprintf(out, "\t\t%s:\tmake(%s, 0),\n", p.VariableName(), p.TypeName())
+				fieldsWritten[name] = true
+			}
+		}
+	}
+	fmt.Fprintf(out, "\t}\n")
 	fmt.Fprintf(out, "}\n\n")
 
 	// Write setters
@@ -386,38 +408,38 @@ func (api *Api) writeBuildURL() {
 			case "boolean":
 				if !p.Required {
 					fmt.Fprintf(out, "\tif s.%s != nil {\n", p.VariableName())
-					fmt.Fprintf(out, "\t\tparams.Set(\"%s\", fmt.Sprintf(\"%%v\", *s.%s))\n", p.VariableName(), p.VariableName())
+					fmt.Fprintf(out, "\t\tparams.Set(\"%s\", fmt.Sprintf(\"%%v\", *s.%s))\n", p.Name, p.VariableName())
 					fmt.Fprintf(out, "\t}\n")
 				} else {
 					fmt.Fprintf(out, "\tif s.%s {\n", p.VariableName())
-					fmt.Fprintf(out, "\t\tparams.Set(\"%s\", \"1\")\n", p.VariableName())
+					fmt.Fprintf(out, "\t\tparams.Set(\"%s\", \"1\")\n", p.Name)
 					fmt.Fprintf(out, "\t} else {\n")
-					fmt.Fprintf(out, "\t\tparams.Set(\"%s\", \"0\")\n", p.VariableName())
+					fmt.Fprintf(out, "\t\tparams.Set(\"%s\", \"0\")\n", p.Name)
 					fmt.Fprintf(out, "\t}\n")
 				}
 			case "enum":
 				fmt.Fprintf(out, "\tif s.%s != \"\" {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.VariableName(), p.VariableName())
+				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.Name, p.VariableName())
 				fmt.Fprintf(out, "\t}\n")
 			case "time", "duration":
 				fmt.Fprintf(out, "\tif s.%s != \"\" {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.VariableName(), p.VariableName())
+				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.Name, p.VariableName())
 				fmt.Fprintf(out, "\t}\n")
 			case "number":
 				fmt.Fprintf(out, "\tif s.%s != nil {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", fmt.Sprintf(\"%%v\", s.%s))\n", p.VariableName(), p.VariableName())
+				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", fmt.Sprintf(\"%%v\", s.%s))\n", p.Name, p.VariableName())
 				fmt.Fprintf(out, "\t}\n")
 			case "string", "text":
 				fmt.Fprintf(out, "\tif s.%s != \"\" {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.VariableName(), p.VariableName())
+				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.Name, p.VariableName())
 				fmt.Fprintf(out, "\t}\n")
 			case "list":
 				fmt.Fprintf(out, "\tif len(s.%s) > 0 {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", strings.Join(s.%s, \",\"))\n", p.VariableName(), p.VariableName())
+				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", strings.Join(s.%s, \",\"))\n", p.Name, p.VariableName())
 				fmt.Fprintf(out, "\t}\n")
 			default:
 				fmt.Fprintf(out, "\tif s.%s != nil {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.VariableName(), p.VariableName())
+				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.Name, p.VariableName())
 				fmt.Fprintf(out, "\t}\n")
 			}
 		}
@@ -469,7 +491,7 @@ func (api *Api) writeDo() {
 	// Debug
 	fmt.Fprintf(out, "\t// Debug output?\n")
 	fmt.Fprintf(out, "\tif s.debug {\n")
-	fmt.Fprintf(out, "\t\tout, err := httputil.DumpRequestOut((*http.Request)(req), true)\n")
+	fmt.Fprintf(out, "\t\tout, _ := httputil.DumpRequestOut((*http.Request)(req), true)\n")
 	fmt.Fprintf(out, "\t\tlog.Printf(\"%%s\\n\", string(out))\n")
 	fmt.Fprintf(out, "\t}\n")
 
@@ -495,12 +517,10 @@ func (api *Api) writeDo() {
 	// Response
 	fmt.Fprintf(out, "\t// Return operation response\n")
 	fmt.Fprintf(out, "\tresp := new(%s)\n", api.ResponseTypeName())
-	fmt.Fprintf(out, `
-	if err := json.NewDecoder(res.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
-`)
+	fmt.Fprintf(out, "\tif err := json.NewDecoder(res.Body).Decode(resp); err != nil {\n")
+	fmt.Fprintf(out, "\t\treturn nil, err\n")
+	fmt.Fprintf(out, "\t}\n")
+	fmt.Fprintf(out, "\treturn resp, nil\n")
 	fmt.Fprintf(out, "}\n\n")
 }
 
@@ -661,6 +681,14 @@ func (p *ApiParam) TypeNameForSetter() string {
 	default:
 		return "interface{}"
 	}
+}
+
+func (p *ApiPart) IsSlice() bool {
+	return p.Type == "list"
+}
+
+func (p *ApiParam) IsSlice() bool {
+	return p.Type == "list"
 }
 
 // Is c an ASCII lower-case letter?
