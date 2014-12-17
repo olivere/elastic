@@ -425,7 +425,7 @@ func ExampleClusterHealthService() {
 	if res == nil {
 		panic(err)
 	}
-	fmt.Println("Cluster status is %q", res.Status)
+	fmt.Printf("Cluster status is %q\n", res.Status)
 }
 
 func ExampleClusterHealthService_WaitForGreen() {

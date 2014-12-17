@@ -17,7 +17,7 @@ func TestClusterHealth(t *testing.T) {
 		t.Fatal(err)
 	}
 	if res == nil {
-		t.Fatal("expected res to be != nil; got: %v", res)
+		t.Fatalf("expected res to be != nil; got: %v", res)
 	}
 	if res.Status != "green" {
 		t.Fatalf("expected status %q; got: %q", "green", res.Status)

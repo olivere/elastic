@@ -17,7 +17,7 @@ func TestClusterState(t *testing.T) {
 		t.Fatal(err)
 	}
 	if res == nil {
-		t.Fatal("expected res to be != nil; got: %v", res)
+		t.Fatalf("expected res to be != nil; got: %v", res)
 	}
 	if res.ClusterName == "" {
 		t.Fatalf("expected a cluster name; got: %q", res.ClusterName)
