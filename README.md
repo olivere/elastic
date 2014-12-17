@@ -271,7 +271,7 @@ Here's the current API status.
 - [ ] Explain
 - [x] Search
 - [ ] Search shards
-- [ ] Search template
+- [x] Search template
 - [x] Facets (most are implemented, see below)
 - [x] Aggregates (most are implemented, see below)
 - [x] Multi Search

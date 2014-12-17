@@ -296,6 +296,21 @@ func (c *Client) Aliases() *AliasesService {
 	return builder
 }
 
+// GetTemplate gets a search template.
+func (c *Client) GetTemplate() *GetTemplateService {
+	return NewGetTemplateService(c)
+}
+
+// PutTemplate creates or updates a search template.
+func (c *Client) PutTemplate() *PutTemplateService {
+	return NewPutTemplateService(c)
+}
+
+// DeleteTemplate deletes a search template.
+func (c *Client) DeleteTemplate() *DeleteTemplateService {
+	return NewDeleteTemplateService(c)
+}
+
 // ClusterHealth retrieves the health of the cluster.
 func (c *Client) ClusterHealth() *ClusterHealthService {
 	return NewClusterHealthService(c)
