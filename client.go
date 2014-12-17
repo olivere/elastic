@@ -158,6 +158,20 @@ func (c *Client) IndexExists(name string) *IndexExistsService {
 	return builder
 }
 
+// OpenIndex opens an index.
+func (c *Client) OpenIndex(name string) *OpenIndexService {
+	builder := NewOpenIndexService(c)
+	builder.Index(name)
+	return builder
+}
+
+// CloseIndex closes an index.
+func (c *Client) CloseIndex(name string) *CloseIndexService {
+	builder := NewCloseIndexService(c)
+	builder.Index(name)
+	return builder
+}
+
 // Index a document.
 func (c *Client) Index() *IndexService {
 	builder := NewIndexService(c)
@@ -280,4 +294,14 @@ func (c *Client) Alias() *AliasService {
 func (c *Client) Aliases() *AliasesService {
 	builder := NewAliasesService(c)
 	return builder
+}
+
+// ClusterHealth retrieves the health of the cluster.
+func (c *Client) ClusterHealth() *ClusterHealthService {
+	return NewClusterHealthService(c)
+}
+
+// ClusterState retrieves the state of the cluster.
+func (c *Client) ClusterState() *ClusterStateService {
+	return NewClusterStateService(c)
 }

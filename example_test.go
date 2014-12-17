@@ -358,3 +358,52 @@ func ExampleAggregations() {
 		}
 	}
 }
+
+func ExampleClusterHealth() {
+	client, err := elastic.NewClient(http.DefaultClient)
+	if err != nil {
+		panic(err)
+	}
+
+	// Get cluster health
+	res, err := client.ClusterHealth().Index("twitter").Do()
+	if err != nil {
+		panic(err)
+	}
+	if res == nil {
+		panic(err)
+	}
+	fmt.Println("Cluster status is %q", res.Status)
+}
+
+func ExampleClusterHealth_WaitForGreen() {
+	client, err := elastic.NewClient(http.DefaultClient)
+	if err != nil {
+		panic(err)
+	}
+
+	// Wait for status green
+	res, err := client.ClusterHealth().WaitForStatus("green").Timeout("15s").Do()
+	if err != nil {
+		panic(err)
+	}
+	if res.TimedOut {
+		fmt.Printf("time out waiting for cluster status %q\n", "green")
+	} else {
+		fmt.Printf("cluster status is %q\n", res.Status)
+	}
+}
+
+func ExampleClusterState() {
+	client, err := elastic.NewClient(http.DefaultClient)
+	if err != nil {
+		panic(err)
+	}
+
+	// Get cluster state
+	res, err := client.ClusterState().Metric("version").Do()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Cluster %q has version %d", res.ClusterName, res.Version)
+}
