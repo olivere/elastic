@@ -373,7 +373,7 @@ on the command line.
 - [x] `wildcard`
 - [ ] `minimum_should_match`
 - [ ] `multi_term_query_rewrite`
-- [ ] `template_query`
+- [x] `template_query`
 
 #### Filters
 

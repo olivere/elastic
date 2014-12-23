@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestSearchTemplates(t *testing.T) {
+func TestSearchTemplatesLifecycle(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	// Template
@@ -48,5 +48,54 @@ func TestSearchTemplates(t *testing.T) {
 	}
 	if !dresp.Found {
 		t.Fatalf("expected found = %v; got: %v", true, dresp.Found)
+	}
+}
+
+func TestSearchTemplatesInlineQuery(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
+	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Run query with (inline) search template
+	// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-template-query.html
+	tq := NewTemplateQuery(`{"match_{{template}}": {}}`).Var("template", "all")
+	resp, err := client.Search(testIndexName).
+		Query(&tq).
+		// Pretty(true).Debug(true).
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp == nil {
+		t.Fatalf("expected response != nil; got: %v", resp)
+	}
+	if resp.Hits == nil {
+		t.Fatalf("expected response hits != nil; got: %v", resp.Hits)
+	}
+	if resp.Hits.TotalHits != 3 {
+		t.Fatalf("expected 3 hits; got: %d", resp.Hits.TotalHits)
 	}
 }
