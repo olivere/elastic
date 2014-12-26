@@ -397,7 +397,7 @@ on the command line.
 - [x] `not`
 - [x] `or`
 - [x] `prefix`
-- [ ] `query`
+- [x] `query`
 - [x] `range`
 - [ ] `regexp`
 - [ ] `script`

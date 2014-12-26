@@ -90,6 +90,7 @@ func TestAggs(t *testing.T) {
 	retweetsFilterAgg := NewFilterAggregation().Filter(
 		NewRangeFilter("created").Gte("2012-01-01").Lte("2012-12-31")).
 		SubAggregation("avgRetweetsSub", NewAvgAggregation().Field("retweets"))
+	queryFilterAgg := NewFilterAggregation().Filter(NewQueryFilter(NewTermQuery("tags", "golang")))
 	topTagsHitsAgg := NewTopHitsAggregation().Sort("created", false).Size(5).FetchSource(true)
 	topTagsAgg := NewTermsAggregation().Field("tags").Size(3).SubAggregation("top_tag_hits", topTagsHitsAgg)
 	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
@@ -115,6 +116,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("retweetsHisto", retweetsHistoAgg)
 	builder = builder.Aggregation("dateHisto", dateHistoAgg)
 	builder = builder.Aggregation("retweetsFilter", retweetsFilterAgg)
+	builder = builder.Aggregation("queryFilter", queryFilterAgg)
 	builder = builder.Aggregation("top-tags", topTagsAgg)
 	builder = builder.Aggregation("viewport", geoBoundsAgg)
 	if esversion >= "1.4" {
@@ -439,6 +441,18 @@ func TestAggs(t *testing.T) {
 	}
 	if *avgRetweetsAggRes.Value != 54.0 {
 		t.Errorf("expected %v; got: %v", 54.0, *avgRetweetsAggRes.Value)
+	}
+
+	// queryFilter
+	queryFilterAggRes, found := agg.Filter("queryFilter")
+	if !found {
+		t.Errorf("expected %v; got: %v", true, found)
+	}
+	if queryFilterAggRes == nil {
+		t.Fatalf("expected != nil; got: nil")
+	}
+	if queryFilterAggRes.DocCount != 2 {
+		t.Fatalf("expected %v; got: %v", 2, queryFilterAggRes.DocCount)
 	}
 
 	// significantTerms
