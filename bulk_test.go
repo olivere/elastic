@@ -197,7 +197,7 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	}
 
 	// Run the bulk request
-	bulkResponse, err := bulkRequest.Do() // .Debug(true).Do()
+	bulkResponse, err := bulkRequest.Do() // .Debug(true).Pretty(true).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -305,5 +305,57 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	}
 	if id1Results[1].Version != 2 {
 		t.Errorf("expected id1Results[1].Version == %d; got %d", 2, id1Results[1].Version)
+	}
+}
+
+func TestFailedBulkRequests(t *testing.T) {
+	js := `{
+  "took" : 2,
+  "errors" : true,
+  "items" : [ {
+    "index" : {
+      "_index" : "elastic-test",
+      "_type" : "tweet",
+      "_id" : "1",
+      "_version" : 1,
+      "status" : 201
+    }
+  }, {
+    "create" : {
+      "_index" : "elastic-test",
+      "_type" : "tweet",
+      "_id" : "2",
+      "_version" : 1,
+      "status" : 423,
+      "error" : "Locked"
+    }
+  }, {
+    "delete" : {
+      "_index" : "elastic-test",
+      "_type" : "tweet",
+      "_id" : "1",
+      "_version" : 2,
+      "status" : 404,
+      "found" : false
+    }
+  }, {
+    "update" : {
+      "_index" : "elastic-test",
+      "_type" : "tweet",
+      "_id" : "2",
+      "_version" : 2,
+      "status" : 200
+    }
+  } ]
+}`
+
+	var resp BulkResponse
+	err := json.Unmarshal([]byte(js), &resp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	failed := resp.Failed()
+	if len(failed) != 2 {
+		t.Errorf("expected %d failed items; got: %d", 2, len(failed))
 	}
 }
