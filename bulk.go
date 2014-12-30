@@ -271,6 +271,7 @@ type BulkResponseItem struct {
 	Version int    `json:"_version,omitempty"`
 	Status  int    `json:"status,omitempty"`
 	Found   bool   `json:"found,omitempty"`
+	Error   string `json:"error,omitempty"`
 }
 
 // Indexed returns all bulk request results of "index" actions.
@@ -291,6 +292,22 @@ func (r *BulkResponse) Updated() []*BulkResponseItem {
 // Deleted returns all bulk request results of "delete" actions.
 func (r *BulkResponse) Deleted() []*BulkResponseItem {
 	return r.ByAction("delete")
+}
+
+// Errored returns all bulk request results that have failed
+func (r *BulkResponse) Errored() []*BulkResponseItem {
+	if r.Items == nil {
+		return nil
+	}
+	items := make([]*BulkResponseItem, 0)
+	for _, item := range r.Items {
+		for _, result := range item {
+			if 0 < len(result.Error) {
+				items = append(items, result)
+			}
+		}
+	}
+	return items
 }
 
 // ByAction returns all bulk request results of a certain action,
