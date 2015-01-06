@@ -360,21 +360,31 @@ type SearchHits struct {
 
 // SearchHit is a single hit.
 type SearchHit struct {
-	Score     *float64               `json:"_score"`    // computed score
-	Index     string                 `json:"_index"`    // index name
-	Id        string                 `json:"_id"`       // external or internal
-	Type      string                 `json:"_type"`     // type
-	Version   *int64                 `json:"_version"`  // version number, when Version is set to true in SearchService
-	Sort      []interface{}          `json:"sort"`      // sort information
-	Highlight SearchHitHighlight     `json:"highlight"` // highlighter information
-	Source    *json.RawMessage       `json:"_source"`   // stored document source
-	Fields    map[string]interface{} `json:"fields"`    // returned fields
+	Score       *float64               `json:"_score"`                 // computed score
+	Index       string                 `json:"_index"`                 // index name
+	Id          string                 `json:"_id"`                    // external or internal
+	Type        string                 `json:"_type"`                  // type
+	Version     *int64                 `json:"_version"`               // version number, when Version is set to true in SearchService
+	Sort        []interface{}          `json:"sort"`                   // sort information
+	Highlight   SearchHitHighlight     `json:"highlight"`              // highlighter information
+	Source      *json.RawMessage       `json:"_source"`                // stored document source
+	Fields      map[string]interface{} `json:"fields"`                 // returned fields
+	Explanation SearchExplanation      `json:"_explanation,omitempty"` // _score calculations details
 
-	// Explanation
 	// Shard
 	// HighlightFields
 	// SortValues
 	// MatchedFilters
+}
+
+// Explanation
+
+// SearchExplanation is a reof suggestions.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-explain.html.
+type SearchExplanation struct {
+	Value       float64             `json:"value"`
+	Description string              `json:"description"`
+	Details     []SearchExplanation `json:"details,omitempty"`
 }
 
 // Suggest
