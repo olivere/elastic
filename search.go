@@ -42,6 +42,11 @@ func NewSearchService(client *Client) *SearchService {
 	return builder
 }
 
+// GetSearchSource return internal SearchSource, use it if you need raw request body
+func (s *SearchService) GetSearchSource() *SearchSource {
+	return s.searchSource
+}
+
 // Index sets the name of the index to use for search.
 func (s *SearchService) Index(index string) *SearchService {
 	if s.indices == nil {
