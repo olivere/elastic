@@ -621,8 +621,9 @@ func (a *AggregationBucketKeyItems) UnmarshalJSON(data []byte) error {
 type AggregationBucketKeyItem struct {
 	Aggregations
 
-	Key      json.Number //`json:"key"`
-	DocCount int64       //`json:"doc_count"`
+	Key       interface{} //`json:"key"`
+	KeyNumber json.Number
+	DocCount  int64 //`json:"doc_count"`
 }
 
 // UnmarshalJSON decodes JSON data and initializes an AggregationBucketKeyItem structure.
@@ -636,6 +637,7 @@ func (a *AggregationBucketKeyItem) UnmarshalJSON(data []byte) error {
 	a.Aggregations = aggs
 
 	json.Unmarshal(aggs["key"], &a.Key)
+	json.Unmarshal(aggs["key"], &a.KeyNumber)
 	json.Unmarshal(aggs["doc_count"], &a.DocCount)
 	return nil
 }
