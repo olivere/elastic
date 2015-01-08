@@ -8,13 +8,15 @@ package elastic
 // http://www.elasticsearch.org/guide/reference/api/search/term-suggest/
 type TermSuggester struct {
 	Suggester
-	name      string
-	text      string
-	field     string
-	analyzer  string
-	size      *int
-	shardSize *int
+	name           string
+	text           string
+	field          string
+	analyzer       string
+	size           *int
+	shardSize      *int
+	contextQueries []SuggesterContextQuery
 
+	// fields specific to term suggester
 	suggestMode    string
 	accuracy       *float32
 	sort           string
@@ -29,7 +31,10 @@ type TermSuggester struct {
 
 // Creates a new term suggester.
 func NewTermSuggester(name string) TermSuggester {
-	return TermSuggester{name: name}
+	return TermSuggester{
+		name:           name,
+		contextQueries: make([]SuggesterContextQuery, 0),
+	}
 }
 
 func (q TermSuggester) Name() string {
@@ -58,6 +63,16 @@ func (q TermSuggester) Size(size int) TermSuggester {
 
 func (q TermSuggester) ShardSize(shardSize int) TermSuggester {
 	q.shardSize = &shardSize
+	return q
+}
+
+func (q TermSuggester) ContextQuery(query SuggesterContextQuery) TermSuggester {
+	q.contextQueries = append(q.contextQueries, query)
+	return q
+}
+
+func (q TermSuggester) ContextQueries(queries ...SuggesterContextQuery) TermSuggester {
+	q.contextQueries = append(q.contextQueries, queries...)
 	return q
 }
 
@@ -147,17 +162,25 @@ func (q TermSuggester) Source(includeName bool) interface{} {
 	if q.analyzer != "" {
 		suggester["analyzer"] = q.analyzer
 	}
-
 	if q.field != "" {
 		suggester["field"] = q.field
 	}
-
 	if q.size != nil {
 		suggester["size"] = *q.size
 	}
-
 	if q.shardSize != nil {
 		suggester["shard_size"] = *q.shardSize
+	}
+	switch len(q.contextQueries) {
+	case 0:
+	case 1:
+		suggester["context"] = q.contextQueries[0].Source()
+	default:
+		ctxq := make([]interface{}, 0)
+		for _, query := range q.contextQueries {
+			ctxq = append(ctxq, query.Source())
+		}
+		suggester["context"] = ctxq
 	}
 
 	// Specific to term suggester
