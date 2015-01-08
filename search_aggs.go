@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"bytes"
 	"encoding/json"
 )
 
@@ -620,14 +621,16 @@ func (a *AggregationBucketKeyItems) UnmarshalJSON(data []byte) error {
 type AggregationBucketKeyItem struct {
 	Aggregations
 
-	Key      string //`json:"key"`
-	DocCount int64  //`json:"doc_count"`
+	Key      json.Number //`json:"key"`
+	DocCount int64       //`json:"doc_count"`
 }
 
 // UnmarshalJSON decodes JSON data and initializes an AggregationBucketKeyItem structure.
 func (a *AggregationBucketKeyItem) UnmarshalJSON(data []byte) error {
 	var aggs map[string]json.RawMessage
-	if err := json.Unmarshal(data, &aggs); err != nil {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	if err := dec.Decode(&aggs); err != nil {
 		return err
 	}
 	a.Aggregations = aggs

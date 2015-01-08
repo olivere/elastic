@@ -71,6 +71,7 @@ func TestAggs(t *testing.T) {
 	// Terms Aggregate by user name
 	globalAgg := NewGlobalAggregation()
 	usersAgg := NewTermsAggregation().Field("user").Size(10).OrderByCountDesc()
+	retweetsAgg := NewTermsAggregation().Field("retweets").Size(10)
 	avgRetweetsAgg := NewAvgAggregation().Field("retweets")
 	minRetweetsAgg := NewMinAggregation().Field("retweets")
 	maxRetweetsAgg := NewMaxAggregation().Field("retweets")
@@ -99,6 +100,7 @@ func TestAggs(t *testing.T) {
 	builder := client.Search().Index(testIndexName).Query(&all)
 	builder = builder.Aggregation("global", globalAgg)
 	builder = builder.Aggregation("users", usersAgg)
+	builder = builder.Aggregation("retweets", retweetsAgg)
 	builder = builder.Aggregation("avgRetweets", avgRetweetsAgg)
 	builder = builder.Aggregation("minRetweets", minRetweetsAgg)
 	builder = builder.Aggregation("maxRetweets", maxRetweetsAgg)
@@ -186,6 +188,51 @@ func TestAggs(t *testing.T) {
 	}
 	if termsAggRes.Buckets[1].DocCount != 1 {
 		t.Errorf("expected %d; got: %d", 1, termsAggRes.Buckets[1].DocCount)
+	}
+
+	// A terms aggregate with keys that are not strings
+	retweetsAggRes, found := agg.Terms("retweets")
+	if !found {
+		t.Errorf("expected %v; got: %v", true, found)
+	}
+	if retweetsAggRes == nil {
+		t.Fatalf("expected != nil; got: nil")
+	}
+	if len(retweetsAggRes.Buckets) != 3 {
+		t.Fatalf("expected %d; got: %d", 3, len(retweetsAggRes.Buckets))
+	}
+	if got, err := retweetsAggRes.Buckets[0].Key.Int64(); err != nil {
+		t.Errorf("expected %d; got: %v", 0, retweetsAggRes.Buckets[0].Key)
+	} else if got != 0 {
+		t.Errorf("expected %d; got: %d", 0, got)
+	}
+	if retweetsAggRes.Buckets[0].Key != "0" {
+		t.Errorf("expected %q; got: %q", "0", retweetsAggRes.Buckets[0].Key.String())
+	}
+	if retweetsAggRes.Buckets[0].DocCount != 1 {
+		t.Errorf("expected %d; got: %d", 1, retweetsAggRes.Buckets[0].DocCount)
+	}
+	if got, err := retweetsAggRes.Buckets[1].Key.Int64(); err != nil {
+		t.Errorf("expected %d; got: %v", 0, retweetsAggRes.Buckets[1].Key)
+	} else if got != 12 {
+		t.Errorf("expected %d; got: %d", 12, got)
+	}
+	if retweetsAggRes.Buckets[1].Key != "12" {
+		t.Errorf("expected %q; got: %q", "12", retweetsAggRes.Buckets[1].Key.String())
+	}
+	if retweetsAggRes.Buckets[1].DocCount != 1 {
+		t.Errorf("expected %d; got: %d", 1, retweetsAggRes.Buckets[1].DocCount)
+	}
+	if got, err := retweetsAggRes.Buckets[2].Key.Int64(); err != nil {
+		t.Errorf("expected %d; got: %v", 108, retweetsAggRes.Buckets[2].Key)
+	} else if got != 108 {
+		t.Errorf("expected %d; got: %d", 108, got)
+	}
+	if retweetsAggRes.Buckets[2].Key != "108" {
+		t.Errorf("expected %q; got: %q", "108", retweetsAggRes.Buckets[2].Key.String())
+	}
+	if retweetsAggRes.Buckets[2].DocCount != 1 {
+		t.Errorf("expected %d; got: %d", 1, retweetsAggRes.Buckets[2].DocCount)
 	}
 
 	// avgRetweets
