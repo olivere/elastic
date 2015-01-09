@@ -19,6 +19,7 @@ import (
 type SearchService struct {
 	client       *Client
 	searchSource *SearchSource
+	source       interface{}
 	pretty       bool
 	searchType   string
 	indices      []string
@@ -40,6 +41,22 @@ func NewSearchService(client *Client) *SearchService {
 		pretty:       false,
 	}
 	return builder
+}
+
+// SearchSource sets the search source builder to use with this service.
+func (s *SearchService) SearchSource(searchSource *SearchSource) *SearchService {
+	s.searchSource = searchSource
+	if s.searchSource == nil {
+		s.searchSource = NewSearchSource()
+	}
+	return s
+}
+
+// Source allows the user to set the request body manually without using
+// any of the structs and interfaces in Elastic.
+func (s *SearchService) Source(source interface{}) *SearchService {
+	s.source = source
+	return s
 }
 
 // Index sets the name of the index to use for search.
@@ -310,7 +327,11 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	}
 
 	// Set body
-	req.SetBodyJson(s.searchSource.Source())
+	if s.source != nil {
+		req.SetBodyJson(s.source)
+	} else {
+		req.SetBodyJson(s.searchSource.Source())
+	}
 
 	if s.debug {
 		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
