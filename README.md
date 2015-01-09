@@ -399,7 +399,7 @@ on the command line.
 - [x] `prefix`
 - [x] `query`
 - [x] `range`
-- [ ] `regexp`
+- [x] `regexp`
 - [ ] `script`
 - [x] `term`
 - [x] `terms`
