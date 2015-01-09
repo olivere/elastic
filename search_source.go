@@ -14,6 +14,7 @@ type SearchSource struct {
 	explain                  *bool
 	version                  *bool
 	sorts                    []SortInfo
+	sorters                  []Sorter
 	trackScores              bool
 	minScore                 *float64
 	timeout                  string
@@ -39,6 +40,7 @@ func NewSearchSource() *SearchSource {
 		size:            -1,
 		trackScores:     false,
 		sorts:           make([]SortInfo, 0),
+		sorters:         make([]Sorter, 0),
 		fieldDataFields: make([]string, 0),
 		scriptFields:    make([]*ScriptField, 0),
 		partialFields:   make([]*PartialField, 0),
@@ -105,6 +107,11 @@ func (s *SearchSource) Sort(field string, ascending bool) *SearchSource {
 
 func (s *SearchSource) SortWithInfo(info SortInfo) *SearchSource {
 	s.sorts = append(s.sorts, info)
+	return s
+}
+
+func (s *SearchSource) SortBy(sorter ...Sorter) *SearchSource {
+	s.sorters = append(s.sorters, sorter...)
 	return s
 }
 
@@ -295,7 +302,13 @@ func (s *SearchSource) Source() interface{} {
 		source["script_fields"] = sfmap
 	}
 
-	if len(s.sorts) > 0 {
+	if len(s.sorters) > 0 {
+		sortarr := make([]interface{}, 0)
+		for _, sorter := range s.sorters {
+			sortarr = append(sortarr, sorter.Source())
+		}
+		source["sort"] = sortarr
+	} else if len(s.sorts) > 0 {
 		sortarr := make([]interface{}, 0)
 		for _, sort := range s.sorts {
 			sortarr = append(sortarr, sort.Source())

@@ -449,6 +449,13 @@ on the command line.
 - [x] geo distance
 - [x] geohash grid
 
+### Sorting
+
+- [x] Sort by score
+- [x] Sort by field
+- [x] Sort by geo distance
+- [x] Sort by script
+
 ### Scan
 
 Scrolling through documents (e.g. `search_type=scan`) are implemented via

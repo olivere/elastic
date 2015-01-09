@@ -105,6 +105,11 @@ func (a TopHitsAggregation) SortWithInfo(info SortInfo) TopHitsAggregation {
 	return a
 }
 
+func (a TopHitsAggregation) SortBy(sorter ...Sorter) TopHitsAggregation {
+	a.searchSource = a.searchSource.SortBy(sorter...)
+	return a
+}
+
 func (a TopHitsAggregation) Highlight(highlight *Highlight) TopHitsAggregation {
 	a.searchSource = a.searchSource.Highlight(highlight)
 	return a

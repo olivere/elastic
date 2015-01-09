@@ -264,6 +264,15 @@ func (s *SearchService) SortWithInfo(info SortInfo) *SearchService {
 	return s
 }
 
+// SortBy defines how to sort results.
+// Use the Sort func for a shortcut.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
+// for detailed documentation of sorting.
+func (s *SearchService) SortBy(sorter ...Sorter) *SearchService {
+	s.searchSource = s.searchSource.SortBy(sorter...)
+	return s
+}
+
 // Fields tells Elasticsearch to only load specific fields from a search hit.
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-fields.html.
 func (s *SearchService) Fields(fields ...string) *SearchService {
