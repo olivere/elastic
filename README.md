@@ -360,7 +360,7 @@ on the command line.
 - [x] `query_string`
 - [x] `simple_query_string`
 - [x] `range`
-- [ ] `regexp`
+- [x] `regexp`
 - [ ] `span_first`
 - [ ] `span_multi_term`
 - [ ] `span_near`
