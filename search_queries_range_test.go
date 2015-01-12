@@ -33,3 +33,19 @@ func TestRangeQueryGte(t *testing.T) {
 	}
 }
 */
+
+func TestRangeQueryWithTimeZone(t *testing.T) {
+	f := NewRangeQuery("born").
+		Gte("2012-01-01").
+		Lte("now").
+		TimeZone("+1:00")
+	data, err := json.Marshal(f.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"range":{"born":{"from":"2012-01-01","include_lower":true,"include_upper":true,"time_zone":"+1:00","to":"now"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}

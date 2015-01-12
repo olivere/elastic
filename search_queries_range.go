@@ -12,6 +12,7 @@ type RangeQuery struct {
 	name         string
 	from         *interface{}
 	to           *interface{}
+	timeZone     string
 	includeLower bool
 	includeUpper bool
 	boost        *float64
@@ -21,6 +22,11 @@ type RangeQuery struct {
 func NewRangeQuery(name string) RangeQuery {
 	q := RangeQuery{name: name, includeLower: true, includeUpper: true}
 	return q
+}
+
+func (f RangeQuery) TimeZone(timeZone string) RangeQuery {
+	f.timeZone = timeZone
+	return f
 }
 
 func (q RangeQuery) From(from interface{}) RangeQuery {
@@ -96,6 +102,9 @@ func (q RangeQuery) Source() interface{} {
 
 	params["from"] = q.from
 	params["to"] = q.to
+	if q.timeZone != "" {
+		params["time_zone"] = q.timeZone
+	}
 	params["include_lower"] = q.includeLower
 	params["include_upper"] = q.includeUpper
 
