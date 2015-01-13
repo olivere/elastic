@@ -5,8 +5,80 @@
 package elastic
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
 )
+
+const (
+	queryStringReservedChars = `+-&|!(){}[]^"~*?:\/`
+)
+
+// QueryStringEscape escapes the query string of a QueryStringQuery
+// as described here: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#_reserved_characters.
+func QueryStringEscape(s string) string {
+	i := strings.IndexAny(s, queryStringReservedChars)
+	if i == -1 {
+		return s
+	}
+
+	var buf bytes.Buffer
+	for i != -1 {
+		if _, err := buf.WriteString(s[:i]); err != nil {
+			panic(err)
+		}
+		var esc string
+		switch s[i] {
+		case '+':
+			esc = "\\+"
+		case '-':
+			esc = "\\-"
+		case '&':
+			esc = "\\&"
+		case '|':
+			esc = "\\|"
+		case '!':
+			esc = "\\!"
+		case '(':
+			esc = "\\("
+		case ')':
+			esc = "\\)"
+		case '{':
+			esc = "\\{"
+		case '}':
+			esc = "\\}"
+		case '[':
+			esc = "\\["
+		case ']':
+			esc = "\\]"
+		case '^':
+			esc = "\\^"
+		case '"':
+			esc = "\\\""
+		case '~':
+			esc = "\\~"
+		case '*':
+			esc = "\\*"
+		case '?':
+			esc = "\\?"
+		case ':':
+			esc = "\\:"
+		case '\\':
+			esc = "\\\\"
+		case '/':
+			esc = "\\/"
+		default:
+			panic("unrecognized escape character")
+		}
+		s = s[i+1:]
+		if _, err := buf.WriteString(esc); err != nil {
+			panic(err)
+		}
+		i = strings.IndexAny(s, queryStringReservedChars)
+	}
+	buf.WriteString(s)
+	return buf.String()
+}
 
 // A query that uses the query parser in order to parse
 // its content. For more details, see
