@@ -19,12 +19,12 @@ type PhraseSuggester struct {
 	separator                *string
 	realWorldErrorLikelihood *float32
 	confidence               *float32
-	//generators map[string][]*CandidateGenerator
-	gramSize        *int
-	smoothing       interface{}
-	forceUnigrams   *bool
-	tokenLimit      *int
-	preTag, postTag *string
+	generators               map[string][]*CandidateGenerator
+	gramSize                 *int
+	smoothing                interface{}
+	forceUnigrams            *bool
+	tokenLimit               *int
+	preTag, postTag          *string
 }
 
 // Creates a new phrase suggester.
@@ -88,12 +88,10 @@ func (q PhraseSuggester) Confidence(confidence float32) PhraseSuggester {
 	return q
 }
 
-/*
 func (q PhraseSuggester) CandidateGenerator(generator *CandidateGenerator) PhraseSuggester {
 	q.generators = append(q.generators, generator)
 	return q
 }
-*/
 
 func (q PhraseSuggester) ForceUnigrams(forceUnigrams bool) PhraseSuggester {
 	q.forceUnigrams = &forceUnigrams
@@ -174,7 +172,43 @@ func (q PhraseSuggester) Source(includeName bool) interface{} {
 	if q.tokenLimit != nil {
 		suggester["token_limit"] = *q.tokenLimit
 	}
-	// TODO(oe) Add CandidateGenerators here
+
+	if q.generators != nil && len(q.generators) > 0 {
+		suggester["direct_generator"] = make([]map[string]string, len(q.generators))
+		for _, generator := range q.generators {
+			if generator.field != "" {
+				suggester["field"] = buigenerator.field
+			}
+			if generator.size != nil {
+				suggester["size"] = *generator.size
+			}
+			if generator.suggestMode != "" {
+				suggester["suggest_mode"] = generator.suggestMode
+			}
+			if generator.maxEdits != nil {
+				suggester["max_edits"] = *generator.maxEdits
+			}
+			if generator.prefix_length != nil {
+				suggester["prefixLength"] = *generator.prefixLength
+			}
+			if generator.minWordLength != nil {
+				suggester["min_word_length"] = *generator.minWordLength
+			}
+			if generator.maxInspections != nil {
+				suggester["max_inspections"] = *generator.maxInspections
+			}
+			if generator.minDocFreq != nil {
+				suggester["min_doc_freq"] = *generator.minDocFreq
+			}
+			if generator.preFilter != nil {
+				suggester["pre_filter"] = *generator.pre_filter
+			}
+			if generator.postFilter != nil {
+				suggester["post_filter"] = *generator.postFilter
+			}
+		}
+	}
+
 	if q.smoothing != nil {
 		suggester["smoothing"] = q.smoothing
 	}
@@ -194,4 +228,65 @@ func (q PhraseSuggester) Source(includeName bool) interface{} {
 	source := make(map[string]interface{})
 	source[q.name] = ps
 	return source
+}
+
+// CandidateGenerator
+// The phrase suggester uses candidate generators to produce a list of possible terms per term in the given text.
+// see http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters-phrase.html#_direct_generators
+type CandidateGenerator struct {
+	field          string
+	size           *int
+	suggestMode    string
+	maxEdits       *int
+	prefixLength   *int
+	minWordLength  *int
+	maxInspections *int
+	minDocFreq     *float32 //from 0 to 1
+	preFilter      *string
+	postFilter     *string
+}
+
+func (g CandidateGenerator) Field(field string) CandidateGenerator {
+	g.field = field
+	return g
+}
+
+func (g CandidateGenerator) Size(size int) CandidateGenerator {
+	g.size = size
+	return g
+}
+
+func (g CandidateGenerator) SuggestMode(suggestMode string) CandidateGenerator {
+	g.suggestMode = suggestMode
+	return g
+}
+
+func (g CandidateGenerator) MaxEdits(maxEdits int) CandidateGenerator {
+	g.maxEdits = maxEdits
+	return g
+}
+
+func (g CandidateGenerator) MinWordLength(minWordLength int) CandidateGenerator {
+	g.minWordLength = minWordLength
+	return g
+}
+
+func (g CandidateGenerator) MaxInspections(maxInspections int) CandidateGenerator {
+	g.maxInspections = maxInspections
+	return g
+}
+
+func (g CandidateGenerator) MinDocFreq(minDocFreq float32) CandidateGenerator {
+	g.minDocFreq = minDocFreq
+	return g
+}
+
+func (g CandidateGenerator) PreFilter(preFilter string) CandidateGenerator {
+	g.preFilter = preFilter
+	return g
+}
+
+func (g CandidateGenerator) PostFilter(postFilter string) CandidateGenerator {
+	g.postFilter = postFilter
+	return g
 }
