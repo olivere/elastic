@@ -4,21 +4,26 @@
 
 package elastic
 
-// For more details, see
-// http://www.elasticsearch.org/guide/reference/api/search/completion-suggest/
+// CompletionSuggester is a fast suggester for e.g. type-ahead completion.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
+// for more details.
 type CompletionSuggester struct {
 	Suggester
-	name      string
-	text      string
-	field     string
-	analyzer  string
-	size      *int
-	shardSize *int
+	name           string
+	text           string
+	field          string
+	analyzer       string
+	size           *int
+	shardSize      *int
+	contextQueries []SuggesterContextQuery
 }
 
 // Creates a new completion suggester.
 func NewCompletionSuggester(name string) CompletionSuggester {
-	return CompletionSuggester{name: name}
+	return CompletionSuggester{
+		name:           name,
+		contextQueries: make([]SuggesterContextQuery, 0),
+	}
 }
 
 func (q CompletionSuggester) Name() string {
@@ -50,6 +55,16 @@ func (q CompletionSuggester) ShardSize(shardSize int) CompletionSuggester {
 	return q
 }
 
+func (q CompletionSuggester) ContextQuery(query SuggesterContextQuery) CompletionSuggester {
+	q.contextQueries = append(q.contextQueries, query)
+	return q
+}
+
+func (q CompletionSuggester) ContextQueries(queries ...SuggesterContextQuery) CompletionSuggester {
+	q.contextQueries = append(q.contextQueries, queries...)
+	return q
+}
+
 // completionSuggesterRequest is necessary because the order in which
 // the JSON elements are routed to Elasticsearch is relevant.
 // We got into trouble when using plain maps because the text element
@@ -73,17 +88,25 @@ func (q CompletionSuggester) Source(includeName bool) interface{} {
 	if q.analyzer != "" {
 		suggester["analyzer"] = q.analyzer
 	}
-
 	if q.field != "" {
 		suggester["field"] = q.field
 	}
-
 	if q.size != nil {
 		suggester["size"] = *q.size
 	}
-
 	if q.shardSize != nil {
 		suggester["shard_size"] = *q.shardSize
+	}
+	switch len(q.contextQueries) {
+	case 0:
+	case 1:
+		suggester["context"] = q.contextQueries[0].Source()
+	default:
+		ctxq := make([]interface{}, 0)
+		for _, query := range q.contextQueries {
+			ctxq = append(ctxq, query.Source())
+		}
+		suggester["context"] = ctxq
 	}
 
 	// TODO(oe) Add competion-suggester specific parameters here
