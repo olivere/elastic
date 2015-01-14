@@ -123,3 +123,18 @@ func TestScriptSort(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestScriptSortDesc(t *testing.T) {
+	builder := NewScriptSort("doc['field_name'].value * factor", "number").
+		Param("factor", 1.1).
+		Desc()
+	data, err := json.Marshal(builder.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"_script":{"params":{"factor":1.1},"reverse":true,"script":"doc['field_name'].value * factor","type":"number"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
