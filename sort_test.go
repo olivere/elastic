@@ -115,18 +115,20 @@ func TestScriptSort(t *testing.T) {
 		Order(true)
 	data, err := json.Marshal(builder.Source())
 	if err != nil {
-		t.Fatalf("marshaling to JSON failed: %v", err)
+		t.Fatalf("marshaling to JSON failed: %v", errgit)
 	}
 	got := string(data)
 	expected := `{"_script":{"params":{"factor":1.1},"script":"doc['field_name'].value * factor","type":"number"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
+}
 
+func TestScriptSortDesc(t *testing.T) {
 	builder := NewScriptSort("doc['field_name'].value * factor", "number").
-		Param("factor", 1.1).
-		Lang("groovy").
-		Desc()
+	Param("factor", 1.1).
+	Lang("groovy").
+	Desc()
 
 	data, err := json.Marshal(builder.Source())
 	if err != nil {
