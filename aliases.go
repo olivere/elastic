@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"strings"
 
@@ -91,8 +90,7 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 	}
 
 	if s.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get response
@@ -106,8 +104,7 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 	defer res.Body.Close()
 
 	if s.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpResponse(res)
 	}
 
 	// {

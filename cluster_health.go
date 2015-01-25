@@ -7,9 +7,7 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"strings"
 
@@ -171,8 +169,7 @@ func (s *ClusterHealthService) Do() (*ClusterHealthResponse, error) {
 
 	// Debug output?
 	if s.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		log.Printf("%s\n", string(out))
+		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get HTTP response
@@ -187,8 +184,7 @@ func (s *ClusterHealthService) Do() (*ClusterHealthResponse, error) {
 
 	// Debug output?
 	if s.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		log.Printf("%s\n", string(out))
+		s.client.dumpResponse(res)
 	}
 	// Return operation response
 	resp := new(ClusterHealthResponse)

@@ -462,7 +462,7 @@ func (s ScriptSort) Source() interface{} {
 	x["script"] = s.script
 	x["type"] = s.typ
 	if !s.ascending {
-		x["reverse"] = true
+		x["reverse"] = false
 	}
 	if s.lang != "" {
 		x["lang"] = s.lang

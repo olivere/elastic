@@ -8,6 +8,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"sync"
 	"time"
@@ -35,6 +36,8 @@ type Client struct {
 
 	c *http.Client // c is the net/http Client to use for requests
 
+	log *log.Logger // output log
+
 	mu        sync.Mutex // mutex for the next two fields
 	activeUrl string     // currently active connection url
 	hasActive bool       // true if we have an active connection
@@ -59,6 +62,37 @@ func NewClient(client *http.Client, urls ...string) (*Client, error) {
 	c.pingUrls()
 	go c.pinger() // start goroutine periodically ping all clients
 	return c, nil
+}
+
+// SetLogger sets the logger for output from Elastic.
+// If you don't set the logger, it will print to os.Stdout.
+func (c *Client) SetLogger(log *log.Logger) {
+	c.log = log
+}
+
+// printf is a helper to log output.
+func (c *Client) printf(format string, args ...interface{}) {
+	if c.log != nil {
+		c.log.Printf(format, args...)
+	} else {
+		log.Printf(format, args...)
+	}
+}
+
+// dumpRequest dumps the given HTTP request.
+func (c *Client) dumpRequest(r *http.Request) {
+	out, err := httputil.DumpRequestOut(r, true)
+	if err == nil {
+		c.printf("%s\n", string(out))
+	}
+}
+
+// dumpResponse dumps the given HTTP response.
+func (c *Client) dumpResponse(resp *http.Response) {
+	out, err := httputil.DumpResponse(resp, true)
+	if err == nil {
+		c.printf("%s\n", string(out))
+	}
 }
 
 // NewRequest creates a new request with the given method and prepends

@@ -7,9 +7,7 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -144,8 +142,7 @@ func (s *PutTemplateService) Do() (*PutTemplateResponse, error) {
 
 	// Debug output?
 	if s.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		log.Printf("%s\n", string(out))
+		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get HTTP response
@@ -160,8 +157,7 @@ func (s *PutTemplateService) Do() (*PutTemplateResponse, error) {
 
 	// Debug output?
 	if s.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		log.Printf("%s\n", string(out))
+		s.client.dumpResponse(res)
 	}
 	// Return operation response
 	resp := new(PutTemplateResponse)

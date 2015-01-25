@@ -7,9 +7,7 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"strings"
 
@@ -189,8 +187,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	req.SetBodyJson(body)
 
 	if s.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get response
@@ -204,8 +201,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	defer res.Body.Close()
 
 	if s.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpResponse(res)
 	}
 
 	searchResult := new(SearchResult)
@@ -246,8 +242,7 @@ func (s *ScrollService) GetNextPage() (*SearchResult, error) {
 	req.SetBodyString(s.scrollId)
 
 	if s.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		log.Printf("%s\n", string(out))
+		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get response
@@ -261,8 +256,7 @@ func (s *ScrollService) GetNextPage() (*SearchResult, error) {
 	defer res.Body.Close()
 
 	if s.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		log.Printf("%s\n", string(out))
+		s.client.dumpResponse(res)
 	}
 
 	searchResult := new(SearchResult)

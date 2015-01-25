@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -169,27 +168,22 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 
 	// Debug
 	if s.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get response
 	res, err := s.client.c.Do((*http.Request)(req))
 	if err != nil {
 		if s.debugOnError {
-			out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-			fmt.Printf("%s\n", string(out))
-			out, _ = httputil.DumpResponse(res, true)
-			fmt.Printf("%s\n", string(out))
+			s.client.dumpRequest((*http.Request)(req))
+			s.client.dumpResponse(res)
 		}
 		return nil, err
 	}
 	if err := checkResponse(res); err != nil {
 		if s.debugOnError {
-			out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-			fmt.Printf("%s\n", string(out))
-			out, _ = httputil.DumpResponse(res, true)
-			fmt.Printf("%s\n", string(out))
+			s.client.dumpRequest((*http.Request)(req))
+			s.client.dumpResponse(res)
 		}
 		return nil, err
 	}
@@ -197,15 +191,13 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 
 	// Debug
 	if s.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpResponse(res)
 	}
 
 	ret := new(BulkResponse)
 	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
 		if s.debugOnError {
-			out, _ := httputil.DumpResponse(res, true)
-			fmt.Printf("%s\n", string(out))
+			s.client.dumpResponse(res)
 		}
 		return nil, err
 	}

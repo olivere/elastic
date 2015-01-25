@@ -8,9 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"strings"
 
@@ -189,8 +187,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	req.SetBodyJson(body)
 
 	if s.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get response
@@ -204,8 +201,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	defer res.Body.Close()
 
 	if s.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpResponse(res)
 	}
 
 	searchResult := new(SearchResult)
@@ -303,8 +299,7 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 	req.SetBodyString(c.Results.ScrollId)
 
 	if c.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		log.Printf("%s\n", string(out))
+		c.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get response
@@ -318,8 +313,7 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 	defer res.Body.Close()
 
 	if c.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		log.Printf("%s\n", string(out))
+		c.client.dumpResponse(res)
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(c.Results); err != nil {

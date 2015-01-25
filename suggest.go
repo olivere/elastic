@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"strings"
 
@@ -122,8 +121,7 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	req.SetBodyJson(body)
 
 	if s.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get response
@@ -137,8 +135,7 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	defer res.Body.Close()
 
 	if s.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpResponse(res)
 	}
 
 	// There is a _shard object that cannot be deserialized.

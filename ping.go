@@ -6,9 +6,7 @@ package elastic
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 )
 
@@ -108,8 +106,7 @@ func (s *PingService) Do() (*PingResult, int, error) {
 	}
 
 	if s.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	res, err := s.client.c.Do((*http.Request)(req))
@@ -119,8 +116,7 @@ func (s *PingService) Do() (*PingResult, int, error) {
 	defer res.Body.Close()
 
 	if s.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		fmt.Printf("%s\n", string(out))
+		s.client.dumpResponse(res)
 	}
 
 	var ret *PingResult

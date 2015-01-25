@@ -7,9 +7,7 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -221,8 +219,7 @@ func (b *IndexService) Do() (*IndexResult, error) {
 	}
 
 	if b.debug {
-		out, _ := httputil.DumpRequestOut((*http.Request)(req), true)
-		log.Printf("%s\n", string(out))
+		b.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get response
@@ -236,8 +233,7 @@ func (b *IndexService) Do() (*IndexResult, error) {
 	defer res.Body.Close()
 
 	if b.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		log.Printf("%s\n", string(out))
+		b.client.dumpResponse(res)
 	}
 
 	ret := new(IndexResult)
