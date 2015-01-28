@@ -10,27 +10,27 @@ package elastic
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-boosting-query.html
 type BoostingQuery struct {
 	Query
-	positiveClauses []Query
-	negativeClauses []Query
+	positiveClause []Query
+	negativeClause []Query
 	negativeBoost   *float32
 }
 
 // Creates a new boosting query.
 func NewBoostingQuery() BoostingQuery {
 	q := BoostingQuery{
-		positiveClauses:  make([]Query, 0),
-		negativeClauses: make([]Query, 0),
+		positiveClause:  make([]Query, 0),
+		negativeClause: make([]Query, 0),
 	}
 	return q
 }
 
-func (q BoostingQuery) Positive(queries ...Query) BoostingQuery {
-	q.positiveClauses = append(q.positiveClauses, queries...)
+func (q BoostingQuery) Positive(positive ...Query) BoostingQuery {
+	q.positiveClause = positive
 	return q
 }
 
-func (q BoostingQuery) Negative(queries ...Query) BoostingQuery {
-	q.negativeClauses = append(q.negativeClauses, queries...)
+func (q BoostingQuery) Negative(negative ...Query) BoostingQuery {
+	q.negativeClause = negative
 	return q
 }
 
@@ -63,22 +63,22 @@ func (q BoostingQuery) Source() interface{} {
 	query["boosting"] = boostingClause
 
 	// positive
-	if len(q.positiveClauses) == 1 {
-		boostingClause["positive"] = q.positiveClauses[0].Source()
-	} else if len(q.positiveClauses) > 1 {
+	if len(q.positiveClause) == 1 {
+		boostingClause["positive"] = q.positiveClause[0].Source()
+	} else if len(q.positiveClause) > 1 {
 		clauses := make([]interface{}, 0)
-		for _, subQuery := range q.positiveClauses {
+		for _, subQuery := range q.positiveClause {
 			clauses = append(clauses, subQuery.Source())
 		}
 		boostingClause["positive"] = clauses
 	}
 
 	// negative
-	if len(q.negativeClauses) == 1 {
-		boostingClause["negative"] = q.negativeClauses[0].Source()
-	} else if len(q.negativeClauses) > 1 {
+	if len(q.negativeClause) == 1 {
+		boostingClause["negative"] = q.negativeClause[0].Source()
+	} else if len(q.negativeClause) > 1 {
 		clauses := make([]interface{}, 0)
-		for _, subQuery := range q.negativeClauses {
+		for _, subQuery := range q.negativeClause {
 			clauses = append(clauses, subQuery.Source())
 		}
 		boostingClause["negative"] = clauses
