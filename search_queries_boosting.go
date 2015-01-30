@@ -10,32 +10,34 @@ package elastic
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-boosting-query.html
 type BoostingQuery struct {
 	Query
-	positiveClause []Query
-	negativeClause []Query
-	negativeBoost   *float32
+	positiveClause Query
+	negativeClause Query
+	negativeBoost  *float64
+	boost          *float64
 }
 
 // Creates a new boosting query.
 func NewBoostingQuery() BoostingQuery {
-	q := BoostingQuery{
-		positiveClause:  make([]Query, 0),
-		negativeClause: make([]Query, 0),
-	}
-	return q
+	return BoostingQuery{}
 }
 
-func (q BoostingQuery) Positive(positive ...Query) BoostingQuery {
+func (q BoostingQuery) Positive(positive Query) BoostingQuery {
 	q.positiveClause = positive
 	return q
 }
 
-func (q BoostingQuery) Negative(negative ...Query) BoostingQuery {
+func (q BoostingQuery) Negative(negative Query) BoostingQuery {
 	q.negativeClause = negative
 	return q
 }
 
-func (q BoostingQuery) NegativeBoost(negativeBoost float32) BoostingQuery {
+func (q BoostingQuery) NegativeBoost(negativeBoost float64) BoostingQuery {
 	q.negativeBoost = &negativeBoost
+	return q
+}
+
+func (q BoostingQuery) Boost(boost float64) BoostingQuery {
+	q.boost = &boost
 	return q
 }
 
@@ -62,30 +64,25 @@ func (q BoostingQuery) Source() interface{} {
 	boostingClause := make(map[string]interface{})
 	query["boosting"] = boostingClause
 
+	// Negative and positive clause as well as negative boost
+	// are mandatory in the Java client.
+
 	// positive
-	if len(q.positiveClause) == 1 {
-		boostingClause["positive"] = q.positiveClause[0].Source()
-	} else if len(q.positiveClause) > 1 {
-		clauses := make([]interface{}, 0)
-		for _, subQuery := range q.positiveClause {
-			clauses = append(clauses, subQuery.Source())
-		}
-		boostingClause["positive"] = clauses
+	if q.positiveClause != nil {
+		boostingClause["positive"] = q.positiveClause.Source()
 	}
 
 	// negative
-	if len(q.negativeClause) == 1 {
-		boostingClause["negative"] = q.negativeClause[0].Source()
-	} else if len(q.negativeClause) > 1 {
-		clauses := make([]interface{}, 0)
-		for _, subQuery := range q.negativeClause {
-			clauses = append(clauses, subQuery.Source())
-		}
-		boostingClause["negative"] = clauses
+	if q.negativeClause != nil {
+		boostingClause["negative"] = q.negativeClause.Source()
 	}
 
 	if q.negativeBoost != nil {
 		boostingClause["negative_boost"] = *q.negativeBoost
+	}
+
+	if q.boost != nil {
+		boostingClause["boost"] = *q.boost
 	}
 
 	return query

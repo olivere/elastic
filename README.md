@@ -338,7 +338,7 @@ on the command line.
 - [x] `match`
 - [x] `multi_match`
 - [x] `bool`
-- [ ] `boosting`
+- [x] `boosting`
 - [ ] `common_terms`
 - [ ] `constant_score`
 - [x] `dis_max`
