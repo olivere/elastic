@@ -184,4 +184,16 @@ func TestMappings(t *testing.T) {
 	if !eq {
 		t.Error("Mappings are unequal!")
 	}
+
+	_, err = client.DeleteIndex(index1).Do()
+
+	if err != nil {
+		t.Fatalf("Failed to delete index '%s'...", index1)
+	}
+
+	_, err = client.DeleteIndex(index2).Do()
+
+	if err != nil {
+		t.Fatalf("Failed to delete index '%s'...", index1)
+	}
 }
