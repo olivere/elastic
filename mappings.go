@@ -33,6 +33,8 @@ type FieldProperty struct {
 	Tree                       string            `json:"tree,omitempty"`
 	TreeLevels                 int               `json:"tree_levels,omitempty"`
 	Analyzer                   string            `json:"analyzer,omitempty"`
+	IndexAnalyzer              string            `json:"index_analyzer,omitempty"`
+	SearchAnalyzer             string            `json:"search_analyzer,omitempty"`
 	Payloads                   bool              `json:"payloads,omitempty"`
 	PreserveSeparators         bool              `json:"preserve_separators,omitempty"`
 	PreservePositionIncrements bool              `json:"preserve_position_increments,omitempty"`
