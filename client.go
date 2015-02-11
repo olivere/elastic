@@ -354,3 +354,13 @@ func (c *Client) ClusterHealth() *ClusterHealthService {
 func (c *Client) ClusterState() *ClusterStateService {
 	return NewClusterStateService(c)
 }
+
+// Mappings retrieves the mappings
+func (c *Client) Mappings() *MappingsService {
+	return NewMappingsService(c)
+}
+
+// CreateMappings create the mappings
+func (c *Client) CreateMappings() *CreateMappingsService {
+	return NewCreateMappingsService(c)
+}
