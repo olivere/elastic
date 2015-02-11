@@ -13,6 +13,7 @@ type SumAggregation struct {
 	field           string
 	script          string
 	lang            string
+	format          string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
 }
@@ -37,6 +38,11 @@ func (a SumAggregation) Script(script string) SumAggregation {
 
 func (a SumAggregation) Lang(lang string) SumAggregation {
 	a.lang = lang
+	return a
+}
+
+func (a SumAggregation) Format(format string) SumAggregation {
+	a.format = format
 	return a
 }
 
@@ -72,6 +78,9 @@ func (a SumAggregation) Source() interface{} {
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang
+	}
+	if a.format != "" {
+		opts["format"] = a.format
 	}
 	if len(a.params) > 0 {
 		opts["params"] = a.params

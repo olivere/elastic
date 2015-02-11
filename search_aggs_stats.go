@@ -13,6 +13,7 @@ type StatsAggregation struct {
 	field           string
 	script          string
 	lang            string
+	format          string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
 }
@@ -37,6 +38,11 @@ func (a StatsAggregation) Script(script string) StatsAggregation {
 
 func (a StatsAggregation) Lang(lang string) StatsAggregation {
 	a.lang = lang
+	return a
+}
+
+func (a StatsAggregation) Format(format string) StatsAggregation {
+	a.format = format
 	return a
 }
 
@@ -72,6 +78,9 @@ func (a StatsAggregation) Source() interface{} {
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang
+	}
+	if a.format != "" {
+		opts["format"] = a.format
 	}
 	if len(a.params) > 0 {
 		opts["params"] = a.params

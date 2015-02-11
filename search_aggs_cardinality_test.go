@@ -30,3 +30,16 @@ func TestCardinalityAggregationWithOptions(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestCardinalityAggregationWithFormat(t *testing.T) {
+	agg := NewCardinalityAggregation().Field("author.hash").Format("00000")
+	data, err := json.Marshal(agg.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"cardinality":{"field":"author.hash","format":"00000"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}

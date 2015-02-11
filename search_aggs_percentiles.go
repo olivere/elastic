@@ -10,6 +10,7 @@ type PercentilesAggregation struct {
 	field           string
 	script          string
 	lang            string
+	format          string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
 	percentiles     []float64
@@ -38,6 +39,11 @@ func (a PercentilesAggregation) Script(script string) PercentilesAggregation {
 
 func (a PercentilesAggregation) Lang(lang string) PercentilesAggregation {
 	a.lang = lang
+	return a
+}
+
+func (a PercentilesAggregation) Format(format string) PercentilesAggregation {
+	a.format = format
 	return a
 }
 
@@ -95,6 +101,9 @@ func (a PercentilesAggregation) Source() interface{} {
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang
+	}
+	if a.format != "" {
+		opts["format"] = a.format
 	}
 	if len(a.params) > 0 {
 		opts["params"] = a.params

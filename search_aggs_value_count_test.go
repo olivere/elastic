@@ -17,3 +17,17 @@ func TestValueCountAggregation(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestValueCountAggregationWithFormat(t *testing.T) {
+	// Format comes with 1.5.0+
+	agg := NewValueCountAggregation().Field("grade").Format("0000.0")
+	data, err := json.Marshal(agg.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"value_count":{"field":"grade","format":"0000.0"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
