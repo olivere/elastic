@@ -6,7 +6,7 @@ import (
 )
 
 func TestMappings(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClient(t)
 
 	index1 := "elastic_test_mappings1"
 	index2 := "elastic_test_mappings2"
