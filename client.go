@@ -406,6 +406,12 @@ func (c *Client) Scroll(indices ...string) *ScrollService {
 	return builder
 }
 
+// ClearScroll can be used to clear search contexts manually.
+func (c *Client) ClearScroll() *ClearScrollService {
+	builder := NewClearScrollService(c)
+	return builder
+}
+
 // Optimize asks Elasticsearch to optimize one or more indices.
 func (c *Client) Optimize(indices ...string) *OptimizeService {
 	builder := NewOptimizeService(c)
