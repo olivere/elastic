@@ -1,7 +1,7 @@
 default: clean gen
 
 clean:
-	rm *.gen.go
+	rm -f *.gen.go
 
 gen:
 	go generate -v && gofmt -w .

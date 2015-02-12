@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 var (
@@ -189,7 +190,13 @@ func (api *Api) HasField(fieldName string) bool {
 func (api *Api) WriteHeader() {
 	_, pn := api.p, api.pn
 
-	pn("package %s\n", os.Getenv("GOPACKAGE"))
+	banner := fmt.Sprintf(`// Copyright 2012-%d Oliver Eilhard. All rights reserved.
+// Use of this source code is governed by a MIT-license.
+// See http://olivere.mit-license.org/license.txt for details.
+`, time.Now().Year())
+	pn(banner)
+
+	pn("package %s\n", "elastic") // os.Getenv("GOPACKAGE"))
 	if api.Comment {
 		pn("/*")
 	}
@@ -286,6 +293,13 @@ func (api *Api) WriteService() {
 			settersWritten[name] = true
 		}
 	}
+	// Write setter for pretty parameter
+	pn("// Pretty indicates that the JSON response be indented and human readable.")
+	pn("func (s *%s) Pretty(pretty bool) *%s {", api.ServiceName(), api.ServiceName())
+	pn("\ts.pretty = pretty")
+	pn("\treturn s")
+	pn("}\n")
+
 	// Write body setter
 	if api.Body != nil {
 		if api.Body.Description != "" {
@@ -429,9 +443,9 @@ func (api *Api) writeBuildURL() {
 
 	/*
 		if len(api.URL.Paths) == 0 {
-			pn("\turls := `%s`", api.URL.Path)
+			pn("\tpath := `%s`", api.URL.Path)
 		} else {
-			pn("\turls := `/`", api.URL.Paths[len(api.URL.Paths)-1])
+			pn("\tpath := `/`", api.URL.Paths[len(api.URL.Paths)-1])
 		}
 	*/
 
@@ -455,9 +469,13 @@ func (api *Api) writeBuildURL() {
 		pn("\tpath := \"%s\"\n", api.URL.Path)
 	}
 
+	pn("\t// Add query string parameters")
+	pn("\tparams := url.Values{}")
+	pn("\tif s.pretty {")
+	pn("\t\tparams.Set(\"pretty\", \"1\")")
+	pn("\t}")
+
 	if len(api.URL.Params) > 0 {
-		pn("\t// Add query string parameters")
-		pn("\tparams := url.Values{}")
 		for _, p := range api.URL.Params {
 			switch p.Type {
 			case "boolean":
@@ -499,7 +517,7 @@ func (api *Api) writeBuildURL() {
 			}
 		}
 	}
-	pn("\treturn urls, params, nil")
+	pn("\treturn path, params, nil")
 	pn("}\n")
 }
 
