@@ -132,7 +132,6 @@ func TestHighlightWithTermQuery(t *testing.T) {
 		Index(testIndexName).
 		Highlight(hl).
 		Query(&query).
-		//Debug(true).Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

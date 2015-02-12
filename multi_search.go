@@ -18,7 +18,6 @@ type MultiSearchService struct {
 	requests   []*SearchRequest
 	indices    []string
 	pretty     bool
-	debug      bool
 	routing    string
 	preference string
 }
@@ -28,8 +27,6 @@ func NewMultiSearchService(client *Client) *MultiSearchService {
 		client:   client,
 		requests: make([]*SearchRequest, 0),
 		indices:  make([]string, 0),
-		debug:    false,
-		pretty:   false,
 	}
 	return builder
 }
@@ -51,11 +48,6 @@ func (s *MultiSearchService) Indices(indices ...string) *MultiSearchService {
 
 func (s *MultiSearchService) Pretty(pretty bool) *MultiSearchService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *MultiSearchService) Debug(debug bool) *MultiSearchService {
-	s.debug = debug
 	return s
 }
 

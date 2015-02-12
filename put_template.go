@@ -17,7 +17,6 @@ import (
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-template.html.
 type PutTemplateService struct {
 	client      *Client
-	debug       bool
 	pretty      bool
 	id          string
 	opType      string

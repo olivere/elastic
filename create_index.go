@@ -17,7 +17,6 @@ type CreateIndexService struct {
 	index  string
 	body   string
 	pretty bool
-	debug  bool
 }
 
 func NewCreateIndexService(client *Client) *CreateIndexService {
@@ -39,11 +38,6 @@ func (b *CreateIndexService) Body(body string) *CreateIndexService {
 
 func (b *CreateIndexService) Pretty(pretty bool) *CreateIndexService {
 	b.pretty = pretty
-	return b
-}
-
-func (b *CreateIndexService) Debug(debug bool) *CreateIndexService {
-	b.debug = debug
 	return b
 }
 

@@ -64,7 +64,7 @@ func TestAliasLifecycle(t *testing.T) {
 	aliasCreate, err := client.Alias().
 		Add(testIndexName, testAliasName).
 		Add(testIndexName2, testAliasName).
-		//Pretty(true).Debug(true).
+		//Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -100,7 +100,7 @@ func TestAliasLifecycle(t *testing.T) {
 	// Remove first index should remove two tweets, so should only yield 1
 	aliasRemove1, err := client.Alias().
 		Remove(testIndexName, testAliasName).
-		//Pretty(true).Debug(true).
+		//Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

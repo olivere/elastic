@@ -22,7 +22,6 @@ type OptimizeService struct {
 	waitForMerge       *bool
 	force              *bool
 	pretty             bool
-	debug              bool
 }
 
 func NewOptimizeService(client *Client) *OptimizeService {
@@ -70,11 +69,6 @@ func (s *OptimizeService) Force(force bool) *OptimizeService {
 
 func (s *OptimizeService) Pretty(pretty bool) *OptimizeService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *OptimizeService) Debug(debug bool) *OptimizeService {
-	s.debug = debug
 	return s
 }
 

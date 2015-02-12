@@ -39,10 +39,7 @@ func TestScroll(t *testing.T) {
 	}
 
 	// Match all should return all documents
-	res, err := client.Scroll(testIndexName).
-		Size(1).
-		// Pretty(true).Debug(true).
-		Do()
+	res, err := client.Scroll(testIndexName).Size(1).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,7 +68,6 @@ func TestScroll(t *testing.T) {
 		searchResult, err := client.Scroll(testIndexName).
 			Size(1).
 			ScrollId(scrollId).
-			// Pretty(true).Debug(true).
 			Do()
 		if err == EOS {
 			break

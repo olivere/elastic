@@ -17,7 +17,6 @@ import (
 type SuggestService struct {
 	client     *Client
 	pretty     bool
-	debug      bool
 	routing    string
 	preference string
 	indices    []string
@@ -45,11 +44,6 @@ func (s *SuggestService) Indices(indices ...string) *SuggestService {
 
 func (s *SuggestService) Pretty(pretty bool) *SuggestService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *SuggestService) Debug(debug bool) *SuggestService {
-	s.debug = debug
 	return s
 }
 

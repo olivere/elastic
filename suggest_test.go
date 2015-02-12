@@ -76,7 +76,6 @@ func TestSuggestService(t *testing.T) {
 		Suggester(termSuggester).
 		Suggester(phraseSuggester).
 		Suggester(completionSuggester).
-		// Debug(true).Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

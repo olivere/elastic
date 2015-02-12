@@ -41,7 +41,6 @@ func TestMoreLikeThis(t *testing.T) {
 	q = q.Fields("message")
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		// Debug(true).Pretty(true).
 		Query(&q).
 		Do()
 	if err != nil {

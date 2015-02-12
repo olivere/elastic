@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/olivere/elastic"
@@ -32,6 +33,12 @@ func Example() {
 		// Handle error
 		panic(err)
 	}
+
+	// Log requests to os.Stdout
+	client.SetLogger(log.New(os.Stdout, "APP ", log.LstdFlags))
+
+	// Trace request and response details like this
+	//client.SetTracer(log.New(os.Stdout, "", 0))
 
 	// Ping the Elasticsearch server to get e.g. the version number
 	info, code, err := client.Ping().Do()
@@ -122,7 +129,6 @@ func Example() {
 		Query(&termQuery).  // specify the query
 		Sort("user", true). // sort by "user" field, ascending
 		From(0).Size(10).   // take documents 0-9
-		Debug(true).        // print request and response to stdout
 		Pretty(true).       // pretty print request and response JSON
 		Do()                // execute
 	if err != nil {
@@ -277,7 +283,6 @@ func ExampleSearchService() {
 		Query(&termQuery).  // specify the query
 		Sort("user", true). // sort by "user" field, ascending
 		From(0).Size(10).   // take documents 0-9
-		Debug(true).        // print request and response to stdout
 		Pretty(true).       // pretty print request and response JSON
 		Do()                // execute
 	if err != nil {
@@ -332,7 +337,6 @@ func ExampleAggregations() {
 		Query(elastic.NewMatchAllQuery()). // return all results, but ...
 		SearchType("count").               // ... do not return hits, just the count
 		Aggregation("timeline", timeline). // add our aggregation to the query
-		Debug(true).                       // print request and response to stdout
 		Pretty(true).                      // pretty print request and response JSON
 		Do()                               // execute
 	if err != nil {

@@ -224,7 +224,6 @@ func TestUpdateViaScriptIntegration(t *testing.T) {
 		Script("ctx._source.retweets += num").
 		ScriptParams(map[string]interface{}{"num": increment}).
 		ScriptLang("groovy"). // Use "groovy" as default language as 1.3 uses MVEL by default
-		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

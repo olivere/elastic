@@ -104,7 +104,6 @@ func TestSearchFacets(t *testing.T) {
 		Facet("queryFacet", queryFacet).
 		Facet("dateRangeFacet", dateRangeFacet).
 		Facet("dateRangeWithTimeFacet", dateRangeWithTimeFacet).
-		//Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

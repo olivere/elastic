@@ -35,15 +35,12 @@ type ScanService struct {
 	query     Query
 	size      *int
 	pretty    bool
-	debug     bool
 }
 
 func NewScanService(client *Client) *ScanService {
 	builder := &ScanService{
 		client: client,
 		query:  NewMatchAllQuery(),
-		debug:  false,
-		pretty: false,
 	}
 	return builder
 }
@@ -101,11 +98,6 @@ func (s *ScanService) Query(query Query) *ScanService {
 
 func (s *ScanService) Pretty(pretty bool) *ScanService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *ScanService) Debug(debug bool) *ScanService {
-	s.debug = debug
 	return s
 }
 
@@ -184,7 +176,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 		return nil, err
 	}
 
-	cursor := NewScanCursor(s.client, s.keepAlive, s.pretty, s.debug, searchResult)
+	cursor := NewScanCursor(s.client, s.keepAlive, s.pretty, searchResult)
 
 	return cursor, nil
 }
@@ -197,18 +189,16 @@ type ScanCursor struct {
 	client      *Client
 	keepAlive   string
 	pretty      bool
-	debug       bool
 	currentPage int
 }
 
 // newScanCursor returns a new initialized instance
 // of scanCursor.
-func NewScanCursor(client *Client, keepAlive string, pretty, debug bool, searchResult *SearchResult) *ScanCursor {
+func NewScanCursor(client *Client, keepAlive string, pretty bool, searchResult *SearchResult) *ScanCursor {
 	return &ScanCursor{
 		client:    client,
 		keepAlive: keepAlive,
 		pretty:    pretty,
-		debug:     debug,
 		Results:   searchResult,
 	}
 }

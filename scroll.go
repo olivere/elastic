@@ -22,7 +22,6 @@ type ScrollService struct {
 	query     Query
 	size      *int
 	pretty    bool
-	debug     bool
 	scrollId  string
 }
 
@@ -30,8 +29,6 @@ func NewScrollService(client *Client) *ScrollService {
 	builder := &ScrollService{
 		client: client,
 		query:  NewMatchAllQuery(),
-		debug:  false,
-		pretty: false,
 	}
 	return builder
 }
@@ -89,11 +86,6 @@ func (s *ScrollService) Query(query Query) *ScrollService {
 
 func (s *ScrollService) Pretty(pretty bool) *ScrollService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *ScrollService) Debug(debug bool) *ScrollService {
-	s.debug = debug
 	return s
 }
 

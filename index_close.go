@@ -16,7 +16,6 @@ import (
 // See documentation at http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/indices-open-close.html.
 type CloseIndexService struct {
 	client            *Client
-	debug             bool
 	pretty            bool
 	index             string
 	ignoreUnavailable *bool

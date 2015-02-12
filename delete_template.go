@@ -16,7 +16,6 @@ import (
 // be found at http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-template.html.
 type DeleteTemplateService struct {
 	client      *Client
-	debug       bool
 	pretty      bool
 	id          string
 	version     *int

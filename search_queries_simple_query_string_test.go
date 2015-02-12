@@ -51,7 +51,6 @@ func TestSimpleQueryStringQueryExec(t *testing.T) {
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Query(&query).
-		// Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

@@ -25,7 +25,6 @@ type SearchService struct {
 	routing      string
 	preference   string
 	types        []string
-	debug        bool
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -35,8 +34,6 @@ func NewSearchService(client *Client) *SearchService {
 	builder := &SearchService{
 		client:       client,
 		searchSource: NewSearchSource(),
-		debug:        false,
-		pretty:       false,
 	}
 	return builder
 }
@@ -94,17 +91,9 @@ func (s *SearchService) Types(types ...string) *SearchService {
 	return s
 }
 
-// Pretty enables the caller to indent the JSON output. Use it in combination
-// with Debug to see what Elasticsearch actually returned.
+// Pretty enables the caller to indent the JSON output.
 func (s *SearchService) Pretty(pretty bool) *SearchService {
 	s.pretty = pretty
-	return s
-}
-
-// Debug enables the user to print the output of the search to os.Stdout
-// when calling Do.
-func (s *SearchService) Debug(debug bool) *SearchService {
-	s.debug = debug
 	return s
 }
 

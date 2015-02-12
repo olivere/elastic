@@ -17,7 +17,6 @@ import (
 // It is documented at http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/cluster-health.html.
 type ClusterHealthService struct {
 	client                  *Client
-	debug                   bool
 	pretty                  bool
 	indices                 []string
 	waitForStatus           string

@@ -40,7 +40,6 @@ func TestMoreLikeThisFieldQuery(t *testing.T) {
 	q := NewMoreLikeThisFieldQuery("message", "Golang topic.")
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		// Debug(true).Pretty(true).
 		Query(&q).
 		Do()
 	if err != nil {

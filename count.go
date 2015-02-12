@@ -21,7 +21,6 @@ type CountService struct {
 	indices []string
 	types   []string
 	query   Query
-	debug   bool
 	pretty  bool
 }
 
@@ -35,8 +34,6 @@ type CountResult struct {
 func NewCountService(client *Client) *CountService {
 	builder := &CountService{
 		client: client,
-		debug:  false,
-		pretty: false,
 	}
 	return builder
 }
@@ -80,11 +77,6 @@ func (s *CountService) Query(query Query) *CountService {
 
 func (s *CountService) Pretty(pretty bool) *CountService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *CountService) Debug(debug bool) *CountService {
-	s.debug = debug
 	return s
 }
 

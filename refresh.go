@@ -18,7 +18,6 @@ type RefreshService struct {
 	indices []string
 	force   *bool
 	pretty  bool
-	debug   bool
 }
 
 func NewRefreshService(client *Client) *RefreshService {
@@ -46,11 +45,6 @@ func (s *RefreshService) Force(force bool) *RefreshService {
 
 func (s *RefreshService) Pretty(pretty bool) *RefreshService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *RefreshService) Debug(debug bool) *RefreshService {
-	s.debug = debug
 	return s
 }
 

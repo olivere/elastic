@@ -16,7 +16,6 @@ import (
 // It is documented at http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-template.html.
 type GetTemplateService struct {
 	client      *Client
-	debug       bool
 	pretty      bool
 	id          string
 	version     interface{}

@@ -37,9 +37,7 @@ func TestOptimize(t *testing.T) {
 	}
 
 	// Optimize documents
-	res, err := client.Optimize(testIndexName, testIndexName2).
-		// Pretty(true).Debug(true).
-		Do()
+	res, err := client.Optimize(testIndexName, testIndexName2).Do()
 	if err != nil {
 		t.Fatal(err)
 	}

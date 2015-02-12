@@ -14,7 +14,6 @@ type AliasService struct {
 	client  *Client
 	actions []aliasAction
 	pretty  bool
-	debug   bool
 }
 
 type aliasAction struct {
@@ -38,11 +37,6 @@ func NewAliasService(client *Client) *AliasService {
 
 func (s *AliasService) Pretty(pretty bool) *AliasService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *AliasService) Debug(debug bool) *AliasService {
-	s.debug = debug
 	return s
 }
 

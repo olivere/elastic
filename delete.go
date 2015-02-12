@@ -21,7 +21,6 @@ type DeleteService struct {
 	refresh *bool
 	version *int
 	pretty  bool
-	debug   bool
 }
 
 func NewDeleteService(client *Client) *DeleteService {
@@ -65,11 +64,6 @@ func (s *DeleteService) Version(version int) *DeleteService {
 
 func (s *DeleteService) Pretty(pretty bool) *DeleteService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *DeleteService) Debug(debug bool) *DeleteService {
-	s.debug = debug
 	return s
 }
 

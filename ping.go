@@ -21,7 +21,6 @@ type PingService struct {
 	url          string
 	timeout      string
 	httpHeadOnly bool
-	debug        bool
 	pretty       bool
 }
 
@@ -45,7 +44,6 @@ func NewPingService(client *Client) *PingService {
 		client:       client,
 		url:          defaultUrl,
 		httpHeadOnly: false,
-		debug:        false,
 		pretty:       false,
 	}
 }
@@ -69,11 +67,6 @@ func (s *PingService) HttpHeadOnly(httpHeadOnly bool) *PingService {
 
 func (s *PingService) Pretty(pretty bool) *PingService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *PingService) Debug(debug bool) *PingService {
-	s.debug = debug
 	return s
 }
 
@@ -106,19 +99,11 @@ func (s *PingService) Do() (*PingResult, int, error) {
 		return nil, 0, err
 	}
 
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
-
 	res, err := s.client.c.Do((*http.Request)(req))
 	if err != nil {
 		return nil, 0, err
 	}
 	defer res.Body.Close()
-
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
 
 	var ret *PingResult
 	if !s.httpHeadOnly {

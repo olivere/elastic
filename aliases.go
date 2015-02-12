@@ -17,7 +17,6 @@ type AliasesService struct {
 	client  *Client
 	indices []string
 	pretty  bool
-	debug   bool
 }
 
 func NewAliasesService(client *Client) *AliasesService {
@@ -30,11 +29,6 @@ func NewAliasesService(client *Client) *AliasesService {
 
 func (s *AliasesService) Pretty(pretty bool) *AliasesService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *AliasesService) Debug(debug bool) *AliasesService {
-	s.debug = debug
 	return s
 }
 

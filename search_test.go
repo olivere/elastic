@@ -161,8 +161,6 @@ func TestSearchSorting(t *testing.T) {
 		Query(&all).
 		Sort("created", false).
 		Timeout("1s").
-		// Pretty(true).
-		// Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -236,7 +234,6 @@ func TestSearchSortingBySorters(t *testing.T) {
 		Query(&all).
 		SortBy(NewFieldSort("created").Desc(), NewScoreSort()).
 		Timeout("1s").
-		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -297,7 +294,6 @@ func TestSearchSpecificFields(t *testing.T) {
 		Index(testIndexName).
 		Query(&all).
 		Fields("message").
-		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -376,7 +372,6 @@ func TestSearchExplain(t *testing.T) {
 		Explain(true).
 		Timeout("1s").
 		// Pretty(true).
-		// Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -457,7 +452,6 @@ func TestSearchSource(t *testing.T) {
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Source(source). // sets the JSON request
-		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -519,7 +513,6 @@ func TestSearchSearchSource(t *testing.T) {
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		SearchSource(ss). // sets the SearchSource
-		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

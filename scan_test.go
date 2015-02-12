@@ -39,10 +39,7 @@ func TestScan(t *testing.T) {
 	}
 
 	// Match all should return all documents
-	cursor, err := client.Scan(testIndexName).
-		Size(1).
-		// Pretty(true).Debug(true).
-		Do()
+	cursor, err := client.Scan(testIndexName).Size(1).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +126,6 @@ func TestScanWithQuery(t *testing.T) {
 	cursor, err := client.Scan(testIndexName).
 		Size(1).
 		Query(termQuery).
-		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

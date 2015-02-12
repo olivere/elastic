@@ -39,7 +39,6 @@ type IndexService struct {
 	bodyString  string
 	bodyJson    interface{}
 	pretty      bool
-	debug       bool
 }
 
 func NewIndexService(client *Client) *IndexService {
@@ -126,11 +125,6 @@ func (b *IndexService) BodyJson(json interface{}) *IndexService {
 
 func (b *IndexService) Pretty(pretty bool) *IndexService {
 	b.pretty = pretty
-	return b
-}
-
-func (b *IndexService) Debug(debug bool) *IndexService {
-	b.debug = debug
 	return b
 }
 

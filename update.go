@@ -52,7 +52,6 @@ type UpdateService struct {
 	doc              interface{}
 	timeout          string
 	pretty           bool
-	debug            bool
 }
 
 // NewUpdateService creates the service to update documents in Elasticsearch.
@@ -212,12 +211,6 @@ func (b *UpdateService) Timeout(timeout string) *UpdateService {
 // Pretty instructs to return human readable, prettified JSON.
 func (b *UpdateService) Pretty(pretty bool) *UpdateService {
 	b.pretty = pretty
-	return b
-}
-
-// Debug logs request and response.
-func (b *UpdateService) Debug(debug bool) *UpdateService {
-	b.debug = debug
 	return b
 }
 

@@ -37,9 +37,7 @@ func TestRefresh(t *testing.T) {
 	}
 
 	// Refresh indices
-	res, err := client.Refresh(testIndexName, testIndexName2).
-		// Pretty(true).Debug(true).
-		Do()
+	res, err := client.Refresh(testIndexName, testIndexName2).Do()
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -25,15 +25,12 @@ type BulkService struct {
 	timeout string
 	refresh *bool
 	pretty  bool
-	debug   bool
 }
 
 func NewBulkService(client *Client) *BulkService {
 	builder := &BulkService{
 		client:   client,
 		requests: make([]BulkableRequest, 0),
-		pretty:   false,
-		debug:    false,
 	}
 	return builder
 }
@@ -64,11 +61,6 @@ func (s *BulkService) Refresh(refresh bool) *BulkService {
 
 func (s *BulkService) Pretty(pretty bool) *BulkService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *BulkService) Debug(debug bool) *BulkService {
-	s.debug = debug
 	return s
 }
 

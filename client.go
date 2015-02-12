@@ -78,7 +78,7 @@ func (c *Client) SetLogger(logger *log.Logger) {
 	c.logger = logger
 }
 
-// SetTracer sets the tracer for debug output from Elastic.
+// SetTracer sets the tracer to log HTTP requests to and responses from Elastic.
 // If you set it to nil (default), it will not print anything.
 func (c *Client) SetTracer(tracer *log.Logger) {
 	c.tracer = tracer
@@ -97,7 +97,7 @@ func (c *Client) logf(format string, args ...interface{}) {
 	}
 }
 
-// tracef is a helper to log debug output.
+// tracef is a helper to trace e.g. HTTP requests/responses.
 func (c *Client) tracef(format string, args ...interface{}) {
 	if c.tracer != nil {
 		c.tracer.Printf(format, args...)

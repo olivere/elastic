@@ -29,7 +29,6 @@ type DeleteByQueryService struct {
 	replication       string
 	routing           string
 	timeout           string
-	debug             bool
 	pretty            bool
 	q                 string
 	query             Query
@@ -168,16 +167,9 @@ func (s *DeleteByQueryService) Timeout(timeout string) *DeleteByQueryService {
 	return s
 }
 
-// Pretty indents the JSON output from Elasticsearch. Use in combination
-// with Debug to see the actual output of Elasticsearch.
+// Pretty indents the JSON output from Elasticsearch.
 func (s *DeleteByQueryService) Pretty(pretty bool) *DeleteByQueryService {
 	s.pretty = pretty
-	return s
-}
-
-// Debug prints HTTP request and response to os.Stdout.
-func (s *DeleteByQueryService) Debug(debug bool) *DeleteByQueryService {
-	s.debug = debug
 	return s
 }
 

@@ -125,9 +125,7 @@ func TestAggs(t *testing.T) {
 		countByUserAgg := NewFiltersAggregation().Filters(NewTermFilter("user", "olivere"), NewTermFilter("user", "sandrae"))
 		builder = builder.Aggregation("countByUser", countByUserAgg)
 	}
-	searchResult, err := builder.
-		// Pretty(true).Debug(true).
-		Do()
+	searchResult, err := builder.Do()
 	if err != nil {
 		t.Fatal(err)
 	}
