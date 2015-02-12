@@ -197,8 +197,8 @@ func TestUpdateViaScriptIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if esversion >= "1.4.3" {
-		t.Skip("groovy scripting has been disabled as for 1.4.3+")
+	if esversion >= "1.4.3" || (esversion < "1.4.0" && esversion >= "1.3.8") {
+		t.Skip("groovy scripting has been disabled as for [1.3.8,1.4.0) and 1.4.3+")
 		return
 	}
 
