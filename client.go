@@ -475,3 +475,8 @@ func (c *Client) ClusterHealth() *ClusterHealthService {
 func (c *Client) ClusterState() *ClusterStateService {
 	return NewClusterStateService(c)
 }
+
+// NodesInfo retrieves one or more or all of the cluster nodes information.
+func (c *Client) NodesInfo() *NodesInfoService {
+	return NewNodesInfoService(c)
+}
