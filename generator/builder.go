@@ -2,9 +2,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"go/format"
 	"io"
 	"log"
 	"os"
@@ -22,10 +24,12 @@ func main() {
 		Input   string
 		Output  string
 		Comment bool
+		Format  bool
 	}
 	flag.StringVar(&opt.Input, "i", "", "input file")
 	flag.StringVar(&opt.Output, "o", "", "output file")
 	flag.BoolVar(&opt.Comment, "comment", false, "comment file")
+	flag.BoolVar(&opt.Format, "format", true, "go format output file")
 	flag.Parse()
 
 	var err error
@@ -68,10 +72,45 @@ func main() {
 	}
 	defer out.Close()
 
+	var buf bytes.Buffer
+
 	for _, api := range apis {
+		api.p = func(format string, args ...interface{}) {
+			_, err := fmt.Fprintf(&buf, format, args...)
+			if err != nil {
+				panic(err)
+			}
+		}
+		api.pn = func(format string, args ...interface{}) {
+			api.p(format+"\n", args...)
+		}
+
 		api.WriteHeader()
 		api.WriteService()
 		api.WriteTrailer()
+	}
+
+	if opt.Format {
+		// Go fmt output before writing
+		clean, err := format.Source(buf.Bytes())
+		if err != nil {
+			// gofmt failed, so write without formatting
+			_, err := out.Write(buf.Bytes())
+			if err != nil {
+				panic(err)
+			}
+			return
+		}
+		_, err = out.Write(clean)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		// Do not go fmt
+		_, err := out.Write(buf.Bytes())
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -85,6 +124,9 @@ type Api struct {
 	Methods       []string `json:"methods"`
 	URL           *ApiURL  `json:"url"`
 	Body          *ApiBody `json:"body"`
+
+	p  func(format string, args ...interface{}) // raw print
+	pn func(format string, args ...interface{}) // print with indent and newline
 }
 
 type ApiURL struct {
@@ -145,87 +187,92 @@ func (api *Api) HasField(fieldName string) bool {
 }
 
 func (api *Api) WriteHeader() {
-	fmt.Fprintf(out, "package %s\n\n", os.Getenv("GOPACKAGE"))
-	if api.Comment {
-		fmt.Fprintf(out, "/*\n")
-	}
-	fmt.Fprintf(out, "import (\n")
-	fmt.Fprintf(out, "\t\"encoding/json\"\n")
-	fmt.Fprintf(out, "\t\"fmt\"\n")
-	fmt.Fprintf(out, "\t\"log\"\n")
-	fmt.Fprintf(out, "\t\"net/http\"\n")
-	fmt.Fprintf(out, "\t\"net/http/httputil\"\n")
-	fmt.Fprintf(out, "\t\"net/url\"\n")
-	fmt.Fprintf(out, "\t\"strings\"\n")
-	fmt.Fprintf(out, "\n")
-	fmt.Fprintf(out, "\t\"github.com/olivere/elastic/uritemplates\"\n")
-	fmt.Fprintf(out, ")\n\n")
+	_, pn := api.p, api.pn
 
-	fmt.Fprintf(out, "var (\n")
-	fmt.Fprintf(out, "\t_ = fmt.Print\n")
-	fmt.Fprintf(out, "\t_ = log.Print\n")
-	fmt.Fprintf(out, "\t_ = strings.Index\n")
-	fmt.Fprintf(out, "\t_ = uritemplates.Expand\n")
-	fmt.Fprintf(out, "\t_ = url.Parse\n")
-	fmt.Fprintf(out, ")\n\n")
+	pn("package %s\n", os.Getenv("GOPACKAGE"))
+	if api.Comment {
+		pn("/*")
+	}
+	pn("import (")
+	pn("\t\"encoding/json\"")
+	pn("\t\"fmt\"")
+	pn("\t\"log\"")
+	pn("\t\"net/http\"")
+	pn("\t\"net/http/httputil\"")
+	pn("\t\"net/url\"")
+	pn("\t\"strings\"")
+	pn("")
+	pn("\t\"github.com/olivere/elastic/uritemplates\"")
+	pn(")\n")
+
+	pn("var (")
+	pn("\t_ = fmt.Print")
+	pn("\t_ = log.Print")
+	pn("\t_ = strings.Index")
+	pn("\t_ = uritemplates.Expand")
+	pn("\t_ = url.Parse")
+	pn(")\n")
 }
 
 func (api *Api) WriteTrailer() {
+	_, pn := api.p, api.pn
+
 	if api.Comment {
-		fmt.Fprintf(out, "*/\n")
+		pn("*/")
 	}
 }
 
 func (api *Api) WriteService() {
+	_, pn := api.p, api.pn
+
 	if api.Documentation != "" {
-		fmt.Fprintf(out, "// %s is documented at %s.\n", api.ServiceName(), api.Documentation)
+		pn("// %s is documented at %s.", api.ServiceName(), api.Documentation)
 	}
-	fmt.Fprintf(out, "type %s struct {\n", api.ServiceName())
-	fmt.Fprintf(out, "\tclient\t*Client\n")
-	fmt.Fprintf(out, "\tdebug\tbool\n")
-	fmt.Fprintf(out, "\tpretty\tbool\n")
+	pn("type %s struct {", api.ServiceName())
+	pn("\tclient\t*Client")
+	pn("\tpretty\tbool")
 
 	// Write variables in struct
 	fieldsWritten := make(map[string]bool)
 	for name, p := range api.URL.Parts {
-		fmt.Fprintf(out, "\t%s\t%s\n", p.VariableName(), p.TypeName())
+		pn("\t%s\t%s", p.VariableName(), p.TypeName())
 		fieldsWritten[name] = true
 	}
 	for name, p := range api.URL.Params {
 		if found, _ := fieldsWritten[name]; !found {
-			fmt.Fprintf(out, "\t%s\t%s\n", p.VariableName(), p.TypeName())
+			pn("\t%s\t%s", p.VariableName(), p.TypeName())
 			fieldsWritten[name] = true
 		}
 	}
 	// Write body variable
 	if api.Body != nil {
-		fmt.Fprintf(out, "\tbodyJson\tinterface{}\n")
-		fmt.Fprintf(out, "\tbodyString\tstring\n")
+		pn("\tbodyJson\tinterface{}")
+		pn("\tbodyString\tstring")
 	}
-	fmt.Fprintf(out, "}\n\n")
+	pn("}\n\n")
 
 	// Write New... method
-	fmt.Fprintf(out, "// New%s creates a new %s.\n", api.ServiceName(), api.ServiceName())
-	fmt.Fprintf(out, "func New%s(client *Client) *%s {\n", api.ServiceName(), api.ServiceName())
-	fmt.Fprintf(out, "\treturn &%s{\n", api.ServiceName())
-	fmt.Fprintf(out, "\t\tclient: client,\n")
+	pn("// New%s creates a new %s.", api.ServiceName(), api.ServiceName())
+	pn("func New%s(client *Client) *%s {", api.ServiceName(), api.ServiceName())
+	pn("\treturn &%s{", api.ServiceName())
+	pn("\t\tclient: client,")
 	fieldsWritten = make(map[string]bool)
 	for name, p := range api.URL.Parts {
 		if p.IsSlice() {
-			fmt.Fprintf(out, "\t\t%s:\tmake(%s, 0),\n", p.VariableName(), p.TypeName())
+			pn("\t\t%s:\tmake(%s, 0),", p.VariableName(), p.TypeName())
 			fieldsWritten[name] = true
 		}
 	}
 	for name, p := range api.URL.Params {
 		if found, _ := fieldsWritten[name]; !found {
 			if p.IsSlice() {
-				fmt.Fprintf(out, "\t\t%s:\tmake(%s, 0),\n", p.VariableName(), p.TypeName())
+				pn("\t\t%s:\tmake(%s, 0),", p.VariableName(), p.TypeName())
 				fieldsWritten[name] = true
 			}
 		}
 	}
-	fmt.Fprintf(out, "\t}\n")
-	fmt.Fprintf(out, "}\n\n")
+	pn("\t}")
+	pn("}\n")
 
 	// Write setters
 	settersWritten := make(map[string]bool)
@@ -242,25 +289,25 @@ func (api *Api) WriteService() {
 	// Write body setter
 	if api.Body != nil {
 		if api.Body.Description != "" {
-			fmt.Fprintf(out, "// BodyJson is documented as: %s.\n", api.Body.Description)
+			pn("// BodyJson is documented as: %s.", api.Body.Description)
 		}
-		fmt.Fprintf(out, "func (s *%s) BodyJson(body interface{}) *%s {\n",
+		pn("func (s *%s) BodyJson(body interface{}) *%s {",
 			api.ServiceName(),
 			api.ServiceName(),
 		)
-		fmt.Fprintf(out, "\ts.bodyJson = body\n")
-		fmt.Fprintf(out, "\treturn s\n")
-		fmt.Fprintf(out, "}\n\n")
+		pn("\ts.bodyJson = body")
+		pn("\treturn s")
+		pn("}\n")
 		if api.Body.Description != "" {
-			fmt.Fprintf(out, "// BodyString is documented as: %s.\n", api.Body.Description)
+			pn("// BodyString is documented as: %s.", api.Body.Description)
 		}
-		fmt.Fprintf(out, "func (s *%s) BodyString(body string) *%s {\n",
+		pn("func (s *%s) BodyString(body string) *%s {",
 			api.ServiceName(),
 			api.ServiceName(),
 		)
-		fmt.Fprintf(out, "\ts.bodyString = body\n")
-		fmt.Fprintf(out, "\treturn s\n")
-		fmt.Fprintf(out, "}\n\n")
+		pn("\ts.bodyString = body")
+		pn("\treturn s")
+		pn("}\n")
 	}
 
 	// Write buildURL func
@@ -277,38 +324,44 @@ func (api *Api) WriteService() {
 }
 
 func (p *ApiPart) writeSetter(api *Api) {
-	fmt.Fprintf(out, "// %s\n", p.Documentation())
-	fmt.Fprintf(out, "func (s *%s) %s(%s %s) *%s {\n",
+	_, pn := api.p, api.pn
+
+	pn("// %s", p.Documentation())
+	pn("func (s *%s) %s(%s %s) *%s {",
 		api.ServiceName(),
 		p.SetterName(),
 		p.VariableName(),
 		p.TypeNameForSetter(),
 		api.ServiceName(),
 	)
-	fmt.Fprintf(out, "\ts.%s = %s\n", p.VariableName(), p.VariableNameForSetter())
-	fmt.Fprintf(out, "\treturn s\n")
-	fmt.Fprintf(out, "}\n\n")
+	pn("\ts.%s = %s", p.VariableName(), p.VariableNameForSetter())
+	pn("\treturn s")
+	pn("}\n")
 }
 
 func (p *ApiParam) writeSetter(api *Api) {
-	fmt.Fprintf(out, "// %s\n", p.Documentation())
-	fmt.Fprintf(out, "func (s *%s) %s(%s %s) *%s {\n",
+	_, pn := api.p, api.pn
+
+	pn("// %s", p.Documentation())
+	pn("func (s *%s) %s(%s %s) *%s {",
 		api.ServiceName(),
 		p.SetterName(),
 		p.VariableName(),
 		p.TypeNameForSetter(),
 		api.ServiceName(),
 	)
-	fmt.Fprintf(out, "\ts.%s = %s\n", p.VariableName(), p.VariableNameForSetter())
-	fmt.Fprintf(out, "\treturn s\n")
-	fmt.Fprintf(out, "}\n\n")
+	pn("\ts.%s = %s", p.VariableName(), p.VariableNameForSetter())
+	pn("\treturn s")
+	pn("}\n")
 }
 
 func (api *Api) writeValidate() {
+	_, pn := api.p, api.pn
+
 	emptyBody := true
 
-	fmt.Fprintf(out, "// Validate checks if the operation is valid.\n")
-	fmt.Fprintf(out, "func (s *%s) Validate() error {\n", api.ServiceName())
+	pn("// Validate checks if the operation is valid.")
+	pn("func (s *%s) Validate() error {", api.ServiceName())
 	for _, p := range api.URL.Parts {
 		if p.Required {
 			emptyBody = false
@@ -322,23 +375,23 @@ func (api *Api) writeValidate() {
 		}
 	}
 	if emptyBody {
-		fmt.Fprintf(out, "\treturn nil\n")
-		fmt.Fprintf(out, "}\n\n")
+		pn("\treturn nil")
+		pn("}\n")
 		return
 	}
 
-	fmt.Fprintf(out, "\tvar invalid []string\n")
+	pn("\tvar invalid []string")
 	for _, p := range api.URL.Parts {
 		if p.Required {
 			switch p.Type {
 			case "list":
-				fmt.Fprintf(out, "\tif len(s.%s) == 0 {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tinvalid = append(invalid, \"%s\")\n", p.SetterName())
-				fmt.Fprintf(out, "\t}\n")
+				pn("\tif len(s.%s) == 0 {", p.VariableName())
+				pn("\t\tinvalid = append(invalid, \"%s\")", p.SetterName())
+				pn("\t}")
 			case "string", "text", "enum":
-				fmt.Fprintf(out, "\tif s.%s == \"\" {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tinvalid = append(invalid, \"%s\")\n", p.SetterName())
-				fmt.Fprintf(out, "\t}\n")
+				pn("\tif s.%s == \"\" {", p.VariableName())
+				pn("\t\tinvalid = append(invalid, \"%s\")", p.SetterName())
+				pn("\t}")
 			}
 		}
 	}
@@ -346,188 +399,185 @@ func (api *Api) writeValidate() {
 		if p.Required {
 			switch p.Type {
 			case "list":
-				fmt.Fprintf(out, "\tif len(s.%s) == 0 {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tinvalid = append(invalid, \"%s\")\n", p.SetterName())
-				fmt.Fprintf(out, "\t}\n")
+				pn("\tif len(s.%s) == 0 {", p.VariableName())
+				pn("\t\tinvalid = append(invalid, \"%s\")", p.SetterName())
+				pn("\t}")
 			case "string", "text", "enum":
-				fmt.Fprintf(out, "\tif s.%s == \"\" {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tinvalid = append(invalid, \"%s\")\n", p.SetterName())
-				fmt.Fprintf(out, "\t}\n")
+				pn("\tif s.%s == \"\" {", p.VariableName())
+				pn("\t\tinvalid = append(invalid, \"%s\")", p.SetterName())
+				pn("\t}")
 			}
 		}
 	}
 	if api.Body != nil && api.Body.Required {
-		fmt.Fprintf(out, "\tif s.bodyString == \"\" && s.bodyJson == nil {\n")
-		fmt.Fprintf(out, "\t\tinvalid = append(invalid, \"BodyJson\")\n")
-		fmt.Fprintf(out, "\t}\n")
+		pn("\tif s.bodyString == \"\" && s.bodyJson == nil {")
+		pn("\t\tinvalid = append(invalid, \"BodyJson\")")
+		pn("\t}")
 	}
-	fmt.Fprintf(out, "\tif len(invalid) > 0 {\n")
-	fmt.Fprintf(out, "\t\treturn fmt.Errorf(\"missing required fields: %%v\", invalid)\n")
-	fmt.Fprintf(out, "\t}\n")
-	fmt.Fprintf(out, "\treturn nil\n")
-	fmt.Fprintf(out, "}\n\n")
+	pn("\tif len(invalid) > 0 {")
+	pn("\t\treturn fmt.Errorf(\"missing required fields: %%v\", invalid)")
+	pn("\t}")
+	pn("\treturn nil")
+	pn("}\n")
 }
 
 func (api *Api) writeBuildURL() {
-	fmt.Fprintf(out, "// buildURL builds the URL for the operation.\n")
-	fmt.Fprintf(out, "func (s *%s) buildURL() (string, error) {\n", api.ServiceName())
+	_, pn := api.p, api.pn
+
+	pn("// buildURL builds the URL for the operation.")
+	pn("func (s *%s) buildURL() (string, url.Values, error) {", api.ServiceName())
 
 	/*
 		if len(api.URL.Paths) == 0 {
-			fmt.Fprintf(out, "\turls := `%s`\n", api.URL.Path)
+			pn("\turls := `%s`", api.URL.Path)
 		} else {
-			fmt.Fprintf(out, "\turls := `/`\n", api.URL.Paths[len(api.URL.Paths)-1])
+			pn("\turls := `/`", api.URL.Paths[len(api.URL.Paths)-1])
 		}
 	*/
 
 	if len(api.URL.Parts) > 0 {
-		fmt.Fprintf(out, "\t// Build URL\n")
-		fmt.Fprintf(out, "\turls, err := uritemplates.Expand(\"%s\", map[string]string{\n", api.URL.Path)
+		pn("\t// Build URL")
+		pn("\tpath, err := uritemplates.Expand(\"%s\", map[string]string{", api.URL.Path)
 		for _, p := range api.URL.Parts {
 			switch p.Type {
 			case "list":
-				fmt.Fprintf(out, "\t\t\"%s\":\tstrings.Join(s.%s, \",\"),\n", p.Name, p.VariableName())
+				pn("\t\t\"%s\":\tstrings.Join(s.%s, \",\"),", p.Name, p.VariableName())
 			default:
-				fmt.Fprintf(out, "\t\t\"%s\":\ts.%s,\n", p.Name, p.VariableName())
+				pn("\t\t\"%s\":\ts.%s,", p.Name, p.VariableName())
 			}
 		}
-		fmt.Fprintf(out, "\t})\n")
-		fmt.Fprintf(out, "\tif err != nil {\n")
-		fmt.Fprintf(out, "\t\treturn \"\", err\n")
-		fmt.Fprintf(out, "\t}\n\n")
+		pn("\t})")
+		pn("\tif err != nil {")
+		pn("\t\treturn \"\", url.Values{}, err")
+		pn("\t}\n")
 	} else {
-		fmt.Fprintf(out, "\t// Build URL\n")
-		fmt.Fprintf(out, "\turls := \"%s\"\n\n", api.URL.Path)
+		pn("\t// Build URL path")
+		pn("\tpath := \"%s\"\n", api.URL.Path)
 	}
 
 	if len(api.URL.Params) > 0 {
-		fmt.Fprintf(out, "\t// Add query string parameters\n")
-		fmt.Fprintf(out, "\tparams := url.Values{}\n")
+		pn("\t// Add query string parameters")
+		pn("\tparams := url.Values{}")
 		for _, p := range api.URL.Params {
 			switch p.Type {
 			case "boolean":
 				if !p.Required {
-					fmt.Fprintf(out, "\tif s.%s != nil {\n", p.VariableName())
-					fmt.Fprintf(out, "\t\tparams.Set(\"%s\", fmt.Sprintf(\"%%v\", *s.%s))\n", p.Name, p.VariableName())
-					fmt.Fprintf(out, "\t}\n")
+					pn("\tif s.%s != nil {", p.VariableName())
+					pn("\t\tparams.Set(\"%s\", fmt.Sprintf(\"%%v\", *s.%s))", p.Name, p.VariableName())
+					pn("\t}")
 				} else {
-					fmt.Fprintf(out, "\tif s.%s {\n", p.VariableName())
-					fmt.Fprintf(out, "\t\tparams.Set(\"%s\", \"1\")\n", p.Name)
-					fmt.Fprintf(out, "\t} else {\n")
-					fmt.Fprintf(out, "\t\tparams.Set(\"%s\", \"0\")\n", p.Name)
-					fmt.Fprintf(out, "\t}\n")
+					pn("\tif s.%s {", p.VariableName())
+					pn("\t\tparams.Set(\"%s\", \"1\")", p.Name)
+					pn("\t} else {")
+					pn("\t\tparams.Set(\"%s\", \"0\")", p.Name)
+					pn("\t}")
 				}
 			case "enum":
-				fmt.Fprintf(out, "\tif s.%s != \"\" {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.Name, p.VariableName())
-				fmt.Fprintf(out, "\t}\n")
+				pn("\tif s.%s != \"\" {", p.VariableName())
+				pn("\t\tparams.Set(\"%s\", s.%s)", p.Name, p.VariableName())
+				pn("\t}")
 			case "time", "duration":
-				fmt.Fprintf(out, "\tif s.%s != \"\" {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.Name, p.VariableName())
-				fmt.Fprintf(out, "\t}\n")
+				pn("\tif s.%s != \"\" {", p.VariableName())
+				pn("\t\tparams.Set(\"%s\", s.%s)", p.Name, p.VariableName())
+				pn("\t}")
 			case "number":
-				fmt.Fprintf(out, "\tif s.%s != nil {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", fmt.Sprintf(\"%%v\", s.%s))\n", p.Name, p.VariableName())
-				fmt.Fprintf(out, "\t}\n")
+				pn("\tif s.%s != nil {", p.VariableName())
+				pn("\t\tparams.Set(\"%s\", fmt.Sprintf(\"%%v\", s.%s))", p.Name, p.VariableName())
+				pn("\t}")
 			case "string", "text":
-				fmt.Fprintf(out, "\tif s.%s != \"\" {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.Name, p.VariableName())
-				fmt.Fprintf(out, "\t}\n")
+				pn("\tif s.%s != \"\" {", p.VariableName())
+				pn("\t\tparams.Set(\"%s\", s.%s)", p.Name, p.VariableName())
+				pn("\t}")
 			case "list":
-				fmt.Fprintf(out, "\tif len(s.%s) > 0 {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", strings.Join(s.%s, \",\"))\n", p.Name, p.VariableName())
-				fmt.Fprintf(out, "\t}\n")
+				pn("\tif len(s.%s) > 0 {", p.VariableName())
+				pn("\t\tparams.Set(\"%s\", strings.Join(s.%s, \",\"))", p.Name, p.VariableName())
+				pn("\t}")
 			default:
-				fmt.Fprintf(out, "\tif s.%s != nil {\n", p.VariableName())
-				fmt.Fprintf(out, "\t\tparams.Set(\"%s\", s.%s)\n", p.Name, p.VariableName())
-				fmt.Fprintf(out, "\t}\n")
+				pn("\tif s.%s != nil {", p.VariableName())
+				pn("\t\tparams.Set(\"%s\", s.%s)", p.Name, p.VariableName())
+				pn("\t}")
 			}
 		}
-		fmt.Fprintf(out, "\tif len(params) > 0 {\n")
-		fmt.Fprintf(out, "\t\turls += \"?\" + params.Encode()\n")
-		fmt.Fprintf(out, "\t}\n\n")
 	}
-	fmt.Fprintf(out, "\treturn urls, nil\n")
-	fmt.Fprintf(out, "}\n\n")
+	pn("\treturn urls, params, nil")
+	pn("}\n")
 }
 
 func (api *Api) writeDo() {
-	fmt.Fprintf(out, "// Do executes the operation.\n")
-	fmt.Fprintf(out, "func (s *%s) Do() (*%s, error) {\n",
+	_, pn := api.p, api.pn
+
+	pn("// Do executes the operation.")
+	pn("func (s *%s) Do() (*%s, error) {",
 		api.ServiceName(),
 		api.ResponseTypeName(),
 	)
-	fmt.Fprintf(out, "\t// Check pre-conditions\n")
-	fmt.Fprintf(out, "\tif err := s.Validate(); err != nil {\n")
-	fmt.Fprintf(out, "\t\treturn nil, err\n")
-	fmt.Fprintf(out, "\t}\n\n")
+	pn("\t// Check pre-conditions")
+	pn("\tif err := s.Validate(); err != nil {")
+	pn("\t\treturn nil, err")
+	pn("\t}\n")
 
-	fmt.Fprintf(out, "\t// Get URL for request\n")
-	fmt.Fprintf(out, "\turls, err := s.buildURL()\n")
-	fmt.Fprintf(out, "\tif err != nil {\n")
-	fmt.Fprintf(out, "\t\treturn nil, err\n")
-	fmt.Fprintf(out, "\t}\n\n")
+	pn("\t// Get URL for request")
+	pn("\tpath, params, err := s.buildURL()")
+	pn("\tif err != nil {")
+	pn("\t\treturn nil, err")
+	pn("\t}\n")
 
 	// Request
 	if len(api.Methods) == 0 {
 		log.Fatalf("no HTTP methods found")
 	}
-	fmt.Fprintf(out, "\t// Setup HTTP request\n")
-	fmt.Fprintf(out, "\treq, err := s.client.NewRequest(\"%s\", urls)\n", api.Methods[0])
-	fmt.Fprintf(out, "\tif err != nil {\n")
-	fmt.Fprintf(out, "\t\treturn nil, err\n")
-	fmt.Fprintf(out, "\t}\n\n")
 
 	// Set body
 	if api.Body != nil {
-		fmt.Fprintf(out, "\t// Setup HTTP request body\n")
-		fmt.Fprintf(out, "\tif s.bodyJson != nil {\n")
-		fmt.Fprintf(out, "\t\treq.SetBodyJson(s.bodyJson)\n")
-		fmt.Fprintf(out, "\t} else {\n")
-		fmt.Fprintf(out, "\t\treq.SetBodyString(s.bodyString)\n")
-		fmt.Fprintf(out, "\t}\n\n")
-	}
-
-	// Debug
-	fmt.Fprintf(out, "\t// Debug output?\n")
-	fmt.Fprintf(out, "\tif s.debug {\n")
-	fmt.Fprintf(out, "\t\tout, _ := httputil.DumpRequestOut((*http.Request)(req), true)\n")
-	fmt.Fprintf(out, "\t\tlog.Printf(\"%%s\\n\", string(out))\n")
-	fmt.Fprintf(out, "\t}\n")
-
-	// Get response
-	fmt.Fprintf(out, `
+		pn("\t// Setup HTTP request body")
+		pn("\tvar body interface{}")
+		pn("\tif s.bodyJson != nil {")
+		pn("\t\tbody = s.bodyJson")
+		pn("\t} else {")
+		pn("\t\tbody = s.bodyString")
+		pn("\t}\n")
+		// Get response
+		pn(`
+		// Get HTTP response
+		res, err := s.client.PerformRequest(method, path, params, body)
+		if err != nil {
+			return nil, err
+		}
+`)
+	} else {
+		// Get response for API without body
+		var method = ""
+		if len(api.Methods) != 1 {
+			pn("\t// TODO: Add method here")
+			pn("\tmethod := ...")
+		} else {
+			method = api.Methods[0]
+		}
+		pn(`
 	// Get HTTP response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("` + strings.ToUpper(method) + `", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	// Debug output?
-	if s.debug {
-		out, _ := httputil.DumpResponse(res, true)
-		log.Printf("%%s\n", string(out))
-	}
 `)
+	}
 
 	// Response
-	fmt.Fprintf(out, "\t// Return operation response\n")
-	fmt.Fprintf(out, "\tresp := new(%s)\n", api.ResponseTypeName())
-	fmt.Fprintf(out, "\tif err := json.NewDecoder(res.Body).Decode(resp); err != nil {\n")
-	fmt.Fprintf(out, "\t\treturn nil, err\n")
-	fmt.Fprintf(out, "\t}\n")
-	fmt.Fprintf(out, "\treturn resp, nil\n")
-	fmt.Fprintf(out, "}\n\n")
+	pn("\t// Return operation response")
+	pn("\tret := new(%s)", api.ResponseTypeName())
+	pn("\tif err := json.Unmarshal(res.Body, ret); err != nil {")
+	pn("\t\treturn nil, err")
+	pn("\t}")
+	pn("\treturn ret, nil")
+	pn("}\n")
 }
 
 func (api *Api) writeResponseType() {
-	fmt.Fprintf(out, "// %s is the response of %s.%s.\n", api.ResponseTypeName(), api.ServiceName(), "Do")
-	fmt.Fprintf(out, "type %s struct {\n", api.ResponseTypeName())
-	fmt.Fprintf(out, "}\n\n")
+	_, pn := api.p, api.pn
+
+	pn("// %s is the response of %s.%s.", api.ResponseTypeName(), api.ServiceName(), "Do")
+	pn("type %s struct {", api.ResponseTypeName())
+	pn("}\n")
 }
 
 func (p *ApiPart) VariableName() string {

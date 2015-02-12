@@ -6,5 +6,5 @@ that comes with Elasticsearch.
 
 You need Go 1.4 for this code relies on the `go generate` tool.
 
-Run `go generate -v && gofmt -w .` to generate and format the services.
+Run `make` to generate and format the services.
 
