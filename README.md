@@ -294,7 +294,7 @@ Here's the current API status.
 - [ ] Update indices settings
 - [ ] Get settings
 - [ ] Analyze
-- [ ] Index templates
+- [x] Index templates
 - [ ] Warmers
 - [ ] Status
 - [ ] Indices stats
@@ -327,7 +327,7 @@ on the command line.
 - [ ] Cluster reroute
 - [ ] Cluster update settings
 - [ ] Nodes stats
-- [ ] Nodes info
+- [x] Nodes info
 - [ ] Nodes hot_threads
 - [ ] Nodes shutdown
 
@@ -459,7 +459,7 @@ on the command line.
 ### Scan
 
 Scrolling through documents (e.g. `search_type=scan`) are implemented via
-the `Scroll` and `Scan` services.
+the `Scroll` and `Scan` services. The `ClearScroll` API is implemented as well.
 
 ## How to contribute
 
