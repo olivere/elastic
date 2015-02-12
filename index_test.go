@@ -421,6 +421,12 @@ func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
 		t.Fatalf("expected index exists=%v; got %v", true, indexExists)
 	}
 
+	// Flush
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	// Close index
 	closeIndex, err := client.CloseIndex(testIndexName).Do()
 	if err != nil {
@@ -443,6 +449,12 @@ func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
 	}
 	if !openIndex.Acknowledged {
 		t.Errorf("expected ack for opening index; got: %v", openIndex.Acknowledged)
+	}
+
+	// Flush
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	// Delete index
