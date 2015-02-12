@@ -433,6 +433,13 @@ func (c *Client) Flush() *FlushService {
 	return builder
 }
 
+// Explain computes a score explanation for a query and a specific document.
+func (c *Client) Explain(index, typ, id string) *ExplainService {
+	builder := NewExplainService(c)
+	builder = builder.Index(index).Type(typ).Id(id)
+	return builder
+}
+
 // Bulk is the entry point to mass insert/update/delete documents.
 func (c *Client) Bulk() *BulkService {
 	builder := NewBulkService(c)

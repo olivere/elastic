@@ -268,7 +268,7 @@ Here's the current API status.
 - [ ] Multi term vectors
 - [x] Count
 - [ ] Validate
-- [ ] Explain
+- [x] Explain
 - [x] Search
 - [ ] Search shards
 - [x] Search template
