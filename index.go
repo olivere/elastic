@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -137,18 +136,18 @@ func (b *IndexService) Debug(debug bool) *IndexService {
 
 func (b *IndexService) Do() (*IndexResult, error) {
 	// Build url
-	var urls, method string
+	var path, method string
 	if b.id != "" {
 		// Create document with manual id
 		method = "PUT"
-		urls = "/{index}/{type}/{id}"
+		path = "/{index}/{type}/{id}"
 	} else {
 		// Automatic ID generation
 		// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs-index_.html#index-creation
 		method = "POST"
-		urls = "/{index}/{type}/"
+		path = "/{index}/{type}/"
 	}
-	urls, err := uritemplates.Expand(urls, map[string]string{
+	path, err := uritemplates.Expand(path, map[string]string{
 		"index": b.index,
 		"type":  b._type,
 		"id":    b.id,
@@ -201,43 +200,23 @@ func (b *IndexService) Do() (*IndexResult, error) {
 		ttl string
 	*/
 
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := b.client.NewRequest(method, urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set body
+	// Body
+	var body interface{}
 	if b.bodyJson != nil {
-		req.SetBodyJson(b.bodyJson)
+		body = b.bodyJson
 	} else {
-		req.SetBodyString(b.bodyString)
-	}
-
-	if b.debug {
-		b.client.dumpRequest((*http.Request)(req))
+		body = b.bodyString
 	}
 
 	// Get response
-	res, err := b.client.c.Do((*http.Request)(req))
+	res, err := b.client.PerformRequest(method, path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if b.debug {
-		b.client.dumpResponse(res)
-	}
-
+	// Return result
 	ret := new(IndexResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

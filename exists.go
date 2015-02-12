@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -49,7 +48,7 @@ func (s *ExistsService) Id(id string) *ExistsService {
 
 func (s *ExistsService) Do() (bool, error) {
 	// Build url
-	urls, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
+	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
 		"index": s.index,
 		"type":  s._type,
 		"id":    s.id,
@@ -58,14 +57,8 @@ func (s *ExistsService) Do() (bool, error) {
 		return false, err
 	}
 
-	// Set up a new request
-	req, err := s.client.NewRequest("HEAD", urls)
-	if err != nil {
-		return false, err
-	}
-
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("HEAD", path, nil, nil)
 	if err != nil {
 		return false, err
 	}

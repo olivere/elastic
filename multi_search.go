@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 )
@@ -62,21 +61,12 @@ func (s *MultiSearchService) Debug(debug bool) *MultiSearchService {
 
 func (s *MultiSearchService) Do() (*MultiSearchResult, error) {
 	// Build url
-	urls := "/_msearch"
+	path := "/_msearch"
 
 	// Parameters
 	params := make(url.Values)
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
-	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := s.client.NewRequest("GET", urls)
-	if err != nil {
-		return nil, err
 	}
 
 	// Set body
@@ -98,28 +88,17 @@ func (s *MultiSearchService) Do() (*MultiSearchResult, error) {
 		lines = append(lines, string(header))
 		lines = append(lines, string(body))
 	}
-	req.SetBodyString(strings.Join(lines, "\n") + "\n") // Don't forget trailing \n
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
+	body := strings.Join(lines, "\n") + "\n" // Don't forget trailing \n
 
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return result
 	ret := new(MultiSearchResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

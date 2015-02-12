@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -101,13 +100,13 @@ func (s *ClusterHealthService) Local(local bool) *ClusterHealthService {
 }
 
 // buildURL builds the URL for the operation.
-func (s *ClusterHealthService) buildURL() (string, error) {
+func (s *ClusterHealthService) buildURL() (string, url.Values, error) {
 	// Build URL
-	urls, err := uritemplates.Expand("/_cluster/health/{index}", map[string]string{
+	path, err := uritemplates.Expand("/_cluster/health/{index}", map[string]string{
 		"index": strings.Join(s.indices, ","),
 	})
 	if err != nil {
-		return "", err
+		return "", url.Values{}, err
 	}
 
 	// Add query string parameters
@@ -136,11 +135,8 @@ func (s *ClusterHealthService) buildURL() (string, error) {
 	if s.waitForNodes != "" {
 		params.Set("wait_for_nodes", s.waitForNodes)
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
 
-	return urls, nil
+	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
@@ -156,39 +152,20 @@ func (s *ClusterHealthService) Do() (*ClusterHealthResponse, error) {
 	}
 
 	// Get URL for request
-	urls, err := s.buildURL()
+	path, params, err := s.buildURL()
 	if err != nil {
 		return nil, err
-	}
-
-	// Setup HTTP request
-	req, err := s.client.NewRequest("GET", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Debug output?
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get HTTP response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	// Debug output?
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
 	// Return operation response
 	resp := new(ClusterHealthResponse)
-	if err := json.NewDecoder(res.Body).Decode(resp); err != nil {
+	if err := json.Unmarshal(res.Body, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

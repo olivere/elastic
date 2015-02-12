@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -193,7 +192,7 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 	var err error
 
 	// Build url
-	urls := "/"
+	path := "/"
 
 	// Indices part
 	indexPart := make([]string, 0)
@@ -207,7 +206,7 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 		indexPart = append(indexPart, index)
 	}
 	if len(indexPart) > 0 {
-		urls += strings.Join(indexPart, ",")
+		path += strings.Join(indexPart, ",")
 	}
 
 	// Types part
@@ -222,11 +221,11 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 		typesPart = append(typesPart, typ)
 	}
 	if len(typesPart) > 0 {
-		urls += "/" + strings.Join(typesPart, ",")
+		path += "/" + strings.Join(typesPart, ",")
 	}
 
 	// Search
-	urls += "/_query"
+	path += "/_query"
 
 	// Parameters
 	params := make(url.Values)
@@ -266,43 +265,24 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 	if s.q != "" {
 		params.Set("q", s.q)
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := s.client.NewRequest("DELETE", urls)
-	if err != nil {
-		return nil, err
-	}
 
 	// Set body if there is a query set
+	var body interface{}
 	if s.query != nil {
 		query := make(map[string]interface{})
 		query["query"] = s.query.Source()
-		req.SetBodyJson(query)
-	}
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
+		body = query
 	}
 
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("DELETE", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return result
 	ret := new(DeleteByQueryResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

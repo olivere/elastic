@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -117,7 +116,7 @@ func (s *ScanService) Size(size int) *ScanService {
 
 func (s *ScanService) Do() (*ScanCursor, error) {
 	// Build url
-	urls := "/"
+	path := "/"
 
 	// Indices part
 	indexPart := make([]string, 0)
@@ -131,7 +130,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 		indexPart = append(indexPart, index)
 	}
 	if len(indexPart) > 0 {
-		urls += strings.Join(indexPart, ",")
+		path += strings.Join(indexPart, ",")
 	}
 
 	// Types
@@ -146,11 +145,11 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 		typesPart = append(typesPart, typ)
 	}
 	if len(typesPart) > 0 {
-		urls += "/" + strings.Join(typesPart, ",")
+		path += "/" + strings.Join(typesPart, ",")
 	}
 
 	// Search
-	urls += "/_search"
+	path += "/_search"
 
 	// Parameters
 	params := make(url.Values)
@@ -166,46 +165,22 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	if s.size != nil && *s.size > 0 {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
 
 	// Set body
 	body := make(map[string]interface{})
-
-	// Query
 	if s.query != nil {
 		body["query"] = s.query.Source()
 	}
 
-	req.SetBodyJson(body)
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
-
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return result
 	searchResult := new(SearchResult)
-	if err := json.NewDecoder(res.Body).Decode(searchResult); err != nil {
+	if err := json.Unmarshal(res.Body, searchResult); err != nil {
 		return nil, err
 	}
 
@@ -275,7 +250,7 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 	}
 
 	// Build url
-	urls := "/_search/scroll"
+	path := "/_search/scroll"
 
 	// Parameters
 	params := make(url.Values)
@@ -287,36 +262,18 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 	} else {
 		params.Set("scroll", defaultKeepAlive)
 	}
-	urls += "?" + params.Encode()
-
-	// Set up a new request
-	req, err := c.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
 
 	// Set body
-	req.SetBodyString(c.Results.ScrollId)
-
-	if c.debug {
-		c.client.dumpRequest((*http.Request)(req))
-	}
+	body := c.Results.ScrollId
 
 	// Get response
-	res, err := c.client.c.Do((*http.Request)(req))
+	res, err := c.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if c.debug {
-		c.client.dumpResponse(res)
-	}
-
-	if err := json.NewDecoder(res.Body).Decode(c.Results); err != nil {
+	// Return result
+	if err := json.Unmarshal(res.Body, c.Results); err != nil {
 		return nil, err
 	}
 

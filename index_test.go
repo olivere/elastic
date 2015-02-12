@@ -51,7 +51,18 @@ type tweet struct {
 	Suggest  *SuggestField `json:"suggest_field,omitempty"`
 }
 
-func setupTestClient(t *testing.T) *Client {
+type logger interface {
+	Error(args ...interface{})
+	Errorf(format string, args ...interface{})
+	Fatal(args ...interface{})
+	Fatalf(format string, args ...interface{})
+	Fail()
+	FailNow()
+	Log(args ...interface{})
+	Logf(format string, args ...interface{})
+}
+
+func setupTestClient(t logger) *Client {
 	client, err := NewClient(http.DefaultClient)
 	if err != nil {
 		t.Fatal(err)
@@ -63,7 +74,7 @@ func setupTestClient(t *testing.T) *Client {
 	return client
 }
 
-func setupTestClientAndCreateIndex(t *testing.T) *Client {
+func setupTestClientAndCreateIndex(t logger) *Client {
 	client := setupTestClient(t)
 
 	// Create index
@@ -383,5 +394,66 @@ func TestDocumentLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	}
 	if exists {
 		t.Errorf("expected exists %v; got %v", false, exists)
+	}
+}
+
+func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
+	client := setupTestClient(t)
+
+	// Create index
+	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if createIndex == nil {
+		t.Fatalf("expected response; got: %v", createIndex)
+	}
+	if !createIndex.Acknowledged {
+		t.Errorf("expected ack for creating index; got: %v", createIndex.Acknowledged)
+	}
+
+	// Exists
+	indexExists, err := client.IndexExists(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !indexExists {
+		t.Fatalf("expected index exists=%v; got %v", true, indexExists)
+	}
+
+	// Close index
+	closeIndex, err := client.CloseIndex(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if closeIndex == nil {
+		t.Fatalf("expected response; got: %v", closeIndex)
+	}
+	if !closeIndex.Acknowledged {
+		t.Errorf("expected ack for closing index; got: %v", closeIndex.Acknowledged)
+	}
+
+	// Open index
+	openIndex, err := client.OpenIndex(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if openIndex == nil {
+		t.Fatalf("expected response; got: %v", openIndex)
+	}
+	if !openIndex.Acknowledged {
+		t.Errorf("expected ack for opening index; got: %v", openIndex.Acknowledged)
+	}
+
+	// Delete index
+	deleteIndex, err := client.DeleteIndex(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if deleteIndex == nil {
+		t.Fatalf("expected response; got: %v", deleteIndex)
+	}
+	if !deleteIndex.Acknowledged {
+		t.Errorf("expected ack for deleting index; got %v", deleteIndex.Acknowledged)
 	}
 }

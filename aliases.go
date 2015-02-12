@@ -7,8 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -54,7 +52,7 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 	var err error
 
 	// Build url
-	urls := "/"
+	path := "/"
 
 	// Indices part
 	indexPart := make([]string, 0)
@@ -67,44 +65,23 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 		}
 		indexPart = append(indexPart, index)
 	}
-	urls += strings.Join(indexPart, ",")
+	path += strings.Join(indexPart, ",")
 
-	// TODO Types part
+	// TODO Add types here
 
 	// Search
-	urls += "/_aliases"
-
-	// Set up a new request
-	req, err := s.client.NewRequest("GET", urls)
-	if err != nil {
-		return nil, err
-	}
+	path += "/_aliases"
 
 	// Parameters
 	params := make(url.Values)
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
 
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("GET", path, params, nil)
 	if err != nil {
 		return nil, err
-	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if s.debug {
-		s.client.dumpResponse(res)
 	}
 
 	// {
@@ -118,12 +95,8 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 	//     ...
 	//   },
 	// }
-	bodyBytes, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
 	indexMap := make(map[string]interface{})
-	if err := json.Unmarshal(bodyBytes, &indexMap); err != nil {
+	if err := json.Unmarshal(res.Body, &indexMap); err != nil {
 		return nil, err
 	}
 

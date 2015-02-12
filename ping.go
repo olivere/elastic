@@ -100,6 +100,7 @@ func (s *PingService) Do() (*PingResult, int, error) {
 		method = "GET"
 	}
 
+	// Notice: This service must NOT use PerformRequest!
 	req, err := NewRequest(method, url_)
 	if err != nil {
 		return nil, 0, err

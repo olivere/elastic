@@ -67,6 +67,53 @@ func TestSearchMatchAll(t *testing.T) {
 	}
 }
 
+func BenchmarkSearchMatchAll(b *testing.B) {
+	client := setupTestClientAndCreateIndex(b)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
+	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	for n := 0; n < b.N; n++ {
+		// Match all should return all documents
+		all := NewMatchAllQuery()
+		searchResult, err := client.Search().Index(testIndexName).Query(&all).Do()
+		if err != nil {
+			b.Fatal(err)
+		}
+		if searchResult.Hits == nil {
+			b.Errorf("expected SearchResult.Hits != nil; got nil")
+		}
+		if searchResult.Hits.TotalHits != 3 {
+			b.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 3, searchResult.Hits.TotalHits)
+		}
+		if len(searchResult.Hits.Hits) != 3 {
+			b.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", 3, len(searchResult.Hits.Hits))
+		}
+	}
+}
+
 func TestSearchSorting(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 

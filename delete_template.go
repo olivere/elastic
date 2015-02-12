@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -50,13 +49,13 @@ func (s *DeleteTemplateService) VersionType(versionType string) *DeleteTemplateS
 }
 
 // buildURL builds the URL for the operation.
-func (s *DeleteTemplateService) buildURL() (string, error) {
+func (s *DeleteTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
-	urls, err := uritemplates.Expand("/_search/template/{id}", map[string]string{
+	path, err := uritemplates.Expand("/_search/template/{id}", map[string]string{
 		"id": s.id,
 	})
 	if err != nil {
-		return "", err
+		return "", url.Values{}, err
 	}
 
 	// Add query string parameters
@@ -67,11 +66,8 @@ func (s *DeleteTemplateService) buildURL() (string, error) {
 	if s.versionType != "" {
 		params.Set("version_type", s.versionType)
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
 
-	return urls, nil
+	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
@@ -94,42 +90,23 @@ func (s *DeleteTemplateService) Do() (*DeleteTemplateResponse, error) {
 	}
 
 	// Get URL for request
-	urls, err := s.buildURL()
+	path, params, err := s.buildURL()
 	if err != nil {
 		return nil, err
-	}
-
-	// Setup HTTP request
-	req, err := s.client.NewRequest("DELETE", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Debug output?
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get HTTP response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("DELETE", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	// Debug output?
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
 	// Return operation response
-	resp := new(DeleteTemplateResponse)
-	if err := json.NewDecoder(res.Body).Decode(resp); err != nil {
+	ret := new(DeleteTemplateResponse)
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return ret, nil
 }
 
 // DeleteTemplateResponse is the response of DeleteTemplateService.Do.

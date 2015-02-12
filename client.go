@@ -10,13 +10,14 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
 
 const (
 	// Version is the current version of Elastic.
-	Version = "1.3.1"
+	Version = "1.5.0.dev"
 
 	// defaultUrl to be used as base for Elasticsearch requests.
 	defaultUrl = "http://localhost:9200"
@@ -28,6 +29,10 @@ const (
 var (
 	// ErrNoClient is raised when no active Elasticsearch client is available.
 	ErrNoClient = errors.New("no active client")
+
+	// ErrRetry is raised when a request cannot be executed after the defined
+	// number of retries.
+	ErrRetry = errors.New("cannot connect after several retries")
 )
 
 // Client is an Elasticsearch client. Create one by calling NewClient.
@@ -36,7 +41,10 @@ type Client struct {
 
 	c *http.Client // c is the net/http Client to use for requests
 
-	log *log.Logger // output log
+	logger *log.Logger // standard log
+	tracer *log.Logger // trace log
+
+	maxRetries int // max. number of retries
 
 	mu        sync.Mutex // mutex for the next two fields
 	activeUrl string     // currently active connection url
@@ -65,33 +73,54 @@ func NewClient(client *http.Client, urls ...string) (*Client, error) {
 }
 
 // SetLogger sets the logger for output from Elastic.
-// If you don't set the logger, it will print to os.Stdout.
-func (c *Client) SetLogger(log *log.Logger) {
-	c.log = log
+// If you set it to nil (default), it will not print anything.
+func (c *Client) SetLogger(logger *log.Logger) {
+	c.logger = logger
 }
 
-// printf is a helper to log output.
-func (c *Client) printf(format string, args ...interface{}) {
-	if c.log != nil {
-		c.log.Printf(format, args...)
-	} else {
-		log.Printf(format, args...)
+// SetTracer sets the tracer for debug output from Elastic.
+// If you set it to nil (default), it will not print anything.
+func (c *Client) SetTracer(tracer *log.Logger) {
+	c.tracer = tracer
+}
+
+// SetMaxRetries sets the maximum number a request is retried.
+// If it is <= 0, retrying is disabled (default).
+func (c *Client) SetMaxRetries(maxRetries int) {
+	c.maxRetries = maxRetries
+}
+
+// logf is a helper to log standard output.
+func (c *Client) logf(format string, args ...interface{}) {
+	if c.logger != nil {
+		c.logger.Printf(format, args...)
+	}
+}
+
+// tracef is a helper to log debug output.
+func (c *Client) tracef(format string, args ...interface{}) {
+	if c.tracer != nil {
+		c.tracer.Printf(format, args...)
 	}
 }
 
 // dumpRequest dumps the given HTTP request.
 func (c *Client) dumpRequest(r *http.Request) {
-	out, err := httputil.DumpRequestOut(r, true)
-	if err == nil {
-		c.printf("%s\n", string(out))
+	if c.tracer != nil {
+		out, err := httputil.DumpRequestOut(r, true)
+		if err == nil {
+			c.tracef("%s\n", string(out))
+		}
 	}
 }
 
 // dumpResponse dumps the given HTTP response.
 func (c *Client) dumpResponse(resp *http.Response) {
-	out, err := httputil.DumpResponse(resp, true)
-	if err == nil {
-		c.printf("%s\n", string(out))
+	if c.tracer != nil {
+		out, err := httputil.DumpResponse(resp, true)
+		if err == nil {
+			c.tracef("%s\n", string(out))
+		}
 	}
 }
 
@@ -128,7 +157,9 @@ func (c *Client) pingUrls() {
 		if err == nil {
 			res, err := c.c.Do((*http.Request)(req))
 			if err == nil {
-				defer res.Body.Close()
+				if res.Body != nil {
+					defer res.Body.Close()
+				}
 				if res.StatusCode == http.StatusOK {
 					// Everything okay: Update activeUrl and set hasActive to true.
 					c.mu.Lock()
@@ -141,17 +172,101 @@ func (c *Client) pingUrls() {
 					return
 				}
 			} else {
-				log.Printf("elastic: %v", err)
+				c.logf("elastic: %v", err)
 			}
 		} else {
-			log.Printf("elastic: %v", err)
+			c.logf("elastic: %v", err)
 		}
 	}
 
 	// No client available
 	c.mu.Lock()
-	defer c.mu.Unlock()
 	c.hasActive = false
+	c.mu.Unlock()
+}
+
+// PerformRequest does a HTTP request to Elasticsearch while logging, tracing,
+// marking dead connections, retrying, and reloading connections.
+//
+// It returns a response and an error on failure.
+func (c *Client) PerformRequest(method, path string, params url.Values, body interface{}) (*Response, error) {
+	start := time.Now().UTC()
+	retries := c.maxRetries
+
+	var err error
+	var req *Request
+	var resp *Response
+
+	for {
+		pathWithParams := path
+		if len(params) > 0 {
+			pathWithParams += "?" + params.Encode()
+		}
+
+		// Set up a new request
+		req, err = c.NewRequest(method, pathWithParams)
+		if err != nil {
+			return nil, err
+		}
+
+		// Set body
+		if body != nil {
+			switch b := body.(type) {
+			case string:
+				req.SetBodyString(b)
+				break
+			default:
+				req.SetBodyJson(body)
+				break
+			}
+		}
+
+		// Tracing
+		c.dumpRequest((*http.Request)(req))
+
+		// Get response
+		res, err := c.c.Do((*http.Request)(req))
+		if err != nil {
+			retries -= 1
+			if retries <= 0 {
+				return nil, err
+			}
+			continue // try again
+		}
+		if res.Body != nil {
+			defer res.Body.Close()
+		}
+
+		// Check for errors
+		if err := checkResponse(res); err != nil {
+			retries -= 1
+			if retries <= 0 {
+				return nil, err
+			}
+			continue // try again
+		}
+
+		// Tracing
+		c.dumpResponse(res)
+
+		resp, err = NewResponse(res)
+		if err != nil {
+			return nil, err
+		}
+
+		break
+	}
+
+	if c.logger != nil {
+		duration := time.Now().UTC().Sub(start)
+		c.logf("%s %s [status:%d, request:%.3fs]",
+			strings.ToUpper(method),
+			req.URL,
+			resp.StatusCode,
+			float64(duration/time.Second))
+	}
+
+	return resp, nil
 }
 
 // ElasticsearchVersion returns the version number of Elasticsearch

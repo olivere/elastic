@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -15,21 +14,25 @@ import (
 )
 
 type GetService struct {
-	client     *Client
-	index      string
-	_type      string
-	id         string
-	routing    string
-	preference string
-	fields     []string
-	refresh    *bool
-	realtime   *bool
+	client                        *Client
+	index                         string
+	typ                           string
+	id                            string
+	routing                       string
+	preference                    string
+	fields                        []string
+	refresh                       *bool
+	realtime                      *bool
+	fetchSourceContext            *FetchSourceContext
+	versionType                   string
+	version                       *int64
+	ignoreErrorsOnGeneratedFields *bool
 }
 
 func NewGetService(client *Client) *GetService {
 	builder := &GetService{
 		client: client,
-		_type:  "_all",
+		typ:    "_all",
 	}
 	return builder
 }
@@ -37,7 +40,7 @@ func NewGetService(client *Client) *GetService {
 func (b *GetService) String() string {
 	return fmt.Sprintf("[%v][%v][%v]: routing [%v]",
 		b.index,
-		b._type,
+		b.typ,
 		b.id,
 		b.routing)
 }
@@ -47,8 +50,8 @@ func (b *GetService) Index(index string) *GetService {
 	return b
 }
 
-func (b *GetService) Type(_type string) *GetService {
-	b._type = _type
+func (b *GetService) Type(typ string) *GetService {
+	b.typ = typ
 	return b
 }
 
@@ -92,11 +95,26 @@ func (b *GetService) Realtime(realtime bool) *GetService {
 	return b
 }
 
+func (b *GetService) VersionType(versionType string) *GetService {
+	b.versionType = versionType
+	return b
+}
+
+func (b *GetService) Version(version int64) *GetService {
+	b.version = &version
+	return b
+}
+
+func (b *GetService) IgnoreErrorsOnGeneratedFields(ignore bool) *GetService {
+	b.ignoreErrorsOnGeneratedFields = &ignore
+	return b
+}
+
 func (b *GetService) Do() (*GetResult, error) {
 	// Build url
-	urls, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
+	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
 		"index": b.index,
-		"type":  b._type,
+		"type":  b.typ,
 		"id":    b.id,
 	})
 	if err != nil {
@@ -119,29 +137,31 @@ func (b *GetService) Do() (*GetResult, error) {
 	if b.refresh != nil {
 		params.Add("refresh", fmt.Sprintf("%v", *b.refresh))
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
+	if b.realtime != nil {
+		params.Add("realtime", fmt.Sprintf("%v", *b.realtime))
 	}
-
-	// Set up a new request
-	req, err := b.client.NewRequest("GET", urls)
-	if err != nil {
-		return nil, err
+	if b.ignoreErrorsOnGeneratedFields != nil {
+		params.Add("ignore_errors_on_generated_fields", fmt.Sprintf("%v", *b.ignoreErrorsOnGeneratedFields))
 	}
-
-	// No body in get requests
+	if len(b.fields) > 0 {
+		params.Add("_fields", strings.Join(b.fields, ","))
+	}
+	if b.version != nil {
+		params.Add("version", fmt.Sprintf("%d", *b.version))
+	}
+	if b.versionType != "" {
+		params.Add("version_type", b.versionType)
+	}
 
 	// Get response
-	res, err := b.client.c.Do((*http.Request)(req))
+	res, err := b.client.PerformRequest("GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+
+	// Return result
 	ret := new(GetResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

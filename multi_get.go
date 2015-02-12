@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 )
 
@@ -59,7 +58,7 @@ func (b *MultiGetService) Source() interface{} {
 
 func (b *MultiGetService) Do() (*MultiGetResult, error) {
 	// Build url
-	urls := "/_mget"
+	path := "/_mget"
 
 	params := make(url.Values)
 	if b.realtime != nil {
@@ -71,30 +70,19 @@ func (b *MultiGetService) Do() (*MultiGetResult, error) {
 	if b.refresh != nil {
 		params.Add("refresh", fmt.Sprintf("%v", *b.refresh))
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := b.client.NewRequest("GET", urls)
-	if err != nil {
-		return nil, err
-	}
 
 	// Set body
-	req.SetBodyJson(b.Source())
+	body := b.Source()
 
 	// Get response
-	res, err := b.client.c.Do((*http.Request)(req))
+	res, err := b.client.PerformRequest("GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+
+	// Return result
 	ret := new(MultiGetResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -109,15 +97,13 @@ type MultiGetItem struct {
 	id          string
 	routing     string
 	fields      []string
-	version     int64  // see org.elasticsearch.common.lucene.uid.Versions
+	version     *int64 // see org.elasticsearch.common.lucene.uid.Versions
 	versionType string // see org.elasticsearch.index.VersionType
 	fsc         *FetchSourceContext
 }
 
 func NewMultiGetItem() *MultiGetItem {
-	return &MultiGetItem{
-		version: -3, // MatchAny (see Version below)
-	}
+	return &MultiGetItem{}
 }
 
 func (item *MultiGetItem) Index(index string) *MultiGetItem {
@@ -150,9 +136,9 @@ func (item *MultiGetItem) Fields(fields ...string) *MultiGetItem {
 
 // Version can be MatchAny (-3), MatchAnyPre120 (0), NotFound (-1),
 // or NotSet (-2). These are specified in org.elasticsearch.common.lucene.uid.Versions.
-// The default is MatchAny (-3).
+// The default in Elasticsearch is MatchAny (-3).
 func (item *MultiGetItem) Version(version int64) *MultiGetItem {
-	item.version = version
+	item.version = &version
 	return item
 }
 
@@ -185,13 +171,17 @@ func (item *MultiGetItem) Source() interface{} {
 	if item.fsc != nil {
 		source["_source"] = item.fsc.Source()
 	}
-
 	if item.fields != nil {
 		source["_fields"] = item.fields
 	}
-
 	if item.routing != "" {
 		source["_routing"] = item.routing
+	}
+	if item.version != nil {
+		source["version"] = fmt.Sprintf("%d", *item.version)
+	}
+	if item.versionType != "" {
+		source["version_type"] = item.versionType
 	}
 
 	return source

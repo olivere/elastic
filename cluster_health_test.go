@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"net/url"
 	"testing"
 )
 
@@ -26,43 +27,48 @@ func TestClusterHealth(t *testing.T) {
 
 func TestClusterHealthURLs(t *testing.T) {
 	tests := []struct {
-		Service  *ClusterHealthService
-		Expected string
+		Service        *ClusterHealthService
+		ExpectedPath   string
+		ExpectedParams url.Values
 	}{
 		{
 			Service: &ClusterHealthService{
 				indices: []string{},
 			},
-			Expected: "/_cluster/health/",
+			ExpectedPath: "/_cluster/health/",
 		},
 		{
 			Service: &ClusterHealthService{
 				indices: []string{"twitter"},
 			},
-			Expected: "/_cluster/health/twitter",
+			ExpectedPath: "/_cluster/health/twitter",
 		},
 		{
 			Service: &ClusterHealthService{
 				indices: []string{"twitter", "gplus"},
 			},
-			Expected: "/_cluster/health/twitter%2Cgplus",
+			ExpectedPath: "/_cluster/health/twitter%2Cgplus",
 		},
 		{
 			Service: &ClusterHealthService{
 				indices:       []string{"twitter"},
 				waitForStatus: "yellow",
 			},
-			Expected: "/_cluster/health/twitter?wait_for_status=yellow",
+			ExpectedPath:   "/_cluster/health/twitter",
+			ExpectedParams: url.Values{"wait_for_status": []string{"yellow"}},
 		},
 	}
 
 	for _, test := range tests {
-		got, err := test.Service.buildURL()
+		gotPath, gotParams, err := test.Service.buildURL()
 		if err != nil {
 			t.Fatalf("expected no error; got: %v", err)
 		}
-		if got != test.Expected {
-			t.Errorf("expected URL = %q; got: %q", test.Expected, got)
+		if gotPath != test.ExpectedPath {
+			t.Errorf("expected URL path = %q; got: %q", test.ExpectedPath, gotPath)
+		}
+		if gotParams.Encode() != test.ExpectedParams.Encode() {
+			t.Errorf("expected URL params = %v; got: %v", test.ExpectedParams, gotParams)
 		}
 	}
 }

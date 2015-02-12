@@ -4,9 +4,7 @@
 
 package elastic
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestCount(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)

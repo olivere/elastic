@@ -6,7 +6,8 @@ package elastic
 
 import (
 	"encoding/json"
-	"net/http"
+	"fmt"
+	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -48,42 +49,26 @@ func (b *CreateIndexService) Debug(debug bool) *CreateIndexService {
 
 func (b *CreateIndexService) Do() (*CreateIndexResult, error) {
 	// Build url
-	urls, err := uritemplates.Expand("/{index}/", map[string]string{
+	path, err := uritemplates.Expand("/{index}/", map[string]string{
 		"index": b.index,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Set up a new request
-	req, err := b.client.NewRequest("PUT", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set body
-	req.SetBodyString(b.body)
-
-	if b.debug {
-		b.client.dumpRequest((*http.Request)(req))
+	params := make(url.Values)
+	if b.pretty {
+		params.Set("pretty", fmt.Sprintf("%v", b.pretty))
 	}
 
 	// Get response
-	res, err := b.client.c.Do((*http.Request)(req))
+	res, err := b.client.PerformRequest("PUT", path, params, b.body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if b.debug {
-		b.client.dumpResponse(res)
-	}
 
 	ret := new(CreateIndexResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
