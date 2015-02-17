@@ -22,6 +22,7 @@ type GetService struct {
 	routing    string
 	preference string
 	fields     []string
+	source     []string
 	refresh    *bool
 	realtime   *bool
 }
@@ -82,6 +83,14 @@ func (b *GetService) Fields(fields ...string) *GetService {
 	return b
 }
 
+func (b *GetService) Source(sources ...string) *GetService {
+	if b.source == nil {
+		b.source = make([]string, 0)
+	}
+	b.source = append(b.source, sources...)
+	return b
+}
+
 func (b *GetService) Refresh(refresh bool) *GetService {
 	b.refresh = &refresh
 	return b
@@ -109,6 +118,9 @@ func (b *GetService) Do() (*GetResult, error) {
 	}
 	if len(b.fields) > 0 {
 		params.Add("fields", strings.Join(b.fields, ","))
+	}
+	if len(b.source) > 0 {
+		params.Add("_source", strings.Join(b.source, ","))
 	}
 	if b.routing != "" {
 		params.Add("routing", b.routing)

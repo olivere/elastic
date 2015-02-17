@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"testing"
+	"encoding/json"
 )
 
 func TestGet(t *testing.T) {
@@ -67,5 +68,22 @@ func TestGet(t *testing.T) {
 	}
 	if res.Source != nil {
 		t.Errorf("expected Source == nil; got %v", res.Source)
+	}
+
+	// Get partial document.  In this case only the User field
+	res, err = client.Get().Index(testIndexName).Type("tweet").Id("3").Source("user").Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var tweetRes tweet
+	err = json.Unmarshal(*res.Source, &tweetRes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tweetRes.User != tweet3.User {
+		t.Errorf("expected User = sandrae; got %v", tweetRes.User)
+	}
+	if tweetRes.Message != "" {
+		t.Errorf("expected empty message; got %v", tweetRes.Message)
 	}
 }
