@@ -1,5 +1,10 @@
 package elastic
 
+import (
+	"net/url"
+	"strings"
+)
+
 type FetchSourceContext struct {
 	fetchSource     bool
 	transformSource bool
@@ -46,4 +51,20 @@ func (fsc *FetchSourceContext) Source() interface{} {
 		"includes": fsc.includes,
 		"excludes": fsc.excludes,
 	}
+}
+
+// Query returns the parameters in a form suitable for a URL query string.
+func (fsc *FetchSourceContext) Query() url.Values {
+	params := url.Values{}
+	if !fsc.fetchSource {
+		params.Add("_source", "false")
+		return params
+	}
+	if len(fsc.includes) > 0 {
+		params.Add("_source_include", strings.Join(fsc.includes, ","))
+	}
+	if len(fsc.excludes) > 0 {
+		params.Add("_source_exclude", strings.Join(fsc.excludes, ","))
+	}
+	return params
 }

@@ -56,3 +56,33 @@ func TestFetchSourceContextFetchSourceWithIncludesAndExcludes(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestFetchSourceContextQueryDefaults(t *testing.T) {
+	builder := NewFetchSourceContext(true)
+	values := builder.Query()
+	got := values.Encode()
+	expected := ""
+	if got != expected {
+		t.Errorf("expected %q; got: %q", expected, got)
+	}
+}
+
+func TestFetchSourceContextQueryNoFetchSource(t *testing.T) {
+	builder := NewFetchSourceContext(false)
+	values := builder.Query()
+	got := values.Encode()
+	expected := "_source=false"
+	if got != expected {
+		t.Errorf("expected %q; got: %q", expected, got)
+	}
+}
+
+func TestFetchSourceContextQueryFetchSourceWithIncludesAndExcludes(t *testing.T) {
+	builder := NewFetchSourceContext(true).Include("a", "b").Exclude("c")
+	values := builder.Query()
+	got := values.Encode()
+	expected := "_source_exclude=c&_source_include=a%2Cb"
+	if got != expected {
+		t.Errorf("expected %q; got: %q", expected, got)
+	}
+}

@@ -109,15 +109,13 @@ type MultiGetItem struct {
 	id          string
 	routing     string
 	fields      []string
-	version     int64  // see org.elasticsearch.common.lucene.uid.Versions
+	version     *int64 // see org.elasticsearch.common.lucene.uid.Versions
 	versionType string // see org.elasticsearch.index.VersionType
 	fsc         *FetchSourceContext
 }
 
 func NewMultiGetItem() *MultiGetItem {
-	return &MultiGetItem{
-		version: -3, // MatchAny (see Version below)
-	}
+	return &MultiGetItem{}
 }
 
 func (item *MultiGetItem) Index(index string) *MultiGetItem {
@@ -152,7 +150,7 @@ func (item *MultiGetItem) Fields(fields ...string) *MultiGetItem {
 // or NotSet (-2). These are specified in org.elasticsearch.common.lucene.uid.Versions.
 // The default is MatchAny (-3).
 func (item *MultiGetItem) Version(version int64) *MultiGetItem {
-	item.version = version
+	item.version = &version
 	return item
 }
 
@@ -174,24 +172,28 @@ func (item *MultiGetItem) FetchSource(fetchSourceContext *FetchSourceContext) *M
 func (item *MultiGetItem) Source() interface{} {
 	source := make(map[string]interface{})
 
+	source["_id"] = item.id
+
 	if item.index != "" {
 		source["_index"] = item.index
 	}
 	if item.typ != "" {
 		source["_type"] = item.typ
 	}
-	source["_id"] = item.id
-
 	if item.fsc != nil {
 		source["_source"] = item.fsc.Source()
 	}
-
 	if item.fields != nil {
 		source["_fields"] = item.fields
 	}
-
 	if item.routing != "" {
 		source["_routing"] = item.routing
+	}
+	if item.version != nil {
+		source["_version"] = *item.version
+	}
+	if item.versionType != "" {
+		source["_version_type"] = item.versionType
 	}
 
 	return source

@@ -15,15 +15,19 @@ import (
 )
 
 type GetService struct {
-	client     *Client
-	index      string
-	_type      string
-	id         string
-	routing    string
-	preference string
-	fields     []string
-	refresh    *bool
-	realtime   *bool
+	client                     *Client
+	index                      string
+	_type                      string
+	id                         string
+	routing                    string
+	preference                 string
+	fields                     []string
+	fsc                        *FetchSourceContext
+	refresh                    *bool
+	realtime                   *bool
+	version                    *int64 // see org.elasticsearch.common.lucene.uid.Versions
+	versionType                string // see org.elasticsearch.index.VersionType
+	ignoreErrOnGeneratedFields *bool
 }
 
 func NewGetService(client *Client) *GetService {
@@ -82,6 +86,20 @@ func (b *GetService) Fields(fields ...string) *GetService {
 	return b
 }
 
+func (s *GetService) FetchSource(fetchSource bool) *GetService {
+	if s.fsc == nil {
+		s.fsc = NewFetchSourceContext(fetchSource)
+	} else {
+		s.fsc.SetFetchSource(fetchSource)
+	}
+	return s
+}
+
+func (s *GetService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *GetService {
+	s.fsc = fetchSourceContext
+	return s
+}
+
 func (b *GetService) Refresh(refresh bool) *GetService {
 	b.refresh = &refresh
 	return b
@@ -89,6 +107,22 @@ func (b *GetService) Refresh(refresh bool) *GetService {
 
 func (b *GetService) Realtime(realtime bool) *GetService {
 	b.realtime = &realtime
+	return b
+}
+
+// Version can be MatchAny (-3), MatchAnyPre120 (0), NotFound (-1),
+// or NotSet (-2). These are specified in org.elasticsearch.common.lucene.uid.Versions.
+// The default is MatchAny (-3).
+func (b *GetService) Version(version int64) *GetService {
+	b.version = &version
+	return b
+}
+
+// VersionType can be "internal", "external", "external_gt", "external_gte",
+// or "force". See org.elasticsearch.index.VersionType in Elasticsearch source.
+// It is "internal" by default.
+func (b *GetService) VersionType(versionType string) *GetService {
+	b.versionType = versionType
 	return b
 }
 
@@ -119,6 +153,17 @@ func (b *GetService) Do() (*GetResult, error) {
 	if b.refresh != nil {
 		params.Add("refresh", fmt.Sprintf("%v", *b.refresh))
 	}
+	if b.version != nil {
+		params.Add("_version", fmt.Sprintf("%d", *b.version))
+	}
+	if b.versionType != "" {
+		params.Add("_version_type", b.versionType)
+	}
+	if b.fsc != nil {
+		for k, values := range b.fsc.Query() {
+			params.Add(k, strings.Join(values, ","))
+		}
+	}
 	if len(params) > 0 {
 		urls += "?" + params.Encode()
 	}
@@ -128,8 +173,6 @@ func (b *GetService) Do() (*GetResult, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// No body in get requests
 
 	// Get response
 	res, err := b.client.c.Do((*http.Request)(req))

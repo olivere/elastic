@@ -172,6 +172,16 @@ func TestUpdateViaDocAndUpsert(t *testing.T) {
 func TestUpdateViaScriptIntegration(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
+	// Groovy is disabled for [1.3.8,1.4.0) and 1.4.3+, so skip tests in that case
+	esversion, err := client.ElasticsearchVersion(defaultUrl)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if esversion >= "1.4.3" || (esversion < "1.4.0" && esversion >= "1.3.8") {
+		t.Skip("groovy scripting has been disabled as for [1.3.8,1.4.0) and 1.4.3+")
+		return
+	}
+
 	tweet1 := tweet{User: "olivere", Retweets: 10, Message: "Welcome to Golang and Elasticsearch."}
 
 	// Add a document
