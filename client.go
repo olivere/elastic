@@ -171,6 +171,12 @@ func (c *Client) Ping() *PingService {
 	return NewPingService(c)
 }
 
+// GetMapping returns a service to get the mapping of an index.
+func (c *Client) GetMapping() *GetMappingService {
+	builder := NewGetMappingService(c)
+	return builder
+}
+
 // CreateIndex returns a service to create a new index.
 func (c *Client) CreateIndex(name string) *CreateIndexService {
 	builder := NewCreateIndexService(c)
