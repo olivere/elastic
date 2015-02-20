@@ -27,6 +27,7 @@ type SearchService struct {
 	preference   string
 	types        []string
 	debug        bool
+	useNumber    bool
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -38,6 +39,7 @@ func NewSearchService(client *Client) *SearchService {
 		searchSource: NewSearchSource(),
 		debug:        false,
 		pretty:       false,
+		useNumber:    false,
 	}
 	return builder
 }
@@ -106,6 +108,13 @@ func (s *SearchService) Pretty(pretty bool) *SearchService {
 // when calling Do.
 func (s *SearchService) Debug(debug bool) *SearchService {
 	s.debug = debug
+	return s
+}
+
+// UseNumber enables the caller to unmarshal a number into an interface{}
+// as a Number instead of as a float64 when calling Do.
+func (s *SearchService) UseNumber(useNumber bool) *SearchService {
+	s.useNumber = useNumber
 	return s
 }
 
@@ -360,7 +369,14 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	}
 
 	ret := new(SearchResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+
+	decoder := json.NewDecoder(res.Body)
+
+	if s.useNumber {
+		decoder.UseNumber()
+	}
+
+	if err := decoder.Decode(ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
