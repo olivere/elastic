@@ -17,8 +17,8 @@ type Response struct {
 	Body json.RawMessage
 }
 
-// NewResponse creates a new response from the HTTP response.
-func NewResponse(res *http.Response) (*Response, error) {
+// newResponse creates a new response from the HTTP response.
+func (c *Client) newResponse(res *http.Response) (*Response, error) {
 	r := &Response{
 		StatusCode: res.StatusCode,
 		Header:     res.Header,
@@ -30,7 +30,7 @@ func NewResponse(res *http.Response) (*Response, error) {
 		}
 		// HEAD requests return a body but no content
 		if len(slurp) > 0 {
-			if err := json.Unmarshal(slurp, &r.Body); err != nil {
+			if err := c.decoder.Decode(slurp, &r.Body); err != nil {
 				return nil, err
 			}
 		}

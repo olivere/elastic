@@ -22,7 +22,6 @@ func NewRequest(method, url string) (*Request, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	req.Header.Add("User-Agent", "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 	req.Header.Add("Accept", "application/json")
 	return (*Request)(req), nil

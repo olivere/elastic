@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestSingleUrl(t *testing.T) {
@@ -190,6 +191,58 @@ func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
 	tgot := tw.String()
 	if tgot == "" {
 		t.Error("expected tracer output; got: %q", tgot)
+	}
+}
+
+func TestSniffNode(t *testing.T) {
+	client, err := NewClient(http.DefaultClient)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ch := make(chan sniffResult, 1)
+	go func() {
+		ch <- client.sniffNode(defaultUrl)
+	}()
+
+	select {
+	case res := <-ch:
+		if len(res.URLs) != 1 {
+			t.Fatalf("expected %d node URL; got: %d", 1, len(res.URLs))
+		}
+		if res.URLs[0] != "http://127.0.0.1:9200" {
+			t.Fatalf("expected node URL %q; got: %q", "http://127.0.0.1:9200", res.URLs[0])
+		}
+		break
+	case <-time.After(2 * time.Second):
+		t.Fatal("expected no timeout in sniff node")
+		break
+	}
+}
+
+func TestSniff(t *testing.T) {
+	client, err := NewClient(http.DefaultClient)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ch := make(chan []string, 1)
+	go func() {
+		ch <- client.sniff()
+	}()
+
+	select {
+	case urls := <-ch:
+		if len(urls) != 1 {
+			t.Fatalf("expected %d URL; got: %d", 1, len(urls))
+		}
+		if urls[0] != "http://127.0.0.1:9200" {
+			t.Fatalf("expected node URL %q; got: %q", "http://127.0.0.1:9200", urls[0])
+		}
+		break
+	case <-time.After(2 * time.Second):
+		t.Fatal("expected no timeout in sniff")
+		break
 	}
 }
 

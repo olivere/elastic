@@ -158,6 +158,8 @@ type NodesInfoNode struct {
 	Build string `json:"build"`
 	// HTTPAddress, e.g. "inet[/127.0.0.1:9200]"
 	HTTPAddress string `json:"http_address"`
+	// HTTPSAddress, e.g. "inet[/127.0.0.1:9200]"
+	HTTPSAddress string `json:"https_address"`
 
 	// Settings of the node, e.g. paths and pidfile.
 	Settings map[string]interface{} `json:"settings"`
