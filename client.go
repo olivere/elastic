@@ -100,7 +100,7 @@ func (c *Client) dumpResponse(resp *http.Response) {
 // is available, ErrNoClient is returned.
 func (c *Client) NewRequest(method, path string) (*Request, error) {
 	c.mu.RLock()
-	c.mu.RUnlock()
+	defer c.mu.RUnlock()
 	if !c.hasActive {
 		return nil, ErrNoClient
 	}
