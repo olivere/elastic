@@ -38,9 +38,9 @@ type Client struct {
 
 	log *log.Logger // output log
 
-	mu        sync.Mutex // mutex for the next two fields
-	activeUrl string     // currently active connection url
-	hasActive bool       // true if we have an active connection
+	mu        sync.RWMutex // mutex for the next two fields
+	activeUrl string       // currently active connection url
+	hasActive bool         // true if we have an active connection
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -99,6 +99,8 @@ func (c *Client) dumpResponse(resp *http.Response) {
 // the base URL to the path. If no active connection to Elasticsearch
 // is available, ErrNoClient is returned.
 func (c *Client) NewRequest(method, path string) (*Request, error) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	if !c.hasActive {
 		return nil, ErrNoClient
 	}
