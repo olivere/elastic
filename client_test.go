@@ -33,8 +33,10 @@ func TestClientWithSingleURL(t *testing.T) {
 	if len(client.conns) == 0 {
 		t.Fatalf("expected at least 1 node in the cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
-	if _, found := findConn(DefaultURL, client.conns...); !found {
-		t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
+	if !isTravis() {
+		if _, found := findConn(DefaultURL, client.conns...); !found {
+			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
+		}
 	}
 }
 
@@ -47,8 +49,10 @@ func TestClientWithMultipleURLs(t *testing.T) {
 	if len(client.conns) != 1 {
 		t.Fatalf("expected exactly 1 node in the local cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
-	if client.conns[0].URL() != DefaultURL {
-		t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
+	if !isTravis() {
+		if client.conns[0].URL() != DefaultURL {
+			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
+		}
 	}
 }
 
@@ -242,7 +246,7 @@ func TestPerformRequestWithLogger(t *testing.T) {
 	}
 
 	got := w.String()
-	pattern := `^LOGGER \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} GET ` + DefaultURL + `/ \[status:200, request:\d+\.\d{3}s\]\n`
+	pattern := `^LOGGER \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} GET http://.*/ \[status:200, request:\d+\.\d{3}s\]\n`
 	matched, err := regexp.MatchString(pattern, got)
 	if err != nil {
 		t.Fatalf("expected log line to match %q; got: %v", pattern, err)
