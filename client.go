@@ -40,7 +40,7 @@ type Client struct {
 
 	mu        sync.RWMutex // mutex for the next two fields
 	activeUrl string       // currently active connection url
-	hasActive bool         // true if we have an active connection
+	HasActive bool         // true if we have an active connection
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -101,7 +101,7 @@ func (c *Client) dumpResponse(resp *http.Response) {
 func (c *Client) NewRequest(method, path string) (*Request, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	if !c.hasActive {
+	if !c.HasActive {
 		return nil, ErrNoClient
 	}
 	return NewRequest(method, c.activeUrl+path)
@@ -120,7 +120,7 @@ func (c *Client) pinger() {
 
 // pingUrls iterates through all client URLs. It checks if the client
 // is available. It takes the first one available and saves its URL
-// in activeUrl. If no client is available, hasActive is set to false
+// in activeUrl. If no client is available, HasActive is set to false
 // and NewRequest will fail.
 func (c *Client) pingUrls() {
 	for _, url_ := range c.urls {
@@ -132,14 +132,14 @@ func (c *Client) pingUrls() {
 			if err == nil {
 				defer res.Body.Close()
 				if res.StatusCode == http.StatusOK {
-					// Everything okay: Update activeUrl and set hasActive to true.
+					// Everything okay: Update activeUrl and set HasActive to true.
 					c.mu.Lock()
 					defer c.mu.Unlock()
 					if c.activeUrl != "" && c.activeUrl != url_ {
 						log.Printf("elastic: switched connection from %s to %s", c.activeUrl, url_)
 					}
 					c.activeUrl = url_
-					c.hasActive = true
+					c.HasActive = true
 					return
 				}
 			} else {
@@ -153,7 +153,7 @@ func (c *Client) pingUrls() {
 	// No client available
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.hasActive = false
+	c.HasActive = false
 }
 
 // ElasticsearchVersion returns the version number of Elasticsearch
