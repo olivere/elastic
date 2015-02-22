@@ -42,8 +42,8 @@ func TestFindingActiveClient(t *testing.T) {
 	if len(client.urls) != 2 {
 		t.Fatalf("expected 2 default client urls, got: %v", client.urls)
 	}
-	if !client.hasActive {
-		t.Errorf("expected to have active connection, got: %v", client.hasActive)
+	if !client.HasActive {
+		t.Errorf("expected to have active connection, got: %v", client.HasActive)
 	}
 	expected := "http://localhost:9200"
 	if client.activeUrl != expected {
@@ -59,8 +59,8 @@ func TestFindingNoActiveClient(t *testing.T) {
 	if len(client.urls) != 2 {
 		t.Fatalf("expected 2 default client urls, got: %v", client.urls)
 	}
-	if client.hasActive {
-		t.Errorf("expected to not have an active connection, got: %v", client.hasActive)
+	if client.HasActive {
+		t.Errorf("expected to not have an active connection, got: %v", client.HasActive)
 	}
 	if client.activeUrl != "" {
 		t.Errorf("expected no active url, got: %v", client.activeUrl)
