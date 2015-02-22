@@ -11,81 +11,178 @@ import (
 	"time"
 )
 
-func TestSingleUrl(t *testing.T) {
+func findConn(s string, slice ...*conn) (int, bool) {
+	for i, t := range slice {
+		if s == t.URL() {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+// -- NewClient --
+
+func TestClientWithSingleURL(t *testing.T) {
 	client, err := NewClient(http.DefaultClient)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(client.urls) != 1 {
-		t.Fatalf("expected 1 default client url, got: %v", client.urls)
+	// Two things should happen here:
+	// 1. The client starts sniffing the cluster on DefaultURL
+	// 2. The sniffing process should find (at least) one node in the cluster, i.e. the DefaultURL
+	if len(client.conns) == 0 {
+		t.Fatalf("expected at least 1 node in the cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
-	if client.urls[0] != defaultUrl {
-		t.Errorf("expected default client url of %s, got: %s", defaultUrl, client.urls[0])
+	if _, found := findConn(DefaultURL, client.conns...); !found {
+		t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
 	}
 }
 
-func TestMultipleUrls(t *testing.T) {
+func TestClientWithMultipleURLs(t *testing.T) {
 	client, err := NewClient(http.DefaultClient, "http://localhost:9200", "http://localhost:9201")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(client.urls) != 2 {
-		t.Fatalf("expected 2 default client urls, got: %v", client.urls)
+	// The client should sniff both URLs, but only localhost:9200 should return nodes.
+	if len(client.conns) != 1 {
+		t.Fatalf("expected exactly 1 node in the local cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
-	if client.urls[0] != "http://localhost:9200" {
-		t.Errorf("expected 1st client url of %s, got: %s", "http://localhost:9200", client.urls[0])
-	}
-	if client.urls[1] != "http://localhost:9201" {
-		t.Errorf("expected 2nd client url of %s, got: %s", "http://localhost:9201", client.urls[0])
+	if client.conns[0].URL() != DefaultURL {
+		t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
 	}
 }
 
-func TestFindingActiveClient(t *testing.T) {
+func TestClientSniffSuccess(t *testing.T) {
 	client, err := NewClient(http.DefaultClient, "http://localhost:19200", "http://localhost:9200")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(client.urls) != 2 {
-		t.Fatalf("expected 2 default client urls, got: %v", client.urls)
-	}
-	if !client.hasActive {
-		t.Errorf("expected to have active connection, got: %v", client.hasActive)
-	}
-	expected := "http://localhost:9200"
-	if client.activeUrl != expected {
-		t.Errorf("expected active url to be %s, got: %v", expected, client.activeUrl)
+	// The client should sniff both URLs, but only localhost:9200 should return nodes.
+	if len(client.conns) != 1 {
+		t.Fatalf("expected exactly 1 node in the local cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
 }
 
-func TestFindingNoActiveClient(t *testing.T) {
-	client, err := NewClient(http.DefaultClient, "http://localhost:19200", "http://localhost:19201")
+func TestClientSniffFailure(t *testing.T) {
+	_, err := NewClient(http.DefaultClient, "http://localhost:19200", "http://localhost:19201")
+	if err == nil {
+		t.Fatalf("expected cluster to fail with no nodes found")
+	}
+}
+
+// -- Start and stop --
+
+func TestClientStartAndStop(t *testing.T) {
+	client, err := NewClient(http.DefaultClient)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(client.urls) != 2 {
-		t.Fatalf("expected 2 default client urls, got: %v", client.urls)
+
+	running := client.IsRunning()
+	if !running {
+		t.Fatalf("expected background processes to run; got: %v", running)
 	}
-	if client.hasActive {
-		t.Errorf("expected to not have an active connection, got: %v", client.hasActive)
+
+	// Stop
+	client.Stop()
+	running = client.IsRunning()
+	if running {
+		t.Fatalf("expected background processes to be stopped; got: %v", running)
 	}
-	if client.activeUrl != "" {
-		t.Errorf("expected no active url, got: %v", client.activeUrl)
+
+	// Stop again => no-op
+	client.Stop()
+	running = client.IsRunning()
+	if running {
+		t.Fatalf("expected background processes to be stopped; got: %v", running)
 	}
-	req, err := client.NewRequest("HEAD", "/")
-	if err != ErrNoClient {
-		t.Errorf("expected ErrNoClient, got: %v", err)
+
+	// Start
+	client.Start()
+	running = client.IsRunning()
+	if !running {
+		t.Fatalf("expected background processes to run; got: %v", running)
 	}
-	if req != nil {
-		t.Errorf("expected no request, got: %v", req)
+
+	// Start again => no-op
+	client.Start()
+	running = client.IsRunning()
+	if !running {
+		t.Fatalf("expected background processes to run; got: %v", running)
 	}
 }
+
+// -- Sniffing --
+
+func TestClientSniffNode(t *testing.T) {
+	client, err := NewClient(http.DefaultClient)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ch := make(chan []*conn)
+	go func() { ch <- client.sniffNode(DefaultURL) }()
+
+	select {
+	case nodes := <-ch:
+		if len(nodes) != 1 {
+			t.Fatalf("expected %d nodes; got: %d", 1, len(nodes))
+		}
+		pattern := `http:\/\/[\d\.]+:9200`
+		matched, err := regexp.MatchString(pattern, nodes[0].URL())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !matched {
+			t.Fatalf("expected node URL pattern %q; got: %q", pattern, nodes[0].URL())
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("expected no timeout in sniff node")
+		break
+	}
+}
+
+func TestClientSniffOnDefaultURL(t *testing.T) {
+	client, _ := NewClient(http.DefaultClient)
+	if client == nil {
+		t.Fatal("no client returned")
+	}
+
+	ch := make(chan error, 1)
+	go func() {
+		ch <- client.sniff(DefaultURL)
+	}()
+
+	select {
+	case err := <-ch:
+		if err != nil {
+			t.Fatalf("expected sniff to succeed; got: %v", err)
+		}
+		if len(client.conns) != 1 {
+			t.Fatalf("expected %d nodes; got: %d", 1, len(client.conns))
+		}
+		pattern := `http:\/\/[\d\.]+:9200`
+		matched, err := regexp.MatchString(pattern, client.conns[0].URL())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !matched {
+			t.Fatalf("expected node URL pattern %q; got: %q", pattern, client.conns[0].URL())
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("expected no timeout in sniff")
+		break
+	}
+}
+
+// -- ElasticsearchVersion --
 
 func TestElasticsearchVersion(t *testing.T) {
 	client, err := NewClient(http.DefaultClient)
 	if err != nil {
 		t.Fatal(err)
 	}
-	version, err := client.ElasticsearchVersion(defaultUrl)
+	version, err := client.ElasticsearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,6 +190,8 @@ func TestElasticsearchVersion(t *testing.T) {
 		t.Errorf("expected a version number, got: %q", version)
 	}
 }
+
+// -- PerformRequest --
 
 func TestPerformRequest(t *testing.T) {
 	client, err := NewClient(http.DefaultClient)
@@ -143,7 +242,7 @@ func TestPerformRequestWithLogger(t *testing.T) {
 	}
 
 	got := w.String()
-	pattern := `^LOGGER \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} GET ` + defaultUrl + `/ \[status:200, request:\d+\.\d{3}s\]\n`
+	pattern := `^LOGGER \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} GET ` + DefaultURL + `/ \[status:200, request:\d+\.\d{3}s\]\n`
 	matched, err := regexp.MatchString(pattern, got)
 	if err != nil {
 		t.Fatalf("expected log line to match %q; got: %v", pattern, err)
@@ -194,58 +293,6 @@ func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
 	}
 }
 
-func TestSniffNode(t *testing.T) {
-	client, err := NewClient(http.DefaultClient)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	ch := make(chan sniffResult, 1)
-	go func() {
-		ch <- client.sniffNode(defaultUrl)
-	}()
-
-	select {
-	case res := <-ch:
-		if len(res.URLs) != 1 {
-			t.Fatalf("expected %d node URL; got: %d", 1, len(res.URLs))
-		}
-		if res.URLs[0] != "http://127.0.0.1:9200" {
-			t.Fatalf("expected node URL %q; got: %q", "http://127.0.0.1:9200", res.URLs[0])
-		}
-		break
-	case <-time.After(2 * time.Second):
-		t.Fatal("expected no timeout in sniff node")
-		break
-	}
-}
-
-func TestSniff(t *testing.T) {
-	client, err := NewClient(http.DefaultClient)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	ch := make(chan []string, 1)
-	go func() {
-		ch <- client.sniff()
-	}()
-
-	select {
-	case urls := <-ch:
-		if len(urls) != 1 {
-			t.Fatalf("expected %d URL; got: %d", 1, len(urls))
-		}
-		if urls[0] != "http://127.0.0.1:9200" {
-			t.Fatalf("expected node URL %q; got: %q", "http://127.0.0.1:9200", urls[0])
-		}
-		break
-	case <-time.After(2 * time.Second):
-		t.Fatal("expected no timeout in sniff")
-		break
-	}
-}
-
 // failingTransport will run a fail callback if it sees a given URL path prefix.
 type failingTransport struct {
 	path string                                      // path prefix to look for
@@ -291,7 +338,7 @@ func TestPerformRequestWithMaxRetries(t *testing.T) {
 	if res != nil {
 		t.Fatal("expected no response")
 	}
-	// Check if really tried 5 times
+	// Connection should be marked as dead after it failed
 	if numFailedReqs != 5 {
 		t.Errorf("expected %d failed requests; got: %d", 5, numFailedReqs)
 	}

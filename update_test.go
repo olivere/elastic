@@ -193,7 +193,7 @@ func TestUpdateViaDocAndUpsert(t *testing.T) {
 func TestUpdateViaScriptIntegration(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	esversion, err := client.ElasticsearchVersion(defaultUrl)
+	esversion, err := client.ElasticsearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -53,7 +53,11 @@ type tweet struct {
 }
 
 func isTravis() bool {
-	return os.Getenv("TRAVIS_GO_VERSION") != ""
+	return os.Getenv("TRAVIS") != ""
+}
+
+func travisGoVersion() string {
+	return os.Getenv("TRAVIS_GO_VERSION")
 }
 
 type logger interface {

@@ -42,7 +42,7 @@ type PingResult struct {
 func NewPingService(client *Client) *PingService {
 	return &PingService{
 		client:       client,
-		url:          defaultUrl,
+		url:          DefaultURL,
 		httpHeadOnly: false,
 		pretty:       false,
 	}
