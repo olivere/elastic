@@ -75,13 +75,11 @@ type Client struct {
 	scheme                    string        // http or https
 	healthcheckSchedule       time.Duration // schedule for healthcheck of all nodes
 	healthcheckScheduleUpdate chan bool     // notify healthchecker about updated schedule
-	healthcheckStop           chan bool     // notify healthchecker to stop
-	healthcheckStopped        chan bool     // notification from healthchecker that it is stopped
+	healthcheckStop           chan bool     // notify healthchecker to stop, and notify back
 	snifferTimeout            time.Duration // time the sniffer waits for a response from nodes info API
 	snifferSchedule           time.Duration // schedule for sniffing process
 	snifferScheduleUpdate     chan bool     // notify sniffer about updated schedule
-	snifferStop               chan bool     // notify sniffer to stop
-	snifferStopped            chan bool     // notification from sniffer that it is stopped
+	snifferStop               chan bool     // notify sniffer to stop, and notify back
 	decoder                   Decoder       // used to decode data sent from Elasticsearch
 
 	mu        sync.RWMutex // mutex for the next two fields
@@ -136,11 +134,9 @@ func NewClient(client *http.Client, urls ...string) (*Client, error) {
 		healthcheckSchedule:       DefaultHealthcheckSchedule,
 		healthcheckScheduleUpdate: make(chan bool),
 		healthcheckStop:           make(chan bool),
-		healthcheckStopped:        make(chan bool),
 		snifferSchedule:           DefaultSnifferSchedule,
 		snifferScheduleUpdate:     make(chan bool),
 		snifferStop:               make(chan bool),
-		snifferStopped:            make(chan bool),
 		snifferTimeout:            DefaultSnifferTimeout,
 	}
 
@@ -230,10 +226,10 @@ func (c *Client) Stop() {
 	c.configMu.RUnlock()
 
 	c.healthcheckStop <- true
-	<-c.healthcheckStopped
+	<-c.healthcheckStop
 
 	c.snifferStop <- true
-	<-c.snifferStopped
+	<-c.snifferStop
 
 	c.configMu.Lock()
 	c.running = false
@@ -355,7 +351,7 @@ func (c *Client) sniffer() {
 			break
 		case <-c.snifferStop:
 			// we are asked to stop, so we signal back that we're stopping now
-			c.snifferStopped <- true
+			c.snifferStop <- true
 			return
 		case <-ticker.C:
 			c.sniff()
@@ -516,7 +512,7 @@ func (c *Client) healthchecker() {
 			break
 		case <-c.healthcheckStop:
 			// we are asked to stop, so we signal back that we're stopping now
-			c.healthcheckStopped <- true
+			c.healthcheckStop <- true
 			return
 		case <-ticker.C:
 			c.healthcheck()
