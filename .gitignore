@@ -24,4 +24,5 @@ _testmain.go
 /generator
 /cluster-test/cluster-test
 /cluster-test/*.log
+/tmp
 

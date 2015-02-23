@@ -896,6 +896,21 @@ func (c *Client) DeleteTemplate() *DeleteTemplateService {
 	return NewDeleteTemplateService(c)
 }
 
+// GetMapping gets a mapping.
+func (c *Client) GetMapping() *GetMappingService {
+	return NewGetMappingService(c)
+}
+
+// PutMapping registers a mapping.
+func (c *Client) PutMapping() *PutMappingService {
+	return NewPutMappingService(c)
+}
+
+// DeleteMapping deletes a mapping.
+func (c *Client) DeleteMapping() *DeleteMappingService {
+	return NewDeleteMappingService(c)
+}
+
 // ClusterHealth retrieves the health of the cluster.
 func (c *Client) ClusterHealth() *ClusterHealthService {
 	return NewClusterHealthService(c)

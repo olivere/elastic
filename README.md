@@ -287,11 +287,11 @@ Here's the current API status.
 - [x] Delete index
 - [x] Indices exists
 - [x] Open/close index
-- [ ] Put mapping
-- [ ] Get mapping
+- [x] Put mapping
+- [x] Get mapping
 - [ ] Get field mapping
 - [ ] Types exist
-- [ ] Delete mapping
+- [x] Delete mapping
 - [x] Index aliases
 - [ ] Update indices settings
 - [ ] Get settings
