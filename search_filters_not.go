@@ -4,30 +4,21 @@
 
 package elastic
 
-// A filter that matches documents using OR boolean operator
-// on other queries. Can be placed within queries that accept a filter.
+// A filter that filters out matched documents using a query. Can be placed
+// within queries that accept a filter.
 // For details, see:
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-or-filter.html
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-not-filter.html#query-dsl-not-filter.
 type NotFilter struct {
-	filters    []Filter
+	filter     Filter
 	cache      *bool
 	cacheKey   string
 	filterName string
 }
 
-func NewNotFilter(filters ...Filter) NotFilter {
-	f := NotFilter{
-		filters: make([]Filter, 0),
+func NewNotFilter(filter Filter) NotFilter {
+	return NotFilter{
+		filter: filter,
 	}
-	if len(filters) > 0 {
-		f.filters = append(f.filters, filters...)
-	}
-	return f
-}
-
-func (f NotFilter) Add(filter Filter) NotFilter {
-	f.filters = append(f.filters, filter)
-	return f
 }
 
 func (f NotFilter) Cache(cache bool) NotFilter {
@@ -47,21 +38,16 @@ func (f NotFilter) FilterName(filterName string) NotFilter {
 
 func (f NotFilter) Source() interface{} {
 	// {
-	//   "not" : [
-	//      ... filters ...
-	//   ]
+	//   "not" : {
+	//      "filter" : { ... }
+	//   }
 	// }
 
 	source := make(map[string]interface{})
 
 	params := make(map[string]interface{})
 	source["not"] = params
-
-	filters := make([]interface{}, len(f.filters))
-	params["filters"] = filters
-	for i, filter := range f.filters {
-		filters[i] = filter.Source()
-	}
+	params["filter"] = f.filter.Source()
 
 	if f.cache != nil {
 		params["_cache"] = *f.cache
