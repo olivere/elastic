@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -579,6 +580,8 @@ func (c *Client) next() (*conn, error) {
 		}
 	}
 
+	// TODO: As a last resort, we could try to awake any of the failing connections here.
+
 	// We tried hard, but there is no node available
 	return nil, ErrNoClient
 }
@@ -599,8 +602,9 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	var req *Request
 	var resp *Response
 
-	// Maybe make this configurable
-	sleepBetweenTimeouts := 100 * time.Millisecond
+	// We wait between retries, using simple exponential back-off.
+	// TODO: Make this configurable, including the jitter.
+	retryWaitMsec := int64(100 + (rand.Intn(20) - 10))
 
 	for {
 		pathWithParams := path
@@ -646,7 +650,8 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 				conn.MarkAsDead() // mark connection as dead
 				return nil, err
 			}
-			time.Sleep(sleepBetweenTimeouts)
+			time.Sleep(time.Duration(retryWaitMsec) * time.Millisecond)
+			retryWaitMsec += retryWaitMsec
 			continue // try again
 		}
 		if res.Body != nil {
@@ -659,7 +664,8 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 			if retries <= 0 {
 				return nil, err
 			}
-			time.Sleep(sleepBetweenTimeouts)
+			time.Sleep(time.Duration(retryWaitMsec) * time.Millisecond)
+			retryWaitMsec += retryWaitMsec
 			continue // try again
 		}
 
