@@ -23,7 +23,7 @@ var (
 	EOS = errors.New("EOS")
 
 	// No ScrollId
-	ErrNoScrollId = errors.New("elastic: No scrollId")
+	ErrNoScrollId = errors.New("no scrollId")
 )
 
 // ScanService manages a cursor through documents in Elasticsearch.

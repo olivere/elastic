@@ -81,15 +81,15 @@ type Client struct {
 	mu                  sync.RWMutex  // guards the next block
 	urls                []string      // set of URLs passed initially to the client
 	running             bool          // true if the client's background processes are running
-	errorlog            *log.Logger   // error log
-	infolog             *log.Logger   // information log
-	tracelog            *log.Logger   // trace log
+	errorlog            *log.Logger   // error log for critical messages
+	infolog             *log.Logger   // information log for e.g. response times
+	tracelog            *log.Logger   // trace log for debugging
 	maxRetries          int           // max. number of retries
 	scheme              string        // http or https
-	healthcheckEnabled  bool          // healthchecks enabled or disabled (enabled by default)
+	healthcheckEnabled  bool          // healthchecks enabled or disabled
 	healthcheckInterval time.Duration // interval between healthchecks
 	healthcheckStop     chan bool     // notify healthchecker to stop, and notify back
-	snifferEnabled      bool          // sniffer enabled or disabled (enabled by default)
+	snifferEnabled      bool          // sniffer enabled or disabled
 	snifferTimeout      time.Duration // time the sniffer waits for a response from nodes info API
 	snifferInterval     time.Duration // interval between sniffing
 	snifferStop         chan bool     // notify sniffer to stop, and notify back
@@ -104,35 +104,37 @@ type Client struct {
 // Example:
 //
 //   client, err := elastic.NewClient(
-//     elastic.URL("http://localhost:9200", "http://localhost:9201"),
-//     elastic.DisableSniffer(),
-//     elastic.MaxRetries(10))
+//     elastic.SetURL("http://localhost:9200", "http://localhost:9201"),
+//     elastic.SetMaxRetries(10))
 //
 // If no URL is configured, Elastic uses DefaultURL by default.
 //
-// If the sniffer is enabled (it is by default), the new client then sniffes
+// If the sniffer is enabled (the default), the new client then sniffes
 // the cluster via the Nodes Info API
 // (see http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/cluster-nodes-info.html#cluster-nodes-info).
 // It uses the URLs specified by the caller. The caller is responsible
 // to only pass a list of URLs of nodes that belong to the same cluster.
-// This sniffing process is run periodically. Use SnifferInterval to
-// set its interval (default is 15 minutes). In other words: By default,
-// the client will find new nodes in the cluster and remove those that are
-// no longer available every 15 minutes.
+// This sniffing process is run on startup and periodically.
+// Use SnifferInterval to set the interval between two sniffs (default is
+// 15 minutes). In other words: By default, the client will find new nodes
+// in the cluster and remove those that are no longer available every
+// 15 minutes. Disable the sniffer by passing SetSniff(false) to NewClient.
 //
 // The list of nodes found in the sniffing process will be used to make
 // connections to the REST API of Elasticsearch. These nodes are also
 // periodically checked in a shorter time frame. This process is called
 // a health check. By default, a health check is done every 60 seconds.
-// You can set a shorter or longer interval by HealthcheckInterval.
+// You can set a shorter or longer interval by SetHealthcheckInterval.
+// Disabling health checks is not recommended, but can be done by
+// SetHealthcheck(false).
 //
 // Connections are automatically marked as dead or healthy while
-// making requests to Elasticsearch. By default, retries are disabled.
-// If you want to enable retries, set a maximum number of retries with
-// MaxRetries.
+// making requests to Elasticsearch. When a request fails, Elastic will
+// retry up to a maximum number of retries configured with SetMaxRetries.
+// Retries are disabled by default.
 //
-// If no HttpClient is configured, then http.DefaultClient is used by
-// default. You can use your own http.Client with some http.Transport for
+// If no HttpClient is configured, then http.DefaultClient is used.
+// You can use your own http.Client with some http.Transport for
 // advanced scenarios.
 //
 // An error is also returned when some configuration option is invalid or
@@ -207,8 +209,8 @@ func SetHttpClient(httpClient *http.Client) ClientOptionFunc {
 }
 
 // SetURL defines the URL endpoints of the Elasticsearch nodes. Notice that
-// when sniffing is enabled, these URLs are only used to sniff the cluster
-// on startup.
+// when sniffing is enabled, these URLs are used to initially sniff the
+// cluster on startup.
 func SetURL(urls ...string) ClientOptionFunc {
 	return func(c *Client) error {
 		switch len(urls) {
@@ -241,7 +243,7 @@ func SetSniff(enabled bool) ClientOptionFunc {
 	}
 }
 
-// SetSnifferInterval sets the interval between two sniffer procedures.
+// SetSnifferInterval sets the interval between two sniffing processes.
 // The default interval is 15 minutes.
 func SetSnifferInterval(interval time.Duration) ClientOptionFunc {
 	return func(c *Client) error {
@@ -288,8 +290,8 @@ func SetMaxRetries(maxRetries int) func(*Client) error {
 	}
 }
 
-// SetDecoder sets the Decoder to use when decoding JSON data from
-// Elasticsearch. DefaultDecoder is used by default.
+// SetDecoder sets the Decoder to use when decoding data from Elasticsearch.
+// DefaultDecoder is used by default.
 func SetDecoder(decoder Decoder) func(*Client) error {
 	return func(c *Client) error {
 		if decoder != nil {
@@ -301,8 +303,8 @@ func SetDecoder(decoder Decoder) func(*Client) error {
 	}
 }
 
-// SetErrorLog sets the logger for error messages.
-// It is nil by default.
+// SetErrorLog sets the logger for critical messages like nodes joining
+// or leaving the cluster or failing requests. It is nil by default.
 func SetErrorLog(logger *log.Logger) func(*Client) error {
 	return func(c *Client) error {
 		c.errorlog = logger
@@ -310,8 +312,8 @@ func SetErrorLog(logger *log.Logger) func(*Client) error {
 	}
 }
 
-// SetInfoLog sets the logger for errors, warnings, and info messages.
-// It is nil by default.
+// SetInfoLog sets the logger for informational messages, e.g. requests
+// and their response times. It is nil by default.
 func SetInfoLog(logger *log.Logger) func(*Client) error {
 	return func(c *Client) error {
 		c.infolog = logger
@@ -319,8 +321,8 @@ func SetInfoLog(logger *log.Logger) func(*Client) error {
 	}
 }
 
-// SetTraceLog specifies the log.Logger to use for output of HTTP requests and
-// responses. It is nil by default.
+// SetTraceLog specifies the log.Logger to use for output of HTTP requests
+// and responses which is helpful during debugging. It is nil by default.
 func SetTraceLog(logger *log.Logger) func(*Client) error {
 	return func(c *Client) error {
 		c.tracelog = logger
@@ -356,7 +358,7 @@ func (c *Client) IsRunning() bool {
 // periodic health checks. You don't need to run Start when creating a
 // client with NewClient; the background processes are run by default.
 //
-// If the background processes are already running, then this is a no-op.
+// If the background processes are already running, this is a no-op.
 func (c *Client) Start() {
 	c.mu.RLock()
 	if c.running {
@@ -379,7 +381,7 @@ func (c *Client) Start() {
 // i.e. sniffing the cluster periodically and running health checks
 // on the nodes.
 //
-// If the background processes are not running, then this is a no-op.
+// If the background processes are not running, this is a no-op.
 func (c *Client) Stop() {
 	c.mu.RLock()
 	if !c.running {
@@ -401,28 +403,28 @@ func (c *Client) Stop() {
 	c.infof("elastic: client stopped")
 }
 
-// errorf is a helper to log errors.
+// errorf logs to the error log.
 func (c *Client) errorf(format string, args ...interface{}) {
 	if c.errorlog != nil {
 		c.errorlog.Printf(format, args...)
 	}
 }
 
-// infof is a helper to log information.
+// infof logs informational messages.
 func (c *Client) infof(format string, args ...interface{}) {
 	if c.infolog != nil {
 		c.infolog.Printf(format, args...)
 	}
 }
 
-// tracef is a helper to trace e.g. HTTP requests/responses.
+// tracef logs to the trace log.
 func (c *Client) tracef(format string, args ...interface{}) {
 	if c.tracelog != nil {
 		c.tracelog.Printf(format, args...)
 	}
 }
 
-// dumpRequest dumps the given HTTP request.
+// dumpRequest dumps the given HTTP request to the trace log.
 func (c *Client) dumpRequest(r *http.Request) {
 	if c.tracelog != nil {
 		out, err := httputil.DumpRequestOut(r, true)
@@ -432,7 +434,7 @@ func (c *Client) dumpRequest(r *http.Request) {
 	}
 }
 
-// dumpResponse dumps the given HTTP response.
+// dumpResponse dumps the given HTTP response to the trace log.
 func (c *Client) dumpResponse(resp *http.Response) {
 	if c.tracelog != nil {
 		out, err := httputil.DumpResponse(resp, true)
@@ -462,9 +464,7 @@ func (c *Client) sniffer() {
 
 // sniff uses the Node Info API to return the list of nodes in the cluster.
 // It uses the list of URLs passed on startup plus the list of URLs found
-// by a previous sniffing process (if enabled).
-// It is the responsibility of the caller to ensure that all URLs belong
-// to the same cluster.
+// by the preceding sniffing process (if sniffing is enabled).
 //
 // If sniffing is disabled, this is a no-op.
 func (c *Client) sniff() error {
@@ -502,7 +502,7 @@ func (c *Client) sniff() error {
 		return ErrNoClient
 	}
 
-	// Start sniffing on all unique URLs
+	// Start sniffing on all found URLs
 	ch := make(chan []*conn, len(urls))
 	for _, url := range urls {
 		go func(url string) { ch <- c.sniffNode(url) }(url)
@@ -524,7 +524,7 @@ func (c *Client) sniff() error {
 }
 
 // reSniffHostAndPort is used to extract hostname and port from a result
-// from a Nodes Info API.
+// from a Nodes Info API (example: "inet[/127.0.0.1:9200]").
 var reSniffHostAndPort = regexp.MustCompile(`\/([^:]*):([0-9]+)\]`)
 
 // sniffNode sniffs a single node. This method is run as a goroutine
@@ -575,7 +575,6 @@ func (c *Client) sniffNode(url string) []*conn {
 			}
 		}
 	}
-
 	return nodes
 }
 
@@ -587,8 +586,8 @@ func (c *Client) updateConns(conns []*conn) {
 	newConns := make([]*conn, 0)
 
 	// Build up new connections:
-	// If we find an existing connection, take that (including no. of failures etc.).
-	// If we find a new connection, use it.
+	// If we find an existing connection, use that (including no. of failures etc.).
+	// If we find a new connection, add it.
 	for _, conn := range conns {
 		var found bool
 		for _, oldConn := range c.conns {
@@ -683,9 +682,8 @@ func (c *Client) next() (*conn, error) {
 	for {
 		i += 1
 		if i > numConns {
-			break
+			break // we visited all conns: they all seem to be dead
 		}
-
 		c.cindex += 1
 		if c.cindex >= numConns {
 			c.cindex = 0
@@ -696,15 +694,13 @@ func (c *Client) next() (*conn, error) {
 		}
 	}
 
-	// TODO: As a last resort, we could try to awake any of the failing connections here.
+	// TODO: As a last resort, we could try to awake a dead connection here.
 
 	// We tried hard, but there is no node available
 	return nil, ErrNoClient
 }
 
-// PerformRequest does a HTTP request to Elasticsearch while logging, tracing,
-// marking dead connections, retrying, and reloading connections.
-//
+// PerformRequest does a HTTP request to Elasticsearch.
 // It returns a response and an error on failure.
 func (c *Client) PerformRequest(method, path string, params url.Values, body interface{}) (*Response, error) {
 	start := time.Now().UTC()
@@ -747,14 +743,13 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		}
 		if err != nil {
 			c.errorf("elastic: cannot get connection from pool")
-			return nil, err // only retry failed HTTP requests
+			return nil, err
 		}
 
-		// Set up a new request
 		req, err = NewRequest(method, conn.URL()+pathWithParams)
 		if err != nil {
 			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(method), conn.URL()+pathWithParams, err)
-			return nil, err // only retry failed HTTP requests
+			return nil, err
 		}
 
 		// Set body
@@ -778,7 +773,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 			retries -= 1
 			if retries <= 0 {
 				c.errorf("elastic: %s is dead", conn.URL())
-				conn.MarkAsDead() // mark connection as dead
+				conn.MarkAsDead()
 				return nil, err
 			}
 			retried = true
@@ -805,6 +800,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		// Tracing
 		c.dumpResponse(res)
 
+		// We successfully made a request with this connection
 		conn.MarkAsHealthy()
 
 		resp, err = c.newResponse(res)
