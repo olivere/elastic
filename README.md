@@ -6,6 +6,38 @@ Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for [Go](htt
 [![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/olivere/elastic)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/olivere/elastic/master/LICENSE)
 
+## Releases
+
+I'm about to release a new version of Elastic soon. To continue using
+the 1.0 version, all you need to do is to go-get a new URL and switch
+your import path. We're using [gopkg.in](http://gokpg.in/) for that.
+Here's how to use Elastic version 1:
+
+```sh
+$ go get -u gopkg.in/olivere/elastic.v1
+```
+
+In your Go code:
+
+```go
+import "gopkg.in/olivere/elastic.v1"
+```
+
+Once version 2 is ready, you can get it like this:
+
+```sh
+$ go get -u gopkg.in/olivere/elastic.v2
+```
+
+In your Go code:
+
+```go
+import "gopkg.in/olivere/elastic.v2"
+```
+
+If you continue to use `github.com/olivere/elastic` in your code base,
+you are following master. I try to keep master stable, but things might
+break now and then.
 
 ## Status
 
