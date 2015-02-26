@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "1.5.0.dev"
+	Version = "2.0.0.alpha1"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -220,6 +220,15 @@ func SetURL(urls ...string) ClientOptionFunc {
 				c.urls = append(c.urls, url)
 			}
 		}
+		return nil
+	}
+}
+
+// SetScheme sets the HTTP scheme to look for when sniffing (http or https).
+// This is http by default.
+func SetScheme(scheme string) ClientOptionFunc {
+	return func(c *Client) error {
+		c.scheme = scheme
 		return nil
 	}
 }
