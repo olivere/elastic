@@ -20,7 +20,7 @@ This is the source code of the current version of Elastic (version 2).
 
 If you came from an earlier version and found that you cannot update, don't
 worry. Earlier versions are still available. All you need to do is go-get
-it and change your import path. See below for details. Here's what you
+them and change your import path. See below for details. Here's what you
 need to do to use Elastic version 1:
 
 ```sh
@@ -59,9 +59,9 @@ Having said that, I hope you find the project useful.
 
 ## Usage
 
-The first thing you do is to create a Client. The client takes a http.Client
-and (optionally) a list of URLs to the Elasticsearch servers as arguments.
-If the list of URLs is empty, http://localhost:9200 is used by default.
+The first thing you do is to create a Client. The client connects to
+Elasticsearch on http://127.0.0.1:9200 by default.
+
 You typically create one client for your app. Here's a complete example.
 
 ```go
