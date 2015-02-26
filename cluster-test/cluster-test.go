@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"net/http"
 	"os"
 	"runtime"
 	"strings"
@@ -33,14 +32,17 @@ type Tweet struct {
 }
 
 var (
-	nodes       = flag.String("nodes", "", "comma-separated list of ES URLs (e.g. 'http://192.168.2.10:9200,http://192.168.2.11:9200')")
-	n           = flag.Int("n", 5, "number of goroutines that run searches")
-	index       = flag.String("index", "twitter", "name of ES index to use")
-	logfile     = flag.String("log", "", "log file")
-	tracefile   = flag.String("trace", "", "trace file")
-	retries     = flag.Int("retries", 5, "number of retries")
-	healthcheck = flag.Int("healthcheck", -1, "healthcheck schedule (in seconds)")
-	sniffer     = flag.Int("sniffer", -1, "sniffer schedule (in seconds)")
+	nodes         = flag.String("nodes", "", "comma-separated list of ES URLs (e.g. 'http://192.168.2.10:9200,http://192.168.2.11:9200')")
+	n             = flag.Int("n", 5, "number of goroutines that run searches")
+	index         = flag.String("index", "twitter", "name of ES index to use")
+	errorlogfile  = flag.String("errorlog", "", "error log file")
+	infologfile   = flag.String("infolog", "", "info log file")
+	tracelogfile  = flag.String("tracelog", "", "trace log file")
+	retries       = flag.Int("retries", elastic.DefaultMaxRetries, "number of retries")
+	sniff         = flag.Bool("sniff", elastic.DefaultSnifferEnabled, "enable or disable sniffer")
+	sniffer       = flag.Duration("sniffer", elastic.DefaultSnifferInterval, "sniffer interval")
+	healthcheck   = flag.Bool("healthcheck", elastic.DefaultHealthcheckEnabled, "enable or disable healthchecks")
+	healthchecker = flag.Duration("healthchecker", elastic.DefaultHealthcheckInterval, "healthcheck interval")
 )
 
 func main() {
@@ -58,18 +60,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	testcase.SetLogFile(*logfile)
-	testcase.SetTraceFile(*tracefile)
-
-	if *retries > 0 {
-		testcase.SetMaxRetries(*retries)
-	}
-	if *healthcheck > 0 {
-		testcase.SetHealthcheckSchedule(time.Duration(*healthcheck) * time.Second)
-	}
-	if *sniffer > 0 {
-		testcase.SetSnifferSchedule(time.Duration(*sniffer) * time.Second)
-	}
+	testcase.SetErrorLogFile(*errorlogfile)
+	testcase.SetInfoLogFile(*infologfile)
+	testcase.SetTraceLogFile(*tracelogfile)
+	testcase.SetMaxRetries(*retries)
+	testcase.SetHealthcheck(*healthcheck)
+	testcase.SetHealthcheckInterval(*healthchecker)
+	testcase.SetSniff(*sniff)
+	testcase.SetSnifferInterval(*sniffer)
 
 	if err := testcase.Run(*n); err != nil {
 		log.Fatal(err)
@@ -83,15 +81,20 @@ type RunInfo struct {
 }
 
 type TestCase struct {
-	nodes      []string
-	client     *elastic.Client
-	runs       int64
-	failures   int64
-	runCh      chan RunInfo
-	index      string
-	logfile    string
-	tracefile  string
-	maxRetries int
+	nodes               []string
+	client              *elastic.Client
+	runs                int64
+	failures            int64
+	runCh               chan RunInfo
+	index               string
+	errorlogfile        string
+	infologfile         string
+	tracelogfile        string
+	maxRetries          int
+	healthcheck         bool
+	healthcheckInterval time.Duration
+	sniff               bool
+	snifferInterval     time.Duration
 }
 
 func NewTestCase(index string, nodes []string) (*TestCase, error) {
@@ -99,40 +102,47 @@ func NewTestCase(index string, nodes []string) (*TestCase, error) {
 		return nil, errors.New("no index name specified")
 	}
 
-	t := &TestCase{index: index, nodes: nodes, runCh: make(chan RunInfo)}
-
-	client, err := elastic.NewClient(http.DefaultClient, t.nodes...)
-	if err != nil {
-		// Handle error
-		return nil, err
-	}
-	t.client = client
-
-	return t, nil
+	return &TestCase{
+		index: index,
+		nodes: nodes,
+		runCh: make(chan RunInfo),
+	}, nil
 }
 
 func (t *TestCase) SetIndex(name string) {
 	t.index = name
 }
 
-func (t *TestCase) SetLogFile(name string) {
-	t.logfile = name
+func (t *TestCase) SetErrorLogFile(name string) {
+	t.errorlogfile = name
 }
 
-func (t *TestCase) SetTraceFile(name string) {
-	t.tracefile = name
+func (t *TestCase) SetInfoLogFile(name string) {
+	t.infologfile = name
+}
+
+func (t *TestCase) SetTraceLogFile(name string) {
+	t.tracelogfile = name
 }
 
 func (t *TestCase) SetMaxRetries(n int) {
-	t.client.SetMaxRetries(n)
+	t.maxRetries = n
 }
 
-func (t *TestCase) SetHealthcheckSchedule(d time.Duration) {
-	t.client.SetHealthcheckSchedule(d)
+func (t *TestCase) SetSniff(enabled bool) {
+	t.sniff = enabled
 }
 
-func (t *TestCase) SetSnifferSchedule(d time.Duration) {
-	t.client.SetSnifferSchedule(d)
+func (t *TestCase) SetSnifferInterval(d time.Duration) {
+	t.snifferInterval = d
+}
+
+func (t *TestCase) SetHealthcheck(enabled bool) {
+	t.healthcheck = enabled
+}
+
+func (t *TestCase) SetHealthcheckInterval(d time.Duration) {
+	t.healthcheckInterval = d
 }
 
 func (t *TestCase) Run(n int) error {
@@ -160,6 +170,7 @@ func (t *TestCase) monitor() {
 			atomic.AddInt64(&t.runs, 1)
 			if !run.Success {
 				atomic.AddInt64(&t.failures, 1)
+				fmt.Println()
 			}
 			print()
 		case <-time.After(5 * time.Second):
@@ -171,23 +182,49 @@ func (t *TestCase) monitor() {
 }
 
 func (t *TestCase) setup() error {
-	// Log requests to elastic.log
-	if t.logfile != "" {
-		f, err := os.OpenFile(t.logfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
+	var errorlogger *log.Logger
+	if t.errorlogfile != "" {
+		f, err := os.OpenFile(t.errorlogfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
 		if err != nil {
 			return err
 		}
-		t.client.SetLogger(log.New(f, "", log.LstdFlags))
+		errorlogger = log.New(f, "", log.Ltime|log.Lmicroseconds|log.Lshortfile)
+	}
+
+	var infologger *log.Logger
+	if t.infologfile != "" {
+		f, err := os.OpenFile(t.infologfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
+		if err != nil {
+			return err
+		}
+		infologger = log.New(f, "", log.LstdFlags)
 	}
 
 	// Trace request and response details like this
-	if t.tracefile != "" {
-		f, err := os.OpenFile(t.tracefile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
+	var tracelogger *log.Logger
+	if t.tracelogfile != "" {
+		f, err := os.OpenFile(t.tracelogfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
 		if err != nil {
 			return err
 		}
-		t.client.SetTracer(log.New(f, "", log.LstdFlags))
+		tracelogger = log.New(f, "", log.LstdFlags)
 	}
+
+	client, err := elastic.NewClient(
+		elastic.SetURL(t.nodes...),
+		elastic.SetErrorLog(errorlogger),
+		elastic.SetInfoLog(infologger),
+		elastic.SetTraceLog(tracelogger),
+		elastic.SetMaxRetries(t.maxRetries),
+		elastic.SetSniff(t.sniff),
+		elastic.SetSnifferInterval(t.snifferInterval),
+		elastic.SetHealthcheck(t.healthcheck),
+		elastic.SetHealthcheckInterval(t.healthcheckInterval))
+	if err != nil {
+		// Handle error
+		return err
+	}
+	t.client = client
 
 	// Use the IndexExists service to check if a specified index exists.
 	exists, err := t.client.IndexExists(t.index).Do()

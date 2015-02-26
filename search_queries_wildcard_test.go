@@ -6,7 +6,6 @@ package elastic_test
 
 import (
 	"encoding/json"
-	"net/http"
 	"testing"
 
 	"github.com/olivere/elastic"
@@ -14,7 +13,7 @@ import (
 
 func ExampleWildcardQuery() {
 	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient(http.DefaultClient)
+	client, err := elastic.NewClient()
 	if err != nil {
 		// Handle error
 		panic(err)

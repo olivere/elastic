@@ -4,13 +4,10 @@
 
 package elastic
 
-import (
-	"net/http"
-	"testing"
-)
+import "testing"
 
 func TestNodesInfo(t *testing.T) {
-	client, err := NewClient(http.DefaultClient)
+	client, err := NewClient()
 	if err != nil {
 		t.Fatal(err)
 	}

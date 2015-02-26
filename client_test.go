@@ -26,8 +26,26 @@ func findConn(s string, slice ...*conn) (int, bool) {
 
 // -- NewClient --
 
+func TestClientWithoutURL(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Two things should happen here:
+	// 1. The client starts sniffing the cluster on DefaultURL
+	// 2. The sniffing process should find (at least) one node in the cluster, i.e. the DefaultURL
+	if len(client.conns) == 0 {
+		t.Fatalf("expected at least 1 node in the cluster, got: %d (%v)", len(client.conns), client.conns)
+	}
+	if !isTravis() {
+		if _, found := findConn(DefaultURL, client.conns...); !found {
+			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
+		}
+	}
+}
+
 func TestClientWithSingleURL(t *testing.T) {
-	client, err := NewClient(http.DefaultClient)
+	client, err := NewClient(SetURL("http://localhost:9200"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,7 +63,7 @@ func TestClientWithSingleURL(t *testing.T) {
 }
 
 func TestClientWithMultipleURLs(t *testing.T) {
-	client, err := NewClient(http.DefaultClient, "http://localhost:9200", "http://localhost:9201")
+	client, err := NewClient(SetURL("http://localhost:9200", "http://localhost:9201"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +79,7 @@ func TestClientWithMultipleURLs(t *testing.T) {
 }
 
 func TestClientSniffSuccess(t *testing.T) {
-	client, err := NewClient(http.DefaultClient, "http://localhost:19200", "http://localhost:9200")
+	client, err := NewClient(SetURL("http://localhost:19200", "http://localhost:9200"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,16 +90,50 @@ func TestClientSniffSuccess(t *testing.T) {
 }
 
 func TestClientSniffFailure(t *testing.T) {
-	_, err := NewClient(http.DefaultClient, "http://localhost:19200", "http://localhost:19201")
+	_, err := NewClient(SetURL("http://localhost:19200", "http://localhost:19201"))
 	if err == nil {
 		t.Fatalf("expected cluster to fail with no nodes found")
+	}
+}
+
+func TestClientSniffDisabled(t *testing.T) {
+	client, err := NewClient(SetSniff(false), SetURL("http://localhost:9200", "http://localhost:9201"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The client should not sniff, so it should have two connections.
+	if len(client.conns) != 2 {
+		t.Fatalf("expected 2 nodes, got: %d (%v)", len(client.conns), client.conns)
+	}
+	// Make two requests, so that both connections are being used
+	for i := 0; i < len(client.conns); i++ {
+		_, err = client.Flush().Do()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	// The first connection (localhost:9200) should now be okay.
+	if i, found := findConn("http://localhost:9200", client.conns...); !found {
+		t.Fatalf("expected connection to %q to be found", "http://localhost:9200")
+	} else {
+		if conn := client.conns[i]; conn.IsDead() {
+			t.Fatal("expected connection to be alive, but it is dead")
+		}
+	}
+	// The second connection (localhost:9201) should now be marked as dead.
+	if i, found := findConn("http://localhost:9201", client.conns...); !found {
+		t.Fatalf("expected connection to %q to be found", "http://localhost:9201")
+	} else {
+		if conn := client.conns[i]; !conn.IsDead() {
+			t.Fatal("expected connection to be dead, but it is alive")
+		}
 	}
 }
 
 // -- Start and stop --
 
 func TestClientStartAndStop(t *testing.T) {
-	client, err := NewClient(http.DefaultClient)
+	client, err := NewClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -123,7 +175,7 @@ func TestClientStartAndStop(t *testing.T) {
 // -- Sniffing --
 
 func TestClientSniffNode(t *testing.T) {
-	client, err := NewClient(http.DefaultClient)
+	client, err := NewClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -151,14 +203,14 @@ func TestClientSniffNode(t *testing.T) {
 }
 
 func TestClientSniffOnDefaultURL(t *testing.T) {
-	client, _ := NewClient(http.DefaultClient)
+	client, _ := NewClient()
 	if client == nil {
 		t.Fatal("no client returned")
 	}
 
 	ch := make(chan error, 1)
 	go func() {
-		ch <- client.sniff(DefaultURL)
+		ch <- client.sniff()
 	}()
 
 	select {
@@ -183,10 +235,168 @@ func TestClientSniffOnDefaultURL(t *testing.T) {
 	}
 }
 
+// -- Selector --
+
+func TestClientSelectConnHealthy(t *testing.T) {
+	client, err := NewClient(
+		SetSniff(false),
+		SetHealthcheck(false),
+		SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Both are healthy, so we should get both URLs in round-robin
+	client.conns[0].MarkAsHealthy()
+	client.conns[1].MarkAsHealthy()
+
+	// #1: Return 1st
+	c, err := client.next()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.URL() != client.conns[0].URL() {
+		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[0].URL())
+	}
+	// #2: Return 2nd
+	c, err = client.next()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.URL() != client.conns[1].URL() {
+		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[1].URL())
+	}
+	// #3: Return 1st
+	c, err = client.next()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.URL() != client.conns[0].URL() {
+		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[0].URL())
+	}
+}
+
+func TestClientSelectConnHealthyAndDead(t *testing.T) {
+	client, err := NewClient(
+		SetSniff(false),
+		SetHealthcheck(false),
+		SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// 1st is healthy, second is dead
+	client.conns[0].MarkAsHealthy()
+	client.conns[1].MarkAsDead()
+
+	// #1: Return 1st
+	c, err := client.next()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.URL() != client.conns[0].URL() {
+		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[0].URL())
+	}
+	// #2: Return 1st again
+	c, err = client.next()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.URL() != client.conns[0].URL() {
+		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[0].URL())
+	}
+	// #3: Return 1st again and again
+	c, err = client.next()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.URL() != client.conns[0].URL() {
+		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[0].URL())
+	}
+}
+
+func TestClientSelectConnDeadAndHealthy(t *testing.T) {
+	client, err := NewClient(
+		SetSniff(false),
+		SetHealthcheck(false),
+		SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// 1st is dead, 2nd is healthy
+	client.conns[0].MarkAsDead()
+	client.conns[1].MarkAsHealthy()
+
+	// #1: Return 2nd
+	c, err := client.next()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.URL() != client.conns[1].URL() {
+		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[1].URL())
+	}
+	// #2: Return 2nd again
+	c, err = client.next()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.URL() != client.conns[1].URL() {
+		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[1].URL())
+	}
+	// #3: Return 2nd again and again
+	c, err = client.next()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.URL() != client.conns[1].URL() {
+		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[1].URL())
+	}
+}
+
+func TestClientSelectConnAllDead(t *testing.T) {
+	client, err := NewClient(
+		SetSniff(false),
+		SetHealthcheck(false),
+		SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Both are dead
+	client.conns[0].MarkAsDead()
+	client.conns[1].MarkAsDead()
+
+	// #1: Return ErrNoClient
+	c, err := client.next()
+	if err != ErrNoClient {
+		t.Fatal(err)
+	}
+	if c != nil {
+		t.Fatalf("expected no connection; got: %v", c)
+	}
+	// #2: Return ErrNoClient again
+	c, err = client.next()
+	if err != ErrNoClient {
+		t.Fatal(err)
+	}
+	if c != nil {
+		t.Fatalf("expected no connection; got: %v", c)
+	}
+	// #3: Return ErrNoClient again and again
+	c, err = client.next()
+	if err != ErrNoClient {
+		t.Fatal(err)
+	}
+	if c != nil {
+		t.Fatalf("expected no connection; got: %v", c)
+	}
+}
+
 // -- ElasticsearchVersion --
 
 func TestElasticsearchVersion(t *testing.T) {
-	client, err := NewClient(http.DefaultClient)
+	client, err := NewClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -202,7 +412,7 @@ func TestElasticsearchVersion(t *testing.T) {
 // -- PerformRequest --
 
 func TestPerformRequest(t *testing.T) {
-	client, err := NewClient(http.DefaultClient)
+	client, err := NewClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -224,14 +434,13 @@ func TestPerformRequest(t *testing.T) {
 }
 
 func TestPerformRequestWithLogger(t *testing.T) {
-	client, err := NewClient(http.DefaultClient)
+	var w bytes.Buffer
+	out := log.New(&w, "LOGGER ", log.LstdFlags)
+
+	client, err := NewClient(SetInfoLog(out))
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	var w bytes.Buffer
-	out := log.New(&w, "LOGGER ", log.LstdFlags)
-	client.SetLogger(out)
 
 	res, err := client.PerformRequest("GET", "/", nil, nil)
 	if err != nil {
@@ -256,23 +465,21 @@ func TestPerformRequestWithLogger(t *testing.T) {
 		t.Fatalf("expected log line to match %q; got: %v", pattern, err)
 	}
 	if !matched {
-		t.Errorf("expected log line to match %q", pattern)
+		t.Errorf("expected log line to match %q; got: %v", pattern, got)
 	}
 }
 
 func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
-	client, err := NewClient(http.DefaultClient)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	var lw bytes.Buffer
 	lout := log.New(&lw, "LOGGER ", log.LstdFlags)
-	client.SetLogger(lout)
 
 	var tw bytes.Buffer
 	tout := log.New(&tw, "TRACER ", log.LstdFlags)
-	client.SetTracer(tout)
+
+	client, err := NewClient(SetInfoLog(lout), SetTraceLog(tout))
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	res, err := client.PerformRequest("GET", "/", nil, nil)
 	if err != nil {
@@ -292,12 +499,12 @@ func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
 
 	lgot := lw.String()
 	if lgot == "" {
-		t.Error("expected logger output; got: %q", lgot)
+		t.Errorf("expected logger output; got: %q", lgot)
 	}
 
 	tgot := tw.String()
 	if tgot == "" {
-		t.Error("expected tracer output; got: %q", tgot)
+		t.Errorf("expected tracer output; got: %q", tgot)
 	}
 }
 
@@ -331,13 +538,10 @@ func TestPerformRequestWithMaxRetries(t *testing.T) {
 	tr := &failingTransport{path: "/fail", fail: fail}
 	httpClient := &http.Client{Transport: tr}
 
-	client, err := NewClient(httpClient)
+	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(5))
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	// Retry 5 times
-	client.SetMaxRetries(5)
 
 	res, err := client.PerformRequest("GET", "/fail", nil, nil)
 	if err == nil {

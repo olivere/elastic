@@ -25,10 +25,8 @@ func (d *decoder) Decode(data []byte, v interface{}) error {
 }
 
 func TestDecoder(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
-
 	dec := &decoder{}
-	client.SetDecoder(dec)
+	client := setupTestClientAndCreateIndex(t, SetDecoder(dec), SetMaxRetries(0))
 
 	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 
@@ -45,8 +43,7 @@ func TestDecoder(t *testing.T) {
 	if indexResult == nil {
 		t.Errorf("expected result to be != nil; got: %v", indexResult)
 	}
-
-	if dec.N != 1 {
-		t.Errorf("expected %d call of decoder; got: %d", 1, dec.N)
+	if dec.N <= 0 {
+		t.Errorf("expected at least 1 call of decoder; got: %d", dec.N)
 	}
 }

@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"encoding/json"
-	"net/http"
 	"os"
 	"testing"
 	"time"
@@ -71,8 +70,10 @@ type logger interface {
 	Logf(format string, args ...interface{})
 }
 
-func setupTestClient(t logger) *Client {
-	client, err := NewClient(http.DefaultClient)
+func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
+	var err error
+
+	client, err = NewClient(options...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,8 +84,8 @@ func setupTestClient(t logger) *Client {
 	return client
 }
 
-func setupTestClientAndCreateIndex(t logger) *Client {
-	client := setupTestClient(t)
+func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Client {
+	client := setupTestClient(t, options...)
 
 	// Create index
 	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).Do()
