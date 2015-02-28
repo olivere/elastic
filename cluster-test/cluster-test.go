@@ -161,7 +161,7 @@ func (t *TestCase) Run(n int) error {
 
 func (t *TestCase) monitor() {
 	print := func() {
-		fmt.Printf("\033[32m%5d\033[0m; \033[31m%5d\033[0m: %s%s\r", t.runs, t.failures, t.client, "    ")
+		fmt.Printf("\033[32m%5d\033[0m; \033[31m%5d\033[0m: %s%s\r", t.runs, t.failures, t.client.String(), "    ")
 	}
 
 	for {
