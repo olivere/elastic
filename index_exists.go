@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -30,21 +29,15 @@ func (b *IndexExistsService) Index(index string) *IndexExistsService {
 
 func (b *IndexExistsService) Do() (bool, error) {
 	// Build url
-	urls, err := uritemplates.Expand("/{index}", map[string]string{
+	path, err := uritemplates.Expand("/{index}", map[string]string{
 		"index": b.index,
 	})
 	if err != nil {
 		return false, err
 	}
 
-	// Set up a new request
-	req, err := b.client.NewRequest("HEAD", urls)
-	if err != nil {
-		return false, err
-	}
-
 	// Get response
-	res, err := b.client.c.Do((*http.Request)(req))
+	res, err := b.client.PerformRequest("HEAD", path, nil, nil)
 	if err != nil {
 		return false, err
 	}

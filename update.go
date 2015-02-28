@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -53,7 +52,6 @@ type UpdateService struct {
 	doc              interface{}
 	timeout          string
 	pretty           bool
-	debug            bool
 }
 
 // NewUpdateService creates the service to update documents in Elasticsearch.
@@ -216,23 +214,17 @@ func (b *UpdateService) Pretty(pretty bool) *UpdateService {
 	return b
 }
 
-// Debug logs request and response.
-func (b *UpdateService) Debug(debug bool) *UpdateService {
-	b.debug = debug
-	return b
-}
-
 // url returns the URL part of the document request.
-func (b *UpdateService) url() (string, error) {
+func (b *UpdateService) url() (string, url.Values, error) {
 	// Build url
-	urls := "/{index}/{type}/{id}/_update"
-	urls, err := uritemplates.Expand(urls, map[string]string{
+	path := "/{index}/{type}/{id}/_update"
+	path, err := uritemplates.Expand(path, map[string]string{
 		"index": b.index,
 		"type":  b.typ,
 		"id":    b.id,
 	})
 	if err != nil {
-		return "", err
+		return "", url.Values{}, err
 	}
 
 	// Parameters
@@ -271,11 +263,7 @@ func (b *UpdateService) url() (string, error) {
 		params.Set("retry_on_conflict", fmt.Sprintf("%v", *b.retryOnConflict))
 	}
 
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	return urls, nil
+	return path, params, nil
 }
 
 // body returns the body part of the document request.
@@ -317,7 +305,7 @@ func (b *UpdateService) body() (interface{}, error) {
 
 // Do executes the update operation.
 func (b *UpdateService) Do() (*UpdateResult, error) {
-	urls, err := b.url()
+	path, params, err := b.url()
 	if err != nil {
 		return nil, err
 	}
@@ -328,35 +316,15 @@ func (b *UpdateService) Do() (*UpdateResult, error) {
 		return nil, err
 	}
 
-	// Set up a new request
-	req, err := b.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set body
-	req.SetBodyJson(body)
-
-	if b.debug {
-		b.client.dumpRequest((*http.Request)(req))
-	}
-
 	// Get response
-	res, err := b.client.c.Do((*http.Request)(req))
+	res, err := b.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if b.debug {
-		b.client.dumpResponse(res)
-	}
-
+	// Return result
 	ret := new(UpdateResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

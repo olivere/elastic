@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -23,20 +22,15 @@ type BulkService struct {
 	requests []BulkableRequest
 	//replicationType string
 	//consistencyLevel string
-	timeout      string
-	refresh      *bool
-	pretty       bool
-	debug        bool
-	debugOnError bool
+	timeout string
+	refresh *bool
+	pretty  bool
 }
 
 func NewBulkService(client *Client) *BulkService {
 	builder := &BulkService{
-		client:       client,
-		requests:     make([]BulkableRequest, 0),
-		pretty:       false,
-		debug:        false,
-		debugOnError: false,
+		client:   client,
+		requests: make([]BulkableRequest, 0),
 	}
 	return builder
 }
@@ -67,16 +61,6 @@ func (s *BulkService) Refresh(refresh bool) *BulkService {
 
 func (s *BulkService) Pretty(pretty bool) *BulkService {
 	s.pretty = pretty
-	return s
-}
-
-func (s *BulkService) Debug(debug bool) *BulkService {
-	s.debug = debug
-	return s
-}
-
-func (s *BulkService) DebugOnError(debug bool) *BulkService {
-	s.debugOnError = debug
 	return s
 }
 
@@ -121,7 +105,7 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	}
 
 	// Build url
-	urls := "/"
+	path := "/"
 	if s.index != "" {
 		index, err := uritemplates.Expand("{index}", map[string]string{
 			"index": s.index,
@@ -129,7 +113,7 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 		if err != nil {
 			return nil, err
 		}
-		urls += index + "/"
+		path += index + "/"
 	}
 	if s._type != "" {
 		typ, err := uritemplates.Expand("{type}", map[string]string{
@@ -138,9 +122,9 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 		if err != nil {
 			return nil, err
 		}
-		urls += typ + "/"
+		path += typ + "/"
 	}
-	urls += "_bulk"
+	path += "_bulk"
 
 	// Parameters
 	params := make(url.Values)
@@ -153,52 +137,16 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set body
-	req.SetBodyString(body)
-
-	// Debug
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
 
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
-		if s.debugOnError {
-			s.client.dumpRequest((*http.Request)(req))
-			s.client.dumpResponse(res)
-		}
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		if s.debugOnError {
-			s.client.dumpRequest((*http.Request)(req))
-			s.client.dumpResponse(res)
-		}
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	// Debug
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return results
 	ret := new(BulkResponse)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		if s.debugOnError {
-			s.client.dumpResponse(res)
-		}
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 

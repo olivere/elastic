@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -57,7 +56,7 @@ func (s *FlushService) Full(full bool) *FlushService {
 
 func (s *FlushService) Do() (*FlushResult, error) {
 	// Build url
-	urls := "/"
+	path := "/"
 
 	// Indices part
 	if len(s.indices) > 0 {
@@ -71,9 +70,9 @@ func (s *FlushService) Do() (*FlushResult, error) {
 			}
 			indexPart = append(indexPart, index)
 		}
-		urls += strings.Join(indexPart, ",") + "/"
+		path += strings.Join(indexPart, ",") + "/"
 	}
-	urls += "_flush"
+	path += "_flush"
 
 	// Parameters
 	params := make(url.Values)
@@ -83,27 +82,16 @@ func (s *FlushService) Do() (*FlushResult, error) {
 	if s.full != nil {
 		params.Set("full", fmt.Sprintf("%v", *s.full))
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
 
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+
+	// Return result
 	ret := new(FlushResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

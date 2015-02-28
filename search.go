@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -26,7 +25,6 @@ type SearchService struct {
 	routing      string
 	preference   string
 	types        []string
-	debug        bool
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -36,8 +34,6 @@ func NewSearchService(client *Client) *SearchService {
 	builder := &SearchService{
 		client:       client,
 		searchSource: NewSearchSource(),
-		debug:        false,
-		pretty:       false,
 	}
 	return builder
 }
@@ -95,17 +91,9 @@ func (s *SearchService) Types(types ...string) *SearchService {
 	return s
 }
 
-// Pretty enables the caller to indent the JSON output. Use it in combination
-// with Debug to see what Elasticsearch actually returned.
+// Pretty enables the caller to indent the JSON output.
 func (s *SearchService) Pretty(pretty bool) *SearchService {
 	s.pretty = pretty
-	return s
-}
-
-// Debug enables the user to print the output of the search to os.Stdout
-// when calling Do.
-func (s *SearchService) Debug(debug bool) *SearchService {
-	s.debug = debug
 	return s
 }
 
@@ -282,7 +270,7 @@ func (s *SearchService) Fields(fields ...string) *SearchService {
 // Do executes the search and returns a SearchResult.
 func (s *SearchService) Do() (*SearchResult, error) {
 	// Build url
-	urls := "/"
+	path := "/"
 
 	// Indices part
 	indexPart := make([]string, 0)
@@ -295,7 +283,7 @@ func (s *SearchService) Do() (*SearchResult, error) {
 		}
 		indexPart = append(indexPart, index)
 	}
-	urls += strings.Join(indexPart, ",")
+	path += strings.Join(indexPart, ",")
 
 	// Types part
 	if len(s.types) > 0 {
@@ -309,12 +297,12 @@ func (s *SearchService) Do() (*SearchResult, error) {
 			}
 			typesPart = append(typesPart, typ)
 		}
-		urls += "/"
-		urls += strings.Join(typesPart, ",")
+		path += "/"
+		path += strings.Join(typesPart, ",")
 	}
 
 	// Search
-	urls += "/_search"
+	path += "/_search"
 
 	// Parameters
 	params := make(url.Values)
@@ -324,43 +312,22 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	if s.searchType != "" {
 		params.Set("search_type", s.searchType)
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
 
-	// Set up a new request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set body
+	// Perform request
+	var body interface{}
 	if s.source != nil {
-		req.SetBodyJson(s.source)
+		body = s.source
 	} else {
-		req.SetBodyJson(s.searchSource.Source())
+		body = s.searchSource.Source()
 	}
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
-
-	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return search results
 	ret := new(SearchResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

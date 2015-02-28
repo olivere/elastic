@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -22,7 +21,6 @@ type CountService struct {
 	indices []string
 	types   []string
 	query   Query
-	debug   bool
 	pretty  bool
 }
 
@@ -36,8 +34,6 @@ type CountResult struct {
 func NewCountService(client *Client) *CountService {
 	builder := &CountService{
 		client: client,
-		debug:  false,
-		pretty: false,
 	}
 	return builder
 }
@@ -84,16 +80,11 @@ func (s *CountService) Pretty(pretty bool) *CountService {
 	return s
 }
 
-func (s *CountService) Debug(debug bool) *CountService {
-	s.debug = debug
-	return s
-}
-
 func (s *CountService) Do() (int64, error) {
 	var err error
 
 	// Build url
-	urls := "/"
+	path := "/"
 
 	// Indices part
 	indexPart := make([]string, 0)
@@ -107,7 +98,7 @@ func (s *CountService) Do() (int64, error) {
 		indexPart = append(indexPart, index)
 	}
 	if len(indexPart) > 0 {
-		urls += strings.Join(indexPart, ",")
+		path += strings.Join(indexPart, ",")
 	}
 
 	// Types part
@@ -122,57 +113,37 @@ func (s *CountService) Do() (int64, error) {
 		typesPart = append(typesPart, typ)
 	}
 	if len(typesPart) > 0 {
-		urls += "/" + strings.Join(typesPart, ",")
+		path += "/" + strings.Join(typesPart, ",")
 	}
 
 	// Search
-	urls += "/_count"
+	path += "/_count"
 
 	// Parameters
 	params := make(url.Values)
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
 
-	// Set up a new request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return 0, err
-	}
-
-	// Set body if there is a query set
+	// Set body if there is a query specified
+	var body interface{}
 	if s.query != nil {
 		query := make(map[string]interface{})
 		query["query"] = s.query.Source()
-		req.SetBodyJson(query)
-	}
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
+		body = query
 	}
 
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return 0, err
 	}
-	if err := checkResponse(res); err != nil {
-		return 0, err
-	}
-	defer res.Body.Close()
 
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return result
 	ret := new(CountResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return 0, err
 	}
-
 	if ret != nil {
 		return ret.Count, nil
 	}

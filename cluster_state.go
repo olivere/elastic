@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -18,7 +17,6 @@ import (
 // It is documented at http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/cluster-state.html.
 type ClusterStateService struct {
 	client        *Client
-	debug         bool
 	pretty        bool
 	indices       []string
 	metrics       []string
@@ -90,7 +88,7 @@ func (s *ClusterStateService) FlatSettings(flatSettings bool) *ClusterStateServi
 }
 
 // buildURL builds the URL for the operation.
-func (s *ClusterStateService) buildURL() (string, error) {
+func (s *ClusterStateService) buildURL() (string, url.Values, error) {
 	// Build URL
 	metrics := strings.Join(s.metrics, ",")
 	if metrics == "" {
@@ -100,12 +98,12 @@ func (s *ClusterStateService) buildURL() (string, error) {
 	if indices == "" {
 		indices = "_all"
 	}
-	urls, err := uritemplates.Expand("/_cluster/state/{metrics}/{indices}", map[string]string{
+	path, err := uritemplates.Expand("/_cluster/state/{metrics}/{indices}", map[string]string{
 		"metrics": metrics,
 		"indices": indices,
 	})
 	if err != nil {
-		return "", err
+		return "", url.Values{}, err
 	}
 
 	// Add query string parameters
@@ -119,11 +117,8 @@ func (s *ClusterStateService) buildURL() (string, error) {
 	if s.local != nil {
 		params.Set("local", fmt.Sprintf("%v", *s.local))
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
 
-	return urls, nil
+	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
@@ -139,43 +134,23 @@ func (s *ClusterStateService) Do() (*ClusterStateResponse, error) {
 	}
 
 	// Get URL for request
-	urls, err := s.buildURL()
+	path, params, err := s.buildURL()
 	if err != nil {
 		return nil, err
-	}
-
-	// Setup HTTP request
-	req, err := s.client.NewRequest("GET", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Debug output?
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get HTTP response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	// Debug output?
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
 	// Return operation response
-	resp := new(ClusterStateResponse)
-
-	if err := json.NewDecoder(res.Body).Decode(resp); err != nil {
+	ret := new(ClusterStateResponse)
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return ret, nil
 }
 
 // ClusterStateResponse is the response of ClusterStateService.Do.

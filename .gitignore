@@ -21,6 +21,8 @@ _testmain.go
 
 *.exe
 
-/cluster-test
 /generator
+/cluster-test/cluster-test
+/cluster-test/*.log
+/cluster-test/es-chaos-monkey
 /tmp

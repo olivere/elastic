@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -17,7 +16,6 @@ import (
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/indices-open-close.html.
 type OpenIndexService struct {
 	client            *Client
-	debug             bool
 	pretty            bool
 	index             string
 	expandWildcards   string
@@ -73,13 +71,13 @@ func (s *OpenIndexService) ExpandWildcards(expandWildcards string) *OpenIndexSer
 }
 
 // buildURL builds the URL for the operation.
-func (s *OpenIndexService) buildURL() (string, error) {
+func (s *OpenIndexService) buildURL() (string, url.Values, error) {
 	// Build URL
-	urls, err := uritemplates.Expand("/{index}/_open", map[string]string{
+	path, err := uritemplates.Expand("/{index}/_open", map[string]string{
 		"index": s.index,
 	})
 	if err != nil {
-		return "", err
+		return "", url.Values{}, err
 	}
 
 	// Add query string parameters
@@ -88,22 +86,19 @@ func (s *OpenIndexService) buildURL() (string, error) {
 		params.Set("timeout", s.timeout)
 	}
 	if s.masterTimeout != "" {
-		params.Set("masterTimeout", s.masterTimeout)
+		params.Set("master_timeout", s.masterTimeout)
 	}
 	if s.ignoreUnavailable != nil {
-		params.Set("ignoreUnavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
 	}
 	if s.allowNoIndices != nil {
-		params.Set("allowNoIndices", fmt.Sprintf("%v", *s.allowNoIndices))
+		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
 	}
 	if s.expandWildcards != "" {
-		params.Set("expandWildcards", s.expandWildcards)
-	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
+		params.Set("expand_wildcards", s.expandWildcards)
 	}
 
-	return urls, nil
+	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
@@ -126,43 +121,23 @@ func (s *OpenIndexService) Do() (*OpenIndexResponse, error) {
 	}
 
 	// Get URL for request
-	urls, err := s.buildURL()
+	path, params, err := s.buildURL()
 	if err != nil {
 		return nil, err
-	}
-
-	// Setup HTTP request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Debug output?
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get HTTP response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	// Debug output?
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
 
 	// Return operation response
-	resp := new(OpenIndexResponse)
-	if err := json.NewDecoder(res.Body).Decode(resp); err != nil {
+	ret := new(OpenIndexResponse)
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return ret, nil
 }
 
 // OpenIndexResponse is the response of OpenIndexService.Do.

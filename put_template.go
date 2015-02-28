@@ -1,4 +1,4 @@
-// Copyright 2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -18,7 +17,6 @@ import (
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-template.html.
 type PutTemplateService struct {
 	client      *Client
-	debug       bool
 	pretty      bool
 	id          string
 	opType      string
@@ -72,13 +70,13 @@ func (s *PutTemplateService) BodyString(body string) *PutTemplateService {
 }
 
 // buildURL builds the URL for the operation.
-func (s *PutTemplateService) buildURL() (string, error) {
+func (s *PutTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
-	urls, err := uritemplates.Expand("/_search/template/{id}", map[string]string{
+	path, err := uritemplates.Expand("/_search/template/{id}", map[string]string{
 		"id": s.id,
 	})
 	if err != nil {
-		return "", err
+		return "", url.Values{}, err
 	}
 
 	// Add query string parameters
@@ -92,11 +90,8 @@ func (s *PutTemplateService) buildURL() (string, error) {
 	if s.opType != "" {
 		params.Set("op_type", s.opType)
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
 
-	return urls, nil
+	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
@@ -122,49 +117,31 @@ func (s *PutTemplateService) Do() (*PutTemplateResponse, error) {
 	}
 
 	// Get URL for request
-	urls, err := s.buildURL()
-	if err != nil {
-		return nil, err
-	}
-
-	// Setup HTTP request
-	req, err := s.client.NewRequest("PUT", urls)
+	path, params, err := s.buildURL()
 	if err != nil {
 		return nil, err
 	}
 
 	// Setup HTTP request body
+	var body interface{}
 	if s.bodyJson != nil {
-		req.SetBodyJson(s.bodyJson)
+		body = s.bodyJson
 	} else {
-		req.SetBodyString(s.bodyString)
-	}
-
-	// Debug output?
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
+		body = s.bodyString
 	}
 
 	// Get HTTP response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("PUT", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	// Debug output?
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
 	// Return operation response
-	resp := new(PutTemplateResponse)
-	if err := json.NewDecoder(res.Body).Decode(resp); err != nil {
+	ret := new(PutTemplateResponse)
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return ret, nil
 }
 
 // PutTemplateResponse is the response of PutTemplateService.Do.

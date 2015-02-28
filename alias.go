@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 )
 
@@ -15,7 +14,6 @@ type AliasService struct {
 	client  *Client
 	actions []aliasAction
 	pretty  bool
-	debug   bool
 }
 
 type aliasAction struct {
@@ -42,11 +40,6 @@ func (s *AliasService) Pretty(pretty bool) *AliasService {
 	return s
 }
 
-func (s *AliasService) Debug(debug bool) *AliasService {
-	s.debug = debug
-	return s
-}
-
 func (s *AliasService) Add(indexName string, aliasName string) *AliasService {
 	action := aliasAction{Type: "add", Index: indexName, Alias: aliasName}
 	s.actions = append(s.actions, action)
@@ -67,21 +60,12 @@ func (s *AliasService) Remove(indexName string, aliasName string) *AliasService 
 
 func (s *AliasService) Do() (*AliasResult, error) {
 	// Build url
-	urls := "/_aliases"
-
-	// Set up a new request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
+	path := "/_aliases"
 
 	// Parameters
 	params := make(url.Values)
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
-	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
 	}
 
 	// Actions
@@ -102,29 +86,15 @@ func (s *AliasService) Do() (*AliasResult, error) {
 
 	body["actions"] = actionsJson
 
-	// Set body
-	req.SetBodyJson(body)
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
-
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return results
 	ret := new(AliasResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

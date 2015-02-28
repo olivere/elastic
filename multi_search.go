@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 )
@@ -19,7 +18,6 @@ type MultiSearchService struct {
 	requests   []*SearchRequest
 	indices    []string
 	pretty     bool
-	debug      bool
 	routing    string
 	preference string
 }
@@ -29,8 +27,6 @@ func NewMultiSearchService(client *Client) *MultiSearchService {
 		client:   client,
 		requests: make([]*SearchRequest, 0),
 		indices:  make([]string, 0),
-		debug:    false,
-		pretty:   false,
 	}
 	return builder
 }
@@ -55,28 +51,14 @@ func (s *MultiSearchService) Pretty(pretty bool) *MultiSearchService {
 	return s
 }
 
-func (s *MultiSearchService) Debug(debug bool) *MultiSearchService {
-	s.debug = debug
-	return s
-}
-
 func (s *MultiSearchService) Do() (*MultiSearchResult, error) {
 	// Build url
-	urls := "/_msearch"
+	path := "/_msearch"
 
 	// Parameters
 	params := make(url.Values)
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
-	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := s.client.NewRequest("GET", urls)
-	if err != nil {
-		return nil, err
 	}
 
 	// Set body
@@ -98,28 +80,17 @@ func (s *MultiSearchService) Do() (*MultiSearchResult, error) {
 		lines = append(lines, string(header))
 		lines = append(lines, string(body))
 	}
-	req.SetBodyString(strings.Join(lines, "\n") + "\n") // Don't forget trailing \n
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
+	body := strings.Join(lines, "\n") + "\n" // Don't forget trailing \n
 
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return result
 	ret := new(MultiSearchResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

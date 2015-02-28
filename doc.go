@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -47,5 +47,7 @@ of the IndexExists service that checks if a given index already exists.
 
 Look up the documentation for Client to get an idea of the services provided
 and what kinds of responses you get when executing the Do function of a service.
+Also see the wiki on Github for more details.
+
 */
 package elastic

@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -67,6 +67,53 @@ func TestSearchMatchAll(t *testing.T) {
 	}
 }
 
+func BenchmarkSearchMatchAll(b *testing.B) {
+	client := setupTestClientAndCreateIndex(b)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
+	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	for n := 0; n < b.N; n++ {
+		// Match all should return all documents
+		all := NewMatchAllQuery()
+		searchResult, err := client.Search().Index(testIndexName).Query(&all).Do()
+		if err != nil {
+			b.Fatal(err)
+		}
+		if searchResult.Hits == nil {
+			b.Errorf("expected SearchResult.Hits != nil; got nil")
+		}
+		if searchResult.Hits.TotalHits != 3 {
+			b.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 3, searchResult.Hits.TotalHits)
+		}
+		if len(searchResult.Hits.Hits) != 3 {
+			b.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", 3, len(searchResult.Hits.Hits))
+		}
+	}
+}
+
 func TestSearchSorting(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
@@ -114,8 +161,6 @@ func TestSearchSorting(t *testing.T) {
 		Query(&all).
 		Sort("created", false).
 		Timeout("1s").
-		// Pretty(true).
-		// Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -189,7 +234,6 @@ func TestSearchSortingBySorters(t *testing.T) {
 		Query(&all).
 		SortBy(NewFieldSort("created").Desc(), NewScoreSort()).
 		Timeout("1s").
-		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -250,7 +294,6 @@ func TestSearchSpecificFields(t *testing.T) {
 		Index(testIndexName).
 		Query(&all).
 		Fields("message").
-		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -329,7 +372,6 @@ func TestSearchExplain(t *testing.T) {
 		Explain(true).
 		Timeout("1s").
 		// Pretty(true).
-		// Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -410,7 +452,6 @@ func TestSearchSource(t *testing.T) {
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Source(source). // sets the JSON request
-		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -472,7 +513,6 @@ func TestSearchSearchSource(t *testing.T) {
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		SearchSource(ss). // sets the SearchSource
-		// Pretty(true).Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

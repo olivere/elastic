@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"encoding/json"
-	"net/http"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -30,30 +29,22 @@ func (b *DeleteIndexService) Index(index string) *DeleteIndexService {
 
 func (b *DeleteIndexService) Do() (*DeleteIndexResult, error) {
 	// Build url
-	urls, err := uritemplates.Expand("/{index}/", map[string]string{
+	path, err := uritemplates.Expand("/{index}/", map[string]string{
 		"index": b.index,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Set up a new request
-	req, err := b.client.NewRequest("DELETE", urls)
+	// Get response
+	res, err := b.client.PerformRequest("DELETE", path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// Get response
-	res, err := b.client.c.Do((*http.Request)(req))
-	if err != nil {
-		return nil, err
-	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+	// Return result
 	ret := new(DeleteIndexResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

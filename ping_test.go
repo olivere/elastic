@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -12,9 +12,7 @@ import (
 func TestPingGet(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	res, code, err := client.Ping().
-		//Pretty(true).Debug(true).
-		Do()
+	res, code, err := client.Ping().Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,10 +36,7 @@ func TestPingGet(t *testing.T) {
 func TestPingHead(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	res, code, err := client.Ping().
-		HttpHeadOnly(true).
-		//Pretty(true).Debug(true).
-		Do()
+	res, code, err := client.Ping().HttpHeadOnly(true).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +54,6 @@ func TestPingHeadFailure(t *testing.T) {
 	res, code, err := client.Ping().
 		URL("http://127.0.0.1:9299").
 		HttpHeadOnly(true).
-		//Pretty(true).Debug(true).
 		Do()
 	if err == nil {
 		t.Error("expected error, got nil")

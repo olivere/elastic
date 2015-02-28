@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -15,25 +14,25 @@ import (
 )
 
 type GetService struct {
-	client                     *Client
-	index                      string
-	_type                      string
-	id                         string
-	routing                    string
-	preference                 string
-	fields                     []string
-	fsc                        *FetchSourceContext
-	refresh                    *bool
-	realtime                   *bool
-	version                    *int64 // see org.elasticsearch.common.lucene.uid.Versions
-	versionType                string // see org.elasticsearch.index.VersionType
-	ignoreErrOnGeneratedFields *bool
+	client                        *Client
+	index                         string
+	typ                           string
+	id                            string
+	routing                       string
+	preference                    string
+	fields                        []string
+	refresh                       *bool
+	realtime                      *bool
+	fetchSourceContext            *FetchSourceContext
+	versionType                   string
+	version                       *int64
+	ignoreErrorsOnGeneratedFields *bool
 }
 
 func NewGetService(client *Client) *GetService {
 	builder := &GetService{
 		client: client,
-		_type:  "_all",
+		typ:    "_all",
 	}
 	return builder
 }
@@ -41,7 +40,7 @@ func NewGetService(client *Client) *GetService {
 func (b *GetService) String() string {
 	return fmt.Sprintf("[%v][%v][%v]: routing [%v]",
 		b.index,
-		b._type,
+		b.typ,
 		b.id,
 		b.routing)
 }
@@ -51,8 +50,8 @@ func (b *GetService) Index(index string) *GetService {
 	return b
 }
 
-func (b *GetService) Type(_type string) *GetService {
-	b._type = _type
+func (b *GetService) Type(typ string) *GetService {
+	b.typ = typ
 	return b
 }
 
@@ -86,20 +85,6 @@ func (b *GetService) Fields(fields ...string) *GetService {
 	return b
 }
 
-func (s *GetService) FetchSource(fetchSource bool) *GetService {
-	if s.fsc == nil {
-		s.fsc = NewFetchSourceContext(fetchSource)
-	} else {
-		s.fsc.SetFetchSource(fetchSource)
-	}
-	return s
-}
-
-func (s *GetService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *GetService {
-	s.fsc = fetchSourceContext
-	return s
-}
-
 func (b *GetService) Refresh(refresh bool) *GetService {
 	b.refresh = &refresh
 	return b
@@ -110,27 +95,26 @@ func (b *GetService) Realtime(realtime bool) *GetService {
 	return b
 }
 
-// Version can be MatchAny (-3), MatchAnyPre120 (0), NotFound (-1),
-// or NotSet (-2). These are specified in org.elasticsearch.common.lucene.uid.Versions.
-// The default is MatchAny (-3).
-func (b *GetService) Version(version int64) *GetService {
-	b.version = &version
-	return b
-}
-
-// VersionType can be "internal", "external", "external_gt", "external_gte",
-// or "force". See org.elasticsearch.index.VersionType in Elasticsearch source.
-// It is "internal" by default.
 func (b *GetService) VersionType(versionType string) *GetService {
 	b.versionType = versionType
 	return b
 }
 
+func (b *GetService) Version(version int64) *GetService {
+	b.version = &version
+	return b
+}
+
+func (b *GetService) IgnoreErrorsOnGeneratedFields(ignore bool) *GetService {
+	b.ignoreErrorsOnGeneratedFields = &ignore
+	return b
+}
+
 func (b *GetService) Do() (*GetResult, error) {
 	// Build url
-	urls, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
+	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
 		"index": b.index,
-		"type":  b._type,
+		"type":  b.typ,
 		"id":    b.id,
 	})
 	if err != nil {
@@ -153,38 +137,31 @@ func (b *GetService) Do() (*GetResult, error) {
 	if b.refresh != nil {
 		params.Add("refresh", fmt.Sprintf("%v", *b.refresh))
 	}
+	if b.realtime != nil {
+		params.Add("realtime", fmt.Sprintf("%v", *b.realtime))
+	}
+	if b.ignoreErrorsOnGeneratedFields != nil {
+		params.Add("ignore_errors_on_generated_fields", fmt.Sprintf("%v", *b.ignoreErrorsOnGeneratedFields))
+	}
+	if len(b.fields) > 0 {
+		params.Add("_fields", strings.Join(b.fields, ","))
+	}
 	if b.version != nil {
-		params.Add("_version", fmt.Sprintf("%d", *b.version))
+		params.Add("version", fmt.Sprintf("%d", *b.version))
 	}
 	if b.versionType != "" {
-		params.Add("_version_type", b.versionType)
-	}
-	if b.fsc != nil {
-		for k, values := range b.fsc.Query() {
-			params.Add(k, strings.Join(values, ","))
-		}
-	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := b.client.NewRequest("GET", urls)
-	if err != nil {
-		return nil, err
+		params.Add("version_type", b.versionType)
 	}
 
 	// Get response
-	res, err := b.client.c.Do((*http.Request)(req))
+	res, err := b.client.PerformRequest("GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+
+	// Return result
 	ret := new(GetResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

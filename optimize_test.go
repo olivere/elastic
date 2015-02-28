@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -37,9 +37,7 @@ func TestOptimize(t *testing.T) {
 	}
 
 	// Optimize documents
-	res, err := client.Optimize(testIndexName, testIndexName2).
-		// Pretty(true).Debug(true).
-		Do()
+	res, err := client.Optimize(testIndexName, testIndexName2).Do()
 	if err != nil {
 		t.Fatal(err)
 	}

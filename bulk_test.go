@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -19,7 +19,7 @@ func TestBulk(t *testing.T) {
 	index2Req := NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("2").Doc(tweet2)
 	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
 
-	bulkRequest := client.Bulk() //.Debug(true)
+	bulkRequest := client.Bulk()
 	bulkRequest = bulkRequest.Add(index1Req)
 	bulkRequest = bulkRequest.Add(index2Req)
 	bulkRequest = bulkRequest.Add(delete1Req)
@@ -65,7 +65,7 @@ func TestBulk(t *testing.T) {
 		42,
 	}
 	update1Req := NewBulkUpdateRequest().Index(testIndexName).Type("tweet").Id("2").Doc(&updateDoc)
-	bulkRequest = client.Bulk() // .Debug(true)
+	bulkRequest = client.Bulk()
 	bulkRequest = bulkRequest.Add(update1Req)
 
 	if bulkRequest.NumberOfActions() != 1 {
@@ -118,7 +118,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 	index2Req := NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("2").Doc(tweet2)
 	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
 
-	bulkRequest := client.Bulk().Index(testIndexName).Type("tweet") //.Debug(true)
+	bulkRequest := client.Bulk().Index(testIndexName).Type("tweet")
 	bulkRequest = bulkRequest.Add(index1Req)
 	bulkRequest = bulkRequest.Add(index2Req)
 	bulkRequest = bulkRequest.Add(delete1Req)
@@ -127,7 +127,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 3, bulkRequest.NumberOfActions())
 	}
 
-	bulkResponse, err := bulkRequest.Do() // .Debug(true).Do()
+	bulkResponse, err := bulkRequest.Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -170,7 +170,7 @@ func TestBulkRequestsSerialization(t *testing.T) {
 		Retweets: 42,
 	})
 
-	bulkRequest := client.Bulk() //.Debug(true)
+	bulkRequest := client.Bulk()
 	bulkRequest = bulkRequest.Add(index1Req)
 	bulkRequest = bulkRequest.Add(index2Req)
 	bulkRequest = bulkRequest.Add(delete1Req)
@@ -197,7 +197,7 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	}
 
 	// Run the bulk request
-	bulkResponse, err := bulkRequest.Do() // .Debug(true).Pretty(true).Do()
+	bulkResponse, err := bulkRequest.Do()
 	if err != nil {
 		t.Fatal(err)
 	}

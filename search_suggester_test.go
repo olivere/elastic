@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -50,7 +50,6 @@ func TestTermSuggester(t *testing.T) {
 		Index(testIndexName).
 		Query(&all).
 		Suggester(ts).
-		// Debug(true).Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -134,7 +133,6 @@ func TestPhraseSuggester(t *testing.T) {
 		Index(testIndexName).
 		Query(&all).
 		Suggester(ps).
-		// Debug(true).Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -219,7 +217,6 @@ func TestCompletionSuggester(t *testing.T) {
 		Index(testIndexName).
 		Query(&all).
 		Suggester(cs).
-		// Debug(true).Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

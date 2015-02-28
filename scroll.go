@@ -1,4 +1,4 @@
-// Copyright 2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -23,7 +22,6 @@ type ScrollService struct {
 	query     Query
 	size      *int
 	pretty    bool
-	debug     bool
 	scrollId  string
 }
 
@@ -31,8 +29,6 @@ func NewScrollService(client *Client) *ScrollService {
 	builder := &ScrollService{
 		client: client,
 		query:  NewMatchAllQuery(),
-		debug:  false,
-		pretty: false,
 	}
 	return builder
 }
@@ -93,11 +89,6 @@ func (s *ScrollService) Pretty(pretty bool) *ScrollService {
 	return s
 }
 
-func (s *ScrollService) Debug(debug bool) *ScrollService {
-	s.debug = debug
-	return s
-}
-
 func (s *ScrollService) Size(size int) *ScrollService {
 	s.size = &size
 	return s
@@ -117,7 +108,7 @@ func (s *ScrollService) Do() (*SearchResult, error) {
 
 func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	// Build url
-	urls := "/"
+	path := "/"
 
 	// Indices part
 	indexPart := make([]string, 0)
@@ -131,7 +122,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 		indexPart = append(indexPart, index)
 	}
 	if len(indexPart) > 0 {
-		urls += strings.Join(indexPart, ",")
+		path += strings.Join(indexPart, ",")
 	}
 
 	// Types
@@ -146,11 +137,11 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 		typesPart = append(typesPart, typ)
 	}
 	if len(typesPart) > 0 {
-		urls += "/" + strings.Join(typesPart, ",")
+		path += "/" + strings.Join(typesPart, ",")
 	}
 
 	// Search
-	urls += "/_search"
+	path += "/_search"
 
 	// Parameters
 	params := make(url.Values)
@@ -166,46 +157,22 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	if s.size != nil && *s.size > 0 {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
 
 	// Set body
 	body := make(map[string]interface{})
-
-	// Query
 	if s.query != nil {
 		body["query"] = s.query.Source()
 	}
 
-	req.SetBodyJson(body)
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
-
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return result
 	searchResult := new(SearchResult)
-	if err := json.NewDecoder(res.Body).Decode(searchResult); err != nil {
+	if err := json.Unmarshal(res.Body, searchResult); err != nil {
 		return nil, err
 	}
 
@@ -218,7 +185,7 @@ func (s *ScrollService) GetNextPage() (*SearchResult, error) {
 	}
 
 	// Build url
-	urls := "/_search/scroll"
+	path := "/_search/scroll"
 
 	// Parameters
 	params := make(url.Values)
@@ -230,37 +197,16 @@ func (s *ScrollService) GetNextPage() (*SearchResult, error) {
 	} else {
 		params.Set("scroll", defaultKeepAlive)
 	}
-	urls += "?" + params.Encode()
-
-	// Set up a new request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set body
-	req.SetBodyString(s.scrollId)
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
 
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, s.scrollId)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return result
 	searchResult := new(SearchResult)
-	if err := json.NewDecoder(res.Body).Decode(searchResult); err != nil {
+	if err := json.Unmarshal(res.Body, searchResult); err != nil {
 		return nil, err
 	}
 

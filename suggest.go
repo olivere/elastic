@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -18,7 +17,6 @@ import (
 type SuggestService struct {
 	client     *Client
 	pretty     bool
-	debug      bool
 	routing    string
 	preference string
 	indices    []string
@@ -49,11 +47,6 @@ func (s *SuggestService) Pretty(pretty bool) *SuggestService {
 	return s
 }
 
-func (s *SuggestService) Debug(debug bool) *SuggestService {
-	s.debug = debug
-	return s
-}
-
 func (s *SuggestService) Routing(routing string) *SuggestService {
 	s.routing = routing
 	return s
@@ -71,7 +64,7 @@ func (s *SuggestService) Suggester(suggester Suggester) *SuggestService {
 
 func (s *SuggestService) Do() (SuggestResult, error) {
 	// Build url
-	urls := "/"
+	path := "/"
 
 	// Indices part
 	indexPart := make([]string, 0)
@@ -84,10 +77,10 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 		}
 		indexPart = append(indexPart, index)
 	}
-	urls += strings.Join(indexPart, ",")
+	path += strings.Join(indexPart, ",")
 
 	// Suggest
-	urls += "/_suggest"
+	path += "/_suggest"
 
 	// Parameters
 	params := make(url.Values)
@@ -100,48 +93,23 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	if s.preference != "" {
 		params.Set("preference", s.preference)
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
 
 	// Set body
 	body := make(map[string]interface{})
-
-	// Suggesters
 	for _, s := range s.suggesters {
 		body[s.Name()] = s.Source(false)
 	}
 
-	req.SetBodyJson(body)
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
-
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
-	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if s.debug {
-		s.client.dumpResponse(res)
 	}
 
 	// There is a _shard object that cannot be deserialized.
 	// So we use json.RawMessage instead.
 	var suggestions map[string]*json.RawMessage
-	if err := json.NewDecoder(res.Body).Decode(&suggestions); err != nil {
+	if err := json.Unmarshal(res.Body, &suggestions); err != nil {
 		return nil, err
 	}
 

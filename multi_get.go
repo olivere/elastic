@@ -1,4 +1,4 @@
-// Copyright 2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 )
 
@@ -59,7 +58,7 @@ func (b *MultiGetService) Source() interface{} {
 
 func (b *MultiGetService) Do() (*MultiGetResult, error) {
 	// Build url
-	urls := "/_mget"
+	path := "/_mget"
 
 	params := make(url.Values)
 	if b.realtime != nil {
@@ -71,30 +70,19 @@ func (b *MultiGetService) Do() (*MultiGetResult, error) {
 	if b.refresh != nil {
 		params.Add("refresh", fmt.Sprintf("%v", *b.refresh))
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := b.client.NewRequest("GET", urls)
-	if err != nil {
-		return nil, err
-	}
 
 	// Set body
-	req.SetBodyJson(b.Source())
+	body := b.Source()
 
 	// Get response
-	res, err := b.client.c.Do((*http.Request)(req))
+	res, err := b.client.PerformRequest("GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+
+	// Return result
 	ret := new(MultiGetResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -148,7 +136,7 @@ func (item *MultiGetItem) Fields(fields ...string) *MultiGetItem {
 
 // Version can be MatchAny (-3), MatchAnyPre120 (0), NotFound (-1),
 // or NotSet (-2). These are specified in org.elasticsearch.common.lucene.uid.Versions.
-// The default is MatchAny (-3).
+// The default in Elasticsearch is MatchAny (-3).
 func (item *MultiGetItem) Version(version int64) *MultiGetItem {
 	item.version = &version
 	return item
@@ -190,10 +178,10 @@ func (item *MultiGetItem) Source() interface{} {
 		source["_routing"] = item.routing
 	}
 	if item.version != nil {
-		source["_version"] = *item.version
+		source["version"] = fmt.Sprintf("%d", *item.version)
 	}
 	if item.versionType != "" {
-		source["_version_type"] = item.versionType
+		source["version_type"] = item.versionType
 	}
 
 	return source

@@ -1,3 +1,7 @@
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Use of this source code is governed by a MIT-license.
+// See http://olivere.mit-license.org/license.txt for details.
+
 package elastic
 
 import (
@@ -51,7 +55,6 @@ func TestSimpleQueryStringQueryExec(t *testing.T) {
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Query(&query).
-		// Debug(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

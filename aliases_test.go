@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -46,7 +46,7 @@ func TestAliases(t *testing.T) {
 	// Alias should not yet exist
 	aliasesResult1, err := client.Aliases().
 		Indices(testIndexName, testIndexName2).
-		//Pretty(true).Debug(true).
+		//Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -64,7 +64,7 @@ func TestAliases(t *testing.T) {
 	aliasCreate, err := client.Alias().
 		Add(testIndexName, testAliasName).
 		Add(testIndexName2, testAliasName).
-		//Pretty(true).Debug(true).
+		//Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -76,7 +76,7 @@ func TestAliases(t *testing.T) {
 	// Alias should now exist
 	aliasesResult2, err := client.Aliases().
 		Indices(testIndexName, testIndexName2).
-		//Pretty(true).Debug(true).
+		//Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -113,7 +113,7 @@ func TestAliases(t *testing.T) {
 	// Remove first index should remove two tweets, so should only yield 1
 	aliasRemove1, err := client.Alias().
 		Remove(testIndexName, testAliasName).
-		//Pretty(true).Debug(true).
+		//Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)

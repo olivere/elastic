@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -13,7 +13,7 @@ import (
 func TestAggs(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	esversion, err := client.ElasticsearchVersion(defaultUrl)
+	esversion, err := client.ElasticsearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,9 +125,7 @@ func TestAggs(t *testing.T) {
 		countByUserAgg := NewFiltersAggregation().Filters(NewTermFilter("user", "olivere"), NewTermFilter("user", "sandrae"))
 		builder = builder.Aggregation("countByUser", countByUserAgg)
 	}
-	searchResult, err := builder.
-		// Pretty(true).Debug(true).
-		Do()
+	searchResult, err := builder.Do()
 	if err != nil {
 		t.Fatal(err)
 	}

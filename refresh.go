@@ -1,4 +1,4 @@
-// Copyright 2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -19,7 +18,6 @@ type RefreshService struct {
 	indices []string
 	force   *bool
 	pretty  bool
-	debug   bool
 }
 
 func NewRefreshService(client *Client) *RefreshService {
@@ -50,14 +48,9 @@ func (s *RefreshService) Pretty(pretty bool) *RefreshService {
 	return s
 }
 
-func (s *RefreshService) Debug(debug bool) *RefreshService {
-	s.debug = debug
-	return s
-}
-
 func (s *RefreshService) Do() (*RefreshResult, error) {
 	// Build url
-	urls := "/"
+	path := "/"
 
 	// Indices part
 	indexPart := make([]string, 0)
@@ -71,10 +64,10 @@ func (s *RefreshService) Do() (*RefreshResult, error) {
 		indexPart = append(indexPart, index)
 	}
 	if len(indexPart) > 0 {
-		urls += strings.Join(indexPart, ",")
+		path += strings.Join(indexPart, ",")
 	}
 
-	urls += "/_refresh"
+	path += "/_refresh"
 
 	// Parameters
 	params := make(url.Values)
@@ -84,36 +77,16 @@ func (s *RefreshService) Do() (*RefreshResult, error) {
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
-
-	// Set up a new request
-	req, err := s.client.NewRequest("POST", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
-	}
 
 	// Get response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("POST", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
 
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
+	// Return result
 	ret := new(RefreshResult)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

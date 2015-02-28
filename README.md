@@ -1,52 +1,48 @@
 # Elastic
 
-Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for [Go](http://www.golang.org/).
+Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for the
+[Go](http://www.golang.org/) programming language.
 
 [![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=master)](https://travis-ci.org/olivere/elastic)
 [![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/olivere/elastic)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/olivere/elastic/master/LICENSE)
 
+See the [wiki](https://github.com/olivere/elastic/wiki) for additional information about Elastic.
+
+
 ## Releases
 
-I'm about to release a new version of Elastic soon. To continue using
-the 1.0 version, all you need to do is to go-get a new URL and switch
-your import path. We're using [gopkg.in](http://gokpg.in/) for that.
-Here's how to use Elastic version 1:
+### Current version
+
+This is the source code of the current version of Elastic (version 2).
+
+### Earlier versions
+
+If you came from an earlier version and found that you cannot update, don't
+worry. Earlier versions are still available. All you need to do is go-get
+them and change your import path. See below for details. Here's what you
+need to do to use Elastic version 1:
 
 ```sh
-$ go get -u gopkg.in/olivere/elastic.v1
+$ go get gopkg.in/olivere/elastic.v1
 ```
 
-In your Go code:
+Then change your import path:
 
 ```go
 import "gopkg.in/olivere/elastic.v1"
 ```
 
-Once version 2 is ready, you can get it like this:
-
-```sh
-$ go get -u gopkg.in/olivere/elastic.v2
-```
-
-In your Go code:
-
-```go
-import "gopkg.in/olivere/elastic.v2"
-```
-
-If you continue to use `github.com/olivere/elastic` in your code base,
-you are following master. I try to keep master stable, but things might
-break now and then.
 
 ## Status
 
-We use Elastic in production for more than two years now.
-Although Elastic is quite stable from our experience, we don't have
-a stable API yet. The reason for this is that Elasticsearch changes quite
-often and at a fast pace. At this moment we focus on features, not on a
-stable API. Having said that, there have been no huge changes for the last
-12 months that required you to rewrite your application big time.
+We use Elastic in production since 2012. Although Elastic is quite stable
+from our experience, we don't have a stable API yet. The reason for this
+is that Elasticsearch changes quite often and at a fast pace.
+At this moment we focus on features, not on a stable API.
+
+Having said that, there have been no big API changes that required you
+to rewrite your application big time.
 More often than not it's renaming APIs and adding/removing features
 so that we are in sync with the Elasticsearch API.
 
@@ -58,153 +54,40 @@ not yet implemented in Elastic (see below for details).
 I add features and APIs as required. It's straightforward
 to implement missing pieces. I'm accepting pull requests :-)
 
-Having said that, I hope you find the project useful. Fork it
-as you like.
+Having said that, I hope you find the project useful.
+
 
 ## Usage
 
-The first thing you do is to create a Client. The client takes a http.Client
-and (optionally) a list of URLs to the Elasticsearch servers as arguments.
-If the list of URLs is empty, http://localhost:9200 is used by default.
-You typically create one client for your app.
+The first thing you do is to create a Client. The client connects to
+Elasticsearch on http://127.0.0.1:9200 by default.
+
+You typically create one client for your app. Here's a complete example.
 
 ```go
-client, err := elastic.NewClient(http.DefaultClient)
+// Create a client
+client, err := elastic.NewClient()
 if err != nil {
     // Handle error
 }
-```
 
-Notice that you can pass your own http.Client implementation here. You can
-also pass more than one URL to a client. Elastic pings the URLs periodically
-and takes the first to succeed. By doing this periodically, Elastic provides
-automatic failover, e.g. when an Elasticsearch server goes down during
-updates.
-
-If no Elasticsearch server is available, services will fail when creating
-a new request and will return `ErrNoClient`. While this method is not very
-sophisticated and might result in timeouts, it is robust enough for our
-use cases. Pull requests are welcome.
-
-```go
-client, err := elastic.NewClient(http.DefaultClient, "http://1.2.3.4:9200", "http://1.2.3.5:9200")
-if err != nil {
-    // Handle error
-}
-```
-
-A Client provides services. The services usually come with a variety of
-methods to prepare the query and a `Do` function to execute it against the
-Elasticsearch REST interface and return a response. Here is an example
-of the IndexExists service that checks if a given index already exists.
-
-```go
-exists, err := client.IndexExists("twitter").Do()
-if err != nil {
-    // Handle error
-}
-if !exists {
-    // Index does not exist yet.
-}
-```
-
-Look up the documentation for Client to get an idea of the services provided
-and what kinds of responses you get when executing the `Do` function of a service.
-
-Here's a longer example:
-
-```go
-// Import Elastic
-import (
-  "github.com/olivere/elastic"
-)
-
-// Obtain a client. You can provide your own HTTP client here.
-client, err := elastic.NewClient(http.DefaultClient)
+// Create an index
+_, err = client.CreateIndex("twitter").Do()
 if err != nil {
     // Handle error
     panic(err)
 }
 
-// Ping the Elasticsearch server to get e.g. the version number
-info, code, err := client.Ping().Do()
-if err != nil {
-    // Handle error
-    panic(err)
-}
-fmt.Printf("Elasticsearch returned with code %d and version %s", code, info.Version.Number)
-
-// Getting the ES version number is quite common, so there's a shortcut
-esversion, err := client.ElasticsearchVersion("http://127.0.0.1:9200")
-if err != nil {
-    // Handle error
-    panic(err)
-}
-fmt.Printf("Elasticsearch version %s", esversion)
-
-// Use the IndexExists service to check if a specified index exists.
-exists, err := client.IndexExists("twitter").Do()
-if err != nil {
-    // Handle error
-    panic(err)
-}
-if !exists {
-    // Create a new index.
-    createIndex, err := client.CreateIndex("twitter").Do()
-    if err != nil {
-        // Handle error
-        panic(err)
-    }
-    if !createIndex.Acknowledged {
-        // Not acknowledged
-    }
-}
-
-// Index a tweet (using JSON serialization)
-tweet1 := Tweet{User: "olivere", Message: "Take Five", Retweets: 0}
-put1, err := client.Index().
+// Add a document to the index
+tweet := Tweet{User: "olivere", Message: "Take Five"}
+_, err = client.Index().
     Index("twitter").
     Type("tweet").
     Id("1").
-    BodyJson(tweet1).
+    BodyJson(tweet).
     Do()
 if err != nil {
     // Handle error
-    panic(err)
-}
-fmt.Printf("Indexed tweet %s to index %s, type %s\n", put1.Id, put1.Index, put1.Type)
-
-// Index a second tweet (by string)
-tweet2 := `{"user" : "olivere", "message" : "It's a Raggy Waltz"}`
-put2, err := client.Index().
-    Index("twitter").
-    Type("tweet").
-    Id("2").
-    BodyString(tweet2).
-    Do()
-if err != nil {
-    // Handle error
-    panic(err)
-}
-fmt.Printf("Indexed tweet %s to index %s, type %s\n", put2.Id, put2.Index, put2.Type)
-
-// Get tweet with specified ID
-get1, err := client.Get().
-    Index("twitter").
-    Type("tweet").
-    Id("1").
-    Do()
-if err != nil {
-    // Handle error
-    panic(err)
-}
-if get1.Found {
-    fmt.Printf("Got document %s in version %d from index %s, type %s\n", get1.Id, get1.Version, get1.Index, get1.Type)
-}
-
-// Flush to make sure the documents got written.
-_, err = client.Flush().Index("twitter").Do()
-if err != nil {
     panic(err)
 }
 
@@ -250,36 +133,16 @@ if searchResult.Hits != nil {
     fmt.Print("Found no tweets\n")
 }
 
-
-// Update a tweet by the update API of Elasticsearch.
-// We just increment the number of retweets.
-update, err := client.Update().Index("twitter").Type("tweet").Id("1").
-    Script("ctx._source.retweets += num").
-    ScriptParams(map[string]interface{}{"num": 1}).
-    Upsert(map[string]interface{}{"retweets": 0}).
-    Do()
+// Delete the index again
+_, err = client.DeleteIndex("twitter").Do()
 if err != nil {
     // Handle error
     panic(err)
-}
-fmt.Printf("New version of tweet %q is now %d", update.Id, update.Version)
-
-// ...
-
-// Delete an index.
-deleteIndex, err := client.DeleteIndex("twitter").Do()
-if err != nil {
-    // Handle error
-    panic(err)
-}
-if !deleteIndex.Acknowledged {
-    // Not acknowledged
 }
 ```
 
-## Installation
+See the [wiki](/olivere/elastic/wiki) for more details.
 
-Grab the code with `go get github.com/olivere/elastic`.
 
 ## API Status
 
@@ -300,7 +163,7 @@ Here's the current API status.
 - [ ] Multi term vectors
 - [x] Count
 - [ ] Validate
-- [ ] Explain
+- [x] Explain
 - [x] Search
 - [ ] Search shards
 - [x] Search template
@@ -317,16 +180,16 @@ Here's the current API status.
 - [x] Delete index
 - [x] Indices exists
 - [x] Open/close index
-- [ ] Put mapping
-- [ ] Get mapping
+- [x] Put mapping
+- [x] Get mapping
 - [ ] Get field mapping
 - [ ] Types exist
-- [ ] Delete mapping
+- [x] Delete mapping
 - [x] Index aliases
 - [ ] Update indices settings
 - [ ] Get settings
 - [ ] Analyze
-- [ ] Index templates
+- [x] Index templates
 - [ ] Warmers
 - [ ] Status
 - [ ] Indices stats
@@ -359,7 +222,7 @@ on the command line.
 - [ ] Cluster reroute
 - [ ] Cluster update settings
 - [ ] Nodes stats
-- [ ] Nodes info
+- [x] Nodes info
 - [ ] Nodes hot_threads
 - [ ] Nodes shutdown
 
@@ -491,7 +354,7 @@ on the command line.
 ### Scan
 
 Scrolling through documents (e.g. `search_type=scan`) are implemented via
-the `Scroll` and `Scan` services.
+the `Scroll` and `Scan` services. The `ClearScroll` API is implemented as well.
 
 ## How to contribute
 

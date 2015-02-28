@@ -1,4 +1,4 @@
-// Copyright 2012-2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -82,10 +82,7 @@ func TestSearchTemplatesInlineQuery(t *testing.T) {
 	// Run query with (inline) search template
 	// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-template-query.html
 	tq := NewTemplateQuery(`{"match_{{template}}": {}}`).Var("template", "all")
-	resp, err := client.Search(testIndexName).
-		Query(&tq).
-		// Pretty(true).Debug(true).
-		Do()
+	resp, err := client.Search(testIndexName).Query(&tq).Do()
 	if err != nil {
 		t.Fatal(err)
 	}

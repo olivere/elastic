@@ -1,4 +1,4 @@
-// Copyright 2014 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -7,7 +7,6 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -17,7 +16,6 @@ import (
 // It is documented at http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-template.html.
 type GetTemplateService struct {
 	client      *Client
-	debug       bool
 	pretty      bool
 	id          string
 	version     interface{}
@@ -50,13 +48,13 @@ func (s *GetTemplateService) VersionType(versionType string) *GetTemplateService
 }
 
 // buildURL builds the URL for the operation.
-func (s *GetTemplateService) buildURL() (string, error) {
+func (s *GetTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
-	urls, err := uritemplates.Expand("/_search/template/{id}", map[string]string{
+	path, err := uritemplates.Expand("/_search/template/{id}", map[string]string{
 		"id": s.id,
 	})
 	if err != nil {
-		return "", err
+		return "", url.Values{}, err
 	}
 
 	// Add query string parameters
@@ -67,11 +65,8 @@ func (s *GetTemplateService) buildURL() (string, error) {
 	if s.versionType != "" {
 		params.Set("version_type", s.versionType)
 	}
-	if len(params) > 0 {
-		urls += "?" + params.Encode()
-	}
 
-	return urls, nil
+	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
@@ -94,43 +89,23 @@ func (s *GetTemplateService) Do() (*GetTemplateResponse, error) {
 	}
 
 	// Get URL for request
-	urls, err := s.buildURL()
+	path, params, err := s.buildURL()
 	if err != nil {
 		return nil, err
-	}
-
-	// Setup HTTP request
-	req, err := s.client.NewRequest("GET", urls)
-	if err != nil {
-		return nil, err
-	}
-
-	// Debug output?
-	if s.debug {
-		s.client.dumpRequest((*http.Request)(req))
 	}
 
 	// Get HTTP response
-	res, err := s.client.c.Do((*http.Request)(req))
+	res, err := s.client.PerformRequest("GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(res); err != nil {
+
+	// Return result
+	ret := new(GetTemplateResponse)
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
-
-	// Debug output?
-	if s.debug {
-		s.client.dumpResponse(res)
-	}
-
-	// Decode response
-	resp := new(GetTemplateResponse)
-	if err := json.NewDecoder(res.Body).Decode(resp); err != nil {
-		return nil, err
-	}
-	return resp, nil
+	return ret, nil
 }
 
 type GetTemplateResponse struct {
