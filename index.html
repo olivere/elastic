@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Elastic: An Elasticsearch client for Go</title>
-  <meta name="description" content="Elastic is a client for Elasticsearch for the Go programming language (Golang).">
+  <meta name="description" content="Elastic is an Elasticsearch client for the Go programming language (Golang).">
   <meta name="author" content="Oliver Eilhard">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
   <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Raleway:400,300,600" type="text/css">
@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="css/skeleton.css">
   <link rel="stylesheet" href="css/elastic.css">
   <link rel="stylesheet" href="css/github-prettify-theme.css">
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
   <script src="js/elastic.js"></script>
 </head>
@@ -42,7 +42,7 @@
       <a href="https://www.elasticsearch.org/">Elasticsearch</a>
       to the
       <a href="https://golang.org/">Go programming language</a>.
-      We use it in production for over 2 years now. It has been tested
+      We use it in production since 2012. It has been tested
       with Elasticsearch versions 0.90, 1.0, 1.1, 1.2, 1.3, and 1.4.
     </p>
     <p>
@@ -50,6 +50,18 @@
       <a href="https://github.com/olivere/elastic/">GitHub</a>.
       Please
       <a href="https://github.com/olivere/elastic/issues">report issues on GitHub</a>.
+      If you want to have a deeper look and are searching for more
+      examples, the
+      <a href="https://github.com/olivere/elastic/wiki">wiki on GitHub</a>
+      is a good place to go.
+    </p>
+    <h6>Notice</h6>
+    <p>
+      The code here describes version 2 of Elastic. If you need access to
+      an earlier version (or find that you cannot update), don't worry.
+      Version is is still available via [gopkg.in](https://gopkg.in/).
+      Just <code>go get -u gopkg.in/olivere/elastic.v1</code> and make sure
+      your Go import path is set to <code>import "gopkg.in/olivere/elastic.v1"</code>.
     </p>
   </section>
   <section id="getting-started">
@@ -86,8 +98,10 @@ type Tweet struct {
 }
 
 func main() {
-  // Obtain a client. You can provide your own HTTP client here.
-  client, err := elastic.NewClient(http.DefaultClient)
+  // Obtain a client and connect to the default Elasticsearch installation
+  // on 127.0.0.1:9200. Of course you can configure your client to connect
+  // to other hosts and configure it in various other ways.
+  client, err := elastic.NewClient()
   if err != nil {
     // Handle error
     panic(err)
