@@ -23,7 +23,7 @@ type GetService struct {
 	fields                        []string
 	refresh                       *bool
 	realtime                      *bool
-	fetchSourceContext            *FetchSourceContext
+	fsc                           *FetchSourceContext
 	versionType                   string
 	version                       *int64
 	ignoreErrorsOnGeneratedFields *bool
@@ -83,6 +83,20 @@ func (b *GetService) Fields(fields ...string) *GetService {
 	}
 	b.fields = append(b.fields, fields...)
 	return b
+}
+
+func (s *GetService) FetchSource(fetchSource bool) *GetService {
+	if s.fsc == nil {
+		s.fsc = NewFetchSourceContext(fetchSource)
+	} else {
+		s.fsc.SetFetchSource(fetchSource)
+	}
+	return s
+}
+
+func (s *GetService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *GetService {
+	s.fsc = fetchSourceContext
+	return s
 }
 
 func (b *GetService) Refresh(refresh bool) *GetService {
@@ -151,6 +165,11 @@ func (b *GetService) Do() (*GetResult, error) {
 	}
 	if b.versionType != "" {
 		params.Add("version_type", b.versionType)
+	}
+	if b.fsc != nil {
+		for k, values := range b.fsc.Query() {
+			params.Add(k, strings.Join(values, ","))
+		}
 	}
 
 	// Get response
