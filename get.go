@@ -23,7 +23,7 @@ type GetService struct {
 	fields                        []string
 	refresh                       *bool
 	realtime                      *bool
-	fetchSourceContext            *FetchSourceContext
+	fsc                           *FetchSourceContext
 	versionType                   string
 	version                       *int64
 	ignoreErrorsOnGeneratedFields *bool
@@ -86,16 +86,16 @@ func (b *GetService) Fields(fields ...string) *GetService {
 }
 
 func (s *GetService) FetchSource(fetchSource bool) *GetService {
-	if s.fetchSourceContext == nil {
-		s.fetchSourceContext = NewFetchSourceContext(fetchSource)
+	if s.fsc == nil {
+		s.fsc = NewFetchSourceContext(fetchSource)
 	} else {
-		s.fetchSourceContext.SetFetchSource(fetchSource)
+		s.fsc.SetFetchSource(fetchSource)
 	}
 	return s
 }
 
 func (s *GetService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *GetService {
-	s.fetchSourceContext = fetchSourceContext
+	s.fsc = fetchSourceContext
 	return s
 }
 
@@ -127,10 +127,10 @@ func (b *GetService) IgnoreErrorsOnGeneratedFields(ignore bool) *GetService {
 func (b *GetService) Do() (*GetResult, error) {
 	// Build url
 	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
-			"index": b.index,
-			"type":  b.typ,
-			"id":    b.id,
-		})
+		"index": b.index,
+		"type":  b.typ,
+		"id":    b.id,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -166,8 +166,8 @@ func (b *GetService) Do() (*GetResult, error) {
 	if b.versionType != "" {
 		params.Add("version_type", b.versionType)
 	}
-	if b.fetchSourceContext != nil {
-		for k, values := range b.fetchSourceContext.Query() {
+	if b.fsc != nil {
+		for k, values := range b.fsc.Query() {
 			params.Add(k, strings.Join(values, ","))
 		}
 	}

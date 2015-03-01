@@ -71,11 +71,10 @@ func TestGet(t *testing.T) {
 	}
 }
 
-
 func TestGetWithSourceFiltering(t *testing.T) {
-		client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t)
 
-		tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
