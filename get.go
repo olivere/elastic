@@ -85,6 +85,20 @@ func (b *GetService) Fields(fields ...string) *GetService {
 	return b
 }
 
+func (s *GetService) FetchSource(fetchSource bool) *GetService {
+	if s.fetchSourceContext == nil {
+		s.fetchSourceContext = NewFetchSourceContext(fetchSource)
+	} else {
+		s.fetchSourceContext.SetFetchSource(fetchSource)
+	}
+	return s
+}
+
+func (s *GetService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *GetService {
+	s.fetchSourceContext = fetchSourceContext
+	return s
+}
+
 func (b *GetService) Refresh(refresh bool) *GetService {
 	b.refresh = &refresh
 	return b
@@ -113,10 +127,10 @@ func (b *GetService) IgnoreErrorsOnGeneratedFields(ignore bool) *GetService {
 func (b *GetService) Do() (*GetResult, error) {
 	// Build url
 	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
-		"index": b.index,
-		"type":  b.typ,
-		"id":    b.id,
-	})
+			"index": b.index,
+			"type":  b.typ,
+			"id":    b.id,
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -151,6 +165,11 @@ func (b *GetService) Do() (*GetResult, error) {
 	}
 	if b.versionType != "" {
 		params.Add("version_type", b.versionType)
+	}
+	if b.fetchSourceContext != nil {
+		for k, values := range b.fetchSourceContext.Query() {
+			params.Add(k, strings.Join(values, ","))
+		}
 	}
 
 	// Get response
