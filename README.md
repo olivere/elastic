@@ -178,6 +178,7 @@ Here's the current API status.
 
 - [x] Create index
 - [x] Delete index
+- [x] Get index
 - [x] Indices exists
 - [x] Open/close index
 - [x] Put mapping
@@ -199,6 +200,7 @@ Here's the current API status.
 - [x] Flush
 - [x] Refresh
 - [x] Optimize
+- [ ] Upgrade
 
 ### Snapshot and Restore
 

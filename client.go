@@ -879,6 +879,12 @@ func (c *Client) Index() *IndexService {
 	return builder
 }
 
+// IndexGet retrieves information about one or more indices.
+func (c *Client) IndexGet() *IndicesGetService {
+	builder := NewIndicesGetService(c)
+	return builder
+}
+
 // Update a document.
 func (c *Client) Update() *UpdateService {
 	builder := NewUpdateService(c)
