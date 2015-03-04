@@ -66,16 +66,10 @@ func TestIndexGetService(t *testing.T) {
 	if info == nil {
 		t.Fatalf("expected index %q to be != nil; got: %v", testIndexName, info)
 	}
-	if info.Aliases == nil {
-		t.Errorf("expected aliases to be != nil; got: %v", info.Aliases)
-	}
 	if info.Mappings == nil {
 		t.Errorf("expected mappings to be != nil; got: %v", info.Mappings)
 	}
 	if info.Settings == nil {
 		t.Errorf("expected settings to be != nil; got: %v", info.Settings)
-	}
-	if info.Warmers == nil {
-		t.Errorf("expected warmers to be != nil; got: %v", info.Warmers)
 	}
 }
