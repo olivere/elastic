@@ -831,6 +831,19 @@ func (c *Client) ElasticsearchVersion(url string) (string, error) {
 	return res.Version.Number, nil
 }
 
+// IndexNames returns the names of all indices in the cluster.
+func (c *Client) IndexNames() ([]string, error) {
+	res, err := c.IndexGetSettings().Index("_all").Do()
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for name, _ := range res {
+		names = append(names, name)
+	}
+	return names, nil
+}
+
 // Ping checks if a given node in a cluster exists and (optionally)
 // returns some basic information about the Elasticsearch server,
 // e.g. the Elasticsearch version number.

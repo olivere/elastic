@@ -409,6 +409,29 @@ func TestElasticsearchVersion(t *testing.T) {
 	}
 }
 
+// -- IndexNames --
+
+func TestIndexNames(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+	names, err := client.IndexNames()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(names) == 0 {
+		t.Fatalf("expected some index names, got: %d", len(names))
+	}
+	var found bool
+	for _, name := range names {
+		if name == testIndexName {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected to find index %q; got: %v", testIndexName, found)
+	}
+}
+
 // -- PerformRequest --
 
 func TestPerformRequest(t *testing.T) {
