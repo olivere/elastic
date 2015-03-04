@@ -188,7 +188,7 @@ Here's the current API status.
 - [x] Delete mapping
 - [x] Index aliases
 - [ ] Update indices settings
-- [ ] Get settings
+- [x] Get settings
 - [ ] Analyze
 - [x] Index templates
 - [ ] Warmers

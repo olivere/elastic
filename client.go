@@ -880,8 +880,15 @@ func (c *Client) Index() *IndexService {
 }
 
 // IndexGet retrieves information about one or more indices.
+// IndexGet is only available for Elasticsearch 1.4 or later.
 func (c *Client) IndexGet() *IndicesGetService {
 	builder := NewIndicesGetService(c)
+	return builder
+}
+
+// IndexGetSettings retrieves settings about one or more indices.
+func (c *Client) IndexGetSettings() *IndicesGetSettingsService {
+	builder := NewIndicesGetSettingsService(c)
 	return builder
 }
 
