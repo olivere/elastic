@@ -197,9 +197,10 @@ func (fn LinearDecayFunction) Source() interface{} {
 // -- Script --
 
 type ScriptFunction struct {
-	script string
-	lang   string
-	params map[string]interface{}
+	script     string
+	scriptFile string
+	lang       string
+	params     map[string]interface{}
 }
 
 func NewScriptFunction(script string) ScriptFunction {
@@ -215,6 +216,11 @@ func (fn ScriptFunction) Name() string {
 
 func (fn ScriptFunction) Script(script string) ScriptFunction {
 	fn.script = script
+	return fn
+}
+
+func (fn ScriptFunction) ScriptFile(scriptFile string) ScriptFunction {
+	fn.scriptFile = scriptFile
 	return fn
 }
 
@@ -235,7 +241,12 @@ func (fn ScriptFunction) Params(params map[string]interface{}) ScriptFunction {
 
 func (fn ScriptFunction) Source() interface{} {
 	source := make(map[string]interface{})
-	source["script"] = fn.script
+	if fn.script != "" {
+		source["script"] = fn.script
+	}
+	if fn.scriptFile != "" {
+		source["script_file"] = fn.scriptFile
+	}
 	if fn.lang != "" {
 		source["lang"] = fn.lang
 	}

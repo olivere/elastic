@@ -12,6 +12,7 @@ package elastic
 type CardinalityAggregation struct {
 	field              string
 	script             string
+	scriptFile         string
 	lang               string
 	format             string
 	params             map[string]interface{}
@@ -35,6 +36,11 @@ func (a CardinalityAggregation) Field(field string) CardinalityAggregation {
 
 func (a CardinalityAggregation) Script(script string) CardinalityAggregation {
 	a.script = script
+	return a
+}
+
+func (a CardinalityAggregation) ScriptFile(scriptFile string) CardinalityAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -89,6 +95,9 @@ func (a CardinalityAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang

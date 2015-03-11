@@ -10,6 +10,7 @@ package elastic
 type GeoBoundsAggregation struct {
 	field         string
 	script        string
+	scriptFile    string
 	lang          string
 	params        map[string]interface{}
 	wrapLongitude *bool
@@ -27,6 +28,11 @@ func (a GeoBoundsAggregation) Field(field string) GeoBoundsAggregation {
 
 func (a GeoBoundsAggregation) Script(script string) GeoBoundsAggregation {
 	a.script = script
+	return a
+}
+
+func (a GeoBoundsAggregation) ScriptFile(scriptFile string) GeoBoundsAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -80,6 +86,9 @@ func (a GeoBoundsAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang

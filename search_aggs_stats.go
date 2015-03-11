@@ -12,6 +12,7 @@ package elastic
 type StatsAggregation struct {
 	field           string
 	script          string
+	scriptFile      string
 	lang            string
 	format          string
 	params          map[string]interface{}
@@ -33,6 +34,11 @@ func (a StatsAggregation) Field(field string) StatsAggregation {
 
 func (a StatsAggregation) Script(script string) StatsAggregation {
 	a.script = script
+	return a
+}
+
+func (a StatsAggregation) ScriptFile(scriptFile string) StatsAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -75,6 +81,9 @@ func (a StatsAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang

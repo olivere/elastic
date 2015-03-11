@@ -12,6 +12,7 @@ package elastic
 type SumAggregation struct {
 	field           string
 	script          string
+	scriptFile      string
 	lang            string
 	format          string
 	params          map[string]interface{}
@@ -33,6 +34,11 @@ func (a SumAggregation) Field(field string) SumAggregation {
 
 func (a SumAggregation) Script(script string) SumAggregation {
 	a.script = script
+	return a
+}
+
+func (a SumAggregation) ScriptFile(scriptFile string) SumAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -75,6 +81,9 @@ func (a SumAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang

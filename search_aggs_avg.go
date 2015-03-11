@@ -13,6 +13,7 @@ package elastic
 type AvgAggregation struct {
 	field           string
 	script          string
+	scriptFile      string
 	lang            string
 	format          string
 	params          map[string]interface{}
@@ -34,6 +35,11 @@ func (a AvgAggregation) Field(field string) AvgAggregation {
 
 func (a AvgAggregation) Script(script string) AvgAggregation {
 	a.script = script
+	return a
+}
+
+func (a AvgAggregation) ScriptFile(scriptFile string) AvgAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -76,6 +82,9 @@ func (a AvgAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang

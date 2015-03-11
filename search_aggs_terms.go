@@ -10,6 +10,7 @@ package elastic
 type TermsAggregation struct {
 	field           string
 	script          string
+	scriptFile      string
 	lang            string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
@@ -50,6 +51,11 @@ func (a TermsAggregation) Field(field string) TermsAggregation {
 
 func (a TermsAggregation) Script(script string) TermsAggregation {
 	a.script = script
+	return a
+}
+
+func (a TermsAggregation) ScriptFile(scriptFile string) TermsAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -246,6 +252,9 @@ func (a TermsAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang

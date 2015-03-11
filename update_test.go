@@ -88,6 +88,50 @@ func TestUpdateViaScriptId(t *testing.T) {
 	}
 }
 
+func TestUpdateViaScriptFile(t *testing.T) {
+	client := setupTestClient(t)
+
+	scriptParams := map[string]interface{}{
+		"pageViewEvent": map[string]interface{}{
+			"url":      "foo.com/bar",
+			"response": 404,
+			"time":     "2014-01-01 12:32",
+		},
+	}
+
+	update := client.Update().
+		Index("sessions").Type("session").Id("dh3sgudg8gsrgl").
+		ScriptFile("update_script").
+		ScriptedUpsert(true).
+		ScriptParams(scriptParams).
+		Upsert(map[string]interface{}{})
+	path, params, err := update.url()
+	if err != nil {
+		t.Fatalf("expected to return URL, got: %v", err)
+	}
+	expectedPath := `/sessions/session/dh3sgudg8gsrgl/_update`
+	if expectedPath != path {
+		t.Errorf("expected URL path\n%s\ngot:\n%s", expectedPath, path)
+	}
+	expectedParams := url.Values{}
+	if expectedParams.Encode() != params.Encode() {
+		t.Errorf("expected URL parameters\n%s\ngot:\n%s", expectedParams.Encode(), params.Encode())
+	}
+	body, err := update.body()
+	if err != nil {
+		t.Fatalf("expected to return body, got: %v", err)
+	}
+	data, err := json.Marshal(body)
+	if err != nil {
+		t.Fatalf("expected to marshal body as JSON, got: %v", err)
+	}
+	got := string(data)
+	expected := `{"params":{"pageViewEvent":{"response":404,"time":"2014-01-01 12:32","url":"foo.com/bar"}},"script_file":"update_script","scripted_upsert":true,"upsert":{}}`
+	if got != expected {
+		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
+	}
+}
+
 func TestUpdateViaScriptAndUpsert(t *testing.T) {
 	client := setupTestClient(t)
 	update := client.Update().

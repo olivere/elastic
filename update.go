@@ -35,6 +35,7 @@ type UpdateService struct {
 	parent           string
 	script           string
 	scriptId         string
+	scriptFile       string
 	scriptType       string
 	scriptLang       string
 	scriptParams     map[string]interface{}
@@ -100,9 +101,16 @@ func (b *UpdateService) Script(script string) *UpdateService {
 	return b
 }
 
-// ScriptID is the id of a stored script.
+// ScriptId is the id of a stored script.
 func (b *UpdateService) ScriptId(scriptId string) *UpdateService {
 	b.scriptId = scriptId
+	return b
+}
+
+// ScriptFile is the file name of a stored script.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html for details.
+func (b *UpdateService) ScriptFile(scriptFile string) *UpdateService {
+	b.scriptFile = scriptFile
 	return b
 }
 
@@ -275,6 +283,9 @@ func (b *UpdateService) body() (interface{}, error) {
 	}
 	if b.scriptId != "" {
 		source["script_id"] = b.scriptId
+	}
+	if b.scriptFile != "" {
+		source["script_file"] = b.scriptFile
 	}
 	if b.scriptLang != "" {
 		source["lang"] = b.scriptLang

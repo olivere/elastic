@@ -15,6 +15,7 @@ package elastic
 type ValueCountAggregation struct {
 	field           string
 	script          string
+	scriptFile      string
 	lang            string
 	format          string
 	params          map[string]interface{}
@@ -36,6 +37,11 @@ func (a ValueCountAggregation) Field(field string) ValueCountAggregation {
 
 func (a ValueCountAggregation) Script(script string) ValueCountAggregation {
 	a.script = script
+	return a
+}
+
+func (a ValueCountAggregation) ScriptFile(scriptFile string) ValueCountAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -78,6 +84,9 @@ func (a ValueCountAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang

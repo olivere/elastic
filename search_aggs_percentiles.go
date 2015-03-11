@@ -9,6 +9,7 @@ package elastic
 type PercentilesAggregation struct {
 	field           string
 	script          string
+	scriptFile      string
 	lang            string
 	format          string
 	params          map[string]interface{}
@@ -34,6 +35,11 @@ func (a PercentilesAggregation) Field(field string) PercentilesAggregation {
 
 func (a PercentilesAggregation) Script(script string) PercentilesAggregation {
 	a.script = script
+	return a
+}
+
+func (a PercentilesAggregation) ScriptFile(scriptFile string) PercentilesAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -98,6 +104,9 @@ func (a PercentilesAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang

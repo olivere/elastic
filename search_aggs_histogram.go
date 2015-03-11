@@ -12,6 +12,7 @@ package elastic
 type HistogramAggregation struct {
 	field           string
 	script          string
+	scriptFile      string
 	lang            string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
@@ -39,6 +40,11 @@ func (a HistogramAggregation) Field(field string) HistogramAggregation {
 
 func (a HistogramAggregation) Script(script string) HistogramAggregation {
 	a.script = script
+	return a
+}
+
+func (a HistogramAggregation) ScriptFile(scriptFile string) HistogramAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 

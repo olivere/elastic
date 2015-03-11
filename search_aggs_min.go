@@ -13,6 +13,7 @@ package elastic
 type MinAggregation struct {
 	field           string
 	script          string
+	scriptFile      string
 	lang            string
 	format          string
 	params          map[string]interface{}
@@ -34,6 +35,11 @@ func (a MinAggregation) Field(field string) MinAggregation {
 
 func (a MinAggregation) Script(script string) MinAggregation {
 	a.script = script
+	return a
+}
+
+func (a MinAggregation) ScriptFile(scriptFile string) MinAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -76,6 +82,9 @@ func (a MinAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang

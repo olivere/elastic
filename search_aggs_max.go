@@ -13,6 +13,7 @@ package elastic
 type MaxAggregation struct {
 	field           string
 	script          string
+	scriptFile      string
 	lang            string
 	format          string
 	params          map[string]interface{}
@@ -34,6 +35,11 @@ func (a MaxAggregation) Field(field string) MaxAggregation {
 
 func (a MaxAggregation) Script(script string) MaxAggregation {
 	a.script = script
+	return a
+}
+
+func (a MaxAggregation) ScriptFile(scriptFile string) MaxAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -76,6 +82,9 @@ func (a MaxAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang

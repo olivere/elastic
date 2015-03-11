@@ -19,6 +19,7 @@ import (
 type DateRangeAggregation struct {
 	field           string
 	script          string
+	scriptFile      string
 	lang            string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
@@ -50,6 +51,11 @@ func (a DateRangeAggregation) Field(field string) DateRangeAggregation {
 
 func (a DateRangeAggregation) Script(script string) DateRangeAggregation {
 	a.script = script
+	return a
+}
+
+func (a DateRangeAggregation) ScriptFile(scriptFile string) DateRangeAggregation {
+	a.scriptFile = scriptFile
 	return a
 }
 
@@ -173,6 +179,9 @@ func (a DateRangeAggregation) Source() interface{} {
 	}
 	if a.script != "" {
 		opts["script"] = a.script
+	}
+	if a.scriptFile != "" {
+		opts["script_file"] = a.scriptFile
 	}
 	if a.lang != "" {
 		opts["lang"] = a.lang
