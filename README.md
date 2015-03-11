@@ -278,7 +278,7 @@ on the command line.
 - [x] `bool`
 - [x] `exists`
 - [ ] `geo_bounding_box`
-- [ ] `geo_distance`
+- [x] `geo_distance`
 - [ ] `geo_distance_range`
 - [x] `geo_polygon`
 - [ ] `geoshape`
