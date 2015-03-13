@@ -10,18 +10,6 @@ import (
 	"time"
 )
 
-func TestAggsRawMessage(t *testing.T) {
-	// Test for #51 (https://github.com/olivere/elastic/issues/51)
-	f := json.RawMessage([]byte(`42`))
-	m := Aggregations(map[string]*json.RawMessage{
-		"k": &f,
-	})
-	b, _ := json.Marshal(m)
-	if string(b) != `{"k":42}` {
-		t.Errorf("expected %s; got: %s", `{"k":42}`, string(b))
-	}
-}
-
 func TestAggs(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
@@ -2525,3 +2513,18 @@ func TestAggsSubAggregates(t *testing.T) {
 		t.Errorf("expected key_as_string %q; got: %q", "2012-01-01T00:00:00.000Z", *ts.Buckets[0].KeyAsString)
 	}
 }
+
+/*
+// TestAggsRawMessage is a test for issue #51 (https://github.com/olivere/elastic/issues/51).
+// See also: http://play.golang.org/p/b8fzGMxrMC
+func TestAggsRawMessage(t *testing.T) {
+	f := json.RawMessage([]byte(`42`))
+	m := Aggregations(map[string]*json.RawMessage{
+		"k": &f,
+	})
+	b, _ := json.Marshal(m)
+	if string(b) != `{"k":42}` {
+		t.Errorf("expected %s; got: %s", `{"k":42}`, string(b))
+	}
+}
+*/
