@@ -10,6 +10,18 @@ import (
 	"time"
 )
 
+func TestAggsRawMessage(t *testing.T) {
+	// Test for #51 (https://github.com/olivere/elastic/issues/51)
+	f := json.RawMessage([]byte(`42`))
+	m := Aggregations(map[string]*json.RawMessage{
+		"k": &f,
+	})
+	b, _ := json.Marshal(m)
+	if string(b) != `{"k":42}` {
+		t.Errorf("expected %s; got: %s", `{"k":42}`, string(b))
+	}
+}
+
 func TestAggs(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
