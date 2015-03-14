@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.0.alpha1"
+	Version = "2.0.0"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -952,6 +952,13 @@ func (c *Client) Count(indices ...string) *CountService {
 func (c *Client) Search(indices ...string) *SearchService {
 	builder := NewSearchService(c)
 	builder.Indices(indices...)
+	return builder
+}
+
+// Percolate allows to send a document and return matching queries.
+// See http://www.elastic.co/guide/en/elasticsearch/reference/current/search-percolate.html.
+func (c *Client) Percolate() *PercolateService {
+	builder := NewPercolateService(c)
 	return builder
 }
 
