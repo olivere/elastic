@@ -214,6 +214,8 @@ func (api *Api) WriteHeader() {
 
 	pn("var (")
 	pn("\t_ = fmt.Print")
+	pn("\t_ = http.Request")
+	pn("\t_ = httputil.DumpRequest")
 	pn("\t_ = log.Print")
 	pn("\t_ = strings.Index")
 	pn("\t_ = uritemplates.Expand")
