@@ -170,7 +170,7 @@ Here's the current API status.
 - [x] Facets (most are implemented, see below)
 - [x] Aggregates (most are implemented, see below)
 - [x] Multi Search
-- [ ] Percolate
+- [x] Percolate
 - [ ] More like this
 - [ ] Benchmark
 

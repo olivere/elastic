@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.0.alpha1"
+	Version = "2.0.0"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -955,6 +955,13 @@ func (c *Client) Search(indices ...string) *SearchService {
 	return builder
 }
 
+// Percolate allows to send a document and return matching queries.
+// See http://www.elastic.co/guide/en/elasticsearch/reference/current/search-percolate.html.
+func (c *Client) Percolate() *PercolateService {
+	builder := NewPercolateService(c)
+	return builder
+}
+
 // MultiSearch is the entry point for multi searches.
 func (c *Client) MultiSearch() *MultiSearchService {
 	return NewMultiSearchService(c)
@@ -1037,18 +1044,53 @@ func (c *Client) Aliases() *AliasesService {
 }
 
 // GetTemplate gets a search template.
+// Use IndexXXXTemplate funcs to manage index templates.
 func (c *Client) GetTemplate() *GetTemplateService {
 	return NewGetTemplateService(c)
 }
 
 // PutTemplate creates or updates a search template.
+// Use IndexXXXTemplate funcs to manage index templates.
 func (c *Client) PutTemplate() *PutTemplateService {
 	return NewPutTemplateService(c)
 }
 
 // DeleteTemplate deletes a search template.
+// Use IndexXXXTemplate funcs to manage index templates.
 func (c *Client) DeleteTemplate() *DeleteTemplateService {
 	return NewDeleteTemplateService(c)
+}
+
+// IndexGetTemplate gets an index template.
+// Use XXXTemplate funcs to manage search templates.
+func (c *Client) IndexGetTemplate(names ...string) *IndicesGetTemplateService {
+	builder := NewIndicesGetTemplateService(c)
+	builder = builder.Name(names...)
+	return builder
+}
+
+// IndexTemplateExists gets check if an index template exists.
+// Use XXXTemplate funcs to manage search templates.
+func (c *Client) IndexTemplateExists(name string) *IndicesExistsTemplateService {
+	builder := NewIndicesExistsTemplateService(c)
+	builder = builder.Name(name)
+	return builder
+}
+
+// IndexPutTemplate creates or updates an index template.
+// Use XXXTemplate funcs to manage search templates.
+func (c *Client) IndexPutTemplate(name string) *IndicesPutTemplateService {
+	builder := NewIndicesPutTemplateService(c)
+	builder = builder.Name(name)
+	return builder
+}
+
+// IndexDeleteTemplate deletes an index template.
+// Use XXXTemplate funcs to manage search templates.
+func (c *Client) IndexDeleteTemplate(name string) *IndicesDeleteTemplateService {
+	builder := NewIndicesDeleteTemplateService(c)
+	builder = builder.Name(name)
+	return builder
 }
 
 // GetMapping gets a mapping.
