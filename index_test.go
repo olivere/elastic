@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -49,6 +50,10 @@ type tweet struct {
 	Tags     []string      `json:"tags,omitempty"`
 	Location string        `json:"location,omitempty"`
 	Suggest  *SuggestField `json:"suggest_field,omitempty"`
+}
+
+func (t tweet) String() string {
+	return fmt.Sprintf("tweet{User:%q,Message:%q,Retweets:%d}", t.User, t.Message, t.Retweets)
 }
 
 func isTravis() bool {
@@ -105,6 +110,32 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 		t.Errorf("expected result to be != nil; got: %v", createIndex2)
 	}
 
+	return client
+}
+
+func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFunc) *Client {
+	client := setupTestClientAndCreateIndex(t, options...)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
+	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
+
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
 	return client
 }
 
