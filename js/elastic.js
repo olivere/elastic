@@ -8,7 +8,7 @@ $(document).ready(function() {
       navOffsetTop = $nav.offset().top,
       $document = $(document),
       entityMap = {
-        // "&": "&amp;",
+        "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
         '"': '&quot;',

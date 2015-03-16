@@ -193,7 +193,7 @@ func main() {
   termQuery := elastic.NewTermQuery("user", "olivere")
   searchResult, err := client.Search().
     Index("twitter").   // search in index "twitter"
-    Query(&#38;termQuery).  // specify the query
+    Query(&termQuery).  // specify the query
     Sort("user", true). // sort by "user" field, ascending
     From(0).Size(10).   // take documents 0-9
     Debug(true).        // print request and response to stdout
@@ -230,7 +230,7 @@ func main() {
 
       // Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
       var t Tweet
-      err := json.Unmarshal(*hit.Source, &#38;t)
+      err := json.Unmarshal(*hit.Source, &t)
       if err != nil {
         // Deserialization failed
       }
