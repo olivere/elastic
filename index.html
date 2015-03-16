@@ -193,7 +193,7 @@ func main() {
   termQuery := elastic.NewTermQuery("user", "olivere")
   searchResult, err := client.Search().
     Index("twitter").   // search in index "twitter"
-    Query(&termQuery).  // specify the query
+    Query(&amp;termQuery).  // specify the query
     Sort("user", true). // sort by "user" field, ascending
     From(0).Size(10).   // take documents 0-9
     Debug(true).        // print request and response to stdout
@@ -208,7 +208,19 @@ func main() {
   // and all kinds of other information from Elasticsearch.
   fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
-  // Number of hits
+  // Each is a convenience function that iterates over hits in a search result.
+  // It makes sure you don't need to check for nil values in the response.
+  // However, it ignores errors in serialization. If you want full control
+  // over iterating the hits, see below.
+  var ttyp Tweet
+  for _, item := range searchResult.Each(reflect.TypeOf(ttyp)) {
+      t := item.(Tweet)
+      fmt.Printf("Tweet by %s: %s\n", t.User, t.Message)
+  }
+  // TotalHits is another convenience function that works even when something goes wrong.
+  fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
+
+  // Here's how you iterate through results with full control over each step.
   if searchResult.Hits != nil {
     fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
 
@@ -218,7 +230,7 @@ func main() {
 
       // Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
       var t Tweet
-      err := json.Unmarshal(*hit.Source, &t)
+      err := json.Unmarshal(*hit.Source, &amp;t)
       if err != nil {
         // Deserialization failed
       }
