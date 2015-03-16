@@ -8,7 +8,7 @@ $(document).ready(function() {
       navOffsetTop = $nav.offset().top,
       $document = $(document),
       entityMap = {
-        "&": "&amp;",
+        //"&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
         '"': '&quot;',
@@ -53,7 +53,7 @@ $(document).ready(function() {
   }
 
   function escapeHtml(string) {
-    return String(string).replace(/[&<>"'\/]/g, function (s) {
+    return String(string).replace(/[<>"'\/]/g, function (s) {
       return entityMap[s];
     });
   }
