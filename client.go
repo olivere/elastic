@@ -872,6 +872,11 @@ func (c *Client) IndexExists(name string) *IndexExistsService {
 	return builder
 }
 
+// TypeExists allows to check if one or more types exist in one or more indices.
+func (c *Client) TypeExists() *IndicesExistsTypeService {
+	return NewIndicesExistsTypeService(c)
+}
+
 // OpenIndex opens an index.
 func (c *Client) OpenIndex(name string) *OpenIndexService {
 	builder := NewOpenIndexService(c)

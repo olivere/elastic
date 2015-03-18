@@ -196,7 +196,7 @@ Here's the current API status.
 - [x] Put mapping
 - [x] Get mapping
 - [ ] Get field mapping
-- [ ] Types exist
+- [x] Types exist
 - [x] Delete mapping
 - [x] Index aliases
 - [ ] Update indices settings
