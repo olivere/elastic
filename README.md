@@ -205,7 +205,7 @@ Here's the current API status.
 - [x] Index templates
 - [ ] Warmers
 - [ ] Status
-- [ ] Indices stats
+- [x] Indices stats
 - [ ] Indices segments
 - [ ] Indices recovery
 - [ ] Clear cache
