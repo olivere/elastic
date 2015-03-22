@@ -135,3 +135,31 @@ func TestGetWithSourceFiltering(t *testing.T) {
 		t.Errorf("expected message %q; got: %q", "", tw.Message)
 	}
 }
+
+func TestGetFailsWithMissingParams(t *testing.T) {
+	// Mitigate against http://stackoverflow.com/questions/27491738/elasticsearch-go-index-failures-no-feature-for-name
+	client := setupTestClientAndCreateIndex(t)
+	if _, err := client.Get().Do(); err == nil {
+		t.Fatal("expected Get to fail")
+	}
+	if _, err := client.Get().Index(testIndexName).Do(); err == nil {
+		t.Fatal("expected Get to fail")
+	}
+	if _, err := client.Get().Type("tweet").Do(); err == nil {
+		t.Fatal("expected Get to fail")
+	}
+	if _, err := client.Get().Id("1").Do(); err == nil {
+		t.Fatal("expected Get to fail")
+	}
+	if _, err := client.Get().Index(testIndexName).Type("tweet").Do(); err == nil {
+		t.Fatal("expected Get to fail")
+	}
+	/*
+		if _, err := client.Get().Index(testIndexName).Id("1").Do(); err == nil {
+			t.Fatal("expected Get to fail")
+		}
+	*/
+	if _, err := client.Get().Type("tweet").Id("1").Do(); err == nil {
+		t.Fatal("expected Get to fail")
+	}
+}
