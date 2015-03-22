@@ -51,7 +51,7 @@ func TestPercolate(t *testing.T) {
 		t.Fatalf("expected matches as map; got: %v", matches)
 	}
 	if len(matches) != 1 {
-		t.Fatalf("expected %d registered matches; got: %d", len(matches))
+		t.Fatalf("expected %d registered matches; got: %d", 1, len(matches))
 	}
 	if matches[0].Id != "1" {
 		t.Errorf("expected to return query %q; got: %q", "1", matches[0].Id)
