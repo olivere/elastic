@@ -419,8 +419,11 @@ func TestAggs(t *testing.T) {
 	if percentilesAggRes == nil {
 		t.Fatalf("expected != nil; got: nil")
 	}
-	if len(percentilesAggRes.Values) != 7 {
-		t.Fatalf("expected %d; got: %d\nValues are: %#v", 7, len(percentilesAggRes.Values), percentilesAggRes.Values)
+	// ES 1.4.x returns  7: {"1.0":...}
+	// ES 1.5.0 returns 14: {"1.0":..., "1.0_as_string":...}
+	// So we're relaxing the test here.
+	if len(percentilesAggRes.Values) == 0 {
+		t.Errorf("expected at least %d value; got: %d\nValues are: %#v", 1, len(percentilesAggRes.Values), percentilesAggRes.Values)
 	}
 	if _, found := percentilesAggRes.Values["0.0"]; found {
 		t.Errorf("expected %v; got: %v", false, found)
@@ -443,8 +446,8 @@ func TestAggs(t *testing.T) {
 	if percentileRanksAggRes == nil {
 		t.Fatalf("expected != nil; got: nil")
 	}
-	if len(percentileRanksAggRes.Values) != 3 {
-		t.Fatalf("expected %d; got %d\nValues are: %#v", 3, len(percentileRanksAggRes.Values), percentileRanksAggRes.Values)
+	if len(percentileRanksAggRes.Values) == 0 {
+		t.Errorf("expected at least %d value; got %d\nValues are: %#v", 1, len(percentileRanksAggRes.Values), percentileRanksAggRes.Values)
 	}
 	if _, found := percentileRanksAggRes.Values["0.0"]; found {
 		t.Errorf("expected %v; got: %v", true, found)
