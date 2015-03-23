@@ -12,6 +12,7 @@ env:
     - ES_VERSION=1.3.9
     - ES_VERSION=1.4.2
     - ES_VERSION=1.4.4
+    - ES_VERSION=1.5.0
 
 before_script:
   - mkdir ${HOME}/elasticsearch
