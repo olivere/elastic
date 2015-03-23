@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"reflect"
 	"strings"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -343,6 +344,32 @@ type SearchResult struct {
 	Aggregations Aggregations  `json:"aggregations"`    // results from aggregations
 	TimedOut     bool          `json:"timed_out"`       // true if the search timed out
 	Error        string        `json:"error,omitempty"` // used in MultiSearch only
+}
+
+// TotalHits is a convenience function to return the number of hits for
+// a search result.
+func (r *SearchResult) TotalHits() int64 {
+	if r.Hits != nil {
+		return r.Hits.TotalHits
+	}
+	return 0
+}
+
+// Each is a utility function to iterate over all hits. It saves you from
+// checking for nil values. Notice that Each will ignore errors in
+// serializing JSON.
+func (r *SearchResult) Each(typ reflect.Type) []interface{} {
+	if r.Hits == nil || r.Hits.Hits == nil || len(r.Hits.Hits) == 0 {
+		return nil
+	}
+	slice := make([]interface{}, 0)
+	for _, hit := range r.Hits.Hits {
+		v := reflect.New(typ).Elem()
+		if err := json.Unmarshal(*hit.Source, v.Addr().Interface()); err == nil {
+			slice = append(slice, v.Interface())
+		}
+	}
+	return slice
 }
 
 // SearchHits specifies the list of search hits.

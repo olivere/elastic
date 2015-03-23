@@ -7,37 +7,13 @@ package elastic
 import (
 	"encoding/json"
 	_ "net/http"
+	"reflect"
 	"testing"
 	"time"
 )
 
 func TestSearchMatchAll(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
-
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
-	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
-
-	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = client.Flush().Index(testIndexName).Do()
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
 	// Match all should return all documents
 	all := NewMatchAllQuery()
@@ -68,32 +44,7 @@ func TestSearchMatchAll(t *testing.T) {
 }
 
 func BenchmarkSearchMatchAll(b *testing.B) {
-	client := setupTestClientAndCreateIndex(b)
-
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
-	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
-
-	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	_, err = client.Flush().Index(testIndexName).Do()
-	if err != nil {
-		b.Fatal(err)
-	}
+	client := setupTestClientAndCreateIndexAndAddDocs(b)
 
 	for n := 0; n < b.N; n++ {
 		// Match all should return all documents
@@ -111,6 +62,94 @@ func BenchmarkSearchMatchAll(b *testing.B) {
 		if len(searchResult.Hits.Hits) != 3 {
 			b.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", 3, len(searchResult.Hits.Hits))
 		}
+	}
+}
+
+func TestSearchResultTotalHits(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+
+	count, err := client.Count(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	all := NewMatchAllQuery()
+	searchResult, err := client.Search().Index(testIndexName).Query(&all).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := searchResult.TotalHits()
+	if got != count {
+		t.Fatalf("expected %d hits; got: %d", count, got)
+	}
+
+	// No hits
+	searchResult = &SearchResult{}
+	got = searchResult.TotalHits()
+	if got != 0 {
+		t.Errorf("expected %d hits; got: %d", 0, got)
+	}
+}
+
+func TestSearchResultEach(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+
+	all := NewMatchAllQuery()
+	searchResult, err := client.Search().Index(testIndexName).Query(&all).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Iterate over non-ptr type
+	var aTweet tweet
+	count := 0
+	for _, item := range searchResult.Each(reflect.TypeOf(aTweet)) {
+		count++
+		_, ok := item.(tweet)
+		if !ok {
+			t.Fatalf("expected hit to be serialized as tweet; got: %v", reflect.ValueOf(item))
+		}
+	}
+	if count == 0 {
+		t.Errorf("expected to find some hits; got: %d", count)
+	}
+
+	// Iterate over ptr-type
+	count = 0
+	var aTweetPtr *tweet
+	for _, item := range searchResult.Each(reflect.TypeOf(aTweetPtr)) {
+		count++
+		tw, ok := item.(*tweet)
+		if !ok {
+			t.Fatalf("expected hit to be serialized as tweet; got: %v", reflect.ValueOf(item))
+		}
+		if tw == nil {
+			t.Fatal("expected hit to not be nil")
+		}
+	}
+	if count == 0 {
+		t.Errorf("expected to find some hits; got: %d", count)
+	}
+
+	// Does not iterate when no hits are found
+	searchResult = &SearchResult{Hits: nil}
+	count = 0
+	for _, item := range searchResult.Each(reflect.TypeOf(aTweet)) {
+		count++
+		_ = item
+	}
+	if count != 0 {
+		t.Errorf("expected to not find any hits; got: %d", count)
+	}
+	searchResult = &SearchResult{Hits: &SearchHits{Hits: make([]*SearchHit, 0)}}
+	count = 0
+	for _, item := range searchResult.Each(reflect.TypeOf(aTweet)) {
+		count++
+		_ = item
+	}
+	if count != 0 {
+		t.Errorf("expected to not find any hits; got: %d", count)
 	}
 }
 

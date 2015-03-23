@@ -110,7 +110,19 @@ if err != nil {
 // and all kinds of other information from Elasticsearch.
 fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
-// Number of hits
+// Each is a convenience function that iterates over hits in a search result.
+// It makes sure you don't need to check for nil values in the response.
+// However, it ignores errors in serialization. If you want full control
+// over iterating the hits, see below.
+var ttyp Tweet
+for _, item := range searchResult.Each(reflect.TypeOf(ttyp)) {
+    t := item.(Tweet)
+    fmt.Printf("Tweet by %s: %s\n", t.User, t.Message)
+}
+// TotalHits is another convenience function that works even when something goes wrong.
+fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
+
+// Here's how you iterate through results with full control over each step.
 if searchResult.Hits != nil {
     fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
 
@@ -184,7 +196,7 @@ Here's the current API status.
 - [x] Put mapping
 - [x] Get mapping
 - [ ] Get field mapping
-- [ ] Types exist
+- [x] Types exist
 - [x] Delete mapping
 - [x] Index aliases
 - [ ] Update indices settings
@@ -193,7 +205,7 @@ Here's the current API status.
 - [x] Index templates
 - [ ] Warmers
 - [ ] Status
-- [ ] Indices stats
+- [x] Indices stats
 - [ ] Indices segments
 - [ ] Indices recovery
 - [ ] Clear cache

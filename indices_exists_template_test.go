@@ -63,6 +63,6 @@ func TestIndexExistsTemplate(t *testing.T) {
 		t.Fatalf("expected no error; got: %v", err)
 	}
 	if getres == nil {
-		t.Fatalf("expected to get index template %q; got: %v", getres)
+		t.Fatalf("expected to get index template %q; got: %v", "elastic-template", getres)
 	}
 }
