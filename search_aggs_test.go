@@ -144,6 +144,23 @@ func TestAggs(t *testing.T) {
 		t.Fatalf("expected Aggregations != nil; got: nil")
 	}
 
+	// Make sure aggregations aren't unmarshalled into a base64 encoded string
+	res, err := json.Marshal(searchResult.Aggregations)
+	if err != nil {
+		t.Errorf("expexted aggregations to be marshalled into []byte")
+	}
+
+	searchRes := &SearchResult{}
+	err = json.Unmarshal(res, &searchRes.Aggregations)
+
+	if err != nil {
+		t.Errorf("expected aggregations to be json unmarshable %v", err)
+	}
+
+	if !strings.Contains(`{"buckets":[{"key_as_string":"2011-01-01T00:00:00.000Z","key":1293840000000,"doc_count":1},{"key_as_string":"2012-01-01T00:00:00.000Z","key":1325376000000,"doc_count":2}]}`, string(*searchRes.Aggregations["dateHisto"])) {
+		t.Errorf("expected dateHisto aggregations to be a json string and not base64 encoded string: %s", string(*searchRes.Aggregations["dateHisto"]))
+	}
+
 	// Search for non-existent aggregate should return (nil, false)
 	unknownAgg, found := agg.Terms("no-such-aggregate")
 	if found {
