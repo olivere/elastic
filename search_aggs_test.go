@@ -807,6 +807,62 @@ func TestAggs(t *testing.T) {
 	}
 }
 
+// TestAggsUnmarshal ensures that unmarshaling search results does not
+// yield base64 encoded strings. See ... for details.
+func TestAggsUnmarshal(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{
+		User:     "olivere",
+		Retweets: 108,
+		Message:  "Welcome to Golang and Elasticsearch.",
+		Image:    "http://golang.org/doc/gopher/gophercolor.png",
+		Tags:     []string{"golang", "elasticsearch"},
+		Location: "48.1333,11.5667", // lat,lon
+		Created:  time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
+	}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Match all should return all documents
+	all := NewMatchAllQuery()
+	dhagg := NewDateHistogramAggregation().Field("created").Interval("year")
+
+	// Run query
+	builder := client.Search().Index(testIndexName).Query(&all)
+	builder = builder.Aggregation("dhagg", dhagg)
+	searchResult, err := builder.Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult.TotalHits() != 1 {
+		t.Errorf("expected Hits.TotalHits = %d; got: %d", 1, searchResult.TotalHits())
+	}
+	aggs := searchResult.Aggregations
+	if aggs == nil {
+		t.Fatalf("expected Aggregations != nil; got: nil")
+	}
+
+	// Unmarshal the search result back into a string
+	agg, found := aggs["dhagg"]
+	if !found {
+		t.Fatalf("expected date histogram; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatal("expected aggregation != nil")
+	}
+	s := string(*agg)
+	t.Logf("%s", s)
+}
+
 func TestAggsMin(t *testing.T) {
 	s := `{
 	"min_price": {
