@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 )
@@ -807,9 +808,10 @@ func TestAggs(t *testing.T) {
 	}
 }
 
-// TestAggsUnmarshal ensures that unmarshaling search results does not
-// yield base64 encoded strings. See ... for details.
-func TestAggsUnmarshal(t *testing.T) {
+// TestAggsMarshal ensures that marshaling aggregations back into a string
+// does not yield base64 encoded data. See https://github.com/olivere/elastic/issues/51
+// and https://groups.google.com/forum/#!topic/Golang-Nuts/38ShOlhxAYY for details.
+func TestAggsMarshal(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{
@@ -846,21 +848,17 @@ func TestAggsUnmarshal(t *testing.T) {
 	if searchResult.TotalHits() != 1 {
 		t.Errorf("expected Hits.TotalHits = %d; got: %d", 1, searchResult.TotalHits())
 	}
-	aggs := searchResult.Aggregations
-	if aggs == nil {
-		t.Fatalf("expected Aggregations != nil; got: nil")
+	if _, found := searchResult.Aggregations["dhagg"]; !found {
+		t.Fatalf("expected aggregation %q", "dhagg")
 	}
-
-	// Unmarshal the search result back into a string
-	agg, found := aggs["dhagg"]
-	if !found {
-		t.Fatalf("expected date histogram; got: %v", found)
+	buf, err := json.Marshal(searchResult)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if agg == nil {
-		t.Fatal("expected aggregation != nil")
+	s := string(buf)
+	if i := strings.Index(s, `{"dhagg":{"buckets":[{"key_as_string":"2012-01-01`); i < 0 {
+		t.Errorf("expected to serialize aggregation into string; got: %v", s)
 	}
-	s := string(*agg)
-	t.Logf("%s", s)
 }
 
 func TestAggsMin(t *testing.T) {
