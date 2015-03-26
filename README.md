@@ -2,15 +2,19 @@
 
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for [Go](http://www.golang.org/).
 
-[![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=master)](https://travis-ci.org/olivere/elastic)
-[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/olivere/elastic)
+[![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=release-branch.v1)](https://travis-ci.org/olivere/elastic)
+[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](http://godoc.org/gopkg.in/olivere/elastic.v1)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/olivere/elastic/master/LICENSE)
+
 
 ## Releases
 
-I'm about to release a new version of Elastic soon. To continue using
-the 1.0 version, all you need to do is to go-get a new URL and switch
-your import path. We're using [gopkg.in](http://gokpg.in/) for that.
+**Notice**: This is version 1.0 of Elastic. There is a newer version
+available on [https://github.com/olivere/elastic](https://github.com/olivere/elastic).
+I encourage anyone to use the newest version.
+
+However, if you want to continue using the 1.0 version, you need to go-get
+a new URL and switch your import path. We're using [gopkg.in](http://gokpg.in/) for that.
 Here's how to use Elastic version 1:
 
 ```sh
@@ -23,20 +27,8 @@ In your Go code:
 import "gopkg.in/olivere/elastic.v1"
 ```
 
-Once version 2 is ready, you can get it like this:
-
-```sh
-$ go get -u gopkg.in/olivere/elastic.v2
-```
-
-In your Go code:
-
-```go
-import "gopkg.in/olivere/elastic.v2"
-```
-
-If you continue to use `github.com/olivere/elastic` in your code base,
-you are following master. I try to keep master stable, but things might
+If you instead use `github.com/olivere/elastic` in your code base, you are
+following master. I try to keep master stable, but things might
 break now and then.
 
 ## Status

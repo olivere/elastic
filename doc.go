@@ -6,6 +6,10 @@
 Package elastic provides an interface to the Elasticsearch server
 (http://www.elasticsearch.org/).
 
+Notice: This is version 1 of Elastic. There are newer versions of Elastic
+available on GitHub at https://github.com/olivere/elastic. Version 1 is
+maintained, but new development happens in newer versions.
+
 The first thing you do is to create a Client. The client takes a http.Client
 and (optionally) a list of URLs to the Elasticsearch servers as arguments.
 If the list of URLs is empty, http://localhost:9200 is used by default.
