@@ -357,8 +357,23 @@ func TestSearchSpecificFields(t *testing.T) {
 		if hit.Fields == nil {
 			t.Fatal("expected SearchResult.Hits.Hit.Fields to be != nil")
 		}
-		if _, found := hit.Fields["message"]; !found {
+		field, found := hit.Fields["message"]
+		if !found {
 			t.Errorf("expected SearchResult.Hits.Hit.Fields[%s] to be found", "message")
+		}
+		fields, ok := field.([]interface{})
+		if !ok {
+			t.Errorf("expected []interface{}; got: %v", reflect.TypeOf(fields))
+		}
+		if len(fields) != 1 {
+			t.Errorf("expected a field with 1 entry; got: %d", len(fields))
+		}
+		message, ok := fields[0].(string)
+		if !ok {
+			t.Errorf("expected a string; got: %v", reflect.TypeOf(fields[0]))
+		}
+		if message == "" {
+			t.Errorf("expected a message; got: %q", message)
 		}
 	}
 }
