@@ -236,7 +236,7 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 		}
 	}
 	if c.Results.ScrollId == "" {
-		return nil, ErrNoScrollId
+		return nil, EOS
 	}
 
 	// Build url
