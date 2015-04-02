@@ -1135,3 +1135,11 @@ func (c *Client) ClusterState() *ClusterStateService {
 func (c *Client) NodesInfo() *NodesInfoService {
 	return NewNodesInfoService(c)
 }
+
+// Reindex returns a service that will reindex documents from a source
+// index into a target index. See
+// http://www.elastic.co/guide/en/elasticsearch/guide/current/reindex.html
+// for more information about reindexing.
+func (c *Client) Reindex(sourceIndex, targetIndex string) *Reindexer {
+	return NewReindexer(c, sourceIndex, targetIndex)
+}
