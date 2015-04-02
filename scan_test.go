@@ -204,6 +204,12 @@ func TestScanAndScrollWithMissingIndex(t *testing.T) {
 func TestScanAndScrollWithEmptyIndex(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
+	// Travis sometimes fails here, so usually a flush helps here
+	_, err := client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	cursor, err := client.Scan(testIndexName).Scroll("30s").Do()
 	if err != nil {
 		t.Fatal(err)
