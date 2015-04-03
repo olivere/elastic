@@ -185,8 +185,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	// Perform an initial health check and
 	// ensure that we have at least one connection available
 	c.healthcheck(true)
-	_, err := c.next()
-	if err != nil {
+	if err := c.mustActiveConn(); err != nil {
 		return nil, err
 	}
 
@@ -678,7 +677,7 @@ func (c *Client) healthcheck(force bool) {
 // next returns the next available connection, or ErrNoClient.
 func (c *Client) next() (*conn, error) {
 	// We do round-robin here.
-	// TODO: This should be a pluggable strategy, like the Selector in the official clients.
+	// TODO(oe) This should be a pluggable strategy, like the Selector in the official clients.
 	c.connsMu.Lock()
 	defer c.connsMu.Unlock()
 
@@ -703,6 +702,20 @@ func (c *Client) next() (*conn, error) {
 
 	// We tried hard, but there is no node available
 	return nil, ErrNoClient
+}
+
+// mustActiveConn returns nil if there is an active connection,
+// otherwise ErrNoClient is returned.
+func (c *Client) mustActiveConn() error {
+	c.connsMu.Lock()
+	defer c.connsMu.Unlock()
+
+	for _, c := range c.conns {
+		if !c.IsDead() {
+			return nil
+		}
+	}
+	return ErrNoClient
 }
 
 // PerformRequest does a HTTP request to Elasticsearch.
