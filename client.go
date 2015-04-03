@@ -638,7 +638,7 @@ func (c *Client) healthchecker() {
 // If healthchecks are disabled, this is a no-op.
 func (c *Client) healthcheck(force bool) {
 	c.mu.RLock()
-	if !c.healthcheckEnabled {
+	if !c.healthcheckEnabled && !force {
 		c.mu.RUnlock()
 		return
 	}
@@ -699,7 +699,7 @@ func (c *Client) next() (*conn, error) {
 		}
 	}
 
-	// TODO: As a last resort, we could try to awake a dead connection here.
+	// TODO(oe) As a last resort, we could try to awake a dead connection here.
 
 	// We tried hard, but there is no node available
 	return nil, ErrNoClient
