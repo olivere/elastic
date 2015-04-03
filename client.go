@@ -182,8 +182,13 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		}
 	}
 
-	// Perform an initial health check
-	c.healthcheck()
+	// Perform an initial health check and
+	// ensure that we have at least one connection available
+	c.healthcheck(true)
+	_, err := c.next()
+	if err != nil {
+		return nil, err
+	}
 
 	go c.sniffer()       // periodically update cluster information
 	go c.healthchecker() // start goroutine periodically ping all nodes of the cluster
@@ -623,7 +628,7 @@ func (c *Client) healthchecker() {
 			c.healthcheckStop <- true
 			return
 		case <-ticker.C:
-			c.healthcheck()
+			c.healthcheck(false)
 		}
 	}
 }
@@ -631,7 +636,7 @@ func (c *Client) healthchecker() {
 // healthcheck does a health check on all nodes in the cluster. Depending on
 // the node state, it marks connections as dead, sets them alive etc.
 // If healthchecks are disabled, this is a no-op.
-func (c *Client) healthcheck() {
+func (c *Client) healthcheck(force bool) {
 	c.mu.RLock()
 	if !c.healthcheckEnabled {
 		c.mu.RUnlock()
@@ -730,7 +735,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		if err == ErrNoClient {
 			if !retried {
 				// Force a healtcheck as all connections seem to be dead.
-				c.healthcheck()
+				c.healthcheck(false)
 			}
 			retries -= 1
 			if retries <= 0 {
