@@ -142,7 +142,6 @@ type Client struct {
 func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	// Set up the client
 	c := &Client{
-		urls:                []string{DefaultURL},
 		c:                   http.DefaultClient,
 		conns:               make([]*conn, 0),
 		cindex:              -1,
@@ -217,10 +216,7 @@ func SetURL(urls ...string) ClientOptionFunc {
 		case 0:
 			c.urls = []string{DefaultURL}
 		default:
-			c.urls = make([]string, 0)
-			for _, url := range urls {
-				c.urls = append(c.urls, url)
-			}
+			c.urls = urls
 		}
 		return nil
 	}
