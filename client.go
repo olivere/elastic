@@ -49,7 +49,7 @@ const (
 
 	// DefaultSnifferTimeout is the default timeout after which the
 	// sniffing process times out.
-	DefaultSnifferTimeout = 1 * time.Second
+	DefaultSnifferTimeout = 4 * time.Second
 
 	// DefaultMaxRetries is the number of retries for a single request after
 	// Elastic will give up and return an error. It is zero by default, so
