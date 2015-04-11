@@ -35,6 +35,17 @@ const (
 	// DefaultHealthcheckEnabled specifies if healthchecks are enabled by default.
 	DefaultHealthcheckEnabled = true
 
+	// DefaultHealthcheckTimeoutStartup is the time the healthcheck waits
+	// for a response from Elasticsearch on startup, i.e. when creating a
+	// client. After the client is started, a shorter timeout is commonly used
+	// (its default is specified in DefaultHealthcheckTimeout).
+	DefaultHealthcheckTimeoutStartup = 5 * time.Second
+
+	// DefaultHealthcheckTimeout specifies the time a running client waits for
+	// a response from Elasticsearch. Notice that the healthcheck timeout
+	// when a client is created is larger by default (see DefaultHealthcheckTimeoutStartup).
+	DefaultHealthcheckTimeout = 1 * time.Second
+
 	// DefaultHealthcheckInterval is the default interval between
 	// two health checks of the nodes in the cluster.
 	DefaultHealthcheckInterval = 60 * time.Second
@@ -47,9 +58,15 @@ const (
 	// from the list of actual connections.
 	DefaultSnifferInterval = 15 * time.Minute
 
+	// DefaultSnifferTimeoutStartup is the default timeout for the sniffing
+	// process that is initiated while creating a new client. For subsequent
+	// sniffing processes, DefaultSnifferTimeout is used (by default).
+	DefaultSnifferTimeoutStartup = 5 * time.Second
+
 	// DefaultSnifferTimeout is the default timeout after which the
-	// sniffing process times out.
-	DefaultSnifferTimeout = 1 * time.Second
+	// sniffing process times out. Notice that for the initial sniffing
+	// process, DefaultSnifferTimeoutStartup is used.
+	DefaultSnifferTimeout = 2 * time.Second
 
 	// DefaultMaxRetries is the number of retries for a single request after
 	// Elastic will give up and return an error. It is zero by default, so
@@ -78,22 +95,25 @@ type Client struct {
 	conns   []*conn      // all connections
 	cindex  int          // index into conns
 
-	mu                  sync.RWMutex  // guards the next block
-	urls                []string      // set of URLs passed initially to the client
-	running             bool          // true if the client's background processes are running
-	errorlog            *log.Logger   // error log for critical messages
-	infolog             *log.Logger   // information log for e.g. response times
-	tracelog            *log.Logger   // trace log for debugging
-	maxRetries          int           // max. number of retries
-	scheme              string        // http or https
-	healthcheckEnabled  bool          // healthchecks enabled or disabled
-	healthcheckInterval time.Duration // interval between healthchecks
-	healthcheckStop     chan bool     // notify healthchecker to stop, and notify back
-	snifferEnabled      bool          // sniffer enabled or disabled
-	snifferTimeout      time.Duration // time the sniffer waits for a response from nodes info API
-	snifferInterval     time.Duration // interval between sniffing
-	snifferStop         chan bool     // notify sniffer to stop, and notify back
-	decoder             Decoder       // used to decode data sent from Elasticsearch
+	mu                        sync.RWMutex  // guards the next block
+	urls                      []string      // set of URLs passed initially to the client
+	running                   bool          // true if the client's background processes are running
+	errorlog                  *log.Logger   // error log for critical messages
+	infolog                   *log.Logger   // information log for e.g. response times
+	tracelog                  *log.Logger   // trace log for debugging
+	maxRetries                int           // max. number of retries
+	scheme                    string        // http or https
+	healthcheckEnabled        bool          // healthchecks enabled or disabled
+	healthcheckTimeoutStartup time.Duration // time the healthcheck waits for a response from Elasticsearch on startup
+	healthcheckTimeout        time.Duration // time the healthcheck waits for a response from Elasticsearch
+	healthcheckInterval       time.Duration // interval between healthchecks
+	healthcheckStop           chan bool     // notify healthchecker to stop, and notify back
+	snifferEnabled            bool          // sniffer enabled or disabled
+	snifferTimeoutStartup     time.Duration // time the sniffer waits for a response from nodes info API on startup
+	snifferTimeout            time.Duration // time the sniffer waits for a response from nodes info API
+	snifferInterval           time.Duration // interval between sniffing
+	snifferStop               chan bool     // notify sniffer to stop, and notify back
+	decoder                   Decoder       // used to decode data sent from Elasticsearch
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -142,19 +162,22 @@ type Client struct {
 func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	// Set up the client
 	c := &Client{
-		c:                   http.DefaultClient,
-		conns:               make([]*conn, 0),
-		cindex:              -1,
-		scheme:              DefaultScheme,
-		decoder:             &DefaultDecoder{},
-		maxRetries:          DefaultMaxRetries,
-		healthcheckEnabled:  DefaultHealthcheckEnabled,
-		healthcheckInterval: DefaultHealthcheckInterval,
-		healthcheckStop:     make(chan bool),
-		snifferEnabled:      DefaultSnifferEnabled,
-		snifferInterval:     DefaultSnifferInterval,
-		snifferStop:         make(chan bool),
-		snifferTimeout:      DefaultSnifferTimeout,
+		c:                         http.DefaultClient,
+		conns:                     make([]*conn, 0),
+		cindex:                    -1,
+		scheme:                    DefaultScheme,
+		decoder:                   &DefaultDecoder{},
+		maxRetries:                DefaultMaxRetries,
+		healthcheckEnabled:        DefaultHealthcheckEnabled,
+		healthcheckTimeoutStartup: DefaultHealthcheckTimeoutStartup,
+		healthcheckTimeout:        DefaultHealthcheckTimeout,
+		healthcheckInterval:       DefaultHealthcheckInterval,
+		healthcheckStop:           make(chan bool),
+		snifferEnabled:            DefaultSnifferEnabled,
+		snifferTimeoutStartup:     DefaultSnifferTimeoutStartup,
+		snifferTimeout:            DefaultSnifferTimeout,
+		snifferInterval:           DefaultSnifferInterval,
+		snifferStop:               make(chan bool),
 	}
 
 	// Run the options on it
@@ -171,7 +194,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 
 	if c.snifferEnabled {
 		// Sniff the cluster initially
-		if err := c.sniff(); err != nil {
+		if err := c.sniff(c.snifferTimeoutStartup); err != nil {
 			return nil, err
 		}
 	} else {
@@ -183,7 +206,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 
 	// Perform an initial health check and
 	// ensure that we have at least one connection available
-	c.healthcheck(true)
+	c.healthcheck(c.healthcheckTimeoutStartup, true)
 	if err := c.mustActiveConn(); err != nil {
 		return nil, err
 	}
@@ -243,6 +266,28 @@ func SetSniff(enabled bool) ClientOptionFunc {
 	}
 }
 
+// SetSnifferTimeoutStartup sets the timeout for the sniffer that is used
+// when creating a new client. The default is 5 seconds. Notice that the
+// timeout being used for subsequent sniffing processes is set with
+// SetSnifferTimeout.
+func SetSnifferTimeoutStartup(timeout time.Duration) ClientOptionFunc {
+	return func(c *Client) error {
+		c.snifferTimeoutStartup = timeout
+		return nil
+	}
+}
+
+// SetSnifferTimeout sets the timeout for the sniffer that finds the
+// nodes in a cluster. The default is 2 seconds. Notice that the timeout
+// used when creating a new client on startup is usually greater and can
+// be set with SetSnifferTimeoutStartup.
+func SetSnifferTimeout(timeout time.Duration) ClientOptionFunc {
+	return func(c *Client) error {
+		c.snifferTimeout = timeout
+		return nil
+	}
+}
+
 // SetSnifferInterval sets the interval between two sniffing processes.
 // The default interval is 15 minutes.
 func SetSnifferInterval(interval time.Duration) ClientOptionFunc {
@@ -252,19 +297,33 @@ func SetSnifferInterval(interval time.Duration) ClientOptionFunc {
 	}
 }
 
-// SetSnifferTimeout sets the timeout for the sniffer that finds the
-// nodes in a cluster. The default is 1 second.
-func SetSnifferTimeout(timeout time.Duration) ClientOptionFunc {
-	return func(c *Client) error {
-		c.snifferTimeout = timeout
-		return nil
-	}
-}
-
 // SetHealthcheck enables or disables healthchecks (enabled by default).
 func SetHealthcheck(enabled bool) ClientOptionFunc {
 	return func(c *Client) error {
 		c.healthcheckEnabled = enabled
+		return nil
+	}
+}
+
+// SetHealthcheckTimeoutStartup sets the timeout for the initial health check.
+// The default timeout is 5 seconds (see DefaultHealthcheckTimeoutStartup).
+// Notice that timeouts for subsequent health checks can be modified with
+// SetHealthcheckTimeout.
+func SetHealthcheckTimeoutStartup(timeout time.Duration) ClientOptionFunc {
+	return func(c *Client) error {
+		c.healthcheckTimeoutStartup = timeout
+		return nil
+	}
+}
+
+// SetHealthcheckTimeout sets the timeout for periodic health checks.
+// The default timeout is 1 second (see DefaultHealthcheckTimeout).
+// Notice that a different (usually larger) timeout is used for the initial
+// healthcheck, which is initiated while creating a new client.
+// The startup timeout can be modified with SetHealthcheckTimeoutStartup.
+func SetHealthcheckTimeout(timeout time.Duration) ClientOptionFunc {
+	return func(c *Client) error {
+		c.healthcheckTimeout = timeout
 		return nil
 	}
 }
@@ -448,6 +507,7 @@ func (c *Client) dumpResponse(resp *http.Response) {
 func (c *Client) sniffer() {
 	for {
 		c.mu.RLock()
+		timeout := c.snifferTimeout
 		ticker := time.NewTicker(c.snifferInterval)
 		c.mu.RUnlock()
 
@@ -457,7 +517,7 @@ func (c *Client) sniffer() {
 			c.snifferStop <- true
 			return
 		case <-ticker.C:
-			c.sniff()
+			c.sniff(timeout)
 		}
 	}
 }
@@ -467,7 +527,7 @@ func (c *Client) sniffer() {
 // by the preceding sniffing process (if sniffing is enabled).
 //
 // If sniffing is disabled, this is a no-op.
-func (c *Client) sniff() error {
+func (c *Client) sniff(timeout time.Duration) error {
 	c.mu.RLock()
 	if !c.snifferEnabled {
 		c.mu.RUnlock()
@@ -483,7 +543,6 @@ func (c *Client) sniff() error {
 		urlsMap[url] = true
 		urls = append(urls, url)
 	}
-	timeout := c.snifferTimeout
 	c.mu.RUnlock()
 
 	// Add all URLs found by sniffing
@@ -614,6 +673,7 @@ func (c *Client) updateConns(conns []*conn) {
 func (c *Client) healthchecker() {
 	for {
 		c.mu.RLock()
+		timeout := c.healthcheckTimeout
 		ticker := time.NewTicker(c.healthcheckInterval)
 		c.mu.RUnlock()
 
@@ -623,15 +683,16 @@ func (c *Client) healthchecker() {
 			c.healthcheckStop <- true
 			return
 		case <-ticker.C:
-			c.healthcheck(false)
+			c.healthcheck(timeout, false)
 		}
 	}
 }
 
 // healthcheck does a health check on all nodes in the cluster. Depending on
 // the node state, it marks connections as dead, sets them alive etc.
-// If healthchecks are disabled, this is a no-op.
-func (c *Client) healthcheck(force bool) {
+// If healthchecks are disabled and force is false, this is a no-op.
+// The timeout specifies how long to wait for a response from Elasticsearch.
+func (c *Client) healthcheck(timeout time.Duration, force bool) {
 	c.mu.RLock()
 	if !c.healthcheckEnabled && !force {
 		c.mu.RUnlock()
@@ -643,9 +704,11 @@ func (c *Client) healthcheck(force bool) {
 	conns := c.conns
 	c.connsMu.RUnlock()
 
+	timeoutInMillis := int64(timeout / time.Millisecond)
+
 	for _, conn := range conns {
 		params := make(url.Values)
-		params.Set("timeout", "1")
+		params.Set("timeout", fmt.Sprintf("%dms", timeoutInMillis))
 		req, err := NewRequest("HEAD", conn.URL()+"/?"+params.Encode())
 		if err == nil {
 			res, err := c.c.Do((*http.Request)(req))
@@ -720,6 +783,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	start := time.Now().UTC()
 
 	c.mu.RLock()
+	timeout := c.healthcheckTimeout
 	retries := c.maxRetries
 	c.mu.RUnlock()
 
@@ -744,7 +808,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		if err == ErrNoClient {
 			if !retried {
 				// Force a healtcheck as all connections seem to be dead.
-				c.healthcheck(false)
+				c.healthcheck(timeout, false)
 			}
 			retries -= 1
 			if retries <= 0 {
