@@ -153,7 +153,7 @@ if err != nil {
 }
 ```
 
-See the [wiki](/olivere/elastic/wiki) for more details.
+See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 
 
 ## API Status
