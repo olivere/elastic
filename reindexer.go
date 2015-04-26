@@ -29,8 +29,6 @@ type Reindexer struct {
 	sourceIndex, targetIndex   string
 	query                      Query
 	bulkSize                   int
-	shards                     int
-	replicas                   int
 	scroll                     string
 	progress                   ReindexerProgressFunc
 	statsOnly                  bool
@@ -56,8 +54,6 @@ func NewReindexer(client *Client, source, target string) *Reindexer {
 		sourceClient: client,
 		sourceIndex:  source,
 		targetIndex:  target,
-		shards:       -1,
-		replicas:     -1,
 		statsOnly:    true,
 	}
 }
@@ -82,18 +78,6 @@ func (ix *Reindexer) Query(q Query) *Reindexer {
 // The default is 500.
 func (ix *Reindexer) BulkSize(size int) *Reindexer {
 	ix.bulkSize = size
-	return ix
-}
-
-// Shards will update the number_of_shards setting for the reindexed index.
-func (ix *Reindexer) Shards(n int) *Reindexer {
-	ix.shards = n
-	return ix
-}
-
-// Replicas will update the number_of_replicas setting for the reindexed index.
-func (ix *Reindexer) Replicas(n int) *Reindexer {
-	ix.replicas = n
 	return ix
 }
 
@@ -156,11 +140,6 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 		scanner = scanner.Query(ix.query)
 	}
 	cursor, err := scanner.Do()
-
-	// Recreate the target index, optionally with new number_of_shards/number_of_replicas
-	if err := ix.recreateTargetIndex(); err != nil {
-		return nil, err
-	}
 
 	bulk := ix.targetClient.Bulk().Index(ix.targetIndex)
 
@@ -240,34 +219,4 @@ func (ix *Reindexer) commit(bulk *BulkService, ret *ReindexerResponse) (*BulkSer
 	}
 	bulk = ix.targetClient.Bulk().Index(ix.targetIndex)
 	return bulk, nil
-}
-
-// recreateTargetIndex drops the target index (if exists), then recreates
-// it afresh. If shards/replicas has been specified, it will create the
-// index with these options.
-func (ix *Reindexer) recreateTargetIndex() error {
-	exists, err := ix.targetClient.IndexExists(ix.targetIndex).Do()
-	if err != nil {
-		return err
-	}
-	if exists {
-		if _, err := ix.targetClient.DeleteIndex(ix.targetIndex).Do(); err != nil {
-			return err
-		}
-	}
-
-	// Take shards/replicas into account (if specified)
-	settings := make(map[string]interface{})
-	if ix.shards > 0 || ix.replicas >= 0 {
-		ixs := make(map[string]interface{})
-		if ix.shards > 0 {
-			ixs["number_of_shards"] = ix.shards
-		}
-		if ix.replicas >= 0 {
-			ixs["number_of_replicas"] = ix.replicas
-		}
-		settings["index"] = ixs
-	}
-	_, err = ix.targetClient.CreateIndex(ix.targetIndex).BodyJson(settings).Do()
-	return err
 }
