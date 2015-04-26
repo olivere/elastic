@@ -24,7 +24,6 @@ func TestReindexer(t *testing.T) {
 	}
 
 	r := NewReindexer(client, testIndexName, testIndexName2)
-	r = r.Shards(1).Replicas(0)
 	ret, err := r.Do()
 	if err != nil {
 		t.Fatal(err)
