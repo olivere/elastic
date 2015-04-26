@@ -39,6 +39,11 @@ const (
 					"payloads":true
 				}
 			}
+		},
+		"comment":{
+			"_parent": {
+				"type":	"tweet"
+			}
 		}
 	}
 }
@@ -58,6 +63,16 @@ type tweet struct {
 
 func (t tweet) String() string {
 	return fmt.Sprintf("tweet{User:%q,Message:%q,Retweets:%d}", t.User, t.Message, t.Retweets)
+}
+
+type comment struct {
+	User    string    `json:"user"`
+	Comment string    `json:"comment"`
+	Created time.Time `json:"created,omitempty"`
+}
+
+func (c comment) String() string {
+	return fmt.Sprintf("comment{User:%q,Comment:%q}", c.User, c.Comment)
 }
 
 func isTravis() bool {
@@ -123,6 +138,7 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
+	comment1 := comment{User: "nico", Comment: "You bet."}
 
 	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
 	if err != nil {
@@ -132,7 +148,11 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").Routing("someroutingkey").BodyJson(&tweet3).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Index().Index(testIndexName).Type("comment").Id("1").Parent("3").BodyJson(&comment1).Do()
 	if err != nil {
 		t.Fatal(err)
 	}

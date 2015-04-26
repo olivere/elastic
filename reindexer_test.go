@@ -1,10 +1,9 @@
 package elastic
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestReindexer(t *testing.T) {
+
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
 	sourceCount, err := client.Count(testIndexName).Do()

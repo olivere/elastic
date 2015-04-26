@@ -28,6 +28,7 @@ type Reindexer struct {
 	sourceClient, targetClient *Client
 	sourceIndex, targetIndex   string
 	query                      Query
+	scanFields                 []string
 	bulkSize                   int
 	scroll                     string
 	progress                   ReindexerProgressFunc
@@ -74,6 +75,13 @@ func (ix *Reindexer) Query(q Query) *Reindexer {
 	return ix
 }
 
+// ScanFields specifies the fields the scan query should load.
+// The default fields are _source, _parent, _routing.
+func (ix *Reindexer) ScanFields(scanFields ...string) *Reindexer {
+	ix.scanFields = scanFields
+	return ix
+}
+
 // BulkSize returns the number of documents to send to Elasticsearch per chunk.
 // The default is 500.
 func (ix *Reindexer) BulkSize(size int) *Reindexer {
@@ -117,6 +125,9 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 	if ix.targetClient == nil {
 		ix.targetClient = ix.sourceClient
 	}
+	if ix.scanFields == nil {
+		ix.scanFields = []string{"_source", "_parent", "_routing"}
+	}
 	if ix.bulkSize <= 0 {
 		ix.bulkSize = 500
 	}
@@ -135,7 +146,7 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 	}
 
 	// Prepare scan and scroll to iterate through the source index
-	scanner := ix.sourceClient.Scan(ix.sourceIndex).Scroll(ix.scroll)
+	scanner := ix.sourceClient.Scan(ix.sourceIndex).Scroll(ix.scroll).Fields(ix.scanFields...)
 	if ix.query != nil {
 		scanner = scanner.Query(ix.query)
 	}
@@ -172,7 +183,14 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 
 				// Enqueue and write into target index
 				req := NewBulkIndexRequest().Index(ix.targetIndex).Type(hit.Type).Id(hit.Id).Doc(source)
+				if parent, ok := hit.Fields["_parent"].(string); ok {
+					req.Parent(parent)
+				}
+				if routing, ok := hit.Fields["_routing"].(string); ok {
+					req.Routing(routing)
+				}
 				bulk.Add(req)
+
 				if bulk.NumberOfActions() >= ix.bulkSize {
 					bulk, err = ix.commit(bulk, ret)
 					if err != nil {
