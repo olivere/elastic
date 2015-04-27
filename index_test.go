@@ -23,6 +23,10 @@ const (
 	},
 	"mappings":{
 		"tweet":{
+			"_timestamp": {
+				"enabled": true,
+				"store": "yes"
+			},
 			"properties":{
 				"tags":{
 					"type":"string"
