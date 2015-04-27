@@ -24,11 +24,11 @@ func TestSearchMatchAll(t *testing.T) {
 	if searchResult.Hits == nil {
 		t.Errorf("expected SearchResult.Hits != nil; got nil")
 	}
-	if searchResult.Hits.TotalHits != 3 {
-		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 3, searchResult.Hits.TotalHits)
+	if searchResult.Hits.TotalHits != 4 {
+		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 4, searchResult.Hits.TotalHits)
 	}
-	if len(searchResult.Hits.Hits) != 3 {
-		t.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", 3, len(searchResult.Hits.Hits))
+	if len(searchResult.Hits.Hits) != 4 {
+		t.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", 4, len(searchResult.Hits.Hits))
 	}
 
 	for _, hit := range searchResult.Hits.Hits {
@@ -56,11 +56,11 @@ func BenchmarkSearchMatchAll(b *testing.B) {
 		if searchResult.Hits == nil {
 			b.Errorf("expected SearchResult.Hits != nil; got nil")
 		}
-		if searchResult.Hits.TotalHits != 3 {
-			b.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 3, searchResult.Hits.TotalHits)
+		if searchResult.Hits.TotalHits != 4 {
+			b.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 4, searchResult.Hits.TotalHits)
 		}
-		if len(searchResult.Hits.Hits) != 3 {
-			b.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", 3, len(searchResult.Hits.Hits))
+		if len(searchResult.Hits.Hits) != 4 {
+			b.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", 4, len(searchResult.Hits.Hits))
 		}
 	}
 }

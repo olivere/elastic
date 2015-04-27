@@ -19,6 +19,10 @@ import (
 // Internally, the Reindex users a scan and scroll operation on the source
 // index and bulk indexing to push data into the target index.
 //
+// By default the _parent and _routing attributes are used when indexing into
+// the target index. This behaviour can be overridden by setting the ScanFields
+// and HitToIndexRequest function.
+//
 // The caller is responsible for setting up and/or clearing the target index
 // before starting the reindex process.
 //
@@ -28,10 +32,34 @@ type Reindexer struct {
 	sourceClient, targetClient *Client
 	sourceIndex, targetIndex   string
 	query                      Query
+	scanFields                 []string
 	bulkSize                   int
+	hitToIndexRequest          HitToIndexRequestFunc
 	scroll                     string
 	progress                   ReindexerProgressFunc
 	statsOnly                  bool
+}
+
+// HitToIndexRequestFunc creates the BulkIndexRequest given a SearchHit.
+// The returned BuildIndexRequest will be indexed into the target index.
+type HitToIndexRequestFunc func(hit *SearchHit) (*BulkIndexRequest, error)
+
+// The defaultHitToIndexRequest copies the basic information from the hit
+// into the BulkIndexRequest.
+func defaultHitToIndexRequest(hit *SearchHit) (*BulkIndexRequest, error) {
+	// TODO(oe) Do we need to deserialize here?
+	source := make(map[string]interface{})
+	if err := json.Unmarshal(*hit.Source, &source); err != nil {
+		return nil, err
+	}
+	req := NewBulkIndexRequest().Type(hit.Type).Id(hit.Id).Doc(source)
+	if parent, ok := hit.Fields["_parent"].(string); ok {
+		req.Parent(parent)
+	}
+	if routing, ok := hit.Fields["_routing"].(string); ok {
+		req.Routing(routing)
+	}
+	return req, nil
 }
 
 // ReindexerProgressFunc is a callback that can be used with Reindexer
@@ -74,6 +102,13 @@ func (ix *Reindexer) Query(q Query) *Reindexer {
 	return ix
 }
 
+// ScanFields specifies the fields the scan query should load.
+// The default fields are _source, _parent, _routing.
+func (ix *Reindexer) ScanFields(scanFields ...string) *Reindexer {
+	ix.scanFields = scanFields
+	return ix
+}
+
 // BulkSize returns the number of documents to send to Elasticsearch per chunk.
 // The default is 500.
 func (ix *Reindexer) BulkSize(size int) *Reindexer {
@@ -85,6 +120,13 @@ func (ix *Reindexer) BulkSize(size int) *Reindexer {
 // should be maintained. The default is 5m.
 func (ix *Reindexer) Scroll(timeout string) *Reindexer {
 	ix.scroll = timeout
+	return ix
+}
+
+// HitToIndexRequest specifies a custom HitToIndexRequestFunc,
+// to fully customize the document that will get indexed in the target index.
+func (ix *Reindexer) HitToIndexRequest(f HitToIndexRequestFunc) *Reindexer {
+	ix.hitToIndexRequest = f
 	return ix
 }
 
@@ -117,11 +159,17 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 	if ix.targetClient == nil {
 		ix.targetClient = ix.sourceClient
 	}
+	if ix.scanFields == nil {
+		ix.scanFields = []string{"_source", "_parent", "_routing"}
+	}
 	if ix.bulkSize <= 0 {
 		ix.bulkSize = 500
 	}
 	if ix.scroll == "" {
 		ix.scroll = "5m"
+	}
+	if ix.hitToIndexRequest == nil {
+		ix.hitToIndexRequest = defaultHitToIndexRequest
 	}
 
 	// Count total to report progress (if necessary)
@@ -135,7 +183,7 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 	}
 
 	// Prepare scan and scroll to iterate through the source index
-	scanner := ix.sourceClient.Scan(ix.sourceIndex).Scroll(ix.scroll)
+	scanner := ix.sourceClient.Scan(ix.sourceIndex).Scroll(ix.scroll).Fields(ix.scanFields...)
 	if ix.query != nil {
 		scanner = scanner.Query(ix.query)
 	}
@@ -164,15 +212,14 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 					ix.progress(current, total)
 				}
 
-				// TODO(oe) Do we need to deserialize here?
-				source := make(map[string]interface{})
-				if err := json.Unmarshal(*hit.Source, &source); err != nil {
+				// Enqueue and write into target index
+				req, err := ix.hitToIndexRequest(hit)
+				if err != nil {
 					return ret, err
 				}
-
-				// Enqueue and write into target index
-				req := NewBulkIndexRequest().Index(ix.targetIndex).Type(hit.Type).Id(hit.Id).Doc(source)
+				req.Index(ix.targetIndex)
 				bulk.Add(req)
+
 				if bulk.NumberOfActions() >= ix.bulkSize {
 					bulk, err = ix.commit(bulk, ret)
 					if err != nil {
