@@ -23,7 +23,7 @@ import (
 // attributes from the source index, using the provided CopyToTarget will
 // copy those attributes into the destinationIndex.
 // This behaviour can be overridden by setting the ScanFields and providing a
-// custom HitHandlerFunc.
+// custom ReindexerFunc.
 //
 // The caller is responsible for setting up and/or clearing the target index
 // before starting the reindex process.
@@ -37,18 +37,18 @@ type Reindexer struct {
 	scanFields                 []string
 	bulkSize                   int
 	scroll                     string
-	hitHandler                 HitHandlerFunc
+	reindexerFunc              ReindexerFunc
 	progress                   ReindexerProgressFunc
 	statsOnly                  bool
 }
 
-// A HitHandlerFunc receives each hit from the sourceIndex.
+// A ReindexerFunc receives each hit from the sourceIndex.
 // It can choose to add any number of BulkableRequests to the bulkService.
-type HitHandlerFunc func(hit *SearchHit, bulkService *BulkService) error
+type ReindexerFunc func(hit *SearchHit, bulkService *BulkService) error
 
-// CopyToTargetIndex returns a HitHandlerFunc that copies the SearchHit's
+// CopyToTargetIndex returns a ReindexerFunc that copies the SearchHit's
 // _source, _parent, and _routing attributes into the targetIndex
-func CopyToTargetIndex(targetIndex string) HitHandlerFunc {
+func CopyToTargetIndex(targetIndex string) ReindexerFunc {
 	return func(hit *SearchHit, bulkService *BulkService) error {
 		// TODO(oe) Do we need to deserialize here?
 		source := make(map[string]interface{})
@@ -82,12 +82,12 @@ type ReindexerResponse struct {
 }
 
 // NewReindexer returns a new Reindexer.
-func NewReindexer(client *Client, source string, hitHandler HitHandlerFunc) *Reindexer {
+func NewReindexer(client *Client, source string, reindexerFunc ReindexerFunc) *Reindexer {
 	return &Reindexer{
-		sourceClient: client,
-		sourceIndex:  source,
-		hitHandler:   hitHandler,
-		statsOnly:    true,
+		sourceClient:  client,
+		sourceIndex:   source,
+		reindexerFunc: reindexerFunc,
+		statsOnly:     true,
 	}
 }
 
@@ -204,7 +204,7 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 					ix.progress(current, total)
 				}
 
-				err := ix.hitHandler(hit, bulk)
+				err := ix.reindexerFunc(hit, bulk)
 				if err != nil {
 					return ret, err
 				}

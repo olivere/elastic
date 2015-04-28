@@ -210,7 +210,7 @@ func TestReindexerWithTargetClient(t *testing.T) {
 }
 
 // TestReindexerPreservingTTL shows how a caller can take control of the
-// copying process by providing ScanFields and a custom HitHandler.
+// copying process by providing ScanFields and a custom ReindexerFunc.
 func TestReindexerPreservingTTL(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
