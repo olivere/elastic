@@ -1219,5 +1219,5 @@ func (c *Client) NodesInfo() *NodesInfoService {
 // http://www.elastic.co/guide/en/elasticsearch/guide/current/reindex.html
 // for more information about reindexing.
 func (c *Client) Reindex(sourceIndex, targetIndex string) *Reindexer {
-	return NewReindexer(c, sourceIndex, targetIndex)
+	return NewReindexer(c, sourceIndex, CopyToTargetIndex(targetIndex))
 }

@@ -19,6 +19,12 @@ import (
 // Internally, the Reindex users a scan and scroll operation on the source
 // index and bulk indexing to push data into the target index.
 //
+// By default the reindexer fetches the _source, _parent, and _routing
+// attributes from the source index, using the provided CopyToTarget will
+// copy those attributes into the destinationIndex.
+// This behaviour can be overridden by setting the ScanFields and providing a
+// custom ReindexerFunc.
+//
 // The caller is responsible for setting up and/or clearing the target index
 // before starting the reindex process.
 //
@@ -26,12 +32,39 @@ import (
 // for more information about reindexing.
 type Reindexer struct {
 	sourceClient, targetClient *Client
-	sourceIndex, targetIndex   string
+	sourceIndex                string
 	query                      Query
+	scanFields                 []string
 	bulkSize                   int
 	scroll                     string
+	reindexerFunc              ReindexerFunc
 	progress                   ReindexerProgressFunc
 	statsOnly                  bool
+}
+
+// A ReindexerFunc receives each hit from the sourceIndex.
+// It can choose to add any number of BulkableRequests to the bulkService.
+type ReindexerFunc func(hit *SearchHit, bulkService *BulkService) error
+
+// CopyToTargetIndex returns a ReindexerFunc that copies the SearchHit's
+// _source, _parent, and _routing attributes into the targetIndex
+func CopyToTargetIndex(targetIndex string) ReindexerFunc {
+	return func(hit *SearchHit, bulkService *BulkService) error {
+		// TODO(oe) Do we need to deserialize here?
+		source := make(map[string]interface{})
+		if err := json.Unmarshal(*hit.Source, &source); err != nil {
+			return err
+		}
+		req := NewBulkIndexRequest().Index(targetIndex).Type(hit.Type).Id(hit.Id).Doc(source)
+		if parent, ok := hit.Fields["_parent"].(string); ok {
+			req.Parent(parent)
+		}
+		if routing, ok := hit.Fields["_routing"].(string); ok {
+			req.Routing(routing)
+		}
+		bulkService.Add(req)
+		return nil
+	}
 }
 
 // ReindexerProgressFunc is a callback that can be used with Reindexer
@@ -49,12 +82,12 @@ type ReindexerResponse struct {
 }
 
 // NewReindexer returns a new Reindexer.
-func NewReindexer(client *Client, source, target string) *Reindexer {
+func NewReindexer(client *Client, source string, reindexerFunc ReindexerFunc) *Reindexer {
 	return &Reindexer{
-		sourceClient: client,
-		sourceIndex:  source,
-		targetIndex:  target,
-		statsOnly:    true,
+		sourceClient:  client,
+		sourceIndex:   source,
+		reindexerFunc: reindexerFunc,
+		statsOnly:     true,
 	}
 }
 
@@ -71,6 +104,13 @@ func (ix *Reindexer) TargetClient(c *Client) *Reindexer {
 // documents.
 func (ix *Reindexer) Query(q Query) *Reindexer {
 	ix.query = q
+	return ix
+}
+
+// ScanFields specifies the fields the scan query should load.
+// The default fields are _source, _parent, _routing.
+func (ix *Reindexer) ScanFields(scanFields ...string) *Reindexer {
+	ix.scanFields = scanFields
 	return ix
 }
 
@@ -111,11 +151,11 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 	if ix.sourceIndex == "" {
 		return nil, errors.New("no source index")
 	}
-	if ix.targetIndex == "" {
-		return nil, errors.New("no target index")
-	}
 	if ix.targetClient == nil {
 		ix.targetClient = ix.sourceClient
+	}
+	if ix.scanFields == nil {
+		ix.scanFields = []string{"_source", "_parent", "_routing"}
 	}
 	if ix.bulkSize <= 0 {
 		ix.bulkSize = 500
@@ -135,13 +175,13 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 	}
 
 	// Prepare scan and scroll to iterate through the source index
-	scanner := ix.sourceClient.Scan(ix.sourceIndex).Scroll(ix.scroll)
+	scanner := ix.sourceClient.Scan(ix.sourceIndex).Scroll(ix.scroll).Fields(ix.scanFields...)
 	if ix.query != nil {
 		scanner = scanner.Query(ix.query)
 	}
 	cursor, err := scanner.Do()
 
-	bulk := ix.targetClient.Bulk().Index(ix.targetIndex)
+	bulk := ix.targetClient.Bulk()
 
 	ret := &ReindexerResponse{
 		Errors: make([]*BulkResponseItem, 0),
@@ -164,15 +204,11 @@ func (ix *Reindexer) Do() (*ReindexerResponse, error) {
 					ix.progress(current, total)
 				}
 
-				// TODO(oe) Do we need to deserialize here?
-				source := make(map[string]interface{})
-				if err := json.Unmarshal(*hit.Source, &source); err != nil {
+				err := ix.reindexerFunc(hit, bulk)
+				if err != nil {
 					return ret, err
 				}
 
-				// Enqueue and write into target index
-				req := NewBulkIndexRequest().Index(ix.targetIndex).Type(hit.Type).Id(hit.Id).Doc(source)
-				bulk.Add(req)
 				if bulk.NumberOfActions() >= ix.bulkSize {
 					bulk, err = ix.commit(bulk, ret)
 					if err != nil {
@@ -217,6 +253,6 @@ func (ix *Reindexer) commit(bulk *BulkService, ret *ReindexerResponse) (*BulkSer
 	if !ix.statsOnly {
 		ret.Errors = append(ret.Errors, failed...)
 	}
-	bulk = ix.targetClient.Bulk().Index(ix.targetIndex)
+	bulk = ix.targetClient.Bulk()
 	return bulk, nil
 }
