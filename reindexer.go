@@ -20,8 +20,8 @@ import (
 // index and bulk indexing to push data into the target index.
 //
 // By default the reindexer fetches the _source, _parent, and _routing
-// attributes from the source index, using the provided CopyToTarget will
-// copy those attributes into the destinationIndex.
+// attributes from the source index, using the provided CopyToTargetIndex
+// will copy those attributes into the destinationIndex.
 // This behaviour can be overridden by setting the ScanFields and providing a
 // custom ReindexerFunc.
 //
