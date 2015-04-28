@@ -22,11 +22,17 @@ const (
 		"number_of_replicas":0
 	},
 	"mappings":{
-		"tweet":{
+		"_default_": {
 			"_timestamp": {
 				"enabled": true,
 				"store": "yes"
 			},
+			"_ttl": {
+				"enabled": true,
+				"store": "yes"
+			}
+		},
+		"tweet":{
 			"properties":{
 				"tags":{
 					"type":"string"
