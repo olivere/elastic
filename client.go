@@ -81,6 +81,10 @@ var (
 	// ErrRetry is raised when a request cannot be executed after the configured
 	// number of retries.
 	ErrRetry = errors.New("cannot connect after several retries")
+
+	// ErrTimeout is raised when a request timed out, e.g. when WaitForStatus
+	// didn't return in time.
+	ErrTimeout = errors.New("timeout")
 )
 
 // ClientOptionFunc is a function that configures a Client.
@@ -1220,4 +1224,33 @@ func (c *Client) NodesInfo() *NodesInfoService {
 // for more information about reindexing.
 func (c *Client) Reindex(sourceIndex, targetIndex string) *Reindexer {
 	return NewReindexer(c, sourceIndex, CopyToTargetIndex(targetIndex))
+}
+
+// WaitForStatus waits for the cluster to have the given status.
+// This is a shortcut method for the ClusterHealth service.
+//
+// WaitForStatus waits for the specified timeout, e.g. "10s".
+// If the cluster will have the given state within the timeout, nil is returned.
+// If the request timed out, ErrTimeout is returned.
+func (c *Client) WaitForStatus(status string, timeout string) error {
+	health, err := c.ClusterHealth().WaitForStatus(status).Timeout(timeout).Do()
+	if err != nil {
+		return err
+	}
+	if health.TimedOut {
+		return ErrTimeout
+	}
+	return nil
+}
+
+// WaitForGreenStatus waits for the cluster to have the "green" status.
+// See WaitForStatus for more details.
+func (c *Client) WaitForGreenStatus(timeout string) error {
+	return c.WaitForStatus("green", timeout)
+}
+
+// WaitForYellowStatus waits for the cluster to have the "yellow" status.
+// See WaitForStatus for more details.
+func (c *Client) WaitForYellowStatus(timeout string) error {
+	return c.WaitForStatus("yellow", timeout)
 }
