@@ -1213,6 +1213,11 @@ func (c *Client) ClusterState() *ClusterStateService {
 	return NewClusterStateService(c)
 }
 
+// ClusterStats retrieves cluster statistics.
+func (c *Client) ClusterStats() *ClusterStatsService {
+	return NewClusterStatsService(c)
+}
+
 // NodesInfo retrieves one or more or all of the cluster nodes information.
 func (c *Client) NodesInfo() *NodesInfoService {
 	return NewNodesInfoService(c)

@@ -231,7 +231,7 @@ on the command line.
 
 - [x] Health
 - [x] State
-- [ ] Stats
+- [x] Stats
 - [ ] Pending cluster tasks
 - [ ] Cluster reroute
 - [ ] Cluster update settings
