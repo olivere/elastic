@@ -1,6 +1,6 @@
 {
   "mtermvectors" : {
-    "documentation" : "http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/docs-multi-termvectors.html",
+    "documentation" : "http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.x/docs-multi-termvectors.html",
     "methods" : ["GET", "POST"],
     "url" : {
       "path" : "/_mtermvectors",
@@ -13,7 +13,11 @@
         "type" : {
           "type" : "string",
           "description" : "The type of the document."
-        }
+        },
+        "id" : {
+           "type" : "string",
+           "description" : "The id of the document."
+         }
       },
       "params" : {
         "source": {
@@ -74,11 +78,16 @@
           "type" : "string",
           "description" : "Parent id of documents. Applies to all returned documents unless otherwise specified in body \"params\" or \"docs\".",
           "required" : false
+        },
+        "realtime": {
+           "type" : "boolean",
+           "description" : "Specifies if requests are real-time as opposed to near-real-time (default: true).",
+           "required" : false
         }
       }
     },
     "body" : {
-        "description" : "Define ids, documents, parameters or a list of parameters per document here. You must at least provide a list of document ids. See documentation.",
+        "description" : "Define ids, parameters or a list of parameters per document here. You must at least provide a list of document ids. See documentation.",
         "required" : false
 
     }

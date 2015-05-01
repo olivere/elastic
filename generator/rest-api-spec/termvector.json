@@ -1,10 +1,10 @@
 {
   "termvector" : {
-    "documentation" : "http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/docs-termvectors.html",
+    "documentation" : "http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.x/docs-termvectors.html",
     "methods" : ["GET", "POST"],
     "url" : {
-      "path" : "/{index}/{type}/_termvector",
-      "paths" : ["/{index}/{type}/_termvector", "/{index}/{type}/{id}/_termvector"],
+      "path" : "/{index}/{type}/{id}/_termvector",
+      "paths" : ["/{index}/{type}/{id}/_termvector"],
       "parts" : {
         "index" : {
          "type" : "string",
@@ -18,7 +18,8 @@
         },
         "id" : {
            "type" : "string",
-           "description" : "The id of the document, when not specified a doc param should be supplied."
+           "description" : "The id of the document.",
+           "required" : true
          }
       },
       "params": {
@@ -75,11 +76,16 @@
           "type" : "string",
           "description" : "Parent id of documents.",
           "required" : false
+        },
+        "realtime": {
+          "type" : "boolean",
+          "description" : "Specifies if request is real-time as opposed to near-real-time (default: true).",
+          "required" : false
         }
       }
     },
     "body": {
-      "description" : "Define parameters and or supply a document to get termvectors for. See documentation.",
+      "description" : "Define parameters. See documentation.",
       "required" : false
     }
   }
