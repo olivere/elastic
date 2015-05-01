@@ -133,7 +133,7 @@ type ClusterStatsResponse struct {
 type ClusterStatsIndices struct {
 	Count       int                             `json:"count"`
 	Shards      *ClusterStatsIndicesShards      `json:"shards"`
-	Docs        *ClusterStatsIndicesDocs        `json:"shards"`
+	Docs        *ClusterStatsIndicesDocs        `json:"docs"`
 	Store       *ClusterStatsIndicesStore       `json:"store"`
 	FieldData   *ClusterStatsIndicesFieldData   `json:"fielddata"`
 	FilterCache *ClusterStatsIndicesFilterCache `json:"filter_cache"`
