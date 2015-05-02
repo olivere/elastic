@@ -9,28 +9,27 @@ import (
 	"testing"
 )
 
-func TestHasChildQuery(t *testing.T) {
-	f := NewHasChildQuery("blog_tag", NewTermQuery("tag", "something"))
-	data, err := json.Marshal(f.Source())
+func TestInnerHitEmpty(t *testing.T) {
+	hit := NewInnerHit()
+	data, err := json.Marshal(hit.Source())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"has_child":{"query":{"term":{"tag":"something"}},"type":"blog_tag"}}`
+	expected := `{}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
-func TestHasChildQueryWithInnerHit(t *testing.T) {
-	f := NewHasChildQuery("blog_tag", NewTermQuery("tag", "something"))
-	f = f.InnerHit(NewInnerHit().Name("comments"))
-	data, err := json.Marshal(f.Source())
+func TestInnerHitWithName(t *testing.T) {
+	hit := NewInnerHit().Name("comments")
+	data, err := json.Marshal(hit.Source())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"has_child":{"inner_hits":{"name":"comments"},"query":{"term":{"tag":"something"}},"type":"blog_tag"}}`
+	expected := `{"name":"comments"}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

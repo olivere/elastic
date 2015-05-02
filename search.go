@@ -381,21 +381,27 @@ type SearchHits struct {
 
 // SearchHit is a single hit.
 type SearchHit struct {
-	Score       *float64               `json:"_score"`       // computed score
-	Index       string                 `json:"_index"`       // index name
-	Id          string                 `json:"_id"`          // external or internal
-	Type        string                 `json:"_type"`        // type
-	Version     *int64                 `json:"_version"`     // version number, when Version is set to true in SearchService
-	Sort        []interface{}          `json:"sort"`         // sort information
-	Highlight   SearchHitHighlight     `json:"highlight"`    // highlighter information
-	Source      *json.RawMessage       `json:"_source"`      // stored document source
-	Fields      map[string]interface{} `json:"fields"`       // returned fields
-	Explanation *SearchExplanation     `json:"_explanation"` // explains how the score was computed
+	Score          *float64                       `json:"_score"`          // computed score
+	Index          string                         `json:"_index"`          // index name
+	Id             string                         `json:"_id"`             // external or internal
+	Type           string                         `json:"_type"`           // type
+	Version        *int64                         `json:"_version"`        // version number, when Version is set to true in SearchService
+	Sort           []interface{}                  `json:"sort"`            // sort information
+	Highlight      SearchHitHighlight             `json:"highlight"`       // highlighter information
+	Source         *json.RawMessage               `json:"_source"`         // stored document source
+	Fields         map[string]interface{}         `json:"fields"`          // returned fields
+	Explanation    *SearchExplanation             `json:"_explanation"`    // explains how the score was computed
+	MatchedQueries map[string]interface{}         `json:"matched_queries"` // matched queries
+	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits"`      // inner hits with ES >= 1.5.0
 
 	// Shard
 	// HighlightFields
 	// SortValues
 	// MatchedFilters
+}
+
+type SearchHitInnerHits struct {
+	Hits *SearchHits `json:"hits"`
 }
 
 // SearchExplanation explains how the score for a hit was computed.

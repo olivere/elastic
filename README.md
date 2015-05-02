@@ -240,6 +240,10 @@ on the command line.
 - [ ] Nodes hot_threads
 - [ ] Nodes shutdown
 
+### Search
+
+- [x] Inner hits (for ES >= 1.5.0; see [docs](www.elastic.co/guide/en/elasticsearch/reference/1.5/search-request-inner-hits.html))
+
 ### Query DSL
 
 #### Queries
