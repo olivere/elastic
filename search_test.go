@@ -5,9 +5,7 @@
 package elastic
 
 import (
-	"bytes"
 	"encoding/json"
-	"log"
 	_ "net/http"
 	"reflect"
 	"testing"
@@ -587,6 +585,16 @@ func TestSearchSearchSource(t *testing.T) {
 func TestSearchInnerHitsOnHasChild(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
+	// Check for valid ES version
+	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if esversion >= "1.5.0" {
+		t.Skip("InnerHits feature is only available for Elasticsearch 1.5+")
+		return
+	}
+
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
 		Message: "Welcome to Golang and Elasticsearch.",
@@ -607,7 +615,7 @@ func TestSearchInnerHitsOnHasChild(t *testing.T) {
 	comment3b := comment{User: "olivere", Comment: "It sure is."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("t1").BodyJson(&tweet1).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("t1").BodyJson(&tweet1).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -714,9 +722,17 @@ func TestSearchInnerHitsOnHasChild(t *testing.T) {
 }
 
 func TestSearchInnerHitsOnHasParent(t *testing.T) {
-	var w bytes.Buffer
-	out := log.New(&w, "LOGGER ", log.LstdFlags)
-	client := setupTestClientAndCreateIndex(t, SetTraceLog(out))
+	client := setupTestClientAndCreateIndex(t)
+
+	// Check for valid ES version
+	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if esversion >= "1.5.0" {
+		t.Skip("InnerHits feature is only available for Elasticsearch 1.5+")
+		return
+	}
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
@@ -738,7 +754,7 @@ func TestSearchInnerHitsOnHasParent(t *testing.T) {
 	comment3b := comment{User: "olivere", Comment: "It sure is."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("t1").BodyJson(&tweet1).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("t1").BodyJson(&tweet1).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
