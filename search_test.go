@@ -590,7 +590,7 @@ func TestSearchInnerHitsOnHasChild(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if esversion >= "1.5.0" {
+	if esversion < "1.5.0" {
 		t.Skip("InnerHits feature is only available for Elasticsearch 1.5+")
 		return
 	}
@@ -729,7 +729,7 @@ func TestSearchInnerHitsOnHasParent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if esversion >= "1.5.0" {
+	if esversion < "1.5.0" {
 		t.Skip("InnerHits feature is only available for Elasticsearch 1.5+")
 		return
 	}
