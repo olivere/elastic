@@ -196,7 +196,6 @@ func main() {
     Query(&termQuery).  // specify the query
     Sort("user", true). // sort by "user" field, ascending
     From(0).Size(10).   // take documents 0-9
-    Debug(true).        // print request and response to stdout
     Pretty(true).       // pretty print request and response JSON
     Do()                // execute
   if err != nil {
@@ -214,8 +213,9 @@ func main() {
   // over iterating the hits, see below.
   var ttyp Tweet
   for _, item := range searchResult.Each(reflect.TypeOf(ttyp)) {
-      t := item.(Tweet)
-      fmt.Printf("Tweet by %s: %s\n", t.User, t.Message)
+      if t, ok := item.(Tweet); ok {
+        fmt.Printf("Tweet by %s: %s\n", t.User, t.Message)
+      }
   }
   // TotalHits is another convenience function that works even when something goes wrong.
   fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
