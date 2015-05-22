@@ -34,6 +34,7 @@ type ScanService struct {
 	keepAlive string
 	fields    []string
 	query     Query
+	sorts     []SortInfo
 	size      *int
 	pretty    bool
 }
@@ -104,6 +105,24 @@ func (s *ScanService) Query(query Query) *ScanService {
 	return s
 }
 
+// Sort the results by the given field, in the given order.
+// Use the alternative SortWithInfo to use a struct to define the sorting.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
+// for detailed documentation of sorting.
+func (s *ScanService) Sort(field string, ascending bool) *ScanService {
+	s.sorts = append(s.sorts, SortInfo{Field: field, Ascending: ascending})
+	return s
+}
+
+// SortWithInfo defines how to sort results.
+// Use the Sort func for a shortcut.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
+// for detailed documentation of sorting.
+func (s *ScanService) SortWithInfo(info SortInfo) *ScanService {
+	s.sorts = append(s.sorts, info)
+	return s
+}
+
 func (s *ScanService) Pretty(pretty bool) *ScanService {
 	s.pretty = pretty
 	return s
@@ -153,7 +172,9 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 
 	// Parameters
 	params := make(url.Values)
-	params.Set("search_type", "scan")
+	if len(s.sorts) == 0 {
+		params.Set("search_type", "scan")
+	}
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
@@ -173,6 +194,13 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	body := make(map[string]interface{})
 	if s.query != nil {
 		body["query"] = s.query.Source()
+	}
+	if len(s.sorts) > 0 {
+		sortarr := make([]interface{}, 0)
+		for _, sort := range s.sorts {
+			sortarr = append(sortarr, sort.Source())
+		}
+		body["sort"] = sortarr
 	}
 
 	// Get response
