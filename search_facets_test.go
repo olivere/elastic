@@ -60,6 +60,9 @@ func TestSearchFacets(t *testing.T) {
 	// Terms Facet by user name
 	userFacet := NewTermsFacet().Field("user").Size(10).Order("count")
 
+	// Terms Facet with numerical key
+	retweetsNumFacet := NewTermsFacet().Field("retweets")
+
 	// Range Facet by retweets
 	retweetsFacet := NewRangeFacet().Field("retweets").Lt(10).Between(10, 100).Gt(100)
 
@@ -96,6 +99,7 @@ func TestSearchFacets(t *testing.T) {
 	searchResult, err := client.Search().Index(testIndexName).
 		Query(&all).
 		Facet("user", userFacet).
+		Facet("retweetsNum", retweetsNumFacet).
 		Facet("retweets", retweetsFacet).
 		Facet("retweetsHistogram", retweetsHistoFacet).
 		Facet("retweetsTimeHisto", retweetsTimeHistoFacet).
@@ -148,6 +152,24 @@ func TestSearchFacets(t *testing.T) {
 	}
 	if len(facet.Terms) != 2 {
 		t.Errorf("expected len(searchResult.Facets[\"user\"].Terms) = %v; got %v", 2, len(facet.Terms))
+	}
+
+	// Search for retweetsNum facet
+	facet, found = searchResult.Facets["retweetsNum"]
+	if !found {
+		t.Errorf("expected searchResult.Facets[\"retweetsNum\"] = %v; got %v", true, found)
+	}
+	if facet == nil {
+		t.Errorf("expected searchResult.Facets[\"retweetsNum\"] != nil; got nil")
+	}
+	if facet.Type != "terms" {
+		t.Errorf("expected searchResult.Facets[\"retweetsNum\"].Type = %v; got %v", "terms", facet.Type)
+	}
+	if facet.Total != 3 {
+		t.Errorf("expected searchResult.Facets[\"retweetsNum\"].Total = %v; got %v", 3, facet.Total)
+	}
+	if len(facet.Terms) != 3 {
+		t.Errorf("expected len(searchResult.Facets[\"retweetsNum\"].Terms) = %v; got %v", 2, len(facet.Terms))
 	}
 
 	// Search for range facet should return (facet, true)

@@ -457,8 +457,8 @@ type SearchFacet struct {
 // searchFacetTerm is the result of a terms facet.
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets-terms-facet.html.
 type searchFacetTerm struct {
-	Term  string `json:"term"`
-	Count int    `json:"count"`
+	Term  interface{} `json:"term"`
+	Count int         `json:"count"`
 }
 
 // searchFacetRange is the result of a range facet.
