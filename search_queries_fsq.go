@@ -4,6 +4,8 @@
 
 package elastic
 
+import "math"
+
 // The function_score allows you to modify the score of documents that
 // are retrieved by a query. This can be useful if, for example,
 // a score function is computationally expensive and it is sufficient
@@ -19,6 +21,7 @@ type FunctionScoreQuery struct {
 	boostMode  string
 	filters    []Filter
 	scoreFuncs []ScoreFunction
+	weights    []float32
 }
 
 // NewFunctionScoreQuery creates a new function score query.
@@ -44,12 +47,21 @@ func (q FunctionScoreQuery) Filter(filter Filter) FunctionScoreQuery {
 func (q FunctionScoreQuery) Add(filter Filter, scoreFunc ScoreFunction) FunctionScoreQuery {
 	q.filters = append(q.filters, filter)
 	q.scoreFuncs = append(q.scoreFuncs, scoreFunc)
+	q.weights = append(q.weights, float32(math.NaN()))
+	return q
+}
+
+func (q FunctionScoreQuery) AddWeight(filter Filter, weight float32) FunctionScoreQuery {
+	q.filters = append(q.filters, filter)
+	q.scoreFuncs = append(q.scoreFuncs, nil)
+	q.weights = append(q.weights, weight)
 	return q
 }
 
 func (q FunctionScoreQuery) AddScoreFunc(scoreFunc ScoreFunction) FunctionScoreQuery {
 	q.filters = append(q.filters, nil)
 	q.scoreFuncs = append(q.scoreFuncs, scoreFunc)
+	q.weights = append(q.weights, float32(math.NaN()))
 	return q
 }
 
@@ -94,7 +106,12 @@ func (q FunctionScoreQuery) Source() interface{} {
 			if filter != nil {
 				hsh["filter"] = filter.Source()
 			}
-			hsh[q.scoreFuncs[i].Name()] = q.scoreFuncs[i].Source()
+			if !math.IsNaN(float64(q.weights[i])) {
+				hsh["weight"] = q.weights[i]
+			}
+			if q.scoreFuncs[i] != nil {
+				hsh[q.scoreFuncs[i].Name()] = q.scoreFuncs[i].Source()
+			}
 			funcs[i] = hsh
 		}
 		query["functions"] = funcs

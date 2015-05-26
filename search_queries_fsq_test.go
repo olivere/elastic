@@ -15,6 +15,7 @@ func TestFunctionScoreQuery(t *testing.T) {
 		Add(NewTermFilter("name.last", "banon"), NewFactorFunction().BoostFactor(3)).
 		AddScoreFunc(NewFactorFunction().BoostFactor(3)).
 		AddScoreFunc(NewFactorFunction().BoostFactor(3)).
+		AddWeight(NewTermFilter("name.last", "banon"), 2.4).
 		Boost(3).
 		MaxBoost(10).
 		ScoreMode("avg")
@@ -23,7 +24,7 @@ func TestFunctionScoreQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"function_score":{"boost":3,"functions":[{"boost_factor":3,"filter":{"term":{"name.last":"banon"}}},{"boost_factor":3},{"boost_factor":3}],"max_boost":10,"query":{"term":{"name.last":"banon"}},"score_mode":"avg"}}`
+	expected := `{"function_score":{"boost":3,"functions":[{"boost_factor":3,"filter":{"term":{"name.last":"banon"}}},{"boost_factor":3},{"boost_factor":3},{"filter":{"term":{"name.last":"banon"}},"weight":2.4}],"max_boost":10,"query":{"term":{"name.last":"banon"}},"score_mode":"avg"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
