@@ -1,0 +1,14 @@
+# This is a list of people who have contributed code
+# to the Elastic repository.
+#
+# It is just my small "thank you" to all those that helped
+# making Elastic what it is.
+#
+# Please keep this list sorted.
+
+Alexey Sharov [@nizsheanez](https://github.com/nizsheanez)
+Corey Scott [@corsc](https://github.com/corsc)
+Maciej Lisiewski [@c2h5oh](https://github.com/c2h5oh)
+Medhi Bechina [@mdzor](https://github.com/mdzor)
+Nicholas Wolff [@nwolff](https://github.com/nwolff)
+Sean DuBois [@Sean-Der](https://github.com/Sean-Der)
