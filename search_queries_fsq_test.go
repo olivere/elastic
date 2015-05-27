@@ -67,6 +67,25 @@ func TestFieldValueFactor(t *testing.T) {
 	}
 }
 
+func TestFieldValueFactorWithWeight(t *testing.T) {
+	q := NewFunctionScoreQuery().
+		Query(NewTermQuery("name.last", "banon")).
+		AddScoreFunc(NewFieldValueFactorFunction().Modifier("sqrt").Factor(2).Field("income").Weight(2.5)).
+		Boost(2.0).
+		MaxBoost(12.0).
+		BoostMode("multiply").
+		ScoreMode("max")
+	data, err := json.Marshal(q.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"function_score":{"boost":2,"boost_mode":"multiply","field_value_factor":{"factor":2,"field":"income","modifier":"sqrt","weight":2.5},"max_boost":12,"query":{"term":{"name.last":"banon"}},"score_mode":"max"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestFunctionScoreQueryWithGaussScoreFunc(t *testing.T) {
 	q := NewFunctionScoreQuery().
 		Query(NewTermQuery("name.last", "banon")).

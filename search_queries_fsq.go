@@ -19,6 +19,7 @@ type FunctionScoreQuery struct {
 	boostMode  string
 	filters    []Filter
 	scoreFuncs []ScoreFunction
+	minScore   *float32
 }
 
 // NewFunctionScoreQuery creates a new function score query.
@@ -73,6 +74,11 @@ func (q FunctionScoreQuery) Boost(boost float32) FunctionScoreQuery {
 	return q
 }
 
+func (q FunctionScoreQuery) MinScore(minScore float32) FunctionScoreQuery {
+	q.minScore = &minScore
+	return q
+}
+
 // Source returns JSON for the function score query.
 func (q FunctionScoreQuery) Source() interface{} {
 	source := make(map[string]interface{})
@@ -111,6 +117,9 @@ func (q FunctionScoreQuery) Source() interface{} {
 	}
 	if q.boost != nil {
 		query["boost"] = *q.boost
+	}
+	if q.minScore != nil {
+		query["min_score"] = *q.minScore
 	}
 
 	return source

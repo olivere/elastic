@@ -22,6 +22,7 @@ type ExponentialDecayFunction struct {
 	scale     interface{}
 	decay     *float64
 	offset    interface{}
+	weight    *float64
 }
 
 func NewExponentialDecayFunction() ExponentialDecayFunction {
@@ -57,6 +58,11 @@ func (fn ExponentialDecayFunction) Offset(offset interface{}) ExponentialDecayFu
 	return fn
 }
 
+func (fn ExponentialDecayFunction) Weight(weight float64) ExponentialDecayFunction {
+	fn.weight = &weight
+	return fn
+}
+
 func (fn ExponentialDecayFunction) Source() interface{} {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
@@ -71,6 +77,9 @@ func (fn ExponentialDecayFunction) Source() interface{} {
 	if fn.offset != nil {
 		params["offset"] = fn.offset
 	}
+	if fn.weight != nil {
+		params["weight"] = *fn.weight
+	}
 	return source
 }
 
@@ -82,6 +91,7 @@ type GaussDecayFunction struct {
 	scale     interface{}
 	decay     *float64
 	offset    interface{}
+	weight    *float64
 }
 
 func NewGaussDecayFunction() GaussDecayFunction {
@@ -117,6 +127,11 @@ func (fn GaussDecayFunction) Offset(offset interface{}) GaussDecayFunction {
 	return fn
 }
 
+func (fn GaussDecayFunction) Weight(weight float64) GaussDecayFunction {
+	fn.weight = &weight
+	return fn
+}
+
 func (fn GaussDecayFunction) Source() interface{} {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
@@ -131,6 +146,9 @@ func (fn GaussDecayFunction) Source() interface{} {
 	if fn.offset != nil {
 		params["offset"] = fn.offset
 	}
+	if fn.weight != nil {
+		params["weight"] = *fn.weight
+	}
 	return source
 }
 
@@ -142,6 +160,7 @@ type LinearDecayFunction struct {
 	scale     interface{}
 	decay     *float64
 	offset    interface{}
+	weight    *float64
 }
 
 func NewLinearDecayFunction() LinearDecayFunction {
@@ -177,6 +196,11 @@ func (fn LinearDecayFunction) Offset(offset interface{}) LinearDecayFunction {
 	return fn
 }
 
+func (fn LinearDecayFunction) Weight(weight float64) LinearDecayFunction {
+	fn.weight = &weight
+	return fn
+}
+
 func (fn LinearDecayFunction) Source() interface{} {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
@@ -191,6 +215,9 @@ func (fn LinearDecayFunction) Source() interface{} {
 	if fn.offset != nil {
 		params["offset"] = fn.offset
 	}
+	if fn.weight != nil {
+		params["weight"] = *fn.weight
+	}
 	return source
 }
 
@@ -201,6 +228,7 @@ type ScriptFunction struct {
 	scriptFile string
 	lang       string
 	params     map[string]interface{}
+	weight     *float64
 }
 
 func NewScriptFunction(script string) ScriptFunction {
@@ -239,6 +267,11 @@ func (fn ScriptFunction) Params(params map[string]interface{}) ScriptFunction {
 	return fn
 }
 
+func (fn ScriptFunction) Weight(weight float64) ScriptFunction {
+	fn.weight = &weight
+	return fn
+}
+
 func (fn ScriptFunction) Source() interface{} {
 	source := make(map[string]interface{})
 	if fn.script != "" {
@@ -253,11 +286,15 @@ func (fn ScriptFunction) Source() interface{} {
 	if len(fn.params) > 0 {
 		source["params"] = fn.params
 	}
+	if fn.weight != nil {
+		source["weight"] = *fn.weight
+	}
 	return source
 }
 
 // -- Factor --
 
+// FactorFunction is deprecated.
 type FactorFunction struct {
 	boostFactor *float32
 }
@@ -288,6 +325,7 @@ type FieldValueFactorFunction struct {
 	field    string
 	factor   *float64
 	modifier string
+	weight   *float64
 }
 
 // NewFieldValueFactorFunction creates a new FieldValueFactorFunction.
@@ -320,6 +358,11 @@ func (fn FieldValueFactorFunction) Modifier(modifier string) FieldValueFactorFun
 	return fn
 }
 
+func (fn FieldValueFactorFunction) Weight(weight float64) FieldValueFactorFunction {
+	fn.weight = &weight
+	return fn
+}
+
 // Source returns the JSON to be serialized into the query.
 func (fn FieldValueFactorFunction) Source() interface{} {
 	source := make(map[string]interface{})
@@ -332,13 +375,40 @@ func (fn FieldValueFactorFunction) Source() interface{} {
 	if fn.modifier != "" {
 		source["modifier"] = strings.ToLower(fn.modifier)
 	}
+	if fn.weight != nil {
+		source["weight"] = *fn.weight
+	}
 	return source
+}
+
+// -- Weight Factor --
+
+type WeightFactorFunction struct {
+	weight float64
+}
+
+func NewWeightFactorFunction(weight float64) WeightFactorFunction {
+	return WeightFactorFunction{weight: weight}
+}
+
+func (fn WeightFactorFunction) Name() string {
+	return "weight"
+}
+
+func (fn WeightFactorFunction) Weight(weight float64) WeightFactorFunction {
+	fn.weight = weight
+	return fn
+}
+
+func (fn WeightFactorFunction) Source() interface{} {
+	return fn.weight
 }
 
 // -- Random --
 
 type RandomFunction struct {
-	seed *int64
+	seed   *int64
+	weight *float64
 }
 
 func NewRandomFunction() RandomFunction {
@@ -354,10 +424,18 @@ func (fn RandomFunction) Seed(seed int64) RandomFunction {
 	return fn
 }
 
+func (fn RandomFunction) Weight(weight float64) RandomFunction {
+	fn.weight = &weight
+	return fn
+}
+
 func (fn RandomFunction) Source() interface{} {
 	source := make(map[string]interface{})
 	if fn.seed != nil {
 		source["seed"] = *fn.seed
+	}
+	if fn.weight != nil {
+		source["weight"] = *fn.weight
 	}
 	return source
 }
