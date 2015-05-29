@@ -22,6 +22,24 @@ func TestSignificantTermsAggregation(t *testing.T) {
 	}
 }
 
+func TestSignificantTermsAggregationWithArgs(t *testing.T) {
+	agg := NewSignificantTermsAggregation().
+		Field("crime_type").
+		ExecutionHint("map").
+		ShardSize(5).
+		MinDocCount(10).
+		BackgroundFilter(NewTermFilter("city", "London"))
+	data, err := json.Marshal(agg.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_terms":{"background_filter":{"term":{"city":"London"}},"execution_hint":"map","field":"crime_type","min_doc_count":10,"shard_size":5}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestSignificantTermsAggregationSubAggregation(t *testing.T) {
 	crimeTypesAgg := NewSignificantTermsAggregation().Field("crime_type")
 	agg := NewTermsAggregation().Field("force")

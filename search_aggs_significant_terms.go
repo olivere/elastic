@@ -11,9 +11,12 @@ type SignificantTermsAggregation struct {
 	field           string
 	subAggregations map[string]Aggregation
 
-	requiredSize *int
-	shardSize    *int
-	minDocCount  *int
+	minDocCount      *int
+	shardMinDocCount *int
+	requiredSize     *int
+	shardSize        *int
+	filter           Filter
+	executionHint    string
 }
 
 func NewSignificantTermsAggregation() SignificantTermsAggregation {
@@ -33,18 +36,33 @@ func (a SignificantTermsAggregation) SubAggregation(name string, subAggregation 
 	return a
 }
 
+func (a SignificantTermsAggregation) MinDocCount(minDocCount int) SignificantTermsAggregation {
+	a.minDocCount = &minDocCount
+	return a
+}
+
+func (a SignificantTermsAggregation) ShardMinDocCount(shardMinDocCount int) SignificantTermsAggregation {
+	a.shardMinDocCount = &shardMinDocCount
+	return a
+}
+
 func (a SignificantTermsAggregation) RequiredSize(requiredSize int) SignificantTermsAggregation {
 	a.requiredSize = &requiredSize
 	return a
 }
 
-func (a SignificantTermsAggregation) SharedSize(shardSize int) SignificantTermsAggregation {
+func (a SignificantTermsAggregation) ShardSize(shardSize int) SignificantTermsAggregation {
 	a.shardSize = &shardSize
 	return a
 }
 
-func (a SignificantTermsAggregation) MinDocCount(minDocCount int) SignificantTermsAggregation {
-	a.minDocCount = &minDocCount
+func (a SignificantTermsAggregation) BackgroundFilter(filter Filter) SignificantTermsAggregation {
+	a.filter = filter
+	return a
+}
+
+func (a SignificantTermsAggregation) ExecutionHint(hint string) SignificantTermsAggregation {
+	a.executionHint = hint
 	return a
 }
 
@@ -79,8 +97,16 @@ func (a SignificantTermsAggregation) Source() interface{} {
 		opts["shard_size"] = *a.shardSize
 	}
 	if a.minDocCount != nil {
-		// TODO(oe) not sure if minDocCount is a typo in ES and should be min_doc_count!
-		opts["minDocCount"] = *a.minDocCount
+		opts["min_doc_count"] = *a.minDocCount
+	}
+	if a.shardMinDocCount != nil {
+		opts["shard_min_doc_count"] = *a.shardMinDocCount
+	}
+	if a.filter != nil {
+		opts["background_filter"] = a.filter.Source()
+	}
+	if a.executionHint != "" {
+		opts["execution_hint"] = a.executionHint
 	}
 
 	// AggregationBuilder (SubAggregations)
