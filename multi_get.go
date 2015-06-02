@@ -172,7 +172,7 @@ func (item *MultiGetItem) Source() interface{} {
 		source["_source"] = item.fsc.Source()
 	}
 	if item.fields != nil {
-		source["_fields"] = item.fields
+		source["fields"] = item.fields
 	}
 	if item.routing != "" {
 		source["_routing"] = item.routing
