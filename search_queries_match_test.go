@@ -49,13 +49,13 @@ func TestMatchPhrasePrefixQuery(t *testing.T) {
 }
 
 func TestMatchQueryWithOptions(t *testing.T) {
-	q := NewMatchQuery("message", "this is a test").Operator("or").Boost(2.5)
+	q := NewMatchQuery("message", "this is a test").Analyzer("whitespace").Operator("or").Boost(2.5)
 	data, err := json.Marshal(q.Source())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match":{"message":{"boost":2.5,"operator":"or","query":"this is a test"}}}`
+	expected := `{"match":{"message":{"analyzer":"whitespace","boost":2.5,"operator":"or","query":"this is a test"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
