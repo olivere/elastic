@@ -151,6 +151,9 @@ func (q MatchQuery) Source() interface{} {
 	if q.operator != "" {
 		query["operator"] = q.operator
 	}
+	if q.analyzer != "" {
+		query["analyzer"] = q.analyzer
+	}
 	if q.boost != nil {
 		query["boost"] = *q.boost
 	}
