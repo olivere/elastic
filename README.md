@@ -46,8 +46,13 @@ to rewrite your application big time.
 More often than not it's renaming APIs and adding/removing features
 so that we are in sync with the Elasticsearch API.
 
-Elastic supports and has been tested in production with
-the following Elasticsearch versions: 0.90, 1.0, 1.1, 1.2, 1.3, and 1.4.
+Elastic has been used in production with the following Elasticsearch versions:
+0.90, 1.0, 1.1, 1.2, 1.3, 1.4, and 1.5.
+Furthermore, we use [Travis CI](https://travis-ci.org/)
+to test Elastic with the most recent versions of Elasticsearch and Go.
+See the [.travis.yml](https://github.com/olivere/elastic/blob/master/.travis.yml)
+file for the exact matrix and [Travis](https://travis-ci.org/olivere/elastic)
+for the results.
 
 Elasticsearch has quite a few features. A lot of them are
 not yet implemented in Elastic (see below for details).
