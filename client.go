@@ -512,7 +512,7 @@ func (c *Client) sniffer() {
 	for {
 		c.mu.RLock()
 		timeout := c.snifferTimeout
-		ticker := time.NewTicker(c.snifferInterval)
+		ticker := time.After(c.snifferInterval)
 		c.mu.RUnlock()
 
 		select {
@@ -520,7 +520,7 @@ func (c *Client) sniffer() {
 			// we are asked to stop, so we signal back that we're stopping now
 			c.snifferStop <- true
 			return
-		case <-ticker.C:
+		case <-ticker:
 			c.sniff(timeout)
 		}
 	}
@@ -678,7 +678,7 @@ func (c *Client) healthchecker() {
 	for {
 		c.mu.RLock()
 		timeout := c.healthcheckTimeout
-		ticker := time.NewTicker(c.healthcheckInterval)
+		ticker := time.After(c.healthcheckInterval)
 		c.mu.RUnlock()
 
 		select {
@@ -686,7 +686,7 @@ func (c *Client) healthchecker() {
 			// we are asked to stop, so we signal back that we're stopping now
 			c.healthcheckStop <- true
 			return
-		case <-ticker.C:
+		case <-ticker:
 			c.healthcheck(timeout, false)
 		}
 	}
