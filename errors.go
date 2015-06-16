@@ -6,9 +6,21 @@ package elastic
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+)
+
+var (
+	// ErrMissingIndex is returned e.g. from DeleteService if the index is missing.
+	ErrMissingIndex = errors.New("elastic: index is missing")
+
+	// ErrMissingType is returned e.g. from DeleteService if the type is missing.
+	ErrMissingType = errors.New("elastic: type is missing")
+
+	// ErrMissingId is returned e.g. from DeleteService if the document identifier is missing.
+	ErrMissingId = errors.New("elastic: id is missing")
 )
 
 func checkResponse(res *http.Response) error {

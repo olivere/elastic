@@ -67,7 +67,19 @@ func (s *DeleteService) Pretty(pretty bool) *DeleteService {
 	return s
 }
 
+// Do deletes the document. It fails if any of index, type, and identifier
+// are missing.
 func (s *DeleteService) Do() (*DeleteResult, error) {
+	if s.index == "" {
+		return nil, ErrMissingIndex
+	}
+	if s._type == "" {
+		return nil, ErrMissingType
+	}
+	if s.id == "" {
+		return nil, ErrMissingId
+	}
+
 	// Build url
 	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
 		"index": s.index,

@@ -81,3 +81,35 @@ func TestDelete(t *testing.T) {
 		t.Errorf("expected Count = %d; got %d", 2, count)
 	}
 }
+
+func TestDeleteWithEmptyIDFails(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Delete document with blank ID
+	_, err = client.Delete().Index(testIndexName).Type("tweet").Id("").Do()
+	if err != ErrMissingId {
+		t.Fatalf("expected to not accept delete without identifier, got: %v", err)
+	}
+
+	// Delete document with blank type
+	_, err = client.Delete().Index(testIndexName).Type("").Id("1").Do()
+	if err != ErrMissingType {
+		t.Fatalf("expected to not accept delete without type, got: %v", err)
+	}
+
+	// Delete document with blank index
+	_, err = client.Delete().Index("").Type("tweet").Id("1").Do()
+	if err != ErrMissingIndex {
+		t.Fatalf("expected to not accept delete without index, got: %v", err)
+	}
+}
