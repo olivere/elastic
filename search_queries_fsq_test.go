@@ -70,7 +70,7 @@ func TestFieldValueFactor(t *testing.T) {
 func TestFieldValueFactorWithWeight(t *testing.T) {
 	q := NewFunctionScoreQuery().
 		Query(NewTermQuery("name.last", "banon")).
-		AddScoreFunc(NewFieldValueFactorFunction().Modifier("sqrt").Factor(2).Field("income")).
+		AddScoreFunc(NewFieldValueFactorFunction().Modifier("sqrt").Factor(2).Field("income").Weight(2.5)).
 		Boost(2.0).
 		MaxBoost(12.0).
 		BoostMode("multiply").
@@ -80,7 +80,28 @@ func TestFieldValueFactorWithWeight(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"function_score":{"boost":2,"boost_mode":"multiply","field_value_factor":{"factor":2,"field":"income","modifier":"sqrt"},"max_boost":12,"query":{"term":{"name.last":"banon"}},"score_mode":"max"}}`
+	expected := `{"function_score":{"boost":2,"boost_mode":"multiply","field_value_factor":{"factor":2,"field":"income","modifier":"sqrt"},"max_boost":12,"query":{"term":{"name.last":"banon"}},"score_mode":"max","weight":2.5}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestFieldValueFactorWithMultipleScoreFuncsAndWeights(t *testing.T) {
+	q := NewFunctionScoreQuery().
+		Query(NewTermQuery("name.last", "banon")).
+		AddScoreFunc(NewFieldValueFactorFunction().Modifier("sqrt").Factor(2).Field("income").Weight(2.5)).
+		AddScoreFunc(NewScriptFunction("_score * doc['my_numeric_field'].value").Weight(1.25)).
+		AddScoreFunc(NewWeightFactorFunction(0.5)).
+		Boost(2.0).
+		MaxBoost(12.0).
+		BoostMode("multiply").
+		ScoreMode("max")
+	data, err := json.Marshal(q.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"function_score":{"boost":2,"boost_mode":"multiply","functions":[{"field_value_factor":{"factor":2,"field":"income","modifier":"sqrt"},"weight":2.5},{"script_score":{"script":"_score * doc['my_numeric_field'].value"},"weight":1.25},{"weight":0.5}],"max_boost":12,"query":{"term":{"name.last":"banon"}},"score_mode":"max"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -96,6 +117,21 @@ func TestFunctionScoreQueryWithGaussScoreFunc(t *testing.T) {
 	}
 	got := string(data)
 	expected := `{"function_score":{"gauss":{"pin.location":{"decay":0.33,"offset":"0km","origin":"11, 12","scale":"2km"}},"query":{"term":{"name.last":"banon"}}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestFunctionScoreQueryWithGaussScoreFuncAndMultiValueMode(t *testing.T) {
+	q := NewFunctionScoreQuery().
+		Query(NewTermQuery("name.last", "banon")).
+		AddScoreFunc(NewGaussDecayFunction().FieldName("pin.location").Origin("11, 12").Scale("2km").Offset("0km").Decay(0.33).MultiValueMode("avg"))
+	data, err := json.Marshal(q.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"function_score":{"gauss":{"multi_value_mode":"avg","pin.location":{"decay":0.33,"offset":"0km","origin":"11, 12","scale":"2km"}},"query":{"term":{"name.last":"banon"}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
