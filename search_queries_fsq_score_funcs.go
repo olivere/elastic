@@ -324,8 +324,8 @@ func (fn FactorFunction) Source() interface{} {
 type FieldValueFactorFunction struct {
 	field    string
 	factor   *float64
+	missing  *float64
 	modifier string
-	weight   *float64
 }
 
 // NewFieldValueFactorFunction creates a new FieldValueFactorFunction.
@@ -358,8 +358,9 @@ func (fn FieldValueFactorFunction) Modifier(modifier string) FieldValueFactorFun
 	return fn
 }
 
-func (fn FieldValueFactorFunction) Weight(weight float64) FieldValueFactorFunction {
-	fn.weight = &weight
+// Missing is used if a document does not have that field.
+func (fn FieldValueFactorFunction) Missing(missing float64) FieldValueFactorFunction {
+	fn.missing = &missing
 	return fn
 }
 
@@ -372,11 +373,11 @@ func (fn FieldValueFactorFunction) Source() interface{} {
 	if fn.factor != nil {
 		source["factor"] = *fn.factor
 	}
+	if fn.missing != nil {
+		source["missing"] = *fn.missing
+	}
 	if fn.modifier != "" {
 		source["modifier"] = strings.ToLower(fn.modifier)
-	}
-	if fn.weight != nil {
-		source["weight"] = *fn.weight
 	}
 	return source
 }
