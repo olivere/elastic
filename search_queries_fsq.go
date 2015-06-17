@@ -93,9 +93,11 @@ func (q FunctionScoreQuery) Source() interface{} {
 	}
 
 	if len(q.filters) == 1 && q.filters[0] == nil {
+		// Weight needs to be serialized on this level.
 		if weight := q.scoreFuncs[0].GetWeight(); weight != nil {
 			query["weight"] = weight
 		}
+		// Serialize the score function
 		query[q.scoreFuncs[0].Name()] = q.scoreFuncs[0].Source()
 	} else {
 		funcs := make([]interface{}, len(q.filters))
@@ -104,9 +106,11 @@ func (q FunctionScoreQuery) Source() interface{} {
 			if filter != nil {
 				hsh["filter"] = filter.Source()
 			}
+			// Weight needs to be serialized on this level.
 			if weight := q.scoreFuncs[i].GetWeight(); weight != nil {
 				hsh["weight"] = weight
 			}
+			// Serialize the score function
 			hsh[q.scoreFuncs[i].Name()] = q.scoreFuncs[i].Source()
 			funcs[i] = hsh
 		}

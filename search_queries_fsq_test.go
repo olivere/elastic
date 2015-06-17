@@ -121,3 +121,18 @@ func TestFunctionScoreQueryWithGaussScoreFunc(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestFunctionScoreQueryWithGaussScoreFuncAndMultiValueMode(t *testing.T) {
+	q := NewFunctionScoreQuery().
+		Query(NewTermQuery("name.last", "banon")).
+		AddScoreFunc(NewGaussDecayFunction().FieldName("pin.location").Origin("11, 12").Scale("2km").Offset("0km").Decay(0.33).MultiValueMode("avg"))
+	data, err := json.Marshal(q.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"function_score":{"gauss":{"multi_value_mode":"avg","pin.location":{"decay":0.33,"offset":"0km","origin":"11, 12","scale":"2km"}},"query":{"term":{"name.last":"banon"}}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
