@@ -20,6 +20,7 @@ type FunctionScoreQuery struct {
 	filters    []Filter
 	scoreFuncs []ScoreFunction
 	minScore   *float32
+	weight     *float64
 }
 
 // NewFunctionScoreQuery creates a new function score query.
@@ -92,6 +93,9 @@ func (q FunctionScoreQuery) Source() interface{} {
 	}
 
 	if len(q.filters) == 1 && q.filters[0] == nil {
+		if weight := q.scoreFuncs[0].GetWeight(); weight != nil {
+			query["weight"] = weight
+		}
 		query[q.scoreFuncs[0].Name()] = q.scoreFuncs[0].Source()
 	} else {
 		funcs := make([]interface{}, len(q.filters))
@@ -99,6 +103,9 @@ func (q FunctionScoreQuery) Source() interface{} {
 			hsh := make(map[string]interface{})
 			if filter != nil {
 				hsh["filter"] = filter.Source()
+			}
+			if weight := q.scoreFuncs[i].GetWeight(); weight != nil {
+				hsh["weight"] = weight
 			}
 			hsh[q.scoreFuncs[i].Name()] = q.scoreFuncs[i].Source()
 			funcs[i] = hsh

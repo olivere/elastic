@@ -11,6 +11,7 @@ import (
 // ScoreFunction is used in combination with the Function Score Query.
 type ScoreFunction interface {
 	Name() string
+	GetWeight() *float64
 	Source() interface{}
 }
 
@@ -63,6 +64,10 @@ func (fn ExponentialDecayFunction) Weight(weight float64) ExponentialDecayFuncti
 	return fn
 }
 
+func (fn ExponentialDecayFunction) GetWeight() *float64 {
+	return fn.weight
+}
+
 func (fn ExponentialDecayFunction) Source() interface{} {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
@@ -76,9 +81,6 @@ func (fn ExponentialDecayFunction) Source() interface{} {
 	}
 	if fn.offset != nil {
 		params["offset"] = fn.offset
-	}
-	if fn.weight != nil {
-		params["weight"] = *fn.weight
 	}
 	return source
 }
@@ -132,6 +134,10 @@ func (fn GaussDecayFunction) Weight(weight float64) GaussDecayFunction {
 	return fn
 }
 
+func (fn GaussDecayFunction) GetWeight() *float64 {
+	return fn.weight
+}
+
 func (fn GaussDecayFunction) Source() interface{} {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
@@ -145,9 +151,6 @@ func (fn GaussDecayFunction) Source() interface{} {
 	}
 	if fn.offset != nil {
 		params["offset"] = fn.offset
-	}
-	if fn.weight != nil {
-		params["weight"] = *fn.weight
 	}
 	return source
 }
@@ -201,6 +204,10 @@ func (fn LinearDecayFunction) Weight(weight float64) LinearDecayFunction {
 	return fn
 }
 
+func (fn LinearDecayFunction) GetWeight() *float64 {
+	return fn.weight
+}
+
 func (fn LinearDecayFunction) Source() interface{} {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
@@ -214,9 +221,6 @@ func (fn LinearDecayFunction) Source() interface{} {
 	}
 	if fn.offset != nil {
 		params["offset"] = fn.offset
-	}
-	if fn.weight != nil {
-		params["weight"] = *fn.weight
 	}
 	return source
 }
@@ -272,6 +276,10 @@ func (fn ScriptFunction) Weight(weight float64) ScriptFunction {
 	return fn
 }
 
+func (fn ScriptFunction) GetWeight() *float64 {
+	return fn.weight
+}
+
 func (fn ScriptFunction) Source() interface{} {
 	source := make(map[string]interface{})
 	if fn.script != "" {
@@ -285,9 +293,6 @@ func (fn ScriptFunction) Source() interface{} {
 	}
 	if len(fn.params) > 0 {
 		source["params"] = fn.params
-	}
-	if fn.weight != nil {
-		source["weight"] = *fn.weight
 	}
 	return source
 }
@@ -312,6 +317,10 @@ func (fn FactorFunction) BoostFactor(boost float32) FactorFunction {
 	return fn
 }
 
+func (fn FactorFunction) GetWeight() *float64 {
+	return nil
+}
+
 func (fn FactorFunction) Source() interface{} {
 	return fn.boostFactor
 }
@@ -325,6 +334,7 @@ type FieldValueFactorFunction struct {
 	field    string
 	factor   *float64
 	missing  *float64
+	weight   *float64
 	modifier string
 }
 
@@ -356,6 +366,15 @@ func (fn FieldValueFactorFunction) Factor(factor float64) FieldValueFactorFuncti
 func (fn FieldValueFactorFunction) Modifier(modifier string) FieldValueFactorFunction {
 	fn.modifier = modifier
 	return fn
+}
+
+func (fn FieldValueFactorFunction) Weight(weight float64) FieldValueFactorFunction {
+	fn.weight = &weight
+	return fn
+}
+
+func (fn FieldValueFactorFunction) GetWeight() *float64 {
+	return fn.weight
 }
 
 // Missing is used if a document does not have that field.
@@ -401,6 +420,10 @@ func (fn WeightFactorFunction) Weight(weight float64) WeightFactorFunction {
 	return fn
 }
 
+func (fn WeightFactorFunction) GetWeight() *float64 {
+	return &fn.weight
+}
+
 func (fn WeightFactorFunction) Source() interface{} {
 	return fn.weight
 }
@@ -408,7 +431,7 @@ func (fn WeightFactorFunction) Source() interface{} {
 // -- Random --
 
 type RandomFunction struct {
-	seed   *int64
+	seed   interface{}
 	weight *float64
 }
 
@@ -420,8 +443,10 @@ func (fn RandomFunction) Name() string {
 	return "random_score"
 }
 
-func (fn RandomFunction) Seed(seed int64) RandomFunction {
-	fn.seed = &seed
+// Seed is documented in 1.6 as a numeric value. However, in the source code
+// of the Java client, it also accepts strings. So we accept both here, too.
+func (fn RandomFunction) Seed(seed interface{}) RandomFunction {
+	fn.seed = seed
 	return fn
 }
 
@@ -430,13 +455,14 @@ func (fn RandomFunction) Weight(weight float64) RandomFunction {
 	return fn
 }
 
+func (fn RandomFunction) GetWeight() *float64 {
+	return fn.weight
+}
+
 func (fn RandomFunction) Source() interface{} {
 	source := make(map[string]interface{})
 	if fn.seed != nil {
-		source["seed"] = *fn.seed
-	}
-	if fn.weight != nil {
-		source["weight"] = *fn.weight
+		source["seed"] = fn.seed
 	}
 	return source
 }
