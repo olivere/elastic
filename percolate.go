@@ -178,11 +178,20 @@ func (s *PercolateService) BodyString(body string) *PercolateService {
 // buildURL builds the URL for the operation.
 func (s *PercolateService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/{index}/{type}/_percolate", map[string]string{
-		"index": s.index,
-		"type":  s.typ,
-		"id":    s.id,
-	})
+	var path string
+	var err error
+	if s.id == "" {
+		path, err = uritemplates.Expand("/{index}/{type}/_percolate", map[string]string{
+			"index": s.index,
+			"type":  s.typ,
+		})
+	} else {
+		path, err = uritemplates.Expand("/{index}/{type}/{id}/_percolate", map[string]string{
+			"index": s.index,
+			"type":  s.typ,
+			"id":    s.id,
+		})
+	}
 	if err != nil {
 		return "", url.Values{}, err
 	}
