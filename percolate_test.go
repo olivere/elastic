@@ -56,4 +56,33 @@ func TestPercolate(t *testing.T) {
 	if matches[0].Id != "1" {
 		t.Errorf("expected to return query %q; got: %q", "1", matches[0].Id)
 	}
+
+	// Percolating an existsing document should return our registered query
+	res, err = client.Percolate().
+		Index(testIndexName).Type("tweet").
+		Id("1").
+		Pretty(true).
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Errorf("expected results != nil; got nil")
+	}
+	if res.Total != 1 {
+		t.Fatalf("expected 1 result; got: %d", res.Total)
+	}
+	if res.Matches == nil {
+		t.Fatalf("expected Matches; got: %v", res.Matches)
+	}
+	matches = res.Matches
+	if matches == nil {
+		t.Fatalf("expected matches as map; got: %v", matches)
+	}
+	if len(matches) != 1 {
+		t.Fatalf("expected %d registered matches; got: %d", 1, len(matches))
+	}
+	if matches[0].Id != "1" {
+		t.Errorf("expected to return query %q; got: %q", "1", matches[0].Id)
+	}
 }
