@@ -67,7 +67,7 @@ func (s *SearchService) Index(index string) *SearchService {
 // Indices sets the names of the indices to use for search.
 func (s *SearchService) Indices(indices ...string) *SearchService {
 	if s.indices == nil {
-		s.indices = make([]string, 0)
+		s.indices = make([]string, 0, len(indices))
 	}
 	s.indices = append(s.indices, indices...)
 	return s
@@ -86,7 +86,7 @@ func (s *SearchService) Type(typ string) *SearchService {
 // Types allows to restrict the search to a list of types.
 func (s *SearchService) Types(types ...string) *SearchService {
 	if s.types == nil {
-		s.types = make([]string, len(types))
+		s.types = make([]string, 0, len(types))
 	}
 	s.types = append(s.types, types...)
 	return s
