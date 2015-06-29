@@ -86,7 +86,7 @@ func (s *SearchService) Type(typ string) *SearchService {
 // Types allows to restrict the search to a list of types.
 func (s *SearchService) Types(types ...string) *SearchService {
 	if s.types == nil {
-		s.types = make([]string, len(types))
+		s.types = make([]string, 0)
 	}
 	s.types = append(s.types, types...)
 	return s
