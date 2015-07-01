@@ -20,45 +20,44 @@ type MaxAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewMaxAggregation() MaxAggregation {
-	a := MaxAggregation{
+func NewMaxAggregation() *MaxAggregation {
+	return &MaxAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a MaxAggregation) Field(field string) MaxAggregation {
+func (a *MaxAggregation) Field(field string) *MaxAggregation {
 	a.field = field
 	return a
 }
 
-func (a MaxAggregation) Script(script string) MaxAggregation {
+func (a *MaxAggregation) Script(script string) *MaxAggregation {
 	a.script = script
 	return a
 }
 
-func (a MaxAggregation) ScriptFile(scriptFile string) MaxAggregation {
+func (a *MaxAggregation) ScriptFile(scriptFile string) *MaxAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a MaxAggregation) Lang(lang string) MaxAggregation {
+func (a *MaxAggregation) Lang(lang string) *MaxAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a MaxAggregation) Format(format string) MaxAggregation {
+func (a *MaxAggregation) Format(format string) *MaxAggregation {
 	a.format = format
 	return a
 }
 
-func (a MaxAggregation) Param(name string, value interface{}) MaxAggregation {
+func (a *MaxAggregation) Param(name string, value interface{}) *MaxAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a MaxAggregation) SubAggregation(name string, subAggregation Aggregation) MaxAggregation {
+func (a *MaxAggregation) SubAggregation(name string, subAggregation Aggregation) *MaxAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }

@@ -17,19 +17,18 @@ type MissingAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewMissingAggregation() MissingAggregation {
-	a := MissingAggregation{
+func NewMissingAggregation() *MissingAggregation {
+	return &MissingAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a MissingAggregation) Field(field string) MissingAggregation {
+func (a *MissingAggregation) Field(field string) *MissingAggregation {
 	a.field = field
 	return a
 }
 
-func (a MissingAggregation) SubAggregation(name string, subAggregation Aggregation) MissingAggregation {
+func (a *MissingAggregation) SubAggregation(name string, subAggregation Aggregation) *MissingAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }

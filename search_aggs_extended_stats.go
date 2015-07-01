@@ -19,45 +19,44 @@ type ExtendedStatsAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewExtendedStatsAggregation() ExtendedStatsAggregation {
-	a := ExtendedStatsAggregation{
+func NewExtendedStatsAggregation() *ExtendedStatsAggregation {
+	return &ExtendedStatsAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a ExtendedStatsAggregation) Field(field string) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) Field(field string) *ExtendedStatsAggregation {
 	a.field = field
 	return a
 }
 
-func (a ExtendedStatsAggregation) Script(script string) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) Script(script string) *ExtendedStatsAggregation {
 	a.script = script
 	return a
 }
 
-func (a ExtendedStatsAggregation) ScriptFile(scriptFile string) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) ScriptFile(scriptFile string) *ExtendedStatsAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a ExtendedStatsAggregation) Lang(lang string) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) Lang(lang string) *ExtendedStatsAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a ExtendedStatsAggregation) Format(format string) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) Format(format string) *ExtendedStatsAggregation {
 	a.format = format
 	return a
 }
 
-func (a ExtendedStatsAggregation) Param(name string, value interface{}) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) Param(name string, value interface{}) *ExtendedStatsAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a ExtendedStatsAggregation) SubAggregation(name string, subAggregation Aggregation) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) SubAggregation(name string, subAggregation Aggregation) *ExtendedStatsAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
