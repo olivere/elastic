@@ -14,19 +14,18 @@ type FilterAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewFilterAggregation() FilterAggregation {
-	a := FilterAggregation{
+func NewFilterAggregation() *FilterAggregation {
+	return &FilterAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a FilterAggregation) SubAggregation(name string, subAggregation Aggregation) FilterAggregation {
+func (a *FilterAggregation) SubAggregation(name string, subAggregation Aggregation) *FilterAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
-func (a FilterAggregation) Filter(filter Filter) FilterAggregation {
+func (a *FilterAggregation) Filter(filter Filter) *FilterAggregation {
 	a.filter = filter
 	return a
 }

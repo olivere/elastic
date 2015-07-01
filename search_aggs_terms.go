@@ -34,138 +34,137 @@ type TermsAggregation struct {
 	excludeTerms          []string
 }
 
-func NewTermsAggregation() TermsAggregation {
-	a := TermsAggregation{
+func NewTermsAggregation() *TermsAggregation {
+	return &TermsAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation, 0),
 		includeTerms:    make([]string, 0),
 		excludeTerms:    make([]string, 0),
 	}
-	return a
 }
 
-func (a TermsAggregation) Field(field string) TermsAggregation {
+func (a *TermsAggregation) Field(field string) *TermsAggregation {
 	a.field = field
 	return a
 }
 
-func (a TermsAggregation) Script(script string) TermsAggregation {
+func (a *TermsAggregation) Script(script string) *TermsAggregation {
 	a.script = script
 	return a
 }
 
-func (a TermsAggregation) ScriptFile(scriptFile string) TermsAggregation {
+func (a *TermsAggregation) ScriptFile(scriptFile string) *TermsAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a TermsAggregation) Lang(lang string) TermsAggregation {
+func (a *TermsAggregation) Lang(lang string) *TermsAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a TermsAggregation) Param(name string, value interface{}) TermsAggregation {
+func (a *TermsAggregation) Param(name string, value interface{}) *TermsAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a TermsAggregation) SubAggregation(name string, subAggregation Aggregation) TermsAggregation {
+func (a *TermsAggregation) SubAggregation(name string, subAggregation Aggregation) *TermsAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
-func (a TermsAggregation) Size(size int) TermsAggregation {
+func (a *TermsAggregation) Size(size int) *TermsAggregation {
 	a.size = &size
 	return a
 }
 
-func (a TermsAggregation) RequiredSize(requiredSize int) TermsAggregation {
+func (a *TermsAggregation) RequiredSize(requiredSize int) *TermsAggregation {
 	a.requiredSize = &requiredSize
 	return a
 }
 
-func (a TermsAggregation) ShardSize(shardSize int) TermsAggregation {
+func (a *TermsAggregation) ShardSize(shardSize int) *TermsAggregation {
 	a.shardSize = &shardSize
 	return a
 }
 
-func (a TermsAggregation) MinDocCount(minDocCount int) TermsAggregation {
+func (a *TermsAggregation) MinDocCount(minDocCount int) *TermsAggregation {
 	a.minDocCount = &minDocCount
 	return a
 }
 
-func (a TermsAggregation) ShardMinDocCount(shardMinDocCount int) TermsAggregation {
+func (a *TermsAggregation) ShardMinDocCount(shardMinDocCount int) *TermsAggregation {
 	a.shardMinDocCount = &shardMinDocCount
 	return a
 }
 
-func (a TermsAggregation) Include(regexp string) TermsAggregation {
+func (a *TermsAggregation) Include(regexp string) *TermsAggregation {
 	a.includePattern = regexp
 	return a
 }
 
-func (a TermsAggregation) IncludeWithFlags(regexp string, flags int) TermsAggregation {
+func (a *TermsAggregation) IncludeWithFlags(regexp string, flags int) *TermsAggregation {
 	a.includePattern = regexp
 	a.includeFlags = &flags
 	return a
 }
 
-func (a TermsAggregation) Exclude(regexp string) TermsAggregation {
+func (a *TermsAggregation) Exclude(regexp string) *TermsAggregation {
 	a.excludePattern = regexp
 	return a
 }
 
-func (a TermsAggregation) ExcludeWithFlags(regexp string, flags int) TermsAggregation {
+func (a *TermsAggregation) ExcludeWithFlags(regexp string, flags int) *TermsAggregation {
 	a.excludePattern = regexp
 	a.excludeFlags = &flags
 	return a
 }
 
 // ValueType can be string, long, or double.
-func (a TermsAggregation) ValueType(valueType string) TermsAggregation {
+func (a *TermsAggregation) ValueType(valueType string) *TermsAggregation {
 	a.valueType = valueType
 	return a
 }
 
-func (a TermsAggregation) Order(order string, asc bool) TermsAggregation {
+func (a *TermsAggregation) Order(order string, asc bool) *TermsAggregation {
 	a.order = order
 	a.orderAsc = asc
 	return a
 }
 
-func (a TermsAggregation) OrderByCount(asc bool) TermsAggregation {
+func (a *TermsAggregation) OrderByCount(asc bool) *TermsAggregation {
 	// "order" : { "_count" : "asc" }
 	a.order = "_count"
 	a.orderAsc = asc
 	return a
 }
 
-func (a TermsAggregation) OrderByCountAsc() TermsAggregation {
+func (a *TermsAggregation) OrderByCountAsc() *TermsAggregation {
 	return a.OrderByCount(true)
 }
 
-func (a TermsAggregation) OrderByCountDesc() TermsAggregation {
+func (a *TermsAggregation) OrderByCountDesc() *TermsAggregation {
 	return a.OrderByCount(false)
 }
 
-func (a TermsAggregation) OrderByTerm(asc bool) TermsAggregation {
+func (a *TermsAggregation) OrderByTerm(asc bool) *TermsAggregation {
 	// "order" : { "_term" : "asc" }
 	a.order = "_term"
 	a.orderAsc = asc
 	return a
 }
 
-func (a TermsAggregation) OrderByTermAsc() TermsAggregation {
+func (a *TermsAggregation) OrderByTermAsc() *TermsAggregation {
 	return a.OrderByTerm(true)
 }
 
-func (a TermsAggregation) OrderByTermDesc() TermsAggregation {
+func (a *TermsAggregation) OrderByTermDesc() *TermsAggregation {
 	return a.OrderByTerm(false)
 }
 
 // OrderByAggregation creates a bucket ordering strategy which sorts buckets
 // based on a single-valued calc get.
-func (a TermsAggregation) OrderByAggregation(aggName string, asc bool) TermsAggregation {
+func (a *TermsAggregation) OrderByAggregation(aggName string, asc bool) *TermsAggregation {
 	// {
 	//     "aggs" : {
 	//         "genders" : {
@@ -186,7 +185,7 @@ func (a TermsAggregation) OrderByAggregation(aggName string, asc bool) TermsAggr
 
 // OrderByAggregationAndMetric creates a bucket ordering strategy which
 // sorts buckets based on a multi-valued calc get.
-func (a TermsAggregation) OrderByAggregationAndMetric(aggName, metric string, asc bool) TermsAggregation {
+func (a *TermsAggregation) OrderByAggregationAndMetric(aggName, metric string, asc bool) *TermsAggregation {
 	// {
 	//     "aggs" : {
 	//         "genders" : {
@@ -205,28 +204,28 @@ func (a TermsAggregation) OrderByAggregationAndMetric(aggName, metric string, as
 	return a
 }
 
-func (a TermsAggregation) ExecutionHint(hint string) TermsAggregation {
+func (a *TermsAggregation) ExecutionHint(hint string) *TermsAggregation {
 	a.executionHint = hint
 	return a
 }
 
 // Collection mode can be depth_first or breadth_first as of 1.4.0.
-func (a TermsAggregation) CollectionMode(collectionMode string) TermsAggregation {
+func (a *TermsAggregation) CollectionMode(collectionMode string) *TermsAggregation {
 	a.collectionMode = collectionMode
 	return a
 }
 
-func (a TermsAggregation) ShowTermDocCountError(showTermDocCountError bool) TermsAggregation {
+func (a *TermsAggregation) ShowTermDocCountError(showTermDocCountError bool) *TermsAggregation {
 	a.showTermDocCountError = &showTermDocCountError
 	return a
 }
 
-func (a TermsAggregation) IncludeTerms(terms ...string) TermsAggregation {
+func (a *TermsAggregation) IncludeTerms(terms ...string) *TermsAggregation {
 	a.includeTerms = append(a.includeTerms, terms...)
 	return a
 }
 
-func (a TermsAggregation) ExcludeTerms(terms ...string) TermsAggregation {
+func (a *TermsAggregation) ExcludeTerms(terms ...string) *TermsAggregation {
 	a.excludeTerms = append(a.excludeTerms, terms...)
 	return a
 }

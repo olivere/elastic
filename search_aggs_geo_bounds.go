@@ -16,37 +16,36 @@ type GeoBoundsAggregation struct {
 	wrapLongitude *bool
 }
 
-func NewGeoBoundsAggregation() GeoBoundsAggregation {
-	a := GeoBoundsAggregation{}
-	return a
+func NewGeoBoundsAggregation() *GeoBoundsAggregation {
+	return &GeoBoundsAggregation{}
 }
 
-func (a GeoBoundsAggregation) Field(field string) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) Field(field string) *GeoBoundsAggregation {
 	a.field = field
 	return a
 }
 
-func (a GeoBoundsAggregation) Script(script string) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) Script(script string) *GeoBoundsAggregation {
 	a.script = script
 	return a
 }
 
-func (a GeoBoundsAggregation) ScriptFile(scriptFile string) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) ScriptFile(scriptFile string) *GeoBoundsAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a GeoBoundsAggregation) Lang(lang string) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) Lang(lang string) *GeoBoundsAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a GeoBoundsAggregation) Params(params map[string]interface{}) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) Params(params map[string]interface{}) *GeoBoundsAggregation {
 	a.params = params
 	return a
 }
 
-func (a GeoBoundsAggregation) Param(name string, value interface{}) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) Param(name string, value interface{}) *GeoBoundsAggregation {
 	if a.params == nil {
 		a.params = make(map[string]interface{})
 	}
@@ -54,7 +53,7 @@ func (a GeoBoundsAggregation) Param(name string, value interface{}) GeoBoundsAgg
 	return a
 }
 
-func (a GeoBoundsAggregation) WrapLongitude(wrapLongitude bool) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) WrapLongitude(wrapLongitude bool) *GeoBoundsAggregation {
 	a.wrapLongitude = &wrapLongitude
 	return a
 }

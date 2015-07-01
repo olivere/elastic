@@ -16,34 +16,33 @@ type SignificantTermsAggregation struct {
 	minDocCount  *int
 }
 
-func NewSignificantTermsAggregation() SignificantTermsAggregation {
-	a := SignificantTermsAggregation{
+func NewSignificantTermsAggregation() *SignificantTermsAggregation {
+	return &SignificantTermsAggregation{
 		subAggregations: make(map[string]Aggregation, 0),
 	}
-	return a
 }
 
-func (a SignificantTermsAggregation) Field(field string) SignificantTermsAggregation {
+func (a *SignificantTermsAggregation) Field(field string) *SignificantTermsAggregation {
 	a.field = field
 	return a
 }
 
-func (a SignificantTermsAggregation) SubAggregation(name string, subAggregation Aggregation) SignificantTermsAggregation {
+func (a *SignificantTermsAggregation) SubAggregation(name string, subAggregation Aggregation) *SignificantTermsAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
-func (a SignificantTermsAggregation) RequiredSize(requiredSize int) SignificantTermsAggregation {
+func (a *SignificantTermsAggregation) RequiredSize(requiredSize int) *SignificantTermsAggregation {
 	a.requiredSize = &requiredSize
 	return a
 }
 
-func (a SignificantTermsAggregation) SharedSize(shardSize int) SignificantTermsAggregation {
+func (a *SignificantTermsAggregation) SharedSize(shardSize int) *SignificantTermsAggregation {
 	a.shardSize = &shardSize
 	return a
 }
 
-func (a SignificantTermsAggregation) MinDocCount(minDocCount int) SignificantTermsAggregation {
+func (a *SignificantTermsAggregation) MinDocCount(minDocCount int) *SignificantTermsAggregation {
 	a.minDocCount = &minDocCount
 	return a
 }

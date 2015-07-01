@@ -19,62 +19,61 @@ type PercentilesAggregation struct {
 	estimator       string
 }
 
-func NewPercentilesAggregation() PercentilesAggregation {
-	a := PercentilesAggregation{
+func NewPercentilesAggregation() *PercentilesAggregation {
+	return &PercentilesAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 		percentiles:     make([]float64, 0),
 	}
-	return a
 }
 
-func (a PercentilesAggregation) Field(field string) PercentilesAggregation {
+func (a *PercentilesAggregation) Field(field string) *PercentilesAggregation {
 	a.field = field
 	return a
 }
 
-func (a PercentilesAggregation) Script(script string) PercentilesAggregation {
+func (a *PercentilesAggregation) Script(script string) *PercentilesAggregation {
 	a.script = script
 	return a
 }
 
-func (a PercentilesAggregation) ScriptFile(scriptFile string) PercentilesAggregation {
+func (a *PercentilesAggregation) ScriptFile(scriptFile string) *PercentilesAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a PercentilesAggregation) Lang(lang string) PercentilesAggregation {
+func (a *PercentilesAggregation) Lang(lang string) *PercentilesAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a PercentilesAggregation) Format(format string) PercentilesAggregation {
+func (a *PercentilesAggregation) Format(format string) *PercentilesAggregation {
 	a.format = format
 	return a
 }
 
-func (a PercentilesAggregation) Param(name string, value interface{}) PercentilesAggregation {
+func (a *PercentilesAggregation) Param(name string, value interface{}) *PercentilesAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a PercentilesAggregation) SubAggregation(name string, subAggregation Aggregation) PercentilesAggregation {
+func (a *PercentilesAggregation) SubAggregation(name string, subAggregation Aggregation) *PercentilesAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
-func (a PercentilesAggregation) Percentiles(percentiles ...float64) PercentilesAggregation {
+func (a *PercentilesAggregation) Percentiles(percentiles ...float64) *PercentilesAggregation {
 	a.percentiles = make([]float64, 0)
 	a.percentiles = append(a.percentiles, percentiles...)
 	return a
 }
 
-func (a PercentilesAggregation) Compression(compression float64) PercentilesAggregation {
+func (a *PercentilesAggregation) Compression(compression float64) *PercentilesAggregation {
 	a.compression = &compression
 	return a
 }
 
-func (a PercentilesAggregation) Estimator(estimator string) PercentilesAggregation {
+func (a *PercentilesAggregation) Estimator(estimator string) *PercentilesAggregation {
 	a.estimator = estimator
 	return a
 }

@@ -20,45 +20,44 @@ type MinAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewMinAggregation() MinAggregation {
-	a := MinAggregation{
+func NewMinAggregation() *MinAggregation {
+	return &MinAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a MinAggregation) Field(field string) MinAggregation {
+func (a *MinAggregation) Field(field string) *MinAggregation {
 	a.field = field
 	return a
 }
 
-func (a MinAggregation) Script(script string) MinAggregation {
+func (a *MinAggregation) Script(script string) *MinAggregation {
 	a.script = script
 	return a
 }
 
-func (a MinAggregation) ScriptFile(scriptFile string) MinAggregation {
+func (a *MinAggregation) ScriptFile(scriptFile string) *MinAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a MinAggregation) Lang(lang string) MinAggregation {
+func (a *MinAggregation) Lang(lang string) *MinAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a MinAggregation) Format(format string) MinAggregation {
+func (a *MinAggregation) Format(format string) *MinAggregation {
 	a.format = format
 	return a
 }
 
-func (a MinAggregation) Param(name string, value interface{}) MinAggregation {
+func (a *MinAggregation) Param(name string, value interface{}) *MinAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a MinAggregation) SubAggregation(name string, subAggregation Aggregation) MinAggregation {
+func (a *MinAggregation) SubAggregation(name string, subAggregation Aggregation) *MinAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }

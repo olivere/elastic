@@ -13,14 +13,13 @@ type GlobalAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewGlobalAggregation() GlobalAggregation {
-	a := GlobalAggregation{
+func NewGlobalAggregation() *GlobalAggregation {
+	return &GlobalAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a GlobalAggregation) SubAggregation(name string, subAggregation Aggregation) GlobalAggregation {
+func (a *GlobalAggregation) SubAggregation(name string, subAggregation Aggregation) *GlobalAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }

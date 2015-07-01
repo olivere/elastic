@@ -12,19 +12,18 @@ type NestedAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewNestedAggregation() NestedAggregation {
-	a := NestedAggregation{
+func NewNestedAggregation() *NestedAggregation {
+	return &NestedAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a NestedAggregation) SubAggregation(name string, subAggregation Aggregation) NestedAggregation {
+func (a *NestedAggregation) SubAggregation(name string, subAggregation Aggregation) *NestedAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
-func (a NestedAggregation) Path(path string) NestedAggregation {
+func (a *NestedAggregation) Path(path string) *NestedAggregation {
 	a.path = path
 	return a
 }

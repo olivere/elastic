@@ -19,45 +19,44 @@ type StatsAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewStatsAggregation() StatsAggregation {
-	a := StatsAggregation{
+func NewStatsAggregation() *StatsAggregation {
+	return &StatsAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a StatsAggregation) Field(field string) StatsAggregation {
+func (a *StatsAggregation) Field(field string) *StatsAggregation {
 	a.field = field
 	return a
 }
 
-func (a StatsAggregation) Script(script string) StatsAggregation {
+func (a *StatsAggregation) Script(script string) *StatsAggregation {
 	a.script = script
 	return a
 }
 
-func (a StatsAggregation) ScriptFile(scriptFile string) StatsAggregation {
+func (a *StatsAggregation) ScriptFile(scriptFile string) *StatsAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a StatsAggregation) Lang(lang string) StatsAggregation {
+func (a *StatsAggregation) Lang(lang string) *StatsAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a StatsAggregation) Format(format string) StatsAggregation {
+func (a *StatsAggregation) Format(format string) *StatsAggregation {
 	a.format = format
 	return a
 }
 
-func (a StatsAggregation) Param(name string, value interface{}) StatsAggregation {
+func (a *StatsAggregation) Param(name string, value interface{}) *StatsAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a StatsAggregation) SubAggregation(name string, subAggregation Aggregation) StatsAggregation {
+func (a *StatsAggregation) SubAggregation(name string, subAggregation Aggregation) *StatsAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
