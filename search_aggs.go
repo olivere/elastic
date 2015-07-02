@@ -336,6 +336,21 @@ func (a Aggregations) Range(name string) (*AggregationBucketRangeItems, bool) {
 	return nil, false
 }
 
+// KeyedRange returns keyed range aggregation results.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html.
+func (a Aggregations) KeyedRange(name string) (*AggregationBucketKeyedRangeItems, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationBucketKeyedRangeItems)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // DateRange returns date range aggregation results.
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html
 func (a Aggregations) DateRange(name string) (*AggregationBucketRangeItems, bool) {
@@ -664,6 +679,35 @@ type AggregationBucketRangeItems struct {
 
 // UnmarshalJSON decodes JSON data and initializes an AggregationBucketRangeItems structure.
 func (a *AggregationBucketRangeItems) UnmarshalJSON(data []byte) error {
+	var aggs map[string]*json.RawMessage
+	if err := json.Unmarshal(data, &aggs); err != nil {
+		return err
+	}
+	if v, ok := aggs["doc_count_error_upper_bound"]; ok && v != nil {
+		json.Unmarshal(*v, &a.DocCountErrorUpperBound)
+	}
+	if v, ok := aggs["sum_other_doc_count"]; ok && v != nil {
+		json.Unmarshal(*v, &a.SumOfOtherDocCount)
+	}
+	if v, ok := aggs["buckets"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Buckets)
+	}
+	a.Aggregations = aggs
+	return nil
+}
+
+// AggregationBucketKeyedRangeItems is a bucket aggregation that is e.g. returned
+// with a keyed range aggregation.
+type AggregationBucketKeyedRangeItems struct {
+	Aggregations
+
+	DocCountErrorUpperBound int64                                  //`json:"doc_count_error_upper_bound"`
+	SumOfOtherDocCount      int64                                  //`json:"sum_other_doc_count"`
+	Buckets                 map[string]*AggregationBucketRangeItem //`json:"buckets"`
+}
+
+// UnmarshalJSON decodes JSON data and initializes an AggregationBucketRangeItems structure.
+func (a *AggregationBucketKeyedRangeItems) UnmarshalJSON(data []byte) error {
 	var aggs map[string]*json.RawMessage
 	if err := json.Unmarshal(data, &aggs); err != nil {
 		return err
