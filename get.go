@@ -209,12 +209,17 @@ func (b *GetService) Do() (*GetResult, error) {
 // -- Result of a get request.
 
 type GetResult struct {
-	Index   string                 `json:"_index"`
-	Type    string                 `json:"_type"`
-	Id      string                 `json:"_id"`
-	Version int64                  `json:"_version,omitempty"`
-	Source  *json.RawMessage       `json:"_source,omitempty"`
-	Found   bool                   `json:"found,omitempty"`
-	Fields  map[string]interface{} `json:"fields,omitempty"`
-	Error   string                 `json:"error,omitempty"` // used only in MultiGet
+	Index     string                 `json:"_index"`     // index meta field
+	Type      string                 `json:"_type"`      // type meta field
+	Id        string                 `json:"_id"`        // id meta field
+	Uid       string                 `json:"_uid"`       // uid meta field (see MapperService.java for all meta fields)
+	Timestamp int64                  `json:"_timestamp"` // timestamp meta field
+	TTL       int64                  `json:"_ttl"`       // ttl meta field
+	Routing   string                 `json:"_routing"`   // routing meta field
+	Parent    string                 `json:"_parent"`    // parent meta field
+	Version   *int64                 `json:"_version"`   // version number, when Version is set to true in SearchService
+	Source    *json.RawMessage       `json:"_source,omitempty"`
+	Found     bool                   `json:"found,omitempty"`
+	Fields    map[string]interface{} `json:"fields,omitempty"`
+	Error     string                 `json:"error,omitempty"` // used only in MultiGet
 }

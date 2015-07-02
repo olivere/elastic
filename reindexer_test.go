@@ -2,14 +2,11 @@ package elastic
 
 import (
 	"encoding/json"
-	"log"
-	"os"
 	"testing"
 )
 
 func TestReindexer(t *testing.T) {
-
-	client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
 	sourceCount, err := client.Count(testIndexName).Do()
 	if err != nil {
@@ -218,7 +215,7 @@ func TestReindexerPreservingTTL(t *testing.T) {
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").TTL("999999").Version(10).VersionType("external").BodyJson(&tweet1).Do()
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").TTL("999999s").Version(10).VersionType("external").BodyJson(&tweet1).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -251,8 +248,8 @@ func TestReindexerPreservingTTL(t *testing.T) {
 			return err
 		}
 		req := NewBulkIndexRequest().Index(testIndexName2).Type(hit.Type).Id(hit.Id).Doc(source)
-		if ttl, ok := hit.Fields["_ttl"].(float64); ok {
-			req.Ttl(int64(ttl))
+		if hit.TTL > 0 {
+			req = req.Ttl(hit.TTL)
 		}
 		bulkService.Add(req)
 		return nil
@@ -282,9 +279,7 @@ func TestReindexerPreservingTTL(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, ok := getResult.Fields["_ttl"].(float64)
-	if !ok {
-		t.Errorf("Cannot retrieve TTL from reindexed document")
+	if getResult.TTL <= 0 {
+		t.Errorf("expected TTL field in reindexed document")
 	}
-
 }

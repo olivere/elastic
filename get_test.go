@@ -32,14 +32,14 @@ func TestGet(t *testing.T) {
 
 	// Get non existent document 99
 	res, err = client.Get().Index(testIndexName).Type("tweet").Id("99").Do()
-	if err != nil {
-		t.Fatal(err)
+	if err == nil {
+		t.Fatalf("expected error; got: %v", err)
 	}
-	if res.Found != false {
-		t.Errorf("expected Found = false; got %v", res.Found)
+	if !IsNotFound(err) {
+		t.Errorf("expected NotFound error; got: %v", err)
 	}
-	if res.Source != nil {
-		t.Errorf("expected Source == nil; got %v", res.Source)
+	if res != nil {
+		t.Errorf("expected no response; got: %v", res)
 	}
 }
 

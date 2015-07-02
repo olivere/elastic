@@ -4,12 +4,15 @@
 
 package elastic
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestDeleteByQuery(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+
+	if !hasPlugin(t, client, "delete-by-query") {
+		t.Skip("DeleteByQuery in 2.0 is now a plugin (delete-by-query) and must be " +
+			"loaded in the configuration")
+	}
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}

@@ -273,20 +273,11 @@ func TestScanAndScrollWithMissingIndex(t *testing.T) {
 	client := setupTestClient(t) // does not create testIndexName
 
 	cursor, err := client.Scan(testIndexName).Scroll("30s").Do()
-	if err != nil {
-		t.Fatal(err)
+	if err == nil {
+		t.Fatalf("expected error != nil; got: %v", err)
 	}
-	if cursor == nil {
-		t.Fatalf("expected cursor; got: %v", cursor)
-	}
-
-	// First request immediately returns EOS
-	res, err := cursor.Next()
-	if err != EOS {
-		t.Fatal(err)
-	}
-	if res != nil {
-		t.Fatalf("expected results == %v; got: %v", nil, res)
+	if cursor != nil {
+		t.Fatalf("expected cursor == nil; got: %v", cursor)
 	}
 }
 

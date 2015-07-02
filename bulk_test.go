@@ -336,7 +336,10 @@ func TestFailedBulkRequests(t *testing.T) {
       "_id" : "2",
       "_version" : 1,
       "status" : 423,
-      "error" : "Locked"
+      "error" : {
+      	"type":"routing_missing_exception",
+      	"reason":"routing is required for [elastic-test2]/[comment]/[1]"
+      }
     }
   }, {
     "delete" : {

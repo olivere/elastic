@@ -379,8 +379,13 @@ type SearchHits struct {
 type SearchHit struct {
 	Score          *float64                       `json:"_score"`          // computed score
 	Index          string                         `json:"_index"`          // index name
+	Type           string                         `json:"_type"`           // type meta field
 	Id             string                         `json:"_id"`             // external or internal
-	Type           string                         `json:"_type"`           // type
+	Uid            string                         `json:"_uid"`            // uid meta field (see MapperService.java for all meta fields)
+	Timestamp      int64                          `json:"_timestamp"`      // timestamp meta field
+	TTL            int64                          `json:"_ttl"`            // ttl meta field
+	Routing        string                         `json:"_routing"`        // routing meta field
+	Parent         string                         `json:"_parent"`         // parent meta field
 	Version        *int64                         `json:"_version"`        // version number, when Version is set to true in SearchService
 	Sort           []interface{}                  `json:"sort"`            // sort information
 	Highlight      SearchHitHighlight             `json:"highlight"`       // highlighter information

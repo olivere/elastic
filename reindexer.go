@@ -56,11 +56,11 @@ func CopyToTargetIndex(targetIndex string) ReindexerFunc {
 			return err
 		}
 		req := NewBulkIndexRequest().Index(targetIndex).Type(hit.Type).Id(hit.Id).Doc(source)
-		if parent, ok := hit.Fields["_parent"].(string); ok {
-			req.Parent(parent)
+		if hit.Parent != "" {
+			req = req.Parent(hit.Parent)
 		}
-		if routing, ok := hit.Fields["_routing"].(string); ok {
-			req.Routing(routing)
+		if hit.Routing != "" {
+			req = req.Routing(hit.Routing)
 		}
 		bulkService.Add(req)
 		return nil

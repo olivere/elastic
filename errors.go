@@ -24,8 +24,8 @@ var (
 )
 
 func checkResponse(res *http.Response) error {
-	// 200-299 and 404 are valid status codes
-	if (res.StatusCode >= 200 && res.StatusCode <= 299) || res.StatusCode == http.StatusNotFound {
+	// 200-299 are valid status codes
+	if res.StatusCode >= 200 && res.StatusCode <= 299 {
 		return nil
 	}
 	if res.Body == nil {
@@ -46,15 +46,38 @@ func checkResponse(res *http.Response) error {
 	return nil
 }
 
+// Error is an exception from Elasticsearch serialized as JSON.
 type Error struct {
-	Status  int    `json:"status"`
-	Message string `json:"error"`
+	Status  int           `json:"status"`
+	Details *ErrorDetails `json:"error,omitempty"`
+}
+
+// ErrorDetails are error details from Elasticsearch serialized as JSON.
+// It is used e.g. in BulkResponseItem.
+type ErrorDetails struct {
+	Type      string                 `json:"type"`
+	Reason    string                 `json:"reason"`
+	Index     string                 `json:"index,omitempty"`
+	CausedBy  map[string]interface{} `json:"caused_by,omitempty"`
+	RootCause []*ErrorDetails        `json:"root_cause,omitempty"`
 }
 
 func (e *Error) Error() string {
-	if e.Message != "" {
-		return fmt.Sprintf("elastic: Error %d (%s): %s", e.Status, http.StatusText(e.Status), e.Message)
+	if e.Details != nil && e.Details.Reason != "" {
+		return fmt.Sprintf("elastic: Error %d (%s): %s [type=%s]", e.Status, http.StatusText(e.Status), e.Details.Reason, e.Details.Type)
 	} else {
 		return fmt.Sprintf("elastic: Error %d (%s)", e.Status, http.StatusText(e.Status))
 	}
+}
+
+// IsNotFound returns true if the given error indicates that Elasticsearch
+// returned HTTP status 404.
+func IsNotFound(err error) bool {
+	switch e := err.(type) {
+	case nil:
+		return false
+	case *Error:
+		return e.Status == http.StatusNotFound
+	}
+	return false
 }

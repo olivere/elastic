@@ -67,12 +67,16 @@ func TestDelete(t *testing.T) {
 
 	// Delete non existent document 99
 	res, err = client.Delete().Index(testIndexName).Type("tweet").Id("99").Refresh(true).Do()
-	if err != nil {
-		t.Fatal(err)
+	if err == nil {
+		t.Fatalf("expected error; got: %v", err)
 	}
-	if res.Found != false {
-		t.Errorf("expected Found = false; got %v", res.Found)
+	if !IsNotFound(err) {
+		t.Errorf("expected NotFound error; got %v", err)
 	}
+	if res != nil {
+		t.Fatalf("expected no response; got: %v", res)
+	}
+
 	count, err = client.Count(testIndexName).Do()
 	if err != nil {
 		t.Fatal(err)
