@@ -19,6 +19,7 @@ type GeoDistanceAggregation struct {
 	point           string
 	ranges          []geoDistAggRange
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 }
 
 type geoDistAggRange struct {
@@ -60,6 +61,11 @@ func (a GeoDistanceAggregation) SubAggregation(name string, subAggregation Aggre
 	return a
 }
 
+// Meta sets the meta data to be included in the aggregation response.
+func (a GeoDistanceAggregation) Meta(metaData map[string]interface{}) GeoDistanceAggregation {
+	a.meta = metaData
+	return a
+}
 func (a GeoDistanceAggregation) AddRange(from, to interface{}) GeoDistanceAggregation {
 	a.ranges = append(a.ranges, geoDistAggRange{From: from, To: to})
 	return a
@@ -100,7 +106,7 @@ func (a GeoDistanceAggregation) BetweenWithKey(key string, from, to interface{})
 	return a
 }
 
-func (a GeoDistanceAggregation) Source() interface{} {
+func (a GeoDistanceAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//    "aggs" : {
@@ -172,9 +178,18 @@ func (a GeoDistanceAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

@@ -87,7 +87,7 @@ func (f GeoDistanceFilter) FilterName(filterName string) GeoDistanceFilter {
 }
 
 // Creates the query source for the geo_distance filter.
-func (f GeoDistanceFilter) Source() interface{} {
+func (f GeoDistanceFilter) Source() (interface{}, error) {
 	// {
 	//   "geo_distance" : {
 	//       "distance" : "200km",
@@ -132,5 +132,5 @@ func (f GeoDistanceFilter) Source() interface{} {
 
 	source["geo_distance"] = params
 
-	return source
+	return source, nil
 }

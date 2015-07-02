@@ -10,8 +10,12 @@ import (
 )
 
 func TestHasChildQuery(t *testing.T) {
-	f := NewHasChildQuery("blog_tag", NewTermQuery("tag", "something"))
-	data, err := json.Marshal(f.Source())
+	q := NewHasChildQuery("blog_tag", NewTermQuery("tag", "something"))
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -23,9 +27,13 @@ func TestHasChildQuery(t *testing.T) {
 }
 
 func TestHasChildQueryWithInnerHit(t *testing.T) {
-	f := NewHasChildQuery("blog_tag", NewTermQuery("tag", "something"))
-	f = f.InnerHit(NewInnerHit().Name("comments"))
-	data, err := json.Marshal(f.Source())
+	q := NewHasChildQuery("blog_tag", NewTermQuery("tag", "something"))
+	q = q.InnerHit(NewInnerHit().Name("comments"))
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

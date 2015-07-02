@@ -14,7 +14,11 @@ func TestRangeAggregation(t *testing.T) {
 	agg = agg.AddRange(nil, 50)
 	agg = agg.AddRange(50, 100)
 	agg = agg.AddRange(100, nil)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -31,7 +35,11 @@ func TestRangeAggregationWithUnbounded(t *testing.T) {
 		AddRange(20, 70).
 		AddRange(70, 120).
 		AddUnboundedTo(150)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -48,7 +56,11 @@ func TestRangeAggregationWithLtAndCo(t *testing.T) {
 		Between(20, 70).
 		Between(70, 120).
 		Gt(150)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -66,7 +78,11 @@ func TestRangeAggregationWithKeyedFlag(t *testing.T) {
 		Between(20, 70).
 		Between(70, 120).
 		Gt(150)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -84,12 +100,36 @@ func TestRangeAggregationWithKeys(t *testing.T) {
 		BetweenWithKey("affordable", 20, 70).
 		BetweenWithKey("average", 70, 120).
 		GtWithKey("expensive", 150)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
 	expected := `{"range":{"field":"field_name","keyed":true,"ranges":[{"key":"cheap","to":50},{"from":20,"key":"affordable","to":70},{"from":70,"key":"average","to":120},{"from":150,"key":"expensive"}]}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestRangeAggregationWithMetaData(t *testing.T) {
+	agg := NewRangeAggregation().Field("price").Meta(map[string]interface{}{"name": "Oliver"})
+	agg = agg.AddRange(nil, 50)
+	agg = agg.AddRange(50, 100)
+	agg = agg.AddRange(100, nil)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"meta":{"name":"Oliver"},"range":{"field":"price","ranges":[{"to":50},{"from":50,"to":100},{"from":100}]}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

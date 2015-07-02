@@ -72,7 +72,7 @@ func (q FuzzyQuery) QueryName(queryName string) FuzzyQuery {
 }
 
 // Creates the query source for the ids query.
-func (q FuzzyQuery) Source() interface{} {
+func (q FuzzyQuery) Source() (interface{}, error) {
 	// {
 	//	"fuzzy" : {
 	//		"user" : {
@@ -113,5 +113,5 @@ func (q FuzzyQuery) Source() interface{} {
 		fq["_name"] = q.queryName
 	}
 
-	return source
+	return source, nil
 }

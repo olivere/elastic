@@ -165,7 +165,7 @@ func (q MultiMatchQuery) QueryName(queryName string) MultiMatchQuery {
 	return q
 }
 
-func (q MultiMatchQuery) Source() interface{} {
+func (q MultiMatchQuery) Source() (interface{}, error) {
 	//
 	// {
 	//   "multi_match" : {
@@ -249,5 +249,5 @@ func (q MultiMatchQuery) Source() interface{} {
 	if q.queryName != "" {
 		multiMatch["_name"] = q.queryName
 	}
-	return source
+	return source, nil
 }

@@ -97,7 +97,11 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	// Set body
 	body := make(map[string]interface{})
 	for _, s := range s.suggesters {
-		body[s.Name()] = s.Source(false)
+		src, err := s.Source(false)
+		if err != nil {
+			return nil, err
+		}
+		body[s.Name()] = src
 	}
 
 	// Get response

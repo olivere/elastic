@@ -140,10 +140,14 @@ func (hit *InnerHit) Name(name string) *InnerHit {
 	return hit
 }
 
-func (hit *InnerHit) Source() interface{} {
-	source, ok := hit.source.Source().(map[string]interface{})
+func (hit *InnerHit) Source() (interface{}, error) {
+	src, err := hit.source.Source()
+	if err != nil {
+		return nil, err
+	}
+	source, ok := src.(map[string]interface{})
 	if !ok {
-		return nil
+		return nil, nil
 	}
 
 	// Notice that hit.typ and hit.path are not exported here.
@@ -152,5 +156,5 @@ func (hit *InnerHit) Source() interface{} {
 	if hit.name != "" {
 		source["name"] = hit.name
 	}
-	return source
+	return source, nil
 }

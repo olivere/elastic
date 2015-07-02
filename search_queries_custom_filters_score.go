@@ -52,7 +52,7 @@ func (q CustomFiltersScoreQuery) Script(script string) CustomFiltersScoreQuery {
 }
 
 // Creates the query source for the custom_filters_score query.
-func (q CustomFiltersScoreQuery) Source() interface{} {
+func (q CustomFiltersScoreQuery) Source() (interface{}, error) {
 	// {
 	//   "custom_filters_score" : {
 	//    "query" : {
@@ -79,12 +79,20 @@ func (q CustomFiltersScoreQuery) Source() interface{} {
 
 	// query
 	if q.query != nil {
-		cfs["query"] = q.query.Source()
+		src, err := q.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		cfs["query"] = src
 	}
 	// filters
 	clauses := make([]interface{}, 0)
 	for _, filter := range q.filters {
-		clauses = append(clauses, filter.Source())
+		src, err := filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		clauses = append(clauses, src)
 	}
 	cfs["filters"] = clauses
 
@@ -103,5 +111,5 @@ func (q CustomFiltersScoreQuery) Source() interface{} {
 		cfs["script"] = q.script
 	}
 
-	return query
+	return query, nil
 }

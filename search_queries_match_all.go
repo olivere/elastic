@@ -30,7 +30,7 @@ func (q MatchAllQuery) Boost(boost float32) MatchAllQuery {
 }
 
 // Creates the query source for the match all query.
-func (q MatchAllQuery) Source() interface{} {
+func (q MatchAllQuery) Source() (interface{}, error) {
 	// {
 	//   "match_all" : { ... }
 	// }
@@ -43,5 +43,5 @@ func (q MatchAllQuery) Source() interface{} {
 	if q.normsField != "" {
 		params["norms_field"] = q.normsField
 	}
-	return source
+	return source, nil
 }

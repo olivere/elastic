@@ -34,7 +34,7 @@ func (q FilteredQuery) Boost(boost float32) FilteredQuery {
 }
 
 // Creates the query source for the filtered query.
-func (q FilteredQuery) Source() interface{} {
+func (q FilteredQuery) Source() (interface{}, error) {
 	// {
 	//     "filtered" : {
 	//         "query" : {
@@ -53,10 +53,18 @@ func (q FilteredQuery) Source() interface{} {
 	filtered := make(map[string]interface{})
 	source["filtered"] = filtered
 
-	filtered["query"] = q.query.Source()
+	src, err := q.query.Source()
+	if err != nil {
+		return nil, err
+	}
+	filtered["query"] = src
 
 	if len(q.filters) == 1 {
-		filtered["filter"] = q.filters[0].Source()
+		src, err := q.filters[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		filtered["filter"] = src
 	} else if len(q.filters) > 1 {
 		filter := make(map[string]interface{})
 		filtered["filter"] = filter
@@ -64,23 +72,18 @@ func (q FilteredQuery) Source() interface{} {
 		filter["and"] = and
 		filters := make([]interface{}, 0)
 		for _, f := range q.filters {
-			filters = append(filters, f.Source())
+			src, err := f.Source()
+			if err != nil {
+				return nil, err
+			}
+			filters = append(filters, src)
 		}
 		and["filters"] = filters
-		/*
-			anded := make([]map[string]interface{}, 0)
-			filtered["filter"] = anded
-			for _, f := range q.filters {
-				andElem := make(map[string]interface{})
-				andElem["and"] = f.Source()
-				anded = append(anded, andElem)
-			}
-		*/
 	}
 
 	if q.boost != nil {
 		filtered["boost"] = *q.boost
 	}
 
-	return source
+	return source, nil
 }

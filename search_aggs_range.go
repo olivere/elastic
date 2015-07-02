@@ -22,6 +22,7 @@ type RangeAggregation struct {
 	lang            string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 	keyed           *bool
 	unmapped        *bool
 	entries         []rangeAggregationEntry
@@ -69,6 +70,12 @@ func (a RangeAggregation) Param(name string, value interface{}) RangeAggregation
 
 func (a RangeAggregation) SubAggregation(name string, subAggregation Aggregation) RangeAggregation {
 	a.subAggregations[name] = subAggregation
+	return a
+}
+
+// Meta sets the meta data to be included in the aggregation response.
+func (a RangeAggregation) Meta(metaData map[string]interface{}) RangeAggregation {
+	a.meta = metaData
 	return a
 }
 
@@ -142,7 +149,7 @@ func (a RangeAggregation) GtWithKey(key string, from interface{}) RangeAggregati
 	return a
 }
 
-func (a RangeAggregation) Source() interface{} {
+func (a RangeAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//     "aggs" : {
@@ -224,9 +231,17 @@ func (a RangeAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+	return source, nil
 }

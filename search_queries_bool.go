@@ -71,7 +71,7 @@ func (q BoolQuery) QueryName(queryName string) BoolQuery {
 }
 
 // Creates the query source for the bool query.
-func (q BoolQuery) Source() interface{} {
+func (q BoolQuery) Source() (interface{}, error) {
 	// {
 	//	"bool" : {
 	//		"must" : {
@@ -102,33 +102,57 @@ func (q BoolQuery) Source() interface{} {
 
 	// must
 	if len(q.mustClauses) == 1 {
-		boolClause["must"] = q.mustClauses[0].Source()
+		src, err := q.mustClauses[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		boolClause["must"] = src
 	} else if len(q.mustClauses) > 1 {
 		clauses := make([]interface{}, 0)
 		for _, subQuery := range q.mustClauses {
-			clauses = append(clauses, subQuery.Source())
+			src, err := subQuery.Source()
+			if err != nil {
+				return nil, err
+			}
+			clauses = append(clauses, src)
 		}
 		boolClause["must"] = clauses
 	}
 
 	// must_not
 	if len(q.mustNotClauses) == 1 {
-		boolClause["must_not"] = q.mustNotClauses[0].Source()
+		src, err := q.mustNotClauses[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		boolClause["must_not"] = src
 	} else if len(q.mustNotClauses) > 1 {
 		clauses := make([]interface{}, 0)
 		for _, subQuery := range q.mustNotClauses {
-			clauses = append(clauses, subQuery.Source())
+			src, err := subQuery.Source()
+			if err != nil {
+				return nil, err
+			}
+			clauses = append(clauses, src)
 		}
 		boolClause["must_not"] = clauses
 	}
 
 	// should
 	if len(q.shouldClauses) == 1 {
-		boolClause["should"] = q.shouldClauses[0].Source()
+		src, err := q.shouldClauses[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		boolClause["should"] = src
 	} else if len(q.shouldClauses) > 1 {
 		clauses := make([]interface{}, 0)
 		for _, subQuery := range q.shouldClauses {
-			clauses = append(clauses, subQuery.Source())
+			src, err := subQuery.Source()
+			if err != nil {
+				return nil, err
+			}
+			clauses = append(clauses, src)
 		}
 		boolClause["should"] = clauses
 	}
@@ -149,5 +173,5 @@ func (q BoolQuery) Source() interface{} {
 		boolClause["_name"] = q.queryName
 	}
 
-	return query
+	return query, nil
 }

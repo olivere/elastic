@@ -33,7 +33,7 @@ func (f IdsFilter) FilterName(filterName string) IdsFilter {
 	return f
 }
 
-func (f IdsFilter) Source() interface{} {
+func (f IdsFilter) Source() (interface{}, error) {
 	// {
 	//	"ids" : {
 	//		"type" : "my_type",
@@ -59,5 +59,5 @@ func (f IdsFilter) Source() interface{} {
 		params["_name"] = f.filterName
 	}
 
-	return source
+	return source, nil
 }

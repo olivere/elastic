@@ -60,7 +60,7 @@ func (f BoolFilter) CacheKey(cacheKey string) BoolFilter {
 }
 
 // Creates the query source for the bool query.
-func (f BoolFilter) Source() interface{} {
+func (f BoolFilter) Source() (interface{}, error) {
 	// {
 	//	"bool" : {
 	//		"must" : {
@@ -90,33 +90,57 @@ func (f BoolFilter) Source() interface{} {
 
 	// must
 	if len(f.mustClauses) == 1 {
-		boolClause["must"] = f.mustClauses[0].Source()
+		src, err := f.mustClauses[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		boolClause["must"] = src
 	} else if len(f.mustClauses) > 1 {
 		clauses := make([]interface{}, 0)
 		for _, subQuery := range f.mustClauses {
-			clauses = append(clauses, subQuery.Source())
+			src, err := subQuery.Source()
+			if err != nil {
+				return nil, err
+			}
+			clauses = append(clauses, src)
 		}
 		boolClause["must"] = clauses
 	}
 
 	// must_not
 	if len(f.mustNotClauses) == 1 {
-		boolClause["must_not"] = f.mustNotClauses[0].Source()
+		src, err := f.mustNotClauses[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		boolClause["must_not"] = src
 	} else if len(f.mustNotClauses) > 1 {
 		clauses := make([]interface{}, 0)
 		for _, subQuery := range f.mustNotClauses {
-			clauses = append(clauses, subQuery.Source())
+			src, err := subQuery.Source()
+			if err != nil {
+				return nil, err
+			}
+			clauses = append(clauses, src)
 		}
 		boolClause["must_not"] = clauses
 	}
 
 	// should
 	if len(f.shouldClauses) == 1 {
-		boolClause["should"] = f.shouldClauses[0].Source()
+		src, err := f.shouldClauses[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		boolClause["should"] = src
 	} else if len(f.shouldClauses) > 1 {
 		clauses := make([]interface{}, 0)
 		for _, subQuery := range f.shouldClauses {
-			clauses = append(clauses, subQuery.Source())
+			src, err := subQuery.Source()
+			if err != nil {
+				return nil, err
+			}
+			clauses = append(clauses, src)
 		}
 		boolClause["should"] = clauses
 	}
@@ -131,5 +155,5 @@ func (f BoolFilter) Source() interface{} {
 		boolClause["_cache_key"] = f.cacheKey
 	}
 
-	return source
+	return source, nil
 }

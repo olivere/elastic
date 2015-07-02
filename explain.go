@@ -183,8 +183,13 @@ func (s *ExplainService) Pretty(pretty bool) *ExplainService {
 
 // Query sets a query definition using the Query DSL.
 func (s *ExplainService) Query(query Query) *ExplainService {
+	src, err := query.Source()
+	if err != nil {
+		// Do nothing in case of an error
+		return s
+	}
 	body := make(map[string]interface{})
-	body["query"] = query.Source()
+	body["query"] = src
 	s.bodyJson = body
 	return s
 }

@@ -17,7 +17,11 @@ func TestBoolQuery(t *testing.T) {
 	q = q.Boost(10)
 	q = q.DisableCoord(true)
 	q = q.QueryName("Test")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

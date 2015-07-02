@@ -11,7 +11,11 @@ import (
 
 func TestExtendedStatsAggregation(t *testing.T) {
 	agg := NewExtendedStatsAggregation().Field("grade")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,7 +28,11 @@ func TestExtendedStatsAggregation(t *testing.T) {
 
 func TestExtendedStatsAggregationWithFormat(t *testing.T) {
 	agg := NewExtendedStatsAggregation().Field("grade").Format("000.0")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

@@ -46,7 +46,7 @@ func (q *SuggesterGeoMapping) FieldName(fieldName string) *SuggesterGeoMapping {
 }
 
 // Source returns a map that will be used to serialize the context query as JSON.
-func (q *SuggesterGeoMapping) Source() interface{} {
+func (q *SuggesterGeoMapping) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	x := make(map[string]interface{})
@@ -76,7 +76,7 @@ func (q *SuggesterGeoMapping) Source() interface{} {
 	if q.fieldName != "" {
 		x["path"] = q.fieldName
 	}
-	return source
+	return source, nil
 }
 
 // -- SuggesterGeoQuery --
@@ -104,7 +104,7 @@ func (q *SuggesterGeoQuery) Precision(precision ...string) *SuggesterGeoQuery {
 }
 
 // Source returns a map that will be used to serialize the context query as JSON.
-func (q *SuggesterGeoQuery) Source() interface{} {
+func (q *SuggesterGeoQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	if len(q.precision) == 0 {
@@ -128,5 +128,5 @@ func (q *SuggesterGeoQuery) Source() interface{} {
 		}
 	}
 
-	return source
+	return source, nil
 }

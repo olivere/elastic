@@ -83,7 +83,7 @@ func (q RangeQuery) QueryName(queryName string) RangeQuery {
 	return q
 }
 
-func (q RangeQuery) Source() interface{} {
+func (q RangeQuery) Source() (interface{}, error) {
 	// {
 	//   "range" : {
 	//     "name" : {
@@ -116,5 +116,5 @@ func (q RangeQuery) Source() interface{} {
 		rangeQ["_name"] = q.queryName
 	}
 
-	return source
+	return source, nil
 }

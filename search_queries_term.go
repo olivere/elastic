@@ -32,7 +32,7 @@ func (q TermQuery) QueryName(queryName string) TermQuery {
 }
 
 // Creates the query source for the term query.
-func (q TermQuery) Source() interface{} {
+func (q TermQuery) Source() (interface{}, error) {
 	// {"term":{"name":"value"}}
 	source := make(map[string]interface{})
 	tq := make(map[string]interface{})
@@ -51,5 +51,5 @@ func (q TermQuery) Source() interface{} {
 		}
 		tq[q.name] = subQ
 	}
-	return source
+	return source, nil
 }

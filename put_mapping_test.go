@@ -4,9 +4,7 @@
 
 package elastic
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestPutMappingURL(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
@@ -51,8 +49,7 @@ func TestMappingLifecycle(t *testing.T) {
 		"tweetdoc":{
 			"properties":{
 				"message":{
-					"type":"string",
-					"store":true
+					"type":"string"
 				}
 			}
 		}
@@ -81,14 +78,5 @@ func TestMappingLifecycle(t *testing.T) {
 		t.Fatalf("expected JSON root to be of type map[string]interface{}; got: %#v", props)
 	}
 
-	delresp, err := client.DeleteMapping().Index(testIndexName2).Type("tweetdoc").Do()
-	if err != nil {
-		t.Fatalf("expected delete mapping to succeed; got: %v", err)
-	}
-	if delresp == nil {
-		t.Fatalf("expected delete mapping response; got: %v", delresp)
-	}
-	if !delresp.Acknowledged {
-		t.Fatalf("expected delete mapping ack; got: %v", delresp.Acknowledged)
-	}
+	// NOTE There is no Delete Mapping API in Elasticsearch 2.0
 }

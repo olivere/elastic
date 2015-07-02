@@ -52,7 +52,7 @@ func (q TermsQuery) QueryName(queryName string) TermsQuery {
 }
 
 // Creates the query source for the term query.
-func (q TermsQuery) Source() interface{} {
+func (q TermsQuery) Source() (interface{}, error) {
 	// {"terms":{"name":["value1","value2"]}}
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
@@ -70,5 +70,5 @@ func (q TermsQuery) Source() interface{} {
 	if q.queryName != "" {
 		params["_name"] = q.queryName
 	}
-	return source
+	return source, nil
 }

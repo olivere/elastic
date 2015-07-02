@@ -4,6 +4,8 @@
 
 package elastic
 
+// Filter defines the contract each filter has to fulfill.
 type Filter interface {
-	Source() interface{}
+	// Source returns a JSON-serializable fragment of the request.
+	Source() (interface{}, error)
 }

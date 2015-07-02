@@ -193,12 +193,20 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	// Set body
 	body := make(map[string]interface{})
 	if s.query != nil {
-		body["query"] = s.query.Source()
+		src, err := s.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		body["query"] = src
 	}
 	if len(s.sorts) > 0 {
 		sortarr := make([]interface{}, 0)
 		for _, sort := range s.sorts {
-			sortarr = append(sortarr, sort.Source())
+			src, err := sort.Source()
+			if err != nil {
+				return nil, err
+			}
+			sortarr = append(sortarr, src)
 		}
 		body["sort"] = sortarr
 	}

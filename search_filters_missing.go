@@ -35,7 +35,7 @@ func (f MissingFilter) Existence(existence bool) MissingFilter {
 	return f
 }
 
-func (f MissingFilter) Source() interface{} {
+func (f MissingFilter) Source() (interface{}, error) {
 	// {
 	//   "missing" : {
 	//     "field" : "..."
@@ -55,5 +55,5 @@ func (f MissingFilter) Source() interface{} {
 	if f.filterName != "" {
 		params["_name"] = f.filterName
 	}
-	return source
+	return source, nil
 }

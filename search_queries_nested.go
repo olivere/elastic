@@ -62,7 +62,7 @@ func (q NestedQuery) InnerHit(innerHit *InnerHit) NestedQuery {
 }
 
 // Creates the query source for the nested_query query.
-func (q NestedQuery) Source() interface{} {
+func (q NestedQuery) Source() (interface{}, error) {
 	// {
 	//   "nested" : {
 	//     "query" : {
@@ -91,10 +91,18 @@ func (q NestedQuery) Source() interface{} {
 	nq := make(map[string]interface{})
 	query["nested"] = nq
 	if q.query != nil {
-		nq["query"] = q.query.Source()
+		src, err := q.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		nq["query"] = src
 	}
 	if q.filter != nil {
-		nq["filter"] = q.filter.Source()
+		src, err := q.filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		nq["filter"] = src
 	}
 	nq["path"] = q.path
 	if q.scoreMode != "" {
@@ -107,7 +115,11 @@ func (q NestedQuery) Source() interface{} {
 		nq["_name"] = q.queryName
 	}
 	if q.innerHit != nil {
-		nq["inner_hits"] = q.innerHit.Source()
+		src, err := q.innerHit.Source()
+		if err != nil {
+			return nil, err
+		}
+		nq["inner_hits"] = src
 	}
-	return query
+	return query, nil
 }

@@ -52,7 +52,7 @@ func (q RegexpQuery) QueryName(queryName string) RegexpQuery {
 }
 
 // Source returns the JSON-serializable query data.
-func (q RegexpQuery) Source() interface{} {
+func (q RegexpQuery) Source() (interface{}, error) {
 	// {
 	//   "regexp" : {
 	//     "name.first" :  {
@@ -85,5 +85,5 @@ func (q RegexpQuery) Source() interface{} {
 	}
 	query[q.name] = x
 
-	return source
+	return source, nil
 }

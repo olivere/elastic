@@ -17,7 +17,7 @@ func NewLimitFilter(limit int) LimitFilter {
 	return f
 }
 
-func (f LimitFilter) Source() interface{} {
+func (f LimitFilter) Source() (interface{}, error) {
 	// {
 	//   "limit" : {
 	//     "value" : "..."
@@ -27,5 +27,5 @@ func (f LimitFilter) Source() interface{} {
 	params := make(map[string]interface{})
 	source["limit"] = params
 	params["value"] = f.limit
-	return source
+	return source, nil
 }

@@ -89,7 +89,7 @@ func (q FuzzyLikeThisQuery) QueryName(queryName string) FuzzyLikeThisQuery {
 }
 
 // Creates the query source for the ids query.
-func (q FuzzyLikeThisQuery) Source() interface{} {
+func (q FuzzyLikeThisQuery) Source() (interface{}, error) {
 	// {
 	//	"fuzzy_like_this" : {
 	//    "fields" : ["name.first", "name.last"],
@@ -132,5 +132,5 @@ func (q FuzzyLikeThisQuery) Source() interface{} {
 		query["_name"] = q.queryName
 	}
 
-	return source
+	return source, nil
 }

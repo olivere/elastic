@@ -14,6 +14,7 @@ type TermsAggregation struct {
 	lang            string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 
 	size                  *int
 	shardSize             *int
@@ -71,6 +72,12 @@ func (a TermsAggregation) Param(name string, value interface{}) TermsAggregation
 
 func (a TermsAggregation) SubAggregation(name string, subAggregation Aggregation) TermsAggregation {
 	a.subAggregations[name] = subAggregation
+	return a
+}
+
+// Meta sets the meta data to be included in the aggregation response.
+func (a TermsAggregation) Meta(metaData map[string]interface{}) TermsAggregation {
+	a.meta = metaData
 	return a
 }
 
@@ -231,7 +238,7 @@ func (a TermsAggregation) ExcludeTerms(terms ...string) TermsAggregation {
 	return a
 }
 
-func (a TermsAggregation) Source() interface{} {
+func (a TermsAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {
@@ -261,15 +268,6 @@ func (a TermsAggregation) Source() interface{} {
 	}
 	if len(a.params) > 0 {
 		opts["params"] = a.params
-	}
-
-	// AggregationBuilder (SubAggregations)
-	if len(a.subAggregations) > 0 {
-		aggsMap := make(map[string]interface{})
-		source["aggregations"] = aggsMap
-		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
-		}
 	}
 
 	// TermsBuilder
@@ -335,5 +333,24 @@ func (a TermsAggregation) Source() interface{} {
 	if a.executionHint != "" {
 		opts["execution_hint"] = a.executionHint
 	}
-	return source
+
+	// AggregationBuilder (SubAggregations)
+	if len(a.subAggregations) > 0 {
+		aggsMap := make(map[string]interface{})
+		source["aggregations"] = aggsMap
+		for name, aggregate := range a.subAggregations {
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
+		}
+	}
+
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

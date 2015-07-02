@@ -17,6 +17,7 @@ type StatsAggregation struct {
 	format          string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 }
 
 func NewStatsAggregation() StatsAggregation {
@@ -62,7 +63,13 @@ func (a StatsAggregation) SubAggregation(name string, subAggregation Aggregation
 	return a
 }
 
-func (a StatsAggregation) Source() interface{} {
+// Meta sets the meta data to be included in the aggregation response.
+func (a StatsAggregation) Meta(metaData map[string]interface{}) StatsAggregation {
+	a.meta = metaData
+	return a
+}
+
+func (a StatsAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {
@@ -100,9 +107,18 @@ func (a StatsAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

@@ -11,7 +11,11 @@ import (
 
 func TestSignificantTermsAggregation(t *testing.T) {
 	agg := NewSignificantTermsAggregation().Field("crime_type")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -29,7 +33,11 @@ func TestSignificantTermsAggregationWithArgs(t *testing.T) {
 		ShardSize(5).
 		MinDocCount(10).
 		BackgroundFilter(NewTermFilter("city", "London"))
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -44,12 +52,34 @@ func TestSignificantTermsAggregationSubAggregation(t *testing.T) {
 	crimeTypesAgg := NewSignificantTermsAggregation().Field("crime_type")
 	agg := NewTermsAggregation().Field("force")
 	agg = agg.SubAggregation("significantCrimeTypes", crimeTypesAgg)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
 	expected := `{"aggregations":{"significantCrimeTypes":{"significant_terms":{"field":"crime_type"}}},"terms":{"field":"force"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSignificantTermsAggregationWithMetaData(t *testing.T) {
+	agg := NewSignificantTermsAggregation().Field("crime_type")
+	agg = agg.Meta(map[string]interface{}{"name": "Oliver"})
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"meta":{"name":"Oliver"},"significant_terms":{"field":"crime_type"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

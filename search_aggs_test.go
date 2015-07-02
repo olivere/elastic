@@ -75,6 +75,7 @@ func TestAggs(t *testing.T) {
 	usersAgg := NewTermsAggregation().Field("user").Size(10).OrderByCountDesc()
 	retweetsAgg := NewTermsAggregation().Field("retweets").Size(10)
 	avgRetweetsAgg := NewAvgAggregation().Field("retweets")
+	avgRetweetsWithMetaAgg := NewAvgAggregation().Field("retweetsMeta").Meta(map[string]interface{}{"meta": true})
 	minRetweetsAgg := NewMinAggregation().Field("retweets")
 	maxRetweetsAgg := NewMaxAggregation().Field("retweets")
 	sumRetweetsAgg := NewSumAggregation().Field("retweets")
@@ -105,6 +106,9 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("users", usersAgg)
 	builder = builder.Aggregation("retweets", retweetsAgg)
 	builder = builder.Aggregation("avgRetweets", avgRetweetsAgg)
+	if esversion >= "2.0" {
+		builder = builder.Aggregation("avgRetweetsWithMeta", avgRetweetsWithMetaAgg)
+	}
 	builder = builder.Aggregation("minRetweets", minRetweetsAgg)
 	builder = builder.Aggregation("maxRetweets", maxRetweetsAgg)
 	builder = builder.Aggregation("sumRetweets", sumRetweetsAgg)
@@ -262,6 +266,29 @@ func TestAggs(t *testing.T) {
 	}
 	if *avgAggRes.Value != 40.0 {
 		t.Errorf("expected %v; got: %v", 40.0, *avgAggRes.Value)
+	}
+
+	// avgRetweetsWithMeta
+	if esversion >= "2.0" {
+		avgMetaAggRes, found := agg.Avg("avgRetweetsWithMeta")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if avgMetaAggRes == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if avgMetaAggRes.Meta == nil {
+			t.Fatalf("expected != nil; got: %v", avgMetaAggRes.Meta)
+		}
+		metaDataValue, found := avgMetaAggRes.Meta["meta"]
+		if !found {
+			t.Fatalf("expected to return meta data key %q; got: %v", "meta", found)
+		}
+		if flag, ok := metaDataValue.(bool); !ok {
+			t.Fatalf("expected to return meta data key type %T; got: %T", true, metaDataValue)
+		} else if flag != true {
+			t.Fatalf("expected to return meta data key value %v; got: %v", true, flag)
+		}
 	}
 
 	// minRetweets

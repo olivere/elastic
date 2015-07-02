@@ -11,7 +11,11 @@ import (
 
 func TestMinAggregation(t *testing.T) {
 	agg := NewMinAggregation().Field("price")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,12 +28,33 @@ func TestMinAggregation(t *testing.T) {
 
 func TestMinAggregationWithFormat(t *testing.T) {
 	agg := NewMinAggregation().Field("price").Format("00000.00")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
 	expected := `{"min":{"field":"price","format":"00000.00"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestMinAggregationWithMetaData(t *testing.T) {
+	agg := NewMinAggregation().Field("price").Meta(map[string]interface{}{"name": "Oliver"})
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"meta":{"name":"Oliver"},"min":{"field":"price"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

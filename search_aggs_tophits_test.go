@@ -15,7 +15,11 @@ func TestTopHitsAggregation(t *testing.T) {
 		Sort("last_activity_date", false).
 		FetchSourceContext(fsc).
 		Size(1)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

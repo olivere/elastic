@@ -180,9 +180,6 @@ func (b *GetService) Do() (*GetResult, error) {
 	if b.ignoreErrorsOnGeneratedFields != nil {
 		params.Add("ignore_errors_on_generated_fields", fmt.Sprintf("%v", *b.ignoreErrorsOnGeneratedFields))
 	}
-	if len(b.fields) > 0 {
-		params.Add("_fields", strings.Join(b.fields, ","))
-	}
 	if b.version != nil {
 		params.Add("version", fmt.Sprintf("%d", *b.version))
 	}

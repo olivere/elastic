@@ -18,7 +18,11 @@ func TestGeoPolygonFilter(t *testing.T) {
 		t.Fatalf("GeoPointFromString failed: %v", err)
 	}
 	f = f.AddPoint(point)
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

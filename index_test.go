@@ -24,12 +24,10 @@ const (
 	"mappings":{
 		"_default_": {
 			"_timestamp": {
-				"enabled": true,
-				"store": "yes"
+				"enabled": true
 			},
 			"_ttl": {
-				"enabled": true,
-				"store": "yes"
+				"enabled": true
 			}
 		},
 		"tweet":{

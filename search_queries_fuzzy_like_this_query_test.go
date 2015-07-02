@@ -11,7 +11,11 @@ import (
 
 func TestFuzzyLikeThisQuery(t *testing.T) {
 	q := NewFuzzyLikeThisQuery().Fields("name.first", "name.last").LikeText("text like this one").MaxQueryTerms(12)
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

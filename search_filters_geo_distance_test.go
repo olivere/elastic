@@ -16,7 +16,11 @@ func TestGeoDistanceFilter(t *testing.T) {
 	f = f.Distance("200km")
 	f = f.DistanceType("plane")
 	f = f.OptimizeBbox("memory")
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -31,7 +35,11 @@ func TestGeoDistanceFilterWithGeoPoint(t *testing.T) {
 	f := NewGeoDistanceFilter("pin.location")
 	f = f.GeoPoint(GeoPointFromLatLon(40, -70))
 	f = f.Distance("200km")
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -46,7 +54,11 @@ func TestGeoDistanceFilterWithGeoHash(t *testing.T) {
 	f := NewGeoDistanceFilter("pin.location")
 	f = f.GeoHash("drm3btev3e86")
 	f = f.Distance("12km")
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

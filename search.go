@@ -177,14 +177,6 @@ func (s *SearchService) Suggester(suggester Suggester) *SearchService {
 	return s
 }
 
-// Facet adds a facet to the search. See
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html
-// to get an overview of Elasticsearch facets.
-func (s *SearchService) Facet(name string, facet Facet) *SearchService {
-	s.searchSource = s.searchSource.Facet(name, facet)
-	return s
-}
-
 // Aggregation adds an aggregation to the search. See
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations.html
 // for an overview of aggregations in Elasticsearch.
@@ -319,7 +311,11 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	if s.source != nil {
 		body = s.source
 	} else {
-		body = s.searchSource.Source()
+		src, err := s.searchSource.Source()
+		if err != nil {
+			return nil, err
+		}
+		body = src
 	}
 	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {

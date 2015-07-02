@@ -19,7 +19,7 @@ func NewTypeFilter(typ string) TypeFilter {
 	return f
 }
 
-func (f TypeFilter) Source() interface{} {
+func (f TypeFilter) Source() (interface{}, error) {
 	// {
 	//   "type" : {
 	//     "value" : "..."
@@ -29,5 +29,5 @@ func (f TypeFilter) Source() interface{} {
 	params := make(map[string]interface{})
 	source["type"] = params
 	params["value"] = f.typ
-	return source
+	return source, nil
 }

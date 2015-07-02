@@ -49,7 +49,7 @@ func (q HasParentQuery) InnerHit(innerHit *InnerHit) HasParentQuery {
 }
 
 // Creates the query source for the ids query.
-func (q HasParentQuery) Source() interface{} {
+func (q HasParentQuery) Source() (interface{}, error) {
 	// {
 	//   "has_parent" : {
 	//       "parent_type" : "blog",
@@ -65,7 +65,11 @@ func (q HasParentQuery) Source() interface{} {
 	query := make(map[string]interface{})
 	source["has_parent"] = query
 
-	query["query"] = q.query.Source()
+	src, err := q.query.Source()
+	if err != nil {
+		return nil, err
+	}
+	query["query"] = src
 	query["parent_type"] = q.parentType
 	if q.boost != nil {
 		query["boost"] = *q.boost
@@ -77,7 +81,11 @@ func (q HasParentQuery) Source() interface{} {
 		query["_name"] = q.queryName
 	}
 	if q.innerHit != nil {
-		query["inner_hits"] = q.innerHit.Source()
+		src, err := q.innerHit.Source()
+		if err != nil {
+			return nil, err
+		}
+		query["inner_hits"] = src
 	}
-	return source
+	return source, nil
 }

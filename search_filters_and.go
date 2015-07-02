@@ -45,7 +45,7 @@ func (f AndFilter) FilterName(filterName string) AndFilter {
 	return f
 }
 
-func (f AndFilter) Source() interface{} {
+func (f AndFilter) Source() (interface{}, error) {
 	// {
 	//   "and" : [
 	//      ... filters ...
@@ -59,7 +59,11 @@ func (f AndFilter) Source() interface{} {
 
 	filters := make([]interface{}, 0)
 	for _, filter := range f.filters {
-		filters = append(filters, filter.Source())
+		src, err := filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		filters = append(filters, src)
 	}
 	params["filters"] = filters
 
@@ -72,5 +76,5 @@ func (f AndFilter) Source() interface{} {
 	if f.filterName != "" {
 		params["_name"] = f.filterName
 	}
-	return source
+	return source, nil
 }

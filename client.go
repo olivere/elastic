@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.0"
+	Version = "3.0.0"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1196,11 +1196,6 @@ func (c *Client) GetMapping() *GetMappingService {
 // PutMapping registers a mapping.
 func (c *Client) PutMapping() *PutMappingService {
 	return NewPutMappingService(c)
-}
-
-// DeleteMapping deletes a mapping.
-func (c *Client) DeleteMapping() *DeleteMappingService {
-	return NewDeleteMappingService(c)
 }
 
 // ClusterHealth retrieves the health of the cluster.

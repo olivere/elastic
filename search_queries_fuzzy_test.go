@@ -11,7 +11,11 @@ import (
 
 func TestFuzzyQuery(t *testing.T) {
 	q := NewFuzzyQuery().Name("user").Value("ki").Boost(1.5).Fuzziness(2).PrefixLength(0).MaxExpansions(100)
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

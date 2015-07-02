@@ -82,7 +82,7 @@ func (q *CommonQuery) DisableCoords(disable bool) *CommonQuery {
 }
 
 // Creates the query source for the common query.
-func (q CommonQuery) Source() interface{} {
+func (q CommonQuery) Source() (interface{}, error) {
 	//  {
 	//    "common": {
 	//      "body": {
@@ -140,5 +140,5 @@ func (q CommonQuery) Source() interface{} {
 		query["boost"] = *(q.boost)
 	}
 
-	return source
+	return source, nil
 }

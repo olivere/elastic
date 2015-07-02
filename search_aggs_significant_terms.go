@@ -10,6 +10,7 @@ package elastic
 type SignificantTermsAggregation struct {
 	field           string
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 
 	minDocCount      *int
 	shardMinDocCount *int
@@ -33,6 +34,12 @@ func (a SignificantTermsAggregation) Field(field string) SignificantTermsAggrega
 
 func (a SignificantTermsAggregation) SubAggregation(name string, subAggregation Aggregation) SignificantTermsAggregation {
 	a.subAggregations[name] = subAggregation
+	return a
+}
+
+// Meta sets the meta data to be included in the aggregation response.
+func (a SignificantTermsAggregation) Meta(metaData map[string]interface{}) SignificantTermsAggregation {
+	a.meta = metaData
 	return a
 }
 
@@ -66,7 +73,7 @@ func (a SignificantTermsAggregation) ExecutionHint(hint string) SignificantTerms
 	return a
 }
 
-func (a SignificantTermsAggregation) Source() interface{} {
+func (a SignificantTermsAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//     "query" : {
@@ -103,7 +110,11 @@ func (a SignificantTermsAggregation) Source() interface{} {
 		opts["shard_min_doc_count"] = *a.shardMinDocCount
 	}
 	if a.filter != nil {
-		opts["background_filter"] = a.filter.Source()
+		src, err := a.filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		opts["background_filter"] = src
 	}
 	if a.executionHint != "" {
 		opts["execution_hint"] = a.executionHint
@@ -114,9 +125,18 @@ func (a SignificantTermsAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

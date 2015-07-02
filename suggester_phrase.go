@@ -189,7 +189,7 @@ type phraseSuggesterRequest struct {
 }
 
 // Creates the source for the phrase suggester.
-func (q PhraseSuggester) Source(includeName bool) interface{} {
+func (q PhraseSuggester) Source(includeName bool) (interface{}, error) {
 	ps := &phraseSuggesterRequest{}
 
 	if q.text != "" {
@@ -214,11 +214,19 @@ func (q PhraseSuggester) Source(includeName bool) interface{} {
 	switch len(q.contextQueries) {
 	case 0:
 	case 1:
-		suggester["context"] = q.contextQueries[0].Source()
+		src, err := q.contextQueries[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		suggester["context"] = src
 	default:
 		ctxq := make([]interface{}, 0)
 		for _, query := range q.contextQueries {
-			ctxq = append(ctxq, query.Source())
+			src, err := query.Source()
+			if err != nil {
+				return nil, err
+			}
+			ctxq = append(ctxq, src)
 		}
 		suggester["context"] = ctxq
 	}
@@ -249,14 +257,22 @@ func (q PhraseSuggester) Source(includeName bool) interface{} {
 		for typ, generators := range q.generators {
 			arr := make([]interface{}, 0)
 			for _, g := range generators {
-				arr = append(arr, g.Source())
+				src, err := g.Source()
+				if err != nil {
+					return nil, err
+				}
+				arr = append(arr, src)
 			}
 			suggester[typ] = arr
 		}
 	}
 	if q.smoothingModel != nil {
+		src, err := q.smoothingModel.Source()
+		if err != nil {
+			return nil, err
+		}
 		x := make(map[string]interface{})
-		x[q.smoothingModel.Type()] = q.smoothingModel.Source()
+		x[q.smoothingModel.Type()] = src
 		suggester["smoothing"] = x
 	}
 	if q.preTag != nil {
@@ -288,19 +304,19 @@ func (q PhraseSuggester) Source(includeName bool) interface{} {
 	}
 
 	if !includeName {
-		return ps
+		return ps, nil
 	}
 
 	source := make(map[string]interface{})
 	source[q.name] = ps
-	return source
+	return source, nil
 }
 
 // -- Smoothing models --
 
 type SmoothingModel interface {
 	Type() string
-	Source() interface{}
+	Source() (interface{}, error)
 }
 
 // StupidBackoffSmoothingModel implements a stupid backoff smoothing model.
@@ -320,10 +336,10 @@ func (sm *StupidBackoffSmoothingModel) Type() string {
 	return "stupid_backoff"
 }
 
-func (sm *StupidBackoffSmoothingModel) Source() interface{} {
+func (sm *StupidBackoffSmoothingModel) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	source["discount"] = sm.discount
-	return source
+	return source, nil
 }
 
 // --
@@ -345,10 +361,10 @@ func (sm *LaplaceSmoothingModel) Type() string {
 	return "laplace"
 }
 
-func (sm *LaplaceSmoothingModel) Source() interface{} {
+func (sm *LaplaceSmoothingModel) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	source["alpha"] = sm.alpha
-	return source
+	return source, nil
 }
 
 // --
@@ -375,19 +391,19 @@ func (sm *LinearInterpolationSmoothingModel) Type() string {
 	return "linear_interpolation"
 }
 
-func (sm *LinearInterpolationSmoothingModel) Source() interface{} {
+func (sm *LinearInterpolationSmoothingModel) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	source["trigram_lambda"] = sm.trigramLamda
 	source["bigram_lambda"] = sm.bigramLambda
 	source["unigram_lambda"] = sm.unigramLambda
-	return source
+	return source, nil
 }
 
 // -- CandidateGenerator --
 
 type CandidateGenerator interface {
 	Type() string
-	Source() interface{}
+	Source() (interface{}, error)
 }
 
 // DirectCandidateGenerator implements a direct candidate generator.
@@ -490,7 +506,7 @@ func (g *DirectCandidateGenerator) MinDocFreq(minDocFreq float64) *DirectCandida
 	return g
 }
 
-func (g *DirectCandidateGenerator) Source() interface{} {
+func (g *DirectCandidateGenerator) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if g.field != "" {
 		source["field"] = g.field
@@ -534,5 +550,5 @@ func (g *DirectCandidateGenerator) Source() interface{} {
 	if g.postFilter != nil {
 		source["post_filter"] = *g.postFilter
 	}
-	return source
+	return source, nil
 }

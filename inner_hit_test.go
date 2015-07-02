@@ -11,7 +11,11 @@ import (
 
 func TestInnerHitEmpty(t *testing.T) {
 	hit := NewInnerHit()
-	data, err := json.Marshal(hit.Source())
+	src, err := hit.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,7 +28,11 @@ func TestInnerHitEmpty(t *testing.T) {
 
 func TestInnerHitWithName(t *testing.T) {
 	hit := NewInnerHit().Name("comments")
-	data, err := json.Marshal(hit.Source())
+	src, err := hit.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

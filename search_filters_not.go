@@ -36,7 +36,7 @@ func (f NotFilter) FilterName(filterName string) NotFilter {
 	return f
 }
 
-func (f NotFilter) Source() interface{} {
+func (f NotFilter) Source() (interface{}, error) {
 	// {
 	//   "not" : {
 	//      "filter" : { ... }
@@ -47,7 +47,11 @@ func (f NotFilter) Source() interface{} {
 
 	params := make(map[string]interface{})
 	source["not"] = params
-	params["filter"] = f.filter.Source()
+	src, err := f.filter.Source()
+	if err != nil {
+		return nil, err
+	}
+	params["filter"] = src
 
 	if f.cache != nil {
 		params["_cache"] = *f.cache
@@ -58,5 +62,5 @@ func (f NotFilter) Source() interface{} {
 	if f.filterName != "" {
 		params["_name"] = f.filterName
 	}
-	return source
+	return source, nil
 }

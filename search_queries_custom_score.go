@@ -63,7 +63,7 @@ func (q CustomScoreQuery) Param(name string, value interface{}) CustomScoreQuery
 }
 
 // Creates the query source for the custom_fscore query.
-func (q CustomScoreQuery) Source() interface{} {
+func (q CustomScoreQuery) Source() (interface{}, error) {
 	// "custom_score" : {
 	//     "query" : {
 	//         ....
@@ -82,9 +82,17 @@ func (q CustomScoreQuery) Source() interface{} {
 
 	// query
 	if q.query != nil {
-		csq["query"] = q.query.Source()
+		src, err := q.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		csq["query"] = src
 	} else if q.filter != nil {
-		csq["filter"] = q.filter.Source()
+		src, err := q.filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		csq["filter"] = src
 	}
 
 	csq["script"] = q.script
@@ -104,5 +112,5 @@ func (q CustomScoreQuery) Source() interface{} {
 		csq["boost"] = *q.boost
 	}
 
-	return query
+	return query, nil
 }

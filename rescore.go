@@ -28,13 +28,17 @@ func (r *Rescore) Rescorer(rescorer Rescorer) *Rescore {
 	return r
 }
 
-func (r *Rescore) Source() interface{} {
+func (r *Rescore) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if r.windowSize != nil {
 		source["window_size"] = *r.windowSize
 	} else if r.defaultRescoreWindowSize != nil {
 		source["window_size"] = *r.defaultRescoreWindowSize
 	}
-	source[r.rescorer.Name()] = r.rescorer.Source()
-	return source
+	rescorerSrc, err := r.rescorer.Source()
+	if err != nil {
+		return nil, err
+	}
+	source[r.rescorer.Name()] = rescorerSrc
+	return source, nil
 }

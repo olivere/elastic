@@ -12,18 +12,22 @@ import (
 func TestFunctionScoreQuery(t *testing.T) {
 	q := NewFunctionScoreQuery().
 		Query(NewTermQuery("name.last", "banon")).
-		Add(NewTermFilter("name.last", "banon"), NewFactorFunction().BoostFactor(3)).
-		AddScoreFunc(NewFactorFunction().BoostFactor(3)).
-		AddScoreFunc(NewFactorFunction().BoostFactor(3)).
+		Add(NewTermFilter("name.last", "banon"), NewWeightFactorFunction(1.5)).
+		AddScoreFunc(NewWeightFactorFunction(3)).
+		AddScoreFunc(NewRandomFunction()).
 		Boost(3).
 		MaxBoost(10).
 		ScoreMode("avg")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"function_score":{"boost":3,"functions":[{"boost_factor":3,"filter":{"term":{"name.last":"banon"}}},{"boost_factor":3},{"boost_factor":3}],"max_boost":10,"query":{"term":{"name.last":"banon"}},"score_mode":"avg"}}`
+	expected := `{"function_score":{"boost":3,"functions":[{"filter":{"term":{"name.last":"banon"}},"weight":1.5},{"weight":3},{"random_score":{}}],"max_boost":10,"query":{"term":{"name.last":"banon"}},"score_mode":"avg"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -37,7 +41,11 @@ func TestFunctionScoreQueryWithNilFilter(t *testing.T) {
 		MaxBoost(12.0).
 		BoostMode("multiply").
 		ScoreMode("max")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -56,7 +64,11 @@ func TestFieldValueFactor(t *testing.T) {
 		MaxBoost(12.0).
 		BoostMode("multiply").
 		ScoreMode("max")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -75,7 +87,11 @@ func TestFieldValueFactorWithWeight(t *testing.T) {
 		MaxBoost(12.0).
 		BoostMode("multiply").
 		ScoreMode("max")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -96,7 +112,11 @@ func TestFieldValueFactorWithMultipleScoreFuncsAndWeights(t *testing.T) {
 		MaxBoost(12.0).
 		BoostMode("multiply").
 		ScoreMode("max")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -111,7 +131,11 @@ func TestFunctionScoreQueryWithGaussScoreFunc(t *testing.T) {
 	q := NewFunctionScoreQuery().
 		Query(NewTermQuery("name.last", "banon")).
 		AddScoreFunc(NewGaussDecayFunction().FieldName("pin.location").Origin("11, 12").Scale("2km").Offset("0km").Decay(0.33))
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -126,7 +150,11 @@ func TestFunctionScoreQueryWithGaussScoreFuncAndMultiValueMode(t *testing.T) {
 	q := NewFunctionScoreQuery().
 		Query(NewTermQuery("name.last", "banon")).
 		AddScoreFunc(NewGaussDecayFunction().FieldName("pin.location").Origin("11, 12").Scale("2km").Offset("0km").Decay(0.33).MultiValueMode("avg"))
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

@@ -17,6 +17,7 @@ type CardinalityAggregation struct {
 	format             string
 	params             map[string]interface{}
 	subAggregations    map[string]Aggregation
+	meta               map[string]interface{}
 	precisionThreshold *int64
 	rehash             *bool
 }
@@ -64,6 +65,12 @@ func (a CardinalityAggregation) SubAggregation(name string, subAggregation Aggre
 	return a
 }
 
+// Meta sets the meta data to be included in the aggregation response.
+func (a CardinalityAggregation) Meta(metaData map[string]interface{}) CardinalityAggregation {
+	a.meta = metaData
+	return a
+}
+
 func (a CardinalityAggregation) PrecisionThreshold(threshold int64) CardinalityAggregation {
 	a.precisionThreshold = &threshold
 	return a
@@ -74,7 +81,7 @@ func (a CardinalityAggregation) Rehash(rehash bool) CardinalityAggregation {
 	return a
 }
 
-func (a CardinalityAggregation) Source() interface{} {
+func (a CardinalityAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {
@@ -120,9 +127,18 @@ func (a CardinalityAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

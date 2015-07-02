@@ -81,15 +81,23 @@ func (q FunctionScoreQuery) MinScore(minScore float32) FunctionScoreQuery {
 }
 
 // Source returns JSON for the function score query.
-func (q FunctionScoreQuery) Source() interface{} {
+func (q FunctionScoreQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	query := make(map[string]interface{})
 	source["function_score"] = query
 
 	if q.query != nil {
-		query["query"] = q.query.Source()
+		src, err := q.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		query["query"] = src
 	} else if q.filter != nil {
-		query["filter"] = q.filter.Source()
+		src, err := q.filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		query["filter"] = src
 	}
 
 	if len(q.filters) == 1 && q.filters[0] == nil {
@@ -98,20 +106,32 @@ func (q FunctionScoreQuery) Source() interface{} {
 			query["weight"] = weight
 		}
 		// Serialize the score function
-		query[q.scoreFuncs[0].Name()] = q.scoreFuncs[0].Source()
+		src, err := q.scoreFuncs[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		query[q.scoreFuncs[0].Name()] = src
 	} else {
 		funcs := make([]interface{}, len(q.filters))
 		for i, filter := range q.filters {
 			hsh := make(map[string]interface{})
 			if filter != nil {
-				hsh["filter"] = filter.Source()
+				src, err := filter.Source()
+				if err != nil {
+					return nil, err
+				}
+				hsh["filter"] = src
 			}
 			// Weight needs to be serialized on this level.
 			if weight := q.scoreFuncs[i].GetWeight(); weight != nil {
 				hsh["weight"] = weight
 			}
 			// Serialize the score function
-			hsh[q.scoreFuncs[i].Name()] = q.scoreFuncs[i].Source()
+			src, err := q.scoreFuncs[i].Source()
+			if err != nil {
+				return nil, err
+			}
+			hsh[q.scoreFuncs[i].Name()] = src
 			funcs[i] = hsh
 		}
 		query["functions"] = funcs
@@ -133,5 +153,5 @@ func (q FunctionScoreQuery) Source() interface{} {
 		query["min_score"] = *q.minScore
 	}
 
-	return source
+	return source, nil
 }

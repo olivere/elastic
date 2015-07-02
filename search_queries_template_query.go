@@ -49,7 +49,7 @@ func (q TemplateQuery) Vars(vars map[string]interface{}) TemplateQuery {
 }
 
 // Source returns the JSON serializable content for the search.
-func (q TemplateQuery) Source() interface{} {
+func (q TemplateQuery) Source() (interface{}, error) {
 	// {
 	//   "template" : {
 	//     "query" : {"match_{{template}}": {}},
@@ -80,5 +80,5 @@ func (q TemplateQuery) Source() interface{} {
 		tmpl["params"] = q.vars
 	}
 
-	return query
+	return query, nil
 }

@@ -41,7 +41,7 @@ func (f GeoPolygonFilter) AddPoint(point *GeoPoint) GeoPolygonFilter {
 	return f
 }
 
-func (f GeoPolygonFilter) Source() interface{} {
+func (f GeoPolygonFilter) Source() (interface{}, error) {
 	// "geo_polygon" : {
 	//  	"person.location" : {
 	//         "points" : [
@@ -77,5 +77,5 @@ func (f GeoPolygonFilter) Source() interface{} {
 		params["_cache_key"] = f.cacheKey
 	}
 
-	return source
+	return source, nil
 }

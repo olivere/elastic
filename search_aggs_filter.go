@@ -12,6 +12,7 @@ package elastic
 type FilterAggregation struct {
 	filter          Filter
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 }
 
 func NewFilterAggregation() FilterAggregation {
@@ -26,12 +27,18 @@ func (a FilterAggregation) SubAggregation(name string, subAggregation Aggregatio
 	return a
 }
 
+// Meta sets the meta data to be included in the aggregation response.
+func (a FilterAggregation) Meta(metaData map[string]interface{}) FilterAggregation {
+	a.meta = metaData
+	return a
+}
+
 func (a FilterAggregation) Filter(filter Filter) FilterAggregation {
 	a.filter = filter
 	return a
 }
 
-func (a FilterAggregation) Source() interface{} {
+func (a FilterAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {
@@ -42,17 +49,30 @@ func (a FilterAggregation) Source() interface{} {
 	//	}
 	// This method returns only the { "filter" : {} } part.
 
+	src, err := a.filter.Source()
+	if err != nil {
+		return nil, err
+	}
 	source := make(map[string]interface{})
-	source["filter"] = a.filter.Source()
+	source["filter"] = src
 
 	// AggregationBuilder (SubAggregations)
 	if len(a.subAggregations) > 0 {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

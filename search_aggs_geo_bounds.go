@@ -8,16 +8,20 @@ package elastic
 // bounding box containing all geo_point values for a field.
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geobounds-aggregation.html
 type GeoBoundsAggregation struct {
-	field         string
-	script        string
-	scriptFile    string
-	lang          string
-	params        map[string]interface{}
-	wrapLongitude *bool
+	field           string
+	script          string
+	scriptFile      string
+	lang            string
+	params          map[string]interface{}
+	wrapLongitude   *bool
+	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 }
 
 func NewGeoBoundsAggregation() GeoBoundsAggregation {
-	a := GeoBoundsAggregation{}
+	a := GeoBoundsAggregation{
+		subAggregations: make(map[string]Aggregation),
+	}
 	return a
 }
 
@@ -59,7 +63,18 @@ func (a GeoBoundsAggregation) WrapLongitude(wrapLongitude bool) GeoBoundsAggrega
 	return a
 }
 
-func (a GeoBoundsAggregation) Source() interface{} {
+func (a GeoBoundsAggregation) SubAggregation(name string, subAggregation Aggregation) GeoBoundsAggregation {
+	a.subAggregations[name] = subAggregation
+	return a
+}
+
+// Meta sets the meta data to be included in the aggregation response.
+func (a GeoBoundsAggregation) Meta(metaData map[string]interface{}) GeoBoundsAggregation {
+	a.meta = metaData
+	return a
+}
+
+func (a GeoBoundsAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//     "query" : {
@@ -100,5 +115,23 @@ func (a GeoBoundsAggregation) Source() interface{} {
 		opts["wrap_longitude"] = *a.wrapLongitude
 	}
 
-	return source
+	// AggregationBuilder (SubAggregations)
+	if len(a.subAggregations) > 0 {
+		aggsMap := make(map[string]interface{})
+		source["aggregations"] = aggsMap
+		for name, aggregate := range a.subAggregations {
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
+		}
+	}
+
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

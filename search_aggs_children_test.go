@@ -11,7 +11,11 @@ import (
 
 func TestChildrenAggregation(t *testing.T) {
 	agg := NewChildrenAggregation().Type("answer")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -26,7 +30,11 @@ func TestChildrenAggregationWithSubAggregation(t *testing.T) {
 	subAgg := NewTermsAggregation().Field("owner.display_name").Size(10)
 	agg := NewChildrenAggregation().Type("answer")
 	agg = agg.SubAggregation("top-names", subAgg)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

@@ -39,7 +39,7 @@ func (q PrefixQuery) QueryName(queryName string) PrefixQuery {
 }
 
 // Creates the query source for the prefix query.
-func (q PrefixQuery) Source() interface{} {
+func (q PrefixQuery) Source() (interface{}, error) {
 	// {
 	//   "prefix" : {
 	//     "user" :  {
@@ -71,5 +71,5 @@ func (q PrefixQuery) Source() interface{} {
 		query[q.name] = subQuery
 	}
 
-	return source
+	return source, nil
 }

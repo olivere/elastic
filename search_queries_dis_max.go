@@ -41,7 +41,7 @@ func (q DisMaxQuery) TieBreaker(tieBreaker float32) DisMaxQuery {
 }
 
 // Creates the query source for the dis_max query.
-func (q DisMaxQuery) Source() interface{} {
+func (q DisMaxQuery) Source() (interface{}, error) {
 	// {
 	//  "dis_max" : {
 	//    "tie_breaker" : 0.7,
@@ -75,9 +75,13 @@ func (q DisMaxQuery) Source() interface{} {
 	// queries
 	clauses := make([]interface{}, 0)
 	for _, subQuery := range q.queries {
-		clauses = append(clauses, subQuery.Source())
+		src, err := subQuery.Source()
+		if err != nil {
+			return nil, err
+		}
+		clauses = append(clauses, src)
 	}
 	disMax["queries"] = clauses
 
-	return query
+	return query, nil
 }

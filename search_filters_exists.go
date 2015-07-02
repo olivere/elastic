@@ -23,7 +23,7 @@ func (f ExistsFilter) FilterName(filterName string) ExistsFilter {
 	return f
 }
 
-func (f ExistsFilter) Source() interface{} {
+func (f ExistsFilter) Source() (interface{}, error) {
 	// {
 	//   "exists" : {
 	//     "field" : "..."
@@ -37,5 +37,5 @@ func (f ExistsFilter) Source() interface{} {
 	if f.filterName != "" {
 		params["_name"] = f.filterName
 	}
-	return source
+	return source, nil
 }

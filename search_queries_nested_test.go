@@ -10,13 +10,17 @@ import (
 )
 
 func TestNestedQuery(t *testing.T) {
-	f := NewNestedQuery("obj1")
+	q := NewNestedQuery("obj1")
 	bq := NewBoolQuery()
 	bq = bq.Must(NewTermQuery("obj1.name", "blue"))
 	bq = bq.Must(NewRangeQuery("obj1.count").Gt(5))
-	f = f.Query(bq)
-	f = f.QueryName("qname")
-	data, err := json.Marshal(f.Source())
+	q = q.Query(bq)
+	q = q.QueryName("qname")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -28,14 +32,18 @@ func TestNestedQuery(t *testing.T) {
 }
 
 func TestNestedQueryWithInnerHit(t *testing.T) {
-	f := NewNestedQuery("obj1")
+	q := NewNestedQuery("obj1")
 	bq := NewBoolQuery()
 	bq = bq.Must(NewTermQuery("obj1.name", "blue"))
 	bq = bq.Must(NewRangeQuery("obj1.count").Gt(5))
-	f = f.Query(bq)
-	f = f.QueryName("qname")
-	f = f.InnerHit(NewInnerHit().Name("comments").Query(NewTermQuery("user", "olivere")))
-	data, err := json.Marshal(f.Source())
+	q = q.Query(bq)
+	q = q.QueryName("qname")
+	q = q.InnerHit(NewInnerHit().Name("comments").Query(NewTermQuery("user", "olivere")))
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

@@ -67,7 +67,7 @@ func (q WildcardQuery) QueryName(queryName string) WildcardQuery {
 }
 
 // Source returns the JSON serializable body of this query.
-func (q WildcardQuery) Source() interface{} {
+func (q WildcardQuery) Source() (interface{}, error) {
 	// {
 	//	"wildcard" : {
 	//		"user" : {
@@ -96,5 +96,5 @@ func (q WildcardQuery) Source() interface{} {
 		wq["_name"] = q.queryName
 	}
 
-	return source
+	return source, nil
 }

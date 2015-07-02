@@ -46,14 +46,18 @@ func (b *MultiGetService) Add(items ...*MultiGetItem) *MultiGetService {
 	return b
 }
 
-func (b *MultiGetService) Source() interface{} {
+func (b *MultiGetService) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	items := make([]interface{}, len(b.items))
 	for i, item := range b.items {
-		items[i] = item.Source()
+		src, err := item.Source()
+		if err != nil {
+			return nil, err
+		}
+		items[i] = src
 	}
 	source["docs"] = items
-	return source
+	return source, nil
 }
 
 func (b *MultiGetService) Do() (*MultiGetResult, error) {
@@ -72,7 +76,10 @@ func (b *MultiGetService) Do() (*MultiGetResult, error) {
 	}
 
 	// Set body
-	body := b.Source()
+	body, err := b.Source()
+	if err != nil {
+		return nil, err
+	}
 
 	// Get response
 	res, err := b.client.PerformRequest("GET", path, params, body)
@@ -157,7 +164,7 @@ func (item *MultiGetItem) FetchSource(fetchSourceContext *FetchSourceContext) *M
 
 // Source returns the serialized JSON to be sent to Elasticsearch as
 // part of a MultiGet search.
-func (item *MultiGetItem) Source() interface{} {
+func (item *MultiGetItem) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	source["_id"] = item.id
@@ -169,7 +176,11 @@ func (item *MultiGetItem) Source() interface{} {
 		source["_type"] = item.typ
 	}
 	if item.fsc != nil {
-		source["_source"] = item.fsc.Source()
+		src, err := item.fsc.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["_source"] = src
 	}
 	if item.fields != nil {
 		source["fields"] = item.fields
@@ -184,7 +195,7 @@ func (item *MultiGetItem) Source() interface{} {
 		source["version_type"] = item.versionType
 	}
 
-	return source
+	return source, nil
 }
 
 // -- Result of a Multi Get request.

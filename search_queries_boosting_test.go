@@ -14,7 +14,11 @@ func TestBoostingQuery(t *testing.T) {
 	q = q.Positive(NewTermQuery("tag", "wow"))
 	q = q.Negative(NewRangeQuery("age").From(10).To(20))
 	q = q.NegativeBoost(0.2)
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

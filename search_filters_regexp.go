@@ -52,7 +52,7 @@ func (f RegexpFilter) FilterName(filterName string) RegexpFilter {
 	return f
 }
 
-func (f RegexpFilter) Source() interface{} {
+func (f RegexpFilter) Source() (interface{}, error) {
 	// {
 	//   "regexp" : {
 	//     "..." : "..."
@@ -86,5 +86,5 @@ func (f RegexpFilter) Source() interface{} {
 		params["_cache_key"] = f.cacheKey
 	}
 
-	return source
+	return source, nil
 }

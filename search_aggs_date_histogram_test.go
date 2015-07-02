@@ -11,7 +11,11 @@ import (
 
 func TestDateHistogramAggregation(t *testing.T) {
 	agg := NewDateHistogramAggregation().Field("date").Interval("month").Format("YYYY-MM")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

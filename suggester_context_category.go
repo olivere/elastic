@@ -33,7 +33,7 @@ func (q *SuggesterCategoryMapping) FieldName(fieldName string) *SuggesterCategor
 }
 
 // Source returns a map that will be used to serialize the context query as JSON.
-func (q *SuggesterCategoryMapping) Source() interface{} {
+func (q *SuggesterCategoryMapping) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	x := make(map[string]interface{})
@@ -53,7 +53,7 @@ func (q *SuggesterCategoryMapping) Source() interface{} {
 	if q.fieldName != "" {
 		x["path"] = q.fieldName
 	}
-	return source
+	return source, nil
 }
 
 // -- SuggesterCategoryQuery --
@@ -83,7 +83,7 @@ func (q *SuggesterCategoryQuery) Values(values ...string) *SuggesterCategoryQuer
 }
 
 // Source returns a map that will be used to serialize the context query as JSON.
-func (q *SuggesterCategoryQuery) Source() interface{} {
+func (q *SuggesterCategoryQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	switch len(q.values) {
@@ -95,5 +95,5 @@ func (q *SuggesterCategoryQuery) Source() interface{} {
 		source[q.name] = q.values
 	}
 
-	return source
+	return source, nil
 }

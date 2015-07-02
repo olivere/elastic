@@ -11,5 +11,5 @@ package elastic
 // will do.
 type Suggester interface {
 	Name() string
-	Source(includeName bool) interface{}
+	Source(includeName bool) (interface{}, error)
 }

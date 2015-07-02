@@ -11,7 +11,11 @@ import (
 
 func TestRegexpQuery(t *testing.T) {
 	q := NewRegexpQuery("name.first", "s.*y")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -27,7 +31,11 @@ func TestRegexpQueryWithOptions(t *testing.T) {
 		Boost(1.2).
 		Flags("INTERSECTION|COMPLEMENT|EMPTY").
 		QueryName("my_query_name")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

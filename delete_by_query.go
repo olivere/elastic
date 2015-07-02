@@ -261,8 +261,12 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 	// Set body if there is a query set
 	var body interface{}
 	if s.query != nil {
+		src, err := s.query.Source()
+		if err != nil {
+			return nil, err
+		}
 		query := make(map[string]interface{})
-		query["query"] = s.query.Source()
+		query["query"] = src
 		body = query
 	}
 

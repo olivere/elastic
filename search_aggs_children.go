@@ -11,6 +11,7 @@ package elastic
 type ChildrenAggregation struct {
 	typ             string
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 }
 
 func NewChildrenAggregation() ChildrenAggregation {
@@ -30,7 +31,13 @@ func (a ChildrenAggregation) SubAggregation(name string, subAggregation Aggregat
 	return a
 }
 
-func (a ChildrenAggregation) Source() interface{} {
+// Meta sets the meta data to be included in the aggregation response.
+func (a ChildrenAggregation) Meta(metaData map[string]interface{}) ChildrenAggregation {
+	a.meta = metaData
+	return a
+}
+
+func (a ChildrenAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {
@@ -49,9 +56,18 @@ func (a ChildrenAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

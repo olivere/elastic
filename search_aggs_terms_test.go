@@ -11,7 +11,11 @@ import (
 
 func TestTermsAggregation(t *testing.T) {
 	agg := NewTermsAggregation().Field("gender").Size(10).OrderByTermDesc()
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -27,7 +31,11 @@ func TestTermsAggregationWithSubAggregation(t *testing.T) {
 	agg := NewTermsAggregation().Field("gender").Size(10).
 		OrderByAggregation("avg_height", false)
 	agg = agg.SubAggregation("avg_height", subAgg)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -45,12 +53,34 @@ func TestTermsAggregationWithMultipleSubAggregation(t *testing.T) {
 		OrderByAggregation("avg_height", false)
 	agg = agg.SubAggregation("avg_height", subAgg1)
 	agg = agg.SubAggregation("avg_width", subAgg2)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
 	expected := `{"aggregations":{"avg_height":{"avg":{"field":"height"}},"avg_width":{"avg":{"field":"width"}}},"terms":{"field":"gender","order":{"avg_height":"desc"},"size":10}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestTermsAggregationWithMetaData(t *testing.T) {
+	agg := NewTermsAggregation().Field("gender").Size(10).OrderByTermDesc()
+	agg = agg.Meta(map[string]interface{}{"name": "Oliver"})
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"meta":{"name":"Oliver"},"terms":{"field":"gender","order":{"_term":"desc"},"size":10}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

@@ -26,7 +26,6 @@ type PingService struct {
 
 // PingResult is the result returned from querying the Elasticsearch server.
 type PingResult struct {
-	Status      int    `json:"status"`
 	Name        string `json:"name"`
 	ClusterName string `json:"cluster_name"`
 	Version     struct {

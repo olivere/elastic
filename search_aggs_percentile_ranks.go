@@ -14,6 +14,7 @@ type PercentileRanksAggregation struct {
 	format          string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 	values          []float64
 	compression     *float64
 	estimator       string
@@ -63,6 +64,12 @@ func (a PercentileRanksAggregation) SubAggregation(name string, subAggregation A
 	return a
 }
 
+// Meta sets the meta data to be included in the aggregation response.
+func (a PercentileRanksAggregation) Meta(metaData map[string]interface{}) PercentileRanksAggregation {
+	a.meta = metaData
+	return a
+}
+
 func (a PercentileRanksAggregation) Values(values ...float64) PercentileRanksAggregation {
 	a.values = make([]float64, 0)
 	a.values = append(a.values, values...)
@@ -79,7 +86,7 @@ func (a PercentileRanksAggregation) Estimator(estimator string) PercentileRanksA
 	return a
 }
 
-func (a PercentileRanksAggregation) Source() interface{} {
+func (a PercentileRanksAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {
@@ -133,9 +140,18 @@ func (a PercentileRanksAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

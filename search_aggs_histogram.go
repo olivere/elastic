@@ -16,6 +16,7 @@ type HistogramAggregation struct {
 	lang            string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 
 	interval          int64
 	order             string
@@ -60,6 +61,12 @@ func (a HistogramAggregation) Param(name string, value interface{}) HistogramAgg
 
 func (a HistogramAggregation) SubAggregation(name string, subAggregation Aggregation) HistogramAggregation {
 	a.subAggregations[name] = subAggregation
+	return a
+}
+
+// Meta sets the meta data to be included in the aggregation response.
+func (a HistogramAggregation) Meta(metaData map[string]interface{}) HistogramAggregation {
+	a.meta = metaData
 	return a
 }
 
@@ -164,7 +171,7 @@ func (a HistogramAggregation) ExtendedBoundsMax(max int64) HistogramAggregation 
 	return a
 }
 
-func (a HistogramAggregation) Source() interface{} {
+func (a HistogramAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//     "aggs" : {
@@ -226,9 +233,18 @@ func (a HistogramAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

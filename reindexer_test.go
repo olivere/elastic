@@ -2,12 +2,14 @@ package elastic
 
 import (
 	"encoding/json"
+	"log"
+	"os"
 	"testing"
 )
 
 func TestReindexer(t *testing.T) {
 
-	client := setupTestClientAndCreateIndexAndAddDocs(t)
+	client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	sourceCount, err := client.Count(testIndexName).Do()
 	if err != nil {

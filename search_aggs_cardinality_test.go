@@ -11,7 +11,11 @@ import (
 
 func TestCardinalityAggregation(t *testing.T) {
 	agg := NewCardinalityAggregation().Field("author.hash")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,7 +28,11 @@ func TestCardinalityAggregation(t *testing.T) {
 
 func TestCardinalityAggregationWithOptions(t *testing.T) {
 	agg := NewCardinalityAggregation().Field("author.hash").PrecisionThreshold(100).Rehash(true)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -37,12 +45,33 @@ func TestCardinalityAggregationWithOptions(t *testing.T) {
 
 func TestCardinalityAggregationWithFormat(t *testing.T) {
 	agg := NewCardinalityAggregation().Field("author.hash").Format("00000")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
 	expected := `{"cardinality":{"field":"author.hash","format":"00000"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestCardinalityAggregationWithMetaData(t *testing.T) {
+	agg := NewCardinalityAggregation().Field("author.hash").Meta(map[string]interface{}{"name": "Oliver"})
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"cardinality":{"field":"author.hash"},"meta":{"name":"Oliver"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

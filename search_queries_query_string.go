@@ -162,7 +162,7 @@ func (q QueryStringQuery) Lenient(lenient bool) QueryStringQuery {
 }
 
 // Creates the query source for the query string query.
-func (q QueryStringQuery) Source() interface{} {
+func (q QueryStringQuery) Source() (interface{}, error) {
 	// {
 	//    "query_string" : {
 	//      "default_field" : "content",
@@ -277,5 +277,5 @@ func (q QueryStringQuery) Source() interface{} {
 		query["lenient"] = *q.lenient
 	}
 
-	return source
+	return source, nil
 }

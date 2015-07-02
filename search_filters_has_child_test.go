@@ -12,7 +12,11 @@ import (
 func TestHasChildFilter(t *testing.T) {
 	f := NewHasChildFilter("blog_tag")
 	f = f.Query(NewTermQuery("tag", "something"))
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -27,7 +31,11 @@ func TestHasChildFilterWithInnerHits(t *testing.T) {
 	f := NewHasChildFilter("blog_tag")
 	f = f.Query(NewTermQuery("tag", "something"))
 	f = f.InnerHit(NewInnerHit())
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -42,7 +50,11 @@ func TestHasChildFilterWithInnerHitsName(t *testing.T) {
 	f := NewHasChildFilter("blog_tag")
 	f = f.Query(NewTermQuery("tag", "something"))
 	f = f.InnerHit(NewInnerHit().Name("comments"))
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -58,7 +70,11 @@ func TestHasChildFilterWithInnerHitsQuery(t *testing.T) {
 	f = f.Query(NewTermQuery("tag", "something"))
 	hit := NewInnerHit().Query(NewTermQuery("user", "olivere"))
 	f = f.InnerHit(hit)
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

@@ -12,7 +12,7 @@ import (
 type ScoreFunction interface {
 	Name() string
 	GetWeight() *float64 // returns the weight which must be serialized at the level of FunctionScoreQuery
-	Source() interface{}
+	Source() (interface{}, error)
 }
 
 // -- Exponential Decay --
@@ -97,7 +97,7 @@ func (fn ExponentialDecayFunction) MultiValueMode(mode string) ExponentialDecayF
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn ExponentialDecayFunction) Source() interface{} {
+func (fn ExponentialDecayFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source[fn.fieldName] = params
@@ -114,7 +114,7 @@ func (fn ExponentialDecayFunction) Source() interface{} {
 	if fn.multiValueMode != "" {
 		source["multi_value_mode"] = fn.multiValueMode
 	}
-	return source
+	return source, nil
 }
 
 // -- Gauss Decay --
@@ -199,7 +199,7 @@ func (fn GaussDecayFunction) MultiValueMode(mode string) GaussDecayFunction {
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn GaussDecayFunction) Source() interface{} {
+func (fn GaussDecayFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source[fn.fieldName] = params
@@ -217,7 +217,7 @@ func (fn GaussDecayFunction) Source() interface{} {
 		source["multi_value_mode"] = fn.multiValueMode
 	}
 	// Notice that the weight has to be serialized in FunctionScoreQuery.
-	return source
+	return source, nil
 }
 
 // -- Linear Decay --
@@ -309,7 +309,7 @@ func (fn LinearDecayFunction) GetMultiValueMode() string {
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn LinearDecayFunction) Source() interface{} {
+func (fn LinearDecayFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source[fn.fieldName] = params
@@ -327,7 +327,7 @@ func (fn LinearDecayFunction) Source() interface{} {
 		source["multi_value_mode"] = fn.multiValueMode
 	}
 	// Notice that the weight has to be serialized in FunctionScoreQuery.
-	return source
+	return source, nil
 }
 
 // -- Script --
@@ -398,7 +398,7 @@ func (fn ScriptFunction) GetWeight() *float64 {
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn ScriptFunction) Source() interface{} {
+func (fn ScriptFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if fn.script != "" {
 		source["script"] = fn.script
@@ -410,44 +410,7 @@ func (fn ScriptFunction) Source() interface{} {
 		source["params"] = fn.params
 	}
 	// Notice that the weight has to be serialized in FunctionScoreQuery.
-	return source
-}
-
-// -- Factor --
-
-// FactorFunction is deprecated.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html
-// for details.
-type FactorFunction struct {
-	boostFactor *float32
-}
-
-// NewFactorFunction initializes and returns a new FactorFunction.
-func NewFactorFunction() FactorFunction {
-	return FactorFunction{}
-}
-
-// Name represents the JSON field name under which the output of Source
-// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
-func (fn FactorFunction) Name() string {
-	return "boost_factor"
-}
-
-// BoostFactor specifies a boost for this score function.
-func (fn FactorFunction) BoostFactor(boost float32) FactorFunction {
-	fn.boostFactor = &boost
-	return fn
-}
-
-// GetWeight always returns nil for (deprecated) FactorFunction.
-func (fn FactorFunction) GetWeight() *float64 {
-	return nil
-}
-
-// Source returns the serializable JSON data of this score function.
-func (fn FactorFunction) Source() interface{} {
-	// Notice that the weight has to be serialized in FunctionScoreQuery.
-	return fn.boostFactor
+	return source, nil
 }
 
 // -- Field value factor --
@@ -515,7 +478,7 @@ func (fn FieldValueFactorFunction) Missing(missing float64) FieldValueFactorFunc
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn FieldValueFactorFunction) Source() interface{} {
+func (fn FieldValueFactorFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if fn.field != "" {
 		source["field"] = fn.field
@@ -530,7 +493,7 @@ func (fn FieldValueFactorFunction) Source() interface{} {
 		source["modifier"] = strings.ToLower(fn.modifier)
 	}
 	// Notice that the weight has to be serialized in FunctionScoreQuery.
-	return source
+	return source, nil
 }
 
 // -- Weight Factor --
@@ -569,9 +532,9 @@ func (fn WeightFactorFunction) GetWeight() *float64 {
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn WeightFactorFunction) Source() interface{} {
+func (fn WeightFactorFunction) Source() (interface{}, error) {
 	// Notice that the weight has to be serialized in FunctionScoreQuery.
-	return fn.weight
+	return fn.weight, nil
 }
 
 // -- Random --
@@ -617,11 +580,11 @@ func (fn RandomFunction) GetWeight() *float64 {
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn RandomFunction) Source() interface{} {
+func (fn RandomFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if fn.seed != nil {
 		source["seed"] = fn.seed
 	}
 	// Notice that the weight has to be serialized in FunctionScoreQuery.
-	return source
+	return source, nil
 }

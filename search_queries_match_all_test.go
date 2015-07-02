@@ -11,7 +11,11 @@ import (
 
 func TestMatchAllQuery(t *testing.T) {
 	q := NewMatchAllQuery()
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,7 +28,11 @@ func TestMatchAllQuery(t *testing.T) {
 
 func TestMatchAllQueryWithParams(t *testing.T) {
 	q := NewMatchAllQuery().NormsField("field_name").Boost(3.14)
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

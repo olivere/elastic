@@ -11,7 +11,11 @@ import (
 
 func TestStatsAggregation(t *testing.T) {
 	agg := NewStatsAggregation().Field("grade")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,12 +28,33 @@ func TestStatsAggregation(t *testing.T) {
 
 func TestStatsAggregationWithFormat(t *testing.T) {
 	agg := NewStatsAggregation().Field("grade").Format("0000.0")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
 	expected := `{"stats":{"field":"grade","format":"0000.0"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestStatsAggregationWithMetaData(t *testing.T) {
+	agg := NewStatsAggregation().Field("grade").Meta(map[string]interface{}{"name": "Oliver"})
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"meta":{"name":"Oliver"},"stats":{"field":"grade"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

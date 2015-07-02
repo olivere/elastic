@@ -55,7 +55,7 @@ func (q SimpleQueryStringQuery) DefaultOperator(defaultOperator string) SimpleQu
 }
 
 // Creates the query source for the query string query.
-func (q SimpleQueryStringQuery) Source() interface{} {
+func (q SimpleQueryStringQuery) Source() (interface{}, error) {
 	// {
 	//    "simple_query_string" : {
 	//      "query" : "\"fried eggs\" +(eggplant | potato) -frittata",
@@ -96,5 +96,5 @@ func (q SimpleQueryStringQuery) Source() interface{} {
 		query["default_operator"] = strings.ToLower(q.operator)
 	}
 
-	return source
+	return source, nil
 }

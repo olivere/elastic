@@ -133,7 +133,7 @@ func (q MatchQuery) QueryName(queryName string) MatchQuery {
 	return q
 }
 
-func (q MatchQuery) Source() interface{} {
+func (q MatchQuery) Source() (interface{}, error) {
 	// {"match":{"name":{"query":"value","type":"boolean/phrase"}}}
 	source := make(map[string]interface{})
 
@@ -194,5 +194,5 @@ func (q MatchQuery) Source() interface{} {
 		query["_name"] = q.queryName
 	}
 
-	return source
+	return source, nil
 }

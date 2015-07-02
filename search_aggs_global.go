@@ -11,6 +11,7 @@ package elastic
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-global-aggregation.html
 type GlobalAggregation struct {
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 }
 
 func NewGlobalAggregation() GlobalAggregation {
@@ -25,7 +26,13 @@ func (a GlobalAggregation) SubAggregation(name string, subAggregation Aggregatio
 	return a
 }
 
-func (a GlobalAggregation) Source() interface{} {
+// Meta sets the meta data to be included in the aggregation response.
+func (a GlobalAggregation) Meta(metaData map[string]interface{}) GlobalAggregation {
+	a.meta = metaData
+	return a
+}
+
+func (a GlobalAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {
@@ -48,9 +55,18 @@ func (a GlobalAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

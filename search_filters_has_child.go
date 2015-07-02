@@ -76,7 +76,7 @@ func (f HasChildFilter) InnerHit(innerHit *InnerHit) HasChildFilter {
 }
 
 // Source returns the JSON document for the filter.
-func (f HasChildFilter) Source() interface{} {
+func (f HasChildFilter) Source() (interface{}, error) {
 	// {
 	//   "has_child" : {
 	//       "type" : "blog_tag",
@@ -94,9 +94,17 @@ func (f HasChildFilter) Source() interface{} {
 	source["has_child"] = filter
 
 	if f.query != nil {
-		filter["query"] = f.query.Source()
+		src, err := f.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		filter["query"] = src
 	} else if f.filter != nil {
-		filter["filter"] = f.filter.Source()
+		src, err := f.filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		filter["filter"] = src
 	}
 
 	filter["type"] = f.childType
@@ -119,7 +127,11 @@ func (f HasChildFilter) Source() interface{} {
 		filter["max_children"] = *f.maxChildren
 	}
 	if f.innerHit != nil {
-		filter["inner_hits"] = f.innerHit.Source()
+		src, err := f.innerHit.Source()
+		if err != nil {
+			return nil, err
+		}
+		filter["inner_hits"] = src
 	}
-	return source
+	return source, nil
 }

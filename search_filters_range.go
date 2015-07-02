@@ -95,7 +95,7 @@ func (f RangeFilter) Execution(execution string) RangeFilter {
 	return f
 }
 
-func (f RangeFilter) Source() interface{} {
+func (f RangeFilter) Source() (interface{}, error) {
 	// {
 	//   "range" : {
 	//     "name" : {
@@ -136,5 +136,5 @@ func (f RangeFilter) Source() interface{} {
 		rangeQ["execution"] = f.execution
 	}
 
-	return source
+	return source, nil
 }

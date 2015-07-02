@@ -11,7 +11,11 @@ import (
 
 func TestNotFilter(t *testing.T) {
 	f := NewNotFilter(NewTermFilter("user", "olivere"))
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -28,7 +32,11 @@ func TestNotFilterWithParams(t *testing.T) {
 	f = f.Cache(true)
 	f = f.CacheKey("MyNotFilter")
 	f = f.FilterName("MyFilterName")
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

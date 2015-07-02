@@ -128,8 +128,12 @@ func (s *CountService) Do() (int64, error) {
 	// Set body if there is a query specified
 	var body interface{}
 	if s.query != nil {
+		src, err := s.query.Source()
+		if err != nil {
+			return 0, err
+		}
 		query := make(map[string]interface{})
-		query["query"] = s.query.Source()
+		query["query"] = src
 		body = query
 	}
 

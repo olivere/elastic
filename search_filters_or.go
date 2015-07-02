@@ -45,7 +45,7 @@ func (f OrFilter) FilterName(filterName string) OrFilter {
 	return f
 }
 
-func (f OrFilter) Source() interface{} {
+func (f OrFilter) Source() (interface{}, error) {
 	// {
 	//   "or" : [
 	//      ... filters ...
@@ -60,7 +60,11 @@ func (f OrFilter) Source() interface{} {
 	filters := make([]interface{}, len(f.filters))
 	params["filters"] = filters
 	for i, filter := range f.filters {
-		filters[i] = filter.Source()
+		src, err := filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		filters[i] = src
 	}
 
 	if f.cache != nil {
@@ -72,5 +76,5 @@ func (f OrFilter) Source() interface{} {
 	if f.filterName != "" {
 		params["_name"] = f.filterName
 	}
-	return source
+	return source, nil
 }

@@ -12,7 +12,11 @@ import (
 
 func TestHighlighterField(t *testing.T) {
 	field := NewHighlighterField("grade")
-	data, err := json.Marshal(field.Source())
+	src, err := field.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -25,7 +29,11 @@ func TestHighlighterField(t *testing.T) {
 
 func TestHighlighterFieldWithOptions(t *testing.T) {
 	field := NewHighlighterField("grade").FragmentSize(2).NumOfFragments(1)
-	data, err := json.Marshal(field.Source())
+	src, err := field.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -38,7 +46,11 @@ func TestHighlighterFieldWithOptions(t *testing.T) {
 
 func TestHighlightWithStringField(t *testing.T) {
 	builder := NewHighlight().Field("grade")
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -52,7 +64,11 @@ func TestHighlightWithStringField(t *testing.T) {
 func TestHighlightWithFields(t *testing.T) {
 	gradeField := NewHighlighterField("grade")
 	builder := NewHighlight().Fields(gradeField)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -67,7 +83,11 @@ func TestHighlightWithMultipleFields(t *testing.T) {
 	gradeField := NewHighlighterField("grade")
 	colorField := NewHighlighterField("color")
 	builder := NewHighlight().Fields(gradeField, colorField)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -82,7 +102,11 @@ func TestHighlighterWithExplicitFieldOrder(t *testing.T) {
 	gradeField := NewHighlighterField("grade").FragmentSize(2)
 	colorField := NewHighlighterField("color").FragmentSize(2).NumOfFragments(1)
 	builder := NewHighlight().Fields(gradeField, colorField).UseExplicitFieldOrder(true)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

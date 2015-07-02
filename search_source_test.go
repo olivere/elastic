@@ -12,7 +12,11 @@ import (
 func TestSearchSourceMatchAllQuery(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	builder := NewSearchSource().Query(matchAllQ)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -26,7 +30,11 @@ func TestSearchSourceMatchAllQuery(t *testing.T) {
 func TestSearchSourceNoFields(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	builder := NewSearchSource().Query(matchAllQ).NoFields()
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -40,7 +48,11 @@ func TestSearchSourceNoFields(t *testing.T) {
 func TestSearchSourceFields(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	builder := NewSearchSource().Query(matchAllQ).Fields("message", "tags")
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -54,7 +66,11 @@ func TestSearchSourceFields(t *testing.T) {
 func TestSearchSourceFetchSourceDisabled(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	builder := NewSearchSource().Query(matchAllQ).FetchSource(false)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -69,7 +85,11 @@ func TestSearchSourceFetchSourceByWildcards(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	fsc := NewFetchSourceContext(true).Include("obj1.*", "obj2.*").Exclude("*.description")
 	builder := NewSearchSource().Query(matchAllQ).FetchSourceContext(fsc)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -83,7 +103,11 @@ func TestSearchSourceFetchSourceByWildcards(t *testing.T) {
 func TestSearchSourceFieldDataFields(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	builder := NewSearchSource().Query(matchAllQ).FieldDataFields("test1", "test2")
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -99,7 +123,11 @@ func TestSearchSourceScriptFields(t *testing.T) {
 	sf1 := NewScriptField("test1", "doc['my_field_name'].value * 2", "", nil)
 	sf2 := NewScriptField("test2", "doc['my_field_name'].value * factor", "", map[string]interface{}{"factor": 3.1415927})
 	builder := NewSearchSource().Query(matchAllQ).ScriptFields(sf1, sf2)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -114,7 +142,11 @@ func TestSearchSourcePostFilter(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	pf := NewTermFilter("tag", "important")
 	builder := NewSearchSource().Query(matchAllQ).PostFilter(pf)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -129,7 +161,11 @@ func TestSearchSourceHighlight(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	hl := NewHighlight().Field("content")
 	builder := NewSearchSource().Query(matchAllQ).Highlight(hl)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -148,7 +184,11 @@ func TestSearchSourceRescoring(t *testing.T) {
 	rescorer = rescorer.RescoreQueryWeight(1.2)
 	rescore := NewRescore().WindowSize(50).Rescorer(rescorer)
 	builder := NewSearchSource().Query(matchAllQ).AddRescore(rescore)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -162,7 +202,11 @@ func TestSearchSourceRescoring(t *testing.T) {
 func TestSearchSourceIndexBoost(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	builder := NewSearchSource().Query(matchAllQ).IndexBoost("index1", 1.4).IndexBoost("index2", 1.3)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -178,7 +222,11 @@ func TestSearchSourceInnerHits(t *testing.T) {
 	builder := NewSearchSource().Query(matchAllQ).
 		InnerHit("comments", NewInnerHit().Type("comment").Query(NewMatchQuery("user", "olivere"))).
 		InnerHit("views", NewInnerHit().Path("view"))
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

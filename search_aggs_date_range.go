@@ -23,6 +23,7 @@ type DateRangeAggregation struct {
 	lang            string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 	keyed           *bool
 	unmapped        *bool
 	format          string
@@ -71,6 +72,12 @@ func (a DateRangeAggregation) Param(name string, value interface{}) DateRangeAgg
 
 func (a DateRangeAggregation) SubAggregation(name string, subAggregation Aggregation) DateRangeAggregation {
 	a.subAggregations[name] = subAggregation
+	return a
+}
+
+// Meta sets the meta data to be included in the aggregation response.
+func (a DateRangeAggregation) Meta(metaData map[string]interface{}) DateRangeAggregation {
+	a.meta = metaData
 	return a
 }
 
@@ -149,7 +156,7 @@ func (a DateRangeAggregation) GtWithKey(key string, from interface{}) DateRangeA
 	return a
 }
 
-func (a DateRangeAggregation) Source() interface{} {
+func (a DateRangeAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//     "aggs" : {
@@ -235,9 +242,18 @@ func (a DateRangeAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

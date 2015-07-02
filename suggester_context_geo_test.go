@@ -15,7 +15,11 @@ func TestSuggesterGeoMapping(t *testing.T) {
 		Neighbors(true).
 		FieldName("pin").
 		DefaultLocations(GeoPointFromLatLon(0.0, 0.0))
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -27,9 +31,12 @@ func TestSuggesterGeoMapping(t *testing.T) {
 }
 
 func TestSuggesterGeoQuery(t *testing.T) {
-	q := NewSuggesterGeoQuery("location", GeoPointFromLatLon(11.5, 62.71)).
-		Precision("1km")
-	data, err := json.Marshal(q.Source())
+	q := NewSuggesterGeoQuery("location", GeoPointFromLatLon(11.5, 62.71)).Precision("1km")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

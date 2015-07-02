@@ -4,11 +4,10 @@
 
 package elastic
 
-// Represents the generic query interface.
-// A querys' only purpose is to return the
-// source of the query as a JSON-serializable
-// object. Returning a map[string]interface{}
-// will do.
+// Query represents the generic query interface. A query's sole purpose
+// is to return the source of the query as a JSON-serializable object.
+// Returning map[string]interface{} is the norm for queries.
 type Query interface {
-	Source() interface{}
+	// Source returns the JSON-serializable query request.
+	Source() (interface{}, error)
 }

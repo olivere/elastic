@@ -11,7 +11,11 @@ import (
 
 func TestSortInfo(t *testing.T) {
 	builder := SortInfo{Field: "grade", Ascending: false}
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -27,7 +31,11 @@ func TestScoreSort(t *testing.T) {
 	if builder.ascending != false {
 		t.Error("expected score sorter to be ascending by default")
 	}
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -40,7 +48,11 @@ func TestScoreSort(t *testing.T) {
 
 func TestScoreSortOrderAscending(t *testing.T) {
 	builder := NewScoreSort().Asc()
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -53,7 +65,11 @@ func TestScoreSortOrderAscending(t *testing.T) {
 
 func TestScoreSortOrderDescending(t *testing.T) {
 	builder := NewScoreSort().Desc()
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -66,7 +82,11 @@ func TestScoreSortOrderDescending(t *testing.T) {
 
 func TestFieldSort(t *testing.T) {
 	builder := NewFieldSort("grade")
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -79,7 +99,11 @@ func TestFieldSort(t *testing.T) {
 
 func TestFieldSortOrderDesc(t *testing.T) {
 	builder := NewFieldSort("grade").Desc()
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -97,7 +121,11 @@ func TestFieldSortComplex(t *testing.T) {
 		UnmappedType("product").
 		NestedFilter(NewTermFilter("product.color", "blue")).
 		NestedPath("variant")
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -115,7 +143,11 @@ func TestGeoDistanceSort(t *testing.T) {
 		Unit("km").
 		SortMode("min").
 		GeoDistance("sloppy_arc")
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -133,7 +165,11 @@ func TestGeoDistanceSortOrderDesc(t *testing.T) {
 		SortMode("min").
 		GeoDistance("sloppy_arc").
 		Desc()
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -147,7 +183,11 @@ func TestScriptSort(t *testing.T) {
 	builder := NewScriptSort("doc['field_name'].value * factor", "number").
 		Param("factor", 1.1).
 		Order(true)
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -162,7 +202,11 @@ func TestScriptSortOrderDesc(t *testing.T) {
 	builder := NewScriptSort("doc['field_name'].value * factor", "number").
 		Param("factor", 1.1).
 		Desc()
-	data, err := json.Marshal(builder.Source())
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

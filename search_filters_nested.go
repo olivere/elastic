@@ -66,7 +66,7 @@ func (f NestedFilter) InnerHit(innerHit *InnerHit) NestedFilter {
 	return f
 }
 
-func (f NestedFilter) Source() interface{} {
+func (f NestedFilter) Source() (interface{}, error) {
 	//  {
 	//      "filtered" : {
 	//          "query" : { "match_all" : {} },
@@ -96,10 +96,18 @@ func (f NestedFilter) Source() interface{} {
 	source["nested"] = params
 
 	if f.query != nil {
-		params["query"] = f.query.Source()
+		src, err := f.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		params["query"] = src
 	}
 	if f.filter != nil {
-		params["filter"] = f.filter.Source()
+		src, err := f.filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		params["filter"] = src
 	}
 	if f.join != nil {
 		params["join"] = *f.join
@@ -115,8 +123,12 @@ func (f NestedFilter) Source() interface{} {
 		params["_cache_key"] = f.cacheKey
 	}
 	if f.innerHit != nil {
-		params["inner_hits"] = f.innerHit.Source()
+		src, err := f.innerHit.Source()
+		if err != nil {
+			return nil, err
+		}
+		params["inner_hits"] = src
 	}
 
-	return source
+	return source, nil
 }

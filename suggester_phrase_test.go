@@ -19,7 +19,11 @@ func TestPhraseSuggesterSource(t *testing.T) {
 		MaxErrors(0.5).
 		GramSize(2).
 		Highlight("<em>", "</em>")
-	data, err := json.Marshal(s.Source(true))
+	src, err := s.Source(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -47,7 +51,11 @@ func TestPhraseSuggesterSourceWithContextQuery(t *testing.T) {
 		GramSize(2).
 		Highlight("<em>", "</em>").
 		ContextQuery(geomapQ)
-	data, err := json.Marshal(s.Source(true))
+	src, err := s.Source(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -82,7 +90,11 @@ func TestPhraseSuggesterComplexSource(t *testing.T) {
 		CollateParams(map[string]interface{}{"field_name": "title"}).
 		CollatePreference("_primary").
 		CollatePrune(true)
-	data, err := json.Marshal(s.Source(true))
+	src, err := s.Source(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -95,7 +107,11 @@ func TestPhraseSuggesterComplexSource(t *testing.T) {
 
 func TestPhraseStupidBackoffSmoothingModel(t *testing.T) {
 	s := NewStupidBackoffSmoothingModel(0.42)
-	data, err := json.Marshal(s.Source())
+	src, err := s.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -112,7 +128,11 @@ func TestPhraseStupidBackoffSmoothingModel(t *testing.T) {
 
 func TestPhraseLaplaceSmoothingModel(t *testing.T) {
 	s := NewLaplaceSmoothingModel(0.63)
-	data, err := json.Marshal(s.Source())
+	src, err := s.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -129,7 +149,11 @@ func TestPhraseLaplaceSmoothingModel(t *testing.T) {
 
 func TestLinearInterpolationSmoothingModel(t *testing.T) {
 	s := NewLinearInterpolationSmoothingModel(0.3, 0.2, 0.05)
-	data, err := json.Marshal(s.Source())
+	src, err := s.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

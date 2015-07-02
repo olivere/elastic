@@ -14,7 +14,11 @@ func TestGeoDistanceAggregation(t *testing.T) {
 	agg = agg.AddRange(nil, 100)
 	agg = agg.AddRange(100, 300)
 	agg = agg.AddRange(300, nil)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -30,12 +34,37 @@ func TestGeoDistanceAggregationWithUnbounded(t *testing.T) {
 	agg = agg.AddUnboundedFrom(100)
 	agg = agg.AddRange(100, 300)
 	agg = agg.AddUnboundedTo(300)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
 	expected := `{"geo_distance":{"field":"location","origin":"52.3760, 4.894","ranges":[{"to":100},{"from":100,"to":300},{"from":300}]}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestGeoDistanceAggregationWithMetaData(t *testing.T) {
+	agg := NewGeoDistanceAggregation().Field("location").Point("52.3760, 4.894")
+	agg = agg.AddRange(nil, 100)
+	agg = agg.AddRange(100, 300)
+	agg = agg.AddRange(300, nil)
+	agg = agg.Meta(map[string]interface{}{"name": "Oliver"})
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"geo_distance":{"field":"location","origin":"52.3760, 4.894","ranges":[{"to":100},{"from":100,"to":300},{"from":300}]},"meta":{"name":"Oliver"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

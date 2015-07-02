@@ -10,8 +10,12 @@ import (
 )
 
 func TestTemplateQueryInlineTest(t *testing.T) {
-	f := NewTemplateQuery("\"match_{{template}}\": {}}\"").Vars(map[string]interface{}{"template": "all"})
-	data, err := json.Marshal(f.Source())
+	q := NewTemplateQuery("\"match_{{template}}\": {}}\"").Vars(map[string]interface{}{"template": "all"})
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -23,10 +27,14 @@ func TestTemplateQueryInlineTest(t *testing.T) {
 }
 
 func TestTemplateQueryIndexedTest(t *testing.T) {
-	f := NewTemplateQuery("indexedTemplate").
+	q := NewTemplateQuery("indexedTemplate").
 		TemplateType("id").
 		Vars(map[string]interface{}{"template": "all"})
-	data, err := json.Marshal(f.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -38,10 +46,14 @@ func TestTemplateQueryIndexedTest(t *testing.T) {
 }
 
 func TestTemplateQueryFileTest(t *testing.T) {
-	f := NewTemplateQuery("storedTemplate").
+	q := NewTemplateQuery("storedTemplate").
 		TemplateType("file").
 		Vars(map[string]interface{}{"template": "all"})
-	data, err := json.Marshal(f.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

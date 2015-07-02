@@ -146,7 +146,7 @@ func (hl *Highlight) UseExplicitFieldOrder(useExplicitFieldOrder bool) *Highligh
 }
 
 // Creates the query source for the bool query.
-func (hl *Highlight) Source() interface{} {
+func (hl *Highlight) Source() (interface{}, error) {
 	// Returns the map inside of "highlight":
 	// "highlight":{
 	//   ... this ...
@@ -192,7 +192,11 @@ func (hl *Highlight) Source() interface{} {
 		source["fragmenter"] = *hl.fragmenter
 	}
 	if hl.highlightQuery != nil {
-		source["highlight_query"] = hl.highlightQuery.Source()
+		src, err := hl.highlightQuery.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["highlight_query"] = src
 	}
 	if hl.noMatchSize != nil {
 		source["no_match_size"] = *hl.noMatchSize
@@ -212,8 +216,12 @@ func (hl *Highlight) Source() interface{} {
 			// Use a slice for the fields
 			fields := make([]map[string]interface{}, 0)
 			for _, field := range hl.fields {
+				src, err := field.Source()
+				if err != nil {
+					return nil, err
+				}
 				fmap := make(map[string]interface{})
-				fmap[field.Name] = field.Source()
+				fmap[field.Name] = src
 				fields = append(fields, fmap)
 			}
 			source["fields"] = fields
@@ -221,63 +229,17 @@ func (hl *Highlight) Source() interface{} {
 			// Use a map for the fields
 			fields := make(map[string]interface{}, 0)
 			for _, field := range hl.fields {
-				fields[field.Name] = field.Source()
+				src, err := field.Source()
+				if err != nil {
+					return nil, err
+				}
+				fields[field.Name] = src
 			}
 			source["fields"] = fields
 		}
 	}
 
-	return source
-
-	/*
-		highlightS := make(map[string]interface{})
-
-		if hl.tagsSchema != "" {
-			highlightS["tags_schema"] = hl.tagsSchema
-		}
-		if len(hl.preTags) > 0 {
-			highlightS["pre_tags"] = hl.preTags
-		}
-		if len(hl.postTags) > 0 {
-			highlightS["post_tags"] = hl.postTags
-		}
-		if hl.order != "" {
-			highlightS["order"] = hl.order
-		}
-		if hl.encoder != "" {
-			highlightS["encoder"] = hl.encoder
-		}
-		if hl.requireFieldMatch != nil {
-			highlightS["require_field_match"] = *hl.requireFieldMatch
-		}
-		if hl.highlighterType != "" {
-			highlightS["type"] = hl.highlighterType
-		}
-		if hl.fragmenter != "" {
-			highlightS["fragmenter"] = hl.fragmenter
-		}
-		if hl.highlightQuery != nil {
-			highlightS["highlight_query"] = hl.highlightQuery.Source()
-		}
-		if hl.noMatchSize != nil {
-			highlightS["no_match_size"] = *hl.noMatchSize
-		}
-		if len(hl.options) > 0 {
-			highlightS["options"] = hl.options
-		}
-		if hl.forceSource != nil {
-			highlightS["force_source"] = *hl.forceSource
-		}
-		if len(hl.fields) > 0 {
-			fieldsS := make(map[string]interface{})
-			for _, field := range hl.fields {
-				fieldsS[field.Name] = field.Source()
-			}
-			highlightS["fields"] = fieldsS
-		}
-
-		return highlightS
-	*/
+	return source, nil
 }
 
 // HighlighterField specifies a highlighted field.
@@ -434,7 +396,7 @@ func (f *HighlighterField) ForceSource(forceSource bool) *HighlighterField {
 	return f
 }
 
-func (f *HighlighterField) Source() interface{} {
+func (f *HighlighterField) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	if f.preTags != nil && len(f.preTags) > 0 {
@@ -474,7 +436,11 @@ func (f *HighlighterField) Source() interface{} {
 		source["fragmenter"] = *f.fragmenter
 	}
 	if f.highlightQuery != nil {
-		source["highlight_query"] = f.highlightQuery.Source()
+		src, err := f.highlightQuery.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["highlight_query"] = src
 	}
 	if f.noMatchSize != nil {
 		source["no_match_size"] = *f.noMatchSize
@@ -492,5 +458,5 @@ func (f *HighlighterField) Source() interface{} {
 		source["force_source"] = *f.forceSource
 	}
 
-	return source
+	return source, nil
 }

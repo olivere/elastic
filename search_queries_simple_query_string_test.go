@@ -11,7 +11,11 @@ import (
 
 func TestSimpleQueryStringQuery(t *testing.T) {
 	q := NewSimpleQueryStringQuery(`"fried eggs" +(eggplant | potato) -frittata`)
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

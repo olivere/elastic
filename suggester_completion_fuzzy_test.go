@@ -14,7 +14,11 @@ func TestFuzzyCompletionSuggesterSource(t *testing.T) {
 		Text("n").
 		Field("suggest").
 		Fuzziness(2)
-	data, err := json.Marshal(s.Source(true))
+	src, err := s.Source(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -30,7 +34,11 @@ func TestFuzzyCompletionSuggesterWithStringFuzzinessSource(t *testing.T) {
 		Text("n").
 		Field("suggest").
 		Fuzziness("1..4")
-	data, err := json.Marshal(s.Source(true))
+	src, err := s.Source(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

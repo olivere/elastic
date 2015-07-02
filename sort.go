@@ -9,7 +9,7 @@ package elastic
 // Sorter is an interface for sorting strategies, e.g. ScoreSort or FieldSort.
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html.
 type Sorter interface {
-	Source() interface{}
+	Source() (interface{}, error)
 }
 
 // -- SortInfo --
@@ -26,7 +26,7 @@ type SortInfo struct {
 	NestedPath     string
 }
 
-func (info SortInfo) Source() interface{} {
+func (info SortInfo) Source() (interface{}, error) {
 	prop := make(map[string]interface{})
 	if info.Ascending {
 		prop["order"] = "asc"
@@ -50,7 +50,7 @@ func (info SortInfo) Source() interface{} {
 	}
 	source := make(map[string]interface{})
 	source[info.Field] = prop
-	return source
+	return source, nil
 }
 
 // -- ScoreSort --
@@ -85,14 +85,14 @@ func (s ScoreSort) Desc() ScoreSort {
 }
 
 // Source returns the JSON-serializable data.
-func (s ScoreSort) Source() interface{} {
+func (s ScoreSort) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	x := make(map[string]interface{})
 	source["_score"] = x
 	if s.ascending {
 		x["reverse"] = true
 	}
-	return source
+	return source, nil
 }
 
 // -- FieldSort --
@@ -187,7 +187,7 @@ func (s FieldSort) NestedPath(nestedPath string) FieldSort {
 }
 
 // Source returns the JSON-serializable data.
-func (s FieldSort) Source() interface{} {
+func (s FieldSort) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	x := make(map[string]interface{})
 	source[s.fieldName] = x
@@ -209,12 +209,16 @@ func (s FieldSort) Source() interface{} {
 		x["mode"] = *s.sortMode
 	}
 	if s.nestedFilter != nil {
-		x["nested_filter"] = s.nestedFilter.Source()
+		src, err := s.nestedFilter.Source()
+		if err != nil {
+			return nil, err
+		}
+		x["nested_filter"] = src
 	}
 	if s.nestedPath != nil {
 		x["nested_path"] = *s.nestedPath
 	}
-	return source
+	return source, nil
 }
 
 // -- GeoDistanceSort --
@@ -325,7 +329,7 @@ func (s GeoDistanceSort) NestedPath(nestedPath string) GeoDistanceSort {
 }
 
 // Source returns the JSON-serializable data.
-func (s GeoDistanceSort) Source() interface{} {
+func (s GeoDistanceSort) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	x := make(map[string]interface{})
 	source["_geo_distance"] = x
@@ -354,12 +358,16 @@ func (s GeoDistanceSort) Source() interface{} {
 		x["mode"] = *s.sortMode
 	}
 	if s.nestedFilter != nil {
-		x["nested_filter"] = s.nestedFilter.Source()
+		src, err := s.nestedFilter.Source()
+		if err != nil {
+			return nil, err
+		}
+		x["nested_filter"] = src
 	}
 	if s.nestedPath != nil {
 		x["nested_path"] = *s.nestedPath
 	}
-	return source
+	return source, nil
 }
 
 // -- ScriptSort --
@@ -458,7 +466,7 @@ func (s ScriptSort) NestedPath(nestedPath string) ScriptSort {
 }
 
 // Source returns the JSON-serializable data.
-func (s ScriptSort) Source() interface{} {
+func (s ScriptSort) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	x := make(map[string]interface{})
 	source["_script"] = x
@@ -478,10 +486,14 @@ func (s ScriptSort) Source() interface{} {
 		x["mode"] = *s.sortMode
 	}
 	if s.nestedFilter != nil {
-		x["nested_filter"] = s.nestedFilter.Source()
+		src, err := s.nestedFilter.Source()
+		if err != nil {
+			return nil, err
+		}
+		x["nested_filter"] = src
 	}
 	if s.nestedPath != nil {
 		x["nested_path"] = *s.nestedPath
 	}
-	return source
+	return source, nil
 }

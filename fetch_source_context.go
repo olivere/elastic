@@ -47,14 +47,14 @@ func (fsc *FetchSourceContext) TransformSource(transformSource bool) *FetchSourc
 	return fsc
 }
 
-func (fsc *FetchSourceContext) Source() interface{} {
+func (fsc *FetchSourceContext) Source() (interface{}, error) {
 	if !fsc.fetchSource {
-		return false
+		return false, nil
 	}
 	return map[string]interface{}{
 		"includes": fsc.includes,
 		"excludes": fsc.excludes,
-	}
+	}, nil
 }
 
 // Query returns the parameters in a form suitable for a URL query string.

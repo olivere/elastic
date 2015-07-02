@@ -11,7 +11,11 @@ import (
 
 func TestQueryFilter(t *testing.T) {
 	f := NewQueryFilter(NewQueryStringQuery("this AND that OR thus"))
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -26,7 +30,11 @@ func TestQueryFilterWithName(t *testing.T) {
 	f := NewQueryFilter(NewQueryStringQuery("this AND that OR thus"))
 	f = f.Cache(true)
 	f = f.FilterName("MyFilterName")
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

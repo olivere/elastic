@@ -15,7 +15,11 @@ func TestRangeFilter(t *testing.T) {
 	f = f.CacheKey("MyAndFilter")
 	f = f.FilterName("MyFilterName")
 	f = f.Execution("index")
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -26,27 +30,16 @@ func TestRangeFilter(t *testing.T) {
 	}
 }
 
-/*
-func TestRangeFilterGte(t *testing.T) {
-	f := NewRangeFilter("postDate").Gte("2010-03-01")
-	data, err := json.Marshal(f.Source())
-	if err != nil {
-		t.Fatalf("marshaling to JSON failed: %v", err)
-	}
-	got := string(data)
-	expected := `{"range":{"postDate":{"gte":"2010-03-01"}}}`
-	if got != expected {
-		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
-	}
-}
-*/
-
 func TestRangeFilterWithTimeZone(t *testing.T) {
 	f := NewRangeFilter("born").
 		Gte("2012-01-01").
 		Lte("now").
 		TimeZone("+1:00")
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

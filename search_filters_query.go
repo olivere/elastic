@@ -41,7 +41,7 @@ func (f QueryFilter) FilterName(filterName string) QueryFilter {
 	return f
 }
 
-func (f QueryFilter) Source() interface{} {
+func (f QueryFilter) Source() (interface{}, error) {
 	// {
 	//   "query" : {
 	//     "..." : "..."
@@ -51,11 +51,19 @@ func (f QueryFilter) Source() interface{} {
 	source := make(map[string]interface{})
 
 	if f.filterName == "" && (f.cache == nil || *f.cache == false) {
-		source["query"] = f.query.Source()
+		src, err := f.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["query"] = src
 	} else {
 		params := make(map[string]interface{})
 		source["fquery"] = params
-		params["query"] = f.query.Source()
+		src, err := f.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		params["query"] = src
 		if f.filterName != "" {
 			params["_name"] = f.filterName
 		}
@@ -64,5 +72,5 @@ func (f QueryFilter) Source() interface{} {
 		}
 	}
 
-	return source
+	return source, nil
 }

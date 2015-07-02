@@ -42,7 +42,7 @@ func (q BoostingQuery) Boost(boost float64) BoostingQuery {
 }
 
 // Creates the query source for the boosting query.
-func (q BoostingQuery) Source() interface{} {
+func (q BoostingQuery) Source() (interface{}, error) {
 	// {
 	//     "boosting" : {
 	//         "positive" : {
@@ -69,12 +69,20 @@ func (q BoostingQuery) Source() interface{} {
 
 	// positive
 	if q.positiveClause != nil {
-		boostingClause["positive"] = q.positiveClause.Source()
+		src, err := q.positiveClause.Source()
+		if err != nil {
+			return nil, err
+		}
+		boostingClause["positive"] = src
 	}
 
 	// negative
 	if q.negativeClause != nil {
-		boostingClause["negative"] = q.negativeClause.Source()
+		src, err := q.negativeClause.Source()
+		if err != nil {
+			return nil, err
+		}
+		boostingClause["negative"] = src
 	}
 
 	if q.negativeBoost != nil {
@@ -85,5 +93,5 @@ func (q BoostingQuery) Source() interface{} {
 		boostingClause["boost"] = *q.boost
 	}
 
-	return query
+	return query, nil
 }

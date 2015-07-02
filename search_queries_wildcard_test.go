@@ -34,7 +34,11 @@ func ExampleWildcardQuery() {
 
 func TestWildcardQuery(t *testing.T) {
 	q := elastic.NewWildcardQuery("user", "ki*y??")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -47,7 +51,11 @@ func TestWildcardQuery(t *testing.T) {
 
 func TestWildcardQueryWithBoost(t *testing.T) {
 	q := elastic.NewWildcardQuery("user", "ki*y??").Boost(1.2)
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

@@ -11,7 +11,11 @@ import (
 
 func TestMultiMatchQuery(t *testing.T) {
 	q := NewMultiMatchQuery("this is a test", "subject", "message")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,7 +28,11 @@ func TestMultiMatchQuery(t *testing.T) {
 
 func TestMultiMatchQueryBestFields(t *testing.T) {
 	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("best_fields")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -37,7 +45,11 @@ func TestMultiMatchQueryBestFields(t *testing.T) {
 
 func TestMultiMatchQueryMostFields(t *testing.T) {
 	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("most_fields")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -50,7 +62,11 @@ func TestMultiMatchQueryMostFields(t *testing.T) {
 
 func TestMultiMatchQueryCrossFields(t *testing.T) {
 	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("cross_fields")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -63,7 +79,11 @@ func TestMultiMatchQueryCrossFields(t *testing.T) {
 
 func TestMultiMatchQueryPhrase(t *testing.T) {
 	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("phrase")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -76,7 +96,11 @@ func TestMultiMatchQueryPhrase(t *testing.T) {
 
 func TestMultiMatchQueryPhrasePrefix(t *testing.T) {
 	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("phrase_prefix")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -91,7 +115,11 @@ func TestMultiMatchQueryBestFieldsWithCustomTieBreaker(t *testing.T) {
 	q := NewMultiMatchQuery("this is a test", "subject", "message").
 		Type("best_fields").
 		TieBreaker(0.3)
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

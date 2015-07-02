@@ -11,7 +11,11 @@ import (
 
 func TestPercentileRanksAggregation(t *testing.T) {
 	agg := NewPercentileRanksAggregation().Field("load_time")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,7 +28,11 @@ func TestPercentileRanksAggregation(t *testing.T) {
 
 func TestPercentileRanksAggregationWithCustomValues(t *testing.T) {
 	agg := NewPercentileRanksAggregation().Field("load_time").Values(15, 30)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -37,12 +45,33 @@ func TestPercentileRanksAggregationWithCustomValues(t *testing.T) {
 
 func TestPercentileRanksAggregationWithFormat(t *testing.T) {
 	agg := NewPercentileRanksAggregation().Field("load_time").Format("000.0")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
 	expected := `{"percentile_ranks":{"field":"load_time","format":"000.0"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestPercentileRanksAggregationWithMetaData(t *testing.T) {
+	agg := NewPercentileRanksAggregation().Field("load_time").Meta(map[string]interface{}{"name": "Oliver"})
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"meta":{"name":"Oliver"},"percentile_ranks":{"field":"load_time"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

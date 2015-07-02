@@ -19,9 +19,13 @@ func TestPercolate(t *testing.T) {
 
 	// Register a query in the ".percolator" type.
 	search := NewSearchSource().Query(NewMatchQuery("message", "Golang"))
+	searchSrc, err := search.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
 	_, err = client.Index().
 		Index(testIndexName).Type(".percolator").Id("1").
-		BodyJson(search.Source()).
+		BodyJson(searchSrc).
 		Do()
 	if err != nil {
 		t.Fatal(err)

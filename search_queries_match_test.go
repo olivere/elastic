@@ -11,7 +11,11 @@ import (
 
 func TestMatchQuery(t *testing.T) {
 	q := NewMatchQuery("message", "this is a test")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,7 +28,11 @@ func TestMatchQuery(t *testing.T) {
 
 func TestMatchPhraseQuery(t *testing.T) {
 	q := NewMatchPhraseQuery("message", "this is a test")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -37,7 +45,11 @@ func TestMatchPhraseQuery(t *testing.T) {
 
 func TestMatchPhrasePrefixQuery(t *testing.T) {
 	q := NewMatchPhrasePrefixQuery("message", "this is a test")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -50,7 +62,11 @@ func TestMatchPhrasePrefixQuery(t *testing.T) {
 
 func TestMatchQueryWithOptions(t *testing.T) {
 	q := NewMatchQuery("message", "this is a test").Analyzer("whitespace").Operator("or").Boost(2.5)
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

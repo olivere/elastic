@@ -482,8 +482,8 @@ func TestPerformRequest(t *testing.T) {
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		t.Fatalf("expected no error on decode; got: %v", err)
 	}
-	if ret.Status != 200 {
-		t.Errorf("expected HTTP status 200; got: %d", ret.Status)
+	if ret.ClusterName == "" {
+		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
 	}
 }
 
@@ -508,8 +508,8 @@ func TestPerformRequestWithLogger(t *testing.T) {
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		t.Fatalf("expected no error on decode; got: %v", err)
 	}
-	if ret.Status != 200 {
-		t.Errorf("expected HTTP status 200; got: %d", ret.Status)
+	if ret.ClusterName == "" {
+		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
 	}
 
 	got := w.String()
@@ -547,8 +547,8 @@ func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		t.Fatalf("expected no error on decode; got: %v", err)
 	}
-	if ret.Status != 200 {
-		t.Errorf("expected HTTP status 200; got: %d", ret.Status)
+	if ret.ClusterName == "" {
+		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
 	}
 
 	lgot := lw.String()

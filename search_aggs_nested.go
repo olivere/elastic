@@ -10,6 +10,7 @@ package elastic
 type NestedAggregation struct {
 	path            string
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 }
 
 func NewNestedAggregation() NestedAggregation {
@@ -24,12 +25,18 @@ func (a NestedAggregation) SubAggregation(name string, subAggregation Aggregatio
 	return a
 }
 
+// Meta sets the meta data to be included in the aggregation response.
+func (a NestedAggregation) Meta(metaData map[string]interface{}) NestedAggregation {
+	a.meta = metaData
+	return a
+}
+
 func (a NestedAggregation) Path(path string) NestedAggregation {
 	a.path = path
 	return a
 }
 
-func (a NestedAggregation) Source() interface{} {
+func (a NestedAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//     "query" : {
@@ -59,9 +66,18 @@ func (a NestedAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

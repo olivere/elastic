@@ -15,11 +15,11 @@ func NewMatchAllFilter() MatchAllFilter {
 	return MatchAllFilter{}
 }
 
-func (f MatchAllFilter) Source() interface{} {
+func (f MatchAllFilter) Source() (interface{}, error) {
 	// {
 	//   "match_all" : {}
 	// }
 	source := make(map[string]interface{})
 	source["match_all"] = make(map[string]interface{})
-	return source
+	return source, nil
 }

@@ -11,7 +11,11 @@ import (
 
 func TestGeoBoundsAggregation(t *testing.T) {
 	agg := NewGeoBoundsAggregation().Field("location")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,12 +28,33 @@ func TestGeoBoundsAggregation(t *testing.T) {
 
 func TestGeoBoundsAggregationWithWrapLongitude(t *testing.T) {
 	agg := NewGeoBoundsAggregation().Field("location").WrapLongitude(true)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
 	expected := `{"geo_bounds":{"field":"location","wrap_longitude":true}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestGeoBoundsAggregationWithMetaData(t *testing.T) {
+	agg := NewGeoBoundsAggregation().Field("location").Meta(map[string]interface{}{"name": "Oliver"})
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"geo_bounds":{"field":"location"},"meta":{"name":"Oliver"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

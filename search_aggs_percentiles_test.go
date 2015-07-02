@@ -11,7 +11,11 @@ import (
 
 func TestPercentilesAggregation(t *testing.T) {
 	agg := NewPercentilesAggregation().Field("price")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -24,7 +28,11 @@ func TestPercentilesAggregation(t *testing.T) {
 
 func TestPercentilesAggregationWithCustomPercents(t *testing.T) {
 	agg := NewPercentilesAggregation().Field("price").Percentiles(0.2, 0.5, 0.9)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -37,12 +45,33 @@ func TestPercentilesAggregationWithCustomPercents(t *testing.T) {
 
 func TestPercentilesAggregationWithFormat(t *testing.T) {
 	agg := NewPercentilesAggregation().Field("price").Format("00000.00")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
 	expected := `{"percentiles":{"field":"price","format":"00000.00"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestPercentilesAggregationWithMetaData(t *testing.T) {
+	agg := NewPercentilesAggregation().Field("price").Meta(map[string]interface{}{"name": "Oliver"})
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"meta":{"name":"Oliver"},"percentiles":{"field":"price"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

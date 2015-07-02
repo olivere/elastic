@@ -93,31 +93,30 @@ func TestGetWithFields(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").Timestamp("12345").BodyJson(&tweet1).Do()
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Get document 1, specifying fields
-	res, err := client.Get().Index(testIndexName).Type("tweet").Id("1").Fields("message", "_timestamp").Do()
+	res, err := client.Get().Index(testIndexName).Type("tweet").Id("1").Fields("message").Do()
 	if err != nil {
 		t.Fatal(err)
 	}
 	if res.Found != true {
-		t.Errorf("expected Found = true; got %v", res.Found)
+		t.Errorf("expected Found = true; got: %v", res.Found)
 	}
 
-	timestamp, ok := res.Fields["_timestamp"].(float64)
-	if !ok {
-		t.Fatalf("Cannot retrieve \"_timestamp\" field from document")
-	}
-	if timestamp != 12345 {
-		t.Fatalf("Expected timestamp %v; got %v", 12345, timestamp)
+	// We must NOT have the "user" field
+	_, ok := res.Fields["user"]
+	if ok {
+		t.Fatalf("expected no field %q in document", "user")
 	}
 
+	// We must have the "message" field
 	messageField, ok := res.Fields["message"]
 	if !ok {
-		t.Fatalf("Cannot retrieve \"message\" field from document")
+		t.Fatalf("expected field %q in document", "message")
 	}
 
 	// Depending on the version of elasticsearch the message field will be returned
@@ -126,16 +125,18 @@ func TestGetWithFields(t *testing.T) {
 	messageString, ok := messageField.(string)
 	if !ok {
 		messageArray, ok := messageField.([]interface{})
-		if ok {
-			messageString, ok = messageArray[0].(string)
-		}
 		if !ok {
-			t.Fatalf("\"message\" field should be a string or a slice of strings")
+			t.Fatalf("expected field %q to be a string or a slice of strings; got: %T", "message", messageField)
+		} else {
+			messageString, ok = messageArray[0].(string)
+			if !ok {
+				t.Fatalf("expected field %q to be a string or a slice of strings; got: %T", "message", messageField)
+			}
 		}
 	}
 
 	if messageString != tweet1.Message {
-		t.Errorf("Expected message %s; got %s", tweet1.Message, messageString)
+		t.Errorf("expected message %q; got: %q", tweet1.Message, messageString)
 	}
 }
 
@@ -157,11 +158,6 @@ func TestGetFailsWithMissingParams(t *testing.T) {
 	if _, err := client.Get().Index(testIndexName).Type("tweet").Do(); err == nil {
 		t.Fatal("expected Get to fail")
 	}
-	/*
-		if _, err := client.Get().Index(testIndexName).Id("1").Do(); err == nil {
-			t.Fatal("expected Get to fail")
-		}
-	*/
 	if _, err := client.Get().Type("tweet").Id("1").Do(); err == nil {
 		t.Fatal("expected Get to fail")
 	}

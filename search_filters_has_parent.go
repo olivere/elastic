@@ -59,7 +59,7 @@ func (f HasParentFilter) InnerHit(innerHit *InnerHit) HasParentFilter {
 }
 
 // Source returns the JSON document for the filter.
-func (f HasParentFilter) Source() interface{} {
+func (f HasParentFilter) Source() (interface{}, error) {
 	// {
 	//   "has_parent" : {
 	//       "parent_type" : "blog",
@@ -77,9 +77,17 @@ func (f HasParentFilter) Source() interface{} {
 	source["has_parent"] = filter
 
 	if f.query != nil {
-		filter["query"] = f.query.Source()
+		src, err := f.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		filter["query"] = src
 	} else if f.filter != nil {
-		filter["filter"] = f.filter.Source()
+		src, err := f.filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		filter["filter"] = src
 	}
 
 	filter["parent_type"] = f.parentType
@@ -93,7 +101,11 @@ func (f HasParentFilter) Source() interface{} {
 		filter["_cache_key"] = f.cacheKey
 	}
 	if f.innerHit != nil {
-		filter["inner_hits"] = f.innerHit.Source()
+		src, err := f.innerHit.Source()
+		if err != nil {
+			return nil, err
+		}
+		filter["inner_hits"] = src
 	}
-	return source
+	return source, nil
 }

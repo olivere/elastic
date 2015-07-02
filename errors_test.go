@@ -12,7 +12,7 @@ func TestResponseError(t *testing.T) {
 	message := "Something went seriously wrong."
 	raw := "HTTP/1.1 500 Internal Server Error\r\n" +
 		"\r\n" +
-		`{"status":500,"error":"` + message + `"}` + "\r\n"
+		`{"error":"` + message + `"}` + "\r\n"
 	r := bufio.NewReader(strings.NewReader(raw))
 
 	resp, err := http.ReadResponse(r, nil)

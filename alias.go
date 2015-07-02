@@ -78,7 +78,11 @@ func (s *AliasService) Do() (*AliasResult, error) {
 		detailsJson["index"] = action.Index
 		detailsJson["alias"] = action.Alias
 		if action.Filter != nil {
-			detailsJson["filter"] = (*action.Filter).Source()
+			src, err := (*action.Filter).Source()
+			if err != nil {
+				return nil, err
+			}
+			detailsJson["filter"] = src
 		}
 		actionJson[action.Type] = detailsJson
 		actionsJson = append(actionsJson, actionJson)

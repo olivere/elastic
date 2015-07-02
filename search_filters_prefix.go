@@ -37,7 +37,7 @@ func (f PrefixFilter) FilterName(filterName string) PrefixFilter {
 	return f
 }
 
-func (f PrefixFilter) Source() interface{} {
+func (f PrefixFilter) Source() (interface{}, error) {
 	// {
 	//   "prefix" : {
 	//     "..." : "..."
@@ -63,5 +63,5 @@ func (f PrefixFilter) Source() interface{} {
 		params["_cache_key"] = f.cacheKey
 	}
 
-	return source
+	return source, nil
 }

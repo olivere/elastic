@@ -161,7 +161,11 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	// Set body
 	body := make(map[string]interface{})
 	if s.query != nil {
-		body["query"] = s.query.Source()
+		src, err := s.query.Source()
+		if err != nil {
+			return nil, err
+		}
+		body["query"] = src
 	}
 
 	// Get response

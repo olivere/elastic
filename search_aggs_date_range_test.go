@@ -14,7 +14,11 @@ func TestDateRangeAggregation(t *testing.T) {
 	agg = agg.AddRange(nil, "2012-12-31")
 	agg = agg.AddRange("2013-01-01", "2013-12-31")
 	agg = agg.AddRange("2014-01-01", nil)
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -30,7 +34,11 @@ func TestDateRangeAggregationWithUnbounded(t *testing.T) {
 		AddUnboundedFrom("2012-12-31").
 		AddRange("2013-01-01", "2013-12-31").
 		AddUnboundedTo("2014-01-01")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -46,7 +54,11 @@ func TestDateRangeAggregationWithLtAndCo(t *testing.T) {
 		Lt("2012-12-31").
 		Between("2013-01-01", "2013-12-31").
 		Gt("2014-01-01")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -63,7 +75,11 @@ func TestDateRangeAggregationWithKeyedFlag(t *testing.T) {
 		Lt("2012-12-31").
 		Between("2013-01-01", "2013-12-31").
 		Gt("2014-01-01")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -80,7 +96,11 @@ func TestDateRangeAggregationWithKeys(t *testing.T) {
 		LtWithKey("pre-2012", "2012-12-31").
 		BetweenWithKey("2013", "2013-01-01", "2013-12-31").
 		GtWithKey("post-2013", "2014-01-01")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -94,7 +114,11 @@ func TestDateRangeAggregationWithKeys(t *testing.T) {
 func TestDateRangeAggregationWithSpecialNames(t *testing.T) {
 	agg := NewDateRangeAggregation().Field("created_at").
 		AddRange("now-10M/M", "now+10M/M")
-	data, err := json.Marshal(agg.Source())
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

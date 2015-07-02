@@ -36,7 +36,7 @@ func (f TermFilter) FilterName(filterName string) TermFilter {
 	return f
 }
 
-func (f TermFilter) Source() interface{} {
+func (f TermFilter) Source() (interface{}, error) {
 	// {
 	//   "term" : {
 	//     "..." : "..."
@@ -62,5 +62,5 @@ func (f TermFilter) Source() interface{} {
 		params["_cache_key"] = f.cacheKey
 	}
 
-	return source
+	return source, nil
 }

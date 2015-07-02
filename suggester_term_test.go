@@ -13,7 +13,11 @@ func TestTermSuggesterSource(t *testing.T) {
 	s := NewTermSuggester("name").
 		Text("n").
 		Field("suggest")
-	data, err := json.Marshal(s.Source(true))
+	src, err := s.Source(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

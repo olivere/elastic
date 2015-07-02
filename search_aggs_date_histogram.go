@@ -14,6 +14,7 @@ type DateHistogramAggregation struct {
 	lang            string
 	params          map[string]interface{}
 	subAggregations map[string]Aggregation
+	meta            map[string]interface{}
 
 	interval                   string
 	order                      string
@@ -65,6 +66,12 @@ func (a DateHistogramAggregation) Param(name string, value interface{}) DateHist
 
 func (a DateHistogramAggregation) SubAggregation(name string, subAggregation Aggregation) DateHistogramAggregation {
 	a.subAggregations[name] = subAggregation
+	return a
+}
+
+// Meta sets the meta data to be included in the aggregation response.
+func (a DateHistogramAggregation) Meta(metaData map[string]interface{}) DateHistogramAggregation {
+	a.meta = metaData
 	return a
 }
 
@@ -209,7 +216,7 @@ func (a DateHistogramAggregation) ExtendedBoundsMax(max interface{}) DateHistogr
 	return a
 }
 
-func (a DateHistogramAggregation) Source() interface{} {
+func (a DateHistogramAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//     "aggs" : {
@@ -295,9 +302,18 @@ func (a DateHistogramAggregation) Source() interface{} {
 		aggsMap := make(map[string]interface{})
 		source["aggregations"] = aggsMap
 		for name, aggregate := range a.subAggregations {
-			aggsMap[name] = aggregate.Source()
+			src, err := aggregate.Source()
+			if err != nil {
+				return nil, err
+			}
+			aggsMap[name] = src
 		}
 	}
 
-	return source
+	// Add Meta data if available
+	if len(a.meta) > 0 {
+		source["meta"] = a.meta
+	}
+
+	return source, nil
 }

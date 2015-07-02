@@ -119,7 +119,7 @@ func (a TopHitsAggregation) Highlighter() *Highlight {
 	return a.searchSource.Highlighter()
 }
 
-func (a TopHitsAggregation) Source() interface{} {
+func (a TopHitsAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//   "aggs": {
@@ -145,6 +145,10 @@ func (a TopHitsAggregation) Source() interface{} {
 	// This method returns only the { "top_hits" : { ... } } part.
 
 	source := make(map[string]interface{})
-	source["top_hits"] = a.searchSource.Source()
-	return source
+	src, err := a.searchSource.Source()
+	if err != nil {
+		return nil, err
+	}
+	source["top_hits"] = src
+	return source, nil
 }

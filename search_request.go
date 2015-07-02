@@ -107,7 +107,12 @@ func (r *SearchRequest) Preference(preference string) *SearchRequest {
 func (r *SearchRequest) Source(source interface{}) *SearchRequest {
 	switch v := source.(type) {
 	case *SearchSource:
-		r.source = v.Source()
+		src, err := v.Source()
+		if err != nil {
+			// Do not do anything in case of an error
+			return r
+		}
+		r.source = src
 	default:
 		r.source = source
 	}

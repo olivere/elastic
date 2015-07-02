@@ -104,7 +104,7 @@ func (q FuzzyCompletionSuggester) UnicodeAware(unicodeAware bool) FuzzyCompletio
 }
 
 // Creates the source for the completion suggester.
-func (q FuzzyCompletionSuggester) Source(includeName bool) interface{} {
+func (q FuzzyCompletionSuggester) Source(includeName bool) (interface{}, error) {
 	cs := &completionSuggesterRequest{}
 
 	if q.text != "" {
@@ -129,11 +129,19 @@ func (q FuzzyCompletionSuggester) Source(includeName bool) interface{} {
 	switch len(q.contextQueries) {
 	case 0:
 	case 1:
-		suggester["context"] = q.contextQueries[0].Source()
+		src, err := q.contextQueries[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		suggester["context"] = src
 	default:
 		ctxq := make([]interface{}, 0)
 		for _, query := range q.contextQueries {
-			ctxq = append(ctxq, query.Source())
+			src, err := query.Source()
+			if err != nil {
+				return nil, err
+			}
+			ctxq = append(ctxq, src)
 		}
 		suggester["context"] = ctxq
 	}
@@ -156,10 +164,10 @@ func (q FuzzyCompletionSuggester) Source(includeName bool) interface{} {
 	}
 
 	if !includeName {
-		return cs
+		return cs, nil
 	}
 
 	source := make(map[string]interface{})
 	source[q.name] = cs
-	return source
+	return source, nil
 }

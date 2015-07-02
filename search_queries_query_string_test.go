@@ -12,7 +12,11 @@ import (
 func TestQueryStringQuery(t *testing.T) {
 	q := NewQueryStringQuery(`this AND that OR thus`)
 	q = q.DefaultField("content")
-	data, err := json.Marshal(q.Source())
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

@@ -22,9 +22,6 @@ func TestPingGet(t *testing.T) {
 	if res == nil {
 		t.Fatalf("expected to return result, got: %v", res)
 	}
-	if res.Status != http.StatusOK {
-		t.Errorf("expected Status = %d; got %d", http.StatusOK, res.Status)
-	}
 	if res.Name == "" {
 		t.Errorf("expected Name != \"\"; got %q", res.Name)
 	}

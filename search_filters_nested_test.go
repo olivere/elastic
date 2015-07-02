@@ -16,7 +16,11 @@ func TestNestedFilter(t *testing.T) {
 	bq = bq.Must(NewRangeQuery("obj1.count").Gt(5))
 	f = f.Query(bq)
 	f = f.Cache(true)
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -35,7 +39,11 @@ func TestNestedFilterWithInnerHit(t *testing.T) {
 	f = f.Query(bq)
 	f = f.Cache(true)
 	f = f.InnerHit(NewInnerHit().Name("comments").Query(NewTermQuery("user", "olivere")))
-	data, err := json.Marshal(f.Source())
+	src, err := f.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

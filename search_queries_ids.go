@@ -43,7 +43,7 @@ func (q IdsQuery) QueryName(queryName string) IdsQuery {
 }
 
 // Creates the query source for the ids query.
-func (q IdsQuery) Source() interface{} {
+func (q IdsQuery) Source() (interface{}, error) {
 	// {
 	//	"ids" : {
 	//		"type" : "my_type",
@@ -73,5 +73,5 @@ func (q IdsQuery) Source() interface{} {
 		query["_name"] = q.queryName
 	}
 
-	return source
+	return source, nil
 }
