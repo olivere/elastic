@@ -12,6 +12,7 @@ import (
 )
 
 func TestAggs(t *testing.T) {
+	//client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndex(t)
 
 	esversion, err := client.ElasticsearchVersion(DefaultURL)
@@ -85,6 +86,7 @@ func TestAggs(t *testing.T) {
 	cardinalityAgg := NewCardinalityAggregation().Field("user")
 	significantTermsAgg := NewSignificantTermsAggregation().Field("message")
 	retweetsRangeAgg := NewRangeAggregation().Field("retweets").Lt(10).Between(10, 100).Gt(100)
+	retweetsKeyedRangeAgg := NewRangeAggregation().Field("retweets").Keyed(true).Lt(10).Between(10, 100).Gt(100)
 	dateRangeAgg := NewDateRangeAggregation().Field("created").Lt("2012-01-01").Between("2012-01-01", "2013-01-01").Gt("2013-01-01")
 	missingTagsAgg := NewMissingAggregation().Field("tags")
 	retweetsHistoAgg := NewHistogramAggregation().Field("retweets").Interval(100)
@@ -114,6 +116,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("usersCardinality", cardinalityAgg)
 	builder = builder.Aggregation("significantTerms", significantTermsAgg)
 	builder = builder.Aggregation("retweetsRange", retweetsRangeAgg)
+	builder = builder.Aggregation("retweetsKeyedRange", retweetsKeyedRangeAgg)
 	builder = builder.Aggregation("dateRange", dateRangeAgg)
 	builder = builder.Aggregation("missingTags", missingTagsAgg)
 	builder = builder.Aggregation("retweetsHisto", retweetsHistoAgg)
@@ -550,6 +553,43 @@ func TestAggs(t *testing.T) {
 	}
 	if rangeAggRes.Buckets[2].DocCount != 1 {
 		t.Errorf("expected %d; got: %d", 1, rangeAggRes.Buckets[2].DocCount)
+	}
+
+	// retweetsKeyedRange
+	keyedRangeAggRes, found := agg.KeyedRange("retweetsKeyedRange")
+	if !found {
+		t.Errorf("expected %v; got: %v", true, found)
+	}
+	if keyedRangeAggRes == nil {
+		t.Fatal("expected != nil; got: nil")
+	}
+	if len(keyedRangeAggRes.Buckets) != 3 {
+		t.Fatalf("expected %d; got: %d", 3, len(keyedRangeAggRes.Buckets))
+	}
+	_, found = keyedRangeAggRes.Buckets["no-such-key"]
+	if found {
+		t.Fatalf("expected bucket to not be found; got: %v", found)
+	}
+	bucket, found := keyedRangeAggRes.Buckets["*-10.0"]
+	if !found {
+		t.Fatalf("expected bucket to be found; got: %v", found)
+	}
+	if bucket.DocCount != 1 {
+		t.Errorf("expected %d; got: %d", 1, bucket.DocCount)
+	}
+	bucket, found = keyedRangeAggRes.Buckets["10.0-100.0"]
+	if !found {
+		t.Fatalf("expected bucket to be found; got: %v", found)
+	}
+	if bucket.DocCount != 1 {
+		t.Errorf("expected %d; got: %d", 1, bucket.DocCount)
+	}
+	bucket, found = keyedRangeAggRes.Buckets["100.0-*"]
+	if !found {
+		t.Fatalf("expected bucket to be found; got: %v", found)
+	}
+	if bucket.DocCount != 1 {
+		t.Errorf("expected %d; got: %d", 1, bucket.DocCount)
 	}
 
 	// dateRange
