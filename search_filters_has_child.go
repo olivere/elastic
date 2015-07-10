@@ -14,8 +14,6 @@ type HasChildFilter struct {
 	query              Query
 	childType          string
 	filterName         string
-	cache              *bool
-	cacheKey           string
 	shortCircuitCutoff *int
 	minChildren        *int
 	maxChildren        *int
@@ -42,16 +40,6 @@ func (f HasChildFilter) Filter(filter Filter) HasChildFilter {
 
 func (f HasChildFilter) FilterName(filterName string) HasChildFilter {
 	f.filterName = filterName
-	return f
-}
-
-func (f HasChildFilter) Cache(cache bool) HasChildFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f HasChildFilter) CacheKey(cacheKey string) HasChildFilter {
-	f.cacheKey = cacheKey
 	return f
 }
 
@@ -110,12 +98,6 @@ func (f HasChildFilter) Source() (interface{}, error) {
 	filter["type"] = f.childType
 	if f.filterName != "" {
 		filter["_name"] = f.filterName
-	}
-	if f.cache != nil {
-		filter["_cache"] = *f.cache
-	}
-	if f.cacheKey != "" {
-		filter["_cache_key"] = f.cacheKey
 	}
 	if f.shortCircuitCutoff != nil {
 		filter["short_circuit_cutoff"] = *f.shortCircuitCutoff

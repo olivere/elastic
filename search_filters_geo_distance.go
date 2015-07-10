@@ -18,8 +18,6 @@ type GeoDistanceFilter struct {
 	geohash      string
 	distanceType string
 	optimizeBbox string
-	cache        *bool
-	cacheKey     string
 	filterName   string
 }
 
@@ -71,16 +69,6 @@ func (f GeoDistanceFilter) OptimizeBbox(optimizeBbox string) GeoDistanceFilter {
 	return f
 }
 
-func (f GeoDistanceFilter) Cache(cache bool) GeoDistanceFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f GeoDistanceFilter) CacheKey(cacheKey string) GeoDistanceFilter {
-	f.cacheKey = cacheKey
-	return f
-}
-
 func (f GeoDistanceFilter) FilterName(filterName string) GeoDistanceFilter {
 	f.filterName = filterName
 	return f
@@ -119,12 +107,6 @@ func (f GeoDistanceFilter) Source() (interface{}, error) {
 	}
 	if f.optimizeBbox != "" {
 		params["optimize_bbox"] = f.optimizeBbox
-	}
-	if f.cache != nil {
-		params["_cache"] = *f.cache
-	}
-	if f.cacheKey != "" {
-		params["_cache_key"] = f.cacheKey
 	}
 	if f.filterName != "" {
 		params["_name"] = f.filterName

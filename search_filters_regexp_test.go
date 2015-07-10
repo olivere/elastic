@@ -29,7 +29,7 @@ func TestRegexpFilter(t *testing.T) {
 func TestRegexpFilterWithFlags(t *testing.T) {
 	f := NewRegexpFilter("name.first", "s.*y")
 	f = f.Flags("INTERSECTION|COMPLEMENT|EMPTY")
-	f = f.FilterName("test").Cache(true).CacheKey("key")
+	f = f.FilterName("test")
 	src, err := f.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +39,7 @@ func TestRegexpFilterWithFlags(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"regexp":{"_cache":true,"_cache_key":"key","_name":"test","name.first":{"flags":"INTERSECTION|COMPLEMENT|EMPTY","value":"s.*y"}}}`
+	expected := `{"regexp":{"_name":"test","name.first":{"flags":"INTERSECTION|COMPLEMENT|EMPTY","value":"s.*y"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

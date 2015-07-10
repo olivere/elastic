@@ -14,8 +14,6 @@ type RegexpFilter struct {
 	regexp                string
 	flags                 *string
 	maxDeterminizedStates *int
-	cache                 *bool
-	cacheKey              string
 	filterName            string
 }
 
@@ -34,16 +32,6 @@ func (f RegexpFilter) Flags(flags string) RegexpFilter {
 
 func (f RegexpFilter) MaxDeterminizedStates(maxDeterminizedStates int) RegexpFilter {
 	f.maxDeterminizedStates = &maxDeterminizedStates
-	return f
-}
-
-func (f RegexpFilter) Cache(cache bool) RegexpFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f RegexpFilter) CacheKey(cacheKey string) RegexpFilter {
-	f.cacheKey = cacheKey
 	return f
 }
 
@@ -78,12 +66,6 @@ func (f RegexpFilter) Source() (interface{}, error) {
 
 	if f.filterName != "" {
 		params["_name"] = f.filterName
-	}
-	if f.cache != nil {
-		params["_cache"] = *f.cache
-	}
-	if f.cacheKey != "" {
-		params["_cache_key"] = f.cacheKey
 	}
 
 	return source, nil

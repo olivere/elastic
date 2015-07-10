@@ -14,8 +14,6 @@ type BoolFilter struct {
 	mustClauses    []Filter
 	shouldClauses  []Filter
 	mustNotClauses []Filter
-	cache          *bool
-	cacheKey       string
 	filterName     string
 }
 
@@ -49,16 +47,6 @@ func (f BoolFilter) FilterName(filterName string) BoolFilter {
 	return f
 }
 
-func (f BoolFilter) Cache(cache bool) BoolFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f BoolFilter) CacheKey(cacheKey string) BoolFilter {
-	f.cacheKey = cacheKey
-	return f
-}
-
 // Creates the query source for the bool query.
 func (f BoolFilter) Source() (interface{}, error) {
 	// {
@@ -78,8 +66,7 @@ func (f BoolFilter) Source() (interface{}, error) {
 	//			{
 	//				"term" : { "tag" : "elasticsearch" }
 	//			}
-	//		],
-	//		"_cache" : true
+	//		]
 	//	}
 	// }
 
@@ -147,12 +134,6 @@ func (f BoolFilter) Source() (interface{}, error) {
 
 	if f.filterName != "" {
 		boolClause["_name"] = f.filterName
-	}
-	if f.cache != nil {
-		boolClause["_cache"] = *f.cache
-	}
-	if f.cacheKey != "" {
-		boolClause["_cache_key"] = f.cacheKey
 	}
 
 	return source, nil

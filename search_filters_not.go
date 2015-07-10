@@ -10,8 +10,6 @@ package elastic
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-not-filter.html#query-dsl-not-filter.
 type NotFilter struct {
 	filter     Filter
-	cache      *bool
-	cacheKey   string
 	filterName string
 }
 
@@ -19,16 +17,6 @@ func NewNotFilter(filter Filter) NotFilter {
 	return NotFilter{
 		filter: filter,
 	}
-}
-
-func (f NotFilter) Cache(cache bool) NotFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f NotFilter) CacheKey(cacheKey string) NotFilter {
-	f.cacheKey = cacheKey
-	return f
 }
 
 func (f NotFilter) FilterName(filterName string) NotFilter {
@@ -53,12 +41,6 @@ func (f NotFilter) Source() (interface{}, error) {
 	}
 	params["filter"] = src
 
-	if f.cache != nil {
-		params["_cache"] = *f.cache
-	}
-	if f.cacheKey != "" {
-		params["_cache_key"] = f.cacheKey
-	}
 	if f.filterName != "" {
 		params["_name"] = f.filterName
 	}

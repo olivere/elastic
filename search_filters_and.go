@@ -10,8 +10,6 @@ package elastic
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-and-filter.html
 type AndFilter struct {
 	filters    []Filter
-	cache      *bool
-	cacheKey   string
 	filterName string
 }
 
@@ -27,16 +25,6 @@ func NewAndFilter(filters ...Filter) AndFilter {
 
 func (f AndFilter) Add(filter Filter) AndFilter {
 	f.filters = append(f.filters, filter)
-	return f
-}
-
-func (f AndFilter) Cache(cache bool) AndFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f AndFilter) CacheKey(cacheKey string) AndFilter {
-	f.cacheKey = cacheKey
 	return f
 }
 
@@ -67,12 +55,6 @@ func (f AndFilter) Source() (interface{}, error) {
 	}
 	params["filters"] = filters
 
-	if f.cache != nil {
-		params["_cache"] = *f.cache
-	}
-	if f.cacheKey != "" {
-		params["_cache_key"] = f.cacheKey
-	}
 	if f.filterName != "" {
 		params["_name"] = f.filterName
 	}

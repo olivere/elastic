@@ -12,23 +12,11 @@ type PrefixFilter struct {
 	Filter
 	name       string
 	prefix     string
-	cache      *bool
-	cacheKey   string
 	filterName string
 }
 
 func NewPrefixFilter(name string, prefix string) PrefixFilter {
 	f := PrefixFilter{name: name, prefix: prefix}
-	return f
-}
-
-func (f PrefixFilter) Cache(cache bool) PrefixFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f PrefixFilter) CacheKey(cacheKey string) PrefixFilter {
-	f.cacheKey = cacheKey
 	return f
 }
 
@@ -53,14 +41,6 @@ func (f PrefixFilter) Source() (interface{}, error) {
 
 	if f.filterName != "" {
 		params["_name"] = f.filterName
-	}
-
-	if f.cache != nil {
-		params["_cache"] = *f.cache
-	}
-
-	if f.cacheKey != "" {
-		params["_cache_key"] = f.cacheKey
 	}
 
 	return source, nil

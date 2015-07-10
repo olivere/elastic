@@ -10,8 +10,6 @@ package elastic
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-or-filter.html
 type OrFilter struct {
 	filters    []Filter
-	cache      *bool
-	cacheKey   string
 	filterName string
 }
 
@@ -27,16 +25,6 @@ func NewOrFilter(filters ...Filter) OrFilter {
 
 func (f OrFilter) Add(filter Filter) OrFilter {
 	f.filters = append(f.filters, filter)
-	return f
-}
-
-func (f OrFilter) Cache(cache bool) OrFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f OrFilter) CacheKey(cacheKey string) OrFilter {
-	f.cacheKey = cacheKey
 	return f
 }
 
@@ -67,12 +55,6 @@ func (f OrFilter) Source() (interface{}, error) {
 		filters[i] = src
 	}
 
-	if f.cache != nil {
-		params["_cache"] = *f.cache
-	}
-	if f.cacheKey != "" {
-		params["_cache_key"] = f.cacheKey
-	}
 	if f.filterName != "" {
 		params["_name"] = f.filterName
 	}

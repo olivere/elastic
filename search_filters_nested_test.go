@@ -15,7 +15,6 @@ func TestNestedFilter(t *testing.T) {
 	bq = bq.Must(NewTermQuery("obj1.name", "blue"))
 	bq = bq.Must(NewRangeQuery("obj1.count").Gt(5))
 	f = f.Query(bq)
-	f = f.Cache(true)
 	src, err := f.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -25,7 +24,7 @@ func TestNestedFilter(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"nested":{"_cache":true,"path":"obj1","query":{"bool":{"must":[{"term":{"obj1.name":"blue"}},{"range":{"obj1.count":{"from":5,"include_lower":false,"include_upper":true,"to":null}}}]}}}}`
+	expected := `{"nested":{"path":"obj1","query":{"bool":{"must":[{"term":{"obj1.name":"blue"}},{"range":{"obj1.count":{"from":5,"include_lower":false,"include_upper":true,"to":null}}}]}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -37,7 +36,6 @@ func TestNestedFilterWithInnerHit(t *testing.T) {
 	bq = bq.Must(NewTermQuery("obj1.name", "blue"))
 	bq = bq.Must(NewRangeQuery("obj1.count").Gt(5))
 	f = f.Query(bq)
-	f = f.Cache(true)
 	f = f.InnerHit(NewInnerHit().Name("comments").Query(NewTermQuery("user", "olivere")))
 	src, err := f.Source()
 	if err != nil {
@@ -48,7 +46,7 @@ func TestNestedFilterWithInnerHit(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"nested":{"_cache":true,"inner_hits":{"name":"comments","query":{"term":{"user":"olivere"}}},"path":"obj1","query":{"bool":{"must":[{"term":{"obj1.name":"blue"}},{"range":{"obj1.count":{"from":5,"include_lower":false,"include_upper":true,"to":null}}}]}}}}`
+	expected := `{"nested":{"inner_hits":{"name":"comments","query":{"term":{"user":"olivere"}}},"path":"obj1","query":{"bool":{"must":[{"term":{"obj1.name":"blue"}},{"range":{"obj1.count":{"from":5,"include_lower":false,"include_upper":true,"to":null}}}]}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

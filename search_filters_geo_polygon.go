@@ -11,23 +11,11 @@ type GeoPolygonFilter struct {
 	Filter
 	name       string
 	points     []*GeoPoint
-	cache      *bool
-	cacheKey   string
 	filterName string
 }
 
 func NewGeoPolygonFilter(name string) GeoPolygonFilter {
 	f := GeoPolygonFilter{name: name, points: make([]*GeoPoint, 0)}
-	return f
-}
-
-func (f GeoPolygonFilter) Cache(cache bool) GeoPolygonFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f GeoPolygonFilter) CacheKey(cacheKey string) GeoPolygonFilter {
-	f.cacheKey = cacheKey
 	return f
 }
 
@@ -67,14 +55,6 @@ func (f GeoPolygonFilter) Source() (interface{}, error) {
 
 	if f.filterName != "" {
 		params["_name"] = f.filterName
-	}
-
-	if f.cache != nil {
-		params["_cache"] = *f.cache
-	}
-
-	if f.cacheKey != "" {
-		params["_cache_key"] = f.cacheKey
 	}
 
 	return source, nil

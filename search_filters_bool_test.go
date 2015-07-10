@@ -14,7 +14,6 @@ func TestBoolFilter(t *testing.T) {
 	f = f.Must(NewTermFilter("tag", "wow"))
 	f = f.MustNot(NewRangeFilter("age").From(10).To(20))
 	f = f.Should(NewTermFilter("tag", "sometag"), NewTermFilter("tag", "sometagtag"))
-	f = f.Cache(true)
 	src, err := f.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -24,7 +23,7 @@ func TestBoolFilter(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"bool":{"_cache":true,"must":{"term":{"tag":"wow"}},"must_not":{"range":{"age":{"from":10,"include_lower":true,"include_upper":true,"to":20}}},"should":[{"term":{"tag":"sometag"}},{"term":{"tag":"sometagtag"}}]}}`
+	expected := `{"bool":{"must":{"term":{"tag":"wow"}},"must_not":{"range":{"age":{"from":10,"include_lower":true,"include_upper":true,"to":20}}},"should":[{"term":{"tag":"sometag"}},{"term":{"tag":"sometagtag"}}]}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

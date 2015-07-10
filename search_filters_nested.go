@@ -16,8 +16,6 @@ type NestedFilter struct {
 	filter     Filter
 	path       string
 	join       *bool
-	cache      *bool
-	cacheKey   string
 	filterName string
 	innerHit   *InnerHit
 }
@@ -43,16 +41,6 @@ func (f NestedFilter) Path(path string) NestedFilter {
 
 func (f NestedFilter) Join(join bool) NestedFilter {
 	f.join = &join
-	return f
-}
-
-func (f NestedFilter) Cache(cache bool) NestedFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f NestedFilter) CacheKey(cacheKey string) NestedFilter {
-	f.cacheKey = cacheKey
 	return f
 }
 
@@ -84,8 +72,7 @@ func (f NestedFilter) Source() (interface{}, error) {
 	//                              }
 	//                          ]
 	//                      }
-	//                  },
-	//                  "_cache" : true
+	//                  }
 	//              }
 	//          }
 	//      }
@@ -115,12 +102,6 @@ func (f NestedFilter) Source() (interface{}, error) {
 	params["path"] = f.path
 	if f.filterName != "" {
 		params["_name"] = f.filterName
-	}
-	if f.cache != nil {
-		params["_cache"] = *f.cache
-	}
-	if f.cacheKey != "" {
-		params["_cache_key"] = f.cacheKey
 	}
 	if f.innerHit != nil {
 		src, err := f.innerHit.Source()

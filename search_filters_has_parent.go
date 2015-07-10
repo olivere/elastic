@@ -15,8 +15,6 @@ type HasParentFilter struct {
 	query      Query
 	parentType string
 	filterName string
-	cache      *bool
-	cacheKey   string
 	innerHit   *InnerHit
 }
 
@@ -40,16 +38,6 @@ func (f HasParentFilter) Filter(filter Filter) HasParentFilter {
 
 func (f HasParentFilter) FilterName(filterName string) HasParentFilter {
 	f.filterName = filterName
-	return f
-}
-
-func (f HasParentFilter) Cache(cache bool) HasParentFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f HasParentFilter) CacheKey(cacheKey string) HasParentFilter {
-	f.cacheKey = cacheKey
 	return f
 }
 
@@ -93,12 +81,6 @@ func (f HasParentFilter) Source() (interface{}, error) {
 	filter["parent_type"] = f.parentType
 	if f.filterName != "" {
 		filter["_name"] = f.filterName
-	}
-	if f.cache != nil {
-		filter["_cache"] = *f.cache
-	}
-	if f.cacheKey != "" {
-		filter["_cache_key"] = f.cacheKey
 	}
 	if f.innerHit != nil {
 		src, err := f.innerHit.Source()

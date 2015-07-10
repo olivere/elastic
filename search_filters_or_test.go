@@ -15,8 +15,6 @@ func TestOrFilter(t *testing.T) {
 	f = f.Add(postDateFilter)
 	prefixFilter := NewPrefixFilter("name.second", "ba")
 	f = f.Add(prefixFilter)
-	f = f.Cache(true)
-	f = f.CacheKey("MyOrFilter")
 	f = f.FilterName("MyFilterName")
 	src, err := f.Source()
 	if err != nil {
@@ -27,7 +25,7 @@ func TestOrFilter(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"or":{"_cache":true,"_cache_key":"MyOrFilter","_name":"MyFilterName","filters":[{"range":{"postDate":{"from":"2010-03-01","include_lower":true,"include_upper":true,"to":"2010-04-01"}}},{"prefix":{"name.second":"ba"}}]}}`
+	expected := `{"or":{"_name":"MyFilterName","filters":[{"range":{"postDate":{"from":"2010-03-01","include_lower":true,"include_upper":true,"to":"2010-04-01"}}},{"prefix":{"name.second":"ba"}}]}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

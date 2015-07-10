@@ -11,8 +11,6 @@ import (
 
 func TestRangeFilter(t *testing.T) {
 	f := NewRangeFilter("postDate").From("2010-03-01").To("2010-04-01")
-	f = f.Cache(true)
-	f = f.CacheKey("MyAndFilter")
 	f = f.FilterName("MyFilterName")
 	f = f.Execution("index")
 	src, err := f.Source()
@@ -24,7 +22,7 @@ func TestRangeFilter(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"range":{"_cache":true,"_cache_key":"MyAndFilter","_name":"MyFilterName","execution":"index","postDate":{"from":"2010-03-01","include_lower":true,"include_upper":true,"to":"2010-04-01"}}}`
+	expected := `{"range":{"_name":"MyFilterName","execution":"index","postDate":{"from":"2010-03-01","include_lower":true,"include_upper":true,"to":"2010-04-01"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

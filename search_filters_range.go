@@ -15,8 +15,6 @@ type RangeFilter struct {
 	timeZone     string
 	includeLower bool
 	includeUpper bool
-	cache        *bool
-	cacheKey     string
 	filterName   string
 	execution    string
 }
@@ -75,16 +73,6 @@ func (f RangeFilter) IncludeUpper(includeUpper bool) RangeFilter {
 	return f
 }
 
-func (f RangeFilter) Cache(cache bool) RangeFilter {
-	f.cache = &cache
-	return f
-}
-
-func (f RangeFilter) CacheKey(cacheKey string) RangeFilter {
-	f.cacheKey = cacheKey
-	return f
-}
-
 func (f RangeFilter) FilterName(filterName string) RangeFilter {
 	f.filterName = filterName
 	return f
@@ -122,14 +110,6 @@ func (f RangeFilter) Source() (interface{}, error) {
 
 	if f.filterName != "" {
 		rangeQ["_name"] = f.filterName
-	}
-
-	if f.cache != nil {
-		rangeQ["_cache"] = *f.cache
-	}
-
-	if f.cacheKey != "" {
-		rangeQ["_cache_key"] = f.cacheKey
 	}
 
 	if f.execution != "" {
