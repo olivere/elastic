@@ -4,94 +4,116 @@
 
 package elastic
 
-// Matches documents with fields that have terms within a certain range.
-// For details, see:
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
+// RangeQuery matches documents with fields that have terms within a certain range.
+//
+// For details, see
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
 type RangeQuery struct {
-	Query
 	name         string
-	from         *interface{}
-	to           *interface{}
+	from         interface{}
+	to           interface{}
 	timeZone     string
 	includeLower bool
 	includeUpper bool
 	boost        *float64
 	queryName    string
+	format       string
 }
 
-func NewRangeQuery(name string) RangeQuery {
-	q := RangeQuery{name: name, includeLower: true, includeUpper: true}
+// NewRangeQuery creates and initializes a new RangeQuery.
+func NewRangeQuery(name string) *RangeQuery {
+	return &RangeQuery{name: name, includeLower: true, includeUpper: true}
+}
+
+// From indicates the from part of the RangeQuery.
+// Use nil to indicate an unbounded from part.
+func (q *RangeQuery) From(from interface{}) *RangeQuery {
+	q.from = from
 	return q
 }
 
-func (f RangeQuery) TimeZone(timeZone string) RangeQuery {
-	f.timeZone = timeZone
-	return f
-}
-
-func (q RangeQuery) From(from interface{}) RangeQuery {
-	q.from = &from
-	return q
-}
-
-func (q RangeQuery) Gt(from interface{}) RangeQuery {
-	q.from = &from
+// Gt indicates a greater-than value for the from part.
+// Use nil to indicate an unbounded from part.
+func (q *RangeQuery) Gt(from interface{}) *RangeQuery {
+	q.from = from
 	q.includeLower = false
 	return q
 }
 
-func (q RangeQuery) Gte(from interface{}) RangeQuery {
-	q.from = &from
+// Gte indicates a greater-than-or-equal value for the from part.
+// Use nil to indicate an unbounded from part.
+func (q *RangeQuery) Gte(from interface{}) *RangeQuery {
+	q.from = from
 	q.includeLower = true
 	return q
 }
 
-func (q RangeQuery) To(to interface{}) RangeQuery {
-	q.to = &to
+// To indicates the to part of the RangeQuery.
+// Use nil to indicate an unbounded to part.
+func (q *RangeQuery) To(to interface{}) *RangeQuery {
+	q.to = to
 	return q
 }
 
-func (q RangeQuery) Lt(to interface{}) RangeQuery {
-	q.to = &to
+// Lt indicates a less-than value for the to part.
+// Use nil to indicate an unbounded to part.
+func (q *RangeQuery) Lt(to interface{}) *RangeQuery {
+	q.to = to
 	q.includeUpper = false
 	return q
 }
 
-func (q RangeQuery) Lte(to interface{}) RangeQuery {
-	q.to = &to
+// Lte indicates a less-than-or-equal value for the to part.
+// Use nil to indicate an unbounded to part.
+func (q *RangeQuery) Lte(to interface{}) *RangeQuery {
+	q.to = to
 	q.includeUpper = true
 	return q
 }
 
-func (q RangeQuery) IncludeLower(includeLower bool) RangeQuery {
+// IncludeLower indicates whether the lower bound should be included or not.
+// Defaults to true.
+func (q *RangeQuery) IncludeLower(includeLower bool) *RangeQuery {
 	q.includeLower = includeLower
 	return q
 }
 
-func (q RangeQuery) IncludeUpper(includeUpper bool) RangeQuery {
+// IncludeUpper indicates whether the upper bound should be included or not.
+// Defaults to true.
+func (q *RangeQuery) IncludeUpper(includeUpper bool) *RangeQuery {
 	q.includeUpper = includeUpper
 	return q
 }
 
-func (q RangeQuery) Boost(boost float64) RangeQuery {
+// Boost sets the boost for this query.
+func (q *RangeQuery) Boost(boost float64) *RangeQuery {
 	q.boost = &boost
 	return q
 }
 
-func (q RangeQuery) QueryName(queryName string) RangeQuery {
+// QueryName sets the query name for the filter that can be used when
+// searching for matched_filters per hit.
+func (q *RangeQuery) QueryName(queryName string) *RangeQuery {
 	q.queryName = queryName
 	return q
 }
 
-func (q RangeQuery) Source() (interface{}, error) {
-	// {
-	//   "range" : {
-	//     "name" : {
-	//       "..." : "..."
-	//     }
-	//   }
-	// }
+// TimeZone is used for date fields. In that case, we can adjust the
+// from/to fields using a timezone.
+func (q *RangeQuery) TimeZone(timeZone string) *RangeQuery {
+	q.timeZone = timeZone
+	return q
+}
 
+// Format is used for date fields. In that case, we can set the format
+// to be used instead of the mapper format.
+func (q *RangeQuery) Format(format string) *RangeQuery {
+	q.format = format
+	return q
+}
+
+// Source returns JSON for the query.
+func (q *RangeQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	rangeQ := make(map[string]interface{})
@@ -104,6 +126,9 @@ func (q RangeQuery) Source() (interface{}, error) {
 	params["to"] = q.to
 	if q.timeZone != "" {
 		params["time_zone"] = q.timeZone
+	}
+	if q.format != "" {
+		params["format"] = q.format
 	}
 	params["include_lower"] = q.includeLower
 	params["include_upper"] = q.includeUpper

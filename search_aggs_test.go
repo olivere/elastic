@@ -101,7 +101,7 @@ func TestAggs(t *testing.T) {
 	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
 
 	// Run query
-	builder := client.Search().Index(testIndexName).Query(&all)
+	builder := client.Search().Index(testIndexName).Query(all)
 	builder = builder.Aggregation("global", globalAgg)
 	builder = builder.Aggregation("users", usersAgg)
 	builder = builder.Aggregation("retweets", retweetsAgg)
@@ -909,7 +909,7 @@ func TestAggsMarshal(t *testing.T) {
 	dhagg := NewDateHistogramAggregation().Field("created").Interval("year")
 
 	// Run query
-	builder := client.Search().Index(testIndexName).Query(&all)
+	builder := client.Search().Index(testIndexName).Query(all)
 	builder = builder.Aggregation("dhagg", dhagg)
 	searchResult, err := builder.Do()
 	if err != nil {

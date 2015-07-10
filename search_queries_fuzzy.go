@@ -6,73 +6,74 @@ package elastic
 
 // FuzzyQuery uses similarity based on Levenshtein edit distance for
 // string fields, and a +/- margin on numeric and date fields.
+//
 // For more details, see
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-fuzzy-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-fuzzy-query.html
 type FuzzyQuery struct {
-	Query
-
 	name           string
 	value          interface{}
-	boost          float32
+	boost          *float64
 	fuzziness      interface{}
 	prefixLength   *int
 	maxExpansions  *int
 	transpositions *bool
+	rewrite        string
 	queryName      string
 }
 
 // NewFuzzyQuery creates a new fuzzy query.
-func NewFuzzyQuery() FuzzyQuery {
-	q := FuzzyQuery{
-		boost: -1.0,
+func NewFuzzyQuery(name string, value interface{}) *FuzzyQuery {
+	q := &FuzzyQuery{
+		name:  name,
+		value: value,
 	}
 	return q
 }
 
-func (q FuzzyQuery) Name(name string) FuzzyQuery {
-	q.name = name
+// Boost sets the boost for this query. Documents matching this query will
+// (in addition to the normal weightings) have their score multiplied by
+// the boost provided.
+func (q *FuzzyQuery) Boost(boost float64) *FuzzyQuery {
+	q.boost = &boost
 	return q
 }
 
-func (q FuzzyQuery) Value(value interface{}) FuzzyQuery {
-	q.value = value
-	return q
-}
-
-func (q FuzzyQuery) Boost(boost float32) FuzzyQuery {
-	q.boost = boost
-	return q
-}
-
-// Fuzziness can be an integer/long like 0, 1 or 2 as well as strings like "auto",
-// "0..1", "1..4" or "0.0..1.0".
-func (q FuzzyQuery) Fuzziness(fuzziness interface{}) FuzzyQuery {
+// Fuzziness can be an integer/long like 0, 1 or 2 as well as strings
+// like "auto", "0..1", "1..4" or "0.0..1.0".
+func (q *FuzzyQuery) Fuzziness(fuzziness interface{}) *FuzzyQuery {
 	q.fuzziness = fuzziness
 	return q
 }
 
-func (q FuzzyQuery) PrefixLength(prefixLength int) FuzzyQuery {
+func (q *FuzzyQuery) PrefixLength(prefixLength int) *FuzzyQuery {
 	q.prefixLength = &prefixLength
 	return q
 }
 
-func (q FuzzyQuery) MaxExpansions(maxExpansions int) FuzzyQuery {
+func (q *FuzzyQuery) MaxExpansions(maxExpansions int) *FuzzyQuery {
 	q.maxExpansions = &maxExpansions
 	return q
 }
 
-func (q FuzzyQuery) Transpositions(transpositions bool) FuzzyQuery {
+func (q *FuzzyQuery) Transpositions(transpositions bool) *FuzzyQuery {
 	q.transpositions = &transpositions
 	return q
 }
 
-func (q FuzzyQuery) QueryName(queryName string) FuzzyQuery {
+func (q *FuzzyQuery) Rewrite(rewrite string) *FuzzyQuery {
+	q.rewrite = rewrite
+	return q
+}
+
+// QueryName sets the query name for the filter that can be used when
+// searching for matched filters per hit.
+func (q *FuzzyQuery) QueryName(queryName string) *FuzzyQuery {
 	q.queryName = queryName
 	return q
 }
 
-// Creates the query source for the ids query.
-func (q FuzzyQuery) Source() (interface{}, error) {
+// Source returns JSON for the function score query.
+func (q *FuzzyQuery) Source() (interface{}, error) {
 	// {
 	//	"fuzzy" : {
 	//		"user" : {
@@ -85,7 +86,6 @@ func (q FuzzyQuery) Source() (interface{}, error) {
 	// }
 
 	source := make(map[string]interface{})
-
 	query := make(map[string]interface{})
 	source["fuzzy"] = query
 
@@ -94,8 +94,8 @@ func (q FuzzyQuery) Source() (interface{}, error) {
 
 	fq["value"] = q.value
 
-	if q.boost != -1.0 {
-		fq["boost"] = q.boost
+	if q.boost != nil {
+		fq["boost"] = *q.boost
 	}
 	if q.transpositions != nil {
 		fq["transpositions"] = *q.transpositions
@@ -108,6 +108,9 @@ func (q FuzzyQuery) Source() (interface{}, error) {
 	}
 	if q.maxExpansions != nil {
 		fq["max_expansions"] = *q.maxExpansions
+	}
+	if q.rewrite != "" {
+		fq["rewrite"] = q.rewrite
 	}
 	if q.queryName != "" {
 		fq["_name"] = q.queryName

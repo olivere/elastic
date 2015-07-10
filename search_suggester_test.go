@@ -48,7 +48,7 @@ func TestTermSuggester(t *testing.T) {
 
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(&all).
+		Query(all).
 		Suggester(ts).
 		Do()
 	if err != nil {
@@ -131,7 +131,7 @@ func TestPhraseSuggester(t *testing.T) {
 
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(&all).
+		Query(all).
 		Suggester(ps).
 		Do()
 	if err != nil {

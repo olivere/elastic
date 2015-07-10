@@ -75,7 +75,7 @@ func TestAliasLifecycle(t *testing.T) {
 
 	// Search should return all 3 tweets
 	matchAll := NewMatchAllQuery()
-	searchResult1, err := client.Search().Index(testAliasName).Query(&matchAll).Do()
+	searchResult1, err := client.Search().Index(testAliasName).Query(matchAll).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,7 +109,7 @@ func TestAliasLifecycle(t *testing.T) {
 		t.Errorf("expected AliasResult.Acknowledged %v; got %v", true, aliasRemove1.Acknowledged)
 	}
 
-	searchResult2, err := client.Search().Index(testAliasName).Query(&matchAll).Do()
+	searchResult2, err := client.Search().Index(testAliasName).Query(matchAll).Do()
 	if err != nil {
 		t.Fatal(err)
 	}

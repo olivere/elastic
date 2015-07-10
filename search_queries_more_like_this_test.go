@@ -10,7 +10,7 @@ import (
 )
 
 func TestMoreLikeThisQuerySourceWithLikeText(t *testing.T) {
-	q := NewMoreLikeThisQuery().LikeText("Golang topic").Fields("message")
+	q := NewMoreLikeThisQuery().LikeText("Golang topic").Field("message")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -77,10 +77,10 @@ func TestMoreLikeThisQuery(t *testing.T) {
 	}
 
 	// Common query
-	q := NewMoreLikeThisQuery().LikeText("Golang topic").Fields("message")
+	mltq := NewMoreLikeThisQuery().LikeText("Golang topic").Field("message")
 	res, err := client.Search().
 		Index(testIndexName).
-		Query(&q).
+		Query(mltq).
 		Do()
 	if err != nil {
 		t.Fatal(err)

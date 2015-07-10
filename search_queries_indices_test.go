@@ -9,8 +9,9 @@ import (
 	"testing"
 )
 
-func TestMatchAllQuery(t *testing.T) {
-	q := NewMatchAllQuery()
+func TestIndicesQuery(t *testing.T) {
+	q := NewIndicesQuery(NewTermQuery("tag", "wow"), "index1", "index2")
+	q = q.NoMatchQuery(NewTermQuery("tag", "kow"))
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -20,14 +21,15 @@ func TestMatchAllQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match_all":{}}`
+	expected := `{"indices":{"indices":["index1","index2"],"no_match_query":{"term":{"tag":"kow"}},"query":{"term":{"tag":"wow"}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
-func TestMatchAllQueryWithBoost(t *testing.T) {
-	q := NewMatchAllQuery().Boost(3.14)
+func TestIndicesQueryWithNoMatchQueryType(t *testing.T) {
+	q := NewIndicesQuery(NewTermQuery("tag", "wow"), "index1", "index2")
+	q = q.NoMatchQueryType("all")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +39,7 @@ func TestMatchAllQueryWithBoost(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match_all":{"boost":3.14}}`
+	expected := `{"indices":{"indices":["index1","index2"],"no_match_query":"all","query":{"term":{"tag":"wow"}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

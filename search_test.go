@@ -17,7 +17,7 @@ func TestSearchMatchAll(t *testing.T) {
 
 	// Match all should return all documents
 	all := NewMatchAllQuery()
-	searchResult, err := client.Search().Index(testIndexName).Query(&all).Do()
+	searchResult, err := client.Search().Index(testIndexName).Query(all).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func BenchmarkSearchMatchAll(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		// Match all should return all documents
 		all := NewMatchAllQuery()
-		searchResult, err := client.Search().Index(testIndexName).Query(&all).Do()
+		searchResult, err := client.Search().Index(testIndexName).Query(all).Do()
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -74,7 +74,7 @@ func TestSearchResultTotalHits(t *testing.T) {
 	}
 
 	all := NewMatchAllQuery()
-	searchResult, err := client.Search().Index(testIndexName).Query(&all).Do()
+	searchResult, err := client.Search().Index(testIndexName).Query(all).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +96,7 @@ func TestSearchResultEach(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
 	all := NewMatchAllQuery()
-	searchResult, err := client.Search().Index(testIndexName).Query(&all).Do()
+	searchResult, err := client.Search().Index(testIndexName).Query(all).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -197,7 +197,7 @@ func TestSearchSorting(t *testing.T) {
 	all := NewMatchAllQuery()
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(&all).
+		Query(all).
 		Sort("created", false).
 		Timeout("1s").
 		Do()
@@ -270,7 +270,7 @@ func TestSearchSortingBySorters(t *testing.T) {
 	all := NewMatchAllQuery()
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(&all).
+		Query(all).
 		SortBy(NewFieldSort("created").Desc(), NewScoreSort()).
 		Timeout("1s").
 		Do()
@@ -331,7 +331,7 @@ func TestSearchSpecificFields(t *testing.T) {
 	all := NewMatchAllQuery()
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(&all).
+		Query(all).
 		Fields("message").
 		Do()
 	if err != nil {
@@ -422,7 +422,7 @@ func TestSearchExplain(t *testing.T) {
 	all := NewMatchAllQuery()
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(&all).
+		Query(all).
 		Explain(true).
 		Timeout("1s").
 		// Pretty(true).

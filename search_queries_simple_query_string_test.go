@@ -58,7 +58,7 @@ func TestSimpleQueryStringQueryExec(t *testing.T) {
 	query := NewSimpleQueryStringQuery("+Golang +Elasticsearch")
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(&query).
+		Query(query).
 		Do()
 	if err != nil {
 		t.Fatal(err)

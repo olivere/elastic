@@ -4,43 +4,45 @@
 
 package elastic
 
-// A query that match on any (configurable) of the provided terms.
-// This is a simpler syntax query for using a bool query with
-// several term queries in the should clauses.
+// TermsQuery filters documents that have fields that match any
+// of the provided terms (not analyzed).
+//
 // For more details, see
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html
 type TermsQuery struct {
-	Query
 	name      string
 	values    []interface{}
-	boost     *float32
 	queryName string
+	boost     *float64
 }
 
-// NewTermsQuery creates a new terms query.
-func NewTermsQuery(name string, values ...interface{}) TermsQuery {
-	t := TermsQuery{
+// NewTermsQuery creates and initializes a new TermsQuery.
+func NewTermsQuery(name string, values ...interface{}) *TermsQuery {
+	q := &TermsQuery{
 		name:   name,
 		values: make([]interface{}, 0),
 	}
 	if len(values) > 0 {
-		t.values = append(t.values, values...)
+		q.values = append(q.values, values...)
 	}
-	return t
+	return q
 }
 
-func (q TermsQuery) Boost(boost float32) TermsQuery {
+// Boost sets the boost for this query.
+func (q *TermsQuery) Boost(boost float64) *TermsQuery {
 	q.boost = &boost
 	return q
 }
 
-func (q TermsQuery) QueryName(queryName string) TermsQuery {
+// QueryName sets the query name for the filter that can be used
+// when searching for matched_filters per hit
+func (q *TermsQuery) QueryName(queryName string) *TermsQuery {
 	q.queryName = queryName
 	return q
 }
 
 // Creates the query source for the term query.
-func (q TermsQuery) Source() (interface{}, error) {
+func (q *TermsQuery) Source() (interface{}, error) {
 	// {"terms":{"name":["value1","value2"]}}
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})

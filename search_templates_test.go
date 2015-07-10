@@ -82,7 +82,7 @@ func TestSearchTemplatesInlineQuery(t *testing.T) {
 	// Run query with (inline) search template
 	// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-template-query.html
 	tq := NewTemplateQuery(`{"match_{{template}}": {}}`).Var("template", "all")
-	resp, err := client.Search(testIndexName).Query(&tq).Do()
+	resp, err := client.Search(testIndexName).Query(tq).Do()
 	if err != nil {
 		t.Fatal(err)
 	}

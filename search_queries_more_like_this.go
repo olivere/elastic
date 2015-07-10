@@ -7,11 +7,14 @@ package elastic
 import "errors"
 
 // MoreLikeThis query (MLT Query) finds documents that are "like" a given
-// set of documents. For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-mlt-query.html.
+// set of documents. In order to do so, MLT selects a set of representative
+// terms of these input documents, forms a query using these terms, executes
+// the query and returns the results. The user controls the input documents,
+// how the terms should be selected and how the query is formed.
+//
+// For more details, see
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-mlt-query.html
 type MoreLikeThisQuery struct {
-	Query
-
 	fields                 []string
 	docs                   []*MoreLikeThisQueryItem
 	unlikeDocs             []*MoreLikeThisQueryItem
@@ -32,22 +35,17 @@ type MoreLikeThisQuery struct {
 }
 
 // NewMoreLikeThisQuery creates and initializes a new MoreLikeThisQuery.
-func NewMoreLikeThisQuery() MoreLikeThisQuery {
-	q := MoreLikeThisQuery{
+func NewMoreLikeThisQuery() *MoreLikeThisQuery {
+	return &MoreLikeThisQuery{
 		fields:     make([]string, 0),
 		stopWords:  make([]string, 0),
 		docs:       make([]*MoreLikeThisQueryItem, 0),
 		unlikeDocs: make([]*MoreLikeThisQueryItem, 0),
 	}
-	return q
 }
 
-func (q MoreLikeThisQuery) Field(field string) MoreLikeThisQuery {
-	q.fields = append(q.fields, field)
-	return q
-}
-
-func (q MoreLikeThisQuery) Fields(fields ...string) MoreLikeThisQuery {
+// Field adds one or more field names to the query.
+func (q *MoreLikeThisQuery) Field(fields ...string) *MoreLikeThisQuery {
 	q.fields = append(q.fields, fields...)
 	return q
 }
@@ -57,14 +55,14 @@ func (q MoreLikeThisQuery) Fields(fields ...string) MoreLikeThisQuery {
 // you might want to tell the MoreLikeThis code to ignore them, as for
 // the purposes of document similarity it seems reasonable to assume that
 // "a stop word is never interesting".
-func (q MoreLikeThisQuery) StopWord(stopWord ...string) MoreLikeThisQuery {
-	q.stopWords = append(q.stopWords, stopWord...)
+func (q *MoreLikeThisQuery) StopWord(stopWords ...string) *MoreLikeThisQuery {
+	q.stopWords = append(q.stopWords, stopWords...)
 	return q
 }
 
 // LikeText sets the text to use in order to find documents that are "like" this.
-func (q MoreLikeThisQuery) LikeText(likeText ...string) MoreLikeThisQuery {
-	for _, s := range likeText {
+func (q *MoreLikeThisQuery) LikeText(likeTexts ...string) *MoreLikeThisQuery {
+	for _, s := range likeTexts {
 		item := NewMoreLikeThisQueryItem().LikeText(s)
 		q.docs = append(q.docs, item)
 	}
@@ -72,13 +70,13 @@ func (q MoreLikeThisQuery) LikeText(likeText ...string) MoreLikeThisQuery {
 }
 
 // LikeItems sets the documents to use in order to find documents that are "like" this.
-func (q MoreLikeThisQuery) LikeItems(docs ...*MoreLikeThisQueryItem) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) LikeItems(docs ...*MoreLikeThisQueryItem) *MoreLikeThisQuery {
 	q.docs = append(q.docs, docs...)
 	return q
 }
 
 // IgnoreLikeText sets the text from which the terms should not be selected from.
-func (q MoreLikeThisQuery) IgnoreLikeText(ignoreLikeText ...string) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) IgnoreLikeText(ignoreLikeText ...string) *MoreLikeThisQuery {
 	for _, s := range ignoreLikeText {
 		item := NewMoreLikeThisQueryItem().LikeText(s)
 		q.unlikeDocs = append(q.unlikeDocs, item)
@@ -87,13 +85,13 @@ func (q MoreLikeThisQuery) IgnoreLikeText(ignoreLikeText ...string) MoreLikeThis
 }
 
 // IgnoreLikeItems sets the documents from which the terms should not be selected from.
-func (q MoreLikeThisQuery) IgnoreLikeItems(ignoreDocs ...*MoreLikeThisQueryItem) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) IgnoreLikeItems(ignoreDocs ...*MoreLikeThisQueryItem) *MoreLikeThisQuery {
 	q.unlikeDocs = append(q.unlikeDocs, ignoreDocs...)
 	return q
 }
 
 // Ids sets the document ids to use in order to find documents that are "like" this.
-func (q MoreLikeThisQuery) Ids(ids ...string) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) Ids(ids ...string) *MoreLikeThisQuery {
 	for _, id := range ids {
 		item := NewMoreLikeThisQueryItem().Id(id)
 		q.docs = append(q.docs, item)
@@ -101,7 +99,9 @@ func (q MoreLikeThisQuery) Ids(ids ...string) MoreLikeThisQuery {
 	return q
 }
 
-func (q MoreLikeThisQuery) Include(include bool) MoreLikeThisQuery {
+// Include specifies whether the input documents should also be included
+// in the results returned. Defaults to false.
+func (q *MoreLikeThisQuery) Include(include bool) *MoreLikeThisQuery {
 	q.include = &include
 	return q
 }
@@ -111,28 +111,28 @@ func (q MoreLikeThisQuery) Include(include bool) MoreLikeThisQuery {
 // The default value is "30%".
 //
 // This used to be "PercentTermsToMatch" in Elasticsearch versions before 2.0.
-func (q MoreLikeThisQuery) MinimumShouldMatch(minimumShouldMatch string) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) MinimumShouldMatch(minimumShouldMatch string) *MoreLikeThisQuery {
 	q.minimumShouldMatch = minimumShouldMatch
 	return q
 }
 
 // MinTermFreq is the frequency below which terms will be ignored in the
 // source doc. The default frequency is 2.
-func (q MoreLikeThisQuery) MinTermFreq(minTermFreq int) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) MinTermFreq(minTermFreq int) *MoreLikeThisQuery {
 	q.minTermFreq = &minTermFreq
 	return q
 }
 
 // MaxQueryTerms sets the maximum number of query terms that will be included
 // in any generated query. It defaults to 25.
-func (q MoreLikeThisQuery) MaxQueryTerms(maxQueryTerms int) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) MaxQueryTerms(maxQueryTerms int) *MoreLikeThisQuery {
 	q.maxQueryTerms = &maxQueryTerms
 	return q
 }
 
 // MinDocFreq sets the frequency at which words will be ignored which do
 // not occur in at least this many docs. The default is 5.
-func (q MoreLikeThisQuery) MinDocFreq(minDocFreq int) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) MinDocFreq(minDocFreq int) *MoreLikeThisQuery {
 	q.minDocFreq = &minDocFreq
 	return q
 }
@@ -140,41 +140,41 @@ func (q MoreLikeThisQuery) MinDocFreq(minDocFreq int) MoreLikeThisQuery {
 // MaxDocFreq sets the maximum frequency for which words may still appear.
 // Words that appear in more than this many docs will be ignored.
 // It defaults to unbounded.
-func (q MoreLikeThisQuery) MaxDocFreq(maxDocFreq int) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) MaxDocFreq(maxDocFreq int) *MoreLikeThisQuery {
 	q.maxDocFreq = &maxDocFreq
 	return q
 }
 
 // MinWordLength sets the minimum word length below which words will be
 // ignored. It defaults to 0.
-func (q MoreLikeThisQuery) MinWordLen(minWordLen int) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) MinWordLen(minWordLen int) *MoreLikeThisQuery {
 	q.minWordLen = &minWordLen
 	return q
 }
 
 // MaxWordLen sets the maximum word length above which words will be ignored.
 // Defaults to unbounded (0).
-func (q MoreLikeThisQuery) MaxWordLen(maxWordLen int) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) MaxWordLen(maxWordLen int) *MoreLikeThisQuery {
 	q.maxWordLen = &maxWordLen
 	return q
 }
 
 // BoostTerms sets the boost factor to use when boosting terms.
 // It defaults to 1.
-func (q MoreLikeThisQuery) BoostTerms(boostTerms float32) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) BoostTerms(boostTerms float32) *MoreLikeThisQuery {
 	q.boostTerms = &boostTerms
 	return q
 }
 
 // Analyzer specifies the analyzer that will be use to analyze the text.
 // Defaults to the analyzer associated with the field.
-func (q MoreLikeThisQuery) Analyzer(analyzer string) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) Analyzer(analyzer string) *MoreLikeThisQuery {
 	q.analyzer = analyzer
 	return q
 }
 
 // Boost sets the boost for this query.
-func (q MoreLikeThisQuery) Boost(boost float32) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) Boost(boost float32) *MoreLikeThisQuery {
 	q.boost = &boost
 	return q
 }
@@ -182,14 +182,14 @@ func (q MoreLikeThisQuery) Boost(boost float32) MoreLikeThisQuery {
 // FailOnUnsupportedField indicates whether to fail or return no result
 // when this query is run against a field which is not supported such as
 // a binary/numeric field.
-func (q MoreLikeThisQuery) FailOnUnsupportedField(fail bool) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) FailOnUnsupportedField(fail bool) *MoreLikeThisQuery {
 	q.failOnUnsupportedField = &fail
 	return q
 }
 
 // QueryName sets the query name for the filter that can be used when
 // searching for matched_filters per hit.
-func (q MoreLikeThisQuery) QueryName(queryName string) MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) QueryName(queryName string) *MoreLikeThisQuery {
 	q.queryName = queryName
 	return q
 }
@@ -197,7 +197,7 @@ func (q MoreLikeThisQuery) QueryName(queryName string) MoreLikeThisQuery {
 // Source creates the source for the MLT query.
 // It may return an error if the caller forgot to specify any documents to
 // be "liked" in the MoreLikeThisQuery.
-func (q MoreLikeThisQuery) Source() (interface{}, error) {
+func (q *MoreLikeThisQuery) Source() (interface{}, error) {
 	// {
 	//   "match_all" : { ... }
 	// }

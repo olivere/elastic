@@ -9,8 +9,8 @@ import (
 	"testing"
 )
 
-func TestMatchAllQuery(t *testing.T) {
-	q := NewMatchAllQuery()
+func TestMissingQuery(t *testing.T) {
+	q := NewMissingQuery("user")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -20,14 +20,14 @@ func TestMatchAllQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match_all":{}}`
+	expected := `{"missing":{"field":"user"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
-func TestMatchAllQueryWithBoost(t *testing.T) {
-	q := NewMatchAllQuery().Boost(3.14)
+func TestMissingQueryWithParams(t *testing.T) {
+	q := NewMissingQuery("user").NullValue(true).Existence(true).QueryName("_my_query")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +37,7 @@ func TestMatchAllQueryWithBoost(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match_all":{"boost":3.14}}`
+	expected := `{"missing":{"_name":"_my_query","existence":true,"field":"user","null_value":true}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

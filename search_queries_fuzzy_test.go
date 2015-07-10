@@ -10,7 +10,7 @@ import (
 )
 
 func TestFuzzyQuery(t *testing.T) {
-	q := NewFuzzyQuery().Name("user").Value("ki").Boost(1.5).Fuzziness(2).PrefixLength(0).MaxExpansions(100)
+	q := NewFuzzyQuery("user", "ki").Boost(1.5).Fuzziness(2).PrefixLength(0).MaxExpansions(100)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)

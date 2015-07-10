@@ -125,7 +125,7 @@ func Example() {
 	termQuery := elastic.NewTermQuery("user", "olivere")
 	searchResult, err := client.Search().
 		Index("twitter").   // search in index "twitter"
-		Query(&termQuery).  // specify the query
+		Query(termQuery).   // specify the query
 		Sort("user", true). // sort by "user" field, ascending
 		From(0).Size(10).   // take documents 0-9
 		Pretty(true).       // pretty print request and response JSON
@@ -311,7 +311,7 @@ func ExampleSearchService() {
 	termQuery := elastic.NewTermQuery("user", "olivere")
 	searchResult, err := client.Search().
 		Index("twitter").   // search in index "twitter"
-		Query(&termQuery).  // specify the query
+		Query(termQuery).   // specify the query
 		Sort("user", true). // sort by "user" field, ascending
 		From(0).Size(10).   // take documents 0-9
 		Pretty(true).       // pretty print request and response JSON

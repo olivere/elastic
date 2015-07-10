@@ -5,71 +5,64 @@
 package elastic
 
 // RegexpQuery allows you to use regular expression term queries.
+//
 // For more details, see
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html.
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html
 type RegexpQuery struct {
-	Query
 	name                  string
 	regexp                string
-	flags                 *string
+	flags                 string
 	boost                 *float64
-	rewrite               *string
-	queryName             *string
+	rewrite               string
+	queryName             string
 	maxDeterminizedStates *int
 }
 
-// NewRegexpQuery creates a new regexp query.
-func NewRegexpQuery(name string, regexp string) RegexpQuery {
-	return RegexpQuery{name: name, regexp: regexp}
+// NewRegexpQuery creates and initializes a new RegexpQuery.
+func NewRegexpQuery(name string, regexp string) *RegexpQuery {
+	return &RegexpQuery{name: name, regexp: regexp}
 }
 
 // Flags sets the regexp flags.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html#_optional_operators
-// for details.
-func (q RegexpQuery) Flags(flags string) RegexpQuery {
-	q.flags = &flags
+func (q *RegexpQuery) Flags(flags string) *RegexpQuery {
+	q.flags = flags
 	return q
 }
 
-func (q RegexpQuery) MaxDeterminizedStates(maxDeterminizedStates int) RegexpQuery {
+// MaxDeterminizedStates protects against complex regular expressions.
+func (q *RegexpQuery) MaxDeterminizedStates(maxDeterminizedStates int) *RegexpQuery {
 	q.maxDeterminizedStates = &maxDeterminizedStates
 	return q
 }
 
-func (q RegexpQuery) Boost(boost float64) RegexpQuery {
+// Boost sets the boost for this query.
+func (q *RegexpQuery) Boost(boost float64) *RegexpQuery {
 	q.boost = &boost
 	return q
 }
 
-func (q RegexpQuery) Rewrite(rewrite string) RegexpQuery {
-	q.rewrite = &rewrite
+func (q *RegexpQuery) Rewrite(rewrite string) *RegexpQuery {
+	q.rewrite = rewrite
 	return q
 }
 
-func (q RegexpQuery) QueryName(queryName string) RegexpQuery {
-	q.queryName = &queryName
+// QueryName sets the query name for the filter that can be used
+// when searching for matched_filters per hit
+func (q *RegexpQuery) QueryName(queryName string) *RegexpQuery {
+	q.queryName = queryName
 	return q
 }
 
 // Source returns the JSON-serializable query data.
-func (q RegexpQuery) Source() (interface{}, error) {
-	// {
-	//   "regexp" : {
-	//     "name.first" :  {
-	//       "value" : "s.*y",
-	//       "boost" : 1.2
-	//      }
-	//    }
-	// }
-
+func (q *RegexpQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	query := make(map[string]interface{})
 	source["regexp"] = query
 
 	x := make(map[string]interface{})
 	x["value"] = q.regexp
-	if q.flags != nil {
-		x["flags"] = *q.flags
+	if q.flags != "" {
+		x["flags"] = q.flags
 	}
 	if q.maxDeterminizedStates != nil {
 		x["max_determinized_states"] = *q.maxDeterminizedStates
@@ -77,11 +70,11 @@ func (q RegexpQuery) Source() (interface{}, error) {
 	if q.boost != nil {
 		x["boost"] = *q.boost
 	}
-	if q.rewrite != nil {
-		x["rewrite"] = *q.rewrite
+	if q.rewrite != "" {
+		x["rewrite"] = q.rewrite
 	}
-	if q.queryName != nil {
-		x["name"] = *q.queryName
+	if q.queryName != "" {
+		x["name"] = q.queryName
 	}
 	query[q.name] = x
 

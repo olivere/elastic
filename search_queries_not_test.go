@@ -9,9 +9,9 @@ import (
 	"testing"
 )
 
-func TestMatchAllQuery(t *testing.T) {
-	q := NewMatchAllQuery()
-	src, err := q.Source()
+func TestNotQuery(t *testing.T) {
+	f := NewNotQuery(NewTermQuery("user", "olivere"))
+	src, err := f.Source()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -20,15 +20,17 @@ func TestMatchAllQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match_all":{}}`
+	expected := `{"not":{"query":{"term":{"user":"olivere"}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
-func TestMatchAllQueryWithBoost(t *testing.T) {
-	q := NewMatchAllQuery().Boost(3.14)
-	src, err := q.Source()
+func TestNotQueryWithParams(t *testing.T) {
+	postDateFilter := NewRangeFilter("postDate").From("2010-03-01").To("2010-04-01")
+	f := NewNotQuery(postDateFilter)
+	f = f.QueryName("MyQueryName")
+	src, err := f.Source()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +39,7 @@ func TestMatchAllQueryWithBoost(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match_all":{"boost":3.14}}`
+	expected := `{"not":{"_name":"MyQueryName","query":{"range":{"postDate":{"from":"2010-03-01","include_lower":true,"include_upper":true,"to":"2010-04-01"}}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

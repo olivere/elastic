@@ -4,53 +4,45 @@
 
 package elastic
 
-// Matches documents that have fields containing terms
+// PrefixQuery matches documents that have fields containing terms
 // with a specified prefix (not analyzed).
+//
 // For more details, see
-// http://www.elasticsearch.org/guide/reference/query-dsl/prefix-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-prefix-query.html
 type PrefixQuery struct {
-	Query
 	name      string
 	prefix    string
-	boost     *float32
+	boost     *float64
 	rewrite   string
 	queryName string
 }
 
-// Creates a new prefix query.
-func NewPrefixQuery(name string, prefix string) PrefixQuery {
-	q := PrefixQuery{name: name, prefix: prefix}
-	return q
+// NewPrefixQuery creates and initializes a new PrefixQuery.
+func NewPrefixQuery(name string, prefix string) *PrefixQuery {
+	return &PrefixQuery{name: name, prefix: prefix}
 }
 
-func (q PrefixQuery) Boost(boost float32) PrefixQuery {
+// Boost sets the boost for this query.
+func (q *PrefixQuery) Boost(boost float64) *PrefixQuery {
 	q.boost = &boost
 	return q
 }
 
-func (q PrefixQuery) Rewrite(rewrite string) PrefixQuery {
+func (q *PrefixQuery) Rewrite(rewrite string) *PrefixQuery {
 	q.rewrite = rewrite
 	return q
 }
 
-func (q PrefixQuery) QueryName(queryName string) PrefixQuery {
+// QueryName sets the query name for the filter that can be used when
+// searching for matched_filters per hit.
+func (q *PrefixQuery) QueryName(queryName string) *PrefixQuery {
 	q.queryName = queryName
 	return q
 }
 
-// Creates the query source for the prefix query.
-func (q PrefixQuery) Source() (interface{}, error) {
-	// {
-	//   "prefix" : {
-	//     "user" :  {
-	//       "prefix" : "ki",
-	//       "boost" : 2.0
-	//      }
-	//    }
-	// }
-
+// Source returns JSON for the query.
+func (q *PrefixQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
-
 	query := make(map[string]interface{})
 	source["prefix"] = query
 

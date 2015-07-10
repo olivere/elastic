@@ -7,49 +7,49 @@ package elastic
 // TemplateQuery is a query that accepts a query template and a
 // map of key/value pairs to fill in template parameters.
 //
-// For more details, see:
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-template-query.html
+// For more details, see
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-template-query.html
 type TemplateQuery struct {
-	vars         map[string]interface{}
 	template     string
 	templateType string
+	vars         map[string]interface{}
 }
 
-// NewTemplateQuery creates a new TemplateQuery.
-func NewTemplateQuery(name string) TemplateQuery {
-	return TemplateQuery{
+// NewTemplateQuery creates and initializes a new TemplateQuery.
+func NewTemplateQuery(name string) *TemplateQuery {
+	return &TemplateQuery{
 		template: name,
 		vars:     make(map[string]interface{}),
 	}
 }
 
 // Template specifies the name of the template.
-func (q TemplateQuery) Template(name string) TemplateQuery {
+func (q *TemplateQuery) Template(name string) *TemplateQuery {
 	q.template = name
 	return q
 }
 
 // TemplateType defines which kind of query we use. The values can be:
 // inline, indexed, or file. If undefined, inline is used.
-func (q TemplateQuery) TemplateType(typ string) TemplateQuery {
+func (q *TemplateQuery) TemplateType(typ string) *TemplateQuery {
 	q.templateType = typ
 	return q
 }
 
 // Var sets a single parameter pair.
-func (q TemplateQuery) Var(name string, value interface{}) TemplateQuery {
+func (q *TemplateQuery) Var(name string, value interface{}) *TemplateQuery {
 	q.vars[name] = value
 	return q
 }
 
 // Vars sets parameters for the template query.
-func (q TemplateQuery) Vars(vars map[string]interface{}) TemplateQuery {
+func (q *TemplateQuery) Vars(vars map[string]interface{}) *TemplateQuery {
 	q.vars = vars
 	return q
 }
 
 // Source returns the JSON serializable content for the search.
-func (q TemplateQuery) Source() (interface{}, error) {
+func (q *TemplateQuery) Source() (interface{}, error) {
 	// {
 	//   "template" : {
 	//     "query" : {"match_{{template}}": {}},

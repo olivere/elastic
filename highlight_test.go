@@ -155,7 +155,7 @@ func TestHighlightWithTermQuery(t *testing.T) {
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Highlight(hl).
-		Query(&query).
+		Query(query).
 		Do()
 	if err != nil {
 		t.Fatal(err)

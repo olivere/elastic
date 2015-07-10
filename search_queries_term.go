@@ -4,35 +4,38 @@
 
 package elastic
 
-// A term query matches documents that contain
-// a term (not analyzed). For more details, see
-// http://www.elasticsearch.org/guide/reference/query-dsl/term-query.html
+// TermQuery finds documents that contain the exact term specified
+// in the inverted index.
+//
+// For details, see
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html
 type TermQuery struct {
-	Query
 	name      string
 	value     interface{}
-	boost     *float32
+	boost     *float64
 	queryName string
 }
 
-// Creates a new term query.
-func NewTermQuery(name string, value interface{}) TermQuery {
-	t := TermQuery{name: name, value: value}
-	return t
+// NewTermQuery creates and initializes a new TermQuery.
+func NewTermQuery(name string, value interface{}) *TermQuery {
+	return &TermQuery{name: name, value: value}
 }
 
-func (q TermQuery) Boost(boost float32) TermQuery {
+// Boost sets the boost for this query.
+func (q *TermQuery) Boost(boost float64) *TermQuery {
 	q.boost = &boost
 	return q
 }
 
-func (q TermQuery) QueryName(queryName string) TermQuery {
+// QueryName sets the query name for the filter that can be used
+// when searching for matched_filters per hit
+func (q *TermQuery) QueryName(queryName string) *TermQuery {
 	q.queryName = queryName
 	return q
 }
 
-// Creates the query source for the term query.
-func (q TermQuery) Source() (interface{}, error) {
+// Source returns JSON for the query.
+func (q *TermQuery) Source() (interface{}, error) {
 	// {"term":{"name":"value"}}
 	source := make(map[string]interface{})
 	tq := make(map[string]interface{})

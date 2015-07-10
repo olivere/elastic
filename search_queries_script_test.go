@@ -9,8 +9,8 @@ import (
 	"testing"
 )
 
-func TestMatchAllQuery(t *testing.T) {
-	q := NewMatchAllQuery()
+func TestScriptQuery(t *testing.T) {
+	q := NewScriptQuery("doc['num1'.value > 1")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -20,14 +20,15 @@ func TestMatchAllQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match_all":{}}`
+	expected := `{"script":{"script":"doc['num1'.value \u003e 1"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
-func TestMatchAllQueryWithBoost(t *testing.T) {
-	q := NewMatchAllQuery().Boost(3.14)
+func TestScriptQueryWithParams(t *testing.T) {
+	q := NewScriptQuery("doc['num1'.value > 1")
+	q = q.QueryName("MyQueryName")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +38,7 @@ func TestMatchAllQueryWithBoost(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match_all":{"boost":3.14}}`
+	expected := `{"script":{"_name":"MyQueryName","script":"doc['num1'.value \u003e 1"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

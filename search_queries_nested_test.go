@@ -10,12 +10,10 @@ import (
 )
 
 func TestNestedQuery(t *testing.T) {
-	q := NewNestedQuery("obj1")
 	bq := NewBoolQuery()
 	bq = bq.Must(NewTermQuery("obj1.name", "blue"))
 	bq = bq.Must(NewRangeQuery("obj1.count").Gt(5))
-	q = q.Query(bq)
-	q = q.QueryName("qname")
+	q := NewNestedQuery("obj1", bq).QueryName("qname")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -32,11 +30,10 @@ func TestNestedQuery(t *testing.T) {
 }
 
 func TestNestedQueryWithInnerHit(t *testing.T) {
-	q := NewNestedQuery("obj1")
 	bq := NewBoolQuery()
 	bq = bq.Must(NewTermQuery("obj1.name", "blue"))
 	bq = bq.Must(NewRangeQuery("obj1.count").Gt(5))
-	q = q.Query(bq)
+	q := NewNestedQuery("obj1", bq)
 	q = q.QueryName("qname")
 	q = q.InnerHit(NewInnerHit().Name("comments").Query(NewTermQuery("user", "olivere")))
 	src, err := q.Source()

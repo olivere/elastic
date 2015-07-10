@@ -4,15 +4,15 @@
 
 package elastic
 
-// The has_child query works the same as the has_child filter,
-// by automatically wrapping the filter with a constant_score
-// (when using the default score type).
+// HasChildQuery accepts a query and the child type to run against, and results
+// in parent documents that have child docs matching the query.
+//
 // For more details, see
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-has-child-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-has-child-query.html
 type HasChildQuery struct {
 	query              Query
 	childType          string
-	boost              *float32
+	boost              *float64
 	scoreType          string
 	minChildren        *int
 	maxChildren        *int
@@ -21,52 +21,65 @@ type HasChildQuery struct {
 	innerHit           *InnerHit
 }
 
-// NewHasChildQuery creates a new has_child query.
-func NewHasChildQuery(childType string, query Query) HasChildQuery {
-	q := HasChildQuery{
+// NewHasChildQuery creates and initializes a new has_child query.
+func NewHasChildQuery(childType string, query Query) *HasChildQuery {
+	return &HasChildQuery{
 		query:     query,
 		childType: childType,
 	}
-	return q
 }
 
-func (q HasChildQuery) Boost(boost float32) HasChildQuery {
+// Boost sets the boost for this query.
+func (q *HasChildQuery) Boost(boost float64) *HasChildQuery {
 	q.boost = &boost
 	return q
 }
 
-func (q HasChildQuery) ScoreType(scoreType string) HasChildQuery {
+// ScoreType defines how the scores from the matching child documents
+// are mapped into the parent document.
+func (q *HasChildQuery) ScoreType(scoreType string) *HasChildQuery {
 	q.scoreType = scoreType
 	return q
 }
 
-func (q HasChildQuery) MinChildren(minChildren int) HasChildQuery {
+// MinChildren defines the minimum number of children that are required
+// to match for the parent to be considered a match.
+func (q *HasChildQuery) MinChildren(minChildren int) *HasChildQuery {
 	q.minChildren = &minChildren
 	return q
 }
 
-func (q HasChildQuery) MaxChildren(maxChildren int) HasChildQuery {
+// MaxChildren defines the maximum number of children that are required
+// to match for the parent to be considered a match.
+func (q *HasChildQuery) MaxChildren(maxChildren int) *HasChildQuery {
 	q.maxChildren = &maxChildren
 	return q
 }
 
-func (q HasChildQuery) ShortCircuitCutoff(shortCircuitCutoff int) HasChildQuery {
+// ShortCircuitCutoff configures what cut off point only to evaluate
+// parent documents that contain the matching parent id terms instead
+// of evaluating all parent docs.
+func (q *HasChildQuery) ShortCircuitCutoff(shortCircuitCutoff int) *HasChildQuery {
 	q.shortCircuitCutoff = &shortCircuitCutoff
 	return q
 }
 
-func (q HasChildQuery) QueryName(queryName string) HasChildQuery {
+// QueryName specifies the query name for the filter that can be used when
+// searching for matched filters per hit.
+func (q *HasChildQuery) QueryName(queryName string) *HasChildQuery {
 	q.queryName = queryName
 	return q
 }
 
-func (q HasChildQuery) InnerHit(innerHit *InnerHit) HasChildQuery {
+// InnerHit sets the inner hit definition in the scope of this query and
+// reusing the defined type and query.
+func (q *HasChildQuery) InnerHit(innerHit *InnerHit) *HasChildQuery {
 	q.innerHit = innerHit
 	return q
 }
 
-// Creates the query source for the ids query.
-func (q HasChildQuery) Source() (interface{}, error) {
+// Source returns JSON for the function score query.
+func (q *HasChildQuery) Source() (interface{}, error) {
 	// {
 	//   "has_child" : {
 	//       "type" : "blog_tag",
@@ -78,7 +91,6 @@ func (q HasChildQuery) Source() (interface{}, error) {
 	//   }
 	// }
 	source := make(map[string]interface{})
-
 	query := make(map[string]interface{})
 	source["has_child"] = query
 

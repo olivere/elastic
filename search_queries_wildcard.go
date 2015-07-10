@@ -13,61 +13,42 @@ package elastic
 // The wildcard query maps to Lucene WildcardQuery.
 //
 // For more details, see
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html.
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html
 type WildcardQuery struct {
-	Query
-
 	name      string
 	wildcard  string
-	boost     float32
+	boost     *float64
 	rewrite   string
 	queryName string
 }
 
-// NewWildcardQuery creates a new wildcard query.
-func NewWildcardQuery(name, wildcard string) WildcardQuery {
-	q := WildcardQuery{
+// NewWildcardQuery creates and initializes a new WildcardQuery.
+func NewWildcardQuery(name, wildcard string) *WildcardQuery {
+	return &WildcardQuery{
 		name:     name,
 		wildcard: wildcard,
-		boost:    -1.0,
 	}
-	return q
-}
-
-// Name is the name of the field name.
-func (q WildcardQuery) Name(name string) WildcardQuery {
-	q.name = name
-	return q
-}
-
-// Wildcard is the wildcard to be used in the query, e.g. ki*y??.
-func (q WildcardQuery) Wildcard(wildcard string) WildcardQuery {
-	q.wildcard = wildcard
-	return q
 }
 
 // Boost sets the boost for this query.
-func (q WildcardQuery) Boost(boost float32) WildcardQuery {
-	q.boost = boost
+func (q *WildcardQuery) Boost(boost float64) *WildcardQuery {
+	q.boost = &boost
 	return q
 }
 
-// Rewrite controls the rewriting.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-multi-term-rewrite.html
-// for details.
-func (q WildcardQuery) Rewrite(rewrite string) WildcardQuery {
+func (q *WildcardQuery) Rewrite(rewrite string) *WildcardQuery {
 	q.rewrite = rewrite
 	return q
 }
 
 // QueryName sets the name of this query.
-func (q WildcardQuery) QueryName(queryName string) WildcardQuery {
+func (q *WildcardQuery) QueryName(queryName string) *WildcardQuery {
 	q.queryName = queryName
 	return q
 }
 
 // Source returns the JSON serializable body of this query.
-func (q WildcardQuery) Source() (interface{}, error) {
+func (q *WildcardQuery) Source() (interface{}, error) {
 	// {
 	//	"wildcard" : {
 	//		"user" : {
@@ -86,8 +67,8 @@ func (q WildcardQuery) Source() (interface{}, error) {
 
 	wq["wildcard"] = q.wildcard
 
-	if q.boost != -1.0 {
-		wq["boost"] = q.boost
+	if q.boost != nil {
+		wq["boost"] = *q.boost
 	}
 	if q.rewrite != "" {
 		wq["rewrite"] = q.rewrite

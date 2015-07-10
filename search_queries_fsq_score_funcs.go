@@ -31,45 +31,45 @@ type ExponentialDecayFunction struct {
 }
 
 // NewExponentialDecayFunction creates a new ExponentialDecayFunction.
-func NewExponentialDecayFunction() ExponentialDecayFunction {
-	return ExponentialDecayFunction{}
+func NewExponentialDecayFunction() *ExponentialDecayFunction {
+	return &ExponentialDecayFunction{}
 }
 
 // Name represents the JSON field name under which the output of Source
 // needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
-func (fn ExponentialDecayFunction) Name() string {
+func (fn *ExponentialDecayFunction) Name() string {
 	return "exp"
 }
 
 // FieldName specifies the name of the field to which this decay function is applied to.
-func (fn ExponentialDecayFunction) FieldName(fieldName string) ExponentialDecayFunction {
+func (fn *ExponentialDecayFunction) FieldName(fieldName string) *ExponentialDecayFunction {
 	fn.fieldName = fieldName
 	return fn
 }
 
 // Origin defines the "central point" by which the decay function calculates
 // "distance".
-func (fn ExponentialDecayFunction) Origin(origin interface{}) ExponentialDecayFunction {
+func (fn *ExponentialDecayFunction) Origin(origin interface{}) *ExponentialDecayFunction {
 	fn.origin = origin
 	return fn
 }
 
 // Scale defines the scale to be used with Decay.
-func (fn ExponentialDecayFunction) Scale(scale interface{}) ExponentialDecayFunction {
+func (fn *ExponentialDecayFunction) Scale(scale interface{}) *ExponentialDecayFunction {
 	fn.scale = scale
 	return fn
 }
 
 // Decay defines how documents are scored at the distance given a Scale.
 // If no decay is defined, documents at the distance Scale will be scored 0.5.
-func (fn ExponentialDecayFunction) Decay(decay float64) ExponentialDecayFunction {
+func (fn *ExponentialDecayFunction) Decay(decay float64) *ExponentialDecayFunction {
 	fn.decay = &decay
 	return fn
 }
 
 // Offset, if defined, computes the decay function only for a distance
 // greater than the defined offset.
-func (fn ExponentialDecayFunction) Offset(offset interface{}) ExponentialDecayFunction {
+func (fn *ExponentialDecayFunction) Offset(offset interface{}) *ExponentialDecayFunction {
 	fn.offset = offset
 	return fn
 }
@@ -77,27 +77,27 @@ func (fn ExponentialDecayFunction) Offset(offset interface{}) ExponentialDecayFu
 // Weight adjusts the score of the score function.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_using_function_score
 // for details.
-func (fn ExponentialDecayFunction) Weight(weight float64) ExponentialDecayFunction {
+func (fn *ExponentialDecayFunction) Weight(weight float64) *ExponentialDecayFunction {
 	fn.weight = &weight
 	return fn
 }
 
 // GetWeight returns the adjusted score. It is part of the ScoreFunction interface.
 // Returns nil if weight is not specified.
-func (fn ExponentialDecayFunction) GetWeight() *float64 {
+func (fn *ExponentialDecayFunction) GetWeight() *float64 {
 	return fn.weight
 }
 
 // MultiValueMode specifies how the decay function should be calculated
 // on a field that has multiple values.
 // Valid modes are: min, max, avg, and sum.
-func (fn ExponentialDecayFunction) MultiValueMode(mode string) ExponentialDecayFunction {
+func (fn *ExponentialDecayFunction) MultiValueMode(mode string) *ExponentialDecayFunction {
 	fn.multiValueMode = mode
 	return fn
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn ExponentialDecayFunction) Source() (interface{}, error) {
+func (fn *ExponentialDecayFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source[fn.fieldName] = params
@@ -133,45 +133,45 @@ type GaussDecayFunction struct {
 }
 
 // NewGaussDecayFunction returns a new GaussDecayFunction.
-func NewGaussDecayFunction() GaussDecayFunction {
-	return GaussDecayFunction{}
+func NewGaussDecayFunction() *GaussDecayFunction {
+	return &GaussDecayFunction{}
 }
 
 // Name represents the JSON field name under which the output of Source
 // needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
-func (fn GaussDecayFunction) Name() string {
+func (fn *GaussDecayFunction) Name() string {
 	return "gauss"
 }
 
 // FieldName specifies the name of the field to which this decay function is applied to.
-func (fn GaussDecayFunction) FieldName(fieldName string) GaussDecayFunction {
+func (fn *GaussDecayFunction) FieldName(fieldName string) *GaussDecayFunction {
 	fn.fieldName = fieldName
 	return fn
 }
 
 // Origin defines the "central point" by which the decay function calculates
 // "distance".
-func (fn GaussDecayFunction) Origin(origin interface{}) GaussDecayFunction {
+func (fn *GaussDecayFunction) Origin(origin interface{}) *GaussDecayFunction {
 	fn.origin = origin
 	return fn
 }
 
 // Scale defines the scale to be used with Decay.
-func (fn GaussDecayFunction) Scale(scale interface{}) GaussDecayFunction {
+func (fn *GaussDecayFunction) Scale(scale interface{}) *GaussDecayFunction {
 	fn.scale = scale
 	return fn
 }
 
 // Decay defines how documents are scored at the distance given a Scale.
 // If no decay is defined, documents at the distance Scale will be scored 0.5.
-func (fn GaussDecayFunction) Decay(decay float64) GaussDecayFunction {
+func (fn *GaussDecayFunction) Decay(decay float64) *GaussDecayFunction {
 	fn.decay = &decay
 	return fn
 }
 
 // Offset, if defined, computes the decay function only for a distance
 // greater than the defined offset.
-func (fn GaussDecayFunction) Offset(offset interface{}) GaussDecayFunction {
+func (fn *GaussDecayFunction) Offset(offset interface{}) *GaussDecayFunction {
 	fn.offset = offset
 	return fn
 }
@@ -179,27 +179,27 @@ func (fn GaussDecayFunction) Offset(offset interface{}) GaussDecayFunction {
 // Weight adjusts the score of the score function.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_using_function_score
 // for details.
-func (fn GaussDecayFunction) Weight(weight float64) GaussDecayFunction {
+func (fn *GaussDecayFunction) Weight(weight float64) *GaussDecayFunction {
 	fn.weight = &weight
 	return fn
 }
 
 // GetWeight returns the adjusted score. It is part of the ScoreFunction interface.
 // Returns nil if weight is not specified.
-func (fn GaussDecayFunction) GetWeight() *float64 {
+func (fn *GaussDecayFunction) GetWeight() *float64 {
 	return fn.weight
 }
 
 // MultiValueMode specifies how the decay function should be calculated
 // on a field that has multiple values.
 // Valid modes are: min, max, avg, and sum.
-func (fn GaussDecayFunction) MultiValueMode(mode string) GaussDecayFunction {
+func (fn *GaussDecayFunction) MultiValueMode(mode string) *GaussDecayFunction {
 	fn.multiValueMode = mode
 	return fn
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn GaussDecayFunction) Source() (interface{}, error) {
+func (fn *GaussDecayFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source[fn.fieldName] = params
@@ -236,45 +236,45 @@ type LinearDecayFunction struct {
 }
 
 // NewLinearDecayFunction initializes and returns a new LinearDecayFunction.
-func NewLinearDecayFunction() LinearDecayFunction {
-	return LinearDecayFunction{}
+func NewLinearDecayFunction() *LinearDecayFunction {
+	return &LinearDecayFunction{}
 }
 
 // Name represents the JSON field name under which the output of Source
 // needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
-func (fn LinearDecayFunction) Name() string {
+func (fn *LinearDecayFunction) Name() string {
 	return "linear"
 }
 
 // FieldName specifies the name of the field to which this decay function is applied to.
-func (fn LinearDecayFunction) FieldName(fieldName string) LinearDecayFunction {
+func (fn *LinearDecayFunction) FieldName(fieldName string) *LinearDecayFunction {
 	fn.fieldName = fieldName
 	return fn
 }
 
 // Origin defines the "central point" by which the decay function calculates
 // "distance".
-func (fn LinearDecayFunction) Origin(origin interface{}) LinearDecayFunction {
+func (fn *LinearDecayFunction) Origin(origin interface{}) *LinearDecayFunction {
 	fn.origin = origin
 	return fn
 }
 
 // Scale defines the scale to be used with Decay.
-func (fn LinearDecayFunction) Scale(scale interface{}) LinearDecayFunction {
+func (fn *LinearDecayFunction) Scale(scale interface{}) *LinearDecayFunction {
 	fn.scale = scale
 	return fn
 }
 
 // Decay defines how documents are scored at the distance given a Scale.
 // If no decay is defined, documents at the distance Scale will be scored 0.5.
-func (fn LinearDecayFunction) Decay(decay float64) LinearDecayFunction {
+func (fn *LinearDecayFunction) Decay(decay float64) *LinearDecayFunction {
 	fn.decay = &decay
 	return fn
 }
 
 // Offset, if defined, computes the decay function only for a distance
 // greater than the defined offset.
-func (fn LinearDecayFunction) Offset(offset interface{}) LinearDecayFunction {
+func (fn *LinearDecayFunction) Offset(offset interface{}) *LinearDecayFunction {
 	fn.offset = offset
 	return fn
 }
@@ -282,21 +282,21 @@ func (fn LinearDecayFunction) Offset(offset interface{}) LinearDecayFunction {
 // Weight adjusts the score of the score function.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_using_function_score
 // for details.
-func (fn LinearDecayFunction) Weight(weight float64) LinearDecayFunction {
+func (fn *LinearDecayFunction) Weight(weight float64) *LinearDecayFunction {
 	fn.weight = &weight
 	return fn
 }
 
 // GetWeight returns the adjusted score. It is part of the ScoreFunction interface.
 // Returns nil if weight is not specified.
-func (fn LinearDecayFunction) GetWeight() *float64 {
+func (fn *LinearDecayFunction) GetWeight() *float64 {
 	return fn.weight
 }
 
 // MultiValueMode specifies how the decay function should be calculated
 // on a field that has multiple values.
 // Valid modes are: min, max, avg, and sum.
-func (fn LinearDecayFunction) MultiValueMode(mode string) LinearDecayFunction {
+func (fn *LinearDecayFunction) MultiValueMode(mode string) *LinearDecayFunction {
 	fn.multiValueMode = mode
 	return fn
 }
@@ -304,12 +304,12 @@ func (fn LinearDecayFunction) MultiValueMode(mode string) LinearDecayFunction {
 // GetMultiValueMode returns how the decay function should be calculated
 // on a field that has multiple values.
 // Valid modes are: min, max, avg, and sum.
-func (fn LinearDecayFunction) GetMultiValueMode() string {
+func (fn *LinearDecayFunction) GetMultiValueMode() string {
 	return fn.multiValueMode
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn LinearDecayFunction) Source() (interface{}, error) {
+func (fn *LinearDecayFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source[fn.fieldName] = params
@@ -346,8 +346,8 @@ type ScriptFunction struct {
 }
 
 // NewScriptFunction initializes and returns a new ScriptFunction.
-func NewScriptFunction(script string) ScriptFunction {
-	return ScriptFunction{
+func NewScriptFunction(script string) *ScriptFunction {
+	return &ScriptFunction{
 		script: script,
 		params: make(map[string]interface{}),
 	}
@@ -355,30 +355,30 @@ func NewScriptFunction(script string) ScriptFunction {
 
 // Name represents the JSON field name under which the output of Source
 // needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
-func (fn ScriptFunction) Name() string {
+func (fn *ScriptFunction) Name() string {
 	return "script_score"
 }
 
 // Script specifies the script to be executed.
-func (fn ScriptFunction) Script(script string) ScriptFunction {
+func (fn *ScriptFunction) Script(script string) *ScriptFunction {
 	fn.script = script
 	return fn
 }
 
 // Lang	specifies the language of the Script.
-func (fn ScriptFunction) Lang(lang string) ScriptFunction {
+func (fn *ScriptFunction) Lang(lang string) *ScriptFunction {
 	fn.lang = lang
 	return fn
 }
 
 // Param adds a single parameter to the script.
-func (fn ScriptFunction) Param(name string, value interface{}) ScriptFunction {
+func (fn *ScriptFunction) Param(name string, value interface{}) *ScriptFunction {
 	fn.params[name] = value
 	return fn
 }
 
 // Params sets all script parameters in a single step.
-func (fn ScriptFunction) Params(params map[string]interface{}) ScriptFunction {
+func (fn *ScriptFunction) Params(params map[string]interface{}) *ScriptFunction {
 	fn.params = params
 	return fn
 }
@@ -386,19 +386,19 @@ func (fn ScriptFunction) Params(params map[string]interface{}) ScriptFunction {
 // Weight adjusts the score of the score function.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_using_function_score
 // for details.
-func (fn ScriptFunction) Weight(weight float64) ScriptFunction {
+func (fn *ScriptFunction) Weight(weight float64) *ScriptFunction {
 	fn.weight = &weight
 	return fn
 }
 
 // GetWeight returns the adjusted score. It is part of the ScoreFunction interface.
 // Returns nil if weight is not specified.
-func (fn ScriptFunction) GetWeight() *float64 {
+func (fn *ScriptFunction) GetWeight() *float64 {
 	return fn.weight
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn ScriptFunction) Source() (interface{}, error) {
+func (fn *ScriptFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if fn.script != "" {
 		source["script"] = fn.script
@@ -427,32 +427,32 @@ type FieldValueFactorFunction struct {
 }
 
 // NewFieldValueFactorFunction initializes and returns a new FieldValueFactorFunction.
-func NewFieldValueFactorFunction() FieldValueFactorFunction {
-	return FieldValueFactorFunction{}
+func NewFieldValueFactorFunction() *FieldValueFactorFunction {
+	return &FieldValueFactorFunction{}
 }
 
 // Name represents the JSON field name under which the output of Source
 // needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
-func (fn FieldValueFactorFunction) Name() string {
+func (fn *FieldValueFactorFunction) Name() string {
 	return "field_value_factor"
 }
 
 // Field is the field to be extracted from the document.
-func (fn FieldValueFactorFunction) Field(field string) FieldValueFactorFunction {
+func (fn *FieldValueFactorFunction) Field(field string) *FieldValueFactorFunction {
 	fn.field = field
 	return fn
 }
 
 // Factor is the (optional) factor to multiply the field with. If you do not
 // specify a factor, the default is 1.
-func (fn FieldValueFactorFunction) Factor(factor float64) FieldValueFactorFunction {
+func (fn *FieldValueFactorFunction) Factor(factor float64) *FieldValueFactorFunction {
 	fn.factor = &factor
 	return fn
 }
 
 // Modifier to apply to the field value. It can be one of: none, log, log1p,
 // log2p, ln, ln1p, ln2p, square, sqrt, or reciprocal. Defaults to: none.
-func (fn FieldValueFactorFunction) Modifier(modifier string) FieldValueFactorFunction {
+func (fn *FieldValueFactorFunction) Modifier(modifier string) *FieldValueFactorFunction {
 	fn.modifier = modifier
 	return fn
 }
@@ -460,25 +460,25 @@ func (fn FieldValueFactorFunction) Modifier(modifier string) FieldValueFactorFun
 // Weight adjusts the score of the score function.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_using_function_score
 // for details.
-func (fn FieldValueFactorFunction) Weight(weight float64) FieldValueFactorFunction {
+func (fn *FieldValueFactorFunction) Weight(weight float64) *FieldValueFactorFunction {
 	fn.weight = &weight
 	return fn
 }
 
 // GetWeight returns the adjusted score. It is part of the ScoreFunction interface.
 // Returns nil if weight is not specified.
-func (fn FieldValueFactorFunction) GetWeight() *float64 {
+func (fn *FieldValueFactorFunction) GetWeight() *float64 {
 	return fn.weight
 }
 
 // Missing is used if a document does not have that field.
-func (fn FieldValueFactorFunction) Missing(missing float64) FieldValueFactorFunction {
+func (fn *FieldValueFactorFunction) Missing(missing float64) *FieldValueFactorFunction {
 	fn.missing = &missing
 	return fn
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn FieldValueFactorFunction) Source() (interface{}, error) {
+func (fn *FieldValueFactorFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if fn.field != "" {
 		source["field"] = fn.field
@@ -507,32 +507,32 @@ type WeightFactorFunction struct {
 }
 
 // NewWeightFactorFunction initializes and returns a new WeightFactorFunction.
-func NewWeightFactorFunction(weight float64) WeightFactorFunction {
-	return WeightFactorFunction{weight: weight}
+func NewWeightFactorFunction(weight float64) *WeightFactorFunction {
+	return &WeightFactorFunction{weight: weight}
 }
 
 // Name represents the JSON field name under which the output of Source
 // needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
-func (fn WeightFactorFunction) Name() string {
+func (fn *WeightFactorFunction) Name() string {
 	return "weight"
 }
 
 // Weight adjusts the score of the score function.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_using_function_score
 // for details.
-func (fn WeightFactorFunction) Weight(weight float64) WeightFactorFunction {
+func (fn *WeightFactorFunction) Weight(weight float64) *WeightFactorFunction {
 	fn.weight = weight
 	return fn
 }
 
 // GetWeight returns the adjusted score. It is part of the ScoreFunction interface.
 // Returns nil if weight is not specified.
-func (fn WeightFactorFunction) GetWeight() *float64 {
+func (fn *WeightFactorFunction) GetWeight() *float64 {
 	return &fn.weight
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn WeightFactorFunction) Source() (interface{}, error) {
+func (fn *WeightFactorFunction) Source() (interface{}, error) {
 	// Notice that the weight has to be serialized in FunctionScoreQuery.
 	return fn.weight, nil
 }
@@ -548,19 +548,19 @@ type RandomFunction struct {
 }
 
 // NewRandomFunction initializes and returns a new RandomFunction.
-func NewRandomFunction() RandomFunction {
-	return RandomFunction{}
+func NewRandomFunction() *RandomFunction {
+	return &RandomFunction{}
 }
 
 // Name represents the JSON field name under which the output of Source
 // needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
-func (fn RandomFunction) Name() string {
+func (fn *RandomFunction) Name() string {
 	return "random_score"
 }
 
 // Seed is documented in 1.6 as a numeric value. However, in the source code
 // of the Java client, it also accepts strings. So we accept both here, too.
-func (fn RandomFunction) Seed(seed interface{}) RandomFunction {
+func (fn *RandomFunction) Seed(seed interface{}) *RandomFunction {
 	fn.seed = seed
 	return fn
 }
@@ -568,19 +568,19 @@ func (fn RandomFunction) Seed(seed interface{}) RandomFunction {
 // Weight adjusts the score of the score function.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_using_function_score
 // for details.
-func (fn RandomFunction) Weight(weight float64) RandomFunction {
+func (fn *RandomFunction) Weight(weight float64) *RandomFunction {
 	fn.weight = &weight
 	return fn
 }
 
 // GetWeight returns the adjusted score. It is part of the ScoreFunction interface.
 // Returns nil if weight is not specified.
-func (fn RandomFunction) GetWeight() *float64 {
+func (fn *RandomFunction) GetWeight() *float64 {
 	return fn.weight
 }
 
 // Source returns the serializable JSON data of this score function.
-func (fn RandomFunction) Source() (interface{}, error) {
+func (fn *RandomFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if fn.seed != nil {
 		source["seed"] = fn.seed
