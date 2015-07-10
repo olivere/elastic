@@ -22,6 +22,7 @@ type SearchSource struct {
 	trackScores              bool
 	minScore                 *float64
 	timeout                  string
+	terminateAfter           *int
 	fieldNames               []string
 	fieldDataFields          []string
 	scriptFields             []*ScriptField
@@ -96,6 +97,11 @@ func (s *SearchSource) Version(version bool) *SearchSource {
 
 func (s *SearchSource) Timeout(timeout string) *SearchSource {
 	s.timeout = timeout
+	return s
+}
+
+func (s *SearchSource) TerminateAfter(terminateAfter int) *SearchSource {
+	s.terminateAfter = &terminateAfter
 	return s
 }
 
@@ -257,6 +263,9 @@ func (s *SearchSource) Source() (interface{}, error) {
 	}
 	if s.timeout != "" {
 		source["timeout"] = s.timeout
+	}
+	if s.terminateAfter != nil {
+		source["terminate_after"] = *s.terminateAfter
 	}
 	if s.query != nil {
 		src, err := s.query.Source()
