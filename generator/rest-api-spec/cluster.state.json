@@ -1,6 +1,6 @@
 {
   "cluster.state": {
-    "documentation": "http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.x/cluster-state.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/cluster-state.html",
     "methods": ["GET"],
     "url": {
       "path": "/_cluster/state",
@@ -16,7 +16,7 @@
         },
         "metric" : {
           "type" : "list",
-          "options" : ["_all", "blocks", "metadata", "nodes", "routing_table", "master_node", "version"],
+          "options" : ["_all", "blocks", "metadata", "nodes", "routing_table", "routing_nodes", "master_node", "version"],
           "description" : "Limit the information returned to the specified metrics"
         }
       },

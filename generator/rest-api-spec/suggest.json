@@ -1,6 +1,6 @@
 {
   "suggest": {
-    "documentation": "http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.x/search-suggesters.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/search-suggesters.html",
     "methods": ["POST", "GET"],
     "url": {
       "path": "/_suggest",
@@ -33,10 +33,6 @@
         "routing": {
           "type" : "string",
           "description" : "Specific routing value"
-        },
-        "source": {
-          "type" : "string",
-          "description" : "The URL-encoded request definition (instead of using request body)"
         }
       }
     },

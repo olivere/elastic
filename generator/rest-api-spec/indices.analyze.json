@@ -1,6 +1,6 @@
 {
   "indices.analyze": {
-    "documentation": "http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.x/indices-analyze.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/indices-analyze.html",
     "methods": ["GET", "POST"],
     "url": {
       "path": "/_analyze",
@@ -12,10 +12,6 @@
         }
       },
       "params": {
-        "source": {
-          "type" : "string",
-          "description" : "The URL-encoded request definition"
-        },
         "analyzer": {
           "type" : "string",
           "description" : "The name of the analyzer to use"

@@ -11,6 +11,7 @@
 //go:generate go run builder.go -i=rest-api-spec/cat.pending_tasks.json
 //go:generate go run builder.go -i=rest-api-spec/cat.plugins.json
 //go:generate go run builder.go -i=rest-api-spec/cat.recovery.json
+//go:generate go run builder.go -i=rest-api-spec/cat.segments.json
 //go:generate go run builder.go -i=rest-api-spec/cat.shards.json
 //go:generate go run builder.go -i=rest-api-spec/cat.thread_pool.json
 //go:generate go run builder.go -i=rest-api-spec/clear_scroll.json
@@ -29,6 +30,7 @@
 //go:generate go run builder.go -i=rest-api-spec/delete_template.json
 //go:generate go run builder.go -i=rest-api-spec/exists.json
 //go:generate go run builder.go -i=rest-api-spec/explain.json
+//go:generate go run builder.go -i=rest-api-spec/field_stats.json
 //go:generate go run builder.go -i=rest-api-spec/get.json
 //go:generate go run builder.go -i=rest-api-spec/get_script.json
 //go:generate go run builder.go -i=rest-api-spec/get_source.json
@@ -48,6 +50,7 @@
 //go:generate go run builder.go -i=rest-api-spec/indices.exists_template.json
 //go:generate go run builder.go -i=rest-api-spec/indices.exists_type.json
 //go:generate go run builder.go -i=rest-api-spec/indices.flush.json
+//go:generate go run builder.go -i=rest-api-spec/indices.flush_synced.json
 //go:generate go run builder.go -i=rest-api-spec/indices.get.json
 //go:generate go run builder.go -i=rest-api-spec/indices.get_alias.json
 //go:generate go run builder.go -i=rest-api-spec/indices.get_aliases.json
