@@ -14,7 +14,6 @@ type TermsFilter struct {
 	cache      *bool
 	cacheKey   string
 	filterName string
-	execution  string
 }
 
 func NewTermsFilter(name string, values ...interface{}) TermsFilter {
@@ -41,11 +40,6 @@ func (f TermsFilter) FilterName(filterName string) TermsFilter {
 	return f
 }
 
-func (f TermsFilter) Execution(execution string) TermsFilter {
-	f.execution = execution
-	return f
-}
-
 func (f TermsFilter) Source() (interface{}, error) {
 	// {
 	//   "terms" : {
@@ -59,9 +53,6 @@ func (f TermsFilter) Source() (interface{}, error) {
 	params[f.name] = f.values
 	if f.filterName != "" {
 		params["_name"] = f.filterName
-	}
-	if f.execution != "" {
-		params["execution"] = f.execution
 	}
 	if f.cache != nil {
 		params["_cache"] = *f.cache

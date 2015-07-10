@@ -11,12 +11,10 @@ package elastic
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html
 type TermsQuery struct {
 	Query
-	name               string
-	values             []interface{}
-	minimumShouldMatch string
-	disableCoord       *bool
-	boost              *float32
-	queryName          string
+	name      string
+	values    []interface{}
+	boost     *float32
+	queryName string
 }
 
 // NewTermsQuery creates a new terms query.
@@ -29,16 +27,6 @@ func NewTermsQuery(name string, values ...interface{}) TermsQuery {
 		t.values = append(t.values, values...)
 	}
 	return t
-}
-
-func (q TermsQuery) MinimumShouldMatch(minimumShouldMatch string) TermsQuery {
-	q.minimumShouldMatch = minimumShouldMatch
-	return q
-}
-
-func (q TermsQuery) DisableCoord(disableCoord bool) TermsQuery {
-	q.disableCoord = &disableCoord
-	return q
 }
 
 func (q TermsQuery) Boost(boost float32) TermsQuery {
@@ -58,12 +46,6 @@ func (q TermsQuery) Source() (interface{}, error) {
 	params := make(map[string]interface{})
 	source["terms"] = params
 	params[q.name] = q.values
-	if q.minimumShouldMatch != "" {
-		params["minimum_should_match"] = q.minimumShouldMatch
-	}
-	if q.disableCoord != nil {
-		params["disable_coord"] = *q.disableCoord
-	}
 	if q.boost != nil {
 		params["boost"] = *q.boost
 	}

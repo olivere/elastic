@@ -14,7 +14,6 @@ func TestTermsFilter(t *testing.T) {
 	f = f.Cache(true)
 	f = f.CacheKey("MyTermsFilter")
 	f = f.FilterName("MyFilterName")
-	f = f.Execution("plain")
 	src, err := f.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -24,7 +23,7 @@ func TestTermsFilter(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"terms":{"_cache":true,"_cache_key":"MyTermsFilter","_name":"MyFilterName","execution":"plain","user":["kimchy","elasticsearch"]}}`
+	expected := `{"terms":{"_cache":true,"_cache_key":"MyTermsFilter","_name":"MyFilterName","user":["kimchy","elasticsearch"]}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
