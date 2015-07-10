@@ -4,6 +4,8 @@
 
 package elastic
 
+import "fmt"
+
 // A bool query matches documents matching boolean
 // combinations of other queries.
 // For more details, see:
@@ -11,8 +13,9 @@ package elastic
 type BoolQuery struct {
 	Query
 	mustClauses        []Query
-	shouldClauses      []Query
 	mustNotClauses     []Query
+	filterClauses      []Query
+	shouldClauses      []Query
 	boost              *float32
 	disableCoord       *bool
 	minimumShouldMatch string
@@ -24,8 +27,9 @@ type BoolQuery struct {
 func NewBoolQuery() BoolQuery {
 	q := BoolQuery{
 		mustClauses:    make([]Query, 0),
-		shouldClauses:  make([]Query, 0),
 		mustNotClauses: make([]Query, 0),
+		filterClauses:  make([]Query, 0),
+		shouldClauses:  make([]Query, 0),
 	}
 	return q
 }
@@ -37,6 +41,11 @@ func (q BoolQuery) Must(queries ...Query) BoolQuery {
 
 func (q BoolQuery) MustNot(queries ...Query) BoolQuery {
 	q.mustNotClauses = append(q.mustNotClauses, queries...)
+	return q
+}
+
+func (q BoolQuery) Filter(filters ...Query) BoolQuery {
+	q.filterClauses = append(q.filterClauses, filters...)
 	return q
 }
 
@@ -57,6 +66,11 @@ func (q BoolQuery) DisableCoord(disableCoord bool) BoolQuery {
 
 func (q BoolQuery) MinimumShouldMatch(minimumShouldMatch string) BoolQuery {
 	q.minimumShouldMatch = minimumShouldMatch
+	return q
+}
+
+func (q BoolQuery) MinimumNumberShouldMatch(minimumNumberShouldMatch int) BoolQuery {
+	q.minimumShouldMatch = fmt.Sprintf("%d", minimumNumberShouldMatch)
 	return q
 }
 
@@ -82,6 +96,9 @@ func (q BoolQuery) Source() (interface{}, error) {
 	//				"age" : { "from" : 10, "to" : 20 }
 	//			}
 	//		},
+	//    "filter" : [
+	//      ...
+	//    ]
 	//		"should" : [
 	//			{
 	//				"term" : { "tag" : "wow" }
@@ -136,6 +153,25 @@ func (q BoolQuery) Source() (interface{}, error) {
 			clauses = append(clauses, src)
 		}
 		boolClause["must_not"] = clauses
+	}
+
+	// filter
+	if len(q.filterClauses) == 1 {
+		src, err := q.filterClauses[0].Source()
+		if err != nil {
+			return nil, err
+		}
+		boolClause["filter"] = src
+	} else if len(q.filterClauses) > 1 {
+		clauses := make([]interface{}, 0)
+		for _, subQuery := range q.filterClauses {
+			src, err := subQuery.Source()
+			if err != nil {
+				return nil, err
+			}
+			clauses = append(clauses, src)
+		}
+		boolClause["filter"] = clauses
 	}
 
 	// should
