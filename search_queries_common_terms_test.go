@@ -10,7 +10,24 @@ import (
 	"testing"
 )
 
-func TestSearchQueriesCommon(t *testing.T) {
+func TestCommonTermsQuery(t *testing.T) {
+	q := NewCommonTermsQuery("message", "Golang").CutoffFrequency(0.001)
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"common":{"message":{"cutoff_frequency":0.001,"query":"Golang"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSearchQueriesCommonTermsQuery(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
@@ -38,9 +55,9 @@ func TestSearchQueriesCommon(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Common query
-	q := NewCommonQuery("message", "Golang")
-	searchResult, err := client.Search().Index(testIndexName).Query(&q).Do()
+	// Common terms query
+	q := NewCommonTermsQuery("message", "Golang")
+	searchResult, err := client.Search().Index(testIndexName).Query(q).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
