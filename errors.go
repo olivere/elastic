@@ -21,6 +21,9 @@ var (
 
 	// ErrMissingId is returned e.g. from DeleteService if the document identifier is missing.
 	ErrMissingId = errors.New("elastic: id is missing")
+
+	// ErrPluginNotFound is returned when using a service that requires a plugin that is not available.
+	ErrPluginNotFound = errors.New("elastic: plugin not found")
 )
 
 func checkResponse(res *http.Response) error {

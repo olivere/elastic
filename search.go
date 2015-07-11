@@ -432,7 +432,7 @@ type SearchSuggestion struct {
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters.html.
 type SearchSuggestionOption struct {
 	Text    string      `json:"text"`
-	Score   float32     `json:"score"`
+	Score   float64     `json:"score"`
 	Freq    int         `json:"freq"`
 	Payload interface{} `json:"payload"`
 }

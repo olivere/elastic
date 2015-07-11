@@ -785,9 +785,8 @@ func TestSearchInnerHitsOnHasParent(t *testing.T) {
 
 	bq := NewBoolQuery()
 	bq = bq.Must(NewMatchAllQuery())
-	bq = bq.Filter(
-		NewHasParentQuery("tweet", NewMatchAllQuery()).
-			InnerHit(NewInnerHit().Name("tweets")))
+	bq = bq.Filter(NewHasParentQuery("tweet", NewMatchAllQuery()).
+		InnerHit(NewInnerHit().Name("tweets")))
 
 	searchResult, err := client.Search().
 		Index(testIndexName).

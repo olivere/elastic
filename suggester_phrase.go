@@ -17,10 +17,10 @@ type PhraseSuggester struct {
 	contextQueries []SuggesterContextQuery
 
 	// fields specific to a phrase suggester
-	maxErrors               *float32
+	maxErrors               *float64
 	separator               *string
-	realWordErrorLikelihood *float32
-	confidence              *float32
+	realWordErrorLikelihood *float64
+	confidence              *float64
 	generators              map[string][]CandidateGenerator
 	gramSize                *int
 	smoothingModel          SmoothingModel
@@ -89,7 +89,7 @@ func (q PhraseSuggester) GramSize(gramSize int) PhraseSuggester {
 	return q
 }
 
-func (q PhraseSuggester) MaxErrors(maxErrors float32) PhraseSuggester {
+func (q PhraseSuggester) MaxErrors(maxErrors float64) PhraseSuggester {
 	q.maxErrors = &maxErrors
 	return q
 }
@@ -99,12 +99,12 @@ func (q PhraseSuggester) Separator(separator string) PhraseSuggester {
 	return q
 }
 
-func (q PhraseSuggester) RealWordErrorLikelihood(realWordErrorLikelihood float32) PhraseSuggester {
+func (q PhraseSuggester) RealWordErrorLikelihood(realWordErrorLikelihood float64) PhraseSuggester {
 	q.realWordErrorLikelihood = &realWordErrorLikelihood
 	return q
 }
 
-func (q PhraseSuggester) Confidence(confidence float32) PhraseSuggester {
+func (q PhraseSuggester) Confidence(confidence float64) PhraseSuggester {
 	q.confidence = &confidence
 	return q
 }

@@ -28,7 +28,7 @@ type DateHistogramAggregation struct {
 	format                     string
 	preOffset                  int64
 	postOffset                 int64
-	factor                     *float32
+	factor                     *float64
 }
 
 func NewDateHistogramAggregation() DateHistogramAggregation {
@@ -194,7 +194,7 @@ func (a DateHistogramAggregation) PostOffset(postOffset int64) DateHistogramAggr
 	return a
 }
 
-func (a DateHistogramAggregation) Factor(factor float32) DateHistogramAggregation {
+func (a DateHistogramAggregation) Factor(factor float64) DateHistogramAggregation {
 	a.factor = &factor
 	return a
 }

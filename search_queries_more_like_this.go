@@ -27,8 +27,8 @@ type MoreLikeThisQuery struct {
 	maxDocFreq             *int
 	minWordLen             *int
 	maxWordLen             *int
-	boostTerms             *float32
-	boost                  *float32
+	boostTerms             *float64
+	boost                  *float64
 	analyzer               string
 	failOnUnsupportedField *bool
 	queryName              string
@@ -161,7 +161,7 @@ func (q *MoreLikeThisQuery) MaxWordLen(maxWordLen int) *MoreLikeThisQuery {
 
 // BoostTerms sets the boost factor to use when boosting terms.
 // It defaults to 1.
-func (q *MoreLikeThisQuery) BoostTerms(boostTerms float32) *MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) BoostTerms(boostTerms float64) *MoreLikeThisQuery {
 	q.boostTerms = &boostTerms
 	return q
 }
@@ -174,7 +174,7 @@ func (q *MoreLikeThisQuery) Analyzer(analyzer string) *MoreLikeThisQuery {
 }
 
 // Boost sets the boost for this query.
-func (q *MoreLikeThisQuery) Boost(boost float32) *MoreLikeThisQuery {
+func (q *MoreLikeThisQuery) Boost(boost float64) *MoreLikeThisQuery {
 	q.boost = &boost
 	return q
 }

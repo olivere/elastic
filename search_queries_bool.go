@@ -16,7 +16,7 @@ type BoolQuery struct {
 	mustNotClauses     []Query
 	filterClauses      []Query
 	shouldClauses      []Query
-	boost              *float32
+	boost              *float64
 	disableCoord       *bool
 	minimumShouldMatch string
 	adjustPureNegative *bool
@@ -54,7 +54,7 @@ func (q BoolQuery) Should(queries ...Query) BoolQuery {
 	return q
 }
 
-func (q BoolQuery) Boost(boost float32) BoolQuery {
+func (q BoolQuery) Boost(boost float64) BoolQuery {
 	q.boost = &boost
 	return q
 }

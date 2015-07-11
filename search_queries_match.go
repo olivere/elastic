@@ -30,7 +30,7 @@ type MatchQuery struct {
 	lenient             *bool
 	fuzzyTranspositions *bool
 	zeroTermsQuery      string
-	cutoffFrequency     *float32
+	cutoffFrequency     *float64
 	queryName           string
 }
 
@@ -104,7 +104,7 @@ func (q *MatchQuery) MaxExpansions(maxExpansions int) *MatchQuery {
 // CutoffFrequency can be a value in [0..1] (or an absolute number >=1).
 // It represents the maximum treshold of a terms document frequency to be
 // considered a low frequency term.
-func (q *MatchQuery) CutoffFrequency(cutoff float32) *MatchQuery {
+func (q *MatchQuery) CutoffFrequency(cutoff float64) *MatchQuery {
 	q.cutoffFrequency = &cutoff
 	return q
 }

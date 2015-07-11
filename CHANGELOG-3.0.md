@@ -1,0 +1,207 @@
+# Elastic 3.0
+
+**This document is a draft!**
+
+Elasticsearch 2.0 comes with some [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking-changes-2.0.html). You will probably need to upgrade your application and/or rewrite part of it due to those changes.
+
+We use that window of opportunity to also update Elastic (the Go client) from version 2.0 to 3.0. This will not only introduce changes due to the Elasticsearch 2.0 update but also some changes to make Elastic cleaner by removing some old cruft. When rewriting your application anyway, it is a good chance to upgrade not only Elasticsearch but Elastic as well.
+
+So, to summarize:
+
+1. Elastic 2.0 is compatible with Elasticsearch 1.4+ and is still actively maintained.
+2. Elastic 3.0 is compatible with Elasticsearch 2.0+ and will soon become the new master branch.
+
+The rest of the document is a list of all changes in Elastic 3.0.
+
+## Pointer types
+
+All types have changed to be pointer types, not value types. This not only is cleaner but also simplifies the API as illustrated by the following example:
+
+Example for Elastic 2.0 (old):
+
+```go
+q := elastic.NewMatchAllQuery()
+res, err := elastic.Search("one").Query(&q).Do()  // notice the & here
+```
+
+Example for Elastic 3.0 (new):
+
+```go
+q := elastic.NewMatchAllQuery()
+res, err := elastic.Search("one").Query(q).Do()   // no more &
+// ... which can be simplified as:
+res, err := elastic.Search("one").Query(elastic.NewMatchAllQuery()).Do()
+```
+
+## Query/filter merge
+
+One of the biggest changes in Elasticsearch 2.0 is the [merge of queries and filters](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html#_query_filter_merge). In Elasticsearch 1.x, you had a whole range of queries and filters that were basically identical (e.g. `term_query` and `term_filter`).
+
+The practical aspect of the merge is that you can now basically use queries where once you had to use filters instead. For Elastic 3.0 this means: We could remove a whole bunch of files.
+
+Notice that many methods are still named like e.g. `PostFilter`. However, they accept a `Query` now when they used to accept a `Filter` before.
+
+Example for Elastic 2.0 (old):
+
+```go
+q := elastic.NewMatchAllQuery()
+f := elastic.NewTermFilter("tag", "important")
+res, err := elastic.Search().Index("one").Query(&q).PostFilter(f)
+```
+
+Example for Elastic 3.0 (new):
+
+```go
+q := elastic.NewMatchAllQuery()
+f := elastic.NewTermQuery("tag", "important") // it's a query now!
+res, err := elastic.Search().Index("one").Query(q).PostFilter(f)
+```
+
+## HTTP Status 404
+
+When Elasticsearch does not find an entity or an index, it generally returns HTTP status code 404. In Elastic 2.0 this was a valid result and didn't raise an error from the `Do` functions. This has now changed in Elastic 3.0.
+
+Starting with Elastic 3.0, only HTTP status codes [200..299] are considered successful results; all other HTTP status codes will yield an error.
+
+To check for HTTP Status 404, e.g. when trying to get or delete a missing document, you can use the [`IsNotFound`]() helper (see below).
+
+The following example illustrates how to check for a missing document in Elastic 2.0 and what has changed in 3.0.
+
+Example for Elastic 2.0 (old):
+
+```go
+res, err = client.Get().Index("one").Type("tweet").Id("no-such-id").Do()
+if err != nil {
+  // Something else went wrong (but 404 is NOT an error in Elastic 2.0)
+}
+if !res.Found {
+	// Document has not been found
+}
+```
+
+Example for Elastic 3.0 (new):
+
+```go
+res, err = client.Get().Index("one").Type("tweet").Id("no-such-id").Do()
+if err != nil {
+  if elastic.IsNotFound(err) {
+    // Document has not been found
+  } else {
+    // Something else went wrong
+  }
+}
+```
+
+## Errors
+
+Elasticsearch 2.0 returns more information when an error occurs. Elastic 3.0 now reads all this information and makes it accessible by the consumer.
+
+Errors and all its details are now returned in [`Error`](https://github.com/olivere/elastic/blob/master/errors.go#L49).
+
+### Bulk Errors
+
+The error response of a bulk operation used to be a simple string in Elasticsearch 1.x.
+In Elasticsearch 2.0, it returns a structured JSON object with a lot more details about the error.
+These errors are now captured in an object of type [`ErrorDetails`](https://github.com/olivere/elastic/blob/master/errors.go#L57) which is used in [BulkResponseItem](https://github.com/olivere/elastic/blob/master/bulk.go#L207).
+
+## Numeric types
+
+Elastic 3.0 has settled to use `float64` everywhere. It used to be a mix of `float32` and `float64` in Elastic 2.0. E.g. all boostable queries in Elastic 3.0 now have a boost type of `float64` where it used to be `float32`.
+
+## Pluralization
+
+Some services accept both a singluar and a plural form for some properties. E.g. in the `SearchService` accepts a list of zero, one, or more indices to search. It therefore has a func called `Index(index string)` and a func called `Indices(indices ...string)`.
+
+Elastic 3.0 now only uses the singular form that, when applicable, accepts a variadic type. E.g. in the case of the `SearchService`, you now only have one func with the following signature: `Index(indices ...string)`.
+
+TODO Add example here
+
+## Meta fields
+
+Many of the meta fields e.g. `_parent` or `_routing` are now
+[part of the top-level of a document](https://www.elastic.co/guide/en/elasticsearch/reference/master/_meta_fields_returned_under_the_top_level_json_object.html)
+and are no longer returned as parts of the `fields` object. We had to change
+larger parts of e.g. the `Reindexer` to get it to work seamlessly with Elasticsearch 2.0.
+
+## HasParentQuery / HasChildQuery
+
+`NewHasParentQuery` and `NewHasChildQuery` must now include both parent/child type and query. It is now in line with the Java API.
+
+Example for Elastic 2.0 (old):
+
+```go
+allQ := elastic.NewMatchAllQuery()
+q := elastic.NewHasChildFilter("tweet").Query(&allQ)
+```
+
+Example for Elastic 3.0 (new):
+
+```go
+q := elastic.NewHasChildQuery("tweet", elastic.NewMatchAllQuery())
+```
+
+## HasPlugin helper
+
+Some of the core functionality of Elasticsearch has now been moved into plugins. E.g. the Delete-by-Query API is [a plugin now]().
+
+You need to make sure to add these plugins to your Elasticsearch installation to still be able to use the `DeleteByQueryService`. You can test this now with the `HasPlugin(name string)` helper in the client.
+
+TODO Implement this first
+
+Example for Elastic 3.0 (new):
+
+```go
+err, found := client.HasPlugin("delete-by-query")
+if err == nil && found {
+	// ... Delete By Query API is available
+}
+```
+
+## Delete-by-Query API
+
+The Delete-by-Query API is [a plugin now](). It is no longer core part of Elasticsearch.
+
+Elastic 3.0 still contains the `DeleteByQueryService` but it will fail with `ErrPluginNotFound` when the plugin is not installed.
+
+TODO Find reference to Delete-by-Query Plugin (https://github.com/elastic/elasticsearch/pull/11584/files)
+TODO Check the example
+
+Example for Elastic 3.0 (new):
+
+```go
+_, err := client.DeleteByQuery().Query(elastic.NewTermQuery("client", "1")).Do()
+if err == elastic.ErrPluginNotFound {
+	// Delete By Query API is not available
+}
+```
+
+## Common Query -> Common Terms Query
+
+The `CommonQuery` has been renamed to `CommonTermsQuery` to be in line with the [Java API](https://www.elastic.co/guide/en/elasticsearch/reference/master/_java_api.html).
+
+TODO Double-check
+
+## Remove `MoreLikeThis` and `MoreLikeThisField`
+
+The More Like This API and the More Like This Field query have been removed and replaced with the `MoreLikeThisQuery`. This is a result of [this change in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/_more_like_this.html).
+
+TODO Double-check
+
+## Remove Filtered Query
+
+With the merge of queries and filters, the [filtered query became deprecated](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html). While it is only deprecated and therefore still available in Elasticsearch 2.0, we have decided to remove it from Elastic 3.0. Why? Because we think that when you're already required to rewrite many of your application code, it might be a good chance to get rid of things that are deprecated as well. So you might simply change your filtered query with a boolean query as [described here](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html).
+
+TODO Really remove FilteredQuery?
+
+## Remove FuzzyLikeThis and FuzzyLikeThisField
+
+Both have been [removed from Elasticsearch 2.0 as well](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html).
+
+## Remove LimitFilter
+
+The `limit` filter is [deprecated in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html) and becomes a no-op. Now is a good chance to remove it from your application as well. Use the `terminate_after` parameter in your search [as described here](https://www.elastic.co/guide/en/elasticsearch/reference/master/search-request-body.html) to achieve similar effects.
+
+## Remove `_cache` and `_cache_key` from filters
+
+Both have been [removed from Elasticsearch 2.0 as well](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html).
+

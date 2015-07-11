@@ -34,7 +34,7 @@ type QueryStringQuery struct {
 	fields                    []string
 	fieldBoosts               map[string]*float64
 	useDisMax                 *bool
-	tieBreaker                *float32
+	tieBreaker                *float64
 	rewrite                   string
 	minimumShouldMatch        string
 	lenient                   *bool
@@ -83,7 +83,7 @@ func (q *QueryStringQuery) UseDisMax(useDisMax bool) *QueryStringQuery {
 
 // TieBreaker is used when more than one field is used with the query string,
 // and combined queries are using dismax.
-func (q *QueryStringQuery) TieBreaker(tieBreaker float32) *QueryStringQuery {
+func (q *QueryStringQuery) TieBreaker(tieBreaker float64) *QueryStringQuery {
 	q.tieBreaker = &tieBreaker
 	return q
 }

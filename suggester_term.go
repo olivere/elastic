@@ -18,15 +18,15 @@ type TermSuggester struct {
 
 	// fields specific to term suggester
 	suggestMode    string
-	accuracy       *float32
+	accuracy       *float64
 	sort           string
 	stringDistance string
 	maxEdits       *int
 	maxInspections *int
-	maxTermFreq    *float32
+	maxTermFreq    *float64
 	prefixLength   *int
 	minWordLength  *int
-	minDocFreq     *float32
+	minDocFreq     *float64
 }
 
 // Creates a new term suggester.
@@ -81,7 +81,7 @@ func (q TermSuggester) SuggestMode(suggestMode string) TermSuggester {
 	return q
 }
 
-func (q TermSuggester) Accuracy(accuracy float32) TermSuggester {
+func (q TermSuggester) Accuracy(accuracy float64) TermSuggester {
 	q.accuracy = &accuracy
 	return q
 }
@@ -106,7 +106,7 @@ func (q TermSuggester) MaxInspections(maxInspections int) TermSuggester {
 	return q
 }
 
-func (q TermSuggester) MaxTermFreq(maxTermFreq float32) TermSuggester {
+func (q TermSuggester) MaxTermFreq(maxTermFreq float64) TermSuggester {
 	q.maxTermFreq = &maxTermFreq
 	return q
 }
@@ -121,7 +121,7 @@ func (q TermSuggester) MinWordLength(minWordLength int) TermSuggester {
 	return q
 }
 
-func (q TermSuggester) MinDocFreq(minDocFreq float32) TermSuggester {
+func (q TermSuggester) MinDocFreq(minDocFreq float64) TermSuggester {
 	q.minDocFreq = &minDocFreq
 	return q
 }

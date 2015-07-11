@@ -85,7 +85,7 @@ func TestTermSuggester(t *testing.T) {
 	if myOption.Text != "golang" {
 		t.Errorf("expected Text = 'golang'; got %s", myOption.Text)
 	}
-	if myOption.Score == float32(0.0) {
+	if myOption.Score == float64(0.0) {
 		t.Errorf("expected Score != 0.0; got %v", myOption.Score)
 	}
 	if myOption.Freq == 0 {
@@ -169,7 +169,7 @@ func TestPhraseSuggester(t *testing.T) {
 			if myOption.Text != "golang" {
 				t.Errorf("expected Text = 'golang'; got %s", myOption.Text)
 			}
-			if myOption.Score == float32(0.0) {
+			if myOption.Score == float64(0.0) {
 				t.Errorf("expected Score != 0.0; got %v", myOption.Score)
 			}
 	*/
@@ -252,7 +252,7 @@ func TestCompletionSuggester(t *testing.T) {
 	if myOption.Text != "golang" {
 		t.Errorf("expected Text = 'golang'; got %s", myOption.Text)
 	}
-	if myOption.Score == float32(0.0) {
+	if myOption.Score == float64(0.0) {
 		t.Errorf("expected Score != 0.0; got %v", myOption.Score)
 	}
 }

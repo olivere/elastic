@@ -11,7 +11,7 @@ package elastic
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-constant-score-query.html
 type ConstantScoreQuery struct {
 	filter Query
-	boost  *float32
+	boost  *float64
 }
 
 // ConstantScoreQuery creates and initializes a new constant score query.
@@ -24,7 +24,7 @@ func NewConstantScoreQuery(filter Query) *ConstantScoreQuery {
 // Boost sets the boost for this query. Documents matching this query
 // will (in addition to the normal weightings) have their score multiplied
 // by the boost provided.
-func (q *ConstantScoreQuery) Boost(boost float32) *ConstantScoreQuery {
+func (q *ConstantScoreQuery) Boost(boost float64) *ConstantScoreQuery {
 	q.boost = &boost
 	return q
 }
