@@ -9,7 +9,11 @@ import "testing"
 func TestDeleteByQuery(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	if !hasPlugin(t, client, "delete-by-query") {
+	found, err := client.HasPlugin("delete-by-query")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !found {
 		t.Skip("DeleteByQuery in 2.0 is now a plugin (delete-by-query) and must be " +
 			"loaded in the configuration")
 	}
@@ -19,7 +23,7 @@ func TestDeleteByQuery(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -24,28 +24,6 @@ func findConn(s string, slice ...*conn) (int, bool) {
 	return -1, false
 }
 
-func hasPlugin(t *testing.T, client *Client, pluginName string) bool {
-	stats, err := client.ClusterStats().Do()
-	if err != nil {
-		t.Fatal(err)
-		return false
-	}
-	if stats == nil {
-		t.Fatalf("expected cluster stats; got: %v", stats)
-		return false
-	}
-	if stats.Nodes == nil {
-		t.Fatal("expected cluster stats to have list of plugins")
-		return false
-	}
-	for _, plugin := range stats.Nodes.Plugins {
-		if plugin.Name == pluginName {
-			return true
-		}
-	}
-	return false
-}
-
 // -- NewClient --
 
 func TestClientDefaults(t *testing.T) {
