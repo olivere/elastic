@@ -22,7 +22,7 @@ type SortInfo struct {
 	Missing        interface{}
 	IgnoreUnmapped *bool
 	SortMode       string
-	NestedFilter   Filter
+	NestedFilter   Query
 	NestedPath     string
 }
 
@@ -106,7 +106,7 @@ type FieldSort struct {
 	ignoreUnmapped *bool
 	unmappedType   *string
 	sortMode       *string
-	nestedFilter   Filter
+	nestedFilter   Query
 	nestedPath     *string
 }
 
@@ -174,7 +174,7 @@ func (s FieldSort) SortMode(sortMode string) FieldSort {
 
 // NestedFilter sets a filter that nested objects should match with
 // in order to be taken into account for sorting.
-func (s FieldSort) NestedFilter(nestedFilter Filter) FieldSort {
+func (s FieldSort) NestedFilter(nestedFilter Query) FieldSort {
 	s.nestedFilter = nestedFilter
 	return s
 }
@@ -234,7 +234,7 @@ type GeoDistanceSort struct {
 	unit         string
 	ascending    bool
 	sortMode     *string
-	nestedFilter Filter
+	nestedFilter Query
 	nestedPath   *string
 }
 
@@ -316,7 +316,7 @@ func (s GeoDistanceSort) SortMode(sortMode string) GeoDistanceSort {
 
 // NestedFilter sets a filter that nested objects should match with
 // in order to be taken into account for sorting.
-func (s GeoDistanceSort) NestedFilter(nestedFilter Filter) GeoDistanceSort {
+func (s GeoDistanceSort) NestedFilter(nestedFilter Query) GeoDistanceSort {
 	s.nestedFilter = nestedFilter
 	return s
 }
@@ -383,7 +383,7 @@ type ScriptSort struct {
 	params       map[string]interface{}
 	ascending    bool
 	sortMode     *string
-	nestedFilter Filter
+	nestedFilter Query
 	nestedPath   *string
 }
 
@@ -453,7 +453,7 @@ func (s ScriptSort) SortMode(sortMode string) ScriptSort {
 
 // NestedFilter sets a filter that nested objects should match with
 // in order to be taken into account for sorting.
-func (s ScriptSort) NestedFilter(nestedFilter Filter) ScriptSort {
+func (s ScriptSort) NestedFilter(nestedFilter Query) ScriptSort {
 	s.nestedFilter = nestedFilter
 	return s
 }

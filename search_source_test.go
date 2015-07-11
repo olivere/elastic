@@ -140,7 +140,7 @@ func TestSearchSourceScriptFields(t *testing.T) {
 
 func TestSearchSourcePostFilter(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
-	pf := NewTermFilter("tag", "important")
+	pf := NewTermQuery("tag", "important")
 	builder := NewSearchSource().Query(matchAllQ).PostFilter(pf)
 	src, err := builder.Source()
 	if err != nil {

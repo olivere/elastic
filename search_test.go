@@ -647,8 +647,7 @@ func TestSearchInnerHitsOnHasChild(t *testing.T) {
 
 	bq := NewBoolQuery()
 	bq = bq.Must(NewMatchAllQuery())
-	bq = bq.Filter(NewHasChildFilter("comment").
-		Query(NewMatchAllQuery()).
+	bq = bq.Filter(NewHasChildQuery("comment", NewMatchAllQuery()).
 		InnerHit(NewInnerHit().Name("comments")))
 
 	searchResult, err := client.Search().
@@ -787,8 +786,7 @@ func TestSearchInnerHitsOnHasParent(t *testing.T) {
 	bq := NewBoolQuery()
 	bq = bq.Must(NewMatchAllQuery())
 	bq = bq.Filter(
-		NewHasParentFilter("tweet").
-			Query(NewMatchAllQuery()).
+		NewHasParentQuery("tweet", NewMatchAllQuery()).
 			InnerHit(NewInnerHit().Name("tweets")))
 
 	searchResult, err := client.Search().

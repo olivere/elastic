@@ -12,7 +12,7 @@ import (
 func TestFunctionScoreQuery(t *testing.T) {
 	q := NewFunctionScoreQuery().
 		Query(NewTermQuery("name.last", "banon")).
-		Add(NewTermFilter("name.last", "banon"), NewWeightFactorFunction(1.5)).
+		Add(NewTermQuery("name.last", "banon"), NewWeightFactorFunction(1.5)).
 		AddScoreFunc(NewWeightFactorFunction(3)).
 		AddScoreFunc(NewRandomFunction()).
 		Boost(3).

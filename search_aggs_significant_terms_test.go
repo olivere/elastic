@@ -32,7 +32,7 @@ func TestSignificantTermsAggregationWithArgs(t *testing.T) {
 		ExecutionHint("map").
 		ShardSize(5).
 		MinDocCount(10).
-		BackgroundFilter(NewTermFilter("city", "London"))
+		BackgroundFilter(NewTermQuery("city", "London"))
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)

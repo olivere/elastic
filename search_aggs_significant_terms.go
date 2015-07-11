@@ -16,7 +16,7 @@ type SignificantTermsAggregation struct {
 	shardMinDocCount *int
 	requiredSize     *int
 	shardSize        *int
-	filter           Filter
+	filter           Query
 	executionHint    string
 }
 
@@ -63,7 +63,7 @@ func (a SignificantTermsAggregation) ShardSize(shardSize int) SignificantTermsAg
 	return a
 }
 
-func (a SignificantTermsAggregation) BackgroundFilter(filter Filter) SignificantTermsAggregation {
+func (a SignificantTermsAggregation) BackgroundFilter(filter Query) SignificantTermsAggregation {
 	a.filter = filter
 	return a
 }

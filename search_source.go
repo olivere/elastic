@@ -12,7 +12,7 @@ import (
 // It resembles the SearchSourceBuilder in Elasticsearch.
 type SearchSource struct {
 	query                    Query
-	postFilter               Filter
+	postFilter               Query
 	from                     int
 	size                     int
 	explain                  *bool
@@ -65,7 +65,7 @@ func (s *SearchSource) Query(query Query) *SearchSource {
 
 // PostFilter is executed as the last filter. It only affects the
 // search hits but not facets.
-func (s *SearchSource) PostFilter(postFilter Filter) *SearchSource {
+func (s *SearchSource) PostFilter(postFilter Query) *SearchSource {
 	s.postFilter = postFilter
 	return s
 }

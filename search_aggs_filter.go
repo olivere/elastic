@@ -10,7 +10,7 @@ package elastic
 // to a specific set of documents.
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filter-aggregation.html
 type FilterAggregation struct {
-	filter          Filter
+	filter          Query
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 }
@@ -33,7 +33,7 @@ func (a FilterAggregation) Meta(metaData map[string]interface{}) FilterAggregati
 	return a
 }
 
-func (a FilterAggregation) Filter(filter Filter) FilterAggregation {
+func (a FilterAggregation) Filter(filter Query) FilterAggregation {
 	a.filter = filter
 	return a
 }

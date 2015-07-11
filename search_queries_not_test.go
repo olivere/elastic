@@ -27,7 +27,7 @@ func TestNotQuery(t *testing.T) {
 }
 
 func TestNotQueryWithParams(t *testing.T) {
-	postDateFilter := NewRangeFilter("postDate").From("2010-03-01").To("2010-04-01")
+	postDateFilter := NewRangeQuery("postDate").From("2010-03-01").To("2010-04-01")
 	f := NewNotQuery(postDateFilter)
 	f = f.QueryName("MyQueryName")
 	src, err := f.Source()

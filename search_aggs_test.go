@@ -93,9 +93,9 @@ func TestAggs(t *testing.T) {
 	retweetsHistoAgg := NewHistogramAggregation().Field("retweets").Interval(100)
 	dateHistoAgg := NewDateHistogramAggregation().Field("created").Interval("year")
 	retweetsFilterAgg := NewFilterAggregation().Filter(
-		NewRangeFilter("created").Gte("2012-01-01").Lte("2012-12-31")).
+		NewRangeQuery("created").Gte("2012-01-01").Lte("2012-12-31")).
 		SubAggregation("avgRetweetsSub", NewAvgAggregation().Field("retweets"))
-	queryFilterAgg := NewFilterAggregation().Filter(NewQueryFilter(NewTermQuery("tags", "golang")))
+	queryFilterAgg := NewFilterAggregation().Filter(NewTermQuery("tags", "golang"))
 	topTagsHitsAgg := NewTopHitsAggregation().Sort("created", false).Size(5).FetchSource(true)
 	topTagsAgg := NewTermsAggregation().Field("tags").Size(3).SubAggregation("top_tag_hits", topTagsHitsAgg)
 	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
@@ -130,7 +130,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("top-tags", topTagsAgg)
 	builder = builder.Aggregation("viewport", geoBoundsAgg)
 	if esversion >= "1.4" {
-		countByUserAgg := NewFiltersAggregation().Filters(NewTermFilter("user", "olivere"), NewTermFilter("user", "sandrae"))
+		countByUserAgg := NewFiltersAggregation().Filters(NewTermQuery("user", "olivere"), NewTermQuery("user", "sandrae"))
 		builder = builder.Aggregation("countByUser", countByUserAgg)
 	}
 	searchResult, err := builder.Do()

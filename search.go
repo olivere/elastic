@@ -148,7 +148,7 @@ func (s *SearchService) Query(query Query) *SearchService {
 // search hits but not facets. See
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-post-filter.html
 // for details.
-func (s *SearchService) PostFilter(postFilter Filter) *SearchService {
+func (s *SearchService) PostFilter(postFilter Query) *SearchService {
 	s.searchSource = s.searchSource.PostFilter(postFilter)
 	return s
 }

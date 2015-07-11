@@ -119,7 +119,7 @@ func TestFieldSortComplex(t *testing.T) {
 		SortMode("avg").
 		Missing("_last").
 		UnmappedType("product").
-		NestedFilter(NewTermFilter("product.color", "blue")).
+		NestedFilter(NewTermQuery("product.color", "blue")).
 		NestedPath("variant")
 	src, err := builder.Source()
 	if err != nil {

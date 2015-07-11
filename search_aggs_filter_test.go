@@ -10,7 +10,7 @@ import (
 )
 
 func TestFilterAggregation(t *testing.T) {
-	filter := NewRangeFilter("stock").Gt(0)
+	filter := NewRangeQuery("stock").Gt(0)
 	agg := NewFilterAggregation().Filter(filter)
 	src, err := agg.Source()
 	if err != nil {
@@ -29,7 +29,7 @@ func TestFilterAggregation(t *testing.T) {
 
 func TestFilterAggregationWithSubAggregation(t *testing.T) {
 	avgPriceAgg := NewAvgAggregation().Field("price")
-	filter := NewRangeFilter("stock").Gt(0)
+	filter := NewRangeQuery("stock").Gt(0)
 	agg := NewFilterAggregation().Filter(filter).
 		SubAggregation("avg_price", avgPriceAgg)
 	src, err := agg.Source()
@@ -48,7 +48,7 @@ func TestFilterAggregationWithSubAggregation(t *testing.T) {
 }
 
 func TestFilterAggregationWithMeta(t *testing.T) {
-	filter := NewRangeFilter("stock").Gt(0)
+	filter := NewRangeQuery("stock").Gt(0)
 	agg := NewFilterAggregation().Filter(filter).Meta(map[string]interface{}{"name": "Oliver"})
 	src, err := agg.Source()
 	if err != nil {
