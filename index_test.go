@@ -48,6 +48,24 @@ const (
 			"_parent": {
 				"type":	"tweet"
 			}
+		},
+		"order":{
+			"properties":{
+				"article":{
+					"type":"string"
+				},
+				"manufacturer":{
+					"type":"string",
+					"index" : "not_analyzed"
+				},
+				"price":{
+					"type":"float"
+				},
+				"time":{
+					"type":"date",
+					"format": "YYYY-MM-dd"
+				}
+			}
 		}
 	}
 }
@@ -77,6 +95,17 @@ type comment struct {
 
 func (c comment) String() string {
 	return fmt.Sprintf("comment{User:%q,Comment:%q}", c.User, c.Comment)
+}
+
+type order struct {
+	Article      string  `json:"article"`
+	Manufacturer string  `json:"manufacturer"`
+	Price        float64 `json:"price"`
+	Time         string  `json:"time,omitempty"`
+}
+
+func (o order) String() string {
+	return fmt.Sprintf("order{Article:%q,Manufacturer:%q,Price:%v,Time:%v}", o.Article, o.Manufacturer, o.Price, o.Time)
 }
 
 func isTravis() bool {
@@ -139,6 +168,7 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFunc) *Client {
 	client := setupTestClientAndCreateIndex(t, options...)
 
+	// Add tweets
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
@@ -160,6 +190,26 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// Add orders
+	var orders []order
+	orders = append(orders, order{Article: "Apple MacBook", Manufacturer: "Apple", Price: 1290, Time: "2015-01-18"})
+	orders = append(orders, order{Article: "Paper", Manufacturer: "Canon", Price: 100, Time: "2015-03-01"})
+	orders = append(orders, order{Article: "Apple iPad", Manufacturer: "Apple", Price: 499, Time: "2015-04-12"})
+	orders = append(orders, order{Article: "Dell XPS 13", Manufacturer: "Dell", Price: 1600, Time: "2015-04-18"})
+	orders = append(orders, order{Article: "Apple Watch", Manufacturer: "Apple", Price: 349, Time: "2015-04-29"})
+	orders = append(orders, order{Article: "Samsung TV", Manufacturer: "Samsung", Price: 790, Time: "2015-05-03"})
+	orders = append(orders, order{Article: "Hoodie", Manufacturer: "h&m", Price: 49, Time: "2015-06-03"})
+	orders = append(orders, order{Article: "T-Shirt", Manufacturer: "h&m", Price: 19, Time: "2015-06-18"})
+	for i, o := range orders {
+		id := fmt.Sprintf("%d", i)
+		_, err = client.Index().Index(testIndexName).Type("order").Id(id).BodyJson(&o).Do()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Flush
 	_, err = client.Flush().Index(testIndexName).Do()
 	if err != nil {
 		t.Fatal(err)

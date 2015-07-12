@@ -458,6 +458,126 @@ func (a Aggregations) GeoDistance(name string) (*AggregationBucketRangeItems, bo
 	return nil, false
 }
 
+// AvgBucket returns average bucket pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-avg-bucket-aggregation.html
+func (a Aggregations) AvgBucket(name string) (*AggregationPipelineSimpleValue, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineSimpleValue)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
+// SumBucket returns sum bucket pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-sum-bucket-aggregation.html
+func (a Aggregations) SumBucket(name string) (*AggregationPipelineSimpleValue, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineSimpleValue)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
+// MaxBucket returns maximum bucket pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-max-bucket-aggregation.html
+func (a Aggregations) MaxBucket(name string) (*AggregationPipelineBucketMetricValue, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineBucketMetricValue)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
+// MinBucket returns minimum bucket pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-min-bucket-aggregation.html
+func (a Aggregations) MinBucket(name string) (*AggregationPipelineBucketMetricValue, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineBucketMetricValue)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
+// MovAvg returns moving average pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-movavg-aggregation.html
+func (a Aggregations) MovAvg(name string) (*AggregationPipelineSimpleValue, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineSimpleValue)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
+// Derivative returns derivative pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-derivative-aggregation.html
+func (a Aggregations) Derivative(name string) (*AggregationPipelineDerivative, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineDerivative)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
+// CumulativeSum returns a cumulative sum pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-cumulative-sum-aggregation.html
+func (a Aggregations) CumulativeSum(name string) (*AggregationPipelineSimpleValue, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineSimpleValue)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
+// BucketScript returns bucket script pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-bucket-script-aggregation.html
+func (a Aggregations) BucketScript(name string) (*AggregationPipelineSimpleValue, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineSimpleValue)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // -- Single value metric --
 
 // AggregationValueMetric is a single-value metric, returned e.g. by a
@@ -1009,6 +1129,111 @@ func (a *AggregationBucketHistogramItem) UnmarshalJSON(data []byte) error {
 	}
 	if v, ok := aggs["doc_count"]; ok && v != nil {
 		json.Unmarshal(*v, &a.DocCount)
+	}
+	a.Aggregations = aggs
+	return nil
+}
+
+// -- Pipeline simple value --
+
+// AggregationPipelineSimpleValue is a simple value, returned e.g. by a
+// MovAvg aggregation.
+type AggregationPipelineSimpleValue struct {
+	Aggregations
+
+	Value         *float64               // `json:"value"`
+	ValueAsString string                 // `json:"value_as_string"`
+	Meta          map[string]interface{} // `json:"meta,omitempty"`
+}
+
+// UnmarshalJSON decodes JSON data and initializes an AggregationPipelineSimpleValue structure.
+func (a *AggregationPipelineSimpleValue) UnmarshalJSON(data []byte) error {
+	var aggs map[string]*json.RawMessage
+	if err := json.Unmarshal(data, &aggs); err != nil {
+		return err
+	}
+	if v, ok := aggs["value"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Value)
+	}
+	if v, ok := aggs["value_as_string"]; ok && v != nil {
+		json.Unmarshal(*v, &a.ValueAsString)
+	}
+	if v, ok := aggs["meta"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Meta)
+	}
+	a.Aggregations = aggs
+	return nil
+}
+
+// -- Pipeline simple value --
+
+// AggregationPipelineBucketMetricValue is a value returned e.g. by a
+// MaxBucket aggregation.
+type AggregationPipelineBucketMetricValue struct {
+	Aggregations
+
+	Keys          []interface{}          // `json:"keys"`
+	Value         *float64               // `json:"value"`
+	ValueAsString string                 // `json:"value_as_string"`
+	Meta          map[string]interface{} // `json:"meta,omitempty"`
+}
+
+// UnmarshalJSON decodes JSON data and initializes an AggregationPipelineBucketMetricValue structure.
+func (a *AggregationPipelineBucketMetricValue) UnmarshalJSON(data []byte) error {
+	var aggs map[string]*json.RawMessage
+	if err := json.Unmarshal(data, &aggs); err != nil {
+		return err
+	}
+	if v, ok := aggs["keys"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Keys)
+	}
+	if v, ok := aggs["value"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Value)
+	}
+	if v, ok := aggs["value_as_string"]; ok && v != nil {
+		json.Unmarshal(*v, &a.ValueAsString)
+	}
+	if v, ok := aggs["meta"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Meta)
+	}
+	a.Aggregations = aggs
+	return nil
+}
+
+// -- Pipeline derivative --
+
+// AggregationPipelineDerivative is the value returned by a
+// Derivative aggregation.
+type AggregationPipelineDerivative struct {
+	Aggregations
+
+	Value                   *float64               // `json:"value"`
+	ValueAsString           string                 // `json:"value_as_string"`
+	NormalizedValue         *float64               // `json:"normalized_value"`
+	NormalizedValueAsString string                 // `json:"normalized_value_as_string"`
+	Meta                    map[string]interface{} // `json:"meta,omitempty"`
+}
+
+// UnmarshalJSON decodes JSON data and initializes an AggregationPipelineDerivative structure.
+func (a *AggregationPipelineDerivative) UnmarshalJSON(data []byte) error {
+	var aggs map[string]*json.RawMessage
+	if err := json.Unmarshal(data, &aggs); err != nil {
+		return err
+	}
+	if v, ok := aggs["value"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Value)
+	}
+	if v, ok := aggs["value_as_string"]; ok && v != nil {
+		json.Unmarshal(*v, &a.ValueAsString)
+	}
+	if v, ok := aggs["normalized_value"]; ok && v != nil {
+		json.Unmarshal(*v, &a.NormalizedValue)
+	}
+	if v, ok := aggs["normalized_value_as_string"]; ok && v != nil {
+		json.Unmarshal(*v, &a.NormalizedValueAsString)
+	}
+	if v, ok := aggs["meta"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Meta)
 	}
 	a.Aggregations = aggs
 	return nil

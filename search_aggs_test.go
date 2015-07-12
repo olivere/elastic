@@ -101,7 +101,7 @@ func TestAggs(t *testing.T) {
 	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
 
 	// Run query
-	builder := client.Search().Index(testIndexName).Query(all)
+	builder := client.Search().Index(testIndexName).Query(all).Pretty(true)
 	builder = builder.Aggregation("global", globalAgg)
 	builder = builder.Aggregation("users", usersAgg)
 	builder = builder.Aggregation("retweets", retweetsAgg)
@@ -132,6 +132,33 @@ func TestAggs(t *testing.T) {
 	if esversion >= "1.4" {
 		countByUserAgg := NewFiltersAggregation().Filters(NewTermQuery("user", "olivere"), NewTermQuery("user", "sandrae"))
 		builder = builder.Aggregation("countByUser", countByUserAgg)
+	}
+	if esversion >= "2.0" {
+		// AvgBucket
+		dateHisto := NewDateHistogramAggregation().Field("created").Interval("year")
+		dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
+		builder = builder.Aggregation("avgBucketDateHisto", dateHisto)
+		builder = builder.Aggregation("avgSumOfRetweets", NewAvgBucketAggregation().BucketsPath("avgBucketDateHisto>sumOfRetweets"))
+		// MinBucket
+		dateHisto = NewDateHistogramAggregation().Field("created").Interval("year")
+		dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
+		builder = builder.Aggregation("minBucketDateHisto", dateHisto)
+		builder = builder.Aggregation("minBucketSumOfRetweets", NewMinBucketAggregation().BucketsPath("minBucketDateHisto>sumOfRetweets"))
+		// MaxBucket
+		dateHisto = NewDateHistogramAggregation().Field("created").Interval("year")
+		dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
+		builder = builder.Aggregation("maxBucketDateHisto", dateHisto)
+		builder = builder.Aggregation("maxBucketSumOfRetweets", NewMaxBucketAggregation().BucketsPath("maxBucketDateHisto>sumOfRetweets"))
+		// SumBucket
+		dateHisto = NewDateHistogramAggregation().Field("created").Interval("year")
+		dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
+		builder = builder.Aggregation("sumBucketDateHisto", dateHisto)
+		builder = builder.Aggregation("sumBucketSumOfRetweets", NewSumBucketAggregation().BucketsPath("sumBucketDateHisto>sumOfRetweets"))
+		// MovAvg
+		dateHisto = NewDateHistogramAggregation().Field("created").Interval("year")
+		dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
+		dateHisto = dateHisto.SubAggregation("movingAvg", NewMovAvgAggregation().BucketsPath("sumOfRetweets"))
+		builder = builder.Aggregation("movingAvgDateHisto", dateHisto)
 	}
 	searchResult, err := builder.Do()
 	if err != nil {
@@ -931,7 +958,7 @@ func TestAggsMarshal(t *testing.T) {
 	}
 }
 
-func TestAggsMin(t *testing.T) {
+func TestAggsMetricsMin(t *testing.T) {
 	s := `{
 	"min_price": {
   	"value": 10
@@ -959,7 +986,7 @@ func TestAggsMin(t *testing.T) {
 	}
 }
 
-func TestAggsMax(t *testing.T) {
+func TestAggsMetricsMax(t *testing.T) {
 	s := `{
 	"max_price": {
   	"value": 35
@@ -987,7 +1014,7 @@ func TestAggsMax(t *testing.T) {
 	}
 }
 
-func TestAggsSum(t *testing.T) {
+func TestAggsMetricsSum(t *testing.T) {
 	s := `{
 	"intraday_return": {
   	"value": 2.18
@@ -1015,7 +1042,7 @@ func TestAggsSum(t *testing.T) {
 	}
 }
 
-func TestAggsAvg(t *testing.T) {
+func TestAggsMetricsAvg(t *testing.T) {
 	s := `{
 	"avg_grade": {
   	"value": 75
@@ -1043,7 +1070,7 @@ func TestAggsAvg(t *testing.T) {
 	}
 }
 
-func TestAggsValueCount(t *testing.T) {
+func TestAggsMetricsValueCount(t *testing.T) {
 	s := `{
 	"grades_count": {
   	"value": 10
@@ -1071,7 +1098,7 @@ func TestAggsValueCount(t *testing.T) {
 	}
 }
 
-func TestAggsCardinality(t *testing.T) {
+func TestAggsMetricsCardinality(t *testing.T) {
 	s := `{
 	"author_count": {
   	"value": 12
@@ -1099,7 +1126,7 @@ func TestAggsCardinality(t *testing.T) {
 	}
 }
 
-func TestAggsStats(t *testing.T) {
+func TestAggsMetricsStats(t *testing.T) {
 	s := `{
 	"grades_stats": {
     "count": 6,
@@ -1152,7 +1179,7 @@ func TestAggsStats(t *testing.T) {
 	}
 }
 
-func TestAggsExtendedStats(t *testing.T) {
+func TestAggsMetricsExtendedStats(t *testing.T) {
 	s := `{
 	"grades_stats": {
     "count": 6,
@@ -1226,7 +1253,7 @@ func TestAggsExtendedStats(t *testing.T) {
 	}
 }
 
-func TestAggsPercentiles(t *testing.T) {
+func TestAggsMetricsPercentiles(t *testing.T) {
 	s := `{
   "load_time_outlier": {
 		"values" : {
@@ -1283,7 +1310,7 @@ func TestAggsPercentiles(t *testing.T) {
 	}
 }
 
-func TestAggsPercentilRanks(t *testing.T) {
+func TestAggsMetricsPercentileRanks(t *testing.T) {
 	s := `{
   "load_time_outlier": {
 		"values" : {
@@ -1320,7 +1347,7 @@ func TestAggsPercentilRanks(t *testing.T) {
 	}
 }
 
-func TestAggsTopHits(t *testing.T) {
+func TestAggsMetricsTopHits(t *testing.T) {
 	s := `{
   "top-tags": {
      "buckets": [
@@ -1491,7 +1518,7 @@ func TestAggsTopHits(t *testing.T) {
 	}
 }
 
-func TestAggsGlobal(t *testing.T) {
+func TestAggsBucketGlobal(t *testing.T) {
 	s := `{
 	"all_products" : {
     "doc_count" : 100,
@@ -1534,7 +1561,7 @@ func TestAggsGlobal(t *testing.T) {
 	}
 }
 
-func TestAggsFilter(t *testing.T) {
+func TestAggsBucketFilter(t *testing.T) {
 	s := `{
 	"in_stock_products" : {
 	  "doc_count" : 100,
@@ -1575,7 +1602,7 @@ func TestAggsFilter(t *testing.T) {
 	}
 }
 
-func TestAggsFiltersWithBuckets(t *testing.T) {
+func TestAggsBucketFiltersWithBuckets(t *testing.T) {
 	s := `{
   "messages" : {
     "buckets" : [
@@ -1638,7 +1665,7 @@ func TestAggsFiltersWithBuckets(t *testing.T) {
 	}
 }
 
-func TestAggsFiltersWithNamedBuckets(t *testing.T) {
+func TestAggsBucketFiltersWithNamedBuckets(t *testing.T) {
 	s := `{
   "messages" : {
     "buckets" : {
@@ -1701,7 +1728,7 @@ func TestAggsFiltersWithNamedBuckets(t *testing.T) {
 	}
 }
 
-func TestAggsMissing(t *testing.T) {
+func TestAggsBucketMissing(t *testing.T) {
 	s := `{
 	"products_without_a_price" : {
 		"doc_count" : 10
@@ -1726,7 +1753,7 @@ func TestAggsMissing(t *testing.T) {
 	}
 }
 
-func TestAggsNested(t *testing.T) {
+func TestAggsBucketNested(t *testing.T) {
 	s := `{
 	"resellers": {
 		"min_price": {
@@ -1768,7 +1795,7 @@ func TestAggsNested(t *testing.T) {
 	}
 }
 
-func TestAggsReverseNested(t *testing.T) {
+func TestAggsBucketReverseNested(t *testing.T) {
 	s := `{
 	"comment_to_issue": {
 		"doc_count" : 10
@@ -1793,7 +1820,7 @@ func TestAggsReverseNested(t *testing.T) {
 	}
 }
 
-func TestAggsChildren(t *testing.T) {
+func TestAggsBucketChildren(t *testing.T) {
 	s := `{
 	"to-answers": {
 		"doc_count" : 10
@@ -1818,7 +1845,7 @@ func TestAggsChildren(t *testing.T) {
 	}
 }
 
-func TestAggsTerms(t *testing.T) {
+func TestAggsBucketTerms(t *testing.T) {
 	s := `{
 	"users" : {
 	  "doc_count_error_upper_bound" : 1,
@@ -1866,7 +1893,7 @@ func TestAggsTerms(t *testing.T) {
 	}
 }
 
-func TestAggsTermsWithNumericKeys(t *testing.T) {
+func TestAggsBucketTermsWithNumericKeys(t *testing.T) {
 	s := `{
 	"users" : {
 	  "doc_count_error_upper_bound" : 1,
@@ -1924,7 +1951,7 @@ func TestAggsTermsWithNumericKeys(t *testing.T) {
 	}
 }
 
-func TestAggsTermsWithBoolKeys(t *testing.T) {
+func TestAggsBucketTermsWithBoolKeys(t *testing.T) {
 	s := `{
 	"users" : {
 	  "doc_count_error_upper_bound" : 1,
@@ -1972,7 +1999,7 @@ func TestAggsTermsWithBoolKeys(t *testing.T) {
 	}
 }
 
-func TestAggsSignificantTerms(t *testing.T) {
+func TestAggsBucketSignificantTerms(t *testing.T) {
 	s := `{
 	"significantCrimeTypes" : {
     "doc_count": 47347,
@@ -2023,7 +2050,7 @@ func TestAggsSignificantTerms(t *testing.T) {
 	}
 }
 
-func TestAggsRange(t *testing.T) {
+func TestAggsBucketRange(t *testing.T) {
 	s := `{
 	"price_ranges" : {
 		"buckets": [
@@ -2104,7 +2131,7 @@ func TestAggsRange(t *testing.T) {
 	}
 }
 
-func TestAggsDateRange(t *testing.T) {
+func TestAggsBucketDateRange(t *testing.T) {
 	s := `{
 	"range": {
 		"buckets": [
@@ -2173,7 +2200,7 @@ func TestAggsDateRange(t *testing.T) {
 	}
 }
 
-func TestAggsIPv4Range(t *testing.T) {
+func TestAggsBucketIPv4Range(t *testing.T) {
 	s := `{
 	"ip_ranges": {
 		"buckets" : [
@@ -2242,7 +2269,7 @@ func TestAggsIPv4Range(t *testing.T) {
 	}
 }
 
-func TestAggsHistogram(t *testing.T) {
+func TestAggsBucketHistogram(t *testing.T) {
 	s := `{
 	"prices" : {
 		"buckets": [
@@ -2310,7 +2337,7 @@ func TestAggsHistogram(t *testing.T) {
 	}
 }
 
-func TestAggsDateHistogram(t *testing.T) {
+func TestAggsBucketDateHistogram(t *testing.T) {
 	s := `{
 	"articles_over_time": {
 	  "buckets": [
@@ -2373,7 +2400,7 @@ func TestAggsDateHistogram(t *testing.T) {
 	}
 }
 
-func TestAggsGeoBounds(t *testing.T) {
+func TestAggsMetricsGeoBounds(t *testing.T) {
 	s := `{
   "viewport": {
     "bounds": {
@@ -2416,7 +2443,7 @@ func TestAggsGeoBounds(t *testing.T) {
 	}
 }
 
-func TestAggsGeoHash(t *testing.T) {
+func TestAggsBucketGeoHash(t *testing.T) {
 	s := `{
 	"myLarge-GrainGeoHashGrid": {
 		"buckets": [
@@ -2465,7 +2492,7 @@ func TestAggsGeoHash(t *testing.T) {
 	}
 }
 
-func TestAggsGeoDistance(t *testing.T) {
+func TestAggsBucketGeoDistance(t *testing.T) {
 	s := `{
 	"rings" : {
 		"buckets": [
@@ -2638,17 +2665,240 @@ func TestAggsSubAggregates(t *testing.T) {
 	}
 }
 
-/*
-// TestAggsRawMessage is a test for issue #51 (https://github.com/olivere/elastic/issues/51).
-// See also: http://play.golang.org/p/b8fzGMxrMC
-func TestAggsRawMessage(t *testing.T) {
-	f := json.RawMessage([]byte(`42`))
-	m := Aggregations(map[string]*json.RawMessage{
-		"k": &f,
-	})
-	b, _ := json.Marshal(m)
-	if string(b) != `{"k":42}` {
-		t.Errorf("expected %s; got: %s", `{"k":42}`, string(b))
+func TestAggsPipelineAvgBucket(t *testing.T) {
+	s := `{
+	"avg_monthly_sales" : {
+	  "value" : 328.33333333333333
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.AvgBucket("avg_monthly_sales")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Value == nil {
+		t.Fatalf("expected aggregation value != nil; got: %v", agg.Value)
+	}
+	if *agg.Value != float64(328.33333333333333) {
+		t.Fatalf("expected aggregation value = %v; got: %v", float64(328.33333333333333), *agg.Value)
 	}
 }
-*/
+
+func TestAggsPipelineSumBucket(t *testing.T) {
+	s := `{
+	"sum_monthly_sales" : {
+	  "value" : 985
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.SumBucket("sum_monthly_sales")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Value == nil {
+		t.Fatalf("expected aggregation value != nil; got: %v", agg.Value)
+	}
+	if *agg.Value != float64(985) {
+		t.Fatalf("expected aggregation value = %v; got: %v", float64(985), *agg.Value)
+	}
+}
+
+func TestAggsPipelineMaxBucket(t *testing.T) {
+	s := `{
+	"max_monthly_sales" : {
+		"keys": ["2015/01/01 00:00:00"],
+	  "value" : 550
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.MaxBucket("max_monthly_sales")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if len(agg.Keys) != 1 {
+		t.Fatalf("expected 1 key; got: %d", len(agg.Keys))
+	}
+	if got, want := agg.Keys[0], "2015/01/01 00:00:00"; got != want {
+		t.Fatalf("expected key %q; got: %v (%T)", want, got, got)
+	}
+	if agg.Value == nil {
+		t.Fatalf("expected aggregation value != nil; got: %v", agg.Value)
+	}
+	if *agg.Value != float64(550) {
+		t.Fatalf("expected aggregation value = %v; got: %v", float64(550), *agg.Value)
+	}
+}
+
+func TestAggsPipelineMinBucket(t *testing.T) {
+	s := `{
+	"min_monthly_sales" : {
+		"keys": ["2015/02/01 00:00:00"],
+	  "value" : 60
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.MinBucket("min_monthly_sales")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if len(agg.Keys) != 1 {
+		t.Fatalf("expected 1 key; got: %d", len(agg.Keys))
+	}
+	if got, want := agg.Keys[0], "2015/02/01 00:00:00"; got != want {
+		t.Fatalf("expected key %q; got: %v (%T)", want, got, got)
+	}
+	if agg.Value == nil {
+		t.Fatalf("expected aggregation value != nil; got: %v", agg.Value)
+	}
+	if *agg.Value != float64(60) {
+		t.Fatalf("expected aggregation value = %v; got: %v", float64(60), *agg.Value)
+	}
+}
+
+func TestAggsPipelineMovAvg(t *testing.T) {
+	s := `{
+	"the_movavg" : {
+	  "value" : 12.0
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.MovAvg("the_movavg")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Value == nil {
+		t.Fatalf("expected aggregation value != nil; got: %v", agg.Value)
+	}
+	if *agg.Value != float64(12.0) {
+		t.Fatalf("expected aggregation value = %v; got: %v", float64(12.0), *agg.Value)
+	}
+}
+
+func TestAggsPipelineDerivative(t *testing.T) {
+	s := `{
+	"sales_deriv" : {
+	  "value" : 315
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.Derivative("sales_deriv")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Value == nil {
+		t.Fatalf("expected aggregation value != nil; got: %v", agg.Value)
+	}
+	if *agg.Value != float64(315) {
+		t.Fatalf("expected aggregation value = %v; got: %v", float64(315), *agg.Value)
+	}
+}
+
+func TestAggsPipelineCumulativeSum(t *testing.T) {
+	s := `{
+	"cumulative_sales" : {
+	  "value" : 550
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.CumulativeSum("cumulative_sales")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Value == nil {
+		t.Fatalf("expected aggregation value != nil; got: %v", agg.Value)
+	}
+	if *agg.Value != float64(550) {
+		t.Fatalf("expected aggregation value = %v; got: %v", float64(550), *agg.Value)
+	}
+}
+
+func TestAggsPipelineBucketScript(t *testing.T) {
+	s := `{
+	"t-shirt-percentage" : {
+	  "value" : 20
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.BucketScript("t-shirt-percentage")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Value == nil {
+		t.Fatalf("expected aggregation value != nil; got: %v", agg.Value)
+	}
+	if *agg.Value != float64(20) {
+		t.Fatalf("expected aggregation value = %v; got: %v", float64(20), *agg.Value)
+	}
+}
