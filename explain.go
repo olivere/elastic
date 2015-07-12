@@ -87,7 +87,6 @@ func (s *ExplainService) Source(source string) *ExplainService {
 
 // XSourceExclude is a list of fields to exclude from the returned _source field.
 func (s *ExplainService) XSourceExclude(xSourceExclude ...string) *ExplainService {
-	s.xSourceExclude = make([]string, 0)
 	s.xSourceExclude = append(s.xSourceExclude, xSourceExclude...)
 	return s
 }
@@ -132,7 +131,6 @@ func (s *ExplainService) Df(df string) *ExplainService {
 
 // Fields is a list of fields to return in the response.
 func (s *ExplainService) Fields(fields ...string) *ExplainService {
-	s.fields = make([]string, 0)
 	s.fields = append(s.fields, fields...)
 	return s
 }
@@ -145,7 +143,6 @@ func (s *ExplainService) LowercaseExpandedTerms(lowercaseExpandedTerms bool) *Ex
 
 // XSourceInclude is a list of fields to extract and return from the _source field.
 func (s *ExplainService) XSourceInclude(xSourceInclude ...string) *ExplainService {
-	s.xSourceInclude = make([]string, 0)
 	s.xSourceInclude = append(s.xSourceInclude, xSourceInclude...)
 	return s
 }
@@ -170,7 +167,6 @@ func (s *ExplainService) Preference(preference string) *ExplainService {
 
 // XSource is true or false to return the _source field or not, or a list of fields to return.
 func (s *ExplainService) XSource(xSource ...string) *ExplainService {
-	s.xSource = make([]string, 0)
 	s.xSource = append(s.xSource, xSource...)
 	return s
 }

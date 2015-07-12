@@ -78,13 +78,11 @@ func (hl *Highlight) Encoder(encoder string) *Highlight {
 }
 
 func (hl *Highlight) PreTags(preTags ...string) *Highlight {
-	hl.preTags = make([]string, 0)
 	hl.preTags = append(hl.preTags, preTags...)
 	return hl
 }
 
 func (hl *Highlight) PostTags(postTags ...string) *Highlight {
-	hl.postTags = make([]string, 0)
 	hl.postTags = append(hl.postTags, postTags...)
 	return hl
 }
@@ -105,7 +103,6 @@ func (hl *Highlight) BoundaryMaxScan(boundaryMaxScan int) *Highlight {
 }
 
 func (hl *Highlight) BoundaryChars(boundaryChars ...rune) *Highlight {
-	hl.boundaryChars = make([]rune, 0)
 	hl.boundaryChars = append(hl.boundaryChars, boundaryChars...)
 	return hl
 }
@@ -303,13 +300,11 @@ func NewHighlighterField(name string) *HighlighterField {
 }
 
 func (f *HighlighterField) PreTags(preTags ...string) *HighlighterField {
-	f.preTags = make([]string, 0)
 	f.preTags = append(f.preTags, preTags...)
 	return f
 }
 
 func (f *HighlighterField) PostTags(postTags ...string) *HighlighterField {
-	f.postTags = make([]string, 0)
 	f.postTags = append(f.postTags, postTags...)
 	return f
 }
@@ -350,7 +345,6 @@ func (f *HighlighterField) BoundaryMaxScan(boundaryMaxScan int) *HighlighterFiel
 }
 
 func (f *HighlighterField) BoundaryChars(boundaryChars ...rune) *HighlighterField {
-	f.boundaryChars = make([]rune, 0)
 	f.boundaryChars = append(f.boundaryChars, boundaryChars...)
 	return f
 }
@@ -381,7 +375,6 @@ func (f *HighlighterField) Options(options map[string]interface{}) *HighlighterF
 }
 
 func (f *HighlighterField) MatchedFields(matchedFields ...string) *HighlighterField {
-	f.matchedFields = make([]string, 0)
 	f.matchedFields = append(f.matchedFields, matchedFields...)
 	return f
 }

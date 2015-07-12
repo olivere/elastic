@@ -71,7 +71,6 @@ func (a PercentilesAggregation) Meta(metaData map[string]interface{}) Percentile
 }
 
 func (a PercentilesAggregation) Percentiles(percentiles ...float64) PercentilesAggregation {
-	a.percentiles = make([]float64, 0)
 	a.percentiles = append(a.percentiles, percentiles...)
 	return a
 }

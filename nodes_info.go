@@ -48,7 +48,6 @@ func NewNodesInfoService(client *Client) *NodesInfoService {
 // Use "_local" to return information from the node you're connecting to,
 // leave empty to get information from all nodes.
 func (s *NodesInfoService) NodeId(nodeId ...string) *NodesInfoService {
-	s.nodeId = make([]string, 0)
 	s.nodeId = append(s.nodeId, nodeId...)
 	return s
 }
@@ -57,7 +56,6 @@ func (s *NodesInfoService) NodeId(nodeId ...string) *NodesInfoService {
 // Valid metrics are: settings, os, process, jvm, thread_pool, network,
 // transport, http, and plugins.
 func (s *NodesInfoService) Metric(metric ...string) *NodesInfoService {
-	s.metric = make([]string, 0)
 	s.metric = append(s.metric, metric...)
 	return s
 }
