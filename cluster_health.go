@@ -34,16 +34,8 @@ func NewClusterHealthService(client *Client) *ClusterHealthService {
 	return &ClusterHealthService{client: client, indices: make([]string, 0)}
 }
 
-// Index limits the information returned to a specific index.
-func (s *ClusterHealthService) Index(index string) *ClusterHealthService {
-	s.indices = make([]string, 0)
-	s.indices = append(s.indices, index)
-	return s
-}
-
-// Indices limits the information returned to specific indices.
-func (s *ClusterHealthService) Indices(indices ...string) *ClusterHealthService {
-	s.indices = make([]string, 0)
+// Index limits the information returned to specific indices.
+func (s *ClusterHealthService) Index(indices ...string) *ClusterHealthService {
 	s.indices = append(s.indices, indices...)
 	return s
 }

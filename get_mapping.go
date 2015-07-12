@@ -45,14 +45,14 @@ func NewGetMappingService(client *Client) *GetMappingService {
 }
 
 // Index is a list of index names.
-func (s *GetMappingService) Index(index ...string) *GetMappingService {
-	s.index = append(s.index, index...)
+func (s *GetMappingService) Index(indices ...string) *GetMappingService {
+	s.index = append(s.index, indices...)
 	return s
 }
 
 // Type is a list of document types.
-func (s *GetMappingService) Type(typ ...string) *GetMappingService {
-	s.typ = append(s.typ, typ...)
+func (s *GetMappingService) Type(types ...string) *GetMappingService {
+	s.typ = append(s.typ, types...)
 	return s
 }
 

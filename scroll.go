@@ -33,15 +33,7 @@ func NewScrollService(client *Client) *ScrollService {
 	return builder
 }
 
-func (s *ScrollService) Index(index string) *ScrollService {
-	if s.indices == nil {
-		s.indices = make([]string, 0)
-	}
-	s.indices = append(s.indices, index)
-	return s
-}
-
-func (s *ScrollService) Indices(indices ...string) *ScrollService {
+func (s *ScrollService) Index(indices ...string) *ScrollService {
 	if s.indices == nil {
 		s.indices = make([]string, 0)
 	}
@@ -49,15 +41,7 @@ func (s *ScrollService) Indices(indices ...string) *ScrollService {
 	return s
 }
 
-func (s *ScrollService) Type(typ string) *ScrollService {
-	if s.types == nil {
-		s.types = make([]string, 0)
-	}
-	s.types = append(s.types, typ)
-	return s
-}
-
-func (s *ScrollService) Types(types ...string) *ScrollService {
+func (s *ScrollService) Type(types ...string) *ScrollService {
 	if s.types == nil {
 		s.types = make([]string, 0)
 	}

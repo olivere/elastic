@@ -46,9 +46,10 @@ func NewIndicesGetSettingsService(client *Client) *IndicesGetSettingsService {
 	}
 }
 
-// Index is a list of index names; use `_all` or empty string to perform the operation on all indices.
-func (s *IndicesGetSettingsService) Index(index ...string) *IndicesGetSettingsService {
-	s.index = append(s.index, index...)
+// Index is a list of index names; use `_all` or empty string to perform
+// the operation on all indices.
+func (s *IndicesGetSettingsService) Index(indices ...string) *IndicesGetSettingsService {
+	s.index = append(s.index, indices...)
 	return s
 }
 

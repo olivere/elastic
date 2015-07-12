@@ -50,8 +50,8 @@ func NewPutMappingService(client *Client) *PutMappingService {
 
 // Index is a list of index names the mapping should be added to
 // (supports wildcards); use `_all` or omit to add the mapping on all indices.
-func (s *PutMappingService) Index(index ...string) *PutMappingService {
-	s.index = append(s.index, index...)
+func (s *PutMappingService) Index(indices ...string) *PutMappingService {
+	s.index = append(s.index, indices...)
 	return s
 }
 

@@ -24,7 +24,7 @@ func TestSearchRequestIndex(t *testing.T) {
 }
 
 func TestSearchRequestIndices(t *testing.T) {
-	builder := NewSearchRequest().Indices("test", "test2")
+	builder := NewSearchRequest().Index("test", "test2")
 	data, err := json.Marshal(builder.header())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
@@ -41,7 +41,7 @@ func TestSearchRequestHasIndices(t *testing.T) {
 	if builder.HasIndices() {
 		t.Errorf("expected HasIndices to return true; got %v", builder.HasIndices())
 	}
-	builder = builder.Indices("test", "test2")
+	builder = builder.Index("test", "test2")
 	if !builder.HasIndices() {
 		t.Errorf("expected HasIndices to return false; got %v", builder.HasIndices())
 	}

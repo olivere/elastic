@@ -46,8 +46,8 @@ func NewIndicesGetService(client *Client) *IndicesGetService {
 
 // Index is a list of index names. Use _all to retrieve information about
 // all indices of a cluster.
-func (s *IndicesGetService) Index(index ...string) *IndicesGetService {
-	s.index = append(s.index, index...)
+func (s *IndicesGetService) Index(indices ...string) *IndicesGetService {
+	s.index = append(s.index, indices...)
 	return s
 }
 

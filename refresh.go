@@ -28,12 +28,7 @@ func NewRefreshService(client *Client) *RefreshService {
 	return builder
 }
 
-func (s *RefreshService) Index(index string) *RefreshService {
-	s.indices = append(s.indices, index)
-	return s
-}
-
-func (s *RefreshService) Indices(indices ...string) *RefreshService {
+func (s *RefreshService) Index(indices ...string) *RefreshService {
 	s.indices = append(s.indices, indices...)
 	return s
 }

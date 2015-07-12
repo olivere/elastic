@@ -32,12 +32,7 @@ func NewSuggestService(client *Client) *SuggestService {
 	return builder
 }
 
-func (s *SuggestService) Index(index string) *SuggestService {
-	s.indices = append(s.indices, index)
-	return s
-}
-
-func (s *SuggestService) Indices(indices ...string) *SuggestService {
+func (s *SuggestService) Index(indices ...string) *SuggestService {
 	s.indices = append(s.indices, indices...)
 	return s
 }

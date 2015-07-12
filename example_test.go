@@ -40,7 +40,7 @@ func Example() {
 	//client.SetTracer(log.New(os.Stdout, "", 0))
 
 	// Ping the Elasticsearch server to get e.g. the version number
-	info, code, err := client.Ping().Do()
+	info, code, err := client.Ping("http://127.0.0.1:9200").Do()
 	if err != nil {
 		// Handle error
 		panic(err)

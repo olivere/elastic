@@ -44,18 +44,8 @@ func NewDeleteByQueryService(client *Client) *DeleteByQueryService {
 	return builder
 }
 
-// Index limits the delete-by-query to a single index.
-// You can use _all to perform the operation on all indices.
-func (s *DeleteByQueryService) Index(index string) *DeleteByQueryService {
-	if s.indices == nil {
-		s.indices = make([]string, 0)
-	}
-	s.indices = append(s.indices, index)
-	return s
-}
-
-// Indices sets the indices on which to perform the delete operation.
-func (s *DeleteByQueryService) Indices(indices ...string) *DeleteByQueryService {
+// Index sets the indices on which to perform the delete operation.
+func (s *DeleteByQueryService) Index(indices ...string) *DeleteByQueryService {
 	if s.indices == nil {
 		s.indices = make([]string, 0)
 	}
@@ -63,17 +53,8 @@ func (s *DeleteByQueryService) Indices(indices ...string) *DeleteByQueryService 
 	return s
 }
 
-// Type limits the delete operation to the given type.
-func (s *DeleteByQueryService) Type(typ string) *DeleteByQueryService {
-	if s.types == nil {
-		s.types = make([]string, 0)
-	}
-	s.types = append(s.types, typ)
-	return s
-}
-
-// Types limits the delete operation to the given types.
-func (s *DeleteByQueryService) Types(types ...string) *DeleteByQueryService {
+// Type limits the delete operation to the given types.
+func (s *DeleteByQueryService) Type(types ...string) *DeleteByQueryService {
 	if s.types == nil {
 		s.types = make([]string, 0)
 	}

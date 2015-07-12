@@ -55,17 +55,8 @@ func (s *SearchService) Source(source interface{}) *SearchService {
 	return s
 }
 
-// Index sets the name of the index to use for search.
-func (s *SearchService) Index(index string) *SearchService {
-	if s.indices == nil {
-		s.indices = make([]string, 0)
-	}
-	s.indices = append(s.indices, index)
-	return s
-}
-
-// Indices sets the names of the indices to use for search.
-func (s *SearchService) Indices(indices ...string) *SearchService {
+// Index sets the names of the indices to use for search.
+func (s *SearchService) Index(indices ...string) *SearchService {
 	if s.indices == nil {
 		s.indices = make([]string, 0)
 	}
@@ -73,18 +64,8 @@ func (s *SearchService) Indices(indices ...string) *SearchService {
 	return s
 }
 
-// Type restricts the search for the given type.
-func (s *SearchService) Type(typ string) *SearchService {
-	if s.types == nil {
-		s.types = []string{typ}
-	} else {
-		s.types = append(s.types, typ)
-	}
-	return s
-}
-
-// Types allows to restrict the search to a list of types.
-func (s *SearchService) Types(types ...string) *SearchService {
+// Type allows to restrict the search to a list of types.
+func (s *SearchService) Type(types ...string) *SearchService {
 	if s.types == nil {
 		s.types = make([]string, 0)
 	}

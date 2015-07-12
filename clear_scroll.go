@@ -41,9 +41,8 @@ func NewClearScrollService(client *Client) *ClearScrollService {
 
 // ScrollId is a list of scroll IDs to clear.
 // Use _all to clear all search contexts.
-func (s *ClearScrollService) ScrollId(scrollId ...string) *ClearScrollService {
-	s.scrollId = make([]string, 0)
-	s.scrollId = append(s.scrollId, scrollId...)
+func (s *ClearScrollService) ScrollId(scrollIds ...string) *ClearScrollService {
+	s.scrollId = append(s.scrollId, scrollIds...)
 	return s
 }
 

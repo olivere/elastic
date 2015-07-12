@@ -34,18 +34,9 @@ func NewClusterStateService(client *Client) *ClusterStateService {
 	}
 }
 
-// Index the name of the index. Use _all or an empty string to perform
-// the operation on all indices.
-func (s *ClusterStateService) Index(index string) *ClusterStateService {
-	s.indices = make([]string, 0)
-	s.indices = append(s.indices, index)
-	return s
-}
-
-// Indices is a list of index names. Use _all or an empty string to
+// Index is a list of index names. Use _all or an empty string to
 // perform the operation on all indices.
-func (s *ClusterStateService) Indices(indices ...string) *ClusterStateService {
-	s.indices = make([]string, 0)
+func (s *ClusterStateService) Index(indices ...string) *ClusterStateService {
 	s.indices = append(s.indices, indices...)
 	return s
 }
@@ -54,16 +45,13 @@ func (s *ClusterStateService) Indices(indices ...string) *ClusterStateService {
 // It can be one of: version, master_node, nodes, routing_table, metadata,
 // blocks, or customs.
 func (s *ClusterStateService) Metric(metric string) *ClusterStateService {
-	s.metrics = make([]string, 0)
-	s.metrics = append(s.metrics, metric)
-	return s
+	return s.Metrics(metric)
 }
 
 // Metrics limits the information returned to the specified metrics.
 // It can be any of: version, master_node, nodes, routing_table, metadata,
 // blocks, or customs.
 func (s *ClusterStateService) Metrics(metrics ...string) *ClusterStateService {
-	s.metrics = make([]string, 0)
 	s.metrics = append(s.metrics, metrics...)
 	return s
 }

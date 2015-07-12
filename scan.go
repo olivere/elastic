@@ -47,15 +47,7 @@ func NewScanService(client *Client) *ScanService {
 	return builder
 }
 
-func (s *ScanService) Index(index string) *ScanService {
-	if s.indices == nil {
-		s.indices = make([]string, 0)
-	}
-	s.indices = append(s.indices, index)
-	return s
-}
-
-func (s *ScanService) Indices(indices ...string) *ScanService {
+func (s *ScanService) Index(indices ...string) *ScanService {
 	if s.indices == nil {
 		s.indices = make([]string, 0)
 	}
@@ -63,15 +55,7 @@ func (s *ScanService) Indices(indices ...string) *ScanService {
 	return s
 }
 
-func (s *ScanService) Type(typ string) *ScanService {
-	if s.types == nil {
-		s.types = make([]string, 0)
-	}
-	s.types = append(s.types, typ)
-	return s
-}
-
-func (s *ScanService) Types(types ...string) *ScanService {
+func (s *ScanService) Type(types ...string) *ScanService {
 	if s.types == nil {
 		s.types = make([]string, 0)
 	}

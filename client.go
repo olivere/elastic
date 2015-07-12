@@ -906,7 +906,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 // ElasticsearchVersion returns the version number of Elasticsearch
 // running on the given URL.
 func (c *Client) ElasticsearchVersion(url string) (string, error) {
-	res, _, err := c.Ping().URL(url).Do()
+	res, _, err := c.Ping(url).Do()
 	if err != nil {
 		return "", err
 	}
@@ -929,29 +929,25 @@ func (c *Client) IndexNames() ([]string, error) {
 // Ping checks if a given node in a cluster exists and (optionally)
 // returns some basic information about the Elasticsearch server,
 // e.g. the Elasticsearch version number.
-func (c *Client) Ping() *PingService {
-	return NewPingService(c)
+//
+// Notice that you need to specify a URL here explicitly.
+func (c *Client) Ping(url string) *PingService {
+	return NewPingService(c).URL(url)
 }
 
 // CreateIndex returns a service to create a new index.
 func (c *Client) CreateIndex(name string) *CreateIndexService {
-	builder := NewCreateIndexService(c)
-	builder.Index(name)
-	return builder
+	return NewCreateIndexService(c).Index(name)
 }
 
 // DeleteIndex returns a service to delete an index.
 func (c *Client) DeleteIndex(name string) *DeleteIndexService {
-	builder := NewDeleteIndexService(c)
-	builder.Index(name)
-	return builder
+	return NewDeleteIndexService(c).Index(name)
 }
 
 // IndexExists allows to check if an index exists.
 func (c *Client) IndexExists(name string) *IndexExistsService {
-	builder := NewIndexExistsService(c)
-	builder.Index(name)
-	return builder
+	return NewIndexExistsService(c).Index(name)
 }
 
 // TypeExists allows to check if one or more types exist in one or more indices.
@@ -962,99 +958,79 @@ func (c *Client) TypeExists() *IndicesExistsTypeService {
 // IndexStats provides statistics on different operations happining
 // in one or more indices.
 func (c *Client) IndexStats(indices ...string) *IndicesStatsService {
-	builder := NewIndicesStatsService(c)
-	builder = builder.Index(indices...)
-	return builder
+	return NewIndicesStatsService(c).Index(indices...)
 }
 
 // OpenIndex opens an index.
 func (c *Client) OpenIndex(name string) *OpenIndexService {
-	builder := NewOpenIndexService(c)
-	builder.Index(name)
-	return builder
+	return NewOpenIndexService(c).Index(name)
 }
 
 // CloseIndex closes an index.
 func (c *Client) CloseIndex(name string) *CloseIndexService {
-	builder := NewCloseIndexService(c)
-	builder.Index(name)
-	return builder
+	return NewCloseIndexService(c).Index(name)
 }
 
 // Index a document.
 func (c *Client) Index() *IndexService {
-	builder := NewIndexService(c)
-	return builder
+	return NewIndexService(c)
 }
 
 // IndexGet retrieves information about one or more indices.
 // IndexGet is only available for Elasticsearch 1.4 or later.
-func (c *Client) IndexGet() *IndicesGetService {
-	builder := NewIndicesGetService(c)
-	return builder
+func (c *Client) IndexGet(indices ...string) *IndicesGetService {
+	return NewIndicesGetService(c).Index(indices...)
 }
 
 // IndexGetSettings retrieves settings about one or more indices.
-func (c *Client) IndexGetSettings() *IndicesGetSettingsService {
-	builder := NewIndicesGetSettingsService(c)
-	return builder
+func (c *Client) IndexGetSettings(indices ...string) *IndicesGetSettingsService {
+	return NewIndicesGetSettingsService(c).Index(indices...)
 }
 
 // Update a document.
 func (c *Client) Update() *UpdateService {
-	builder := NewUpdateService(c)
-	return builder
+	return NewUpdateService(c)
 }
 
 // Delete a document.
 func (c *Client) Delete() *DeleteService {
-	builder := NewDeleteService(c)
-	return builder
+	return NewDeleteService(c)
 }
 
 // DeleteByQuery deletes documents as found by a query.
-func (c *Client) DeleteByQuery() *DeleteByQueryService {
-	builder := NewDeleteByQueryService(c)
-	return builder
+func (c *Client) DeleteByQuery(indices ...string) *DeleteByQueryService {
+	return NewDeleteByQueryService(c).Index(indices...)
 }
 
 // Get a document.
 func (c *Client) Get() *GetService {
-	builder := NewGetService(c)
-	return builder
+	return NewGetService(c)
 }
 
 // MultiGet retrieves multiple documents in one roundtrip.
 func (c *Client) MultiGet() *MultiGetService {
-	builder := NewMultiGetService(c)
-	return builder
+	return NewMultiGetService(c)
 }
 
 // Exists checks if a document exists.
 func (c *Client) Exists() *ExistsService {
-	builder := NewExistsService(c)
-	return builder
+	return NewExistsService(c)
 }
 
 // Count documents.
 func (c *Client) Count(indices ...string) *CountService {
-	builder := NewCountService(c)
-	builder.Indices(indices...)
-	return builder
+	return NewCountService(c).Index(indices...)
 }
 
 // Search is the entry point for searches.
 func (c *Client) Search(indices ...string) *SearchService {
-	builder := NewSearchService(c)
-	builder.Indices(indices...)
-	return builder
+	return NewSearchService(c).Index(indices...)
 }
 
 // Percolate allows to send a document and return matching queries.
 // See http://www.elastic.co/guide/en/elasticsearch/reference/current/search-percolate.html.
 func (c *Client) Percolate() *PercolateService {
-	builder := NewPercolateService(c)
-	return builder
+	return NewPercolateService(c)
 }
 
 // MultiSearch is the entry point for multi searches.
@@ -1064,78 +1040,61 @@ func (c *Client) MultiSearch() *MultiSearchService {
 
 // Suggest returns a service to return suggestions.
 func (c *Client) Suggest(indices ...string) *SuggestService {
-	builder := NewSuggestService(c)
-	builder.Indices(indices...)
-	return builder
+	return NewSuggestService(c).Index(indices...)
 }
 
 // Scan through documents. Use this to iterate inside a server process
 // where the results will be processed without returning them to a client.
 func (c *Client) Scan(indices ...string) *ScanService {
-	builder := NewScanService(c)
-	builder.Indices(indices...)
-	return builder
+	return NewScanService(c).Index(indices...)
 }
 
 // Scroll through documents. Use this to efficiently scroll through results
 // while returning the results to a client. Use Scan when you don't need
 // to return requests to a client (i.e. not paginating via request/response).
 func (c *Client) Scroll(indices ...string) *ScrollService {
-	builder := NewScrollService(c)
-	builder.Indices(indices...)
-	return builder
+	return NewScrollService(c).Index(indices...)
 }
 
 // ClearScroll can be used to clear search contexts manually.
-func (c *Client) ClearScroll() *ClearScrollService {
-	builder := NewClearScrollService(c)
-	return builder
+func (c *Client) ClearScroll(scrollIds ...string) *ClearScrollService {
+	return NewClearScrollService(c).ScrollId(scrollIds...)
 }
 
 // Optimize asks Elasticsearch to optimize one or more indices.
 func (c *Client) Optimize(indices ...string) *OptimizeService {
-	builder := NewOptimizeService(c)
-	builder.Indices(indices...)
-	return builder
+	return NewOptimizeService(c).Index(indices...)
 }
 
 // Refresh asks Elasticsearch to refresh one or more indices.
 func (c *Client) Refresh(indices ...string) *RefreshService {
-	builder := NewRefreshService(c)
-	builder.Indices(indices...)
-	return builder
+	return NewRefreshService(c).Index(indices...)
 }
 
 // Flush asks Elasticsearch to free memory from the index and
 // flush data to disk.
-func (c *Client) Flush() *FlushService {
-	builder := NewFlushService(c)
-	return builder
+func (c *Client) Flush(indices ...string) *FlushService {
+	return NewFlushService(c).Index(indices...)
 }
 
 // Explain computes a score explanation for a query and a specific document.
 func (c *Client) Explain(index, typ, id string) *ExplainService {
-	builder := NewExplainService(c)
-	builder = builder.Index(index).Type(typ).Id(id)
-	return builder
+	return NewExplainService(c).Index(index).Type(typ).Id(id)
 }
 
 // Bulk is the entry point to mass insert/update/delete documents.
 func (c *Client) Bulk() *BulkService {
-	builder := NewBulkService(c)
-	return builder
+	return NewBulkService(c)
 }
 
 // Alias enables the caller to add and/or remove aliases.
 func (c *Client) Alias() *AliasService {
-	builder := NewAliasService(c)
-	return builder
+	return NewAliasService(c)
 }
 
 // Aliases returns aliases by index name(s).
 func (c *Client) Aliases() *AliasesService {
-	builder := NewAliasesService(c)
-	return builder
+	return NewAliasesService(c)
 }
 
 // GetTemplate gets a search template.
@@ -1159,33 +1118,25 @@ func (c *Client) DeleteTemplate() *DeleteTemplateService {
 // IndexGetTemplate gets an index template.
 // Use XXXTemplate funcs to manage search templates.
 func (c *Client) IndexGetTemplate(names ...string) *IndicesGetTemplateService {
-	builder := NewIndicesGetTemplateService(c)
-	builder = builder.Name(names...)
-	return builder
+	return NewIndicesGetTemplateService(c).Name(names...)
 }
 
 // IndexTemplateExists gets check if an index template exists.
 // Use XXXTemplate funcs to manage search templates.
 func (c *Client) IndexTemplateExists(name string) *IndicesExistsTemplateService {
-	builder := NewIndicesExistsTemplateService(c)
-	builder = builder.Name(name)
-	return builder
+	return NewIndicesExistsTemplateService(c).Name(name)
 }
 
 // IndexPutTemplate creates or updates an index template.
 // Use XXXTemplate funcs to manage search templates.
 func (c *Client) IndexPutTemplate(name string) *IndicesPutTemplateService {
-	builder := NewIndicesPutTemplateService(c)
-	builder = builder.Name(name)
-	return builder
+	return NewIndicesPutTemplateService(c).Name(name)
 }
 
 // IndexDeleteTemplate deletes an index template.
 // Use XXXTemplate funcs to manage search templates.
 func (c *Client) IndexDeleteTemplate(name string) *IndicesDeleteTemplateService {
-	builder := NewIndicesDeleteTemplateService(c)
-	builder = builder.Name(name)
-	return builder
+	return NewIndicesDeleteTemplateService(c).Name(name)
 }
 
 // GetMapping gets a mapping.

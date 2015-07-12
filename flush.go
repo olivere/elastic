@@ -38,15 +38,7 @@ func NewFlushService(client *Client) *FlushService {
 	return builder
 }
 
-func (s *FlushService) Index(index string) *FlushService {
-	if s.indices == nil {
-		s.indices = make([]string, 0)
-	}
-	s.indices = append(s.indices, index)
-	return s
-}
-
-func (s *FlushService) Indices(indices ...string) *FlushService {
+func (s *FlushService) Index(indices ...string) *FlushService {
 	if s.indices == nil {
 		s.indices = make([]string, 0)
 	}

@@ -110,11 +110,52 @@ Elastic 3.0 has settled to use `float64` everywhere. It used to be a mix of `flo
 
 ## Pluralization
 
-Some services accept both a singluar and a plural form for some properties. E.g. in the `SearchService` accepts a list of zero, one, or more indices to search. It therefore has a func called `Index(index string)` and a func called `Indices(indices ...string)`.
+Some services accept zero, one or more indices or types to operate on.
+E.g. in the `SearchService` accepts a list of zero, one, or more indices to
+search and therefor had a func called `Index(index string)` and a func
+called `Indices(indices ...string)`.
 
-Elastic 3.0 now only uses the singular form that, when applicable, accepts a variadic type. E.g. in the case of the `SearchService`, you now only have one func with the following signature: `Index(indices ...string)`.
+Elastic 3.0 now only uses the singular form that, when applicable, accepts a
+variadic type. E.g. in the case of the `SearchService`, you now only have
+one func with the following signature: `Index(indices ...string)`.
+
+Notice this is only limited to `Index(...)` and `Type(...)`. There are other
+services with variadic functions. These have not been changed.
 
 TODO Add example here
+
+## Multiple calls to variadic functions
+
+Some services with variadic functions have cleared the underlying slice when
+called while other services just add to the existing slice. This has now been
+normalized to always add to the underlying slice.
+
+Example for Elastic 2.0 (old):
+
+```go
+// Would only cleared scroll id "two"
+// because ScrollId cleared the values when called multiple times
+client.ClearScroll().ScrollId("one").ScrollId("two").Do()
+```
+
+Example for Elastic 3.0 (new):
+
+```go
+// Now (correctly) clears noth scroll id "one" and "two"
+// because ScrollId no longer clears the values when called multiple times
+client.ClearScroll().ScrollId("one").ScrollId("two").Do()
+```
+
+## Ping service requires URL
+
+The `Ping` service raised some issues because it is different from all
+other services. If not explicitly given a URL, it always pings 127.0.0.1:9200.
+
+Users expected to ping the cluster, but that is not possible as the cluster
+can be a set of many machines: So which machine do we ping then?
+
+To make it more clear, the `Ping` function on the client now requires users
+to explicitly set a URL.
 
 ## Meta fields
 

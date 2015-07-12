@@ -60,12 +60,7 @@ func (r *SearchRequest) SearchTypeCount() *SearchRequest {
 	return r.SearchType("count")
 }
 
-func (r *SearchRequest) Index(index string) *SearchRequest {
-	r.indices = append(r.indices, index)
-	return r
-}
-
-func (r *SearchRequest) Indices(indices ...string) *SearchRequest {
+func (r *SearchRequest) Index(indices ...string) *SearchRequest {
 	r.indices = append(r.indices, indices...)
 	return r
 }
@@ -74,12 +69,7 @@ func (r *SearchRequest) HasIndices() bool {
 	return len(r.indices) > 0
 }
 
-func (r *SearchRequest) Type(typ string) *SearchRequest {
-	r.types = append(r.types, typ)
-	return r
-}
-
-func (r *SearchRequest) Types(types ...string) *SearchRequest {
+func (r *SearchRequest) Type(types ...string) *SearchRequest {
 	r.types = append(r.types, types...)
 	return r
 }

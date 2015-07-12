@@ -54,7 +54,7 @@ func TestMultiSearch(t *testing.T) {
 	q1 := NewMatchAllQuery()
 	q2 := NewTermQuery("tags", "golang")
 
-	sreq1 := NewSearchRequest().Indices(testIndexName, testIndexName2).
+	sreq1 := NewSearchRequest().Index(testIndexName, testIndexName2).
 		Source(NewSearchSource().Query(q1).Size(10))
 	sreq2 := NewSearchRequest().Index(testIndexName).Type("tweet").
 		Source(NewSearchSource().Query(q2))

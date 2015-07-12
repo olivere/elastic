@@ -38,15 +38,7 @@ func NewCountService(client *Client) *CountService {
 	return builder
 }
 
-func (s *CountService) Index(index string) *CountService {
-	if s.indices == nil {
-		s.indices = make([]string, 0)
-	}
-	s.indices = append(s.indices, index)
-	return s
-}
-
-func (s *CountService) Indices(indices ...string) *CountService {
+func (s *CountService) Index(indices ...string) *CountService {
 	if s.indices == nil {
 		s.indices = make([]string, 0)
 	}
@@ -54,15 +46,7 @@ func (s *CountService) Indices(indices ...string) *CountService {
 	return s
 }
 
-func (s *CountService) Type(typ string) *CountService {
-	if s.types == nil {
-		s.types = make([]string, 0)
-	}
-	s.types = append(s.types, typ)
-	return s
-}
-
-func (s *CountService) Types(types ...string) *CountService {
+func (s *CountService) Type(types ...string) *CountService {
 	if s.types == nil {
 		s.types = make([]string, 0)
 	}

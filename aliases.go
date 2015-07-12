@@ -32,13 +32,8 @@ func (s *AliasesService) Pretty(pretty bool) *AliasesService {
 	return s
 }
 
-func (s *AliasesService) Index(indexName string) *AliasesService {
-	s.indices = append(s.indices, indexName)
-	return s
-}
-
-func (s *AliasesService) Indices(indexNames ...string) *AliasesService {
-	s.indices = append(s.indices, indexNames...)
+func (s *AliasesService) Index(indices ...string) *AliasesService {
+	s.indices = append(s.indices, indices...)
 	return s
 }
 

@@ -12,7 +12,7 @@ import (
 func TestPingGet(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	res, code, err := client.Ping().Do()
+	res, code, err := client.Ping(DefaultURL).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,7 +33,7 @@ func TestPingGet(t *testing.T) {
 func TestPingHead(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	res, code, err := client.Ping().HttpHeadOnly(true).Do()
+	res, code, err := client.Ping(DefaultURL).HttpHeadOnly(true).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,8 +48,8 @@ func TestPingHead(t *testing.T) {
 func TestPingHeadFailure(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	res, code, err := client.Ping().
-		URL("http://127.0.0.1:9299").
+	res, code, err := client.
+		Ping("http://127.0.0.1:9299").
 		HttpHeadOnly(true).
 		Do()
 	if err == nil {

@@ -45,7 +45,7 @@ func TestAliases(t *testing.T) {
 
 	// Alias should not yet exist
 	aliasesResult1, err := client.Aliases().
-		Indices(testIndexName, testIndexName2).
+		Index(testIndexName, testIndexName2).
 		//Pretty(true).
 		Do()
 	if err != nil {
@@ -75,7 +75,7 @@ func TestAliases(t *testing.T) {
 
 	// Alias should now exist
 	aliasesResult2, err := client.Aliases().
-		Indices(testIndexName, testIndexName2).
+		Index(testIndexName, testIndexName2).
 		//Pretty(true).
 		Do()
 	if err != nil {
@@ -123,7 +123,7 @@ func TestAliases(t *testing.T) {
 	}
 
 	// Alias should now exist only for index 2
-	aliasesResult3, err := client.Aliases().Indices(testIndexName, testIndexName2).Do()
+	aliasesResult3, err := client.Aliases().Index(testIndexName, testIndexName2).Do()
 	if err != nil {
 		t.Fatal(err)
 	}

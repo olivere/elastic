@@ -32,12 +32,7 @@ func NewOptimizeService(client *Client) *OptimizeService {
 	return builder
 }
 
-func (s *OptimizeService) Index(index string) *OptimizeService {
-	s.indices = append(s.indices, index)
-	return s
-}
-
-func (s *OptimizeService) Indices(indices ...string) *OptimizeService {
+func (s *OptimizeService) Index(indices ...string) *OptimizeService {
 	s.indices = append(s.indices, indices...)
 	return s
 }

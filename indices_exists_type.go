@@ -35,14 +35,14 @@ func NewIndicesExistsTypeService(client *Client) *IndicesExistsTypeService {
 }
 
 // Index is a list of index names; use `_all` to check the types across all indices.
-func (s *IndicesExistsTypeService) Index(index ...string) *IndicesExistsTypeService {
-	s.index = append(s.index, index...)
+func (s *IndicesExistsTypeService) Index(indices ...string) *IndicesExistsTypeService {
+	s.index = append(s.index, indices...)
 	return s
 }
 
 // Type is a list of document types to check.
-func (s *IndicesExistsTypeService) Type(typ ...string) *IndicesExistsTypeService {
-	s.typ = append(s.typ, typ...)
+func (s *IndicesExistsTypeService) Type(types ...string) *IndicesExistsTypeService {
+	s.typ = append(s.typ, types...)
 	return s
 }
 
