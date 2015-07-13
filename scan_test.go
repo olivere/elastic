@@ -143,7 +143,6 @@ func TestScanWithSort(t *testing.T) {
 
 	if cursor.Results.Hits.Hits[0].Id != "3" {
 		t.Errorf("expected hitID = %v; got %v", "3", cursor.Results.Hits.Hits[0].Id)
-
 	}
 
 	numDocs := 1 // The cursor already gave us a result
