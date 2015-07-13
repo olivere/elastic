@@ -578,6 +578,21 @@ func (a Aggregations) BucketScript(name string) (*AggregationPipelineSimpleValue
 	return nil, false
 }
 
+// SerialDiff returns serial differencing pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-serialdiff-aggregation.html
+func (a Aggregations) SerialDiff(name string) (*AggregationPipelineSimpleValue, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineSimpleValue)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // -- Single value metric --
 
 // AggregationValueMetric is a single-value metric, returned e.g. by a

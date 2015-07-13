@@ -886,7 +886,7 @@ func TestAggsIntegrationSerialDiff(t *testing.T) {
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
 	h = h.SubAggregation("sales", NewSumAggregation().Field("price"))
-	h = h.SubAggregation("the_diff", NewSerialDiffAggregation().BucketsPath("price").Lag(1))
+	h = h.SubAggregation("the_diff", NewSerialDiffAggregation().BucketsPath("sales").Lag(1))
 	builder = builder.Aggregation("sales_per_month", h)
 
 	res, err := builder.Do()
@@ -932,77 +932,69 @@ func TestAggsIntegrationSerialDiff(t *testing.T) {
 		t.Fatalf("expected DocCount=%d; got: %d", want, got)
 	}
 
-	/*
-		d, found := agg.Buckets[0].Derivative("sales_deriv")
-		if found {
-			t.Fatal("expected no sales_deriv aggregation")
-		}
-		if d != nil {
-			t.Fatal("expected no sales_deriv aggregation")
-		}
+	d, found := agg.Buckets[0].SerialDiff("the_diff")
+	if found {
+		t.Fatal("expected no the_diff aggregation")
+	}
+	if d != nil {
+		t.Fatal("expected no the_diff aggregation")
+	}
 
-		d, found = agg.Buckets[1].Derivative("sales_deriv")
-		if !found {
-			t.Fatal("expected sales_deriv aggregation")
-		}
-		if d == nil {
-			t.Fatal("expected sales_deriv aggregation")
-		}
-		if d.Value != nil {
-			t.Fatal("expected sales_deriv value == nil")
-		}
+	d, found = agg.Buckets[1].SerialDiff("the_diff")
+	if found {
+		t.Fatal("expected no the_diff aggregation")
+	}
+	if d != nil {
+		t.Fatal("expected no the_diff aggregation")
+	}
 
-		d, found = agg.Buckets[2].Derivative("sales_deriv")
-		if !found {
-			t.Fatal("expected sales_deriv aggregation")
-		}
-		if d == nil {
-			t.Fatal("expected sales_deriv aggregation")
-		}
-		if d.Value != nil {
-			t.Fatal("expected sales_deriv value == nil")
-		}
+	d, found = agg.Buckets[2].SerialDiff("the_diff")
+	if found {
+		t.Fatal("expected no the_diff aggregation")
+	}
+	if d != nil {
+		t.Fatal("expected no the_diff aggregation")
+	}
 
-		d, found = agg.Buckets[3].Derivative("sales_deriv")
-		if !found {
-			t.Fatal("expected sales_deriv aggregation")
-		}
-		if d == nil {
-			t.Fatal("expected sales_deriv aggregation")
-		}
-		if d.Value == nil {
-			t.Fatal("expected sales_deriv value != nil")
-		}
-		if got, want := *d.Value, float64(2348.0); got != want {
-			t.Fatalf("expected sales_deriv.value=%v; got: %v", want, got)
-		}
+	d, found = agg.Buckets[3].SerialDiff("the_diff")
+	if !found {
+		t.Fatal("expected the_diff aggregation")
+	}
+	if d == nil {
+		t.Fatal("expected the_diff aggregation")
+	}
+	if d.Value == nil {
+		t.Fatal("expected the_diff value != nil")
+	}
+	if got, want := *d.Value, float64(2348.0); got != want {
+		t.Fatalf("expected the_diff.value=%v; got: %v", want, got)
+	}
 
-		d, found = agg.Buckets[4].Derivative("sales_deriv")
-		if !found {
-			t.Fatal("expected sales_deriv aggregation")
-		}
-		if d == nil {
-			t.Fatal("expected sales_deriv aggregation")
-		}
-		if d.Value == nil {
-			t.Fatal("expected sales_deriv value != nil")
-		}
-		if got, want := *d.Value, float64(-1658.0); got != want {
-			t.Fatalf("expected sales_deriv.value=%v; got: %v", want, got)
-		}
+	d, found = agg.Buckets[4].SerialDiff("the_diff")
+	if !found {
+		t.Fatal("expected the_diff aggregation")
+	}
+	if d == nil {
+		t.Fatal("expected the_diff aggregation")
+	}
+	if d.Value == nil {
+		t.Fatal("expected the_diff value != nil")
+	}
+	if got, want := *d.Value, float64(-1658.0); got != want {
+		t.Fatalf("expected the_diff.value=%v; got: %v", want, got)
+	}
 
-		d, found = agg.Buckets[5].Derivative("sales_deriv")
-		if !found {
-			t.Fatal("expected sales_deriv aggregation")
-		}
-		if d == nil {
-			t.Fatal("expected sales_deriv aggregation")
-		}
-		if d.Value == nil {
-			t.Fatal("expected sales_deriv value != nil")
-		}
-		if got, want := *d.Value, float64(-722.0); got != want {
-			t.Fatalf("expected sales_deriv.value=%v; got: %v", want, got)
-		}
-	*/
+	d, found = agg.Buckets[5].SerialDiff("the_diff")
+	if !found {
+		t.Fatal("expected the_diff aggregation")
+	}
+	if d == nil {
+		t.Fatal("expected the_diff aggregation")
+	}
+	if d.Value == nil {
+		t.Fatal("expected the_diff value != nil")
+	}
+	if got, want := *d.Value, float64(-722.0); got != want {
+		t.Fatalf("expected the_diff.value=%v; got: %v", want, got)
+	}
 }

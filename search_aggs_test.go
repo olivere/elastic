@@ -2902,3 +2902,31 @@ func TestAggsPipelineBucketScript(t *testing.T) {
 		t.Fatalf("expected aggregation value = %v; got: %v", float64(20), *agg.Value)
 	}
 }
+
+func TestAggsPipelineSerialDiff(t *testing.T) {
+	s := `{
+	"the_diff" : {
+	  "value" : -722.0
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.SerialDiff("the_diff")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Value == nil {
+		t.Fatalf("expected aggregation value != nil; got: %v", agg.Value)
+	}
+	if *agg.Value != float64(-722.0) {
+		t.Fatalf("expected aggregation value = %v; got: %v", float64(20), *agg.Value)
+	}
+}
