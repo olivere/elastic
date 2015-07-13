@@ -447,7 +447,7 @@ func TestAggsIntegrationMovAvg(t *testing.T) {
 		t.Fatal("expected the_movavg value")
 	}
 	if got, want := *d.Value, float64(1290.0); got != want {
-		t.Fatalf("expected %d buckets; got: %d", want, got)
+		t.Fatalf("expected %v buckets; got: %v", want, got)
 	}
 
 	d, found = agg.Buckets[3].MovAvg("the_movavg")
@@ -461,7 +461,7 @@ func TestAggsIntegrationMovAvg(t *testing.T) {
 		t.Fatal("expected the_movavg value")
 	}
 	if got, want := *d.Value, float64(695.0); got != want {
-		t.Fatalf("expected %d buckets; got: %d", want, got)
+		t.Fatalf("expected %v buckets; got: %v", want, got)
 	}
 
 	d, found = agg.Buckets[4].MovAvg("the_movavg")
@@ -475,7 +475,7 @@ func TestAggsIntegrationMovAvg(t *testing.T) {
 		t.Fatal("expected the_movavg value")
 	}
 	if got, want := *d.Value, float64(1279.3333333333333); got != want {
-		t.Fatalf("expected %d buckets; got: %d", want, got)
+		t.Fatalf("expected %v buckets; got: %v", want, got)
 	}
 
 	d, found = agg.Buckets[5].MovAvg("the_movavg")
@@ -489,7 +489,7 @@ func TestAggsIntegrationMovAvg(t *testing.T) {
 		t.Fatal("expected the_movavg value")
 	}
 	if got, want := *d.Value, float64(1157.0); got != want {
-		t.Fatalf("expected %d buckets; got: %d", want, got)
+		t.Fatalf("expected %v buckets; got: %v", want, got)
 	}
 }
 
