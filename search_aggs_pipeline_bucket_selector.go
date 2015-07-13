@@ -16,7 +16,7 @@ package elastic
 type BucketSelectorAggregation struct {
 	format    string
 	gapPolicy string
-	script    string
+	script    *Script
 
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
@@ -56,7 +56,7 @@ func (a BucketSelectorAggregation) GapSkip() BucketSelectorAggregation {
 }
 
 // Script is the script to run.
-func (a BucketSelectorAggregation) Script(script string) BucketSelectorAggregation {
+func (a BucketSelectorAggregation) Script(script *Script) BucketSelectorAggregation {
 	a.script = script
 	return a
 }
@@ -99,8 +99,12 @@ func (a BucketSelectorAggregation) Source() (interface{}, error) {
 	if a.gapPolicy != "" {
 		params["gap_policy"] = a.gapPolicy
 	}
-	if a.script != "" {
-		params["script"] = a.script
+	if a.script != nil {
+		src, err := a.script.Source()
+		if err != nil {
+			return nil, err
+		}
+		params["script"] = src
 	}
 
 	// Add buckets paths

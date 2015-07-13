@@ -44,9 +44,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 		{
 			Request: NewBulkUpdateRequest().Index("index1").Type("tweet").Id("1").
 				RetryOnConflict(3).
-				Script(`ctx._source.retweets += param1`).
-				ScriptLang("js").
-				ScriptParams(map[string]interface{}{"param1": 42}).
+				Script(NewScript(`ctx._source.retweets += param1`).Lang("javascript").Param("param1", 42)).
 				Upsert(struct {
 				Counter int64 `json:"counter"`
 			}{
@@ -54,7 +52,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 			}),
 			Expected: []string{
 				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet","upsert":{"counter":42}}}`,
-				`{"lang":"js","params":{"param1":42},"script":"ctx._source.retweets += param1"}`,
+				`{"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}}}`,
 			},
 		},
 	}
@@ -72,7 +70,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 		}
 		for j, line := range lines {
 			if line != test.Expected[j] {
-				t.Errorf("case #%d: expected line #%d to be %s, got: %s", i, j, test.Expected[j], line)
+				t.Errorf("case #%d: expected line #%d to be\n%s\nbut got:\n%s", i, j, test.Expected[j], line)
 			}
 		}
 	}

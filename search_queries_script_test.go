@@ -10,7 +10,7 @@ import (
 )
 
 func TestScriptQuery(t *testing.T) {
-	q := NewScriptQuery("doc['num1'.value > 1")
+	q := NewScriptQuery(NewScript("doc['num1'.value > 1"))
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -27,7 +27,7 @@ func TestScriptQuery(t *testing.T) {
 }
 
 func TestScriptQueryWithParams(t *testing.T) {
-	q := NewScriptQuery("doc['num1'.value > 1")
+	q := NewScriptQuery(NewScript("doc['num1'.value > 1"))
 	q = q.QueryName("MyQueryName")
 	src, err := q.Source()
 	if err != nil {

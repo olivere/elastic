@@ -504,32 +504,3 @@ func (s *SearchSource) Source() (interface{}, error) {
 
 	return source, nil
 }
-
-// -- Script Field --
-
-// ScriptField is a single script field.
-type ScriptField struct {
-	FieldName string // name of the field
-
-	script string
-	lang   string
-	params map[string]interface{}
-}
-
-// NewScriptField creates and initializes a new ScriptField.
-func NewScriptField(fieldName, script, lang string, params map[string]interface{}) *ScriptField {
-	return &ScriptField{fieldName, script, lang, params}
-}
-
-// Source returns the serializable JSON for the ScriptField.
-func (f *ScriptField) Source() (interface{}, error) {
-	source := make(map[string]interface{})
-	source["script"] = f.script
-	if f.lang != "" {
-		source["lang"] = f.lang
-	}
-	if f.params != nil && len(f.params) > 0 {
-		source["params"] = f.params
-	}
-	return source, nil
-}

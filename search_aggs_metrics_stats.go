@@ -11,18 +11,14 @@ package elastic
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-stats-aggregation.html
 type StatsAggregation struct {
 	field           string
-	script          string
-	scriptFile      string
-	lang            string
+	script          *Script
 	format          string
-	params          map[string]interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 }
 
 func NewStatsAggregation() StatsAggregation {
 	a := StatsAggregation{
-		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 	}
 	return a
@@ -33,28 +29,13 @@ func (a StatsAggregation) Field(field string) StatsAggregation {
 	return a
 }
 
-func (a StatsAggregation) Script(script string) StatsAggregation {
+func (a StatsAggregation) Script(script *Script) StatsAggregation {
 	a.script = script
-	return a
-}
-
-func (a StatsAggregation) ScriptFile(scriptFile string) StatsAggregation {
-	a.scriptFile = scriptFile
-	return a
-}
-
-func (a StatsAggregation) Lang(lang string) StatsAggregation {
-	a.lang = lang
 	return a
 }
 
 func (a StatsAggregation) Format(format string) StatsAggregation {
 	a.format = format
-	return a
-}
-
-func (a StatsAggregation) Param(name string, value interface{}) StatsAggregation {
-	a.params[name] = value
 	return a
 }
 
@@ -86,20 +67,15 @@ func (a StatsAggregation) Source() (interface{}, error) {
 	if a.field != "" {
 		opts["field"] = a.field
 	}
-	if a.script != "" {
-		opts["script"] = a.script
-	}
-	if a.scriptFile != "" {
-		opts["script_file"] = a.scriptFile
-	}
-	if a.lang != "" {
-		opts["lang"] = a.lang
+	if a.script != nil {
+		src, err := a.script.Source()
+		if err != nil {
+			return nil, err
+		}
+		opts["script"] = src
 	}
 	if a.format != "" {
 		opts["format"] = a.format
-	}
-	if len(a.params) > 0 {
-		opts["params"] = a.params
 	}
 
 	// AggregationBuilder (SubAggregations)

@@ -4,17 +4,19 @@
 
 package elastic
 
+import "errors"
+
 // ScriptQuery allows to define scripts as filters.
 //
 // For details, see
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-script-query.html
 type ScriptQuery struct {
-	script    string
+	script    *Script
 	queryName string
 }
 
 // NewScriptQuery creates and initializes a new ScriptQuery.
-func NewScriptQuery(script string) *ScriptQuery {
+func NewScriptQuery(script *Script) *ScriptQuery {
 	return &ScriptQuery{
 		script: script,
 	}
@@ -29,11 +31,18 @@ func (q *ScriptQuery) QueryName(queryName string) *ScriptQuery {
 
 // Source returns JSON for the query.
 func (q *ScriptQuery) Source() (interface{}, error) {
+	if q.script == nil {
+		return nil, errors.New("ScriptQuery expected a script")
+	}
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source["script"] = params
 
-	params["script"] = q.script
+	src, err := q.script.Source()
+	if err != nil {
+		return nil, err
+	}
+	params["script"] = src
 
 	if q.queryName != "" {
 		params["_name"] = q.queryName

@@ -10,6 +10,7 @@ import (
 )
 
 func TestBulk(t *testing.T) {
+	//client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
@@ -105,6 +106,49 @@ func TestBulk(t *testing.T) {
 	}
 	if updatedTweet.Retweets != 42 {
 		t.Errorf("expected updated tweet retweets = %v; got %v", 42, updatedTweet.Retweets)
+	}
+
+	// Update with script
+	update2Req := NewBulkUpdateRequest().Index(testIndexName).Type("tweet").Id("2").
+		RetryOnConflict(3).
+		Script(NewScript("ctx._source.retweets += v").Param("v", 1))
+	bulkRequest = client.Bulk()
+	bulkRequest = bulkRequest.Add(update2Req)
+	if bulkRequest.NumberOfActions() != 1 {
+		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 1, bulkRequest.NumberOfActions())
+	}
+	bulkResponse, err = bulkRequest.Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bulkResponse == nil {
+		t.Errorf("expected bulkResponse to be != nil; got nil")
+	}
+
+	if bulkRequest.NumberOfActions() != 0 {
+		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 0, bulkRequest.NumberOfActions())
+	}
+
+	// Document with Id="1" should have a retweets count of 43
+	doc, err = client.Get().Index(testIndexName).Type("tweet").Id("2").Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if doc == nil {
+		t.Fatal("expected doc to be != nil; got nil")
+	}
+	if !doc.Found {
+		t.Fatalf("expected doc to be found; got found = %v", doc.Found)
+	}
+	if doc.Source == nil {
+		t.Fatal("expected doc source to be != nil; got nil")
+	}
+	err = json.Unmarshal(*doc.Source, &updatedTweet)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if updatedTweet.Retweets != 43 {
+		t.Errorf("expected updated tweet retweets = %v; got %v", 43, updatedTweet.Retweets)
 	}
 }
 

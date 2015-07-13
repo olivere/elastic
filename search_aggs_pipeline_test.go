@@ -676,7 +676,7 @@ func TestAggsIntegrationBucketScript(t *testing.T) {
 			GapPolicy("insert_zeros").
 			AddBucketsPath("appleSales", "apple_sales>sales").
 			AddBucketsPath("totalSales", "total_sales").
-			Script("appleSales / totalSales * 100"))
+			Script(NewScript("appleSales / totalSales * 100")))
 	builder = builder.Aggregation("sales_per_month", h)
 
 	res, err := builder.Do()
@@ -829,7 +829,7 @@ func TestAggsIntegrationBucketSelector(t *testing.T) {
 	h = h.SubAggregation("sales_bucket_filter",
 		NewBucketSelectorAggregation().
 			AddBucketsPath("totalSales", "total_sales").
-			Script("totalSales <= 100"))
+			Script(NewScript("totalSales <= 100")))
 	builder = builder.Aggregation("sales_per_month", h)
 
 	res, err := builder.Do()

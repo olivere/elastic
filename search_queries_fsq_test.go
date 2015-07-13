@@ -106,7 +106,7 @@ func TestFieldValueFactorWithMultipleScoreFuncsAndWeights(t *testing.T) {
 	q := NewFunctionScoreQuery().
 		Query(NewTermQuery("name.last", "banon")).
 		AddScoreFunc(NewFieldValueFactorFunction().Modifier("sqrt").Factor(2).Field("income").Weight(2.5)).
-		AddScoreFunc(NewScriptFunction("_score * doc['my_numeric_field'].value").Weight(1.25)).
+		AddScoreFunc(NewScriptFunction(NewScript("_score * doc['my_numeric_field'].value")).Weight(1.25)).
 		AddScoreFunc(NewWeightFactorFunction(0.5)).
 		Boost(2.0).
 		MaxBoost(12.0).

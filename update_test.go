@@ -14,9 +14,7 @@ func TestUpdateViaScript(t *testing.T) {
 	client := setupTestClient(t)
 	update := client.Update().
 		Index("test").Type("type1").Id("1").
-		Script("ctx._source.tags += tag").
-		ScriptParams(map[string]interface{}{"tag": "blue"}).
-		ScriptLang("groovy")
+		Script(NewScript("ctx._source.tags += tag").Params(map[string]interface{}{"tag": "blue"}).Lang("groovy"))
 	path, params, err := update.url()
 	if err != nil {
 		t.Fatalf("expected to return URL, got: %v", err)
@@ -38,7 +36,7 @@ func TestUpdateViaScript(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"lang":"groovy","params":{"tag":"blue"},"script":"ctx._source.tags += tag"}`
+	expected := `{"script":{"inline":"ctx._source.tags += tag","lang":"groovy","params":{"tag":"blue"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
@@ -54,12 +52,12 @@ func TestUpdateViaScriptId(t *testing.T) {
 			"time":     "2014-01-01 12:32",
 		},
 	}
+	script := NewScriptId("my_web_session_summariser").Params(scriptParams)
 
 	update := client.Update().
 		Index("sessions").Type("session").Id("dh3sgudg8gsrgl").
-		ScriptId("my_web_session_summariser").
+		Script(script).
 		ScriptedUpsert(true).
-		ScriptParams(scriptParams).
 		Upsert(map[string]interface{}{})
 	path, params, err := update.url()
 	if err != nil {
@@ -82,7 +80,7 @@ func TestUpdateViaScriptId(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"params":{"pageViewEvent":{"response":404,"time":"2014-01-01 12:32","url":"foo.com/bar"}},"script_id":"my_web_session_summariser","scripted_upsert":true,"upsert":{}}`
+	expected := `{"script":{"id":"my_web_session_summariser","params":{"pageViewEvent":{"response":404,"time":"2014-01-01 12:32","url":"foo.com/bar"}}},"scripted_upsert":true,"upsert":{}}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
@@ -98,13 +96,14 @@ func TestUpdateViaScriptFile(t *testing.T) {
 			"time":     "2014-01-01 12:32",
 		},
 	}
+	script := NewScriptFile("update_script").Params(scriptParams)
 
 	update := client.Update().
 		Index("sessions").Type("session").Id("dh3sgudg8gsrgl").
-		ScriptFile("update_script").
+		Script(script).
 		ScriptedUpsert(true).
-		ScriptParams(scriptParams).
 		Upsert(map[string]interface{}{})
+
 	path, params, err := update.url()
 	if err != nil {
 		t.Fatalf("expected to return URL, got: %v", err)
@@ -126,7 +125,7 @@ func TestUpdateViaScriptFile(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"params":{"pageViewEvent":{"response":404,"time":"2014-01-01 12:32","url":"foo.com/bar"}},"script_file":"update_script","scripted_upsert":true,"upsert":{}}`
+	expected := `{"script":{"file":"update_script","params":{"pageViewEvent":{"response":404,"time":"2014-01-01 12:32","url":"foo.com/bar"}}},"scripted_upsert":true,"upsert":{}}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
@@ -136,8 +135,7 @@ func TestUpdateViaScriptAndUpsert(t *testing.T) {
 	client := setupTestClient(t)
 	update := client.Update().
 		Index("test").Type("type1").Id("1").
-		Script("ctx._source.counter += count").
-		ScriptParams(map[string]interface{}{"count": 4}).
+		Script(NewScript("ctx._source.counter += count").Params(map[string]interface{}{"count": 4})).
 		Upsert(map[string]interface{}{"counter": 1})
 	path, params, err := update.url()
 	if err != nil {
@@ -160,7 +158,7 @@ func TestUpdateViaScriptAndUpsert(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"params":{"count":4},"script":"ctx._source.counter += count","upsert":{"counter":1}}`
+	expected := `{"script":{"inline":"ctx._source.counter += count","params":{"count":4}},"upsert":{"counter":1}}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
@@ -264,10 +262,11 @@ func TestUpdateViaScriptIntegration(t *testing.T) {
 
 	// Update number of retweets
 	increment := 1
+	script := NewScript("ctx._source.retweets += num").
+		Params(map[string]interface{}{"num": increment}).
+		Lang("groovy") // Use "groovy" as default language as 1.3 uses MVEL by default
 	update, err := client.Update().Index(testIndexName).Type("tweet").Id("1").
-		Script("ctx._source.retweets += num").
-		ScriptParams(map[string]interface{}{"num": increment}).
-		ScriptLang("groovy"). // Use "groovy" as default language as 1.3 uses MVEL by default
+		Script(script).
 		Do()
 	if err != nil {
 		t.Fatal(err)

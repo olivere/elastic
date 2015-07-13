@@ -9,10 +9,7 @@ package elastic
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
 type TermsAggregation struct {
 	field           string
-	script          string
-	scriptFile      string
-	lang            string
-	params          map[string]interface{}
+	script          *Script
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 
@@ -37,7 +34,6 @@ type TermsAggregation struct {
 
 func NewTermsAggregation() TermsAggregation {
 	a := TermsAggregation{
-		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation, 0),
 		includeTerms:    make([]string, 0),
 		excludeTerms:    make([]string, 0),
@@ -50,23 +46,8 @@ func (a TermsAggregation) Field(field string) TermsAggregation {
 	return a
 }
 
-func (a TermsAggregation) Script(script string) TermsAggregation {
+func (a TermsAggregation) Script(script *Script) TermsAggregation {
 	a.script = script
-	return a
-}
-
-func (a TermsAggregation) ScriptFile(scriptFile string) TermsAggregation {
-	a.scriptFile = scriptFile
-	return a
-}
-
-func (a TermsAggregation) Lang(lang string) TermsAggregation {
-	a.lang = lang
-	return a
-}
-
-func (a TermsAggregation) Param(name string, value interface{}) TermsAggregation {
-	a.params[name] = value
 	return a
 }
 
@@ -257,17 +238,12 @@ func (a TermsAggregation) Source() (interface{}, error) {
 	if a.field != "" {
 		opts["field"] = a.field
 	}
-	if a.script != "" {
-		opts["script"] = a.script
-	}
-	if a.scriptFile != "" {
-		opts["script_file"] = a.scriptFile
-	}
-	if a.lang != "" {
-		opts["lang"] = a.lang
-	}
-	if len(a.params) > 0 {
-		opts["params"] = a.params
+	if a.script != nil {
+		src, err := a.script.Source()
+		if err != nil {
+			return nil, err
+		}
+		opts["script"] = src
 	}
 
 	// TermsBuilder

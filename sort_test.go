@@ -180,9 +180,7 @@ func TestGeoDistanceSortOrderDesc(t *testing.T) {
 	}
 }
 func TestScriptSort(t *testing.T) {
-	builder := NewScriptSort("doc['field_name'].value * factor", "number").
-		Param("factor", 1.1).
-		Order(true)
+	builder := NewScriptSort(NewScript("doc['field_name'].value * factor").Param("factor", 1.1), "number").Order(true)
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -192,16 +190,14 @@ func TestScriptSort(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_script":{"params":{"factor":1.1},"script":"doc['field_name'].value * factor","type":"number"}}`
+	expected := `{"_script":{"script":{"inline":"doc['field_name'].value * factor","params":{"factor":1.1}},"type":"number"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
 func TestScriptSortOrderDesc(t *testing.T) {
-	builder := NewScriptSort("doc['field_name'].value * factor", "number").
-		Param("factor", 1.1).
-		Desc()
+	builder := NewScriptSort(NewScript("doc['field_name'].value * factor").Param("factor", 1.1), "number").Desc()
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -211,7 +207,7 @@ func TestScriptSortOrderDesc(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_script":{"params":{"factor":1.1},"reverse":true,"script":"doc['field_name'].value * factor","type":"number"}}`
+	expected := `{"_script":{"reverse":true,"script":{"inline":"doc['field_name'].value * factor","params":{"factor":1.1}},"type":"number"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

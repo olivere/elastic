@@ -248,5 +248,28 @@ Both have been [removed from Elasticsearch 2.0 as well](https://www.elastic.co/g
 
 ## Partial fields are gone
 
-TODO
+Partial fields are [removed in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/_partial_fields.html) in favor of [source filtering](https://www.elastic.co/guide/en/elasticsearch/reference/master/search-request-source-filtering.html).
+
+## Scripting
+
+A Script type has been added. In Elastic 2.0, there were various places (e.g. aggregations) where you could just add the script as a string, specify the scripting language, add parameters etc. With Elastic 3.0, you should always use the Script type.
+
+Example for Elastic 2.0 (old):
+
+```go
+update, err := client.Update().Index("twitter").Type("tweet").Id("1").
+	Script("ctx._source.retweets += num").
+	ScriptParams(map[string]interface{}{"num": 1}).
+	Upsert(map[string]interface{}{"retweets": 0}).
+	Do()
+```
+
+Example for Elastic 3.0 (new):
+
+```go
+update, err := client.Update().Index("twitter").Type("tweet").Id("1").
+	Script(elastic.NewScript("ctx._source.retweets += num").Param("num", 1)).
+	Upsert(map[string]interface{}{"retweets": 0}).
+	Do()
+```
 

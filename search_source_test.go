@@ -120,8 +120,8 @@ func TestSearchSourceFieldDataFields(t *testing.T) {
 
 func TestSearchSourceScriptFields(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
-	sf1 := NewScriptField("test1", "doc['my_field_name'].value * 2", "", nil)
-	sf2 := NewScriptField("test2", "doc['my_field_name'].value * factor", "", map[string]interface{}{"factor": 3.1415927})
+	sf1 := NewScriptField("test1", NewScript("doc['my_field_name'].value * 2"))
+	sf2 := NewScriptField("test2", NewScript("doc['my_field_name'].value * factor").Param("factor", 3.1415927))
 	builder := NewSearchSource().Query(matchAllQ).ScriptFields(sf1, sf2)
 	src, err := builder.Source()
 	if err != nil {
@@ -132,7 +132,7 @@ func TestSearchSourceScriptFields(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"query":{"match_all":{}},"script_fields":{"test1":{"script":"doc['my_field_name'].value * 2"},"test2":{"params":{"factor":3.1415927},"script":"doc['my_field_name'].value * factor"}}}`
+	expected := `{"query":{"match_all":{}},"script_fields":{"test1":{"script":"doc['my_field_name'].value * 2"},"test2":{"script":{"inline":"doc['my_field_name'].value * factor","params":{"factor":3.1415927}}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

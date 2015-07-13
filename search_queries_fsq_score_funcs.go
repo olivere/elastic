@@ -339,17 +339,14 @@ func (fn *LinearDecayFunction) Source() (interface{}, error) {
 // See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_script_score
 // for details.
 type ScriptFunction struct {
-	script string
-	lang   string
-	params map[string]interface{}
+	script *Script
 	weight *float64
 }
 
 // NewScriptFunction initializes and returns a new ScriptFunction.
-func NewScriptFunction(script string) *ScriptFunction {
+func NewScriptFunction(script *Script) *ScriptFunction {
 	return &ScriptFunction{
 		script: script,
-		params: make(map[string]interface{}),
 	}
 }
 
@@ -360,26 +357,8 @@ func (fn *ScriptFunction) Name() string {
 }
 
 // Script specifies the script to be executed.
-func (fn *ScriptFunction) Script(script string) *ScriptFunction {
+func (fn *ScriptFunction) Script(script *Script) *ScriptFunction {
 	fn.script = script
-	return fn
-}
-
-// Lang	specifies the language of the Script.
-func (fn *ScriptFunction) Lang(lang string) *ScriptFunction {
-	fn.lang = lang
-	return fn
-}
-
-// Param adds a single parameter to the script.
-func (fn *ScriptFunction) Param(name string, value interface{}) *ScriptFunction {
-	fn.params[name] = value
-	return fn
-}
-
-// Params sets all script parameters in a single step.
-func (fn *ScriptFunction) Params(params map[string]interface{}) *ScriptFunction {
-	fn.params = params
 	return fn
 }
 
@@ -400,14 +379,12 @@ func (fn *ScriptFunction) GetWeight() *float64 {
 // Source returns the serializable JSON data of this score function.
 func (fn *ScriptFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
-	if fn.script != "" {
-		source["script"] = fn.script
-	}
-	if fn.lang != "" {
-		source["lang"] = fn.lang
-	}
-	if len(fn.params) > 0 {
-		source["params"] = fn.params
+	if fn.script != nil {
+		src, err := fn.script.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["script"] = src
 	}
 	// Notice that the weight has to be serialized in FunctionScoreQuery.
 	return source, nil

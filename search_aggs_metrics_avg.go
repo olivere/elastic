@@ -12,18 +12,14 @@ package elastic
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-avg-aggregation.html
 type AvgAggregation struct {
 	field           string
-	script          string
-	scriptFile      string
-	lang            string
+	script          *Script
 	format          string
-	params          map[string]interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 }
 
 func NewAvgAggregation() AvgAggregation {
 	a := AvgAggregation{
-		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 	}
 	return a
@@ -34,28 +30,13 @@ func (a AvgAggregation) Field(field string) AvgAggregation {
 	return a
 }
 
-func (a AvgAggregation) Script(script string) AvgAggregation {
+func (a AvgAggregation) Script(script *Script) AvgAggregation {
 	a.script = script
-	return a
-}
-
-func (a AvgAggregation) ScriptFile(scriptFile string) AvgAggregation {
-	a.scriptFile = scriptFile
-	return a
-}
-
-func (a AvgAggregation) Lang(lang string) AvgAggregation {
-	a.lang = lang
 	return a
 }
 
 func (a AvgAggregation) Format(format string) AvgAggregation {
 	a.format = format
-	return a
-}
-
-func (a AvgAggregation) Param(name string, value interface{}) AvgAggregation {
-	a.params[name] = value
 	return a
 }
 
@@ -87,20 +68,16 @@ func (a AvgAggregation) Source() (interface{}, error) {
 	if a.field != "" {
 		opts["field"] = a.field
 	}
-	if a.script != "" {
-		opts["script"] = a.script
+	if a.script != nil {
+		src, err := a.script.Source()
+		if err != nil {
+			return nil, err
+		}
+		opts["script"] = src
 	}
-	if a.scriptFile != "" {
-		opts["script_file"] = a.scriptFile
-	}
-	if a.lang != "" {
-		opts["lang"] = a.lang
-	}
+
 	if a.format != "" {
 		opts["format"] = a.format
-	}
-	if len(a.params) > 0 {
-		opts["params"] = a.params
 	}
 
 	// AggregationBuilder (SubAggregations)

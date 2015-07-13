@@ -12,7 +12,7 @@ import (
 func TestBucketSelectorAggregation(t *testing.T) {
 	agg := NewBucketSelectorAggregation().
 		AddBucketsPath("totalSales", "total_sales").
-		Script("totalSales >= 1000")
+		Script(NewScript("totalSales >= 1000"))
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)

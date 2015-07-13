@@ -176,9 +176,9 @@ func Example() {
 
 	// Update a tweet by the update API of Elasticsearch.
 	// We just increment the number of retweets.
+	script := elastic.NewScript("ctx._source.retweets += num").Param("num", 1)
 	update, err := client.Update().Index("twitter").Type("tweet").Id("1").
-		Script("ctx._source.retweets += num").
-		ScriptParams(map[string]interface{}{"num": 1}).
+		Script(script).
 		Upsert(map[string]interface{}{"retweets": 0}).
 		Do()
 	if err != nil {

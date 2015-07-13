@@ -12,18 +12,14 @@ package elastic
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-max-aggregation.html
 type MaxAggregation struct {
 	field           string
-	script          string
-	scriptFile      string
-	lang            string
+	script          *Script
 	format          string
-	params          map[string]interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 }
 
 func NewMaxAggregation() MaxAggregation {
 	a := MaxAggregation{
-		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 	}
 	return a
@@ -34,28 +30,13 @@ func (a MaxAggregation) Field(field string) MaxAggregation {
 	return a
 }
 
-func (a MaxAggregation) Script(script string) MaxAggregation {
+func (a MaxAggregation) Script(script *Script) MaxAggregation {
 	a.script = script
-	return a
-}
-
-func (a MaxAggregation) ScriptFile(scriptFile string) MaxAggregation {
-	a.scriptFile = scriptFile
-	return a
-}
-
-func (a MaxAggregation) Lang(lang string) MaxAggregation {
-	a.lang = lang
 	return a
 }
 
 func (a MaxAggregation) Format(format string) MaxAggregation {
 	a.format = format
-	return a
-}
-
-func (a MaxAggregation) Param(name string, value interface{}) MaxAggregation {
-	a.params[name] = value
 	return a
 }
 
@@ -86,20 +67,15 @@ func (a MaxAggregation) Source() (interface{}, error) {
 	if a.field != "" {
 		opts["field"] = a.field
 	}
-	if a.script != "" {
-		opts["script"] = a.script
-	}
-	if a.scriptFile != "" {
-		opts["script_file"] = a.scriptFile
-	}
-	if a.lang != "" {
-		opts["lang"] = a.lang
+	if a.script != nil {
+		src, err := a.script.Source()
+		if err != nil {
+			return nil, err
+		}
+		opts["script"] = src
 	}
 	if a.format != "" {
 		opts["format"] = a.format
-	}
-	if len(a.params) > 0 {
-		opts["params"] = a.params
 	}
 
 	// AggregationBuilder (SubAggregations)

@@ -4,6 +4,8 @@
 
 package elastic
 
+import "errors"
+
 // -- Sorter --
 
 // Sorter is an interface for sorting strategies, e.g. ScoreSort or FieldSort.
@@ -377,51 +379,27 @@ func (s GeoDistanceSort) Source() (interface{}, error) {
 // for details about scripting.
 type ScriptSort struct {
 	Sorter
-	lang         string
-	script       string
+	script       *Script
 	typ          string
-	params       map[string]interface{}
 	ascending    bool
 	sortMode     *string
 	nestedFilter Query
 	nestedPath   *string
 }
 
-// NewScriptSort creates a new ScriptSort.
-func NewScriptSort(script, typ string) ScriptSort {
+// NewScriptSort creates and initializes a new ScriptSort.
+// You must provide a script and a type, e.g. "string" or "number".
+func NewScriptSort(script *Script, typ string) ScriptSort {
 	return ScriptSort{
 		script:    script,
 		typ:       typ,
 		ascending: true,
-		params:    make(map[string]interface{}),
 	}
 }
 
-// Lang specifies the script language to use. It can be one of:
-// groovy (the default for ES >= 1.4), mvel (default for ES < 1.4),
-// js, python, expression, or native. See
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/modules-scripting.html#modules-scripting
-// for details.
-func (s ScriptSort) Lang(lang string) ScriptSort {
-	s.lang = lang
-	return s
-}
-
-// Type sets the script type, which can be either string or number.
+// Type sets the script type, which can be either "string" or "number".
 func (s ScriptSort) Type(typ string) ScriptSort {
 	s.typ = typ
-	return s
-}
-
-// Param adds a parameter to the script.
-func (s ScriptSort) Param(name string, value interface{}) ScriptSort {
-	s.params[name] = value
-	return s
-}
-
-// Params sets the parameters of the script.
-func (s ScriptSort) Params(params map[string]interface{}) ScriptSort {
-	s.params = params
 	return s
 }
 
@@ -467,20 +445,23 @@ func (s ScriptSort) NestedPath(nestedPath string) ScriptSort {
 
 // Source returns the JSON-serializable data.
 func (s ScriptSort) Source() (interface{}, error) {
+	if s.script == nil {
+		return nil, errors.New("ScriptSort expected a script")
+	}
 	source := make(map[string]interface{})
 	x := make(map[string]interface{})
 	source["_script"] = x
 
-	x["script"] = s.script
+	src, err := s.script.Source()
+	if err != nil {
+		return nil, err
+	}
+	x["script"] = src
+
 	x["type"] = s.typ
+
 	if !s.ascending {
 		x["reverse"] = true
-	}
-	if s.lang != "" {
-		x["lang"] = s.lang
-	}
-	if len(s.params) > 0 {
-		x["params"] = s.params
 	}
 	if s.sortMode != nil {
 		x["mode"] = *s.sortMode

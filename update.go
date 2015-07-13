@@ -33,12 +33,7 @@ type UpdateService struct {
 	id               string
 	routing          string
 	parent           string
-	script           string
-	scriptId         string
-	scriptFile       string
-	scriptType       string
-	scriptLang       string
-	scriptParams     map[string]interface{}
+	script           *Script
 	fields           []string
 	version          *int64
 	versionType      string
@@ -58,9 +53,8 @@ type UpdateService struct {
 // NewUpdateService creates the service to update documents in Elasticsearch.
 func NewUpdateService(client *Client) *UpdateService {
 	builder := &UpdateService{
-		client:       client,
-		scriptParams: make(map[string]interface{}),
-		fields:       make([]string, 0),
+		client: client,
+		fields: make([]string, 0),
 	}
 	return builder
 }
@@ -95,38 +89,9 @@ func (b *UpdateService) Parent(parent string) *UpdateService {
 	return b
 }
 
-// Script is the URL-encoded script definition.
-func (b *UpdateService) Script(script string) *UpdateService {
+// Script is the script definition.
+func (b *UpdateService) Script(script *Script) *UpdateService {
 	b.script = script
-	return b
-}
-
-// ScriptId is the id of a stored script.
-func (b *UpdateService) ScriptId(scriptId string) *UpdateService {
-	b.scriptId = scriptId
-	return b
-}
-
-// ScriptFile is the file name of a stored script.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html for details.
-func (b *UpdateService) ScriptFile(scriptFile string) *UpdateService {
-	b.scriptFile = scriptFile
-	return b
-}
-
-func (b *UpdateService) ScriptType(scriptType string) *UpdateService {
-	b.scriptType = scriptType
-	return b
-}
-
-// ScriptLang defines the scripting language (default: groovy).
-func (b *UpdateService) ScriptLang(scriptLang string) *UpdateService {
-	b.scriptLang = scriptLang
-	return b
-}
-
-func (b *UpdateService) ScriptParams(params map[string]interface{}) *UpdateService {
-	b.scriptParams = params
 	return b
 }
 
@@ -278,21 +243,14 @@ func (b *UpdateService) url() (string, url.Values, error) {
 func (b *UpdateService) body() (interface{}, error) {
 	source := make(map[string]interface{})
 
-	if b.script != "" {
-		source["script"] = b.script
+	if b.script != nil {
+		src, err := b.script.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["script"] = src
 	}
-	if b.scriptId != "" {
-		source["script_id"] = b.scriptId
-	}
-	if b.scriptFile != "" {
-		source["script_file"] = b.scriptFile
-	}
-	if b.scriptLang != "" {
-		source["lang"] = b.scriptLang
-	}
-	if len(b.scriptParams) > 0 {
-		source["params"] = b.scriptParams
-	}
+
 	if b.scriptedUpsert != nil {
 		source["scripted_upsert"] = *b.scriptedUpsert
 	}

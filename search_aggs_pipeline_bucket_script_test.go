@@ -13,7 +13,7 @@ func TestBucketScriptAggregation(t *testing.T) {
 	agg := NewBucketScriptAggregation().
 		AddBucketsPath("tShirtSales", "t-shirts>sales").
 		AddBucketsPath("totalSales", "total_sales").
-		Script("tShirtSales / totalSales * 100")
+		Script(NewScript("tShirtSales / totalSales * 100"))
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)

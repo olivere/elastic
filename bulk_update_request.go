@@ -19,10 +19,7 @@ type BulkUpdateRequest struct {
 
 	routing         string
 	parent          string
-	script          string
-	scriptType      string
-	scriptLang      string
-	scriptParams    map[string]interface{}
+	script          *Script
 	version         int64  // default is MATCH_ANY
 	versionType     string // default is "internal"
 	retryOnConflict *int
@@ -63,23 +60,8 @@ func (r *BulkUpdateRequest) Parent(parent string) *BulkUpdateRequest {
 	return r
 }
 
-func (r *BulkUpdateRequest) Script(script string) *BulkUpdateRequest {
+func (r *BulkUpdateRequest) Script(script *Script) *BulkUpdateRequest {
 	r.script = script
-	return r
-}
-
-func (r *BulkUpdateRequest) ScriptType(scriptType string) *BulkUpdateRequest {
-	r.scriptType = scriptType
-	return r
-}
-
-func (r *BulkUpdateRequest) ScriptLang(scriptLang string) *BulkUpdateRequest {
-	r.scriptLang = scriptLang
-	return r
-}
-
-func (r *BulkUpdateRequest) ScriptParams(params map[string]interface{}) *BulkUpdateRequest {
-	r.scriptParams = params
 	return r
 }
 
@@ -220,20 +202,13 @@ func (r BulkUpdateRequest) Source() ([]string, error) {
 	if r.doc != nil {
 		// {"doc":{...}}
 		source["doc"] = r.doc
-	} else if r.script != "" {
+	} else if r.script != nil {
 		// {"script":...}
-		source["script"] = r.script
-		if r.scriptLang != "" {
-			source["lang"] = r.scriptLang
+		src, err := r.script.Source()
+		if err != nil {
+			return nil, err
 		}
-		/*
-			if r.scriptType != "" {
-				source["script_type"] = r.scriptType
-			}
-		*/
-		if r.scriptParams != nil && len(r.scriptParams) > 0 {
-			source["params"] = r.scriptParams
-		}
+		source["script"] = src
 	}
 	lines[1], err = r.getSourceAsString(source)
 	if err != nil {
