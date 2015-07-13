@@ -183,7 +183,7 @@ func TestSearchSourceRescoring(t *testing.T) {
 	rescorer = rescorer.QueryWeight(0.7)
 	rescorer = rescorer.RescoreQueryWeight(1.2)
 	rescore := NewRescore().WindowSize(50).Rescorer(rescorer)
-	builder := NewSearchSource().Query(matchAllQ).AddRescore(rescore)
+	builder := NewSearchSource().Query(matchAllQ).Rescorer(rescore)
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)

@@ -246,3 +246,7 @@ The `limit` filter is [deprecated in Elasticsearch 2.0](https://www.elastic.co/g
 
 Both have been [removed from Elasticsearch 2.0 as well](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html).
 
+## Partial fields are gone
+
+TODO
+

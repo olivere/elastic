@@ -85,16 +85,6 @@ func (a TopHitsAggregation) ScriptField(scriptField *ScriptField) TopHitsAggrega
 	return a
 }
 
-func (a TopHitsAggregation) PartialFields(partialFields ...*PartialField) TopHitsAggregation {
-	a.searchSource = a.searchSource.PartialFields(partialFields...)
-	return a
-}
-
-func (a TopHitsAggregation) PartialField(partialField *PartialField) TopHitsAggregation {
-	a.searchSource = a.searchSource.PartialField(partialField)
-	return a
-}
-
 func (a TopHitsAggregation) Sort(field string, ascending bool) TopHitsAggregation {
 	a.searchSource = a.searchSource.Sort(field, ascending)
 	return a

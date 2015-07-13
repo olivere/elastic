@@ -22,15 +22,12 @@ type SearchService struct {
 	pretty       bool
 	searchType   string
 	indices      []string
-	queryHint    string
 	routing      string
 	preference   string
 	types        []string
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
-// You typically do not create the service yourself manually, but access
-// it via client.Search().
 func NewSearchService(client *Client) *SearchService {
 	builder := &SearchService{
 		client:       client,
@@ -94,28 +91,26 @@ func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
 // SearchType sets the search operation type. Valid values are:
 // "query_then_fetch", "query_and_fetch", "dfs_query_then_fetch",
 // "dfs_query_and_fetch", "count", "scan".
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-search-type.html#search-request-search-type
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-search-type.html
 // for details.
 func (s *SearchService) SearchType(searchType string) *SearchService {
 	s.searchType = searchType
 	return s
 }
 
-// Routing allows for (a comma-separated) list of specific routing values.
-func (s *SearchService) Routing(routing string) *SearchService {
-	s.routing = routing
+// Routing is a list of specific routing values to control the shards
+// the search will be executed on.
+func (s *SearchService) Routing(routings ...string) *SearchService {
+	s.routing = strings.Join(routings, ",")
 	return s
 }
 
-// Preference specifies the node or shard the operation should be
-// performed on (default: "random").
+// Preference sets the preference to execute the search. Defaults to
+// randomize across shards. Can be set to "_local" to prefer local shards,
+// "_primary" to execute on primary shards only, or a custom value which
+// guarantees that the same order will be used across different requests.
 func (s *SearchService) Preference(preference string) *SearchService {
 	s.preference = preference
-	return s
-}
-
-func (s *SearchService) QueryHint(queryHint string) *SearchService {
-	s.queryHint = queryHint
 	return s
 }
 
@@ -125,117 +120,106 @@ func (s *SearchService) Query(query Query) *SearchService {
 	return s
 }
 
-// PostFilter is executed as the last filter. It only affects the
-// search hits but not facets. See
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-post-filter.html
-// for details.
+// PostFilter will be executed after the query has been executed and
+// only affects the search hits, not the aggregations.
+// This filter is always executed as the last filtering mechanism.
 func (s *SearchService) PostFilter(postFilter Query) *SearchService {
 	s.searchSource = s.searchSource.PostFilter(postFilter)
 	return s
 }
 
-// Highlight sets the highlighting. See
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html
-// for details.
+// Highlight adds highlighting to the search.
 func (s *SearchService) Highlight(highlight *Highlight) *SearchService {
 	s.searchSource = s.searchSource.Highlight(highlight)
 	return s
 }
 
-// GlobalSuggestText sets the global text for suggesters. See
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters.html#global-suggest
-// for details.
+// GlobalSuggestText defines the global text to use with all suggesters.
+// This avoids repetition.
 func (s *SearchService) GlobalSuggestText(globalText string) *SearchService {
 	s.searchSource = s.searchSource.GlobalSuggestText(globalText)
 	return s
 }
 
-// Suggester sets the suggester. See
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters.html
-// for details.
+// Suggester adds a suggester to the search.
 func (s *SearchService) Suggester(suggester Suggester) *SearchService {
 	s.searchSource = s.searchSource.Suggester(suggester)
 	return s
 }
 
-// Aggregation adds an aggregation to the search. See
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations.html
-// for an overview of aggregations in Elasticsearch.
+// Aggregation adds an aggreation to perform as part of the search.
 func (s *SearchService) Aggregation(name string, aggregation Aggregation) *SearchService {
 	s.searchSource = s.searchSource.Aggregation(name, aggregation)
 	return s
 }
 
-// MinScore excludes documents which have a score less than the minimum
-// specified here. See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-min-score.html.
+// MinScore sets the minimum score below which docs will be filtered out.
 func (s *SearchService) MinScore(minScore float64) *SearchService {
 	s.searchSource = s.searchSource.MinScore(minScore)
 	return s
 }
 
-// From defines the offset from the first result you want to fetch.
-// Use it in combination with Size to paginate through results.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-from-size.html
-// for details.
+// From index to start the search from. Defaults to 0.
 func (s *SearchService) From(from int) *SearchService {
 	s.searchSource = s.searchSource.From(from)
 	return s
 }
 
-// Size defines the maximum number of hits to be returned.
-// Use it in combination with From to paginate through results.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-from-size.html
-// for details.
+// Size is the number of search hits to return. Defaults to 10.
 func (s *SearchService) Size(size int) *SearchService {
 	s.searchSource = s.searchSource.Size(size)
 	return s
 }
 
-// Explain can be enabled to provide an explanation for each hit and how its
-// score was computed.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-explain.html
-// for details.
+// Explain indicates whether each search hit should be returned with
+// an explanation of the hit (ranking).
 func (s *SearchService) Explain(explain bool) *SearchService {
 	s.searchSource = s.searchSource.Explain(explain)
 	return s
 }
 
-// Version can be set to true to return a version for each search hit.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-version.html.
+// Version indicates whether each search hit should be returned with
+// a version associated to it.
 func (s *SearchService) Version(version bool) *SearchService {
 	s.searchSource = s.searchSource.Version(version)
 	return s
 }
 
-// Sort the results by the given field, in the given order.
-// Use the alternative SortWithInfo to use a struct to define the sorting.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
-// for detailed documentation of sorting.
+// Sort adds a sort order.
 func (s *SearchService) Sort(field string, ascending bool) *SearchService {
 	s.searchSource = s.searchSource.Sort(field, ascending)
 	return s
 }
 
-// SortWithInfo defines how to sort results.
-// Use the Sort func for a shortcut.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
-// for detailed documentation of sorting.
+// SortWithInfo adds a sort order.
 func (s *SearchService) SortWithInfo(info SortInfo) *SearchService {
 	s.searchSource = s.searchSource.SortWithInfo(info)
 	return s
 }
 
-// SortBy defines how to sort results.
-// Use the Sort func for a shortcut.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
-// for detailed documentation of sorting.
+// SortBy	adds a sort order.
 func (s *SearchService) SortBy(sorter ...Sorter) *SearchService {
 	s.searchSource = s.searchSource.SortBy(sorter...)
 	return s
 }
 
-// Fields tells Elasticsearch to only load specific fields from a search hit.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-fields.html.
+// NoFields indicates that no fields should be loaded, resulting in only
+// id and type to be returned per field.
+func (s *SearchService) NoFields() *SearchService {
+	s.searchSource = s.searchSource.NoFields()
+	return s
+}
+
+// Field adds a single field to load and return (note, must be stored) as
+// part of the search request. If none are specified, the source of the
+// document will be returned.
+func (s *SearchService) Field(fieldName string) *SearchService {
+	s.searchSource = s.searchSource.Field(fieldName)
+	return s
+}
+
+// Fields	sets the fields to load and return as part of the search request.
+// If none are specified, the source of the document will be returned.
 func (s *SearchService) Fields(fields ...string) *SearchService {
 	s.searchSource = s.searchSource.Fields(fields...)
 	return s
