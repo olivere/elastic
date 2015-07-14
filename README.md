@@ -12,7 +12,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for additional informati
 
 ## Releases
 
-**Notice that the master branch always refers to the latest version of Elastic. If you want to use stable versions of Elastic, you should use the packages released via [gopkg.in](https://gopkg.in).
+**Notice that the master branch always refers to the latest version of Elastic. If you want to use stable versions of Elastic, you should use the packages released via [gopkg.in](https://gopkg.in).**
 
 Here's the version matrix:
 
