@@ -3,14 +3,11 @@ sudo: false
 language: go
 
 go:
-  - 1.3
   - 1.4
   - tip
 
 env:
   matrix:
-    - ES_VERSION=1.3.9
-    - ES_VERSION=1.4.2
     - ES_VERSION=1.4.5
     - ES_VERSION=1.5.2
     - ES_VERSION=1.6.0
