@@ -298,7 +298,6 @@ type PercolateResponse struct {
 	TookInMillis int64             `json:"took"`  // search time in milliseconds
 	Total        int64             `json:"total"` // total matches
 	Matches      []*PercolateMatch `json:"matches,omitempty"`
-	Facets       SearchFacets      `json:"facets,omitempty"`       // results from facets
 	Aggregations Aggregations      `json:"aggregations,omitempty"` // results from aggregations
 }
 

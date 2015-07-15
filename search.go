@@ -301,7 +301,6 @@ type SearchResult struct {
 	ScrollId     string        `json:"_scroll_id"`   // only used with Scroll and Scan operations
 	Hits         *SearchHits   `json:"hits"`         // the actual search hits
 	Suggest      SearchSuggest `json:"suggest"`      // results from suggesters
-	Facets       SearchFacets  `json:"facets"`       // results from facets
 	Aggregations Aggregations  `json:"aggregations"` // results from aggregations
 	TimedOut     bool          `json:"timed_out"`    // true if the search timed out
 	//Error        string        `json:"error,omitempty"` // used in MultiSearch only
@@ -402,73 +401,6 @@ type SearchSuggestionOption struct {
 	Score   float64     `json:"score"`
 	Freq    int         `json:"freq"`
 	Payload interface{} `json:"payload"`
-}
-
-// Facets
-
-// SearchFacets is a map of facets.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html.
-type SearchFacets map[string]*SearchFacet
-
-// SearchFacet is a single facet.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html.
-type SearchFacet struct {
-	Type    string             `json:"_type"`
-	Missing int                `json:"missing"`
-	Total   int                `json:"total"`
-	Other   int                `json:"other"`
-	Terms   []searchFacetTerm  `json:"terms"`
-	Ranges  []searchFacetRange `json:"ranges"`
-	Entries []searchFacetEntry `json:"entries"`
-}
-
-// searchFacetTerm is the result of a terms facet.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets-terms-facet.html.
-type searchFacetTerm struct {
-	Term  interface{} `json:"term"`
-	Count int         `json:"count"`
-}
-
-// searchFacetRange is the result of a range facet.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets-range-facet.html.
-type searchFacetRange struct {
-	From       *float64 `json:"from"`
-	FromStr    *string  `json:"from_str"`
-	To         *float64 `json:"to"`
-	ToStr      *string  `json:"to_str"`
-	Count      int      `json:"count"`
-	Min        *float64 `json:"min"`
-	Max        *float64 `json:"max"`
-	TotalCount int      `json:"total_count"`
-	Total      *float64 `json:"total"`
-	Mean       *float64 `json:"mean"`
-}
-
-// searchFacetEntry is a general facet entry.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets.html
-type searchFacetEntry struct {
-	// Key for this facet, e.g. in histograms
-	Key interface{} `json:"key"`
-	// Date histograms contain the number of milliseconds as date:
-	// If e.Time = 1293840000000, then: Time.at(1293840000000/1000) => 2011-01-01
-	Time int64 `json:"time"`
-	// Number of hits for this facet
-	Count int `json:"count"`
-	// Min is either a string like "Infinity" or a float64.
-	// This is returned with some DateHistogram facets.
-	Min interface{} `json:"min,omitempty"`
-	// Max is either a string like "-Infinity" or a float64
-	// This is returned with some DateHistogram facets.
-	Max interface{} `json:"max,omitempty"`
-	// Total is the sum of all entries on the recorded Time
-	// This is returned with some DateHistogram facets.
-	Total float64 `json:"total,omitempty"`
-	// TotalCount is the number of entries for Total
-	// This is returned with some DateHistogram facets.
-	TotalCount int `json:"total_count,omitempty"`
-	// Mean is the mean value
-	// This is returned with some DateHistogram facets.
-	Mean float64 `json:"mean,omitempty"`
 }
 
 // Aggregations (see search_aggs.go)
