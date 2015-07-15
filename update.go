@@ -13,16 +13,6 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// UpdateResult is the result of updating a document in Elasticsearch.
-type UpdateResult struct {
-	Index     string     `json:"_index"`
-	Type      string     `json:"_type"`
-	Id        string     `json:"_id"`
-	Version   int        `json:"_version"`
-	Created   bool       `json:"created"`
-	GetResult *GetResult `json:"get"`
-}
-
 // UpdateService updates a document in Elasticsearch.
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs-update.html
 // for details.
@@ -273,7 +263,7 @@ func (b *UpdateService) body() (interface{}, error) {
 }
 
 // Do executes the update operation.
-func (b *UpdateService) Do() (*UpdateResult, error) {
+func (b *UpdateService) Do() (*UpdateResponse, error) {
 	path, params, err := b.url()
 	if err != nil {
 		return nil, err
@@ -292,9 +282,19 @@ func (b *UpdateService) Do() (*UpdateResult, error) {
 	}
 
 	// Return result
-	ret := new(UpdateResult)
+	ret := new(UpdateResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
+}
+
+// UpdateResponse is the result of updating a document in Elasticsearch.
+type UpdateResponse struct {
+	Index     string     `json:"_index"`
+	Type      string     `json:"_type"`
+	Id        string     `json:"_id"`
+	Version   int        `json:"_version"`
+	Created   bool       `json:"created"`
+	GetResult *GetResult `json:"get"`
 }

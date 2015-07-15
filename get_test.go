@@ -140,9 +140,10 @@ func TestGetWithFields(t *testing.T) {
 	}
 }
 
-func TestGetFailsWithMissingParams(t *testing.T) {
+func TestGetValidate(t *testing.T) {
 	// Mitigate against http://stackoverflow.com/questions/27491738/elasticsearch-go-index-failures-no-feature-for-name
 	client := setupTestClientAndCreateIndex(t)
+
 	if _, err := client.Get().Do(); err == nil {
 		t.Fatal("expected Get to fail")
 	}

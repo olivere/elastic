@@ -10,43 +10,57 @@ import (
 	"net/url"
 )
 
-type MultiGetService struct {
+// MgetService allows to get multiple documents based on an index,
+// type (optional) and id (possibly routing). The response includes
+// a docs array with all the fetched documents, each element similar
+// in structure to a document provided by the Get API.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html
+// for details.
+type MgetService struct {
 	client     *Client
+	pretty     bool
 	preference string
 	realtime   *bool
 	refresh    *bool
 	items      []*MultiGetItem
 }
 
-func NewMultiGetService(client *Client) *MultiGetService {
-	builder := &MultiGetService{
+func NewMgetService(client *Client) *MgetService {
+	builder := &MgetService{
 		client: client,
 		items:  make([]*MultiGetItem, 0),
 	}
 	return builder
 }
 
-func (b *MultiGetService) Preference(preference string) *MultiGetService {
+func (b *MgetService) Preference(preference string) *MgetService {
 	b.preference = preference
 	return b
 }
 
-func (b *MultiGetService) Refresh(refresh bool) *MultiGetService {
+func (b *MgetService) Refresh(refresh bool) *MgetService {
 	b.refresh = &refresh
 	return b
 }
 
-func (b *MultiGetService) Realtime(realtime bool) *MultiGetService {
+func (b *MgetService) Realtime(realtime bool) *MgetService {
 	b.realtime = &realtime
 	return b
 }
 
-func (b *MultiGetService) Add(items ...*MultiGetItem) *MultiGetService {
+// Pretty indicates that the JSON response be indented and human readable.
+func (s *MgetService) Pretty(pretty bool) *MgetService {
+	s.pretty = pretty
+	return s
+}
+
+func (b *MgetService) Add(items ...*MultiGetItem) *MgetService {
 	b.items = append(b.items, items...)
 	return b
 }
 
-func (b *MultiGetService) Source() (interface{}, error) {
+func (b *MgetService) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	items := make([]interface{}, len(b.items))
 	for i, item := range b.items {
@@ -60,7 +74,7 @@ func (b *MultiGetService) Source() (interface{}, error) {
 	return source, nil
 }
 
-func (b *MultiGetService) Do() (*MultiGetResult, error) {
+func (b *MgetService) Do() (*MgetResponse, error) {
 	// Build url
 	path := "/_mget"
 
@@ -88,7 +102,7 @@ func (b *MultiGetService) Do() (*MultiGetResult, error) {
 	}
 
 	// Return result
-	ret := new(MultiGetResult)
+	ret := new(MgetResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
@@ -97,7 +111,7 @@ func (b *MultiGetService) Do() (*MultiGetResult, error) {
 
 // -- Multi Get Item --
 
-// MultiGetItem is a single document to retrieve via the MultiGetService.
+// MultiGetItem is a single document to retrieve via the MgetService.
 type MultiGetItem struct {
 	index       string
 	typ         string
@@ -200,6 +214,6 @@ func (item *MultiGetItem) Source() (interface{}, error) {
 
 // -- Result of a Multi Get request.
 
-type MultiGetResult struct {
+type MgetResponse struct {
 	Docs []*GetResult `json:"docs,omitempty"`
 }

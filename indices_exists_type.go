@@ -13,16 +13,18 @@ import (
 )
 
 // IndicesExistsTypeService checks if one or more types exist in one or more indices.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-types-exists.html.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-types-exists.html
+// for details.
 type IndicesExistsTypeService struct {
 	client            *Client
 	pretty            bool
-	index             []string
 	typ               []string
-	allowNoIndices    *bool
+	index             []string
 	expandWildcards   string
 	local             *bool
 	ignoreUnavailable *bool
+	allowNoIndices    *bool
 }
 
 // NewIndicesExistsTypeService creates a new IndicesExistsTypeService.
@@ -83,14 +85,10 @@ func (s *IndicesExistsTypeService) Pretty(pretty bool) *IndicesExistsTypeService
 
 // buildURL builds the URL for the operation.
 func (s *IndicesExistsTypeService) buildURL() (string, url.Values, error) {
-	if err := s.Validate(); err != nil {
-		return "", url.Values{}, err
-	}
-
 	// Build URL
 	path, err := uritemplates.Expand("/{index}/{type}", map[string]string{
-		"type":  strings.Join(s.typ, ","),
 		"index": strings.Join(s.index, ","),
+		"type":  strings.Join(s.typ, ","),
 	})
 	if err != nil {
 		return "", url.Values{}, err
@@ -101,17 +99,17 @@ func (s *IndicesExistsTypeService) buildURL() (string, url.Values, error) {
 	if s.pretty {
 		params.Set("pretty", "1")
 	}
-	if s.expandWildcards != "" {
-		params.Set("expand_wildcards", s.expandWildcards)
-	}
-	if s.local != nil {
-		params.Set("local", fmt.Sprintf("%v", *s.local))
-	}
 	if s.ignoreUnavailable != nil {
 		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
 	}
 	if s.allowNoIndices != nil {
 		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+	}
+	if s.expandWildcards != "" {
+		params.Set("expand_wildcards", s.expandWildcards)
+	}
+	if s.local != nil {
+		params.Set("local", fmt.Sprintf("%v", *s.local))
 	}
 	return path, params, nil
 }
@@ -133,6 +131,11 @@ func (s *IndicesExistsTypeService) Validate() error {
 
 // Do executes the operation.
 func (s *IndicesExistsTypeService) Do() (bool, error) {
+	// Check pre-conditions
+	if err := s.Validate(); err != nil {
+		return false, err
+	}
+
 	// Get URL for request
 	path, params, err := s.buildURL()
 	if err != nil {

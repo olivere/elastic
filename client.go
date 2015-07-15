@@ -903,93 +903,26 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	return resp, nil
 }
 
-// ElasticsearchVersion returns the version number of Elasticsearch
-// running on the given URL.
-func (c *Client) ElasticsearchVersion(url string) (string, error) {
-	res, _, err := c.Ping(url).Do()
-	if err != nil {
-		return "", err
-	}
-	return res.Version.Number, nil
-}
-
-// IndexNames returns the names of all indices in the cluster.
-func (c *Client) IndexNames() ([]string, error) {
-	res, err := c.IndexGetSettings().Index("_all").Do()
-	if err != nil {
-		return nil, err
-	}
-	var names []string
-	for name, _ := range res {
-		names = append(names, name)
-	}
-	return names, nil
-}
-
-// Ping checks if a given node in a cluster exists and (optionally)
-// returns some basic information about the Elasticsearch server,
-// e.g. the Elasticsearch version number.
-//
-// Notice that you need to specify a URL here explicitly.
-func (c *Client) Ping(url string) *PingService {
-	return NewPingService(c).URL(url)
-}
-
-// CreateIndex returns a service to create a new index.
-func (c *Client) CreateIndex(name string) *CreateIndexService {
-	return NewCreateIndexService(c).Index(name)
-}
-
-// DeleteIndex returns a service to delete an index.
-func (c *Client) DeleteIndex(name string) *DeleteIndexService {
-	return NewDeleteIndexService(c).Index(name)
-}
-
-// IndexExists allows to check if an index exists.
-func (c *Client) IndexExists(name string) *IndexExistsService {
-	return NewIndexExistsService(c).Index(name)
-}
-
-// TypeExists allows to check if one or more types exist in one or more indices.
-func (c *Client) TypeExists() *IndicesExistsTypeService {
-	return NewIndicesExistsTypeService(c)
-}
-
-// IndexStats provides statistics on different operations happining
-// in one or more indices.
-func (c *Client) IndexStats(indices ...string) *IndicesStatsService {
-	return NewIndicesStatsService(c).Index(indices...)
-}
-
-// OpenIndex opens an index.
-func (c *Client) OpenIndex(name string) *OpenIndexService {
-	return NewOpenIndexService(c).Index(name)
-}
-
-// CloseIndex closes an index.
-func (c *Client) CloseIndex(name string) *CloseIndexService {
-	return NewCloseIndexService(c).Index(name)
-}
+// -- Document APIs --
 
 // Index a document.
 func (c *Client) Index() *IndexService {
 	return NewIndexService(c)
 }
 
-// IndexGet retrieves information about one or more indices.
-// IndexGet is only available for Elasticsearch 1.4 or later.
-func (c *Client) IndexGet(indices ...string) *IndicesGetService {
-	return NewIndicesGetService(c).Index(indices...)
+// Get a document.
+func (c *Client) Get() *GetService {
+	return NewGetService(c)
 }
 
-// IndexGetSettings retrieves settings about one or more indices.
-func (c *Client) IndexGetSettings(indices ...string) *IndicesGetSettingsService {
-	return NewIndicesGetSettingsService(c).Index(indices...)
+// MultiGet retrieves multiple documents in one roundtrip.
+func (c *Client) MultiGet() *MgetService {
+	return NewMgetService(c)
 }
 
-// Update a document.
-func (c *Client) Update() *UpdateService {
-	return NewUpdateService(c)
+// Mget retrieves multiple documents in one roundtrip.
+func (c *Client) Mget() *MgetService {
+	return NewMgetService(c)
 }
 
 // Delete a document.
@@ -1002,19 +935,34 @@ func (c *Client) DeleteByQuery(indices ...string) *DeleteByQueryService {
 	return NewDeleteByQueryService(c).Index(indices...)
 }
 
-// Get a document.
-func (c *Client) Get() *GetService {
-	return NewGetService(c)
+// Update a document.
+func (c *Client) Update() *UpdateService {
+	return NewUpdateService(c)
 }
 
-// MultiGet retrieves multiple documents in one roundtrip.
-func (c *Client) MultiGet() *MultiGetService {
-	return NewMultiGetService(c)
+// Bulk is the entry point to mass insert/update/delete documents.
+func (c *Client) Bulk() *BulkService {
+	return NewBulkService(c)
 }
 
-// Exists checks if a document exists.
-func (c *Client) Exists() *ExistsService {
-	return NewExistsService(c)
+// TODO Term Vectors
+// TODO Multi termvectors API
+
+// -- Search APIs --
+
+// Search is the entry point for searches.
+func (c *Client) Search(indices ...string) *SearchService {
+	return NewSearchService(c).Index(indices...)
+}
+
+// Suggest returns a service to return suggestions.
+func (c *Client) Suggest(indices ...string) *SuggestService {
+	return NewSuggestService(c).Index(indices...)
+}
+
+// MultiSearch is the entry point for multi searches.
+func (c *Client) MultiSearch() *MultiSearchService {
+	return NewMultiSearchService(c)
 }
 
 // Count documents.
@@ -1022,9 +970,9 @@ func (c *Client) Count(indices ...string) *CountService {
 	return NewCountService(c).Index(indices...)
 }
 
-// Search is the entry point for searches.
-func (c *Client) Search(indices ...string) *SearchService {
-	return NewSearchService(c).Index(indices...)
+// Explain computes a score explanation for a query and a specific document.
+func (c *Client) Explain(index, typ, id string) *ExplainService {
+	return NewExplainService(c).Index(index).Type(typ).Id(id)
 }
 
 // Percolate allows to send a document and return matching queries.
@@ -1033,14 +981,15 @@ func (c *Client) Percolate() *PercolateService {
 	return NewPercolateService(c)
 }
 
-// MultiSearch is the entry point for multi searches.
-func (c *Client) MultiSearch() *MultiSearchService {
-	return NewMultiSearchService(c)
-}
+// TODO Search Template
+// TODO Search Shards API
+// TODO Search Exists API
+// TODO Validate API
+// TODO Field Stats API
 
-// Suggest returns a service to return suggestions.
-func (c *Client) Suggest(indices ...string) *SuggestService {
-	return NewSuggestService(c).Index(indices...)
+// Exists checks if a document exists.
+func (c *Client) Exists() *ExistsService {
+	return NewExistsService(c)
 }
 
 // Scan through documents. Use this to iterate inside a server process
@@ -1061,6 +1010,55 @@ func (c *Client) ClearScroll(scrollIds ...string) *ClearScrollService {
 	return NewClearScrollService(c).ScrollId(scrollIds...)
 }
 
+// -- Indices APIs --
+
+// CreateIndex returns a service to create a new index.
+func (c *Client) CreateIndex(name string) *IndicesCreateService {
+	return NewIndicesCreateService(c).Index(name)
+}
+
+// DeleteIndex returns a service to delete an index.
+func (c *Client) DeleteIndex(indices ...string) *IndicesDeleteService {
+	return NewIndicesDeleteService(c).Index(indices)
+}
+
+// IndexExists allows to check if an index exists.
+func (c *Client) IndexExists(indices ...string) *IndicesExistsService {
+	return NewIndicesExistsService(c).Index(indices)
+}
+
+// TypeExists allows to check if one or more types exist in one or more indices.
+func (c *Client) TypeExists() *IndicesExistsTypeService {
+	return NewIndicesExistsTypeService(c)
+}
+
+// IndexStats provides statistics on different operations happining
+// in one or more indices.
+func (c *Client) IndexStats(indices ...string) *IndicesStatsService {
+	return NewIndicesStatsService(c).Index(indices...)
+}
+
+// OpenIndex opens an index.
+func (c *Client) OpenIndex(name string) *IndicesOpenService {
+	return NewIndicesOpenService(c).Index(name)
+}
+
+// CloseIndex closes an index.
+func (c *Client) CloseIndex(name string) *IndicesCloseService {
+	return NewIndicesCloseService(c).Index(name)
+}
+
+// IndexGet retrieves information about one or more indices.
+// IndexGet is only available for Elasticsearch 1.4 or later.
+func (c *Client) IndexGet(indices ...string) *IndicesGetService {
+	return NewIndicesGetService(c).Index(indices...)
+}
+
+// IndexGetSettings retrieves settings about one or more indices.
+func (c *Client) IndexGetSettings(indices ...string) *IndicesGetSettingsService {
+	return NewIndicesGetSettingsService(c).Index(indices...)
+}
+
 // Optimize asks Elasticsearch to optimize one or more indices.
 func (c *Client) Optimize(indices ...string) *OptimizeService {
 	return NewOptimizeService(c).Index(indices...)
@@ -1073,18 +1071,8 @@ func (c *Client) Refresh(indices ...string) *RefreshService {
 
 // Flush asks Elasticsearch to free memory from the index and
 // flush data to disk.
-func (c *Client) Flush(indices ...string) *FlushService {
-	return NewFlushService(c).Index(indices...)
-}
-
-// Explain computes a score explanation for a query and a specific document.
-func (c *Client) Explain(index, typ, id string) *ExplainService {
-	return NewExplainService(c).Index(index).Type(typ).Id(id)
-}
-
-// Bulk is the entry point to mass insert/update/delete documents.
-func (c *Client) Bulk() *BulkService {
-	return NewBulkService(c)
+func (c *Client) Flush(indices ...string) *IndicesFlushService {
+	return NewIndicesFlushService(c).Index(indices...)
 }
 
 // Alias enables the caller to add and/or remove aliases.
@@ -1149,6 +1137,25 @@ func (c *Client) PutMapping() *PutMappingService {
 	return NewPutMappingService(c)
 }
 
+// -- cat APIs --
+
+// TODO cat aliases
+// TODO cat allocation
+// TODO cat count
+// TODO cat fielddata
+// TODO cat health
+// TODO cat indices
+// TODO cat master
+// TODO cat nodes
+// TODO cat pending tasks
+// TODO cat plugins
+// TODO cat recovery
+// TODO cat thread pool
+// TODO cat shards
+// TODO cat segments
+
+// -- Cluster APIs --
+
 // ClusterHealth retrieves the health of the cluster.
 func (c *Client) ClusterHealth() *ClusterHealthService {
 	return NewClusterHealthService(c)
@@ -1167,6 +1174,58 @@ func (c *Client) ClusterStats() *ClusterStatsService {
 // NodesInfo retrieves one or more or all of the cluster nodes information.
 func (c *Client) NodesInfo() *NodesInfoService {
 	return NewNodesInfoService(c)
+}
+
+// TODO Pending cluster tasks
+// TODO Cluster Reroute
+// TODO Cluster Update Settings
+// TODO Nodes Stats
+// TODO Nodes hot_threads
+
+// -- Snapshot and Restore --
+
+// TODO Snapshot Create
+// TODO Snapshot Create Repository
+// TODO Snapshot Delete
+// TODO Snapshot Delete Repository
+// TODO Snapshot Get
+// TODO Snapshot Get Repository
+// TODO Snapshot Restore
+// TODO Snapshot Status
+// TODO Snapshot Verify Repository
+
+// -- Helpers and shortcuts --
+
+// ElasticsearchVersion returns the version number of Elasticsearch
+// running on the given URL.
+func (c *Client) ElasticsearchVersion(url string) (string, error) {
+	res, _, err := c.Ping(url).Do()
+	if err != nil {
+		return "", err
+	}
+	return res.Version.Number, nil
+}
+
+// IndexNames returns the names of all indices in the cluster.
+func (c *Client) IndexNames() ([]string, error) {
+	res, err := c.IndexGetSettings().Index("_all").Do()
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for name, _ := range res {
+		names = append(names, name)
+	}
+	return names, nil
+}
+
+// Ping checks if a given node in a cluster exists and (optionally)
+// returns some basic information about the Elasticsearch server,
+// e.g. the Elasticsearch version number.
+//
+// Notice that you need to specify a URL here explicitly.
+func (c *Client) Ping(url string) *PingService {
+	return NewPingService(c).URL(url)
 }
 
 // Reindex returns a service that will reindex documents from a source

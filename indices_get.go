@@ -7,32 +7,27 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 
 	"github.com/olivere/elastic/uritemplates"
 )
 
-var (
-	_ = fmt.Print
-	_ = log.Print
-	_ = strings.Index
-	_ = uritemplates.Expand
-	_ = url.Parse
-)
-
 // IndicesGetService retrieves information about one or more indices.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-get-index.html.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-index.html
+// for more details.
 type IndicesGetService struct {
 	client            *Client
 	pretty            bool
 	index             []string
 	feature           []string
-	expandWildcards   string
 	local             *bool
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
+	expandWildcards   string
+	flatSettings      *bool
+	human             *bool
 }
 
 // NewIndicesGetService creates a new IndicesGetService.
@@ -44,28 +39,20 @@ func NewIndicesGetService(client *Client) *IndicesGetService {
 	}
 }
 
-// Index is a list of index names. Use _all to retrieve information about
-// all indices of a cluster.
+// Index is a list of index names.
 func (s *IndicesGetService) Index(indices ...string) *IndicesGetService {
 	s.index = append(s.index, indices...)
 	return s
 }
 
-// Feature is a list of features (e.g. _settings,_mappings,_warmers, and _aliases).
-func (s *IndicesGetService) Feature(feature ...string) *IndicesGetService {
-	s.feature = append(s.feature, feature...)
+// Feature is a list of features.
+func (s *IndicesGetService) Feature(features ...string) *IndicesGetService {
+	s.feature = append(s.feature, features...)
 	return s
 }
 
-// ExpandWildcards indicates whether wildcard expressions should
-// get expanded to open or closed indices (default: open).
-func (s *IndicesGetService) ExpandWildcards(expandWildcards string) *IndicesGetService {
-	s.expandWildcards = expandWildcards
-	return s
-}
-
-// Local indicates whether to return local information (do not retrieve
-// the state from master node (default: false)).
+// Local indicates whether to return local information, i.e. do not retrieve
+// the state from master node (default: false).
 func (s *IndicesGetService) Local(local bool) *IndicesGetService {
 	s.local = &local
 	return s
@@ -81,6 +68,29 @@ func (s *IndicesGetService) IgnoreUnavailable(ignoreUnavailable bool) *IndicesGe
 // resolves to no concrete indices (default: false).
 func (s *IndicesGetService) AllowNoIndices(allowNoIndices bool) *IndicesGetService {
 	s.allowNoIndices = &allowNoIndices
+	return s
+}
+
+// ExpandWildcards indicates whether wildcard expressions should get
+// expanded to open or closed indices (default: open).
+func (s *IndicesGetService) ExpandWildcards(expandWildcards string) *IndicesGetService {
+	s.expandWildcards = expandWildcards
+	return s
+}
+
+/* Disabled because serialization would fail in that case. */
+/*
+// FlatSettings make the service return settings in flat format (default: false).
+func (s *IndicesGetService) FlatSettings(flatSettings bool) *IndicesGetService {
+	s.flatSettings = &flatSettings
+	return s
+}
+*/
+
+// Human indicates whether to return version and creation date values
+// in human-readable format (default: false).
+func (s *IndicesGetService) Human(human bool) *IndicesGetService {
+	s.human = &human
 	return s
 }
 
@@ -125,6 +135,12 @@ func (s *IndicesGetService) buildURL() (string, url.Values, error) {
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
+	}
+	if s.flatSettings != nil {
+		params.Set("flat_settings", fmt.Sprintf("%v", *s.flatSettings))
+	}
+	if s.human != nil {
+		params.Set("human", fmt.Sprintf("%v", *s.human))
 	}
 	if s.local != nil {
 		params.Set("local", fmt.Sprintf("%v", *s.local))

@@ -7,24 +7,17 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 
 	"github.com/olivere/elastic/uritemplates"
 )
 
-var (
-	_ = fmt.Print
-	_ = log.Print
-	_ = strings.Index
-	_ = uritemplates.Expand
-	_ = url.Parse
-)
-
 // IndicesGetSettingsService allows to retrieve settings of one
 // or more indices.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/indices-get-settings.html.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-settings.html
+// for more details.
 type IndicesGetSettingsService struct {
 	client            *Client
 	pretty            bool

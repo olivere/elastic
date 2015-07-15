@@ -8,7 +8,20 @@ import (
 	"testing"
 )
 
-func TestIndexGetURL(t *testing.T) {
+func TestIndicesGetValidate(t *testing.T) {
+	client := setupTestClient(t)
+
+	// No index name -> fail with error
+	res, err := NewIndicesGetService(client).Index("").Do()
+	if err == nil {
+		t.Fatalf("expected IndicesGet to fail without index name")
+	}
+	if res != nil {
+		t.Fatalf("expected result to be == nil; got: %v", res)
+	}
+}
+
+func TestIndicesGetURL(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tests := []struct {
@@ -39,7 +52,7 @@ func TestIndexGetURL(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		path, _, err := client.IndexGet().Index(test.Indices...).Feature(test.Features...).buildURL()
+		path, _, err := NewIndicesGetService(client).Index(test.Indices...).Feature(test.Features...).buildURL()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -49,7 +62,7 @@ func TestIndexGetURL(t *testing.T) {
 	}
 }
 
-func TestIndexGetService(t *testing.T) {
+func TestIndicesGetService(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	esversion, err := client.ElasticsearchVersion(DefaultURL)

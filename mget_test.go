@@ -65,8 +65,8 @@ func TestMultiGet(t *testing.T) {
 	}
 
 	item := res.Docs[0]
-	if item.Error != "" {
-		t.Errorf("expected no error on item 0; got %q", item.Error)
+	if item.Error != nil {
+		t.Errorf("expected no error on item 0; got %v", item.Error)
 	}
 	if item.Source == nil {
 		t.Errorf("expected Source != nil; got %v", item.Source)
@@ -80,8 +80,8 @@ func TestMultiGet(t *testing.T) {
 	}
 
 	item = res.Docs[1]
-	if item.Error != "" {
-		t.Errorf("expected no error on item 1; got %q", item.Error)
+	if item.Error != nil {
+		t.Errorf("expected no error on item 1; got %v", item.Error)
 	}
 	if item.Source == nil {
 		t.Errorf("expected Source != nil; got %v", item.Source)

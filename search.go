@@ -297,14 +297,16 @@ func (s *SearchService) Do() (*SearchResult, error) {
 
 // SearchResult is the result of a search in Elasticsearch.
 type SearchResult struct {
-	TookInMillis int64         `json:"took"`            // search time in milliseconds
-	ScrollId     string        `json:"_scroll_id"`      // only used with Scroll and Scan operations
-	Hits         *SearchHits   `json:"hits"`            // the actual search hits
-	Suggest      SearchSuggest `json:"suggest"`         // results from suggesters
-	Facets       SearchFacets  `json:"facets"`          // results from facets
-	Aggregations Aggregations  `json:"aggregations"`    // results from aggregations
-	TimedOut     bool          `json:"timed_out"`       // true if the search timed out
-	Error        string        `json:"error,omitempty"` // used in MultiSearch only
+	TookInMillis int64         `json:"took"`         // search time in milliseconds
+	ScrollId     string        `json:"_scroll_id"`   // only used with Scroll and Scan operations
+	Hits         *SearchHits   `json:"hits"`         // the actual search hits
+	Suggest      SearchSuggest `json:"suggest"`      // results from suggesters
+	Facets       SearchFacets  `json:"facets"`       // results from facets
+	Aggregations Aggregations  `json:"aggregations"` // results from aggregations
+	TimedOut     bool          `json:"timed_out"`    // true if the search timed out
+	//Error        string        `json:"error,omitempty"` // used in MultiSearch only
+	// TODO double-check that MultiGet now returns details error information
+	Error *ErrorDetails `json:"error,omitempty"` // only used in MultiGet
 }
 
 // TotalHits is a convenience function to return the number of hits for

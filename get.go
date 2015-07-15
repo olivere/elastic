@@ -13,8 +13,14 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
+// GetService allows to get a typed JSON document from the index based
+// on its id.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html
+// for details.
 type GetService struct {
 	client                        *Client
+	pretty                        bool
 	index                         string
 	typ                           string
 	id                            string
@@ -24,65 +30,75 @@ type GetService struct {
 	refresh                       *bool
 	realtime                      *bool
 	fsc                           *FetchSourceContext
+	version                       interface{}
 	versionType                   string
-	version                       *int64
+	parent                        string
 	ignoreErrorsOnGeneratedFields *bool
 }
 
+// NewGetService creates a new GetService.
 func NewGetService(client *Client) *GetService {
-	builder := &GetService{
+	return &GetService{
 		client: client,
 		typ:    "_all",
 	}
-	return builder
 }
 
-func (b *GetService) String() string {
+/*
+// String returns a string representation of the GetService request.
+func (s *GetService) String() string {
 	return fmt.Sprintf("[%v][%v][%v]: routing [%v]",
-		b.index,
-		b.typ,
-		b.id,
-		b.routing)
+		s.index,
+		s.typ,
+		s.id,
+		s.routing)
+}
+*/
+
+// Index is the name of the index.
+func (s *GetService) Index(index string) *GetService {
+	s.index = index
+	return s
 }
 
-func (b *GetService) Index(index string) *GetService {
-	b.index = index
-	return b
+// Type is the type of the document (use `_all` to fetch the first document
+// matching the ID across all types).
+func (s *GetService) Type(typ string) *GetService {
+	s.typ = typ
+	return s
 }
 
-func (b *GetService) Type(typ string) *GetService {
-	b.typ = typ
-	return b
+// Id is the document ID.
+func (s *GetService) Id(id string) *GetService {
+	s.id = id
+	return s
 }
 
-func (b *GetService) Id(id string) *GetService {
-	b.id = id
-	return b
+// Parent is the ID of the parent document.
+func (s *GetService) Parent(parent string) *GetService {
+	s.parent = parent
+	return s
 }
 
-func (b *GetService) Parent(parent string) *GetService {
-	if b.routing == "" {
-		b.routing = parent
+// Routing is the specific routing value.
+func (s *GetService) Routing(routing string) *GetService {
+	s.routing = routing
+	return s
+}
+
+// Preference specifies the node or shard the operation should be performed on (default: random).
+func (s *GetService) Preference(preference string) *GetService {
+	s.preference = preference
+	return s
+}
+
+// Fields is a list of fields to return in the response.
+func (s *GetService) Fields(fields ...string) *GetService {
+	if s.fields == nil {
+		s.fields = make([]string, 0)
 	}
-	return b
-}
-
-func (b *GetService) Routing(routing string) *GetService {
-	b.routing = routing
-	return b
-}
-
-func (b *GetService) Preference(preference string) *GetService {
-	b.preference = preference
-	return b
-}
-
-func (b *GetService) Fields(fields ...string) *GetService {
-	if b.fields == nil {
-		b.fields = make([]string, 0)
-	}
-	b.fields = append(b.fields, fields...)
-	return b
+	s.fields = append(s.fields, fields...)
+	return s
 }
 
 func (s *GetService) FetchSource(fetchSource bool) *GetService {
@@ -99,29 +115,41 @@ func (s *GetService) FetchSourceContext(fetchSourceContext *FetchSourceContext) 
 	return s
 }
 
-func (b *GetService) Refresh(refresh bool) *GetService {
-	b.refresh = &refresh
-	return b
+// Refresh the shard containing the document before performing the operation.
+func (s *GetService) Refresh(refresh bool) *GetService {
+	s.refresh = &refresh
+	return s
 }
 
-func (b *GetService) Realtime(realtime bool) *GetService {
-	b.realtime = &realtime
-	return b
+// Realtime specifies whether to perform the operation in realtime or search mode.
+func (s *GetService) Realtime(realtime bool) *GetService {
+	s.realtime = &realtime
+	return s
 }
 
-func (b *GetService) VersionType(versionType string) *GetService {
-	b.versionType = versionType
-	return b
+// VersionType is the specific version type.
+func (s *GetService) VersionType(versionType string) *GetService {
+	s.versionType = versionType
+	return s
 }
 
-func (b *GetService) Version(version int64) *GetService {
-	b.version = &version
-	return b
+// Version is an explicit version number for concurrency control.
+func (s *GetService) Version(version interface{}) *GetService {
+	s.version = version
+	return s
 }
 
-func (b *GetService) IgnoreErrorsOnGeneratedFields(ignore bool) *GetService {
-	b.ignoreErrorsOnGeneratedFields = &ignore
-	return b
+// IgnoreErrorsOnGeneratedFields indicates whether to ignore fields that
+// are generated if the transaction log is accessed.
+func (s *GetService) IgnoreErrorsOnGeneratedFields(ignore bool) *GetService {
+	s.ignoreErrorsOnGeneratedFields = &ignore
+	return s
+}
+
+// Pretty indicates that the JSON response be indented and human readable.
+func (s *GetService) Pretty(pretty bool) *GetService {
+	s.pretty = pretty
+	return s
 }
 
 // Validate checks if the operation is valid.
@@ -142,63 +170,78 @@ func (s *GetService) Validate() error {
 	return nil
 }
 
-func (b *GetService) Do() (*GetResult, error) {
-	// Check pre-conditions
-	if err := b.Validate(); err != nil {
-		return nil, err
-	}
-
-	// Build url
+// buildURL builds the URL for the operation.
+func (s *GetService) buildURL() (string, url.Values, error) {
+	// Build URL
 	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
-		"index": b.index,
-		"type":  b.typ,
-		"id":    b.id,
+		"id":    s.id,
+		"index": s.index,
+		"type":  s.typ,
 	})
 	if err != nil {
-		return nil, err
+		return "", url.Values{}, err
 	}
 
-	params := make(url.Values)
-	if b.realtime != nil {
-		params.Add("realtime", fmt.Sprintf("%v", *b.realtime))
+	// Add query string parameters
+	params := url.Values{}
+	if s.pretty {
+		params.Set("pretty", "1")
 	}
-	if len(b.fields) > 0 {
-		params.Add("fields", strings.Join(b.fields, ","))
+	if s.routing != "" {
+		params.Set("routing", s.routing)
 	}
-	if b.routing != "" {
-		params.Add("routing", b.routing)
+	if s.parent != "" {
+		params.Set("parent", s.parent)
 	}
-	if b.preference != "" {
-		params.Add("preference", b.preference)
+	if s.preference != "" {
+		params.Set("preference", s.preference)
 	}
-	if b.refresh != nil {
-		params.Add("refresh", fmt.Sprintf("%v", *b.refresh))
+	if len(s.fields) > 0 {
+		params.Set("fields", strings.Join(s.fields, ","))
 	}
-	if b.realtime != nil {
-		params.Add("realtime", fmt.Sprintf("%v", *b.realtime))
+	if s.refresh != nil {
+		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
 	}
-	if b.ignoreErrorsOnGeneratedFields != nil {
-		params.Add("ignore_errors_on_generated_fields", fmt.Sprintf("%v", *b.ignoreErrorsOnGeneratedFields))
+	if s.version != nil {
+		params.Set("version", fmt.Sprintf("%v", s.version))
 	}
-	if b.version != nil {
-		params.Add("version", fmt.Sprintf("%d", *b.version))
+	if s.versionType != "" {
+		params.Set("version_type", s.versionType)
 	}
-	if b.versionType != "" {
-		params.Add("version_type", b.versionType)
+	if s.realtime != nil {
+		params.Set("realtime", fmt.Sprintf("%v", *s.realtime))
 	}
-	if b.fsc != nil {
-		for k, values := range b.fsc.Query() {
+	if s.ignoreErrorsOnGeneratedFields != nil {
+		params.Add("ignore_errors_on_generated_fields", fmt.Sprintf("%v", *s.ignoreErrorsOnGeneratedFields))
+	}
+	if s.fsc != nil {
+		for k, values := range s.fsc.Query() {
 			params.Add(k, strings.Join(values, ","))
 		}
 	}
+	return path, params, nil
+}
 
-	// Get response
-	res, err := b.client.PerformRequest("GET", path, params, nil)
+// Do executes the operation.
+func (s *GetService) Do() (*GetResult, error) {
+	// Check pre-conditions
+	if err := s.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Get URL for request
+	path, params, err := s.buildURL()
 	if err != nil {
 		return nil, err
 	}
 
-	// Return result
+	// Get HTTP response
+	res, err := s.client.PerformRequest("GET", path, params, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return operation response
 	ret := new(GetResult)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
@@ -208,6 +251,7 @@ func (b *GetService) Do() (*GetResult, error) {
 
 // -- Result of a get request.
 
+// GetResult is the outcome of GetService.Do.
 type GetResult struct {
 	Index     string                 `json:"_index"`     // index meta field
 	Type      string                 `json:"_type"`      // type meta field
@@ -221,5 +265,7 @@ type GetResult struct {
 	Source    *json.RawMessage       `json:"_source,omitempty"`
 	Found     bool                   `json:"found,omitempty"`
 	Fields    map[string]interface{} `json:"fields,omitempty"`
-	Error     string                 `json:"error,omitempty"` // used only in MultiGet
+	//Error     string                 `json:"error,omitempty"` // used only in MultiGet
+	// TODO double-check that MultiGet now returns details error information
+	Error *ErrorDetails `json:"error,omitempty"` // only used in MultiGet
 }

@@ -13,15 +13,6 @@ import (
 )
 
 var (
-	// ErrMissingIndex is returned e.g. from DeleteService if the index is missing.
-	ErrMissingIndex = errors.New("elastic: index is missing")
-
-	// ErrMissingType is returned e.g. from DeleteService if the type is missing.
-	ErrMissingType = errors.New("elastic: type is missing")
-
-	// ErrMissingId is returned e.g. from DeleteService if the document identifier is missing.
-	ErrMissingId = errors.New("elastic: id is missing")
-
 	// ErrPluginNotFound is returned when using a service that requires a plugin that is not available.
 	ErrPluginNotFound = errors.New("elastic: plugin not found")
 )

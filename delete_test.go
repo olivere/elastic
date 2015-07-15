@@ -86,34 +86,33 @@ func TestDelete(t *testing.T) {
 	}
 }
 
-func TestDeleteWithEmptyIDFails(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+func TestDeleteValidate(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
-	if err != nil {
-		t.Fatal(err)
+	// No index name -> fail with error
+	res, err := NewDeleteService(client).Type("tweet").Id("1").Do()
+	if err == nil {
+		t.Fatalf("expected Delete to fail without index name")
 	}
-	_, err = client.Flush().Index(testIndexName).Do()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Delete document with blank ID
-	_, err = client.Delete().Index(testIndexName).Type("tweet").Id("").Do()
-	if err != ErrMissingId {
-		t.Fatalf("expected to not accept delete without identifier, got: %v", err)
+	if res != nil {
+		t.Fatalf("expected result to be == nil; got: %v", res)
 	}
 
-	// Delete document with blank type
-	_, err = client.Delete().Index(testIndexName).Type("").Id("1").Do()
-	if err != ErrMissingType {
-		t.Fatalf("expected to not accept delete without type, got: %v", err)
+	// No type -> fail with error
+	res, err = NewDeleteService(client).Index(testIndexName).Id("1").Do()
+	if err == nil {
+		t.Fatalf("expected Delete to fail without type")
+	}
+	if res != nil {
+		t.Fatalf("expected result to be == nil; got: %v", res)
 	}
 
-	// Delete document with blank index
-	_, err = client.Delete().Index("").Type("tweet").Id("1").Do()
-	if err != ErrMissingIndex {
-		t.Fatalf("expected to not accept delete without index, got: %v", err)
+	// No id -> fail with error
+	res, err = NewDeleteService(client).Index(testIndexName).Type("tweet").Do()
+	if err == nil {
+		t.Fatalf("expected Delete to fail without id")
+	}
+	if res != nil {
+		t.Fatalf("expected result to be == nil; got: %v", res)
 	}
 }

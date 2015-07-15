@@ -12,68 +12,75 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// OpenIndexService opens an index.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/indices-open-close.html.
-type OpenIndexService struct {
+// IndicesCloseService closes an index.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-open-close.html
+// for details.
+type IndicesCloseService struct {
 	client            *Client
 	pretty            bool
 	index             string
-	expandWildcards   string
 	timeout           string
 	masterTimeout     string
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
+	expandWildcards   string
 }
 
-// NewOpenIndexService creates a new OpenIndexService.
-func NewOpenIndexService(client *Client) *OpenIndexService {
-	return &OpenIndexService{client: client}
+// NewIndicesCloseService creates and initializes a new IndicesCloseService.
+func NewIndicesCloseService(client *Client) *IndicesCloseService {
+	return &IndicesCloseService{client: client}
 }
 
-// Index is the name of the index to open.
-func (s *OpenIndexService) Index(index string) *OpenIndexService {
+// Index is the name of the index to close.
+func (s *IndicesCloseService) Index(index string) *IndicesCloseService {
 	s.index = index
 	return s
 }
 
 // Timeout is an explicit operation timeout.
-func (s *OpenIndexService) Timeout(timeout string) *OpenIndexService {
+func (s *IndicesCloseService) Timeout(timeout string) *IndicesCloseService {
 	s.timeout = timeout
 	return s
 }
 
 // MasterTimeout specifies the timeout for connection to master.
-func (s *OpenIndexService) MasterTimeout(masterTimeout string) *OpenIndexService {
+func (s *IndicesCloseService) MasterTimeout(masterTimeout string) *IndicesCloseService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
-// IgnoreUnavailable indicates whether specified concrete indices should
-// be ignored when unavailable (missing or closed).
-func (s *OpenIndexService) IgnoreUnavailable(ignoreUnavailable bool) *OpenIndexService {
+// IgnoreUnavailable indicates whether specified concrete indices should be
+// ignored when unavailable (missing or closed).
+func (s *IndicesCloseService) IgnoreUnavailable(ignoreUnavailable bool) *IndicesCloseService {
 	s.ignoreUnavailable = &ignoreUnavailable
 	return s
 }
 
 // AllowNoIndices indicates whether to ignore if a wildcard indices
-// expression resolves into no concrete indices.
-// (This includes `_all` string or when no indices have been specified).
-func (s *OpenIndexService) AllowNoIndices(allowNoIndices bool) *OpenIndexService {
+// expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified).
+func (s *IndicesCloseService) AllowNoIndices(allowNoIndices bool) *IndicesCloseService {
 	s.allowNoIndices = &allowNoIndices
 	return s
 }
 
 // ExpandWildcards indicates whether to expand wildcard expression to
-// concrete indices that are open, closed or both..
-func (s *OpenIndexService) ExpandWildcards(expandWildcards string) *OpenIndexService {
+// concrete indices that are open, closed or both.
+func (s *IndicesCloseService) ExpandWildcards(expandWildcards string) *IndicesCloseService {
 	s.expandWildcards = expandWildcards
 	return s
 }
 
+// Pretty indicates that the JSON response be indented and human readable.
+func (s *IndicesCloseService) Pretty(pretty bool) *IndicesCloseService {
+	s.pretty = pretty
+	return s
+}
+
 // buildURL builds the URL for the operation.
-func (s *OpenIndexService) buildURL() (string, url.Values, error) {
+func (s *IndicesCloseService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/{index}/_open", map[string]string{
+	path, err := uritemplates.Expand("/{index}/_close", map[string]string{
 		"index": s.index,
 	})
 	if err != nil {
@@ -82,6 +89,12 @@ func (s *OpenIndexService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
+	if s.allowNoIndices != nil {
+		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+	}
+	if s.expandWildcards != "" {
+		params.Set("expand_wildcards", s.expandWildcards)
+	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)
 	}
@@ -91,18 +104,12 @@ func (s *OpenIndexService) buildURL() (string, url.Values, error) {
 	if s.ignoreUnavailable != nil {
 		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
 	}
-	if s.allowNoIndices != nil {
-		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
-	}
-	if s.expandWildcards != "" {
-		params.Set("expand_wildcards", s.expandWildcards)
-	}
 
 	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
-func (s *OpenIndexService) Validate() error {
+func (s *IndicesCloseService) Validate() error {
 	var invalid []string
 	if s.index == "" {
 		invalid = append(invalid, "Index")
@@ -114,7 +121,7 @@ func (s *OpenIndexService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *OpenIndexService) Do() (*OpenIndexResponse, error) {
+func (s *IndicesCloseService) Do() (*IndicesCloseResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -133,14 +140,14 @@ func (s *OpenIndexService) Do() (*OpenIndexResponse, error) {
 	}
 
 	// Return operation response
-	ret := new(OpenIndexResponse)
+	ret := new(IndicesCloseResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// OpenIndexResponse is the response of OpenIndexService.Do.
-type OpenIndexResponse struct {
+// IndicesCloseResponse is the response of IndicesCloseService.Do.
+type IndicesCloseResponse struct {
 	Acknowledged bool `json:"acknowledged"`
 }

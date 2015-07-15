@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestTypeExistsBuildURL(t *testing.T) {
+func TestIndicesExistsTypeBuildURL(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tests := []struct {
@@ -77,7 +77,7 @@ func TestTypeExistsBuildURL(t *testing.T) {
 	}
 }
 
-func TestTypeExists(t *testing.T) {
+func TestIndicesExistsType(t *testing.T) {
 	client := setupTestClient(t)
 
 	// Create index with tweet type
@@ -117,5 +117,18 @@ func TestTypeExists(t *testing.T) {
 	}
 	if exists {
 		t.Fatalf("type %s should not exist in index %s, but it does\n", "tweet", testIndexName)
+	}
+}
+
+func TestIndicesExistsTypeValidate(t *testing.T) {
+	client := setupTestClient(t)
+
+	// No index name -> fail with error
+	res, err := NewIndicesExistsTypeService(client).Do()
+	if err == nil {
+		t.Fatalf("expected IndicesExistsType to fail without index name")
+	}
+	if res != false {
+		t.Fatalf("expected result to be false; got: %v", res)
 	}
 }
