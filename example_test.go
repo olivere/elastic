@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/olivere/elastic"
+	"github.com/gdm85/elastic"
 )
 
 type Tweet struct {
