@@ -13,6 +13,9 @@ import (
 type SearchSource struct {
 	query                    Query
 	postFilter               Filter
+	xSourceInclude           []string
+	xSourceExclude           []string
+	xSourceDisabled          bool
 	from                     int
 	size                     int
 	explain                  *bool
@@ -42,6 +45,9 @@ type SearchSource struct {
 func NewSearchSource() *SearchSource {
 	return &SearchSource{
 		from:            -1,
+		xSourceDisabled: false,
+		xSourceInclude:  make([]string, 0),
+		xSourceExclude:  make([]string, 0),
 		size:            -1,
 		trackScores:     false,
 		sorts:           make([]SortInfo, 0),
@@ -68,6 +74,42 @@ func (s *SearchSource) Query(query Query) *SearchSource {
 // search hits but not facets.
 func (s *SearchSource) PostFilter(postFilter Filter) *SearchSource {
 	s.postFilter = postFilter
+	return s
+}
+
+// reset XSource fields every time disabled flag toggles
+// this means that switching from disabled -> enabled and enabled -> disabled
+// will always reset include/exclude fields, so that subsequent XSourceInclude/XSourceExclude
+// calls will lead to expected behavior.
+func (s *SearchSource) resetXSource(disabled bool) {
+	if s.xSourceDisabled != disabled {
+		s.xSourceDisabled = disabled
+		s.xSourceExclude = make([]string, 0)
+		s.xSourceInclude = make([]string, 0)
+	}
+}
+
+func (s *SearchSource) XSource(xSource ...string) *SearchSource {
+	s.xSourceExclude = make([]string, 0)
+	s.xSourceInclude = make([]string, 0)
+	if len(xSource) == 0 {
+		s.resetXSource(true)
+		return s
+	}
+	s.resetXSource(false)
+	s.xSourceInclude = append(s.xSourceInclude, xSource...)
+	return s
+}
+
+func (s *SearchSource) XSourceInclude(xSource ...string) *SearchSource {
+	s.resetXSource(false)
+	s.xSourceInclude = append(s.xSourceInclude, xSource...)
+	return s
+}
+
+func (s *SearchSource) XSourceExclude(xSource ...string) *SearchSource {
+	s.resetXSource(false)
+	s.xSourceExclude = append(s.xSourceExclude, xSource...)
 	return s
 }
 
@@ -253,11 +295,39 @@ func (s *SearchSource) InnerHit(name string, innerHit *InnerHit) *SearchSource {
 	return s
 }
 
+func (s *SearchSource) createSourceFilter() interface{} {
+	if s.xSourceDisabled {
+		return false
+	}
+
+	if len(s.xSourceExclude) > 0 {
+		compositeXSource := map[string][]string{
+			"include": s.xSourceInclude,
+			"exclude": s.xSourceExclude,
+		}
+		return compositeXSource
+	}
+
+	if len(s.xSourceInclude) == 0 {
+		return nil
+	}
+
+	if len(s.xSourceInclude) == 1 {
+		return s.xSourceInclude[0]
+	}
+
+	return s.xSourceInclude
+}
+
 func (s *SearchSource) Source() interface{} {
 	source := make(map[string]interface{})
 
 	if s.from != -1 {
 		source["from"] = s.from
+	}
+	sourceFilter := s.createSourceFilter()
+	if sourceFilter != nil {
+		source["_source"] = sourceFilter
 	}
 	if s.size != -1 {
 		source["size"] = s.size
