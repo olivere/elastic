@@ -24,68 +24,67 @@ type BoolQuery struct {
 }
 
 // Creates a new bool query.
-func NewBoolQuery() BoolQuery {
-	q := BoolQuery{
+func NewBoolQuery() *BoolQuery {
+	return &BoolQuery{
 		mustClauses:    make([]Query, 0),
 		mustNotClauses: make([]Query, 0),
 		filterClauses:  make([]Query, 0),
 		shouldClauses:  make([]Query, 0),
 	}
-	return q
 }
 
-func (q BoolQuery) Must(queries ...Query) BoolQuery {
+func (q *BoolQuery) Must(queries ...Query) *BoolQuery {
 	q.mustClauses = append(q.mustClauses, queries...)
 	return q
 }
 
-func (q BoolQuery) MustNot(queries ...Query) BoolQuery {
+func (q *BoolQuery) MustNot(queries ...Query) *BoolQuery {
 	q.mustNotClauses = append(q.mustNotClauses, queries...)
 	return q
 }
 
-func (q BoolQuery) Filter(filters ...Query) BoolQuery {
+func (q *BoolQuery) Filter(filters ...Query) *BoolQuery {
 	q.filterClauses = append(q.filterClauses, filters...)
 	return q
 }
 
-func (q BoolQuery) Should(queries ...Query) BoolQuery {
+func (q *BoolQuery) Should(queries ...Query) *BoolQuery {
 	q.shouldClauses = append(q.shouldClauses, queries...)
 	return q
 }
 
-func (q BoolQuery) Boost(boost float64) BoolQuery {
+func (q *BoolQuery) Boost(boost float64) *BoolQuery {
 	q.boost = &boost
 	return q
 }
 
-func (q BoolQuery) DisableCoord(disableCoord bool) BoolQuery {
+func (q *BoolQuery) DisableCoord(disableCoord bool) *BoolQuery {
 	q.disableCoord = &disableCoord
 	return q
 }
 
-func (q BoolQuery) MinimumShouldMatch(minimumShouldMatch string) BoolQuery {
+func (q *BoolQuery) MinimumShouldMatch(minimumShouldMatch string) *BoolQuery {
 	q.minimumShouldMatch = minimumShouldMatch
 	return q
 }
 
-func (q BoolQuery) MinimumNumberShouldMatch(minimumNumberShouldMatch int) BoolQuery {
+func (q *BoolQuery) MinimumNumberShouldMatch(minimumNumberShouldMatch int) *BoolQuery {
 	q.minimumShouldMatch = fmt.Sprintf("%d", minimumNumberShouldMatch)
 	return q
 }
 
-func (q BoolQuery) AdjustPureNegative(adjustPureNegative bool) BoolQuery {
+func (q *BoolQuery) AdjustPureNegative(adjustPureNegative bool) *BoolQuery {
 	q.adjustPureNegative = &adjustPureNegative
 	return q
 }
 
-func (q BoolQuery) QueryName(queryName string) BoolQuery {
+func (q *BoolQuery) QueryName(queryName string) *BoolQuery {
 	q.queryName = queryName
 	return q
 }
 
 // Creates the query source for the bool query.
-func (q BoolQuery) Source() (interface{}, error) {
+func (q *BoolQuery) Source() (interface{}, error) {
 	// {
 	//	"bool" : {
 	//		"must" : {
