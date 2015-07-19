@@ -30,98 +30,98 @@ type TermSuggester struct {
 }
 
 // Creates a new term suggester.
-func NewTermSuggester(name string) TermSuggester {
-	return TermSuggester{
+func NewTermSuggester(name string) *TermSuggester {
+	return &TermSuggester{
 		name:           name,
 		contextQueries: make([]SuggesterContextQuery, 0),
 	}
 }
 
-func (q TermSuggester) Name() string {
+func (q *TermSuggester) Name() string {
 	return q.name
 }
 
-func (q TermSuggester) Text(text string) TermSuggester {
+func (q *TermSuggester) Text(text string) *TermSuggester {
 	q.text = text
 	return q
 }
 
-func (q TermSuggester) Field(field string) TermSuggester {
+func (q *TermSuggester) Field(field string) *TermSuggester {
 	q.field = field
 	return q
 }
 
-func (q TermSuggester) Analyzer(analyzer string) TermSuggester {
+func (q *TermSuggester) Analyzer(analyzer string) *TermSuggester {
 	q.analyzer = analyzer
 	return q
 }
 
-func (q TermSuggester) Size(size int) TermSuggester {
+func (q *TermSuggester) Size(size int) *TermSuggester {
 	q.size = &size
 	return q
 }
 
-func (q TermSuggester) ShardSize(shardSize int) TermSuggester {
+func (q *TermSuggester) ShardSize(shardSize int) *TermSuggester {
 	q.shardSize = &shardSize
 	return q
 }
 
-func (q TermSuggester) ContextQuery(query SuggesterContextQuery) TermSuggester {
+func (q *TermSuggester) ContextQuery(query SuggesterContextQuery) *TermSuggester {
 	q.contextQueries = append(q.contextQueries, query)
 	return q
 }
 
-func (q TermSuggester) ContextQueries(queries ...SuggesterContextQuery) TermSuggester {
+func (q *TermSuggester) ContextQueries(queries ...SuggesterContextQuery) *TermSuggester {
 	q.contextQueries = append(q.contextQueries, queries...)
 	return q
 }
 
-func (q TermSuggester) SuggestMode(suggestMode string) TermSuggester {
+func (q *TermSuggester) SuggestMode(suggestMode string) *TermSuggester {
 	q.suggestMode = suggestMode
 	return q
 }
 
-func (q TermSuggester) Accuracy(accuracy float64) TermSuggester {
+func (q *TermSuggester) Accuracy(accuracy float64) *TermSuggester {
 	q.accuracy = &accuracy
 	return q
 }
 
-func (q TermSuggester) Sort(sort string) TermSuggester {
+func (q *TermSuggester) Sort(sort string) *TermSuggester {
 	q.sort = sort
 	return q
 }
 
-func (q TermSuggester) StringDistance(stringDistance string) TermSuggester {
+func (q *TermSuggester) StringDistance(stringDistance string) *TermSuggester {
 	q.stringDistance = stringDistance
 	return q
 }
 
-func (q TermSuggester) MaxEdits(maxEdits int) TermSuggester {
+func (q *TermSuggester) MaxEdits(maxEdits int) *TermSuggester {
 	q.maxEdits = &maxEdits
 	return q
 }
 
-func (q TermSuggester) MaxInspections(maxInspections int) TermSuggester {
+func (q *TermSuggester) MaxInspections(maxInspections int) *TermSuggester {
 	q.maxInspections = &maxInspections
 	return q
 }
 
-func (q TermSuggester) MaxTermFreq(maxTermFreq float64) TermSuggester {
+func (q *TermSuggester) MaxTermFreq(maxTermFreq float64) *TermSuggester {
 	q.maxTermFreq = &maxTermFreq
 	return q
 }
 
-func (q TermSuggester) PrefixLength(prefixLength int) TermSuggester {
+func (q *TermSuggester) PrefixLength(prefixLength int) *TermSuggester {
 	q.prefixLength = &prefixLength
 	return q
 }
 
-func (q TermSuggester) MinWordLength(minWordLength int) TermSuggester {
+func (q *TermSuggester) MinWordLength(minWordLength int) *TermSuggester {
 	q.minWordLength = &minWordLength
 	return q
 }
 
-func (q TermSuggester) MinDocFreq(minDocFreq float64) TermSuggester {
+func (q *TermSuggester) MinDocFreq(minDocFreq float64) *TermSuggester {
 	q.minDocFreq = &minDocFreq
 	return q
 }
@@ -136,7 +136,7 @@ type termSuggesterRequest struct {
 }
 
 // Creates the source for the term suggester.
-func (q TermSuggester) Source(includeName bool) (interface{}, error) {
+func (q *TermSuggester) Source(includeName bool) (interface{}, error) {
 	// "suggest" : {
 	//   "my-suggest-1" : {
 	//     "text" : "the amsterdma meetpu",

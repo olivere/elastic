@@ -28,48 +28,48 @@ type FuzzyCompletionSuggester struct {
 }
 
 // Creates a new completion suggester.
-func NewFuzzyCompletionSuggester(name string) FuzzyCompletionSuggester {
-	return FuzzyCompletionSuggester{
+func NewFuzzyCompletionSuggester(name string) *FuzzyCompletionSuggester {
+	return &FuzzyCompletionSuggester{
 		name:           name,
 		contextQueries: make([]SuggesterContextQuery, 0),
 	}
 }
 
-func (q FuzzyCompletionSuggester) Name() string {
+func (q *FuzzyCompletionSuggester) Name() string {
 	return q.name
 }
 
-func (q FuzzyCompletionSuggester) Text(text string) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) Text(text string) *FuzzyCompletionSuggester {
 	q.text = text
 	return q
 }
 
-func (q FuzzyCompletionSuggester) Field(field string) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) Field(field string) *FuzzyCompletionSuggester {
 	q.field = field
 	return q
 }
 
-func (q FuzzyCompletionSuggester) Analyzer(analyzer string) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) Analyzer(analyzer string) *FuzzyCompletionSuggester {
 	q.analyzer = analyzer
 	return q
 }
 
-func (q FuzzyCompletionSuggester) Size(size int) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) Size(size int) *FuzzyCompletionSuggester {
 	q.size = &size
 	return q
 }
 
-func (q FuzzyCompletionSuggester) ShardSize(shardSize int) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) ShardSize(shardSize int) *FuzzyCompletionSuggester {
 	q.shardSize = &shardSize
 	return q
 }
 
-func (q FuzzyCompletionSuggester) ContextQuery(query SuggesterContextQuery) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) ContextQuery(query SuggesterContextQuery) *FuzzyCompletionSuggester {
 	q.contextQueries = append(q.contextQueries, query)
 	return q
 }
 
-func (q FuzzyCompletionSuggester) ContextQueries(queries ...SuggesterContextQuery) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) ContextQueries(queries ...SuggesterContextQuery) *FuzzyCompletionSuggester {
 	q.contextQueries = append(q.contextQueries, queries...)
 	return q
 }
@@ -78,33 +78,33 @@ func (q FuzzyCompletionSuggester) ContextQueries(queries ...SuggesterContextQuer
 // means for the suggester, e.g. 1, 2, "0", "1..2", ">4", or "AUTO".
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/common-options.html#fuzziness
 // for a detailed description.
-func (q FuzzyCompletionSuggester) Fuzziness(fuzziness interface{}) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) Fuzziness(fuzziness interface{}) *FuzzyCompletionSuggester {
 	q.fuzziness = fuzziness
 	return q
 }
 
-func (q FuzzyCompletionSuggester) FuzzyTranspositions(fuzzyTranspositions bool) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) FuzzyTranspositions(fuzzyTranspositions bool) *FuzzyCompletionSuggester {
 	q.fuzzyTranspositions = &fuzzyTranspositions
 	return q
 }
 
-func (q FuzzyCompletionSuggester) FuzzyMinLength(minLength int) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) FuzzyMinLength(minLength int) *FuzzyCompletionSuggester {
 	q.fuzzyMinLength = &minLength
 	return q
 }
 
-func (q FuzzyCompletionSuggester) FuzzyPrefixLength(prefixLength int) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) FuzzyPrefixLength(prefixLength int) *FuzzyCompletionSuggester {
 	q.fuzzyPrefixLength = &prefixLength
 	return q
 }
 
-func (q FuzzyCompletionSuggester) UnicodeAware(unicodeAware bool) FuzzyCompletionSuggester {
+func (q *FuzzyCompletionSuggester) UnicodeAware(unicodeAware bool) *FuzzyCompletionSuggester {
 	q.unicodeAware = &unicodeAware
 	return q
 }
 
 // Creates the source for the completion suggester.
-func (q FuzzyCompletionSuggester) Source(includeName bool) (interface{}, error) {
+func (q *FuzzyCompletionSuggester) Source(includeName bool) (interface{}, error) {
 	cs := &completionSuggesterRequest{}
 
 	if q.text != "" {

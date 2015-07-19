@@ -19,48 +19,48 @@ type CompletionSuggester struct {
 }
 
 // Creates a new completion suggester.
-func NewCompletionSuggester(name string) CompletionSuggester {
-	return CompletionSuggester{
+func NewCompletionSuggester(name string) *CompletionSuggester {
+	return &CompletionSuggester{
 		name:           name,
 		contextQueries: make([]SuggesterContextQuery, 0),
 	}
 }
 
-func (q CompletionSuggester) Name() string {
+func (q *CompletionSuggester) Name() string {
 	return q.name
 }
 
-func (q CompletionSuggester) Text(text string) CompletionSuggester {
+func (q *CompletionSuggester) Text(text string) *CompletionSuggester {
 	q.text = text
 	return q
 }
 
-func (q CompletionSuggester) Field(field string) CompletionSuggester {
+func (q *CompletionSuggester) Field(field string) *CompletionSuggester {
 	q.field = field
 	return q
 }
 
-func (q CompletionSuggester) Analyzer(analyzer string) CompletionSuggester {
+func (q *CompletionSuggester) Analyzer(analyzer string) *CompletionSuggester {
 	q.analyzer = analyzer
 	return q
 }
 
-func (q CompletionSuggester) Size(size int) CompletionSuggester {
+func (q *CompletionSuggester) Size(size int) *CompletionSuggester {
 	q.size = &size
 	return q
 }
 
-func (q CompletionSuggester) ShardSize(shardSize int) CompletionSuggester {
+func (q *CompletionSuggester) ShardSize(shardSize int) *CompletionSuggester {
 	q.shardSize = &shardSize
 	return q
 }
 
-func (q CompletionSuggester) ContextQuery(query SuggesterContextQuery) CompletionSuggester {
+func (q *CompletionSuggester) ContextQuery(query SuggesterContextQuery) *CompletionSuggester {
 	q.contextQueries = append(q.contextQueries, query)
 	return q
 }
 
-func (q CompletionSuggester) ContextQueries(queries ...SuggesterContextQuery) CompletionSuggester {
+func (q *CompletionSuggester) ContextQueries(queries ...SuggesterContextQuery) *CompletionSuggester {
 	q.contextQueries = append(q.contextQueries, queries...)
 	return q
 }
@@ -75,7 +75,7 @@ type completionSuggesterRequest struct {
 }
 
 // Creates the source for the completion suggester.
-func (q CompletionSuggester) Source(includeName bool) (interface{}, error) {
+func (q *CompletionSuggester) Source(includeName bool) (interface{}, error) {
 	cs := &completionSuggesterRequest{}
 
 	if q.text != "" {
