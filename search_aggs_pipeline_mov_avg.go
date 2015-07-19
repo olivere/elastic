@@ -23,40 +23,40 @@ type MovAvgAggregation struct {
 }
 
 // NewMovAvgAggregation creates and initializes a new MovAvgAggregation.
-func NewMovAvgAggregation() MovAvgAggregation {
-	return MovAvgAggregation{
+func NewMovAvgAggregation() *MovAvgAggregation {
+	return &MovAvgAggregation{
 		subAggregations: make(map[string]Aggregation),
 		bucketsPaths:    make([]string, 0),
 	}
 }
 
-func (a MovAvgAggregation) Format(format string) MovAvgAggregation {
+func (a *MovAvgAggregation) Format(format string) *MovAvgAggregation {
 	a.format = format
 	return a
 }
 
 // GapPolicy defines what should be done when a gap in the series is discovered.
 // Valid values include "insert_zeros" or "skip". Default is "insert_zeros".
-func (a MovAvgAggregation) GapPolicy(gapPolicy string) MovAvgAggregation {
+func (a *MovAvgAggregation) GapPolicy(gapPolicy string) *MovAvgAggregation {
 	a.gapPolicy = gapPolicy
 	return a
 }
 
 // GapInsertZeros inserts zeros for gaps in the series.
-func (a MovAvgAggregation) GapInsertZeros() MovAvgAggregation {
+func (a *MovAvgAggregation) GapInsertZeros() *MovAvgAggregation {
 	a.gapPolicy = "insert_zeros"
 	return a
 }
 
 // GapSkip skips gaps in the series.
-func (a MovAvgAggregation) GapSkip() MovAvgAggregation {
+func (a *MovAvgAggregation) GapSkip() *MovAvgAggregation {
 	a.gapPolicy = "skip"
 	return a
 }
 
 // Model is used to define what type of moving average you want to use
 // in the series.
-func (a MovAvgAggregation) Model(model MovAvgModel) MovAvgAggregation {
+func (a *MovAvgAggregation) Model(model MovAvgModel) *MovAvgAggregation {
 	a.model = model
 	return a
 }
@@ -64,7 +64,7 @@ func (a MovAvgAggregation) Model(model MovAvgModel) MovAvgAggregation {
 // Window sets the window size for the moving average. This window will
 // "slide" across the series, and the values inside that window will
 // be used to calculate the moving avg value.
-func (a MovAvgAggregation) Window(window int) MovAvgAggregation {
+func (a *MovAvgAggregation) Window(window int) *MovAvgAggregation {
 	a.window = &window
 	return a
 }
@@ -73,37 +73,37 @@ func (a MovAvgAggregation) Window(window int) MovAvgAggregation {
 // Each prediction will be spaced at the intervals in the histogram.
 // E.g. a predict of 2 will return two new buckets at the end of the
 // histogram with the predicted values.
-func (a MovAvgAggregation) Predict(numPredictions int) MovAvgAggregation {
+func (a *MovAvgAggregation) Predict(numPredictions int) *MovAvgAggregation {
 	a.predict = &numPredictions
 	return a
 }
 
 // Minimize determines if the model should be fit to the data using a
 // cost minimizing algorithm.
-func (a MovAvgAggregation) Minimize(minimize bool) MovAvgAggregation {
+func (a *MovAvgAggregation) Minimize(minimize bool) *MovAvgAggregation {
 	a.minimize = &minimize
 	return a
 }
 
 // SubAggregation adds a sub-aggregation to this aggregation.
-func (a MovAvgAggregation) SubAggregation(name string, subAggregation Aggregation) MovAvgAggregation {
+func (a *MovAvgAggregation) SubAggregation(name string, subAggregation Aggregation) *MovAvgAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a MovAvgAggregation) Meta(metaData map[string]interface{}) MovAvgAggregation {
+func (a *MovAvgAggregation) Meta(metaData map[string]interface{}) *MovAvgAggregation {
 	a.meta = metaData
 	return a
 }
 
 // BucketsPath sets the paths to the buckets to use for this pipeline aggregator.
-func (a MovAvgAggregation) BucketsPath(bucketsPaths ...string) MovAvgAggregation {
+func (a *MovAvgAggregation) BucketsPath(bucketsPaths ...string) *MovAvgAggregation {
 	a.bucketsPaths = append(a.bucketsPaths, bucketsPaths...)
 	return a
 }
 
-func (a MovAvgAggregation) Source() (interface{}, error) {
+func (a *MovAvgAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source["moving_avg"] = params

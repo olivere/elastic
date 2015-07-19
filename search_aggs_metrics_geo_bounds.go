@@ -15,40 +15,39 @@ type GeoBoundsAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewGeoBoundsAggregation() GeoBoundsAggregation {
-	a := GeoBoundsAggregation{
+func NewGeoBoundsAggregation() *GeoBoundsAggregation {
+	return &GeoBoundsAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a GeoBoundsAggregation) Field(field string) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) Field(field string) *GeoBoundsAggregation {
 	a.field = field
 	return a
 }
 
-func (a GeoBoundsAggregation) Script(script *Script) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) Script(script *Script) *GeoBoundsAggregation {
 	a.script = script
 	return a
 }
 
-func (a GeoBoundsAggregation) WrapLongitude(wrapLongitude bool) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) WrapLongitude(wrapLongitude bool) *GeoBoundsAggregation {
 	a.wrapLongitude = &wrapLongitude
 	return a
 }
 
-func (a GeoBoundsAggregation) SubAggregation(name string, subAggregation Aggregation) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) SubAggregation(name string, subAggregation Aggregation) *GeoBoundsAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a GeoBoundsAggregation) Meta(metaData map[string]interface{}) GeoBoundsAggregation {
+func (a *GeoBoundsAggregation) Meta(metaData map[string]interface{}) *GeoBoundsAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a GeoBoundsAggregation) Source() (interface{}, error) {
+func (a *GeoBoundsAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//     "query" : {

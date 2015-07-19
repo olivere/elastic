@@ -21,33 +21,33 @@ type SerialDiffAggregation struct {
 }
 
 // NewSerialDiffAggregation creates and initializes a new SerialDiffAggregation.
-func NewSerialDiffAggregation() SerialDiffAggregation {
-	return SerialDiffAggregation{
+func NewSerialDiffAggregation() *SerialDiffAggregation {
+	return &SerialDiffAggregation{
 		subAggregations: make(map[string]Aggregation),
 		bucketsPaths:    make([]string, 0),
 	}
 }
 
-func (a SerialDiffAggregation) Format(format string) SerialDiffAggregation {
+func (a *SerialDiffAggregation) Format(format string) *SerialDiffAggregation {
 	a.format = format
 	return a
 }
 
 // GapPolicy defines what should be done when a gap in the series is discovered.
 // Valid values include "insert_zeros" or "skip". Default is "insert_zeros".
-func (a SerialDiffAggregation) GapPolicy(gapPolicy string) SerialDiffAggregation {
+func (a *SerialDiffAggregation) GapPolicy(gapPolicy string) *SerialDiffAggregation {
 	a.gapPolicy = gapPolicy
 	return a
 }
 
 // GapInsertZeros inserts zeros for gaps in the series.
-func (a SerialDiffAggregation) GapInsertZeros() SerialDiffAggregation {
+func (a *SerialDiffAggregation) GapInsertZeros() *SerialDiffAggregation {
 	a.gapPolicy = "insert_zeros"
 	return a
 }
 
 // GapSkip skips gaps in the series.
-func (a SerialDiffAggregation) GapSkip() SerialDiffAggregation {
+func (a *SerialDiffAggregation) GapSkip() *SerialDiffAggregation {
 	a.gapPolicy = "skip"
 	return a
 }
@@ -55,30 +55,30 @@ func (a SerialDiffAggregation) GapSkip() SerialDiffAggregation {
 // Lag specifies the historical bucket to subtract from the current value.
 // E.g. a lag of 7 will subtract the current value from the value 7 buckets
 // ago. Lag must be a positive, non-zero integer.
-func (a SerialDiffAggregation) Lag(lag int) SerialDiffAggregation {
+func (a *SerialDiffAggregation) Lag(lag int) *SerialDiffAggregation {
 	a.lag = &lag
 	return a
 }
 
 // SubAggregation adds a sub-aggregation to this aggregation.
-func (a SerialDiffAggregation) SubAggregation(name string, subAggregation Aggregation) SerialDiffAggregation {
+func (a *SerialDiffAggregation) SubAggregation(name string, subAggregation Aggregation) *SerialDiffAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a SerialDiffAggregation) Meta(metaData map[string]interface{}) SerialDiffAggregation {
+func (a *SerialDiffAggregation) Meta(metaData map[string]interface{}) *SerialDiffAggregation {
 	a.meta = metaData
 	return a
 }
 
 // BucketsPath sets the paths to the buckets to use for this pipeline aggregator.
-func (a SerialDiffAggregation) BucketsPath(bucketsPaths ...string) SerialDiffAggregation {
+func (a *SerialDiffAggregation) BucketsPath(bucketsPaths ...string) *SerialDiffAggregation {
 	a.bucketsPaths = append(a.bucketsPaths, bucketsPaths...)
 	return a
 }
 
-func (a SerialDiffAggregation) Source() (interface{}, error) {
+func (a *SerialDiffAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source["serial_diff"] = params

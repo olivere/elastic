@@ -19,50 +19,49 @@ type CardinalityAggregation struct {
 	rehash             *bool
 }
 
-func NewCardinalityAggregation() CardinalityAggregation {
-	a := CardinalityAggregation{
+func NewCardinalityAggregation() *CardinalityAggregation {
+	return &CardinalityAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a CardinalityAggregation) Field(field string) CardinalityAggregation {
+func (a *CardinalityAggregation) Field(field string) *CardinalityAggregation {
 	a.field = field
 	return a
 }
 
-func (a CardinalityAggregation) Script(script *Script) CardinalityAggregation {
+func (a *CardinalityAggregation) Script(script *Script) *CardinalityAggregation {
 	a.script = script
 	return a
 }
 
-func (a CardinalityAggregation) Format(format string) CardinalityAggregation {
+func (a *CardinalityAggregation) Format(format string) *CardinalityAggregation {
 	a.format = format
 	return a
 }
 
-func (a CardinalityAggregation) SubAggregation(name string, subAggregation Aggregation) CardinalityAggregation {
+func (a *CardinalityAggregation) SubAggregation(name string, subAggregation Aggregation) *CardinalityAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a CardinalityAggregation) Meta(metaData map[string]interface{}) CardinalityAggregation {
+func (a *CardinalityAggregation) Meta(metaData map[string]interface{}) *CardinalityAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a CardinalityAggregation) PrecisionThreshold(threshold int64) CardinalityAggregation {
+func (a *CardinalityAggregation) PrecisionThreshold(threshold int64) *CardinalityAggregation {
 	a.precisionThreshold = &threshold
 	return a
 }
 
-func (a CardinalityAggregation) Rehash(rehash bool) CardinalityAggregation {
+func (a *CardinalityAggregation) Rehash(rehash bool) *CardinalityAggregation {
 	a.rehash = &rehash
 	return a
 }
 
-func (a CardinalityAggregation) Source() (interface{}, error) {
+func (a *CardinalityAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

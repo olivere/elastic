@@ -17,40 +17,39 @@ type ExtendedStatsAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewExtendedStatsAggregation() ExtendedStatsAggregation {
-	a := ExtendedStatsAggregation{
+func NewExtendedStatsAggregation() *ExtendedStatsAggregation {
+	return &ExtendedStatsAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a ExtendedStatsAggregation) Field(field string) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) Field(field string) *ExtendedStatsAggregation {
 	a.field = field
 	return a
 }
 
-func (a ExtendedStatsAggregation) Script(script *Script) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) Script(script *Script) *ExtendedStatsAggregation {
 	a.script = script
 	return a
 }
 
-func (a ExtendedStatsAggregation) Format(format string) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) Format(format string) *ExtendedStatsAggregation {
 	a.format = format
 	return a
 }
 
-func (a ExtendedStatsAggregation) SubAggregation(name string, subAggregation Aggregation) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) SubAggregation(name string, subAggregation Aggregation) *ExtendedStatsAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a ExtendedStatsAggregation) Meta(metaData map[string]interface{}) ExtendedStatsAggregation {
+func (a *ExtendedStatsAggregation) Meta(metaData map[string]interface{}) *ExtendedStatsAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a ExtendedStatsAggregation) Source() (interface{}, error) {
+func (a *ExtendedStatsAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

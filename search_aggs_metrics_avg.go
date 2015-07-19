@@ -18,40 +18,39 @@ type AvgAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewAvgAggregation() AvgAggregation {
-	a := AvgAggregation{
+func NewAvgAggregation() *AvgAggregation {
+	return &AvgAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a AvgAggregation) Field(field string) AvgAggregation {
+func (a *AvgAggregation) Field(field string) *AvgAggregation {
 	a.field = field
 	return a
 }
 
-func (a AvgAggregation) Script(script *Script) AvgAggregation {
+func (a *AvgAggregation) Script(script *Script) *AvgAggregation {
 	a.script = script
 	return a
 }
 
-func (a AvgAggregation) Format(format string) AvgAggregation {
+func (a *AvgAggregation) Format(format string) *AvgAggregation {
 	a.format = format
 	return a
 }
 
-func (a AvgAggregation) SubAggregation(name string, subAggregation Aggregation) AvgAggregation {
+func (a *AvgAggregation) SubAggregation(name string, subAggregation Aggregation) *AvgAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a AvgAggregation) Meta(metaData map[string]interface{}) AvgAggregation {
+func (a *AvgAggregation) Meta(metaData map[string]interface{}) *AvgAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a AvgAggregation) Source() (interface{}, error) {
+func (a *AvgAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

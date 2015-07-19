@@ -17,40 +17,39 @@ type SumAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewSumAggregation() SumAggregation {
-	a := SumAggregation{
+func NewSumAggregation() *SumAggregation {
+	return &SumAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a SumAggregation) Field(field string) SumAggregation {
+func (a *SumAggregation) Field(field string) *SumAggregation {
 	a.field = field
 	return a
 }
 
-func (a SumAggregation) Script(script *Script) SumAggregation {
+func (a *SumAggregation) Script(script *Script) *SumAggregation {
 	a.script = script
 	return a
 }
 
-func (a SumAggregation) Format(format string) SumAggregation {
+func (a *SumAggregation) Format(format string) *SumAggregation {
 	a.format = format
 	return a
 }
 
-func (a SumAggregation) SubAggregation(name string, subAggregation Aggregation) SumAggregation {
+func (a *SumAggregation) SubAggregation(name string, subAggregation Aggregation) *SumAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a SumAggregation) Meta(metaData map[string]interface{}) SumAggregation {
+func (a *SumAggregation) Meta(metaData map[string]interface{}) *SumAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a SumAggregation) Source() (interface{}, error) {
+func (a *SumAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

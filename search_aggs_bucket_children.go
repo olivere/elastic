@@ -14,30 +14,29 @@ type ChildrenAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewChildrenAggregation() ChildrenAggregation {
-	a := ChildrenAggregation{
+func NewChildrenAggregation() *ChildrenAggregation {
+	return &ChildrenAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a ChildrenAggregation) Type(typ string) ChildrenAggregation {
+func (a *ChildrenAggregation) Type(typ string) *ChildrenAggregation {
 	a.typ = typ
 	return a
 }
 
-func (a ChildrenAggregation) SubAggregation(name string, subAggregation Aggregation) ChildrenAggregation {
+func (a *ChildrenAggregation) SubAggregation(name string, subAggregation Aggregation) *ChildrenAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a ChildrenAggregation) Meta(metaData map[string]interface{}) ChildrenAggregation {
+func (a *ChildrenAggregation) Meta(metaData map[string]interface{}) *ChildrenAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a ChildrenAggregation) Source() (interface{}, error) {
+func (a *ChildrenAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

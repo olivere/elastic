@@ -28,85 +28,84 @@ type geoDistAggRange struct {
 	To   interface{}
 }
 
-func NewGeoDistanceAggregation() GeoDistanceAggregation {
-	a := GeoDistanceAggregation{
+func NewGeoDistanceAggregation() *GeoDistanceAggregation {
+	return &GeoDistanceAggregation{
 		subAggregations: make(map[string]Aggregation),
 		ranges:          make([]geoDistAggRange, 0),
 	}
-	return a
 }
 
-func (a GeoDistanceAggregation) Field(field string) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) Field(field string) *GeoDistanceAggregation {
 	a.field = field
 	return a
 }
 
-func (a GeoDistanceAggregation) Unit(unit string) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) Unit(unit string) *GeoDistanceAggregation {
 	a.unit = unit
 	return a
 }
 
-func (a GeoDistanceAggregation) DistanceType(distanceType string) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) DistanceType(distanceType string) *GeoDistanceAggregation {
 	a.distanceType = distanceType
 	return a
 }
 
-func (a GeoDistanceAggregation) Point(latLon string) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) Point(latLon string) *GeoDistanceAggregation {
 	a.point = latLon
 	return a
 }
 
-func (a GeoDistanceAggregation) SubAggregation(name string, subAggregation Aggregation) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) SubAggregation(name string, subAggregation Aggregation) *GeoDistanceAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a GeoDistanceAggregation) Meta(metaData map[string]interface{}) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) Meta(metaData map[string]interface{}) *GeoDistanceAggregation {
 	a.meta = metaData
 	return a
 }
-func (a GeoDistanceAggregation) AddRange(from, to interface{}) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) AddRange(from, to interface{}) *GeoDistanceAggregation {
 	a.ranges = append(a.ranges, geoDistAggRange{From: from, To: to})
 	return a
 }
 
-func (a GeoDistanceAggregation) AddRangeWithKey(key string, from, to interface{}) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) AddRangeWithKey(key string, from, to interface{}) *GeoDistanceAggregation {
 	a.ranges = append(a.ranges, geoDistAggRange{Key: key, From: from, To: to})
 	return a
 }
 
-func (a GeoDistanceAggregation) AddUnboundedTo(from float64) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) AddUnboundedTo(from float64) *GeoDistanceAggregation {
 	a.ranges = append(a.ranges, geoDistAggRange{From: from, To: nil})
 	return a
 }
 
-func (a GeoDistanceAggregation) AddUnboundedToWithKey(key string, from float64) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) AddUnboundedToWithKey(key string, from float64) *GeoDistanceAggregation {
 	a.ranges = append(a.ranges, geoDistAggRange{Key: key, From: from, To: nil})
 	return a
 }
 
-func (a GeoDistanceAggregation) AddUnboundedFrom(to float64) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) AddUnboundedFrom(to float64) *GeoDistanceAggregation {
 	a.ranges = append(a.ranges, geoDistAggRange{From: nil, To: to})
 	return a
 }
 
-func (a GeoDistanceAggregation) AddUnboundedFromWithKey(key string, to float64) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) AddUnboundedFromWithKey(key string, to float64) *GeoDistanceAggregation {
 	a.ranges = append(a.ranges, geoDistAggRange{Key: key, From: nil, To: to})
 	return a
 }
 
-func (a GeoDistanceAggregation) Between(from, to interface{}) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) Between(from, to interface{}) *GeoDistanceAggregation {
 	a.ranges = append(a.ranges, geoDistAggRange{From: from, To: to})
 	return a
 }
 
-func (a GeoDistanceAggregation) BetweenWithKey(key string, from, to interface{}) GeoDistanceAggregation {
+func (a *GeoDistanceAggregation) BetweenWithKey(key string, from, to interface{}) *GeoDistanceAggregation {
 	a.ranges = append(a.ranges, geoDistAggRange{Key: key, From: from, To: to})
 	return a
 }
 
-func (a GeoDistanceAggregation) Source() (interface{}, error) {
+func (a *GeoDistanceAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//    "aggs" : {

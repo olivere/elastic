@@ -17,56 +17,55 @@ type PercentilesAggregation struct {
 	estimator       string
 }
 
-func NewPercentilesAggregation() PercentilesAggregation {
-	a := PercentilesAggregation{
+func NewPercentilesAggregation() *PercentilesAggregation {
+	return &PercentilesAggregation{
 		subAggregations: make(map[string]Aggregation),
 		percentiles:     make([]float64, 0),
 	}
-	return a
 }
 
-func (a PercentilesAggregation) Field(field string) PercentilesAggregation {
+func (a *PercentilesAggregation) Field(field string) *PercentilesAggregation {
 	a.field = field
 	return a
 }
 
-func (a PercentilesAggregation) Script(script *Script) PercentilesAggregation {
+func (a *PercentilesAggregation) Script(script *Script) *PercentilesAggregation {
 	a.script = script
 	return a
 }
 
-func (a PercentilesAggregation) Format(format string) PercentilesAggregation {
+func (a *PercentilesAggregation) Format(format string) *PercentilesAggregation {
 	a.format = format
 	return a
 }
 
-func (a PercentilesAggregation) SubAggregation(name string, subAggregation Aggregation) PercentilesAggregation {
+func (a *PercentilesAggregation) SubAggregation(name string, subAggregation Aggregation) *PercentilesAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a PercentilesAggregation) Meta(metaData map[string]interface{}) PercentilesAggregation {
+func (a *PercentilesAggregation) Meta(metaData map[string]interface{}) *PercentilesAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a PercentilesAggregation) Percentiles(percentiles ...float64) PercentilesAggregation {
+func (a *PercentilesAggregation) Percentiles(percentiles ...float64) *PercentilesAggregation {
 	a.percentiles = append(a.percentiles, percentiles...)
 	return a
 }
 
-func (a PercentilesAggregation) Compression(compression float64) PercentilesAggregation {
+func (a *PercentilesAggregation) Compression(compression float64) *PercentilesAggregation {
 	a.compression = &compression
 	return a
 }
 
-func (a PercentilesAggregation) Estimator(estimator string) PercentilesAggregation {
+func (a *PercentilesAggregation) Estimator(estimator string) *PercentilesAggregation {
 	a.estimator = estimator
 	return a
 }
 
-func (a PercentilesAggregation) Source() (interface{}, error) {
+func (a *PercentilesAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

@@ -22,56 +22,56 @@ type MinBucketAggregation struct {
 }
 
 // NewMinBucketAggregation creates and initializes a new MinBucketAggregation.
-func NewMinBucketAggregation() MinBucketAggregation {
-	return MinBucketAggregation{
+func NewMinBucketAggregation() *MinBucketAggregation {
+	return &MinBucketAggregation{
 		subAggregations: make(map[string]Aggregation),
 		bucketsPaths:    make([]string, 0),
 	}
 }
 
-func (a MinBucketAggregation) Format(format string) MinBucketAggregation {
+func (a *MinBucketAggregation) Format(format string) *MinBucketAggregation {
 	a.format = format
 	return a
 }
 
 // GapPolicy defines what should be done when a gap in the series is discovered.
 // Valid values include "insert_zeros" or "skip". Default is "insert_zeros".
-func (a MinBucketAggregation) GapPolicy(gapPolicy string) MinBucketAggregation {
+func (a *MinBucketAggregation) GapPolicy(gapPolicy string) *MinBucketAggregation {
 	a.gapPolicy = gapPolicy
 	return a
 }
 
 // GapInsertZeros inserts zeros for gaps in the series.
-func (a MinBucketAggregation) GapInsertZeros() MinBucketAggregation {
+func (a *MinBucketAggregation) GapInsertZeros() *MinBucketAggregation {
 	a.gapPolicy = "insert_zeros"
 	return a
 }
 
 // GapSkip skips gaps in the series.
-func (a MinBucketAggregation) GapSkip() MinBucketAggregation {
+func (a *MinBucketAggregation) GapSkip() *MinBucketAggregation {
 	a.gapPolicy = "skip"
 	return a
 }
 
 // SubAggregation adds a sub-aggregation to this aggregation.
-func (a MinBucketAggregation) SubAggregation(name string, subAggregation Aggregation) MinBucketAggregation {
+func (a *MinBucketAggregation) SubAggregation(name string, subAggregation Aggregation) *MinBucketAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a MinBucketAggregation) Meta(metaData map[string]interface{}) MinBucketAggregation {
+func (a *MinBucketAggregation) Meta(metaData map[string]interface{}) *MinBucketAggregation {
 	a.meta = metaData
 	return a
 }
 
 // BucketsPath sets the paths to the buckets to use for this pipeline aggregator.
-func (a MinBucketAggregation) BucketsPath(bucketsPaths ...string) MinBucketAggregation {
+func (a *MinBucketAggregation) BucketsPath(bucketsPaths ...string) *MinBucketAggregation {
 	a.bucketsPaths = append(a.bucketsPaths, bucketsPaths...)
 	return a
 }
 
-func (a MinBucketAggregation) Source() (interface{}, error) {
+func (a *MinBucketAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source["min_bucket"] = params

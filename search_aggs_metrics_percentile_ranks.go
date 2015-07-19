@@ -17,56 +17,55 @@ type PercentileRanksAggregation struct {
 	estimator       string
 }
 
-func NewPercentileRanksAggregation() PercentileRanksAggregation {
-	a := PercentileRanksAggregation{
+func NewPercentileRanksAggregation() *PercentileRanksAggregation {
+	return &PercentileRanksAggregation{
 		subAggregations: make(map[string]Aggregation),
 		values:          make([]float64, 0),
 	}
-	return a
 }
 
-func (a PercentileRanksAggregation) Field(field string) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Field(field string) *PercentileRanksAggregation {
 	a.field = field
 	return a
 }
 
-func (a PercentileRanksAggregation) Script(script *Script) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Script(script *Script) *PercentileRanksAggregation {
 	a.script = script
 	return a
 }
 
-func (a PercentileRanksAggregation) Format(format string) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Format(format string) *PercentileRanksAggregation {
 	a.format = format
 	return a
 }
 
-func (a PercentileRanksAggregation) SubAggregation(name string, subAggregation Aggregation) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) SubAggregation(name string, subAggregation Aggregation) *PercentileRanksAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a PercentileRanksAggregation) Meta(metaData map[string]interface{}) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Meta(metaData map[string]interface{}) *PercentileRanksAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a PercentileRanksAggregation) Values(values ...float64) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Values(values ...float64) *PercentileRanksAggregation {
 	a.values = append(a.values, values...)
 	return a
 }
 
-func (a PercentileRanksAggregation) Compression(compression float64) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Compression(compression float64) *PercentileRanksAggregation {
 	a.compression = &compression
 	return a
 }
 
-func (a PercentileRanksAggregation) Estimator(estimator string) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Estimator(estimator string) *PercentileRanksAggregation {
 	a.estimator = estimator
 	return a
 }
 
-func (a PercentileRanksAggregation) Source() (interface{}, error) {
+func (a *PercentileRanksAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

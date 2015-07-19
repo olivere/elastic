@@ -28,30 +28,29 @@ type DateHistogramAggregation struct {
 	factor                     *float64
 }
 
-func NewDateHistogramAggregation() DateHistogramAggregation {
-	a := DateHistogramAggregation{
+func NewDateHistogramAggregation() *DateHistogramAggregation {
+	return &DateHistogramAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a DateHistogramAggregation) Field(field string) DateHistogramAggregation {
+func (a *DateHistogramAggregation) Field(field string) *DateHistogramAggregation {
 	a.field = field
 	return a
 }
 
-func (a DateHistogramAggregation) Script(script *Script) DateHistogramAggregation {
+func (a *DateHistogramAggregation) Script(script *Script) *DateHistogramAggregation {
 	a.script = script
 	return a
 }
 
-func (a DateHistogramAggregation) SubAggregation(name string, subAggregation Aggregation) DateHistogramAggregation {
+func (a *DateHistogramAggregation) SubAggregation(name string, subAggregation Aggregation) *DateHistogramAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a DateHistogramAggregation) Meta(metaData map[string]interface{}) DateHistogramAggregation {
+func (a *DateHistogramAggregation) Meta(metaData map[string]interface{}) *DateHistogramAggregation {
 	a.meta = metaData
 	return a
 }
@@ -59,7 +58,7 @@ func (a DateHistogramAggregation) Meta(metaData map[string]interface{}) DateHist
 // Allowed values are: "year", "quarter", "month", "week", "day",
 // "hour", "minute". It also supports time settings like "1.5h"
 // (up to "w" for weeks).
-func (a DateHistogramAggregation) Interval(interval string) DateHistogramAggregation {
+func (a *DateHistogramAggregation) Interval(interval string) *DateHistogramAggregation {
 	a.interval = interval
 	return a
 }
@@ -67,45 +66,45 @@ func (a DateHistogramAggregation) Interval(interval string) DateHistogramAggrega
 // Order specifies the sort order. Valid values for order are:
 // "_key", "_count", a sub-aggregation name, or a sub-aggregation name
 // with a metric.
-func (a DateHistogramAggregation) Order(order string, asc bool) DateHistogramAggregation {
+func (a *DateHistogramAggregation) Order(order string, asc bool) *DateHistogramAggregation {
 	a.order = order
 	a.orderAsc = asc
 	return a
 }
 
-func (a DateHistogramAggregation) OrderByCount(asc bool) DateHistogramAggregation {
+func (a *DateHistogramAggregation) OrderByCount(asc bool) *DateHistogramAggregation {
 	// "order" : { "_count" : "asc" }
 	a.order = "_count"
 	a.orderAsc = asc
 	return a
 }
 
-func (a DateHistogramAggregation) OrderByCountAsc() DateHistogramAggregation {
+func (a *DateHistogramAggregation) OrderByCountAsc() *DateHistogramAggregation {
 	return a.OrderByCount(true)
 }
 
-func (a DateHistogramAggregation) OrderByCountDesc() DateHistogramAggregation {
+func (a *DateHistogramAggregation) OrderByCountDesc() *DateHistogramAggregation {
 	return a.OrderByCount(false)
 }
 
-func (a DateHistogramAggregation) OrderByKey(asc bool) DateHistogramAggregation {
+func (a *DateHistogramAggregation) OrderByKey(asc bool) *DateHistogramAggregation {
 	// "order" : { "_key" : "asc" }
 	a.order = "_key"
 	a.orderAsc = asc
 	return a
 }
 
-func (a DateHistogramAggregation) OrderByKeyAsc() DateHistogramAggregation {
+func (a *DateHistogramAggregation) OrderByKeyAsc() *DateHistogramAggregation {
 	return a.OrderByKey(true)
 }
 
-func (a DateHistogramAggregation) OrderByKeyDesc() DateHistogramAggregation {
+func (a *DateHistogramAggregation) OrderByKeyDesc() *DateHistogramAggregation {
 	return a.OrderByKey(false)
 }
 
 // OrderByAggregation creates a bucket ordering strategy which sorts buckets
 // based on a single-valued calc get.
-func (a DateHistogramAggregation) OrderByAggregation(aggName string, asc bool) DateHistogramAggregation {
+func (a *DateHistogramAggregation) OrderByAggregation(aggName string, asc bool) *DateHistogramAggregation {
 	// {
 	//     "aggs" : {
 	//         "genders" : {
@@ -126,7 +125,7 @@ func (a DateHistogramAggregation) OrderByAggregation(aggName string, asc bool) D
 
 // OrderByAggregationAndMetric creates a bucket ordering strategy which
 // sorts buckets based on a multi-valued calc get.
-func (a DateHistogramAggregation) OrderByAggregationAndMetric(aggName, metric string, asc bool) DateHistogramAggregation {
+func (a *DateHistogramAggregation) OrderByAggregationAndMetric(aggName, metric string, asc bool) *DateHistogramAggregation {
 	// {
 	//     "aggs" : {
 	//         "genders" : {
@@ -145,59 +144,59 @@ func (a DateHistogramAggregation) OrderByAggregationAndMetric(aggName, metric st
 	return a
 }
 
-func (a DateHistogramAggregation) MinDocCount(minDocCount int64) DateHistogramAggregation {
+func (a *DateHistogramAggregation) MinDocCount(minDocCount int64) *DateHistogramAggregation {
 	a.minDocCount = &minDocCount
 	return a
 }
 
-func (a DateHistogramAggregation) PreZone(preZone string) DateHistogramAggregation {
+func (a *DateHistogramAggregation) PreZone(preZone string) *DateHistogramAggregation {
 	a.preZone = preZone
 	return a
 }
 
-func (a DateHistogramAggregation) PostZone(postZone string) DateHistogramAggregation {
+func (a *DateHistogramAggregation) PostZone(postZone string) *DateHistogramAggregation {
 	a.postZone = postZone
 	return a
 }
 
-func (a DateHistogramAggregation) PreZoneAdjustLargeInterval(preZoneAdjustLargeInterval bool) DateHistogramAggregation {
+func (a *DateHistogramAggregation) PreZoneAdjustLargeInterval(preZoneAdjustLargeInterval bool) *DateHistogramAggregation {
 	a.preZoneAdjustLargeInterval = &preZoneAdjustLargeInterval
 	return a
 }
 
-func (a DateHistogramAggregation) PreOffset(preOffset int64) DateHistogramAggregation {
+func (a *DateHistogramAggregation) PreOffset(preOffset int64) *DateHistogramAggregation {
 	a.preOffset = preOffset
 	return a
 }
 
-func (a DateHistogramAggregation) PostOffset(postOffset int64) DateHistogramAggregation {
+func (a *DateHistogramAggregation) PostOffset(postOffset int64) *DateHistogramAggregation {
 	a.postOffset = postOffset
 	return a
 }
 
-func (a DateHistogramAggregation) Factor(factor float64) DateHistogramAggregation {
+func (a *DateHistogramAggregation) Factor(factor float64) *DateHistogramAggregation {
 	a.factor = &factor
 	return a
 }
 
-func (a DateHistogramAggregation) Format(format string) DateHistogramAggregation {
+func (a *DateHistogramAggregation) Format(format string) *DateHistogramAggregation {
 	a.format = format
 	return a
 }
 
 // ExtendedBoundsMin accepts int, int64, string, or time.Time values.
-func (a DateHistogramAggregation) ExtendedBoundsMin(min interface{}) DateHistogramAggregation {
+func (a *DateHistogramAggregation) ExtendedBoundsMin(min interface{}) *DateHistogramAggregation {
 	a.extendedBoundsMin = min
 	return a
 }
 
 // ExtendedBoundsMax accepts int, int64, string, or time.Time values.
-func (a DateHistogramAggregation) ExtendedBoundsMax(max interface{}) DateHistogramAggregation {
+func (a *DateHistogramAggregation) ExtendedBoundsMax(max interface{}) *DateHistogramAggregation {
 	a.extendedBoundsMax = max
 	return a
 }
 
-func (a DateHistogramAggregation) Source() (interface{}, error) {
+func (a *DateHistogramAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//     "aggs" : {

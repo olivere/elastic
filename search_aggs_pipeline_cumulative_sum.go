@@ -20,37 +20,37 @@ type CumulativeSumAggregation struct {
 }
 
 // NewCumulativeSumAggregation creates and initializes a new CumulativeSumAggregation.
-func NewCumulativeSumAggregation() CumulativeSumAggregation {
-	return CumulativeSumAggregation{
+func NewCumulativeSumAggregation() *CumulativeSumAggregation {
+	return &CumulativeSumAggregation{
 		subAggregations: make(map[string]Aggregation),
 		bucketsPaths:    make([]string, 0),
 	}
 }
 
-func (a CumulativeSumAggregation) Format(format string) CumulativeSumAggregation {
+func (a *CumulativeSumAggregation) Format(format string) *CumulativeSumAggregation {
 	a.format = format
 	return a
 }
 
 // SubAggregation adds a sub-aggregation to this aggregation.
-func (a CumulativeSumAggregation) SubAggregation(name string, subAggregation Aggregation) CumulativeSumAggregation {
+func (a *CumulativeSumAggregation) SubAggregation(name string, subAggregation Aggregation) *CumulativeSumAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a CumulativeSumAggregation) Meta(metaData map[string]interface{}) CumulativeSumAggregation {
+func (a *CumulativeSumAggregation) Meta(metaData map[string]interface{}) *CumulativeSumAggregation {
 	a.meta = metaData
 	return a
 }
 
 // BucketsPath sets the paths to the buckets to use for this pipeline aggregator.
-func (a CumulativeSumAggregation) BucketsPath(bucketsPaths ...string) CumulativeSumAggregation {
+func (a *CumulativeSumAggregation) BucketsPath(bucketsPaths ...string) *CumulativeSumAggregation {
 	a.bucketsPaths = append(a.bucketsPaths, bucketsPaths...)
 	return a
 }
 
-func (a CumulativeSumAggregation) Source() (interface{}, error) {
+func (a *CumulativeSumAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source["cumulative_sum"] = params

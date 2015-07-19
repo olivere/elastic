@@ -18,30 +18,29 @@ type MissingAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewMissingAggregation() MissingAggregation {
-	a := MissingAggregation{
+func NewMissingAggregation() *MissingAggregation {
+	return &MissingAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a MissingAggregation) Field(field string) MissingAggregation {
+func (a *MissingAggregation) Field(field string) *MissingAggregation {
 	a.field = field
 	return a
 }
 
-func (a MissingAggregation) SubAggregation(name string, subAggregation Aggregation) MissingAggregation {
+func (a *MissingAggregation) SubAggregation(name string, subAggregation Aggregation) *MissingAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a MissingAggregation) Meta(metaData map[string]interface{}) MissingAggregation {
+func (a *MissingAggregation) Meta(metaData map[string]interface{}) *MissingAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a MissingAggregation) Source() (interface{}, error) {
+func (a *MissingAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

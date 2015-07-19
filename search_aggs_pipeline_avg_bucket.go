@@ -21,56 +21,56 @@ type AvgBucketAggregation struct {
 }
 
 // NewAvgBucketAggregation creates and initializes a new AvgBucketAggregation.
-func NewAvgBucketAggregation() AvgBucketAggregation {
-	return AvgBucketAggregation{
+func NewAvgBucketAggregation() *AvgBucketAggregation {
+	return &AvgBucketAggregation{
 		subAggregations: make(map[string]Aggregation),
 		bucketsPaths:    make([]string, 0),
 	}
 }
 
-func (a AvgBucketAggregation) Format(format string) AvgBucketAggregation {
+func (a *AvgBucketAggregation) Format(format string) *AvgBucketAggregation {
 	a.format = format
 	return a
 }
 
 // GapPolicy defines what should be done when a gap in the series is discovered.
 // Valid values include "insert_zeros" or "skip". Default is "insert_zeros".
-func (a AvgBucketAggregation) GapPolicy(gapPolicy string) AvgBucketAggregation {
+func (a *AvgBucketAggregation) GapPolicy(gapPolicy string) *AvgBucketAggregation {
 	a.gapPolicy = gapPolicy
 	return a
 }
 
 // GapInsertZeros inserts zeros for gaps in the series.
-func (a AvgBucketAggregation) GapInsertZeros() AvgBucketAggregation {
+func (a *AvgBucketAggregation) GapInsertZeros() *AvgBucketAggregation {
 	a.gapPolicy = "insert_zeros"
 	return a
 }
 
 // GapSkip skips gaps in the series.
-func (a AvgBucketAggregation) GapSkip() AvgBucketAggregation {
+func (a *AvgBucketAggregation) GapSkip() *AvgBucketAggregation {
 	a.gapPolicy = "skip"
 	return a
 }
 
 // SubAggregation adds a sub-aggregation to this aggregation.
-func (a AvgBucketAggregation) SubAggregation(name string, subAggregation Aggregation) AvgBucketAggregation {
+func (a *AvgBucketAggregation) SubAggregation(name string, subAggregation Aggregation) *AvgBucketAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a AvgBucketAggregation) Meta(metaData map[string]interface{}) AvgBucketAggregation {
+func (a *AvgBucketAggregation) Meta(metaData map[string]interface{}) *AvgBucketAggregation {
 	a.meta = metaData
 	return a
 }
 
 // BucketsPath sets the paths to the buckets to use for this pipeline aggregator.
-func (a AvgBucketAggregation) BucketsPath(bucketsPaths ...string) AvgBucketAggregation {
+func (a *AvgBucketAggregation) BucketsPath(bucketsPaths ...string) *AvgBucketAggregation {
 	a.bucketsPaths = append(a.bucketsPaths, bucketsPaths...)
 	return a
 }
 
-func (a AvgBucketAggregation) Source() (interface{}, error) {
+func (a *AvgBucketAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source["avg_bucket"] = params

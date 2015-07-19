@@ -23,35 +23,34 @@ type HistogramAggregation struct {
 	extendedBoundsMax *int64
 }
 
-func NewHistogramAggregation() HistogramAggregation {
-	a := HistogramAggregation{
+func NewHistogramAggregation() *HistogramAggregation {
+	return &HistogramAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a HistogramAggregation) Field(field string) HistogramAggregation {
+func (a *HistogramAggregation) Field(field string) *HistogramAggregation {
 	a.field = field
 	return a
 }
 
-func (a HistogramAggregation) Script(script *Script) HistogramAggregation {
+func (a *HistogramAggregation) Script(script *Script) *HistogramAggregation {
 	a.script = script
 	return a
 }
 
-func (a HistogramAggregation) SubAggregation(name string, subAggregation Aggregation) HistogramAggregation {
+func (a *HistogramAggregation) SubAggregation(name string, subAggregation Aggregation) *HistogramAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a HistogramAggregation) Meta(metaData map[string]interface{}) HistogramAggregation {
+func (a *HistogramAggregation) Meta(metaData map[string]interface{}) *HistogramAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a HistogramAggregation) Interval(interval int64) HistogramAggregation {
+func (a *HistogramAggregation) Interval(interval int64) *HistogramAggregation {
 	a.interval = interval
 	return a
 }
@@ -59,45 +58,45 @@ func (a HistogramAggregation) Interval(interval int64) HistogramAggregation {
 // Order specifies the sort order. Valid values for order are:
 // "_key", "_count", a sub-aggregation name, or a sub-aggregation name
 // with a metric.
-func (a HistogramAggregation) Order(order string, asc bool) HistogramAggregation {
+func (a *HistogramAggregation) Order(order string, asc bool) *HistogramAggregation {
 	a.order = order
 	a.orderAsc = asc
 	return a
 }
 
-func (a HistogramAggregation) OrderByCount(asc bool) HistogramAggregation {
+func (a *HistogramAggregation) OrderByCount(asc bool) *HistogramAggregation {
 	// "order" : { "_count" : "asc" }
 	a.order = "_count"
 	a.orderAsc = asc
 	return a
 }
 
-func (a HistogramAggregation) OrderByCountAsc() HistogramAggregation {
+func (a *HistogramAggregation) OrderByCountAsc() *HistogramAggregation {
 	return a.OrderByCount(true)
 }
 
-func (a HistogramAggregation) OrderByCountDesc() HistogramAggregation {
+func (a *HistogramAggregation) OrderByCountDesc() *HistogramAggregation {
 	return a.OrderByCount(false)
 }
 
-func (a HistogramAggregation) OrderByKey(asc bool) HistogramAggregation {
+func (a *HistogramAggregation) OrderByKey(asc bool) *HistogramAggregation {
 	// "order" : { "_key" : "asc" }
 	a.order = "_key"
 	a.orderAsc = asc
 	return a
 }
 
-func (a HistogramAggregation) OrderByKeyAsc() HistogramAggregation {
+func (a *HistogramAggregation) OrderByKeyAsc() *HistogramAggregation {
 	return a.OrderByKey(true)
 }
 
-func (a HistogramAggregation) OrderByKeyDesc() HistogramAggregation {
+func (a *HistogramAggregation) OrderByKeyDesc() *HistogramAggregation {
 	return a.OrderByKey(false)
 }
 
 // OrderByAggregation creates a bucket ordering strategy which sorts buckets
 // based on a single-valued calc get.
-func (a HistogramAggregation) OrderByAggregation(aggName string, asc bool) HistogramAggregation {
+func (a *HistogramAggregation) OrderByAggregation(aggName string, asc bool) *HistogramAggregation {
 	// {
 	//     "aggs" : {
 	//         "genders" : {
@@ -118,7 +117,7 @@ func (a HistogramAggregation) OrderByAggregation(aggName string, asc bool) Histo
 
 // OrderByAggregationAndMetric creates a bucket ordering strategy which
 // sorts buckets based on a multi-valued calc get.
-func (a HistogramAggregation) OrderByAggregationAndMetric(aggName, metric string, asc bool) HistogramAggregation {
+func (a *HistogramAggregation) OrderByAggregationAndMetric(aggName, metric string, asc bool) *HistogramAggregation {
 	// {
 	//     "aggs" : {
 	//         "genders" : {
@@ -137,22 +136,22 @@ func (a HistogramAggregation) OrderByAggregationAndMetric(aggName, metric string
 	return a
 }
 
-func (a HistogramAggregation) MinDocCount(minDocCount int64) HistogramAggregation {
+func (a *HistogramAggregation) MinDocCount(minDocCount int64) *HistogramAggregation {
 	a.minDocCount = &minDocCount
 	return a
 }
 
-func (a HistogramAggregation) ExtendedBoundsMin(min int64) HistogramAggregation {
+func (a *HistogramAggregation) ExtendedBoundsMin(min int64) *HistogramAggregation {
 	a.extendedBoundsMin = &min
 	return a
 }
 
-func (a HistogramAggregation) ExtendedBoundsMax(max int64) HistogramAggregation {
+func (a *HistogramAggregation) ExtendedBoundsMax(max int64) *HistogramAggregation {
 	a.extendedBoundsMax = &max
 	return a
 }
 
-func (a HistogramAggregation) Source() (interface{}, error) {
+func (a *HistogramAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
 	//     "aggs" : {

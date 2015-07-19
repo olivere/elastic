@@ -20,40 +20,39 @@ type ValueCountAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewValueCountAggregation() ValueCountAggregation {
-	a := ValueCountAggregation{
+func NewValueCountAggregation() *ValueCountAggregation {
+	return &ValueCountAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a ValueCountAggregation) Field(field string) ValueCountAggregation {
+func (a *ValueCountAggregation) Field(field string) *ValueCountAggregation {
 	a.field = field
 	return a
 }
 
-func (a ValueCountAggregation) Script(script *Script) ValueCountAggregation {
+func (a *ValueCountAggregation) Script(script *Script) *ValueCountAggregation {
 	a.script = script
 	return a
 }
 
-func (a ValueCountAggregation) Format(format string) ValueCountAggregation {
+func (a *ValueCountAggregation) Format(format string) *ValueCountAggregation {
 	a.format = format
 	return a
 }
 
-func (a ValueCountAggregation) SubAggregation(name string, subAggregation Aggregation) ValueCountAggregation {
+func (a *ValueCountAggregation) SubAggregation(name string, subAggregation Aggregation) *ValueCountAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a ValueCountAggregation) Meta(metaData map[string]interface{}) ValueCountAggregation {
+func (a *ValueCountAggregation) Meta(metaData map[string]interface{}) *ValueCountAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a ValueCountAggregation) Source() (interface{}, error) {
+func (a *ValueCountAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

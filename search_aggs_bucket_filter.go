@@ -15,30 +15,29 @@ type FilterAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewFilterAggregation() FilterAggregation {
-	a := FilterAggregation{
+func NewFilterAggregation() *FilterAggregation {
+	return &FilterAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a FilterAggregation) SubAggregation(name string, subAggregation Aggregation) FilterAggregation {
+func (a *FilterAggregation) SubAggregation(name string, subAggregation Aggregation) *FilterAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a FilterAggregation) Meta(metaData map[string]interface{}) FilterAggregation {
+func (a *FilterAggregation) Meta(metaData map[string]interface{}) *FilterAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a FilterAggregation) Filter(filter Query) FilterAggregation {
+func (a *FilterAggregation) Filter(filter Query) *FilterAggregation {
 	a.filter = filter
 	return a
 }
 
-func (a FilterAggregation) Source() (interface{}, error) {
+func (a *FilterAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

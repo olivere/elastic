@@ -18,40 +18,39 @@ type MinAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewMinAggregation() MinAggregation {
-	a := MinAggregation{
+func NewMinAggregation() *MinAggregation {
+	return &MinAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a MinAggregation) Field(field string) MinAggregation {
+func (a *MinAggregation) Field(field string) *MinAggregation {
 	a.field = field
 	return a
 }
 
-func (a MinAggregation) Script(script *Script) MinAggregation {
+func (a *MinAggregation) Script(script *Script) *MinAggregation {
 	a.script = script
 	return a
 }
 
-func (a MinAggregation) Format(format string) MinAggregation {
+func (a *MinAggregation) Format(format string) *MinAggregation {
 	a.format = format
 	return a
 }
 
-func (a MinAggregation) SubAggregation(name string, subAggregation Aggregation) MinAggregation {
+func (a *MinAggregation) SubAggregation(name string, subAggregation Aggregation) *MinAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a MinAggregation) Meta(metaData map[string]interface{}) MinAggregation {
+func (a *MinAggregation) Meta(metaData map[string]interface{}) *MinAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a MinAggregation) Source() (interface{}, error) {
+func (a *MinAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

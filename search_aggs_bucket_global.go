@@ -14,25 +14,24 @@ type GlobalAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewGlobalAggregation() GlobalAggregation {
-	a := GlobalAggregation{
+func NewGlobalAggregation() *GlobalAggregation {
+	return &GlobalAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a GlobalAggregation) SubAggregation(name string, subAggregation Aggregation) GlobalAggregation {
+func (a *GlobalAggregation) SubAggregation(name string, subAggregation Aggregation) *GlobalAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a GlobalAggregation) Meta(metaData map[string]interface{}) GlobalAggregation {
+func (a *GlobalAggregation) Meta(metaData map[string]interface{}) *GlobalAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a GlobalAggregation) Source() (interface{}, error) {
+func (a *GlobalAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {

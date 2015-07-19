@@ -13,30 +13,29 @@ type NestedAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewNestedAggregation() NestedAggregation {
-	a := NestedAggregation{
+func NewNestedAggregation() *NestedAggregation {
+	return &NestedAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a NestedAggregation) SubAggregation(name string, subAggregation Aggregation) NestedAggregation {
+func (a *NestedAggregation) SubAggregation(name string, subAggregation Aggregation) *NestedAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a NestedAggregation) Meta(metaData map[string]interface{}) NestedAggregation {
+func (a *NestedAggregation) Meta(metaData map[string]interface{}) *NestedAggregation {
 	a.meta = metaData
 	return a
 }
 
-func (a NestedAggregation) Path(path string) NestedAggregation {
+func (a *NestedAggregation) Path(path string) *NestedAggregation {
 	a.path = path
 	return a
 }
 
-func (a NestedAggregation) Source() (interface{}, error) {
+func (a *NestedAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//     "query" : {

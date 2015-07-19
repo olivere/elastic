@@ -18,39 +18,38 @@ type MaxAggregation struct {
 	meta            map[string]interface{}
 }
 
-func NewMaxAggregation() MaxAggregation {
-	a := MaxAggregation{
+func NewMaxAggregation() *MaxAggregation {
+	return &MaxAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a MaxAggregation) Field(field string) MaxAggregation {
+func (a *MaxAggregation) Field(field string) *MaxAggregation {
 	a.field = field
 	return a
 }
 
-func (a MaxAggregation) Script(script *Script) MaxAggregation {
+func (a *MaxAggregation) Script(script *Script) *MaxAggregation {
 	a.script = script
 	return a
 }
 
-func (a MaxAggregation) Format(format string) MaxAggregation {
+func (a *MaxAggregation) Format(format string) *MaxAggregation {
 	a.format = format
 	return a
 }
 
-func (a MaxAggregation) SubAggregation(name string, subAggregation Aggregation) MaxAggregation {
+func (a *MaxAggregation) SubAggregation(name string, subAggregation Aggregation) *MaxAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
 // Meta sets the meta data to be included in the aggregation response.
-func (a MaxAggregation) Meta(metaData map[string]interface{}) MaxAggregation {
+func (a *MaxAggregation) Meta(metaData map[string]interface{}) *MaxAggregation {
 	a.meta = metaData
 	return a
 }
-func (a MaxAggregation) Source() (interface{}, error) {
+func (a *MaxAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
 	//    "aggs" : {
