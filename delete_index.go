@@ -7,7 +7,7 @@ package elastic
 import (
 	"encoding/json"
 
-	"github.com/olivere/elastic/uritemplates"
+	"gopkg.in/olivere/elastic.v2/uritemplates"
 )
 
 type DeleteIndexService struct {

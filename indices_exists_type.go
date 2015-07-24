@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+	"gopkg.in/olivere/elastic.v2/uritemplates"
 )
 
 // IndicesExistsTypeService checks if one or more types exist in one or more indices.

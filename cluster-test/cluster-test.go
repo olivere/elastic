@@ -17,7 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/olivere/elastic"
+	elastic "gopkg.in/olivere/elastic.v2"
 )
 
 type Tweet struct {
