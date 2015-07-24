@@ -23,6 +23,20 @@ func TestSearchSourceMatchAllQuery(t *testing.T) {
 	}
 }
 
+func TestSearchSourceFromAndSize(t *testing.T) {
+	matchAllQ := NewMatchAllQuery()
+	builder := NewSearchSource().Query(matchAllQ).From(21).Size(20)
+	data, err := json.Marshal(builder.Source())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"from":21,"query":{"match_all":{}},"size":20}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestSearchSourceNoFields(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	builder := NewSearchSource().Query(matchAllQ).NoFields()
