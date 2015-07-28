@@ -7,28 +7,18 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
-
-	"github.com/olivere/elastic/uritemplates"
 )
 
-var (
-	_ = fmt.Print
-	_ = log.Print
-	_ = strings.Index
-	_ = uritemplates.Expand
-	_ = url.Parse
-)
-
-// ClearScrollService is documented at http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/search-request-scroll.html.
+// ClearScrollService clears one or more scroll contexts by their ids.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html#_clear_scroll_api
+// for details.
 type ClearScrollService struct {
-	client     *Client
-	pretty     bool
-	scrollId   []string
-	bodyJson   interface{}
-	bodyString string
+	client   *Client
+	pretty   bool
+	scrollId []string
 }
 
 // NewClearScrollService creates a new ClearScrollService.
@@ -46,17 +36,34 @@ func (s *ClearScrollService) ScrollId(scrollIds ...string) *ClearScrollService {
 	return s
 }
 
+// Pretty indicates that the JSON response be indented and human readable.
+func (s *ClearScrollService) Pretty(pretty bool) *ClearScrollService {
+	s.pretty = pretty
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *ClearScrollService) buildURL() (string, url.Values, error) {
-	path, err := uritemplates.Expand("/_search/scroll", map[string]string{})
-	if err != nil {
-		return "", url.Values{}, err
+	// Build URL
+	path := "/_search/scroll/"
+
+	// Add query string parameters
+	params := url.Values{}
+	if s.pretty {
+		params.Set("pretty", "1")
 	}
-	return path, url.Values{}, nil
+	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
 func (s *ClearScrollService) Validate() error {
+	var invalid []string
+	if len(s.scrollId) == 0 {
+		invalid = append(invalid, "ScrollId")
+	}
+	if len(invalid) > 0 {
+		return fmt.Errorf("missing required fields: %v", invalid)
+	}
 	return nil
 }
 

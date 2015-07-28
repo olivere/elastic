@@ -70,3 +70,16 @@ func TestClearScroll(t *testing.T) {
 		t.Fatalf("expected scroll to fail")
 	}
 }
+
+func TestClearScrollValidate(t *testing.T) {
+	client := setupTestClient(t)
+
+	// No scroll id -> fail with error
+	res, err := NewClearScrollService(client).Do()
+	if err == nil {
+		t.Fatalf("expected ClearScroll to fail without scroll ids")
+	}
+	if res != nil {
+		t.Fatalf("expected result to be nil; got: %v", res)
+	}
+}
