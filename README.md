@@ -247,16 +247,16 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Significant Terms
   - [x] Terms
 - Pipeline Aggregations
-  - [ ] Avg Bucket
-  - [ ] Derivative
-  - [ ] Max Bucket
-  - [ ] Min Bucket
-  - [ ] Sum Bucket
-  - [ ] Moving Average
-  - [ ] Cumulative Sum
-  - [ ] Bucket Script
-  - [ ] Bucket Selector
-  - [ ] Serial Differencing
+  - [x] Avg Bucket
+  - [x] Derivative
+  - [x] Max Bucket
+  - [x] Min Bucket
+  - [x] Sum Bucket
+  - [x] Moving Average
+  - [x] Cumulative Sum
+  - [x] Bucket Script
+  - [x] Bucket Selector
+  - [x] Serial Differencing
 - [x] Aggregation Metadata
 
 ### Indices APIs
