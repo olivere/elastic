@@ -185,13 +185,24 @@ Example for Elastic 3.0 (new):
 q := elastic.NewHasChildQuery("tweet", elastic.NewMatchAllQuery())
 ```
 
-## HasPlugin helper
+## SetBasicAuth client option
 
-Some of the core functionality of Elasticsearch has now been moved into plugins. E.g. the Delete-by-Query API is [a plugin now]().
+You can now tell Elastic to pass HTTP Basic Auth credentials with each request. In previous versions of Elastic you had to set up your own `http.Transport` to do this. This should make it more convenient to use Elastic in combination with [Shield](https://www.elastic.co/products/shield) in its [basic setup](https://www.elastic.co/guide/en/shield/current/enable-basic-auth.html).
+
+Example:
+
+```go
+client, err := elastic.NewClient(elastic.SetBasicAuth("user", "secret"))
+if err != nil {
+  log.Fatal(err)
+}
+```
+
+## HasPlugin and SetRequiredPlugins
+
+Some of the core functionality of Elasticsearch has now been moved into plugins. E.g. the Delete-by-Query API is [a plugin now](https://www.elastic.co/guide/en/elasticsearch/client/java-api/master/java-docs-delete-by-query.html).
 
 You need to make sure to add these plugins to your Elasticsearch installation to still be able to use the `DeleteByQueryService`. You can test this now with the `HasPlugin(name string)` helper in the client.
-
-TODO Implement this first
 
 Example for Elastic 3.0 (new):
 
@@ -202,9 +213,19 @@ if err == nil && found {
 }
 ```
 
+To simplify this process, there is now a `SetRequiredPlugins` helper that can be passed as an option func when creating a new client. If the plugin is not installed, the client wouldn't be created in the first place.
+
+```go
+// Will raise an error if the "delete-by-query" plugin is NOT installed
+client, err := elastic.NewClient(elastic.SetRequiredPlugins("delete-by-query"))
+if err != nil {
+  log.Fatal(err)
+}
+```
+
 ## Delete-by-Query API
 
-The Delete-by-Query API is [a plugin now](). It is no longer core part of Elasticsearch.
+The Delete-by-Query API is [a plugin now](https://www.elastic.co/guide/en/elasticsearch/client/java-api/master/java-docs-delete-by-query.html). It is no longer core part of Elasticsearch.
 
 Elastic 3.0 still contains the `DeleteByQueryService` but it will fail with `ErrPluginNotFound` when the plugin is not installed.
 
@@ -276,20 +297,6 @@ update, err := client.Update().Index("twitter").Type("tweet").Id("1").
 	Upsert(map[string]interface{}{"retweets": 0}).
 	Do()
 ```
-
-## SetBasicAuth helper
-
-You can now Elastic to pass HTTP Basic Auth credentials with each request. In previous versions of Elastic you had to set up your own `http.Transport` to do this. This should make it more convenient to use Elastic in combination with Shield in its [basic setup](https://www.elastic.co/guide/en/shield/current/enable-basic-auth.html).
-
-Example:
-
-```go
-client, err := elastic.NewClient(elastic.SetBasicAuth("user", "secret"))
-if err != nil {
-  t.Fatal(err)
-}
-```
-
 
 ## Services
 

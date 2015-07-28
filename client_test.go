@@ -186,6 +186,16 @@ func TestClientSniffDisabled(t *testing.T) {
 	}
 }
 
+func TestClientWithRequiredPlugins(t *testing.T) {
+	_, err := NewClient(SetRequiredPlugins("no-such-plugin"))
+	if err == nil {
+		t.Fatal("expected error when creating client")
+	}
+	if got, want := err.Error(), "elastic: plugin no-such-plugin not found"; got != want {
+		t.Fatalf("expected error %q; got: %q", want, got)
+	}
+}
+
 // -- Start and stop --
 
 func TestClientStartAndStop(t *testing.T) {

@@ -121,6 +121,7 @@ type Client struct {
 	basicAuth                 bool          // indicates whether to send HTTP Basic Auth credentials
 	basicAuthUsername         string        // username for HTTP Basic Auth
 	basicAuthPassword         string        // password for HTTP Basic Auth
+	requiredPlugins           []string      // list of required plugins
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -217,6 +218,17 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	c.healthcheck(c.healthcheckTimeoutStartup, true)
 	if err := c.mustActiveConn(); err != nil {
 		return nil, err
+	}
+
+	// Check the required plugins
+	for _, plugin := range c.requiredPlugins {
+		found, err := c.HasPlugin(plugin)
+		if err != nil {
+			return nil, err
+		}
+		if !found {
+			return nil, fmt.Errorf("elastic: plugin %s not found", plugin)
+		}
 	}
 
 	go c.sniffer()       // periodically update cluster information
@@ -377,6 +389,18 @@ func SetDecoder(decoder Decoder) func(*Client) error {
 		} else {
 			c.decoder = &DefaultDecoder{}
 		}
+		return nil
+	}
+}
+
+// SetRequiredPlugins can be used to indicate that some plugins are required
+// before a Client will be created.
+func SetRequiredPlugins(plugins ...string) ClientOptionFunc {
+	return func(c *Client) error {
+		if c.requiredPlugins == nil {
+			c.requiredPlugins = make([]string, 0)
+		}
+		c.requiredPlugins = append(c.requiredPlugins, plugins...)
 		return nil
 	}
 }
