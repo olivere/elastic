@@ -118,6 +118,9 @@ type Client struct {
 	snifferInterval           time.Duration // interval between sniffing
 	snifferStop               chan bool     // notify sniffer to stop, and notify back
 	decoder                   Decoder       // used to decode data sent from Elasticsearch
+	basicAuth                 bool          // indicates whether to send HTTP Basic Auth credentials
+	basicAuthUsername         string        // username for HTTP Basic Auth
+	basicAuthPassword         string        // password for HTTP Basic Auth
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -129,7 +132,8 @@ type Client struct {
 //
 //   client, err := elastic.NewClient(
 //     elastic.SetURL("http://localhost:9200", "http://localhost:9201"),
-//     elastic.SetMaxRetries(10))
+//     elastic.SetMaxRetries(10),
+//     elastic.SetBasicAuth("user", "secret"))
 //
 // If no URL is configured, Elastic uses DefaultURL by default.
 //
@@ -234,6 +238,17 @@ func SetHttpClient(httpClient *http.Client) ClientOptionFunc {
 		} else {
 			c.c = http.DefaultClient
 		}
+		return nil
+	}
+}
+
+// SetBasicAuth can be used to specify the HTTP Basic Auth credentials to
+// use when making HTTP requests to Elasticsearch.
+func SetBasicAuth(username, password string) ClientOptionFunc {
+	return func(c *Client) error {
+		c.basicAuthUsername = username
+		c.basicAuthPassword = password
+		c.basicAuth = c.basicAuthUsername != "" || c.basicAuthPassword != ""
 		return nil
 	}
 }
@@ -832,6 +847,10 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		if err != nil {
 			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(method), conn.URL()+pathWithParams, err)
 			return nil, err
+		}
+
+		if c.basicAuth {
+			((*http.Request)(req)).SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
 		}
 
 		// Set body

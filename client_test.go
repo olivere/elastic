@@ -55,6 +55,15 @@ func TestClientDefaults(t *testing.T) {
 	if client.snifferInterval != DefaultSnifferInterval {
 		t.Errorf("expected sniffer interval = %v, got: %v", DefaultSnifferInterval, client.snifferInterval)
 	}
+	if client.basicAuth != false {
+		t.Errorf("expected no basic auth; got: %v", client.basicAuth)
+	}
+	if client.basicAuthUsername != "" {
+		t.Errorf("expected no basic auth username; got: %q", client.basicAuthUsername)
+	}
+	if client.basicAuthPassword != "" {
+		t.Errorf("expected no basic auth password; got: %q", client.basicAuthUsername)
+	}
 }
 
 func TestClientWithoutURL(t *testing.T) {
@@ -106,6 +115,22 @@ func TestClientWithMultipleURLs(t *testing.T) {
 		if client.conns[0].URL() != DefaultURL {
 			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
 		}
+	}
+}
+
+func TestClientWithBasicAuth(t *testing.T) {
+	client, err := NewClient(SetBasicAuth("user", "secret"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if client.basicAuth != true {
+		t.Errorf("expected basic auth; got: %v", client.basicAuth)
+	}
+	if got, want := client.basicAuthUsername, "user"; got != want {
+		t.Errorf("expected basic auth username %q; got: %q", want, got)
+	}
+	if got, want := client.basicAuthPassword, "secret"; got != want {
+		t.Errorf("expected basic auth password %q; got: %q", want, got)
 	}
 }
 
