@@ -34,13 +34,13 @@ func checkResponse(res *http.Response) error {
 	if err != nil {
 		return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
 	}
-	if err == nil && errReply != nil {
+	if errReply != nil {
 		if errReply.Status == 0 {
 			errReply.Status = res.StatusCode
 		}
 		return errReply
 	}
-	return nil
+	return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
 }
 
 // Error is an exception from Elasticsearch serialized as JSON.
