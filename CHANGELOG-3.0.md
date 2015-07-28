@@ -277,6 +277,20 @@ update, err := client.Update().Index("twitter").Type("tweet").Id("1").
 	Do()
 ```
 
+## SetBasicAuth helper
+
+You can now Elastic to pass HTTP Basic Auth credentials with each request. In previous versions of Elastic you had to set up your own `http.Transport` to do this. This should make it more convenient to use Elastic in combination with Shield in its [basic setup](https://www.elastic.co/guide/en/shield/current/enable-basic-auth.html).
+
+Example:
+
+```go
+client, err := elastic.NewClient(elastic.SetBasicAuth("user", "secret"))
+if err != nil {
+  t.Fatal(err)
+}
+```
+
+
 ## Services
 
 ### REST API specification
