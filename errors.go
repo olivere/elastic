@@ -31,6 +31,9 @@ func checkResponse(res *http.Response) error {
 	}
 	errReply := new(Error)
 	err = json.Unmarshal(slurp, errReply)
+	if err != nil {
+		return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
+	}
 	if err == nil && errReply != nil {
 		if errReply.Status == 0 {
 			errReply.Status = res.StatusCode
