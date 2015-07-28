@@ -13,7 +13,7 @@ func TestClusterHealth(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	// Get cluster health
-	res, err := client.ClusterHealth().Index(testIndexName).Do()
+	res, err := client.ClusterHealth().Index(testIndexName).Level("shards").Pretty(true).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,7 +35,7 @@ func TestClusterHealthURLs(t *testing.T) {
 			Service: &ClusterHealthService{
 				indices: []string{},
 			},
-			ExpectedPath: "/_cluster/health/",
+			ExpectedPath: "/_cluster/health",
 		},
 		{
 			Service: &ClusterHealthService{
@@ -89,7 +89,7 @@ func TestClusterHealthWaitForStatus(t *testing.T) {
 	}
 
 	// Cluster wide health
-	health, err = client.ClusterHealth().WaitForStatus("green").Timeout("10s").Do()
+	health, err = client.ClusterHealth().WaitForGreenStatus().Timeout("10s").Do()
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}

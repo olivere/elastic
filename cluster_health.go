@@ -13,13 +13,14 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// ClusterHealthService allows to get the status of the cluster.
-// It is documented at http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/cluster-health.html.
+// ClusterHealthService allows to get a very simple status on the health of the cluster.
+//
+// See http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html
+// for details.
 type ClusterHealthService struct {
 	client                  *Client
 	pretty                  bool
 	indices                 []string
-	waitForStatus           string
 	level                   string
 	local                   *bool
 	masterTimeout           string
@@ -27,16 +28,33 @@ type ClusterHealthService struct {
 	waitForActiveShards     *int
 	waitForNodes            string
 	waitForRelocatingShards *int
+	waitForStatus           string
 }
 
 // NewClusterHealthService creates a new ClusterHealthService.
 func NewClusterHealthService(client *Client) *ClusterHealthService {
-	return &ClusterHealthService{client: client, indices: make([]string, 0)}
+	return &ClusterHealthService{
+		client:  client,
+		indices: make([]string, 0),
+	}
 }
 
 // Index limits the information returned to specific indices.
 func (s *ClusterHealthService) Index(indices ...string) *ClusterHealthService {
 	s.indices = append(s.indices, indices...)
+	return s
+}
+
+// Level specifies the level of detail for returned information.
+func (s *ClusterHealthService) Level(level string) *ClusterHealthService {
+	s.level = level
+	return s
+}
+
+// Local indicates whether to return local information. If it is true,
+// we do not retrieve the state from master node (default: false).
+func (s *ClusterHealthService) Local(local bool) *ClusterHealthService {
+	s.local = &local
 	return s
 }
 
@@ -59,6 +77,7 @@ func (s *ClusterHealthService) WaitForActiveShards(waitForActiveShards int) *Clu
 }
 
 // WaitForNodes can be used to wait until the specified number of nodes are available.
+// Example: "12" to wait for exact values, ">12" and "<12" for ranges.
 func (s *ClusterHealthService) WaitForNodes(waitForNodes string) *ClusterHealthService {
 	s.waitForNodes = waitForNodes
 	return s
@@ -77,36 +96,42 @@ func (s *ClusterHealthService) WaitForStatus(waitForStatus string) *ClusterHealt
 	return s
 }
 
-// Level specifies the level of detail for returned information.
-func (s *ClusterHealthService) Level(level string) *ClusterHealthService {
-	s.level = level
-	return s
+// WaitForGreenStatus will wait for the "green" state.
+func (s *ClusterHealthService) WaitForGreenStatus() *ClusterHealthService {
+	return s.WaitForStatus("green")
 }
 
-// Local indicates whether to return local information. If it is true,
-// we do not retrieve the state from master node (default: false).
-func (s *ClusterHealthService) Local(local bool) *ClusterHealthService {
-	s.local = &local
+// WaitForYellowStatus will wait for the "yellow" state.
+func (s *ClusterHealthService) WaitForYellowStatus() *ClusterHealthService {
+	return s.WaitForStatus("yellow")
+}
+
+// Pretty indicates that the JSON response be indented and human readable.
+func (s *ClusterHealthService) Pretty(pretty bool) *ClusterHealthService {
+	s.pretty = pretty
 	return s
 }
 
 // buildURL builds the URL for the operation.
 func (s *ClusterHealthService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_cluster/health/{index}", map[string]string{
-		"index": strings.Join(s.indices, ","),
-	})
+	var err error
+	var path string
+	if len(s.indices) > 0 {
+		path, err = uritemplates.Expand("/_cluster/health/{index}", map[string]string{
+			"index": strings.Join(s.indices, ","),
+		})
+	} else {
+		path = "/_cluster/health"
+	}
 	if err != nil {
 		return "", url.Values{}, err
 	}
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.waitForRelocatingShards != nil {
-		params.Set("wait_for_relocating_shards", fmt.Sprintf("%d", *s.waitForRelocatingShards))
-	}
-	if s.waitForStatus != "" {
-		params.Set("wait_for_status", s.waitForStatus)
+	if s.pretty {
+		params.Set("pretty", "1")
 	}
 	if s.level != "" {
 		params.Set("level", s.level)
@@ -121,12 +146,17 @@ func (s *ClusterHealthService) buildURL() (string, url.Values, error) {
 		params.Set("timeout", s.timeout)
 	}
 	if s.waitForActiveShards != nil {
-		params.Set("wait_for_active_shards", fmt.Sprintf("%d", *s.waitForActiveShards))
+		params.Set("wait_for_active_shards", fmt.Sprintf("%v", s.waitForActiveShards))
 	}
 	if s.waitForNodes != "" {
 		params.Set("wait_for_nodes", s.waitForNodes)
 	}
-
+	if s.waitForRelocatingShards != nil {
+		params.Set("wait_for_relocating_shards", fmt.Sprintf("%v", s.waitForRelocatingShards))
+	}
+	if s.waitForStatus != "" {
+		params.Set("wait_for_status", s.waitForStatus)
+	}
 	return path, params, nil
 }
 
@@ -164,15 +194,51 @@ func (s *ClusterHealthService) Do() (*ClusterHealthResponse, error) {
 
 // ClusterHealthResponse is the response of ClusterHealthService.Do.
 type ClusterHealthResponse struct {
-	ClusterName          string `json:"cluster_name"`
-	Status               string `json:"status"`
-	TimedOut             bool   `json:"timed_out"`
-	NumberOfNodes        int    `json:"number_of_nodes"`
-	NumberOfDataNodes    int    `json:"number_of_data_nodes"`
-	ActivePrimaryShards  int    `json:"active_primary_shards"`
-	ActiveShards         int    `json:"active_shards"`
-	RelocatingShards     int    `json:"relocating_shards"`
-	InitializingShards   int    `json:"initializing_shards"`
-	UnassignedShards     int    `json:"unassigned_shards"`
-	NumberOfPendingTasks int    `json:"number_of_pending_tasks"`
+	ClusterName                    string  `json:"cluster_name"`
+	Status                         string  `json:"status"`
+	TimedOut                       bool    `json:"timed_out"`
+	NumberOfNodes                  int     `json:"number_of_nodes"`
+	NumberOfDataNodes              int     `json:"number_of_data_nodes"`
+	ActivePrimaryShards            int     `json:"active_primary_shards"`
+	ActiveShards                   int     `json:"active_shards"`
+	RelocatingShards               int     `json:"relocating_shards"`
+	InitializingShards             int     `json:"initializing_shards"`
+	UnassignedShards               int     `json:"unassigned_shards"`
+	DelayedUnassignedShards        int     `json:"delayed_unassigned_shards"`
+	NumberOfPendingTasks           int     `json:"number_of_pending_tasks"`
+	NumberOfInFlightFetch          int     `json:"number_of_in_flight_fetch"`
+	TaskMaxWaitTimeInQueueInMillis int     `json:"task_max_waiting_in_queue_millis"`
+	ActiveShardsPercentAsNumber    float64 `json:"active_shards_percent_as_number"`
+
+	// Validation failures -> index name -> array of validation failures
+	ValidationFailures []map[string][]string `json:"validation_failures"`
+
+	// Index name -> index health
+	Indices map[string]*ClusterIndexHealth `json:"indices"`
+}
+
+// ClusterIndexHealth will be returned as part of ClusterHealthResponse.
+type ClusterIndexHealth struct {
+	Status              string `json:"status"`
+	NumberOfShards      int    `json:"number_of_shards"`
+	NumberOfReplicas    int    `json:"number_of_replicas"`
+	ActivePrimaryShards int    `json:"active_primary_shards"`
+	ActiveShards        int    `json:"active_shards"`
+	RelocatingShards    int    `json:"relocating_shards"`
+	InitializingShards  int    `json:"initializing_shards"`
+	UnassignedShards    int    `json:"unassigned_shards"`
+	// Validation failures
+	ValidationFailures []string `json:"validation_failures"`
+	// Shards by id, e.g. "0" or "1"
+	Shards map[string]*ClusterShardHealth `json:"shards"`
+}
+
+// ClusterShardHealth will be returned as part of ClusterHealthResponse.
+type ClusterShardHealth struct {
+	Status             string `json:"status"`
+	PrimaryActive      bool   `json:"primary_active"`
+	ActiveShards       int    `json:"active_shards"`
+	RelocatingShards   int    `json:"relocating_shards"`
+	InitializingShards int    `json:"initializing_shards"`
+	UnassignedShards   int    `json:"unassigned_shards"`
 }
