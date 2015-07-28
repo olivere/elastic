@@ -46,7 +46,7 @@ func checkResponse(res *http.Response) error {
 		}
 		return errReply
 	}
-	return nil
+	return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
 }
 
 type Error struct {
