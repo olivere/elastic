@@ -14,11 +14,16 @@ func TestResponseError(t *testing.T) {
 		`{"error":{"root_cause":[{"type":"index_missing_exception","reason":"no such index","index":"elastic-test"}],"type":"index_missing_exception","reason":"no such index","index":"elastic-test"},"status":404}` + "\r\n"
 	r := bufio.NewReader(strings.NewReader(raw))
 
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	resp, err := http.ReadResponse(r, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = checkResponse(resp)
+	err = checkResponse(req, resp)
 	if err == nil {
 		t.Fatalf("expected error; got: %v", err)
 	}
@@ -77,11 +82,16 @@ func TestResponseErrorHTML(t *testing.T) {
 </html>` + "\r\n"
 	r := bufio.NewReader(strings.NewReader(raw))
 
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	resp, err := http.ReadResponse(r, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = checkResponse(resp)
+	err = checkResponse(req, resp)
 	if err == nil {
 		t.Fatalf("expected error; got: %v", err)
 	}
@@ -91,5 +101,62 @@ func TestResponseErrorHTML(t *testing.T) {
 	got := err.Error()
 	if got != expected {
 		t.Fatalf("expected %q; got: %q", expected, got)
+	}
+}
+
+func TestResponseErrorWithHeadMethodAndNotFound(t *testing.T) {
+	raw := "HTTP/1.1 404 Not Found\r\n" +
+		"\r\n" +
+		`{"some":"response"}` + "\r\n"
+	r := bufio.NewReader(strings.NewReader(raw))
+
+	req, err := http.NewRequest("HEAD", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := http.ReadResponse(r, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = checkResponse(req, resp)
+	if err != nil {
+		t.Fatalf("expected no error; got: %v", err)
+	}
+}
+
+func TestIsNotFound(t *testing.T) {
+	if got, want := IsNotFound(nil), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsNotFound(""), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsNotFound(200), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsNotFound(404), true; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+
+	if got, want := IsNotFound(&Error{Status: 404}), true; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsNotFound(&Error{Status: 200}), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+
+	if got, want := IsNotFound(Error{Status: 404}), true; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsNotFound(Error{Status: 200}), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+
+	if got, want := IsNotFound(&http.Response{StatusCode: 404}), true; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsNotFound(&http.Response{StatusCode: 200}), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
 	}
 }

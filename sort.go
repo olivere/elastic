@@ -274,19 +274,19 @@ func (s GeoDistanceSort) Desc() GeoDistanceSort {
 	return s
 }
 
-// Point specifies a point to create the range distance facets from.
+// Point specifies a point to create the range distance aggregations from.
 func (s GeoDistanceSort) Point(lat, lon float64) GeoDistanceSort {
 	s.points = append(s.points, GeoPointFromLatLon(lat, lon))
 	return s
 }
 
-// Points specifies the geo point(s) to create the range distance facets from.
+// Points specifies the geo point(s) to create the range distance aggregations from.
 func (s GeoDistanceSort) Points(points ...*GeoPoint) GeoDistanceSort {
 	s.points = append(s.points, points...)
 	return s
 }
 
-// GeoHashes specifies the geo point to create the range distance facets from.
+// GeoHashes specifies the geo point to create the range distance aggregations from.
 func (s GeoDistanceSort) GeoHashes(geohashes ...string) GeoDistanceSort {
 	s.geohashes = append(s.geohashes, geohashes...)
 	return s

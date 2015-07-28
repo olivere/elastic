@@ -868,7 +868,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		}
 
 		// Check for errors
-		if err := checkResponse(res); err != nil {
+		if err := checkResponse((*http.Request)(req), res); err != nil {
 			retries -= 1
 			if retries <= 0 {
 				return nil, err

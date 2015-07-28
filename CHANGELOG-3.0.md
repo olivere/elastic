@@ -61,9 +61,9 @@ res, err := elastic.Search().Index("one").Query(q).PostFilter(f)
 
 When Elasticsearch does not find an entity or an index, it generally returns HTTP status code 404. In Elastic 2.0 this was a valid result and didn't raise an error from the `Do` functions. This has now changed in Elastic 3.0.
 
-Starting with Elastic 3.0, only HTTP status codes [200..299] are considered successful results; all other HTTP status codes will yield an error.
+Starting with Elastic 3.0, there are only two types of responses considered successful. First, responses with HTTP status codes [200..299]. Second, HEAD requests which return HTTP status 404. The latter is used by Elasticsearch to e.g. check for existence of indices or documents. All other responses will return an error.
 
-To check for HTTP Status 404, e.g. when trying to get or delete a missing document, you can use the [`IsNotFound`]() helper (see below).
+To check for HTTP Status 404 (with non-HEAD requests), e.g. when trying to get or delete a missing document, you can use the [`IsNotFound`]() helper (see below).
 
 The following example illustrates how to check for a missing document in Elastic 2.0 and what has changed in 3.0.
 

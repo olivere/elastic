@@ -17,9 +17,22 @@ var (
 	ErrPluginNotFound = errors.New("elastic: plugin not found")
 )
 
-func checkResponse(res *http.Response) error {
+// checkResponse will return an error if the request/response indicates
+// an error returned from Elasticsearch.
+//
+// HTTP status codes between in the range [200..299] are considered successful.
+// Also, HTTP requests with method HEAD that return 404 are considered
+// to be no errors. All other request/response combinations return an error.
+//
+// The func tries to parse error details as returned from Elasticsearch
+// and encapsulates them in type elastic.Error.
+func checkResponse(req *http.Request, res *http.Response) error {
 	// 200-299 are valid status codes
 	if res.StatusCode >= 200 && res.StatusCode <= 299 {
+		return nil
+	}
+	// HEAD requests with 404 are not an error
+	if req.Method == "HEAD" && res.StatusCode == 404 {
 		return nil
 	}
 	if res.Body == nil {
@@ -43,14 +56,14 @@ func checkResponse(res *http.Response) error {
 	return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
 }
 
-// Error is an exception from Elasticsearch serialized as JSON.
+// Error encapsulates error details as returned from Elasticsearch.
 type Error struct {
 	Status  int           `json:"status"`
 	Details *ErrorDetails `json:"error,omitempty"`
 }
 
-// ErrorDetails are error details from Elasticsearch serialized as JSON.
-// It is used e.g. in BulkResponseItem.
+// ErrorDetails encapsulate error details from Elasticsearch.
+// It is used in e.g. elastic.Error and elastic.BulkResponseItem.
 type ErrorDetails struct {
 	Type      string                 `json:"type"`
 	Reason    string                 `json:"reason"`
@@ -59,6 +72,7 @@ type ErrorDetails struct {
 	RootCause []*ErrorDetails        `json:"root_cause,omitempty"`
 }
 
+// Error returns a string representation of the error.
 func (e *Error) Error() string {
 	if e.Details != nil && e.Details.Reason != "" {
 		return fmt.Sprintf("elastic: Error %d (%s): %s [type=%s]", e.Status, http.StatusText(e.Status), e.Details.Reason, e.Details.Type)
@@ -68,13 +82,18 @@ func (e *Error) Error() string {
 }
 
 // IsNotFound returns true if the given error indicates that Elasticsearch
-// returned HTTP status 404.
-func IsNotFound(err error) bool {
+// returned HTTP status 404. The err parameter can be of type *elastic.Error,
+// elastic.Error, *http.Response or int (indicating the HTTP status code).
+func IsNotFound(err interface{}) bool {
 	switch e := err.(type) {
-	case nil:
-		return false
+	case *http.Response:
+		return e.StatusCode == http.StatusNotFound
 	case *Error:
 		return e.Status == http.StatusNotFound
+	case Error:
+		return e.Status == http.StatusNotFound
+	case int:
+		return e == http.StatusNotFound
 	}
 	return false
 }
