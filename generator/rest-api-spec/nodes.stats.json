@@ -1,6 +1,6 @@
 {
   "nodes.stats": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/cluster-nodes-stats.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-nodes-stats.html",
     "methods": ["GET"],
     "url": {
       "path": "/_nodes/stats",
@@ -15,12 +15,12 @@
       "parts": {
         "metric" : {
           "type" : "list",
-          "options" : ["_all", "breaker", "fs", "http", "indices", "jvm", "network", "os", "process", "thread_pool", "transport"],
+          "options" : ["_all", "breaker", "fs", "http", "indices", "jvm", "os", "process", "thread_pool", "transport"],
           "description" : "Limit the information returned to the specified metrics"
         },
         "index_metric" : {
           "type" : "list",
-          "options" : ["_all", "completion", "docs", "fielddata", "filter_cache", "flush", "get", "id_cache", "indexing", "merge", "percolate", "query_cache", "refresh", "search", "segments", "store", "warmer", "suggest"],
+          "options" : ["_all", "completion", "docs", "fielddata", "query_cache", "flush", "get", "indexing", "merge", "percolate", "request_cache", "refresh", "search", "segments", "store", "warmer", "suggest"],
           "description" : "Limit the information returned for `indices` metric to the specific index metrics. Isn't used if `indices` (or `all`) metric isn't specified."
         },
         "node_id": {

@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"sort"
 	"strings"
 	"time"
 )
@@ -137,6 +138,15 @@ type ApiURL struct {
 	Params map[string]*ApiParam `json:"params"`
 }
 
+func (api *ApiURL) ParamNames() []string {
+	var names []string
+	for name, _ := range api.Params {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
+
 type ApiPart struct {
 	Name string `json:"-"`
 
@@ -247,7 +257,8 @@ func (api *Api) WriteService() {
 		pn("\t%s\t%s", p.VariableName(), p.TypeName())
 		fieldsWritten[name] = true
 	}
-	for name, p := range api.URL.Params {
+	for _, name := range api.URL.ParamNames() {
+		p, _ := api.URL.Params[name]
 		if found, _ := fieldsWritten[name]; !found {
 			pn("\t%s\t%s", p.VariableName(), p.TypeName())
 			fieldsWritten[name] = true
@@ -272,8 +283,9 @@ func (api *Api) WriteService() {
 			fieldsWritten[name] = true
 		}
 	}
-	for name, p := range api.URL.Params {
+	for _, name := range api.URL.ParamNames() {
 		if found, _ := fieldsWritten[name]; !found {
+			p, _ := api.URL.Params[name]
 			if p.IsSlice() {
 				pn("\t\t%s:\tmake(%s, 0),", p.VariableName(), p.TypeName())
 				fieldsWritten[name] = true
@@ -289,8 +301,9 @@ func (api *Api) WriteService() {
 		p.writeSetter(api)
 		settersWritten[name] = true
 	}
-	for name, p := range api.URL.Params {
+	for _, name := range api.URL.ParamNames() {
 		if found, _ := settersWritten[name]; !found {
+			p, _ := api.URL.Params[name]
 			p.writeSetter(api)
 			settersWritten[name] = true
 		}
@@ -478,7 +491,8 @@ func (api *Api) writeBuildURL() {
 	pn("\t}")
 
 	if len(api.URL.Params) > 0 {
-		for _, p := range api.URL.Params {
+		for _, name := range api.URL.ParamNames() {
+			p, _ := api.URL.Params[name]
 			switch p.Type {
 			case "boolean":
 				if !p.Required {

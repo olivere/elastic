@@ -1,6 +1,6 @@
 {
   "indices.clear_cache": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/indices-clearcache.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/indices-clearcache.html",
     "methods": ["POST", "GET"],
     "url": {
       "path": "/_cache/clear",
@@ -24,25 +24,9 @@
           "type" : "list",
           "description" : "A comma-separated list of fields to clear when using the `field_data` parameter (default: all)"
         },
-        "filter": {
+        "query": {
           "type" : "boolean",
-          "description" : "Clear filter caches"
-        },
-        "filter_cache": {
-          "type" : "boolean",
-          "description" : "Clear filter caches"
-        },
-        "filter_keys": {
-          "type" : "boolean",
-          "description" : "A comma-separated list of keys to clear when using the `filter_cache` parameter (default: all)"
-        },
-        "id": {
-          "type" : "boolean",
-          "description" : "Clear ID caches for parent/child"
-        },
-        "id_cache": {
-          "type" : "boolean",
-          "description" : "Clear ID caches for parent/child"
+          "description" : "Clear query caches"
         },
         "ignore_unavailable": {
             "type" : "boolean",
@@ -66,9 +50,9 @@
           "type" : "boolean",
           "description" : "Clear the recycler cache"
         },
-        "query_cache": {
+        "request": {
           "type" : "boolean",
-          "description" : "Clear query cache"
+          "description" : "Clear request cache"
         }
       }
     },

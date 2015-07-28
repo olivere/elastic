@@ -1,10 +1,10 @@
 {
-  "termvector" : {
-    "documentation" : "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/docs-termvectors.html",
+  "termvectors" : {
+    "documentation" : "http://www.elastic.co/guide/en/elasticsearch/reference/master/docs-termvectors.html",
     "methods" : ["GET", "POST"],
     "url" : {
-      "path" : "/{index}/{type}/_termvector",
-      "paths" : ["/{index}/{type}/_termvector", "/{index}/{type}/{id}/_termvector"],
+      "path" : "/{index}/{type}/_termvectors",
+      "paths" : ["/{index}/{type}/_termvectors", "/{index}/{type}/{id}/_termvectors"],
       "parts" : {
         "index" : {
          "type" : "string",
@@ -18,7 +18,7 @@
         },
         "id" : {
            "type" : "string",
-           "description" : "The id of the document."
+           "description" : "The id of the document, when not specified a doc param should be supplied."
          }
       },
       "params": {
@@ -32,6 +32,12 @@
            "type" : "boolean",
            "description" : "Specifies if document count, sum of document frequencies and sum of total term frequencies should be returned.",
            "default" : true,
+           "required" : false
+        },
+        "dfs" : {
+           "type" : "boolean",
+           "description" : "Specifies if distributed frequencies should be returned instead shard frequencies.",
+           "default" : false,
            "required" : false
         },
         "fields" : {
@@ -73,14 +79,23 @@
           "required" : false
         },
         "realtime": {
-          "type" : "boolean",
-          "description" : "Specifies if request is real-time as opposed to near-real-time (default: true).",
-          "required" : false
+          "type": "boolean",
+          "description": "Specifies if request is real-time as opposed to near-real-time (default: true).",
+          "required": false
+        },
+        "version" : {
+          "type" : "number",
+          "description" : "Explicit version number for concurrency control"
+        },
+        "version_type": {
+          "type" : "enum",
+          "options" : ["internal", "external", "external_gte", "force"],
+          "description" : "Specific version type"
         }
       }
     },
     "body": {
-      "description" : "Define parameters. See documentation.",
+      "description" : "Define parameters and or supply a document to get termvectors for. See documentation.",
       "required" : false
     }
   }
