@@ -13,7 +13,7 @@ func TestClusterState(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	// Get cluster state
-	res, err := client.ClusterState().Do()
+	res, err := client.ClusterState().Index("_all").Metric("_all").Pretty(true).Do()
 	if err != nil {
 		t.Fatal(err)
 	}

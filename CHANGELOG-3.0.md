@@ -298,6 +298,14 @@ update, err := client.Update().Index("twitter").Type("tweet").Id("1").
 	Do()
 ```
 
+## Cluster State
+
+The combination of `Metric(string)` and `Metrics(...string)` has been replaced by a single func with the signature `Metric(...string)`.
+
+## Unexported structs in response
+
+Services generally return a typed response from a `Do` func. Those structs are exported so that they can be passed around in your own application. In Elastic 3.0 however, we changed that (most) sub-structs are now unexported, meaning: You can only pass around the whole response, not sub-structures of it. This makes it easier for restructuring responses according to the Elasticsearch API. See `ClusterStateResponse` for an example.
+
 ## Services
 
 ### REST API specification
