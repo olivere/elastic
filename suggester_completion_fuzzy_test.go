@@ -19,7 +19,7 @@ func TestFuzzyCompletionSuggesterSource(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"song-suggest":{"text":"n","completion":{"field":"suggest","fuzzy":{fuzziness":2}}}}`
+	expected := `{"song-suggest":{"text":"n","completion":{"field":"suggest","fuzzy":{"fuzziness":2}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
