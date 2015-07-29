@@ -140,7 +140,7 @@ func (q FuzzyCompletionSuggester) Source(includeName bool) interface{} {
 
 	// Fuzzy Completion Suggester fields
 	if q.fuzziness != nil {
-		suggester["fuzziness"] = q.fuzziness
+		suggester["fuzzy"] = map[string]interface{}{"fuzziness": q.fuzziness}
 	}
 	if q.fuzzyTranspositions != nil {
 		suggester["transpositions"] = *q.fuzzyTranspositions
