@@ -454,11 +454,21 @@ type SearchFacet struct {
 	Entries []searchFacetEntry `json:"entries"`
 }
 
-// searchFacetTerm is the result of a terms facet.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-facets-terms-facet.html.
+// searchFacetTerm is the result of a terms/terms_stats facet.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/1.7/search-facets-terms-facet.html
+// and https://www.elastic.co/guide/en/elasticsearch/reference/1.7/search-facets-terms-stats-facet.html.
 type searchFacetTerm struct {
 	Term  interface{} `json:"term"`
 	Count int         `json:"count"`
+
+	// The following fields are returned for terms_stats facets.
+	// See https://www.elastic.co/guide/en/elasticsearch/reference/1.7/search-facets-terms-stats-facet.html.
+
+	TotalCount int     `json:"total_count"`
+	Min        float64 `json:"min"`
+	Max        float64 `json:"max"`
+	Total      float64 `json:"total"`
+	Mean       float64 `json:"mean"`
 }
 
 // searchFacetRange is the result of a range facet.
