@@ -145,7 +145,7 @@ client.ClearScroll().ScrollId("one").ScrollId("two").Do()
 Example for Elastic 3.0 (new):
 
 ```go
-// Now (correctly) clears noth scroll id "one" and "two"
+// Now (correctly) clears both scroll id "one" and "two"
 // because ScrollId no longer clears the values when called multiple times
 client.ClearScroll().ScrollId("one").ScrollId("two").Do()
 ```
