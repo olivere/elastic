@@ -74,18 +74,18 @@ func TestClusterHealthURLs(t *testing.T) {
 }
 
 func TestClusterHealthWaitForStatus(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	// Cluster health on an index that does not exist should never get to yellow
 	health, err := client.ClusterHealth().Index("no-such-index").WaitForStatus("yellow").Timeout("1s").Do()
-	if err != nil {
-		t.Fatalf("expected no error; got: %v", err)
+	if err == nil {
+		t.Fatalf("expected timeout error; got: %v", err)
 	}
-	if health.TimedOut != true {
-		t.Fatalf("expected to timeout; got: %v", health.TimedOut)
+	if !IsTimeout(err) {
+		t.Fatalf("expected timeout error; got: %v", err)
 	}
-	if health.Status != "red" {
-		t.Fatalf("expected health = %q; got: %q", "red", health.Status)
+	if health != nil {
+		t.Fatalf("expected no response; got: %v", health)
 	}
 
 	// Cluster wide health

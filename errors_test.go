@@ -160,3 +160,39 @@ func TestIsNotFound(t *testing.T) {
 		t.Errorf("expected %v; got: %v", want, got)
 	}
 }
+
+func TestIsTimeout(t *testing.T) {
+	if got, want := IsTimeout(nil), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsTimeout(""), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsTimeout(200), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsTimeout(408), true; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+
+	if got, want := IsTimeout(&Error{Status: 408}), true; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsTimeout(&Error{Status: 200}), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+
+	if got, want := IsTimeout(Error{Status: 408}), true; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsTimeout(Error{Status: 200}), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+
+	if got, want := IsTimeout(&http.Response{StatusCode: 408}), true; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+	if got, want := IsTimeout(&http.Response{StatusCode: 200}), false; got != want {
+		t.Errorf("expected %v; got: %v", want, got)
+	}
+}

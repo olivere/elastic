@@ -27,3 +27,5 @@ _testmain.go
 /cluster-test/es-chaos-monkey
 /spec
 /tmp
+/CHANGELOG-3.0.html
+

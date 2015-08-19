@@ -1,10 +1,10 @@
 # Elastic 3.0
 
-**This document is a draft!**
+**This document is a draft! Last update: 2015-08-19. **
 
-Elasticsearch 2.0 comes with some [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking-changes-2.0.html). You will probably need to upgrade your application and/or rewrite part of it due to those changes.
+Elasticsearch 2.0 comes with some [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/breaking-changes-2.0.html). You will probably need to upgrade your application and/or rewrite part of it due to those changes.
 
-We use that window of opportunity to also update Elastic (the Go client) from version 2.0 to 3.0. This will not only introduce changes due to the Elasticsearch 2.0 update but also some changes to make Elastic cleaner by removing some old cruft. When rewriting your application anyway, it is a good chance to upgrade not only Elasticsearch but Elastic as well.
+We use that window of opportunity to also update Elastic (the Go client) from version 2.0 to 3.0. This will introduce both changes due to the Elasticsearch 2.0 update as well as changes that make Elastic cleaner by removing some old cruft.
 
 So, to summarize:
 
@@ -33,13 +33,15 @@ res, err := elastic.Search("one").Query(q).Do()   // no more &
 res, err := elastic.Search("one").Query(elastic.NewMatchAllQuery()).Do()
 ```
 
+It also helps to prevent [subtle issues](https://github.com/olivere/elastic/issues/115#issuecomment-130753046).
+
 ## Query/filter merge
 
-One of the biggest changes in Elasticsearch 2.0 is the [merge of queries and filters](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html#_query_filter_merge). In Elasticsearch 1.x, you had a whole range of queries and filters that were basically identical (e.g. `term_query` and `term_filter`).
+One of the biggest changes in Elasticsearch 2.0 is the [merge of queries and filters](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_query_dsl_changes.html#_queries_and_filters_merged). In Elasticsearch 1.x, you had a whole range of queries and filters that were basically identical (e.g. `term_query` and `term_filter`).
 
-The practical aspect of the merge is that you can now basically use queries where once you had to use filters instead. For Elastic 3.0 this means: We could remove a whole bunch of files.
+The practical aspect of the merge is that you can now basically use queries where once you had to use filters instead. For Elastic 3.0 this means: We could remove a whole bunch of files. Yay!
 
-Notice that many methods are still named like e.g. `PostFilter`. However, they accept a `Query` now when they used to accept a `Filter` before.
+Notice that some methods still come by "filter", e.g. `PostFilter`. However, they accept a `Query` now when they used to accept a `Filter` before.
 
 Example for Elastic 2.0 (old):
 
@@ -57,13 +59,23 @@ f := elastic.NewTermQuery("tag", "important") // it's a query now!
 res, err := elastic.Search().Index("one").Query(q).PostFilter(f)
 ```
 
-## HTTP Status 404
+## Facets are removed
+
+[Facets have been removed](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_removed_features.html#_facets_have_been_removed) in Elasticsearch 2.0. You need to use aggregations now.
+
+## Errors
+
+Elasticsearch 2.0 returns more information about an error in the HTTP response body. Elastic 3.0 now reads this information and makes it accessible by the consumer.
+
+Errors and all its details are now returned in [`Error`](https://github.com/olivere/elastic/blob/release-branch.v3/errors.go#L59).
+
+### HTTP Status 404 (Not Found)
 
 When Elasticsearch does not find an entity or an index, it generally returns HTTP status code 404. In Elastic 2.0 this was a valid result and didn't raise an error from the `Do` functions. This has now changed in Elastic 3.0.
 
 Starting with Elastic 3.0, there are only two types of responses considered successful. First, responses with HTTP status codes [200..299]. Second, HEAD requests which return HTTP status 404. The latter is used by Elasticsearch to e.g. check for existence of indices or documents. All other responses will return an error.
 
-To check for HTTP Status 404 (with non-HEAD requests), e.g. when trying to get or delete a missing document, you can use the [`IsNotFound`]() helper (see below).
+To check for HTTP Status 404 (with non-HEAD requests), e.g. when trying to get or delete a missing document, you can use the [`IsNotFound`](https://github.com/olivere/elastic/blob/release-branch.v3/errors.go#L84) helper (see below).
 
 The following example illustrates how to check for a missing document in Elastic 2.0 and what has changed in 3.0.
 
@@ -92,19 +104,40 @@ if err != nil {
 }
 ```
 
-## Errors
+### HTTP Status 408 (Timeouts)
 
-Elasticsearch 2.0 returns more information when an error occurs. Elastic 3.0 now reads all this information and makes it accessible by the consumer.
+Elasticsearch now responds with HTTP status code 408 (Timeout) when a request fails due to a timeout. E.g. if you specify a timeout with the Cluster Health API, the HTTP response status will be 408 if the timeout is raised. See [here](https://github.com/elastic/elasticsearch/commit/fe3179d9cccb569784434b2135ca9ae13d5158d3) for the specific commit to the Cluster Health API.
 
-Errors and all its details are now returned in [`Error`](https://github.com/olivere/elastic/blob/master/errors.go#L49).
+To check for HTTP Status 408, we introduced the [`IsTimeout`](https://github.com/olivere/elastic/blob/release-branch.v3/errors.go#L101) helper.
+
+Example for Elastic 2.0 (old):
+
+```go
+health, err := client.ClusterHealth().WaitForStatus("yellow").Timeout("1s").Do()
+if err != nil {
+  // ...
+}
+if health.TimedOut {
+  // We have a timeout
+}
+```
+
+Example for Elastic 3.0 (new):
+
+```go
+health, err := client.ClusterHealth().WaitForStatus("yellow").Timeout("1s").Do()
+if elastic.IsTimeout(err) {
+  // We have a timeout
+}
+```
 
 ### Bulk Errors
 
 The error response of a bulk operation used to be a simple string in Elasticsearch 1.x.
 In Elasticsearch 2.0, it returns a structured JSON object with a lot more details about the error.
-These errors are now captured in an object of type [`ErrorDetails`](https://github.com/olivere/elastic/blob/master/errors.go#L57) which is used in [BulkResponseItem](https://github.com/olivere/elastic/blob/master/bulk.go#L207).
+These errors are now captured in an object of type [`ErrorDetails`](https://github.com/olivere/elastic/blob/release-branch.v3/errors.go#L59) which is used in [`BulkResponseItem`](https://github.com/olivere/elastic/blob/release-branch.v3/bulk.go#L206).
 
-### Removed ErrMissingIndex, ErrMissingType, and ErrMissingId
+### Removed specific Elastic errors
 
 The specific error types `ErrMissingIndex`, `ErrMissingType`, and `ErrMissingId` have been removed. They were only used by `DeleteService` and are replaced by a generic error message.
 
@@ -126,8 +159,6 @@ one func with the following signature: `Index(indices ...string)`.
 Notice this is only limited to `Index(...)` and `Type(...)`. There are other
 services with variadic functions. These have not been changed.
 
-TODO Add example here
-
 ## Multiple calls to variadic functions
 
 Some services with variadic functions have cleared the underlying slice when
@@ -145,7 +176,7 @@ client.ClearScroll().ScrollId("one").ScrollId("two").Do()
 Example for Elastic 3.0 (new):
 
 ```go
-// Now (correctly) clears noth scroll id "one" and "two"
+// Now (correctly) clears both scroll id "one" and "two"
 // because ScrollId no longer clears the values when called multiple times
 client.ClearScroll().ScrollId("one").ScrollId("two").Do()
 ```
@@ -153,20 +184,22 @@ client.ClearScroll().ScrollId("one").ScrollId("two").Do()
 ## Ping service requires URL
 
 The `Ping` service raised some issues because it is different from all
-other services. If not explicitly given a URL, it always pings 127.0.0.1:9200.
+other services. If not explicitly given a URL, it always pings `127.0.0.1:9200`.
 
 Users expected to ping the cluster, but that is not possible as the cluster
-can be a set of many machines: So which machine do we ping then?
+can be a set of many nodes: So which node do we ping then?
 
 To make it more clear, the `Ping` function on the client now requires users
-to explicitly set a URL.
+to explicitly set the URL of the node to ping.
 
 ## Meta fields
 
 Many of the meta fields e.g. `_parent` or `_routing` are now
-[part of the top-level of a document](https://www.elastic.co/guide/en/elasticsearch/reference/master/_meta_fields_returned_under_the_top_level_json_object.html)
+[part of the top-level of a document](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_mapping_changes.html#migration-meta-fields)
 and are no longer returned as parts of the `fields` object. We had to change
 larger parts of e.g. the `Reindexer` to get it to work seamlessly with Elasticsearch 2.0.
+
+Notice that all stored meta-fields are now [returned by default](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_crud_and_routing_changes.html#_all_stored_meta_fields_returned_by_default).
 
 ## HasParentQuery / HasChildQuery
 
@@ -198,9 +231,24 @@ if err != nil {
 }
 ```
 
+## Delete-by-Query API
+
+The Delete-by-Query API is [a plugin now](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_removed_features.html#_delete_by_query_is_now_a_plugin). It is no longer core part of Elasticsearch. You can [install it as a plugin as described here](https://www.elastic.co/guide/en/elasticsearch/plugins/2.0/plugins-delete-by-query.html).
+
+Elastic 3.0 still contains the `DeleteByQueryService` but it will fail with `ErrPluginNotFound` when the plugin is not installed.
+
+Example for Elastic 3.0 (new):
+
+```go
+_, err := client.DeleteByQuery().Query(elastic.NewTermQuery("client", "1")).Do()
+if err == elastic.ErrPluginNotFound {
+	// Delete By Query API is not available
+}
+```
+
 ## HasPlugin and SetRequiredPlugins
 
-Some of the core functionality of Elasticsearch has now been moved into plugins. E.g. the Delete-by-Query API is [a plugin now](https://www.elastic.co/guide/en/elasticsearch/client/java-api/master/java-docs-delete-by-query.html).
+Some of the core functionality of Elasticsearch has now been moved into plugins. E.g. the Delete-by-Query API is [a plugin now](https://www.elastic.co/guide/en/elasticsearch/plugins/2.0/plugins-delete-by-query.html).
 
 You need to make sure to add these plugins to your Elasticsearch installation to still be able to use the `DeleteByQueryService`. You can test this now with the `HasPlugin(name string)` helper in the client.
 
@@ -223,61 +271,39 @@ if err != nil {
 }
 ```
 
-## Delete-by-Query API
+Notice that there also is a way to define [mandatory plugins](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-plugins.html#_mandatory_plugins) in the Elasticsearch configuration file.
 
-The Delete-by-Query API is [a plugin now](https://www.elastic.co/guide/en/elasticsearch/client/java-api/master/java-docs-delete-by-query.html). It is no longer core part of Elasticsearch.
+## Common Query has been renamed to Common Terms Query
 
-Elastic 3.0 still contains the `DeleteByQueryService` but it will fail with `ErrPluginNotFound` when the plugin is not installed.
-
-TODO Find reference to Delete-by-Query Plugin (https://github.com/elastic/elasticsearch/pull/11584/files)
-TODO Check the example
-
-Example for Elastic 3.0 (new):
-
-```go
-_, err := client.DeleteByQuery().Query(elastic.NewTermQuery("client", "1")).Do()
-if err == elastic.ErrPluginNotFound {
-	// Delete By Query API is not available
-}
-```
-
-## Common Query -> Common Terms Query
-
-The `CommonQuery` has been renamed to `CommonTermsQuery` to be in line with the [Java API](https://www.elastic.co/guide/en/elasticsearch/reference/master/_java_api.html).
-
-TODO Double-check
+The `CommonQuery` has been renamed to `CommonTermsQuery` to be in line with the [Java API](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_java_api_changes.html#_query_filter_refactoring).
 
 ## Remove `MoreLikeThis` and `MoreLikeThisField`
 
-The More Like This API and the More Like This Field query have been removed and replaced with the `MoreLikeThisQuery`. This is a result of [this change in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/_more_like_this.html).
-
-TODO Double-check
+The More Like This API and the More Like This Field query [have been removed](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_query_dsl_changes.html#_more_like_this) and replaced with the `MoreLikeThisQuery`.
 
 ## Remove Filtered Query
 
-With the merge of queries and filters, the [filtered query became deprecated](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html). While it is only deprecated and therefore still available in Elasticsearch 2.0, we have decided to remove it from Elastic 3.0. Why? Because we think that when you're already required to rewrite many of your application code, it might be a good chance to get rid of things that are deprecated as well. So you might simply change your filtered query with a boolean query as [described here](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html).
-
-TODO Really remove FilteredQuery?
+With the merge of queries and filters, the [filtered query became deprecated](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_query_dsl_changes.html#_literal_filtered_literal_query_and_literal_query_literal_filter_deprecated). While it is only deprecated and therefore still available in Elasticsearch 2.0, we have decided to remove it from Elastic 3.0. Why? Because we think that when you're already forced to rewrite many of your application code, it might be a good chance to get rid of things that are deprecated as well. So you might simply change your filtered query with a boolean query as [described here](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_query_dsl_changes.html#_literal_filtered_literal_query_and_literal_query_literal_filter_deprecated).
 
 ## Remove FuzzyLikeThis and FuzzyLikeThisField
 
-Both have been [removed from Elasticsearch 2.0 as well](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html).
+Both have been removed from Elasticsearch 2.0 as well.
 
 ## Remove LimitFilter
 
-The `limit` filter is [deprecated in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html) and becomes a no-op. Now is a good chance to remove it from your application as well. Use the `terminate_after` parameter in your search [as described here](https://www.elastic.co/guide/en/elasticsearch/reference/master/search-request-body.html) to achieve similar effects.
+The `limit` filter is [deprecated in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_query_dsl_changes.html#_literal_limit_literal_filter_deprecated) and becomes a no-op. Now is a good chance to remove it from your application as well. Use the `terminate_after` parameter in your search [as described here](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/search-request-body.html) to achieve similar effects.
 
 ## Remove `_cache` and `_cache_key` from filters
 
-Both have been [removed from Elasticsearch 2.0 as well](https://www.elastic.co/guide/en/elasticsearch/reference/master/_query_dsl.html).
+Both have been [removed from Elasticsearch 2.0 as well](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_query_dsl_changes.html#_filter_auto_caching).
 
 ## Partial fields are gone
 
-Partial fields are [removed in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/_partial_fields.html) in favor of [source filtering](https://www.elastic.co/guide/en/elasticsearch/reference/master/search-request-source-filtering.html).
+Partial fields are [removed in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_search_changes.html#_partial_fields) in favor of [source filtering](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/search-request-source-filtering.html).
 
 ## Scripting
 
-A Script type has been added. In Elastic 2.0, there were various places (e.g. aggregations) where you could just add the script as a string, specify the scripting language, add parameters etc. With Elastic 3.0, you should always use the Script type.
+A [`Script`](https://github.com/olivere/elastic/blob/release-branch.v3/script.go) type has been added to Elastic 3.0. In Elastic 2.0, there were various places (e.g. aggregations) where you could just add the script as a string, specify the scripting language, add parameters etc. With Elastic 3.0, you should now always use the `Script` type.
 
 Example for Elastic 2.0 (old):
 
@@ -304,7 +330,7 @@ The combination of `Metric(string)` and `Metrics(...string)` has been replaced b
 
 ## Unexported structs in response
 
-Services generally return a typed response from a `Do` func. Those structs are exported so that they can be passed around in your own application. In Elastic 3.0 however, we changed that (most) sub-structs are now unexported, meaning: You can only pass around the whole response, not sub-structures of it. This makes it easier for restructuring responses according to the Elasticsearch API. See `ClusterStateResponse` for an example.
+Services generally return a typed response from a `Do` func. Those structs are exported so that they can be passed around in your own application. In Elastic 3.0 however, we changed that (most) sub-structs are now unexported, meaning: You can only pass around the whole response, not sub-structures of it. This makes it easier for restructuring responses according to the Elasticsearch API. See [`ClusterStateResponse`](https://github.com/olivere/elastic/blob/release-branch.v3/cluster_state.go#L182) as an example.
 
 ## Services
 
@@ -312,9 +338,9 @@ Services generally return a typed response from a `Do` func. Those structs are e
 
 As you might know, Elasticsearch comes with a REST API specification. The specification describes the endpoints in a JSON structure.
 
-Most services in Elastic predated the REST API specification. Well, now they are in line with the specification. All services can be generated by go generate (not 100% automatic though). All services have been reviewed for being up-to-date with the 2.0 specification.
+Most services in Elastic predated the REST API specification. We are in the process of bringing all these services in line with the specification. Services can be generated by `go generate` (not 100% automatic though). This is an ongoing process.
 
-For you, this probably doesn't mean a lot. However, you can now be more confident that Elastic supports all features the REST API specification specifies.
+This probably doesn't mean a lot to you. However, you can now be more confident that Elastic supports all features that the REST API specification describes.
 
 At the same time, the file names of the services are renamed to match the REST API specification naming.
 

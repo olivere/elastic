@@ -36,16 +36,16 @@ func checkResponse(req *http.Request, res *http.Response) error {
 		return nil
 	}
 	if res.Body == nil {
-		return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
+		return &Error{Status: res.StatusCode}
 	}
 	slurp, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return fmt.Errorf("elastic: Error %d (%s) when reading body: %v", res.StatusCode, http.StatusText(res.StatusCode), err)
+		return &Error{Status: res.StatusCode}
 	}
 	errReply := new(Error)
 	err = json.Unmarshal(slurp, errReply)
 	if err != nil {
-		return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
+		return &Error{Status: res.StatusCode}
 	}
 	if errReply != nil {
 		if errReply.Status == 0 {
@@ -53,7 +53,7 @@ func checkResponse(req *http.Request, res *http.Response) error {
 		}
 		return errReply
 	}
-	return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
+	return &Error{Status: res.StatusCode}
 }
 
 // Error encapsulates error details as returned from Elasticsearch.
@@ -94,6 +94,23 @@ func IsNotFound(err interface{}) bool {
 		return e.Status == http.StatusNotFound
 	case int:
 		return e == http.StatusNotFound
+	}
+	return false
+}
+
+// IsTimeout returns true if the given error indicates that Elasticsearch
+// returned HTTP status 408. The err parameter can be of type *elastic.Error,
+// elastic.Error, *http.Response or int (indicating the HTTP status code).
+func IsTimeout(err interface{}) bool {
+	switch e := err.(type) {
+	case *http.Response:
+		return e.StatusCode == http.StatusRequestTimeout
+	case *Error:
+		return e.Status == http.StatusRequestTimeout
+	case Error:
+		return e.Status == http.StatusRequestTimeout
+	case int:
+		return e == http.StatusRequestTimeout
 	}
 	return false
 }
