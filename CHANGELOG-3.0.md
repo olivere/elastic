@@ -1,6 +1,6 @@
 # Elastic 3.0
 
-**This document is a draft! Last update: 2015-08-19. **
+**This document is a draft! Last update: 2015-08-19.**
 
 Elasticsearch 2.0 comes with some [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/breaking-changes-2.0.html). You will probably need to upgrade your application and/or rewrite part of it due to those changes.
 
