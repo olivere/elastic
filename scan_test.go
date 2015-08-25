@@ -355,3 +355,61 @@ func TestScanAndScrollWithEmptyIndex(t *testing.T) {
 		t.Fatalf("expected results == %v; got: %v", nil, res)
 	}
 }
+
+func TestBug119(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
+	comment1 := comment{User: "nico", Comment: "You bet."}
+
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Index().Index(testIndexName).Type("comment").Id("1").Parent("1").BodyJson(&comment1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Match all should return all documents
+	cursor, err := client.Scan(testIndexName).Fields("_source", "_parent").Size(1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for {
+		searchResult, err := cursor.Next()
+		if err == EOS {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		for _, hit := range searchResult.Hits.Hits {
+			if hit.Type == "tweet" {
+				if _, ok := hit.Fields["_parent"].(string); ok {
+					t.Errorf("Type `tweet` cannot have any parent...")
+
+					toPrint, _ := json.MarshalIndent(hit, "", "    ")
+					t.Fatal(string(toPrint))
+				}
+			}
+
+			item := make(map[string]interface{})
+			err := json.Unmarshal(*hit.Source, &item)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+}
