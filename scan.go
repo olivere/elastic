@@ -301,6 +301,9 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 		return nil, err
 	}
 
+	c.Results = new(SearchResult)
+	c.Results.ScrollId = body
+
 	// Return result
 	if err := json.Unmarshal(res.Body, c.Results); err != nil {
 		return nil, err
