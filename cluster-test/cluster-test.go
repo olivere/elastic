@@ -305,14 +305,13 @@ func (t *TestCase) search() {
 		}
 
 		// Search with a term query
-		termQuery := elastic.NewTermQuery("user", "olivere")
 		searchResult, err := t.client.Search().
-			Index(t.index).     // search in index t.index
-			Query(&termQuery).  // specify the query
-			Sort("user", true). // sort by "user" field, ascending
-			From(0).Size(10).   // take documents 0-9
-			Pretty(true).       // pretty print request and response JSON
-			Do()                // execute
+			Index(t.index).                                 // search in index t.index
+			Query(elastic.NewTermQuery("user", "olivere")). // specify the query
+			Sort("user", true).                             // sort by "user" field, ascending
+			From(0).Size(10).                               // take documents 0-9
+			Pretty(true).                                   // pretty print request and response JSON
+			Do()                                            // execute
 		if err != nil {
 			//failf("Search failed: %v\n", err)
 			t.runCh <- RunInfo{Success: false}
