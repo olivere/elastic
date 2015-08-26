@@ -7,6 +7,7 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"testing"
 	"time"
@@ -136,6 +137,10 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 	}
 
 	return client
+}
+
+func setupTestClientAndCreateIndexAndLog(t logger, options ...ClientOptionFunc) *Client {
+	return setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 }
 
 func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFunc) *Client {
