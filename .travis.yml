@@ -3,9 +3,9 @@ sudo: false
 language: go
 
 go:
-  - 1.4
+  #- 1.4
   - 1.5
-  - tip
+  #- tip
 
 env:
   matrix:
@@ -16,8 +16,7 @@ before_script:
   - wget http://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz
   - tar -xzvf elasticsearch-${ES_VERSION}.tar.gz -C ${HOME}/elasticsearch
   - ls -alFR ${HOME}/elasticsearch
-  - echo "script.inline: on" > ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
-  - echo "script.indexed: on" >> ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
+  - cp config/elasticsearch.yml ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/config/
   - cat ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
   - ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/bin/elasticsearch >& /dev/null &
   - sleep 15
