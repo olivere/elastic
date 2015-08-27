@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/olivere/elastic"
+	"gopkg.in/olivere/elastic.v3"
 )
 
 type Tweet struct {
@@ -201,7 +201,7 @@ func Example() {
 }
 
 func ExampleClient_NewClient_default() {
-	// Obtain a client to the Elasticsearch instance on http://localhost:9200.
+	// Obtain a client to the Elasticsearch instance on http://127.0.0.1:9200.
 	client, err := elastic.NewClient()
 	if err != nil {
 		// Handle error

@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -22,7 +21,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.0"
+	Version = "3.0.0-beta1"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -132,7 +131,7 @@ type Client struct {
 // Example:
 //
 //   client, err := elastic.NewClient(
-//     elastic.SetURL("http://localhost:9200", "http://localhost:9201"),
+//     elastic.SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"),
 //     elastic.SetMaxRetries(10),
 //     elastic.SetBasicAuth("user", "secret"))
 //
@@ -625,10 +624,6 @@ func (c *Client) sniff(timeout time.Duration) error {
 	}
 }
 
-// reSniffHostAndPort is used to extract hostname and port from a result
-// from a Nodes Info API (example: "inet[/127.0.0.1:9200]").
-var reSniffHostAndPort = regexp.MustCompile(`\/([^:]*):([0-9]+)\]`)
-
 // sniffNode sniffs a single node. This method is run as a goroutine
 // in sniff. If successful, it returns the list of node URLs extracted
 // from the result of calling Nodes Info API. Otherwise, an empty array
@@ -660,19 +655,13 @@ func (c *Client) sniffNode(url string) []*conn {
 			switch c.scheme {
 			case "https":
 				for nodeID, node := range info.Nodes {
-					m := reSniffHostAndPort.FindStringSubmatch(node.HTTPSAddress)
-					if len(m) == 3 {
-						url := fmt.Sprintf("https://%s:%s", m[1], m[2])
-						nodes = append(nodes, newConn(nodeID, url))
-					}
+					url := fmt.Sprintf("https://%s", node.HTTPSAddress)
+					nodes = append(nodes, newConn(nodeID, url))
 				}
 			default:
 				for nodeID, node := range info.Nodes {
-					m := reSniffHostAndPort.FindStringSubmatch(node.HTTPAddress)
-					if len(m) == 3 {
-						url := fmt.Sprintf("http://%s:%s", m[1], m[2])
-						nodes = append(nodes, newConn(nodeID, url))
-					}
+					url := fmt.Sprintf("http://%s", node.HTTPAddress)
+					nodes = append(nodes, newConn(nodeID, url))
 				}
 			}
 		}

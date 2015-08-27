@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/olivere/elastic/uritemplates"
+	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
 var (
@@ -144,7 +144,7 @@ type NodesInfoResponse struct {
 type NodesInfoNode struct {
 	// Name of the node, e.g. "Mister Fear"
 	Name string `json:"name"`
-	// TransportAddress, e.g. "inet[/127.0.0.1:9300]"
+	// TransportAddress, e.g. "127.0.0.1:9300"
 	TransportAddress string `json:"transport_address"`
 	// Host is the host name, e.g. "macbookair"
 	Host string `json:"host"`
@@ -154,9 +154,9 @@ type NodesInfoNode struct {
 	Version string `json:"version"`
 	// Build is the Elasticsearch build, e.g. "36a29a7"
 	Build string `json:"build"`
-	// HTTPAddress, e.g. "inet[/127.0.0.1:9200]"
+	// HTTPAddress, e.g. "127.0.0.1:9200"
 	HTTPAddress string `json:"http_address"`
-	// HTTPSAddress, e.g. "inet[/127.0.0.1:9200]"
+	// HTTPSAddress, e.g. "127.0.0.1:9200"
 	HTTPSAddress string `json:"https_address"`
 
 	// Settings of the node, e.g. paths and pidfile.

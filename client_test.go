@@ -85,7 +85,7 @@ func TestClientWithoutURL(t *testing.T) {
 }
 
 func TestClientWithSingleURL(t *testing.T) {
-	client, err := NewClient(SetURL("http://localhost:9200"))
+	client, err := NewClient(SetURL("http://127.0.0.1:9200"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,11 +103,11 @@ func TestClientWithSingleURL(t *testing.T) {
 }
 
 func TestClientWithMultipleURLs(t *testing.T) {
-	client, err := NewClient(SetURL("http://localhost:9200", "http://localhost:9201"))
+	client, err := NewClient(SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The client should sniff both URLs, but only localhost:9200 should return nodes.
+	// The client should sniff both URLs, but only 127.0.0.1:9200 should return nodes.
 	if len(client.conns) != 1 {
 		t.Fatalf("expected exactly 1 node in the local cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
@@ -135,25 +135,25 @@ func TestClientWithBasicAuth(t *testing.T) {
 }
 
 func TestClientSniffSuccess(t *testing.T) {
-	client, err := NewClient(SetURL("http://localhost:19200", "http://localhost:9200"))
+	client, err := NewClient(SetURL("http://127.0.0.1:19200", "http://127.0.0.1:9200"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The client should sniff both URLs, but only localhost:9200 should return nodes.
+	// The client should sniff both URLs, but only 127.0.0.1:9200 should return nodes.
 	if len(client.conns) != 1 {
 		t.Fatalf("expected exactly 1 node in the local cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
 }
 
 func TestClientSniffFailure(t *testing.T) {
-	_, err := NewClient(SetURL("http://localhost:19200", "http://localhost:19201"))
+	_, err := NewClient(SetURL("http://127.0.0.1:19200", "http://127.0.0.1:19201"))
 	if err == nil {
 		t.Fatalf("expected cluster to fail with no nodes found")
 	}
 }
 
 func TestClientSniffDisabled(t *testing.T) {
-	client, err := NewClient(SetSniff(false), SetURL("http://localhost:9200", "http://localhost:9201"))
+	client, err := NewClient(SetSniff(false), SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -168,17 +168,17 @@ func TestClientSniffDisabled(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	// The first connection (localhost:9200) should now be okay.
-	if i, found := findConn("http://localhost:9200", client.conns...); !found {
-		t.Fatalf("expected connection to %q to be found", "http://localhost:9200")
+	// The first connection (127.0.0.1:9200) should now be okay.
+	if i, found := findConn("http://127.0.0.1:9200", client.conns...); !found {
+		t.Fatalf("expected connection to %q to be found", "http://127.0.0.1:9200")
 	} else {
 		if conn := client.conns[i]; conn.IsDead() {
 			t.Fatal("expected connection to be alive, but it is dead")
 		}
 	}
-	// The second connection (localhost:9201) should now be marked as dead.
-	if i, found := findConn("http://localhost:9201", client.conns...); !found {
-		t.Fatalf("expected connection to %q to be found", "http://localhost:9201")
+	// The second connection (127.0.0.1:9201) should now be marked as dead.
+	if i, found := findConn("http://127.0.0.1:9201", client.conns...); !found {
+		t.Fatalf("expected connection to %q to be found", "http://127.0.0.1:9201")
 	} else {
 		if conn := client.conns[i]; !conn.IsDead() {
 			t.Fatal("expected connection to be dead, but it is alive")
