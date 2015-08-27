@@ -15,7 +15,8 @@ before_script:
   - mkdir ${HOME}/elasticsearch
   - wget http://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz
   - tar -xzf elasticsearch-${ES_VERSION}.tar.gz
-  - cp .travis.elasticsearch.yml ${HOME}/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
+  - echo "script.inline: on" > ${HOME}/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
+  - echo "script.indexed: on" >> ${HOME}/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
   - cat ${HOME}/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
   - ${HOME}/elasticsearch-${ES_VERSION}/bin/elasticsearch >& /dev/null &
   - sleep 15
