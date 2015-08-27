@@ -14,7 +14,8 @@ env:
 before_script:
   - mkdir ${HOME}/elasticsearch
   - wget http://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz
-  - tar -xzf elasticsearch-${ES_VERSION}.tar.gz -C ${HOME}/elasticsearch
+  - tar -xzvf elasticsearch-${ES_VERSION}.tar.gz -C ${HOME}/elasticsearch
+  - ls -alFR ${HOME}/elasticsearch
   - echo "script.inline: on" > ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
   - echo "script.indexed: on" >> ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
   - cat ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
