@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v3-unstable/uritemplates"
 )
 
 // ExistsService checks for the existence of a document using HEAD.

@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v3-unstable/uritemplates"
 )
 
 // Search for documents in Elasticsearch.
