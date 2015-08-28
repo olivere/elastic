@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -624,6 +625,10 @@ func (c *Client) sniff(timeout time.Duration) error {
 	}
 }
 
+// reSniffHostAndPort is used to extract hostname and port from a result
+// from a Nodes Info API (example: "inet[/127.0.0.1:9200]").
+var reSniffHostAndPort = regexp.MustCompile(`\/([^:]*):([0-9]+)\]`)
+
 // sniffNode sniffs a single node. This method is run as a goroutine
 // in sniff. If successful, it returns the list of node URLs extracted
 // from the result of calling Nodes Info API. Otherwise, an empty array
@@ -655,13 +660,29 @@ func (c *Client) sniffNode(url string) []*conn {
 			switch c.scheme {
 			case "https":
 				for nodeID, node := range info.Nodes {
-					url := fmt.Sprintf("https://%s", node.HTTPSAddress)
-					nodes = append(nodes, newConn(nodeID, url))
+					if strings.HasPrefix(node.HTTPSAddress, "inet") {
+						m := reSniffHostAndPort.FindStringSubmatch(node.HTTPSAddress)
+						if len(m) == 3 {
+							url := fmt.Sprintf("https://%s:%s", m[1], m[2])
+							nodes = append(nodes, newConn(nodeID, url))
+						}
+					} else {
+						url := fmt.Sprintf("https://%s", node.HTTPSAddress)
+						nodes = append(nodes, newConn(nodeID, url))
+					}
 				}
 			default:
 				for nodeID, node := range info.Nodes {
-					url := fmt.Sprintf("http://%s", node.HTTPAddress)
-					nodes = append(nodes, newConn(nodeID, url))
+					if strings.HasPrefix(node.HTTPAddress, "inet") {
+						m := reSniffHostAndPort.FindStringSubmatch(node.HTTPAddress)
+						if len(m) == 3 {
+							url := fmt.Sprintf("http://%s:%s", m[1], m[2])
+							nodes = append(nodes, newConn(nodeID, url))
+						}
+					} else {
+						url := fmt.Sprintf("http://%s", node.HTTPAddress)
+						nodes = append(nodes, newConn(nodeID, url))
+					}
 				}
 			}
 		}
