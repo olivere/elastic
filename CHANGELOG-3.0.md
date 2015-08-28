@@ -332,6 +332,10 @@ The combination of `Metric(string)` and `Metrics(...string)` has been replaced b
 
 Services generally return a typed response from a `Do` func. Those structs are exported so that they can be passed around in your own application. In Elastic 3.0 however, we changed that (most) sub-structs are now unexported, meaning: You can only pass around the whole response, not sub-structures of it. This makes it easier for restructuring responses according to the Elasticsearch API. See [`ClusterStateResponse`](https://github.com/olivere/elastic/blob/release-branch.v3/cluster_state.go#L182) as an example.
 
+## Add offset to Histogram aggregation
+
+Histogram aggregations now have an [offset](https://github.com/elastic/elasticsearch/pull/9505) option.
+
 ## Services
 
 ### REST API specification

@@ -27,7 +27,7 @@ func TestHistogramAggregation(t *testing.T) {
 }
 
 func TestHistogramAggregationWithMetaData(t *testing.T) {
-	agg := NewHistogramAggregation().Field("price").Interval(50).Meta(map[string]interface{}{"name": "Oliver"})
+	agg := NewHistogramAggregation().Field("price").Offset(10).Interval(50).Meta(map[string]interface{}{"name": "Oliver"})
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +37,7 @@ func TestHistogramAggregationWithMetaData(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"histogram":{"field":"price","interval":50},"meta":{"name":"Oliver"}}`
+	expected := `{"histogram":{"field":"price","interval":50,"offset":10},"meta":{"name":"Oliver"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

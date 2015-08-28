@@ -21,6 +21,7 @@ type HistogramAggregation struct {
 	minDocCount       *int64
 	extendedBoundsMin *int64
 	extendedBoundsMax *int64
+	offset            *int64
 }
 
 func NewHistogramAggregation() *HistogramAggregation {
@@ -141,6 +142,12 @@ func (a *HistogramAggregation) MinDocCount(minDocCount int64) *HistogramAggregat
 	return a
 }
 
+func (a *HistogramAggregation) ExtendedBounds(min, max int64) *HistogramAggregation {
+	a.extendedBoundsMin = &min
+	a.extendedBoundsMax = &max
+	return a
+}
+
 func (a *HistogramAggregation) ExtendedBoundsMin(min int64) *HistogramAggregation {
 	a.extendedBoundsMin = &min
 	return a
@@ -148,6 +155,11 @@ func (a *HistogramAggregation) ExtendedBoundsMin(min int64) *HistogramAggregatio
 
 func (a *HistogramAggregation) ExtendedBoundsMax(max int64) *HistogramAggregation {
 	a.extendedBoundsMax = &max
+	return a
+}
+
+func (a *HistogramAggregation) Offset(offset int64) *HistogramAggregation {
+	a.offset = &offset
 	return a
 }
 
@@ -191,6 +203,9 @@ func (a *HistogramAggregation) Source() (interface{}, error) {
 			o[a.order] = "desc"
 		}
 		opts["order"] = o
+	}
+	if a.offset != nil {
+		opts["offset"] = *a.offset
 	}
 	if a.minDocCount != nil {
 		opts["min_doc_count"] = *a.minDocCount
