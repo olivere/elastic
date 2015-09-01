@@ -16,15 +16,15 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for additional informati
 
 Here's the version matrix:
 
-Elasticsearch version | Elastic version | Package URL
-----------------------|-----------------|------------
-2.x                   | 3.0             | *not published yet* ([source](https://github.com/olivere/elastic/tree/release-branch.v3))
-1.x                   | 2.0             | [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2) ([source](https://github.com/olivere/elastic/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/olivere/elastic.v2))
-0.9-1.3               | 1.0             | [`gopkg.in/olivere/elastic.v1`](https://gopkg.in/olivere/elastic.v1) ([source](https://github.com/olivere/elastic/tree/release-branch.v1) [doc](http://godoc.org/gopkg.in/olivere/elastic.v1))
+Elasticsearch version | Elastic version -| Package URL
+----------------------|------------------|------------
+2.x                   | 3.0 **beta**     | [`gopkg.in/olivere/elastic.v3-unstable`](https://gopkg.in/olivere/elastic.v3-unstable) ([source](https://github.com/olivere/elastic/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/olivere/elastic.v3-unstable))
+1.x                   | 2.0              | [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2) ([source](https://github.com/olivere/elastic/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/olivere/elastic.v2))
+0.9-1.3               | 1.0              | [`gopkg.in/olivere/elastic.v1`](https://gopkg.in/olivere/elastic.v1) ([source](https://github.com/olivere/elastic/tree/release-branch.v1) [doc](http://godoc.org/gopkg.in/olivere/elastic.v1))
 
 **Example:**
 
-You have Elasticsearch 1.6.0 installed and want to use Elastic. As listed above, you should use Elastic 2.0. So you first install Elastic 2.0.
+You have Elasticsearch 1.7.1 installed and want to use Elastic. As listed above, you should use Elastic 2.0. So you first install Elastic 2.0.
 
 ```sh
 $ go get gopkg.in/olivere/elastic.v2
