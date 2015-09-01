@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.6"
+	Version = "2.0.7"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -195,6 +195,11 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		c.urls = []string{DefaultURL}
 	}
 	c.urls = canonicalize(c.urls...)
+
+	// Check if we can make a request to any of the specified URLs
+	if err := c.startupHealthcheck(c.healthcheckTimeoutStartup); err != nil {
+		return nil, err
+	}
 
 	if c.snifferEnabled {
 		// Sniff the cluster initially
@@ -694,7 +699,7 @@ func (c *Client) healthchecker() {
 
 // healthcheck does a health check on all nodes in the cluster. Depending on
 // the node state, it marks connections as dead, sets them alive etc.
-// If healthchecks are disabled and force is false, this is a no-op.
+// If healthchecks are disabled this is a no-op.
 // The timeout specifies how long to wait for a response from Elasticsearch.
 func (c *Client) healthcheck(timeout time.Duration, force bool) {
 	c.mu.RLock()
@@ -735,6 +740,31 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 			conn.MarkAsDead()
 		}
 	}
+}
+
+// startupHealthcheck is used at startup to check if the server is available
+// at all.
+func (c *Client) startupHealthcheck(timeout time.Duration) error {
+	c.mu.Lock()
+	urls := c.urls
+	c.mu.Unlock()
+
+	// If we don't get a connection after "timeout", we bail.
+	start := time.Now()
+	for {
+		cl := &http.Client{Timeout: timeout}
+		for _, url := range urls {
+			res, err := cl.Head(url)
+			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
+				return nil
+			}
+		}
+		time.Sleep(1 * time.Second)
+		if time.Now().Sub(start) > timeout {
+			break
+		}
+	}
+	return ErrNoClient
 }
 
 // next returns the next available connection, or ErrNoClient.
