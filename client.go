@@ -201,6 +201,11 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	}
 	c.urls = canonicalize(c.urls...)
 
+	// Check if we can make a request to any of the specified URLs
+	if err := c.startupHealthcheck(c.healthcheckTimeoutStartup); err != nil {
+		return nil, err
+	}
+
 	if c.snifferEnabled {
 		// Sniff the cluster initially
 		if err := c.sniff(c.snifferTimeoutStartup); err != nil {
@@ -784,6 +789,31 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 			conn.MarkAsDead()
 		}
 	}
+}
+
+// startupHealthcheck is used at startup to check if the server is available
+// at all.
+func (c *Client) startupHealthcheck(timeout time.Duration) error {
+	c.mu.Lock()
+	urls := c.urls
+	c.mu.Unlock()
+
+	// If we don't get a connection after "timeout", we bail.
+	start := time.Now()
+	for {
+		cl := &http.Client{Timeout: timeout}
+		for _, url := range urls {
+			res, err := cl.Head(url)
+			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
+				return nil
+			}
+		}
+		time.Sleep(1 * time.Second)
+		if time.Now().Sub(start) > timeout {
+			break
+		}
+	}
+	return ErrNoClient
 }
 
 // next returns the next available connection, or ErrNoClient.

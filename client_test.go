@@ -163,10 +163,7 @@ func TestClientSniffDisabled(t *testing.T) {
 	}
 	// Make two requests, so that both connections are being used
 	for i := 0; i < len(client.conns); i++ {
-		_, err = client.Flush().Do()
-		if err != nil {
-			t.Fatal(err)
-		}
+		client.Flush().Do()
 	}
 	// The first connection (127.0.0.1:9200) should now be okay.
 	if i, found := findConn("http://127.0.0.1:9200", client.conns...); !found {
@@ -193,6 +190,18 @@ func TestClientWithRequiredPlugins(t *testing.T) {
 	}
 	if got, want := err.Error(), "elastic: plugin no-such-plugin not found"; got != want {
 		t.Fatalf("expected error %q; got: %q", want, got)
+	}
+}
+
+func TestClientHealthcheckStartupTimeout(t *testing.T) {
+	start := time.Now()
+	_, err := NewClient(SetURL("http://localhost:9299"), SetHealthcheckTimeoutStartup(5*time.Second))
+	duration := time.Now().Sub(start)
+	if err != ErrNoClient {
+		t.Fatal(err)
+	}
+	if duration < 5*time.Second {
+		t.Fatalf("expected a timeout in more than 5 seconds; got: %v", duration)
 	}
 }
 
