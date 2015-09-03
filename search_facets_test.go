@@ -12,7 +12,7 @@ import (
 )
 
 func TestSearchFacets(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	tweet1 := tweet{
 		User:     "olivere",
@@ -95,6 +95,9 @@ func TestSearchFacets(t *testing.T) {
 		Between(d20120101, d20130101).
 		Gt(d20130101)
 
+	// Terms Stats Facet
+	termsStatsFacet := NewTermsStatsFacet().KeyField("user").ValueField("retweets")
+
 	// Run query
 	searchResult, err := client.Search().Index(testIndexName).
 		Query(&all).
@@ -108,6 +111,8 @@ func TestSearchFacets(t *testing.T) {
 		Facet("queryFacet", queryFacet).
 		Facet("dateRangeFacet", dateRangeFacet).
 		Facet("dateRangeWithTimeFacet", dateRangeWithTimeFacet).
+		Facet("termsStatsFacet", termsStatsFacet).
+		Pretty(true).
 		Do()
 	if err != nil {
 		t.Fatal(err)
@@ -473,4 +478,56 @@ func TestSearchFacets(t *testing.T) {
 		t.Errorf("expected searchResult.Facets[\"dateRangeWithTimeFacet\"].Ranges[2].FromStr = %v; got %v", "2013-01-01T00:00:00Z", *facet.Ranges[2].FromStr)
 	}
 
+	// Search for terms_stats facet
+	facet, found = searchResult.Facets["termsStatsFacet"]
+	if !found {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"] = %v; got %v", true, found)
+	}
+	if facet == nil {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"] != nil; got nil")
+	}
+
+	// Check facet details
+	if got, want := facet.Type, "terms_stats"; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Type = %v; got %v", want, got)
+	}
+	if got, want := len(facet.Terms), 2; got != want {
+		t.Errorf("expected len(searchResult.Facets[\"termsStatsFacet\"].Terms) = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[0].Term, "olivere"; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[0].Term = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[0].Count, 2; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[0].Count = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[0].TotalCount, 2; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[0].TotalCount = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[0].Min, 0.0; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[0].Min = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[0].Max, 108.0; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[0].Max = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[0].Mean, 54.0; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[0].Mean = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[1].Term, "sandrae"; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[1].Term = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[1].Count, 1; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[1].Count = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[1].TotalCount, 1; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[1].TotalCount = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[1].Min, 12.0; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[1].Min = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[1].Max, 12.0; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[1].Max = %v; got %v", want, got)
+	}
+	if got, want := facet.Terms[1].Mean, 12.0; got != want {
+		t.Errorf("expected searchResult.Facets[\"termsStatsFacet\"].Terms[1].Mean = %v; got %v", want, got)
+	}
 }

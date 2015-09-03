@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+	"gopkg.in/olivere/elastic.v2/uritemplates"
 )
 
 const (
@@ -302,6 +302,7 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 	}
 
 	// Return result
+	c.Results = &SearchResult{ScrollId: body}
 	if err := json.Unmarshal(res.Body, c.Results); err != nil {
 		return nil, err
 	}

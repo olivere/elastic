@@ -27,6 +27,10 @@ type FuzzyCompletionSuggester struct {
 	unicodeAware        *bool
 }
 
+// Fuzziness defines the fuzziness which is used in FuzzyCompletionSuggester.
+type Fuzziness struct {
+}
+
 // Creates a new completion suggester.
 func NewFuzzyCompletionSuggester(name string) FuzzyCompletionSuggester {
 	return FuzzyCompletionSuggester{
@@ -139,20 +143,22 @@ func (q FuzzyCompletionSuggester) Source(includeName bool) interface{} {
 	}
 
 	// Fuzzy Completion Suggester fields
+	fuzzy := make(map[string]interface{})
+	suggester["fuzzy"] = fuzzy
 	if q.fuzziness != nil {
-		suggester["fuzziness"] = q.fuzziness
+		fuzzy["fuzziness"] = q.fuzziness
 	}
 	if q.fuzzyTranspositions != nil {
-		suggester["transpositions"] = *q.fuzzyTranspositions
+		fuzzy["transpositions"] = *q.fuzzyTranspositions
 	}
 	if q.fuzzyMinLength != nil {
-		suggester["min_length"] = *q.fuzzyMinLength
+		fuzzy["min_length"] = *q.fuzzyMinLength
 	}
 	if q.fuzzyPrefixLength != nil {
-		suggester["prefix_length"] = *q.fuzzyPrefixLength
+		fuzzy["prefix_length"] = *q.fuzzyPrefixLength
 	}
 	if q.unicodeAware != nil {
-		suggester["unicode_aware"] = *q.unicodeAware
+		fuzzy["unicode_aware"] = *q.unicodeAware
 	}
 
 	if !includeName {

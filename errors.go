@@ -37,13 +37,16 @@ func checkResponse(res *http.Response) error {
 	}
 	errReply := new(Error)
 	err = json.Unmarshal(slurp, errReply)
-	if err == nil && errReply != nil {
+	if err != nil {
+		return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
+	}
+	if errReply != nil {
 		if errReply.Status == 0 {
 			errReply.Status = res.StatusCode
 		}
 		return errReply
 	}
-	return nil
+	return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
 }
 
 type Error struct {
