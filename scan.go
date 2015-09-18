@@ -31,6 +31,7 @@ type ScanService struct {
 	client    *Client
 	indices   []string
 	types     []string
+	parent    string
 	keepAlive string
 	fields    []string
 	query     Query
@@ -76,6 +77,12 @@ func (s *ScanService) Types(types ...string) *ScanService {
 		s.types = make([]string, 0)
 	}
 	s.types = append(s.types, types...)
+	return s
+}
+
+// Parent specifies which shard should be used when scan
+func (s *ScanService) Parent(parent string) *ScanService {
+	s.parent = parent
 	return s
 }
 
@@ -182,6 +189,9 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 		params.Set("scroll", s.keepAlive)
 	} else {
 		params.Set("scroll", defaultKeepAlive)
+	}
+	if s.parent != "" {
+		params.Set("parent", s.parent)
 	}
 	if s.size != nil && *s.size > 0 {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
