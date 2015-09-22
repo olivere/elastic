@@ -112,6 +112,9 @@ func (s *ScanService) Pretty(pretty bool) *ScanService {
 	return s
 }
 
+// Size is the number of results to return per shard, not per request.
+// So a size of 10 which hits 5 shards will return a maximum of 50 results
+// per scan request.
 func (s *ScanService) Size(size int) *ScanService {
 	s.size = &size
 	return s
