@@ -25,9 +25,9 @@ func NewRangeQuery(name string) RangeQuery {
 	return q
 }
 
-func (f RangeQuery) TimeZone(timeZone string) RangeQuery {
-	f.timeZone = timeZone
-	return f
+func (q RangeQuery) TimeZone(timeZone string) RangeQuery {
+	q.timeZone = timeZone
+	return q
 }
 
 func (q RangeQuery) From(from interface{}) RangeQuery {
