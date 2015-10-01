@@ -45,16 +45,16 @@ func TestScan(t *testing.T) {
 	}
 
 	if cursor.Results == nil {
-		t.Errorf("expected results != nil; got nil")
+		t.Fatalf("expected results != nil; got nil")
 	}
 	if cursor.Results.Hits == nil {
-		t.Errorf("expected results.Hits != nil; got nil")
+		t.Fatalf("expected results.Hits != nil; got nil")
 	}
 	if cursor.Results.Hits.TotalHits != 3 {
-		t.Errorf("expected results.Hits.TotalHits = %d; got %d", 3, cursor.Results.Hits.TotalHits)
+		t.Fatalf("expected results.Hits.TotalHits = %d; got %d", 3, cursor.Results.Hits.TotalHits)
 	}
 	if len(cursor.Results.Hits.Hits) != 0 {
-		t.Errorf("expected len(results.Hits.Hits) = %d; got %d", 0, len(cursor.Results.Hits.Hits))
+		t.Fatalf("expected len(results.Hits.Hits) = %d; got %d", 0, len(cursor.Results.Hits.Hits))
 	}
 
 	pages := 0
@@ -73,7 +73,7 @@ func TestScan(t *testing.T) {
 
 		for _, hit := range searchResult.Hits.Hits {
 			if hit.Index != testIndexName {
-				t.Errorf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
+				t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
 			}
 			item := make(map[string]interface{})
 			err := json.Unmarshal(*hit.Source, &item)
@@ -129,20 +129,20 @@ func TestScanWithSort(t *testing.T) {
 	}
 
 	if cursor.Results == nil {
-		t.Errorf("expected results != nil; got nil")
+		t.Fatalf("expected results != nil; got nil")
 	}
 	if cursor.Results.Hits == nil {
-		t.Errorf("expected results.Hits != nil; got nil")
+		t.Fatalf("expected results.Hits != nil; got nil")
 	}
 	if cursor.Results.Hits.TotalHits != 3 {
-		t.Errorf("expected results.Hits.TotalHits = %d; got %d", 3, cursor.Results.Hits.TotalHits)
+		t.Fatalf("expected results.Hits.TotalHits = %d; got %d", 3, cursor.Results.Hits.TotalHits)
 	}
 	if len(cursor.Results.Hits.Hits) != 1 {
-		t.Errorf("expected len(results.Hits.Hits) = %d; got %d", 1, len(cursor.Results.Hits.Hits))
+		t.Fatalf("expected len(results.Hits.Hits) = %d; got %d", 1, len(cursor.Results.Hits.Hits))
 	}
 
 	if cursor.Results.Hits.Hits[0].Id != "3" {
-		t.Errorf("expected hitID = %v; got %v", "3", cursor.Results.Hits.Hits[0].Id)
+		t.Fatalf("expected hitID = %v; got %v", "3", cursor.Results.Hits.Hits[0].Id)
 
 	}
 
@@ -162,7 +162,7 @@ func TestScanWithSort(t *testing.T) {
 
 		for _, hit := range searchResult.Hits.Hits {
 			if hit.Index != testIndexName {
-				t.Errorf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
+				t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
 			}
 			item := make(map[string]interface{})
 			err := json.Unmarshal(*hit.Source, &item)
@@ -179,6 +179,92 @@ func TestScanWithSort(t *testing.T) {
 
 	if numDocs != 3 {
 		t.Errorf("expected to retrieve %d hits; got %d", 3, numDocs)
+	}
+}
+
+func TestScanWithSearchSource(t *testing.T) {
+	//client := setupTestClientAndCreateIndexAndLog(t)
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch.", Retweets: 4}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic.", Retweets: 10}
+	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun.", Retweets: 3}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	src := NewSearchSource().
+		Query(NewTermQuery("user", "olivere")).
+		FetchSourceContext(NewFetchSourceContext(true).Include("retweets"))
+	cursor, err := client.Scan(testIndexName).SearchSource(src).Size(1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if cursor.Results == nil {
+		t.Fatalf("expected results != nil; got nil")
+	}
+	if cursor.Results.Hits == nil {
+		t.Fatalf("expected results.Hits != nil; got nil")
+	}
+	if cursor.Results.Hits.TotalHits != 2 {
+		t.Fatalf("expected results.Hits.TotalHits = %d; got %d", 2, cursor.Results.Hits.TotalHits)
+	}
+
+	numDocs := 0
+	pages := 0
+
+	for {
+		searchResult, err := cursor.Next()
+		if err == EOS {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		pages += 1
+
+		for _, hit := range searchResult.Hits.Hits {
+			if hit.Index != testIndexName {
+				t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
+			}
+			item := make(map[string]interface{})
+			err := json.Unmarshal(*hit.Source, &item)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, found := item["message"]; found {
+				t.Fatalf("expected to not see field %q; got: %#v", "message", item)
+			}
+			numDocs += 1
+		}
+	}
+
+	if pages != 3 {
+		t.Errorf("expected to retrieve %d pages; got %d", 2, pages)
+	}
+
+	if numDocs != 2 {
+		t.Errorf("expected to retrieve %d hits; got %d", 2, numDocs)
 	}
 }
 
@@ -221,16 +307,16 @@ func TestScanWithQuery(t *testing.T) {
 	}
 
 	if cursor.Results == nil {
-		t.Errorf("expected results != nil; got nil")
+		t.Fatalf("expected results != nil; got nil")
 	}
 	if cursor.Results.Hits == nil {
-		t.Errorf("expected results.Hits != nil; got nil")
+		t.Fatalf("expected results.Hits != nil; got nil")
 	}
 	if cursor.Results.Hits.TotalHits != 2 {
-		t.Errorf("expected results.Hits.TotalHits = %d; got %d", 2, cursor.Results.Hits.TotalHits)
+		t.Fatalf("expected results.Hits.TotalHits = %d; got %d", 2, cursor.Results.Hits.TotalHits)
 	}
 	if len(cursor.Results.Hits.Hits) != 0 {
-		t.Errorf("expected len(results.Hits.Hits) = %d; got %d", 0, len(cursor.Results.Hits.Hits))
+		t.Fatalf("expected len(results.Hits.Hits) = %d; got %d", 0, len(cursor.Results.Hits.Hits))
 	}
 
 	pages := 0
@@ -249,7 +335,7 @@ func TestScanWithQuery(t *testing.T) {
 
 		for _, hit := range searchResult.Hits.Hits {
 			if hit.Index != testIndexName {
-				t.Errorf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
+				t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
 			}
 			item := make(map[string]interface{})
 			err := json.Unmarshal(*hit.Source, &item)
@@ -320,22 +406,22 @@ func TestScanAndScrollWithEmptyIndex(t *testing.T) {
 		t.Fatalf("expected results != nil; got: nil")
 	}
 	if res.ScrollId == "" {
-		t.Errorf("expected scrollId in results; got: %q", res.ScrollId)
+		t.Fatalf("expected scrollId in results; got: %q", res.ScrollId)
 	}
 	if res.TotalHits() != 0 {
-		t.Errorf("expected TotalHits() = %d; got %d", 0, res.TotalHits())
+		t.Fatalf("expected TotalHits() = %d; got %d", 0, res.TotalHits())
 	}
 	if res.Hits == nil {
-		t.Errorf("expected results.Hits != nil; got: nil")
+		t.Fatalf("expected results.Hits != nil; got: nil")
 	}
 	if res.Hits.TotalHits != 0 {
-		t.Errorf("expected results.Hits.TotalHits = %d; got %d", 0, res.Hits.TotalHits)
+		t.Fatalf("expected results.Hits.TotalHits = %d; got %d", 0, res.Hits.TotalHits)
 	}
 	if res.Hits.Hits == nil {
-		t.Errorf("expected results.Hits.Hits != nil; got: %v", res.Hits.Hits)
+		t.Fatalf("expected results.Hits.Hits != nil; got: %v", res.Hits.Hits)
 	}
 	if len(res.Hits.Hits) != 0 {
-		t.Errorf("expected len(results.Hits.Hits) == %d; got: %d", 0, len(res.Hits.Hits))
+		t.Fatalf("expected len(results.Hits.Hits) == %d; got: %d", 0, len(res.Hits.Hits))
 	}
 
 	// Subsequent requests return EOS

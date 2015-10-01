@@ -121,6 +121,10 @@ func (s *SearchSource) SortBy(sorter ...Sorter) *SearchSource {
 	return s
 }
 
+func (s *SearchSource) hasSort() bool {
+	return len(s.sorts) > 0 || len(s.sorters) > 0
+}
+
 func (s *SearchSource) TrackScores(trackScores bool) *SearchSource {
 	s.trackScores = trackScores
 	return s
