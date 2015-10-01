@@ -13,6 +13,7 @@ type RangeFilter struct {
 	from         *interface{}
 	to           *interface{}
 	timeZone     string
+	format       string
 	includeLower bool
 	includeUpper bool
 	cache        *bool
@@ -28,6 +29,11 @@ func NewRangeFilter(name string) RangeFilter {
 
 func (f RangeFilter) TimeZone(timeZone string) RangeFilter {
 	f.timeZone = timeZone
+	return f
+}
+
+func (f RangeFilter) Format(format string) RangeFilter {
+	f.format = format
 	return f
 }
 
@@ -116,6 +122,9 @@ func (f RangeFilter) Source() interface{} {
 	params["to"] = f.to
 	if f.timeZone != "" {
 		params["time_zone"] = f.timeZone
+	}
+	if f.format != "" {
+		params["format"] = f.format
 	}
 	params["include_lower"] = f.includeLower
 	params["include_upper"] = f.includeUpper
