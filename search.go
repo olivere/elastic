@@ -110,6 +110,25 @@ func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
 	return s
 }
 
+// XSource is a list of fields to extract and return from the _source field.
+// With no parameters specified, it will completely disable returning _source.
+func (s *SearchService) XSource(xSource ...string) *SearchService {
+	s.searchSource = s.searchSource.XSource(xSource...)
+	return s
+}
+
+// XSourceInclude is a list of fields to extract and return from the _source field.
+func (s *SearchService) XSourceInclude(xSource ...string) *SearchService {
+	s.searchSource = s.searchSource.XSource(xSource...)
+	return s
+}
+
+// XSourceExclude is a list of fields to exclude from the returned _source field.
+func (s *SearchService) XSourceExclude(xSource ...string) *SearchService {
+	s.searchSource = s.searchSource.XSource(xSource...)
+	return s
+}
+
 // SearchType sets the search operation type. Valid values are:
 // "query_then_fetch", "query_and_fetch", "dfs_query_then_fetch",
 // "dfs_query_and_fetch", "count", "scan".
