@@ -39,6 +39,8 @@ type ScanService struct {
 	size         *int
 }
 
+// NewScanService creates a new service to iterate through the results
+// of a query.
 func NewScanService(client *Client) *ScanService {
 	builder := &ScanService{
 		client:       client,
@@ -141,6 +143,19 @@ func (s *ScanService) PostFilter(postFilter Filter) *ScanService {
 	return s
 }
 
+// FetchSource indicates whether the response should contain the stored
+// _source for every hit.
+func (s *ScanService) FetchSource(fetchSource bool) *ScanService {
+	s.searchSource = s.searchSource.FetchSource(fetchSource)
+	return s
+}
+
+// FetchSourceContext indicates how the _source should be fetched.
+func (s *ScanService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *ScanService {
+	s.searchSource = s.searchSource.FetchSourceContext(fetchSourceContext)
+	return s
+}
+
 // Version can be set to true to return a version for each search hit.
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-version.html.
 func (s *ScanService) Version(version bool) *ScanService {
@@ -189,6 +204,7 @@ func (s *ScanService) Size(size int) *ScanService {
 	return s
 }
 
+// Do executes the query and returns a "server-side cursor".
 func (s *ScanService) Do() (*ScanCursor, error) {
 	// Build url
 	path := "/"
