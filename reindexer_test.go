@@ -3,6 +3,7 @@ package elastic
 import (
 	"encoding/json"
 	"testing"
+	"time"
 )
 
 func TestReindexer(t *testing.T) {
@@ -168,6 +169,9 @@ func TestReindexerWithTargetClient(t *testing.T) {
 	if sourceCount <= 0 {
 		t.Fatalf("expected more than %d documents; got: %d", 0, sourceCount)
 	}
+
+	// Timing issue with the target client
+	time.Sleep(2 * time.Second)
 
 	targetCount, err := targetClient.Count(testIndexName2).Do()
 	if err != nil {
