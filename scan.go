@@ -132,6 +132,13 @@ func (s *ScanService) Query(query Query) *ScanService {
 	return s
 }
 
+// FetchSourceContext specifies fields to include/exclude from the
+// returned document source
+func (s *ScanService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *ScanService {
+	s.searchSource = s.searchSource.FetchSourceContext(fetchSourceContext)
+	return s
+}
+
 // PostFilter is executed as the last filter. It only affects the
 // search hits but not facets. See
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-post-filter.html
