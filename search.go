@@ -121,8 +121,8 @@ func (s *SearchService) SearchType(searchType string) *SearchService {
 }
 
 // Routing allows for (a comma-separated) list of specific routing values.
-func (s *SearchService) Routing(routing string) *SearchService {
-	s.routing = routing
+func (s *SearchService) Routing(routings ...string) *SearchService {
+	s.routing = strings.Join(routings, ",")
 	return s
 }
 
@@ -325,6 +325,9 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	}
 	if s.searchType != "" {
 		params.Set("search_type", s.searchType)
+	}
+	if s.routing != "" {
+		params.Set("routing", s.routing)
 	}
 
 	// Perform request
