@@ -153,6 +153,19 @@ func (s *SearchService) PostFilter(postFilter Filter) *SearchService {
 	return s
 }
 
+// FetchSource indicates whether the response should contain the stored
+// _source for every hit.
+func (s *SearchService) FetchSource(fetchSource bool) *SearchService {
+	s.searchSource = s.searchSource.FetchSource(fetchSource)
+	return s
+}
+
+// FetchSourceContext indicates how the _source should be fetched.
+func (s *SearchService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *SearchService {
+	s.searchSource = s.searchSource.FetchSourceContext(fetchSourceContext)
+	return s
+}
+
 // Highlight sets the highlighting. See
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html
 // for details.
