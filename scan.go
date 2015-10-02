@@ -98,8 +98,8 @@ func (s *ScanService) SearchSource(searchSource *SearchSource) *ScanService {
 }
 
 // Routing allows for (a comma-separated) list of specific routing values.
-func (s *ScanService) Routing(routing string) *ScanService {
-	s.routing = routing
+func (s *ScanService) Routing(routings ...string) *ScanService {
+	s.routing = strings.Join(routings, ",")
 	return s
 }
 
@@ -239,6 +239,9 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	}
 	if s.size != nil && *s.size > 0 {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
+	}
+	if s.routing != "" {
+		params.Set("routing", s.routing)
 	}
 
 	// Get response

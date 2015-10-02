@@ -283,6 +283,9 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	if s.searchType != "" {
 		params.Set("search_type", s.searchType)
 	}
+	if s.routing != "" {
+		params.Set("routing", s.routing)
+	}
 
 	// Perform request
 	var body interface{}
