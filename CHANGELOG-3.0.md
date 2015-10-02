@@ -231,6 +231,10 @@ if err != nil {
 }
 ```
 
+## Scroll and Scan
+
+TODO(oe) Maybe merge ScanService and ScrollService into an Iterator. Use io.EOF instead of EOS.
+
 ## Delete-by-Query API
 
 The Delete-by-Query API is [a plugin now](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_removed_features.html#_delete_by_query_is_now_a_plugin). It is no longer core part of Elasticsearch. You can [install it as a plugin as described here](https://www.elastic.co/guide/en/elasticsearch/plugins/2.0/plugins-delete-by-query.html).

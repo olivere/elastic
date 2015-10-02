@@ -128,6 +128,19 @@ func (s *SearchService) PostFilter(postFilter Query) *SearchService {
 	return s
 }
 
+// FetchSource indicates whether the response should contain the stored
+// _source for every hit.
+func (s *SearchService) FetchSource(fetchSource bool) *SearchService {
+	s.searchSource = s.searchSource.FetchSource(fetchSource)
+	return s
+}
+
+// FetchSourceContext indicates how the _source should be fetched.
+func (s *SearchService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *SearchService {
+	s.searchSource = s.searchSource.FetchSourceContext(fetchSourceContext)
+	return s
+}
+
 // Highlight adds highlighting to the search.
 func (s *SearchService) Highlight(highlight *Highlight) *SearchService {
 	s.searchSource = s.searchSource.Highlight(highlight)

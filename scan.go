@@ -28,25 +28,28 @@ var (
 
 // ScanService manages a cursor through documents in Elasticsearch.
 type ScanService struct {
-	client    *Client
-	indices   []string
-	types     []string
-	keepAlive string
-	fields    []string
-	query     Query
-	sorts     []SortInfo
-	size      *int
-	pretty    bool
+	client       *Client
+	indices      []string
+	types        []string
+	keepAlive    string
+	searchSource *SearchSource
+	pretty       bool
+	routing      string
+	preference   string
+	size         *int
 }
 
+// NewScanService creates a new service to iterate through the results
+// of a query.
 func NewScanService(client *Client) *ScanService {
 	builder := &ScanService{
-		client: client,
-		query:  NewMatchAllQuery(),
+		client:       client,
+		searchSource: NewSearchSource().Query(NewMatchAllQuery()),
 	}
 	return builder
 }
 
+// Index sets the name(s) of the index to use for scan.
 func (s *ScanService) Index(indices ...string) *ScanService {
 	if s.indices == nil {
 		s.indices = make([]string, 0)
@@ -55,6 +58,7 @@ func (s *ScanService) Index(indices ...string) *ScanService {
 	return s
 }
 
+// Types allows to restrict the scan to a list of types.
 func (s *ScanService) Type(types ...string) *ScanService {
 	if s.types == nil {
 		s.types = make([]string, 0)
@@ -77,15 +81,67 @@ func (s *ScanService) KeepAlive(keepAlive string) *ScanService {
 	return s
 }
 
-// Fields specifies the fields the scan query should load.
-// By default fields is nil so _source is loaded
+// Fields tells Elasticsearch to only load specific fields from a search hit.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-fields.html.
 func (s *ScanService) Fields(fields ...string) *ScanService {
-	s.fields = fields
+	s.searchSource = s.searchSource.Fields(fields...)
 	return s
 }
 
+// SearchSource sets the search source builder to use with this service.
+func (s *ScanService) SearchSource(searchSource *SearchSource) *ScanService {
+	s.searchSource = searchSource
+	if s.searchSource == nil {
+		s.searchSource = NewSearchSource().Query(NewMatchAllQuery())
+	}
+	return s
+}
+
+// Routing allows for (a comma-separated) list of specific routing values.
+func (s *ScanService) Routing(routing string) *ScanService {
+	s.routing = routing
+	return s
+}
+
+// Preference specifies the node or shard the operation should be
+// performed on (default: "random").
+func (s *ScanService) Preference(preference string) *ScanService {
+	s.preference = preference
+	return s
+}
+
+// Query sets the query to perform, e.g. MatchAllQuery.
 func (s *ScanService) Query(query Query) *ScanService {
-	s.query = query
+	s.searchSource = s.searchSource.Query(query)
+	return s
+}
+
+// PostFilter is executed as the last filter. It only affects the
+// search hits but not facets. See
+// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-post-filter.html
+// for details.
+func (s *ScanService) PostFilter(postFilter Query) *ScanService {
+	s.searchSource = s.searchSource.PostFilter(postFilter)
+	return s
+}
+
+// FetchSource indicates whether the response should contain the stored
+// _source for every hit.
+func (s *ScanService) FetchSource(fetchSource bool) *ScanService {
+	s.searchSource = s.searchSource.FetchSource(fetchSource)
+	return s
+}
+
+// FetchSourceContext indicates how the _source should be fetched.
+func (s *ScanService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *ScanService {
+	s.searchSource = s.searchSource.FetchSourceContext(fetchSourceContext)
+	return s
+}
+
+// Version can be set to true to return a version for each search hit.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-version.html.
+func (s *ScanService) Version(version bool) *ScanService {
+	s.searchSource = s.searchSource.Version(version)
 	return s
 }
 
@@ -94,7 +150,7 @@ func (s *ScanService) Query(query Query) *ScanService {
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
 // for detailed documentation of sorting.
 func (s *ScanService) Sort(field string, ascending bool) *ScanService {
-	s.sorts = append(s.sorts, SortInfo{Field: field, Ascending: ascending})
+	s.searchSource = s.searchSource.Sort(field, ascending)
 	return s
 }
 
@@ -103,10 +159,20 @@ func (s *ScanService) Sort(field string, ascending bool) *ScanService {
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
 // for detailed documentation of sorting.
 func (s *ScanService) SortWithInfo(info SortInfo) *ScanService {
-	s.sorts = append(s.sorts, info)
+	s.searchSource = s.searchSource.SortWithInfo(info)
 	return s
 }
 
+// SortBy defines how to sort results.
+// Use the Sort func for a shortcut.
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html
+// for detailed documentation of sorting.
+func (s *ScanService) SortBy(sorter ...Sorter) *ScanService {
+	s.searchSource = s.searchSource.SortBy(sorter...)
+	return s
+}
+
+// Pretty enables the caller to indent the JSON output.
 func (s *ScanService) Pretty(pretty bool) *ScanService {
 	s.pretty = pretty
 	return s
@@ -120,6 +186,7 @@ func (s *ScanService) Size(size int) *ScanService {
 	return s
 }
 
+// Do executes the query and returns a "server-side cursor".
 func (s *ScanService) Do() (*ScanCursor, error) {
 	// Build url
 	path := "/"
@@ -159,7 +226,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 
 	// Parameters
 	params := make(url.Values)
-	if len(s.sorts) == 0 {
+	if !s.searchSource.hasSort() {
 		params.Set("search_type", "scan")
 	}
 	if s.pretty {
@@ -173,32 +240,12 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	if s.size != nil && *s.size > 0 {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
 	}
-	if s.fields != nil {
-		params.Set("fields", strings.Join(s.fields, ","))
-	}
-
-	// Set body
-	body := make(map[string]interface{})
-	if s.query != nil {
-		src, err := s.query.Source()
-		if err != nil {
-			return nil, err
-		}
-		body["query"] = src
-	}
-	if len(s.sorts) > 0 {
-		sortarr := make([]interface{}, 0)
-		for _, sort := range s.sorts {
-			src, err := sort.Source()
-			if err != nil {
-				return nil, err
-			}
-			sortarr = append(sortarr, src)
-		}
-		body["sort"] = sortarr
-	}
 
 	// Get response
+	body, err := s.searchSource.Source()
+	if err != nil {
+		return nil, err
+	}
 	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err

@@ -38,6 +38,7 @@ type SearchSource struct {
 	innerHits                map[string]*InnerHit
 }
 
+// NewSearchSource initializes a new SearchSource.
 func NewSearchSource() *SearchSource {
 	return &SearchSource{
 		from:            -1,
@@ -137,6 +138,10 @@ func (s *SearchSource) SortWithInfo(info SortInfo) *SearchSource {
 func (s *SearchSource) SortBy(sorter ...Sorter) *SearchSource {
 	s.sorters = append(s.sorters, sorter...)
 	return s
+}
+
+func (s *SearchSource) hasSort() bool {
+	return len(s.sorts) > 0 || len(s.sorters) > 0
 }
 
 // TrackScores is applied when sorting and controls if scores will be
