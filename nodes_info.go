@@ -159,6 +159,9 @@ type NodesInfoNode struct {
 	// HTTPSAddress, e.g. "127.0.0.1:9200"
 	HTTPSAddress string `json:"https_address"`
 
+	// Attributes of the node.
+	Attributes map[string]interface{} `json:"attributes"`
+
 	// Settings of the node, e.g. paths and pidfile.
 	Settings map[string]interface{} `json:"settings"`
 
@@ -289,15 +292,21 @@ type NodesInfoNodeNetwork struct {
 }
 
 type NodesInfoNodeTransport struct {
-	BoundAddress   string `json:"bound_address"`   // e.g. inet[/127.0.0.1:9300]
-	PublishAddress string `json:"publish_address"` // e.g. inet[/127.0.0.1:9300]
+	BoundAddress   []string                                  `json:"bound_address"`
+	PublishAddress string                                    `json:"publish_address"`
+	Profiles       map[string]*NodesInfoNodeTransportProfile `json:"profiles"`
+}
+
+type NodesInfoNodeTransportProfile struct {
+	BoundAddress   []string `json:"bound_address"`
+	PublishAddress string   `json:"publish_address"`
 }
 
 type NodesInfoNodeHTTP struct {
-	BoundAddress            string `json:"bound_address"`      // e.g. inet[/127.0.0.1:9300]
-	PublishAddress          string `json:"publish_address"`    // e.g. inet[/127.0.0.1:9300]
-	MaxContentLength        string `json:"max_content_length"` // e.g. "100mb"
-	MaxContentLengthInBytes int64  `json:"max_content_length_in_bytes"`
+	BoundAddress            []string `json:"bound_address"`      // e.g. ["127.0.0.1:9200", "[fe80::1]:9200", "[::1]:9200"]
+	PublishAddress          string   `json:"publish_address"`    // e.g. "127.0.0.1:9300"
+	MaxContentLength        string   `json:"max_content_length"` // e.g. "100mb"
+	MaxContentLengthInBytes int64    `json:"max_content_length_in_bytes"`
 }
 
 type NodesInfoNodePlugin struct {
