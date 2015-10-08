@@ -407,7 +407,7 @@ type SearchHit struct {
 	Source         *json.RawMessage               `json:"_source"`         // stored document source
 	Fields         map[string]interface{}         `json:"fields"`          // returned fields
 	Explanation    *SearchExplanation             `json:"_explanation"`    // explains how the score was computed
-	MatchedQueries map[string]interface{}         `json:"matched_queries"` // matched queries
+	MatchedQueries []string                       `json:"matched_queries"` // matched queries
 	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits"`      // inner hits with ES >= 1.5.0
 
 	// Shard
