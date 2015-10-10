@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.12"
+	Version = "2.0.13"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -118,6 +118,9 @@ type Client struct {
 	snifferInterval           time.Duration // interval between sniffing
 	snifferStop               chan bool     // notify sniffer to stop, and notify back
 	decoder                   Decoder       // used to decode data sent from Elasticsearch
+	basicAuth                 bool          // indicates whether to send HTTP Basic Auth credentials
+	basicAuthUsername         string        // username for HTTP Basic Auth
+	basicAuthPassword         string        // password for HTTP Basic Auth
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -129,7 +132,8 @@ type Client struct {
 //
 //   client, err := elastic.NewClient(
 //     elastic.SetURL("http://localhost:9200", "http://localhost:9201"),
-//     elastic.SetMaxRetries(10))
+//     elastic.SetMaxRetries(10),
+//     elastic.SetBasicAuth("user", "secret"))
 //
 // If no URL is configured, Elastic uses DefaultURL by default.
 //
@@ -239,6 +243,17 @@ func SetHttpClient(httpClient *http.Client) ClientOptionFunc {
 		} else {
 			c.c = http.DefaultClient
 		}
+		return nil
+	}
+}
+
+// SetBasicAuth can be used to specify the HTTP Basic Auth credentials to
+// use when making HTTP requests to Elasticsearch.
+func SetBasicAuth(username, password string) ClientOptionFunc {
+	return func(c *Client) error {
+		c.basicAuthUsername = username
+		c.basicAuthPassword = password
+		c.basicAuth = c.basicAuthUsername != "" || c.basicAuthPassword != ""
 		return nil
 	}
 }
@@ -752,7 +767,12 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 	// If we don't get a connection after "timeout", we bail.
 	start := time.Now()
 	for {
-		cl := &http.Client{Timeout: timeout}
+		// Make a copy of the HTTP client provided via options to respect
+		// settings like Basic Auth or a user-specified http.Transport.
+		cl := new(http.Client)
+		*cl = *c.c
+		cl.Timeout = timeout
+
 		for _, url := range urls {
 			res, err := cl.Head(url)
 			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
@@ -862,6 +882,10 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		if err != nil {
 			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(method), conn.URL()+pathWithParams, err)
 			return nil, err
+		}
+
+		if c.basicAuth {
+			((*http.Request)(req)).SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
 		}
 
 		// Set body
