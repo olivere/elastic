@@ -237,6 +237,46 @@ func TestClientStartAndStop(t *testing.T) {
 	}
 }
 
+func TestClientStartAndStopWithSnifferAndHealthchecksDisabled(t *testing.T) {
+	client, err := NewClient(SetSniff(false), SetHealthcheck(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	running := client.IsRunning()
+	if !running {
+		t.Fatalf("expected background processes to run; got: %v", running)
+	}
+
+	// Stop
+	client.Stop()
+	running = client.IsRunning()
+	if running {
+		t.Fatalf("expected background processes to be stopped; got: %v", running)
+	}
+
+	// Stop again => no-op
+	client.Stop()
+	running = client.IsRunning()
+	if running {
+		t.Fatalf("expected background processes to be stopped; got: %v", running)
+	}
+
+	// Start
+	client.Start()
+	running = client.IsRunning()
+	if !running {
+		t.Fatalf("expected background processes to run; got: %v", running)
+	}
+
+	// Start again => no-op
+	client.Start()
+	running = client.IsRunning()
+	if !running {
+		t.Fatalf("expected background processes to run; got: %v", running)
+	}
+}
+
 // -- Sniffing --
 
 func TestClientSniffNode(t *testing.T) {
