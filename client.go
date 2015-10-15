@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.13"
+	Version = "2.0.14"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -201,8 +201,10 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	c.urls = canonicalize(c.urls...)
 
 	// Check if we can make a request to any of the specified URLs
-	if err := c.startupHealthcheck(c.healthcheckTimeoutStartup); err != nil {
-		return nil, err
+	if c.healthcheckEnabled {
+		if err := c.startupHealthcheck(c.healthcheckTimeoutStartup); err != nil {
+			return nil, err
+		}
 	}
 
 	if c.snifferEnabled {
@@ -217,15 +219,21 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		}
 	}
 
-	// Perform an initial health check and
-	// ensure that we have at least one connection available
-	c.healthcheck(c.healthcheckTimeoutStartup, true)
+	if c.healthcheckEnabled {
+		// Perform an initial health check
+		c.healthcheck(c.healthcheckTimeoutStartup, true)
+	}
+	// Ensure that we have at least one connection available
 	if err := c.mustActiveConn(); err != nil {
 		return nil, err
 	}
 
-	go c.sniffer()       // periodically update cluster information
-	go c.healthchecker() // start goroutine periodically ping all nodes of the cluster
+	if c.snifferEnabled {
+		go c.sniffer() // periodically update cluster information
+	}
+	if c.healthcheckEnabled {
+		go c.healthchecker() // start goroutine periodically ping all nodes of the cluster
+	}
 
 	c.mu.Lock()
 	c.running = true
@@ -450,8 +458,12 @@ func (c *Client) Start() {
 	}
 	c.mu.RUnlock()
 
-	go c.sniffer()
-	go c.healthchecker()
+	if c.snifferEnabled {
+		go c.sniffer()
+	}
+	if c.healthcheckEnabled {
+		go c.healthchecker()
+	}
 
 	c.mu.Lock()
 	c.running = true
@@ -473,11 +485,15 @@ func (c *Client) Stop() {
 	}
 	c.mu.RUnlock()
 
-	c.healthcheckStop <- true
-	<-c.healthcheckStop
+	if c.healthcheckEnabled {
+		c.healthcheckStop <- true
+		<-c.healthcheckStop
+	}
 
-	c.snifferStop <- true
-	<-c.snifferStop
+	if c.snifferEnabled {
+		c.snifferStop <- true
+		<-c.snifferStop
+	}
 
 	c.mu.Lock()
 	c.running = false
