@@ -15,28 +15,30 @@ import (
 )
 
 type BulkService struct {
-	client *Client
-
+	client   *Client
 	index    string
 	_type    string
 	requests []BulkableRequest
 	//replicationType string
 	//consistencyLevel string
-	timeout string
-	refresh *bool
-	pretty  bool
+	bulkSize int
+	timeout  string
+	refresh  *bool
+	pretty   bool
 }
 
 func NewBulkService(client *Client) *BulkService {
 	builder := &BulkService{
 		client:   client,
 		requests: make([]BulkableRequest, 0),
+		bulkSize: 0,
 	}
 	return builder
 }
 
 func (s *BulkService) reset() {
 	s.requests = make([]BulkableRequest, 0)
+	s.bulkSize = 0
 }
 
 func (s *BulkService) Index(index string) *BulkService {
@@ -66,6 +68,13 @@ func (s *BulkService) Pretty(pretty bool) *BulkService {
 
 func (s *BulkService) Add(r BulkableRequest) *BulkService {
 	s.requests = append(s.requests, r)
+	source, err := r.Source()
+	if err == nil {
+		for _, line := range source {
+			s.bulkSize += len(fmt.Sprintf("%s\n", line))
+		}
+	}
+
 	return s
 }
 
@@ -90,6 +99,11 @@ func (s *BulkService) bodyAsString() (string, error) {
 	}
 
 	return buf.String(), nil
+}
+
+//Get the current request body size
+func (s *BulkService) BulkSize() int {
+	return s.bulkSize
 }
 
 func (s *BulkService) Do() (*BulkResponse, error) {
