@@ -1,14 +1,12 @@
 # Elastic 3.0
 
-**This document is a draft! Last update: 2015-08-19.**
-
 Elasticsearch 2.0 comes with some [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/breaking-changes-2.0.html). You will probably need to upgrade your application and/or rewrite part of it due to those changes.
 
 We use that window of opportunity to also update Elastic (the Go client) from version 2.0 to 3.0. This will introduce both changes due to the Elasticsearch 2.0 update as well as changes that make Elastic cleaner by removing some old cruft.
 
 So, to summarize:
 
-1. Elastic 2.0 is compatible with Elasticsearch 1.4+ and is still actively maintained.
+1. Elastic 2.0 is compatible with Elasticsearch 1.7+ and is still actively maintained.
 2. Elastic 3.0 is compatible with Elasticsearch 2.0+ and will soon become the new master branch.
 
 The rest of the document is a list of all changes in Elastic 3.0.
@@ -231,9 +229,6 @@ if err != nil {
 }
 ```
 
-## Scroll and Scan
-
-TODO(oe) Maybe merge ScanService and ScrollService into an Iterator. Use io.EOF instead of EOS.
 
 ## Delete-by-Query API
 

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v3-unstable/uritemplates"
+	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
 // DeleteTemplateService deletes a search template. More information can

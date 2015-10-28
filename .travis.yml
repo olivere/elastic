@@ -4,12 +4,12 @@ language: go
 
 go:
   #- 1.4
-  - 1.5
+  - 1.5.1
   #- tip
 
 env:
   matrix:
-    - ES_VERSION=2.0.0-rc1
+    - ES_VERSION=2.0.0
 
 before_script:
   - mkdir ${HOME}/elasticsearch
