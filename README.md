@@ -3,8 +3,8 @@
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for the
 [Go](http://www.golang.org/) programming language.
 
-[![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=master)](https://travis-ci.org/olivere/elastic)
-[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/olivere/elastic)
+[![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=release-branch.v3)](https://travis-ci.org/olivere/elastic)
+[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/gopkg.in/olivere/elastic.v2)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/olivere/elastic/master/LICENSE)
 
 See the [wiki](https://github.com/olivere/elastic/wiki) for additional information about Elastic.
@@ -18,13 +18,13 @@ Here's the version matrix:
 
 Elasticsearch version | Elastic version -| Package URL
 ----------------------|------------------|------------
-2.x                   | 3.0 **beta**     | [`gopkg.in/olivere/elastic.v3-unstable`](https://gopkg.in/olivere/elastic.v3-unstable) ([source](https://github.com/olivere/elastic/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/olivere/elastic.v3-unstable))
+2.x                   | 3.0              | [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3) ([source](https://github.com/olivere/elastic/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/olivere/elastic.v3))
 1.x                   | 2.0              | [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2) ([source](https://github.com/olivere/elastic/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/olivere/elastic.v2))
 0.9-1.3               | 1.0              | [`gopkg.in/olivere/elastic.v1`](https://gopkg.in/olivere/elastic.v1) ([source](https://github.com/olivere/elastic/tree/release-branch.v1) [doc](http://godoc.org/gopkg.in/olivere/elastic.v1))
 
 **Example:**
 
-You have Elasticsearch 1.6.0 installed and want to use Elastic. As listed above, you should use Elastic 2.0. So you first install Elastic 2.0.
+You have Elasticsearch 1.7.3 installed and want to use Elastic. As listed above, you should use Elastic 2.0. So you first install Elastic 2.0.
 
 ```sh
 $ go get gopkg.in/olivere/elastic.v2
@@ -38,9 +38,9 @@ import "gopkg.in/olivere/elastic.v2"
 
 ### Elastic 3.0
 
-Elastic 3.0 targets Elasticsearch 2.x and is currently under [active development](https://github.com/olivere/elastic/tree/release-branch.v3). It is not published to gokpg yet.
+Elastic 3.0 targets Elasticsearch 2.0 and later. Elasticsearch 2.0.0 was [released on 28th October 2015](https://www.elastic.co/blog/elasticsearch-2-0-0-released).
 
-There are a lot of [breaking changes in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking-changes-2.0.html) and we will use this as an opportunity to [clean up and refactor Elastic as well](https://github.com/olivere/elastic/blob/release-branch.v3/CHANGELOG-3.0.md).
+Notice that there are a lot of [breaking changes in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/breaking-changes-2.0.html) and we used this as an opportunity to [clean up and refactor Elastic as well](https://github.com/olivere/elastic/blob/release-branch.v3/CHANGELOG-3.0.md).
 
 ### Elastic 2.0
 
@@ -69,8 +69,7 @@ More often than not it's renaming APIs and adding/removing features
 so that we are in sync with the Elasticsearch API.
 
 Elastic has been used in production with the following Elasticsearch versions:
-0.90, 1.0, 1.1, 1.2, 1.3, 1.4, and 1.5.
-Furthermore, we use [Travis CI](https://travis-ci.org/)
+0.90, 1.0-1.7. Furthermore, we use [Travis CI](https://travis-ci.org/)
 to test Elastic with the most recent versions of Elasticsearch and Go.
 See the [.travis.yml](https://github.com/olivere/elastic/blob/master/.travis.yml)
 file for the exact matrix and [Travis](https://travis-ci.org/olivere/elastic)
