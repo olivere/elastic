@@ -12,10 +12,11 @@ import (
 // at index time. For a detailed example, see e.g.
 // http://www.elasticsearch.org/blog/you-complete-me/.
 type SuggestField struct {
-	inputs  []string
-	output  *string
-	payload interface{}
-	weight  int
+	inputs         []string
+	output         *string
+	payload        interface{}
+	weight         int
+	contextQueries []SuggesterContextQuery
 }
 
 func NewSuggestField() *SuggestField {
@@ -45,6 +46,11 @@ func (f *SuggestField) Weight(weight int) *SuggestField {
 	return f
 }
 
+func (f *SuggestField) ContextQuery(queries ...SuggesterContextQuery) *SuggestField {
+	f.contextQueries = append(f.contextQueries, queries...)
+	return f
+}
+
 // MarshalJSON encodes SuggestField into JSON.
 func (f *SuggestField) MarshalJSON() ([]byte, error) {
 	source := make(map[string]interface{})
@@ -68,6 +74,18 @@ func (f *SuggestField) MarshalJSON() ([]byte, error) {
 
 	if f.weight >= 0 {
 		source["weight"] = f.weight
+	}
+
+	switch len(f.contextQueries) {
+	case 0:
+	case 1:
+		source["context"] = f.contextQueries[0].Source()
+	default:
+		var ctxq []interface{}
+		for _, query := range f.contextQueries {
+			ctxq = append(ctxq, query.Source())
+		}
+		source["context"] = ctxq
 	}
 
 	return json.Marshal(source)
