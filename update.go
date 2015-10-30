@@ -7,6 +7,7 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -331,6 +332,10 @@ func (b *UpdateService) Do() (*UpdateResult, error) {
 	res, err := b.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
+	}
+	// 404 indicates an error for failed updates
+	if res.StatusCode == http.StatusNotFound {
+		return nil, createResponseError(res.StatusCode, res.Body)
 	}
 
 	// Return result
