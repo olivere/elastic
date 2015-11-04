@@ -1,6 +1,6 @@
 {
   "bulk": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/docs-bulk.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/docs-bulk.html",
     "methods": ["POST", "PUT"],
     "url": {
       "path": "/_bulk",
@@ -25,6 +25,12 @@
           "type" : "boolean",
           "description" : "Refresh the index after performing the operation"
         },
+        "replication": {
+          "type" : "enum",
+          "options" : ["sync","async"],
+          "default" : "sync",
+          "description" : "Explicitely set the replication type"
+        },
         "routing": {
           "type" : "string",
           "description" : "Specific routing value"
@@ -36,10 +42,6 @@
         "type": {
           "type" : "string",
           "description" : "Default document type for items which don't provide one"
-        },
-        "fields": {
-          "type": "list",
-          "description" : "Default comma-separated list of fields to return in the response for updates"
         }
       }
     },

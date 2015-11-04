@@ -1,6 +1,6 @@
 {
   "indices.upgrade": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/indices-upgrade.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.7/indices-upgrade.html",
     "methods": ["POST"],
     "url": {
       "path": "/_upgrade",
@@ -28,7 +28,7 @@
         },
         "wait_for_completion": {
            "type" : "boolean",
-           "description" : "Specify whether the request should block until the all segments are upgraded (default: false)"
+            "description" : "Specify whether the request should block until the all segments are upgraded (default: true)"
 	},
         "only_ancient_segments": {
           "type" : "boolean",

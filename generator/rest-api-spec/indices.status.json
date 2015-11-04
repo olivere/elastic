@@ -1,10 +1,10 @@
 {
-  "indices.shard_stores": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/indices-shard-stores.html",
+  "indices.status": {
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/indices-status.html",
     "methods": ["GET"],
     "url": {
-      "path": "/_shard_stores",
-      "paths": ["/_shard_stores", "/{index}/_shard_stores"],
+      "path": "/_status",
+      "paths": ["/_status", "/{index}/_status"],
       "parts": {
         "index": {
           "type" : "list",
@@ -12,11 +12,6 @@
         }
       },
       "params": {
-        "status" : {
-            "type" : "list",
-            "options" : ["green", "yellow", "red", "all"],
-            "description" : "A comma-separated list of statuses used to filter on shards to get store information for"
-        },
         "ignore_unavailable": {
             "type" : "boolean",
             "description" : "Whether specified concrete indices should be ignored when unavailable (missing or closed)"
@@ -31,7 +26,20 @@
             "default" : "open",
             "description" : "Whether to expand wildcard expression to concrete indices that are open, closed or both."
         },
+        "human": {
+            "type": "boolean",
+            "description": "Whether to return time and byte values in human-readable format.",
+            "default": false
+        },
         "operation_threading": {
+          "description" : "TODO: ?"
+        },
+        "recovery": {
+          "type" : "boolean",
+          "description" : "Return information about shard recovery"
+        },
+        "snapshot": {
+          "type" : "boolean",
           "description" : "TODO: ?"
         }
       }

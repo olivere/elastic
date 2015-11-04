@@ -1,6 +1,6 @@
 {
   "cat.fielddata": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/cat-fielddata.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.7/cat-fielddata.html",
     "methods": ["GET"],
     "url": {
       "path": "/_cat/fielddata",
@@ -37,7 +37,7 @@
         "v": {
           "type": "boolean",
           "description": "Verbose mode. Display column headers",
-          "default": true
+          "default": false
         },
         "fields": {
           "type": "list",

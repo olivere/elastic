@@ -1,6 +1,6 @@
 {
   "field_stats": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/search-field-stats.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.7/search-field-stats.html",
     "methods": ["GET", "POST"],
     "url": {
       "path": "/_field_stats",
@@ -41,9 +41,6 @@
         }
       }
     },
-    "body": {
-      "description": "Field json objects containing the name and optionally a range to filter out indices result, that have results outside the defined bounds",
-      "required": false
-    }
+    "body": null
   }
 }

@@ -1,6 +1,6 @@
 {
   "percolate": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/search-percolate.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/search-percolate.html",
     "methods": ["GET", "POST"],
     "url": {
       "path": "/{index}/{type}/_percolate",
@@ -45,6 +45,11 @@
           "default" : "open",
           "description" : "Whether to expand wildcard expression to concrete indices that are open, closed or both."
         },
+        "percolate_format": {
+          "type" : "enum",
+          "options" : ["ids"],
+          "description" : "Return an array of matching query IDs instead of objects"
+        },
         "percolate_index": {
           "type" : "string",
           "description" : "The index to percolate the document into. Defaults to index."
@@ -60,11 +65,6 @@
         "percolate_preference": {
           "type" : "string",
           "description" : "Which shard to prefer when executing the percolate request."
-        },
-        "percolate_format": {
-          "type" : "enum",
-          "options" : ["ids"],
-          "description" : "Return an array of matching query IDs instead of objects"
         },
         "version" : {
           "type" : "number",

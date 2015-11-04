@@ -1,6 +1,6 @@
 {
   "mtermvectors" : {
-    "documentation" : "http://www.elastic.co/guide/en/elasticsearch/reference/master/docs-multi-termvectors.html",
+    "documentation" : "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/docs-multi-termvectors.html",
     "methods" : ["GET", "POST"],
     "url" : {
       "path" : "/_mtermvectors",
@@ -13,7 +13,11 @@
         "type" : {
           "type" : "string",
           "description" : "The type of the document."
-        }
+        },
+        "id" : {
+           "type" : "string",
+           "description" : "The id of the document."
+         }
       },
       "params" : {
         "ids" : {
@@ -72,23 +76,14 @@
           "required" : false
         },
         "realtime": {
-          "type": "boolean",
-          "description": "Specifies if requests are real-time as opposed to near-real-time (default: true).",
-          "required": false
-        },
-        "version" : {
-          "type" : "number",
-          "description" : "Explicit version number for concurrency control"
-        },
-        "version_type": {
-          "type" : "enum",
-          "options" : ["internal", "external", "external_gte", "force"],
-          "description" : "Specific version type"
+           "type" : "boolean",
+           "description" : "Specifies if requests are real-time as opposed to near-real-time (default: true).",
+           "required" : false
         }
       }
     },
     "body" : {
-        "description" : "Define ids, documents, parameters or a list of parameters per document here. You must at least provide a list of document ids. See documentation.",
+        "description" : "Define ids, parameters or a list of parameters per document here. You must at least provide a list of document ids. See documentation.",
         "required" : false
 
     }

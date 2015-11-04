@@ -1,6 +1,6 @@
 {
   "search": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/search-search.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/search-search.html",
     "methods": ["GET", "POST"],
     "url": {
       "path": "/_search",
@@ -90,7 +90,7 @@
         },
         "search_type": {
           "type" : "enum",
-          "options" : ["query_then_fetch", "dfs_query_then_fetch", "count", "scan"],
+          "options" : ["query_then_fetch", "query_and_fetch", "dfs_query_then_fetch", "dfs_query_and_fetch", "count", "scan"],
           "description" : "Search operation type"
         },
         "size": {
@@ -112,10 +112,6 @@
         "_source_include": {
           "type" : "list",
           "description" : "A list of fields to extract and return from the _source field"
-        },
-        "terminate_after": {
-          "type" : "number",
-          "description" : "The maximum number of documents to collect for each shard, upon reaching which the query execution will terminate early."
         },
         "stats": {
           "type" : "list",
@@ -151,9 +147,9 @@
           "type" : "boolean",
           "description" : "Specify whether to return document version as part of a hit"
         },
-        "request_cache": {
+        "query_cache": {
           "type" : "boolean",
-          "description" : "Specify if request cache should be used for this request or not, defaults to index level setting"
+          "description" : "Specify if query cache should be used for this request or not, defaults to index level setting"
         }
       }
     },

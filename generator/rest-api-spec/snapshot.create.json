@@ -1,10 +1,12 @@
 {
   "snapshot.create": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/modules-snapshots.html",
     "methods": ["PUT", "POST"],
     "url": {
       "path": "/_snapshot/{repository}/{snapshot}",
-      "paths": ["/_snapshot/{repository}/{snapshot}"],
+      "paths": [
+        "/_snapshot/{repository}/{snapshot}"
+      ],
       "parts": {
         "repository": {
           "type": "string",
