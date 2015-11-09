@@ -60,6 +60,23 @@ func TestFetchSourceContextFetchSource(t *testing.T) {
 	}
 }
 
+func TestFetchSourceContextFetchSourceWithIncludesOnly(t *testing.T) {
+	builder := NewFetchSourceContext(true).Include("a", "b")
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"excludes":[],"includes":["a","b"]}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestFetchSourceContextFetchSourceWithIncludesAndExcludes(t *testing.T) {
 	builder := NewFetchSourceContext(true).Include("a", "b").Exclude("c")
 	src, err := builder.Source()
