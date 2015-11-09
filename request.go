@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -25,6 +26,22 @@ func NewRequest(method, url string) (*Request, error) {
 	req.Header.Add("User-Agent", "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 	req.Header.Add("Accept", "application/json")
 	return (*Request)(req), nil
+}
+
+func (r *Request) SetBodyGzip(data interface{}) error {
+	buf := new(bytes.Buffer)
+	w := gzip.NewWriter(buf)
+	if _, err := w.Write([]byte(data.(string))); err != nil {
+		return err
+	}
+	if err := w.Close(); err != nil {
+		return err
+	}
+	r.SetBody(bytes.NewReader(buf.Bytes()))
+	r.Header.Add("Accept-Charset", "utf-8")
+	r.Header.Add("Content-Length", string(len(buf.Bytes())))
+	r.Header.Set("Content-Encoding", "gzip")
+	return nil
 }
 
 func (r *Request) SetBodyJson(data interface{}) error {

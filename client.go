@@ -72,6 +72,9 @@ const (
 	// Elastic will give up and return an error. It is zero by default, so
 	// retry is disabled by default.
 	DefaultMaxRetries = 0
+
+	// DefaultGzipEnabled specifies if gzip compression is enabled by default.
+	DefaultGzipEnabled = false
 )
 
 var (
@@ -121,6 +124,7 @@ type Client struct {
 	basicAuth                 bool          // indicates whether to send HTTP Basic Auth credentials
 	basicAuthUsername         string        // username for HTTP Basic Auth
 	basicAuthPassword         string        // password for HTTP Basic Auth
+	gzipEnabled               bool          // gzip compression enabled or disabled
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -186,6 +190,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		snifferTimeout:            DefaultSnifferTimeout,
 		snifferInterval:           DefaultSnifferInterval,
 		snifferStop:               make(chan bool),
+		gzipEnabled:               DefaultGzipEnabled,
 	}
 
 	// Run the options on it
@@ -390,6 +395,14 @@ func SetDecoder(decoder Decoder) func(*Client) error {
 		} else {
 			c.decoder = &DefaultDecoder{}
 		}
+		return nil
+	}
+}
+
+// SetGzip enables or disables gzip compression (disabled by default).
+func SetGzip(enabled bool) ClientOptionFunc {
+	return func(c *Client) error {
+		c.gzipEnabled = enabled
 		return nil
 	}
 }
@@ -906,13 +919,17 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 
 		// Set body
 		if body != nil {
-			switch b := body.(type) {
-			case string:
-				req.SetBodyString(b)
-				break
-			default:
-				req.SetBodyJson(body)
-				break
+			if c.gzipEnabled {
+				req.SetBodyGzip(body)
+			} else {
+				switch b := body.(type) {
+				case string:
+					req.SetBodyString(b)
+					break
+				default:
+					req.SetBodyJson(body)
+					break
+				}
 			}
 		}
 
