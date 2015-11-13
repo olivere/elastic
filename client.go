@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.2"
+	Version = "3.0.3"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -663,6 +663,12 @@ func (c *Client) sniffNode(url string) []*conn {
 		return nodes
 	}
 
+	c.mu.RLock()
+	if c.basicAuth {
+		req.SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
+	}
+	c.mu.RUnlock()
+
 	res, err := c.c.Do((*http.Request)(req))
 	if err != nil {
 		return nodes
@@ -772,6 +778,9 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 		c.mu.RUnlock()
 		return
 	}
+	basicAuth := c.basicAuth
+	basicAuthUsername := c.basicAuthUsername
+	basicAuthPassword := c.basicAuthPassword
 	c.mu.RUnlock()
 
 	c.connsMu.RLock()
@@ -785,6 +794,9 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 		params.Set("timeout", fmt.Sprintf("%dms", timeoutInMillis))
 		req, err := NewRequest("HEAD", conn.URL()+"/?"+params.Encode())
 		if err == nil {
+			if basicAuth {
+				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+			}
 			res, err := c.c.Do((*http.Request)(req))
 			if err == nil {
 				if res.Body != nil {
@@ -812,6 +824,9 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 func (c *Client) startupHealthcheck(timeout time.Duration) error {
 	c.mu.Lock()
 	urls := c.urls
+	basicAuth := c.basicAuth
+	basicAuthUsername := c.basicAuthUsername
+	basicAuthPassword := c.basicAuthPassword
 	c.mu.Unlock()
 
 	// If we don't get a connection after "timeout", we bail.
@@ -819,7 +834,14 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 	for {
 		cl := &http.Client{Timeout: timeout}
 		for _, url := range urls {
-			res, err := cl.Head(url)
+			req, err := http.NewRequest("HEAD", url, nil)
+			if err != nil {
+				return err
+			}
+			if basicAuth {
+				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+			}
+			res, err := cl.Do(req)
 			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
 				return nil
 			}
@@ -884,6 +906,9 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	c.mu.RLock()
 	timeout := c.healthcheckTimeout
 	retries := c.maxRetries
+	basicAuth := c.basicAuth
+	basicAuthUsername := c.basicAuthUsername
+	basicAuthPassword := c.basicAuthPassword
 	c.mu.RUnlock()
 
 	var err error
@@ -929,8 +954,8 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 			return nil, err
 		}
 
-		if c.basicAuth {
-			((*http.Request)(req)).SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
+		if basicAuth {
+			req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 		}
 
 		// Set body
