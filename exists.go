@@ -158,7 +158,7 @@ func (s *ExistsService) Do() (bool, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("HEAD", path, params, nil)
+	res, err := s.client.PerformRequest("HEAD", path, params, nil, 404)
 	if err != nil {
 		return false, err
 	}

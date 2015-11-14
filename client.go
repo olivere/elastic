@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.3"
+	Version = "3.0.4"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -900,7 +900,11 @@ func (c *Client) mustActiveConn() error {
 
 // PerformRequest does a HTTP request to Elasticsearch.
 // It returns a response and an error on failure.
-func (c *Client) PerformRequest(method, path string, params url.Values, body interface{}) (*Response, error) {
+//
+// Optionally, a list of HTTP error codes to ignore can be passed.
+// This is necessary for services that expect e.g. HTTP status 404 as a
+// valid outcome (Exists, IndicesExists, IndicesTypeExists).
+func (c *Client) PerformRequest(method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
 	start := time.Now().UTC()
 
 	c.mu.RLock()
@@ -992,15 +996,9 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		}
 
 		// Check for errors
-		if err := checkResponse((*http.Request)(req), res); err != nil {
-			retries -= 1
-			if retries <= 0 {
-				return nil, err
-			}
-			retried = true
-			time.Sleep(time.Duration(retryWaitMsec) * time.Millisecond)
-			retryWaitMsec += retryWaitMsec
-			continue // try again
+		if err := checkResponse((*http.Request)(req), res, ignoreErrors...); err != nil {
+			// No retry if request succeeded
+			return nil, err
 		}
 
 		// Tracing

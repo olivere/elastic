@@ -7,6 +7,7 @@ package elastic
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"regexp"
@@ -664,11 +665,12 @@ func (tr *failingTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	return http.DefaultTransport.RoundTrip(r)
 }
 
-func TestPerformRequestWithMaxRetries(t *testing.T) {
+func TestPerformRequestRetryOnHttpError(t *testing.T) {
 	var numFailedReqs int
 	fail := func(r *http.Request) (*http.Response, error) {
 		numFailedReqs += 1
-		return &http.Response{Request: r, StatusCode: 400}, nil
+		//return &http.Response{Request: r, StatusCode: 400}, nil
+		return nil, errors.New("request failed")
 	}
 
 	// Run against a failing endpoint and see if PerformRequest
@@ -691,5 +693,35 @@ func TestPerformRequestWithMaxRetries(t *testing.T) {
 	// Connection should be marked as dead after it failed
 	if numFailedReqs != 5 {
 		t.Errorf("expected %d failed requests; got: %d", 5, numFailedReqs)
+	}
+}
+
+func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
+	var numFailedReqs int
+	fail := func(r *http.Request) (*http.Response, error) {
+		numFailedReqs += 1
+		return &http.Response{Request: r, StatusCode: 500}, nil
+	}
+
+	// Run against a failing endpoint and see if PerformRequest
+	// retries correctly.
+	tr := &failingTransport{path: "/fail", fail: fail}
+	httpClient := &http.Client{Transport: tr}
+
+	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(5))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := client.PerformRequest("GET", "/fail", nil, nil)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if res != nil {
+		t.Fatal("expected no response")
+	}
+	// Retry should not have triggered additional requests because
+	if numFailedReqs != 1 {
+		t.Errorf("expected %d failed requests; got: %d", 1, numFailedReqs)
 	}
 }

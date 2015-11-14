@@ -104,7 +104,7 @@ func TestResponseErrorHTML(t *testing.T) {
 	}
 }
 
-func TestResponseErrorWithHeadMethodAndNotFound(t *testing.T) {
+func TestResponseErrorWithIgnore(t *testing.T) {
 	raw := "HTTP/1.1 404 Not Found\r\n" +
 		"\r\n" +
 		`{"some":"response"}` + "\r\n"
@@ -120,6 +120,10 @@ func TestResponseErrorWithHeadMethodAndNotFound(t *testing.T) {
 		t.Fatal(err)
 	}
 	err = checkResponse(req, resp)
+	if err == nil {
+		t.Fatalf("expected error; got: %v", err)
+	}
+	err = checkResponse(req, resp, 404) // ignore 404 errors
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}

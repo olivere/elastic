@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -131,16 +132,18 @@ func (s *IndicesExistsService) Do() (bool, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("HEAD", path, params, nil)
+	res, err := s.client.PerformRequest("HEAD", path, params, nil, 404)
 	if err != nil {
 		return false, err
 	}
 
 	// Return operation response
-	if res.StatusCode == 200 {
+	switch res.StatusCode {
+	case http.StatusOK:
 		return true, nil
-	} else if res.StatusCode == 404 {
+	case http.StatusNotFound:
 		return false, nil
+	default:
+		return false, fmt.Errorf("elastic: got HTTP code %d when it should have been either 200 or 404", res.StatusCode)
 	}
-	return false, fmt.Errorf("elastic: got HTTP code %d when it should have been either 200 or 404", res.StatusCode)
 }
