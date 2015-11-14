@@ -72,6 +72,9 @@ const (
 	// Elastic will give up and return an error. It is zero by default, so
 	// retry is disabled by default.
 	DefaultMaxRetries = 0
+
+	// DefaultGzipEnabled specifies if gzip compression is enabled by default.
+	DefaultGzipEnabled = false
 )
 
 var (
@@ -122,6 +125,7 @@ type Client struct {
 	basicAuthUsername         string        // username for HTTP Basic Auth
 	basicAuthPassword         string        // password for HTTP Basic Auth
 	requiredPlugins           []string      // list of required plugins
+	gzipEnabled               bool          // gzip compression enabled or disabled (default)
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -187,6 +191,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		snifferTimeout:            DefaultSnifferTimeout,
 		snifferInterval:           DefaultSnifferInterval,
 		snifferStop:               make(chan bool),
+		gzipEnabled:               DefaultGzipEnabled,
 	}
 
 	// Run the options on it
@@ -389,6 +394,14 @@ func SetMaxRetries(maxRetries int) func(*Client) error {
 			return errors.New("MaxRetries must be greater than or equal to 0")
 		}
 		c.maxRetries = maxRetries
+		return nil
+	}
+}
+
+// SetGzip enables or disables gzip compression (disabled by default).
+func SetGzip(enabled bool) ClientOptionFunc {
+	return func(c *Client) error {
+		c.gzipEnabled = enabled
 		return nil
 	}
 }
@@ -913,6 +926,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	basicAuth := c.basicAuth
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
+	gzipEnabled := c.gzipEnabled
 	c.mu.RUnlock()
 
 	var err error
@@ -964,14 +978,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 
 		// Set body
 		if body != nil {
-			switch b := body.(type) {
-			case string:
-				req.SetBodyString(b)
-				break
-			default:
-				req.SetBodyJson(body)
-				break
-			}
+			req.SetBody(body, gzipEnabled)
 		}
 
 		// Tracing
