@@ -39,7 +39,7 @@ func (r *Request) SetBody(body interface{}, gzipCompress bool) error {
 	switch b := body.(type) {
 	case string:
 		if gzipCompress {
-			return r.setBodyGzip(body)
+			return r.setBodyGzip(b)
 		} else {
 			return r.setBodyString(b)
 		}
@@ -78,6 +78,9 @@ func (r *Request) setBodyGzip(body interface{}) error {
 		if _, err := w.Write([]byte(b)); err != nil {
 			return err
 		}
+		if err := w.Close(); err != nil {
+			return err
+		}
 		r.Header.Add("Content-Encoding", "gzip")
 		r.Header.Add("Vary", "Accept-Encoding")
 		return r.setBodyReader(bytes.NewReader(buf.Bytes()))
@@ -86,10 +89,18 @@ func (r *Request) setBodyGzip(body interface{}) error {
 		if err != nil {
 			return err
 		}
+		buf := new(bytes.Buffer)
+		w := gzip.NewWriter(buf)
+		if _, err := w.Write(data); err != nil {
+			return err
+		}
+		if err := w.Close(); err != nil {
+			return err
+		}
 		r.Header.Add("Content-Encoding", "gzip")
 		r.Header.Add("Vary", "Accept-Encoding")
 		r.Header.Set("Content-Type", "application/json")
-		return r.setBodyReader(bytes.NewReader(data))
+		return r.setBodyReader(bytes.NewReader(buf.Bytes()))
 	}
 }
 
