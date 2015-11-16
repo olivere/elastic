@@ -3,13 +3,12 @@ sudo: false
 language: go
 
 go:
-  - 1.5
+  - 1.5.1
   - tip
 
 env:
   matrix:
-    - ES_VERSION=1.6.2
-    - ES_VERSION=1.7.2
+    - ES_VERSION=1.7.3
 
 before_script:
   - mkdir ${HOME}/elasticsearch

@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.12"
+	Version = "2.0.18"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -118,6 +118,9 @@ type Client struct {
 	snifferInterval           time.Duration // interval between sniffing
 	snifferStop               chan bool     // notify sniffer to stop, and notify back
 	decoder                   Decoder       // used to decode data sent from Elasticsearch
+	basicAuth                 bool          // indicates whether to send HTTP Basic Auth credentials
+	basicAuthUsername         string        // username for HTTP Basic Auth
+	basicAuthPassword         string        // password for HTTP Basic Auth
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -129,7 +132,8 @@ type Client struct {
 //
 //   client, err := elastic.NewClient(
 //     elastic.SetURL("http://localhost:9200", "http://localhost:9201"),
-//     elastic.SetMaxRetries(10))
+//     elastic.SetMaxRetries(10),
+//     elastic.SetBasicAuth("user", "secret"))
 //
 // If no URL is configured, Elastic uses DefaultURL by default.
 //
@@ -197,8 +201,10 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	c.urls = canonicalize(c.urls...)
 
 	// Check if we can make a request to any of the specified URLs
-	if err := c.startupHealthcheck(c.healthcheckTimeoutStartup); err != nil {
-		return nil, err
+	if c.healthcheckEnabled {
+		if err := c.startupHealthcheck(c.healthcheckTimeoutStartup); err != nil {
+			return nil, err
+		}
 	}
 
 	if c.snifferEnabled {
@@ -213,15 +219,21 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		}
 	}
 
-	// Perform an initial health check and
-	// ensure that we have at least one connection available
-	c.healthcheck(c.healthcheckTimeoutStartup, true)
+	if c.healthcheckEnabled {
+		// Perform an initial health check
+		c.healthcheck(c.healthcheckTimeoutStartup, true)
+	}
+	// Ensure that we have at least one connection available
 	if err := c.mustActiveConn(); err != nil {
 		return nil, err
 	}
 
-	go c.sniffer()       // periodically update cluster information
-	go c.healthchecker() // start goroutine periodically ping all nodes of the cluster
+	if c.snifferEnabled {
+		go c.sniffer() // periodically update cluster information
+	}
+	if c.healthcheckEnabled {
+		go c.healthchecker() // start goroutine periodically ping all nodes of the cluster
+	}
 
 	c.mu.Lock()
 	c.running = true
@@ -239,6 +251,17 @@ func SetHttpClient(httpClient *http.Client) ClientOptionFunc {
 		} else {
 			c.c = http.DefaultClient
 		}
+		return nil
+	}
+}
+
+// SetBasicAuth can be used to specify the HTTP Basic Auth credentials to
+// use when making HTTP requests to Elasticsearch.
+func SetBasicAuth(username, password string) ClientOptionFunc {
+	return func(c *Client) error {
+		c.basicAuthUsername = username
+		c.basicAuthPassword = password
+		c.basicAuth = c.basicAuthUsername != "" || c.basicAuthPassword != ""
 		return nil
 	}
 }
@@ -435,8 +458,12 @@ func (c *Client) Start() {
 	}
 	c.mu.RUnlock()
 
-	go c.sniffer()
-	go c.healthchecker()
+	if c.snifferEnabled {
+		go c.sniffer()
+	}
+	if c.healthcheckEnabled {
+		go c.healthchecker()
+	}
 
 	c.mu.Lock()
 	c.running = true
@@ -458,11 +485,15 @@ func (c *Client) Stop() {
 	}
 	c.mu.RUnlock()
 
-	c.healthcheckStop <- true
-	<-c.healthcheckStop
+	if c.healthcheckEnabled {
+		c.healthcheckStop <- true
+		<-c.healthcheckStop
+	}
 
-	c.snifferStop <- true
-	<-c.snifferStop
+	if c.snifferEnabled {
+		c.snifferStop <- true
+		<-c.snifferStop
+	}
 
 	c.mu.Lock()
 	c.running = false
@@ -608,6 +639,12 @@ func (c *Client) sniffNode(url string) []*conn {
 		return nodes
 	}
 
+	c.mu.RLock()
+	if c.basicAuth {
+		req.SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
+	}
+	c.mu.RUnlock()
+
 	res, err := c.c.Do((*http.Request)(req))
 	if err != nil {
 		return nodes
@@ -711,6 +748,9 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 
 	c.connsMu.RLock()
 	conns := c.conns
+	basicAuth := c.basicAuth
+	basicAuthUsername := c.basicAuthUsername
+	basicAuthPassword := c.basicAuthPassword
 	c.connsMu.RUnlock()
 
 	timeoutInMillis := int64(timeout / time.Millisecond)
@@ -720,6 +760,9 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 		params.Set("timeout", fmt.Sprintf("%dms", timeoutInMillis))
 		req, err := NewRequest("HEAD", conn.URL()+"/?"+params.Encode())
 		if err == nil {
+			if basicAuth {
+				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+			}
 			res, err := c.c.Do((*http.Request)(req))
 			if err == nil {
 				if res.Body != nil {
@@ -747,13 +790,29 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 func (c *Client) startupHealthcheck(timeout time.Duration) error {
 	c.mu.Lock()
 	urls := c.urls
+	basicAuth := c.basicAuth
+	basicAuthUsername := c.basicAuthUsername
+	basicAuthPassword := c.basicAuthPassword
 	c.mu.Unlock()
 
 	// If we don't get a connection after "timeout", we bail.
 	start := time.Now()
 	for {
+		// Make a copy of the HTTP client provided via options to respect
+		// settings like Basic Auth or a user-specified http.Transport.
+		cl := new(http.Client)
+		*cl = *c.c
+		cl.Timeout = timeout
+
 		for _, url := range urls {
-			res, err := c.c.Head(url)
+			req, err := http.NewRequest("HEAD", url, nil)
+			if err != nil {
+				return err
+			}
+			if basicAuth {
+				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+			}
+			res, err := cl.Do(req)
 			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
 				return nil
 			}
@@ -818,6 +877,9 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	c.mu.RLock()
 	timeout := c.healthcheckTimeout
 	retries := c.maxRetries
+	basicAuth := c.basicAuth
+	basicAuthUsername := c.basicAuthUsername
+	basicAuthPassword := c.basicAuthPassword
 	c.mu.RUnlock()
 
 	var err error
@@ -861,6 +923,10 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		if err != nil {
 			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(method), conn.URL()+pathWithParams, err)
 			return nil, err
+		}
+
+		if basicAuth {
+			req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 		}
 
 		// Set body

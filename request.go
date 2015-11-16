@@ -27,6 +27,10 @@ func NewRequest(method, url string) (*Request, error) {
 	return (*Request)(req), nil
 }
 
+func (r *Request) SetBasicAuth(username, password string) {
+	((*http.Request)(r)).SetBasicAuth(username, password)
+}
+
 func (r *Request) SetBodyJson(data interface{}) error {
 	body, err := json.Marshal(data)
 	if err != nil {

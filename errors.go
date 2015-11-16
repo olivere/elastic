@@ -35,18 +35,22 @@ func checkResponse(res *http.Response) error {
 	if err != nil {
 		return fmt.Errorf("elastic: Error %d (%s) when reading body: %v", res.StatusCode, http.StatusText(res.StatusCode), err)
 	}
+	return createResponseError(res.StatusCode, slurp)
+}
+
+func createResponseError(statusCode int, data []byte) error {
 	errReply := new(Error)
-	err = json.Unmarshal(slurp, errReply)
+	err := json.Unmarshal(data, errReply)
 	if err != nil {
-		return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
+		return fmt.Errorf("elastic: Error %d (%s)", statusCode, http.StatusText(statusCode))
 	}
 	if errReply != nil {
 		if errReply.Status == 0 {
-			errReply.Status = res.StatusCode
+			errReply.Status = statusCode
 		}
 		return errReply
 	}
-	return fmt.Errorf("elastic: Error %d (%s)", res.StatusCode, http.StatusText(res.StatusCode))
+	return fmt.Errorf("elastic: Error %d (%s)", statusCode, http.StatusText(statusCode))
 }
 
 type Error struct {

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"net/url"
 	"testing"
+	"time"
 )
 
 func TestUpdateViaScript(t *testing.T) {
@@ -309,5 +310,35 @@ func TestUpdateViaScriptIntegration(t *testing.T) {
 	}
 	if tweetGot.Retweets != tweet1.Retweets+increment {
 		t.Errorf("expected Tweet.Retweets to be %d; got %d", tweet1.Retweets+increment, tweetGot.Retweets)
+	}
+}
+
+func TestUpdateReturnsErrorOnFailure(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	// Travis lags sometimes
+	if isTravis() {
+		time.Sleep(2 * time.Second)
+	}
+
+	// Ensure that no tweet with id #1 exists
+	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id("1").Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if exists {
+		t.Fatalf("expected no document; got: %v", exists)
+	}
+
+	// Update (non-existent) tweet with id #1
+	update, err := client.Update().
+		Index(testIndexName).Type("tweet").Id("1").
+		Doc(map[string]interface{}{"retweets": 42}).
+		Do()
+	if err == nil {
+		t.Fatalf("expected error to be != nil; got: %v", err)
+	}
+	if update != nil {
+		t.Fatalf("expected update to be == nil; got %v", update)
 	}
 }
