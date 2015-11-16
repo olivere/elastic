@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.18"
+	Version = "2.1.0"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -72,6 +72,9 @@ const (
 	// Elastic will give up and return an error. It is zero by default, so
 	// retry is disabled by default.
 	DefaultMaxRetries = 0
+
+	// DefaultSendGetBodyAs is the HTTP method to use when elastic is sending a GET request with a body.
+	DefaultSendGetBodyAs = "GET"
 )
 
 var (
@@ -121,6 +124,7 @@ type Client struct {
 	basicAuth                 bool          // indicates whether to send HTTP Basic Auth credentials
 	basicAuthUsername         string        // username for HTTP Basic Auth
 	basicAuthPassword         string        // password for HTTP Basic Auth
+	sendGetBodyAs             string        // override for when sending a GET with a body.
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -186,6 +190,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		snifferTimeout:            DefaultSnifferTimeout,
 		snifferInterval:           DefaultSnifferInterval,
 		snifferStop:               make(chan bool),
+		sendGetBodyAs:             DefaultSendGetBodyAs,
 	}
 
 	// Run the options on it
@@ -417,6 +422,14 @@ func SetInfoLog(logger *log.Logger) func(*Client) error {
 func SetTraceLog(logger *log.Logger) func(*Client) error {
 	return func(c *Client) error {
 		c.tracelog = logger
+		return nil
+	}
+}
+
+// SendGetBodyAs sets which HTTP method to use when sending a GET request with a body. It is GET by default.
+func SetSendGetBodyAs(httpMethod string) func(*Client) error {
+	return func(c *Client) error {
+		c.sendGetBodyAs = httpMethod
 		return nil
 	}
 }
@@ -891,6 +904,10 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	// We wait between retries, using simple exponential back-off.
 	// TODO: Make this configurable, including the jitter.
 	retryWaitMsec := int64(100 + (rand.Intn(20) - 10))
+
+	if method == "GET" && body != nil && c.sendGetBodyAs != "GET" {
+		method = c.sendGetBodyAs
+	}
 
 	for {
 		pathWithParams := path
