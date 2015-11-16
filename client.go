@@ -895,6 +895,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	basicAuth := c.basicAuth
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
+	sendGetBodyAs := c.sendGetBodyAs
 	c.mu.RUnlock()
 
 	var err error
@@ -908,8 +909,8 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	retryWaitMsec := int64(100 + (rand.Intn(20) - 10))
 
 	// Change method if sendGetBodyAs is specified.
-	if method == "GET" && body != nil && c.sendGetBodyAs != "GET" {
-		method = c.sendGetBodyAs
+	if method == "GET" && body != nil && sendGetBodyAs != "GET" {
+		method = sendGetBodyAs
 	}
 
 	for {
