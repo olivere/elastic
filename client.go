@@ -124,7 +124,7 @@ type Client struct {
 	basicAuth                 bool          // indicates whether to send HTTP Basic Auth credentials
 	basicAuthUsername         string        // username for HTTP Basic Auth
 	basicAuthPassword         string        // password for HTTP Basic Auth
-	sendGetBodyAs		      string	    // override for when sending a GET with a body.
+	sendGetBodyAs             string        // override for when sending a GET with a body.
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -190,7 +190,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		snifferTimeout:            DefaultSnifferTimeout,
 		snifferInterval:           DefaultSnifferInterval,
 		snifferStop:               make(chan bool),
-		sendGetBodyAs:			   DefaultSendGetBodyAs,
+		sendGetBodyAs:             DefaultSendGetBodyAs,
 	}
 
 	// Run the options on it
@@ -905,7 +905,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	// TODO: Make this configurable, including the jitter.
 	retryWaitMsec := int64(100 + (rand.Intn(20) - 10))
 
-	if(method == "GET" && body != nil && c.sendGetBodyAs != "GET") {
+	if method == "GET" && body != nil && c.sendGetBodyAs != "GET" {
 		method = c.sendGetBodyAs
 	}
 
