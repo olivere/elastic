@@ -64,6 +64,9 @@ func TestClientDefaults(t *testing.T) {
 	if client.basicAuthPassword != "" {
 		t.Errorf("expected no basic auth password; got: %q", client.basicAuthUsername)
 	}
+	if client.sendGetBodyAs != "GET" {
+		t.Errorf("expected sendGetBodyAs to be GET; got: %q", client.sendGetBodyAs)
+	}
 }
 
 func TestClientWithoutURL(t *testing.T) {
