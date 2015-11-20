@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.19"
+	Version = "2.0.20"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -76,6 +76,9 @@ const (
 	// DefaultSendGetBodyAs is the HTTP method to use when elastic is sending
 	// a GET request with a body.
 	DefaultSendGetBodyAs = "GET"
+
+	// DefaultGzipEnabled specifies if gzip compression is enabled by default.
+	DefaultGzipEnabled = false
 )
 
 var (
@@ -126,6 +129,7 @@ type Client struct {
 	basicAuthUsername         string        // username for HTTP Basic Auth
 	basicAuthPassword         string        // password for HTTP Basic Auth
 	sendGetBodyAs             string        // override for when sending a GET with a body
+	gzipEnabled               bool          // gzip compression enabled or disabled (default)
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -383,6 +387,14 @@ func SetMaxRetries(maxRetries int) func(*Client) error {
 			return errors.New("MaxRetries must be greater than or equal to 0")
 		}
 		c.maxRetries = maxRetries
+		return nil
+	}
+}
+
+// SetGzip enables or disables gzip compression (disabled by default).
+func SetGzip(enabled bool) ClientOptionFunc {
+	return func(c *Client) error {
+		c.gzipEnabled = enabled
 		return nil
 	}
 }
@@ -896,6 +908,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
 	sendGetBodyAs := c.sendGetBodyAs
+	gzipEnabled := c.gzipEnabled
 	c.mu.RUnlock()
 
 	var err error
@@ -952,14 +965,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 
 		// Set body
 		if body != nil {
-			switch b := body.(type) {
-			case string:
-				req.SetBodyString(b)
-				break
-			default:
-				req.SetBodyJson(body)
-				break
-			}
+			req.SetBody(body, gzipEnabled)
 		}
 
 		// Tracing
