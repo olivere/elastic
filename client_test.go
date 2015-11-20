@@ -525,6 +525,15 @@ func TestElasticsearchVersion(t *testing.T) {
 	}
 }
 
+// -- Test GZIP compression --
+
+func TestGzipCompression(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t, SetGzip(true))
+	if client == nil {
+		t.Fatalf("expected valid client, got: %v", client)
+	}
+}
+
 // -- IndexNames --
 
 func TestIndexNames(t *testing.T) {
