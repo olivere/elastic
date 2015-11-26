@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"gopkg.in/olivere/elastic.v3/uritemplates"
@@ -98,10 +99,14 @@ func (s *IndicesExistsTemplateService) Do() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if res.StatusCode == 200 {
+
+	// Return operation response
+	switch res.StatusCode {
+	case http.StatusOK:
 		return true, nil
-	} else if res.StatusCode == 404 {
+	case http.StatusNotFound:
 		return false, nil
+	default:
+		return false, fmt.Errorf("elastic: got HTTP code %d when it should have been either 200 or 404", res.StatusCode)
 	}
-	return false, fmt.Errorf("elastic: got HTTP code %d when it should have been either 200 or 404", res.StatusCode)
 }
