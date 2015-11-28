@@ -12,30 +12,33 @@ package elastic
 type ConstantScoreQuery struct {
 	query  Query
 	filter Filter
-	boost  float64
+	boost  *float64
 }
 
 // NewConstantScoreQuery creates a new constant score query.
 func NewConstantScoreQuery() ConstantScoreQuery {
-	return ConstantScoreQuery{
-		boost: -1,
-	}
+	return ConstantScoreQuery{}
 }
 
+// Query to wrap in this constant score query.
 func (q ConstantScoreQuery) Query(query Query) ConstantScoreQuery {
 	q.query = query
 	q.filter = nil
 	return q
 }
 
+// Filter to wrap in this constant score query.
 func (q ConstantScoreQuery) Filter(filter Filter) ConstantScoreQuery {
 	q.query = nil
 	q.filter = filter
 	return q
 }
 
+// Boost sets the boost for this query. Documents matching this query
+// will (in addition to the normal weightings) have their score multiplied
+// by the boost provided.
 func (q ConstantScoreQuery) Boost(boost float64) ConstantScoreQuery {
-	q.boost = boost
+	q.boost = &boost
 	return q
 }
 
@@ -50,8 +53,8 @@ func (q ConstantScoreQuery) Source() interface{} {
 	} else if q.filter != nil {
 		query["filter"] = q.filter.Source()
 	}
-	if q.boost != -1 {
-		query["boost"] = q.boost
+	if q.boost != nil {
+		query["boost"] = *q.boost
 	}
 	return source
 }
