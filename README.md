@@ -279,7 +279,7 @@ on the command line.
 - [x] `bool`
 - [x] `boosting`
 - [ ] `common_terms`
-- [ ] `constant_score`
+- [x] `constant_score`
 - [x] `dis_max`
 - [x] `filtered`
 - [x] `fuzzy_like_this_query` (`flt`)
