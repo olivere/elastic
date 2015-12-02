@@ -265,10 +265,11 @@ type TermVectorsFieldInfo struct {
 
 // TermvectorResponse is the response of TermvectorService.Do.
 type TermvectorResponse struct {
-	Id          string                          `json:"_id"`
 	Index       string                          `json:"_index"`
 	Type        string                          `json:"_type"`
+	Id          string                          `json:"_id,omitempty"`
 	Version     int                             `json:"_version"`
 	Found       bool                            `json:"found"`
+	Took        int64                           `json:"took"`
 	TermVectors map[string]TermVectorsFieldInfo `json:"term_vectors"`
 }

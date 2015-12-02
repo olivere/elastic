@@ -42,4 +42,7 @@ func TestTermVector(t *testing.T) {
 	if !result.Found {
 		t.Errorf("expected found to be %v; got: %v", true, result.Found)
 	}
+	if result.Took <= 0 {
+		t.Errorf("expected took in millis > 0 got: %v", result.Took)
+	}
 }
