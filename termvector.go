@@ -20,10 +20,10 @@ type TermvectorService struct {
 	index            string
 	typ              string
 	id               string
-	doc              *map[string]string
+	doc              map[string]string
 	fieldStatistics  *bool
 	fields           []string
-	perFieldAnalyzer *map[string]string
+	perFieldAnalyzer map[string]string
 	offsets          *bool
 	parent           string
 	payloads         *bool
@@ -63,7 +63,7 @@ func (s *TermvectorService) Id(id string) *TermvectorService {
 }
 
 // Doc is documented as: The document to analyze..
-func (s *TermvectorService) Doc(doc *map[string]string) *TermvectorService {
+func (s *TermvectorService) Doc(doc map[string]string) *TermvectorService {
 	s.doc = doc
 	return s
 }
@@ -81,7 +81,7 @@ func (s *TermvectorService) Fields(fields []string) *TermvectorService {
 }
 
 // PerFieldAnalyzer is documented as: A different analyzer than the one at the field may be provided..
-func (s *TermvectorService) PerFieldAnalyzer(perFieldAnalyzer *map[string]string) *TermvectorService {
+func (s *TermvectorService) PerFieldAnalyzer(perFieldAnalyzer map[string]string) *TermvectorService {
 	s.perFieldAnalyzer = perFieldAnalyzer
 	return s
 }
@@ -247,11 +247,11 @@ func (s *TermvectorService) Do() (*TermvectorResponse, error) {
 		body = s.bodyString
 	} else if s.doc != nil || s.perFieldAnalyzer != nil {
 		data := make(map[string]map[string]string, 2)
-		if s.doc != nil {
-			data["doc"] = *s.doc
+		if len(s.doc) > 0 {
+			data["doc"] = s.doc
 		}
-		if s.perFieldAnalyzer != nil {
-			data["per_field_analyzer"] = *s.perFieldAnalyzer
+		if len(s.perFieldAnalyzer) > 0 {
+			data["per_field_analyzer"] = s.perFieldAnalyzer
 		}
 		body = data
 	} else {

@@ -60,8 +60,8 @@ func TestTermVectorWithDoc(t *testing.T) {
 	}
 
 	result, err := client.TermVector(testIndexName, "tweet", "").
-		Doc(&doc).
-		PerFieldAnalyzer(&perFieldAnalyzer).
+		Doc(doc).
+		PerFieldAnalyzer(perFieldAnalyzer).
 		FieldStatistics(true).
 		TermStatistics(true).
 		Do()
