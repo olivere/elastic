@@ -15,23 +15,25 @@ import (
 
 // TermvectorService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/1.7/docs-termvectors.html.
 type TermvectorService struct {
-	client          *Client
-	pretty          bool
-	index           string
-	typ             string
-	id              string
-	fieldStatistics *bool
-	fields          []string
-	offsets         *bool
-	parent          string
-	payloads        *bool
-	positions       *bool
-	preference      string
-	realtime        *bool
-	routing         string
-	termStatistics  *bool
-	bodyJson        interface{}
-	bodyString      string
+	client           *Client
+	pretty           bool
+	index            string
+	typ              string
+	id               string
+	doc              *map[string]string
+	fieldStatistics  *bool
+	fields           []string
+	perFieldAnalyzer *map[string]string
+	offsets          *bool
+	parent           string
+	payloads         *bool
+	positions        *bool
+	preference       string
+	realtime         *bool
+	routing          string
+	termStatistics   *bool
+	bodyJson         interface{}
+	bodyString       string
 }
 
 // NewTermvectorService creates a new TermvectorService.
@@ -60,6 +62,12 @@ func (s *TermvectorService) Id(id string) *TermvectorService {
 	return s
 }
 
+// Doc is documented as: The document to analyze..
+func (s *TermvectorService) Doc(doc *map[string]string) *TermvectorService {
+	s.doc = doc
+	return s
+}
+
 // FieldStatistics is documented as: Specifies if document count, sum of document frequencies and sum of total term frequencies should be returned..
 func (s *TermvectorService) FieldStatistics(fieldStatistics bool) *TermvectorService {
 	s.fieldStatistics = &fieldStatistics
@@ -69,6 +77,12 @@ func (s *TermvectorService) FieldStatistics(fieldStatistics bool) *TermvectorSer
 // Fields is documented as: A comma-separated list of fields to return..
 func (s *TermvectorService) Fields(fields []string) *TermvectorService {
 	s.fields = fields
+	return s
+}
+
+// PerFieldAnalyzer is documented as: A different analyzer than the one at the field may be provided..
+func (s *TermvectorService) PerFieldAnalyzer(perFieldAnalyzer *map[string]string) *TermvectorService {
+	s.perFieldAnalyzer = perFieldAnalyzer
 	return s
 }
 
@@ -140,12 +154,21 @@ func (s *TermvectorService) BodyString(body string) *TermvectorService {
 
 // buildURL builds the URL for the operation.
 func (s *TermvectorService) buildURL() (string, url.Values, error) {
-	// Build URL
-	path, err := uritemplates.Expand("/{index}/{type}/{id}/_termvector", map[string]string{
+	var pathParam = map[string]string{
 		"index": s.index,
 		"type":  s.typ,
-		"id":    s.id,
-	})
+	}
+	var path string
+	var err error
+
+	// Build URL
+	if s.id != "" {
+		pathParam["id"] = s.id
+		path, err = uritemplates.Expand("/{index}/{type}/{id}/_termvector", pathParam)
+	} else {
+		path, err = uritemplates.Expand("/{index}/{type}/_termvector", pathParam)
+	}
+
 	if err != nil {
 		return "", url.Values{}, err
 	}
@@ -220,8 +243,19 @@ func (s *TermvectorService) Do() (*TermvectorResponse, error) {
 	var body interface{}
 	if s.bodyJson != nil {
 		body = s.bodyJson
-	} else {
+	} else if s.bodyString != "" {
 		body = s.bodyString
+	} else if s.doc != nil || s.perFieldAnalyzer != nil {
+		data := make(map[string]map[string]string, 2)
+		if s.doc != nil {
+			data["doc"] = *s.doc
+		}
+		if s.perFieldAnalyzer != nil {
+			data["per_field_analyzer"] = *s.perFieldAnalyzer
+		}
+		body = data
+	} else {
+		body = ""
 	}
 
 	// Get HTTP response
