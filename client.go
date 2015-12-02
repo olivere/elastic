@@ -1381,3 +1381,11 @@ func (c *Client) WaitForGreenStatus(timeout string) error {
 func (c *Client) WaitForYellowStatus(timeout string) error {
 	return c.WaitForStatus("yellow", timeout)
 }
+
+// TermVector returns information and statistics on terms in the fields
+// of a particular document.
+func (c *Client) TermVector(index, typ, id string) *TermvectorService {
+	builder := NewTermvectorService(c)
+	builder = builder.Index(index).Type(typ).Id(id)
+	return builder
+}
