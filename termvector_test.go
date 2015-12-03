@@ -79,3 +79,41 @@ func TestTermVectorWithDoc(t *testing.T) {
 		t.Errorf("expected took in millis > 0 got: %v", result.Took)
 	}
 }
+
+func TestTermVectorBuildURL(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tests := []struct {
+		Index    string
+		Type     string
+		Id       string
+		Expected string
+	}{
+		{
+			"twitter",
+			"tweet",
+			"",
+			"/twitter/tweet/_termvector",
+		},
+		{
+			"twitter",
+			"tweet",
+			"1",
+			"/twitter/tweet/1/_termvector",
+		},
+	}
+
+	for _, test := range tests {
+		builder := client.TermVector(test.Index, test.Type)
+		if test.Id != "" {
+			builder = builder.Id(test.Id)
+		}
+		path, _, err := builder.buildURL()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if path != test.Expected {
+			t.Errorf("expected %q; got: %q", test.Expected, path)
+		}
+	}
+}
