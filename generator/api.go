@@ -100,5 +100,6 @@
 //go:generate go run builder.go -i=rest-api-spec/snapshot.verify_repository.json
 //go:generate go run builder.go -i=rest-api-spec/suggest.json
 //go:generate go run builder.go -i=rest-api-spec/termvector.json
+//go:generate go run builder.go -i=rest-api-spec/termvectors.json
 //go:generate go run builder.go -i=rest-api-spec/update.json
 package main
