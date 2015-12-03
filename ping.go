@@ -72,6 +72,12 @@ func (s *PingService) Pretty(pretty bool) *PingService {
 // Do returns the PingResult, the HTTP status code of the Elasticsearch
 // server, and an error.
 func (s *PingService) Do() (*PingResult, int, error) {
+	s.client.mu.RLock()
+	basicAuth := s.client.basicAuth
+	basicAuthUsername := s.client.basicAuthUsername
+	basicAuthPassword := s.client.basicAuthPassword
+	s.client.mu.RUnlock()
+
 	url_ := s.url + "/"
 
 	params := make(url.Values)
@@ -96,6 +102,10 @@ func (s *PingService) Do() (*PingResult, int, error) {
 	req, err := NewRequest(method, url_)
 	if err != nil {
 		return nil, 0, err
+	}
+
+	if basicAuth {
+		req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 	}
 
 	res, err := s.client.c.Do((*http.Request)(req))
