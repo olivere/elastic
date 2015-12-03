@@ -44,91 +44,91 @@ func NewTermvectorService(client *Client) *TermvectorService {
 	}
 }
 
-// Index is documented as: The index in which the document resides..
+// Index is documented as: The index in which the document resides.
 func (s *TermvectorService) Index(index string) *TermvectorService {
 	s.index = index
 	return s
 }
 
-// Type is documented as: The type of the document..
+// Type is documented as: The type of the document.
 func (s *TermvectorService) Type(typ string) *TermvectorService {
 	s.typ = typ
 	return s
 }
 
-// Id is documented as: The id of the document..
+// Id is documented as: The id of the document.
 func (s *TermvectorService) Id(id string) *TermvectorService {
 	s.id = id
 	return s
 }
 
-// Doc is documented as: The document to analyze..
+// Doc is documented as: The document to analyze.
 func (s *TermvectorService) Doc(doc map[string]string) *TermvectorService {
 	s.doc = doc
 	return s
 }
 
-// FieldStatistics is documented as: Specifies if document count, sum of document frequencies and sum of total term frequencies should be returned..
+// FieldStatistics is documented as: Specifies if document count, sum of document frequencies and sum of total term frequencies should be returned.
 func (s *TermvectorService) FieldStatistics(fieldStatistics bool) *TermvectorService {
 	s.fieldStatistics = &fieldStatistics
 	return s
 }
 
-// Fields is documented as: A comma-separated list of fields to return..
+// Fields is documented as: A comma-separated list of fields to return.
 func (s *TermvectorService) Fields(fields []string) *TermvectorService {
 	s.fields = fields
 	return s
 }
 
-// PerFieldAnalyzer is documented as: A different analyzer than the one at the field may be provided..
+// PerFieldAnalyzer is documented as: A different analyzer than the one at the field may be provided.
 func (s *TermvectorService) PerFieldAnalyzer(perFieldAnalyzer map[string]string) *TermvectorService {
 	s.perFieldAnalyzer = perFieldAnalyzer
 	return s
 }
 
-// Offsets is documented as: Specifies if term offsets should be returned..
+// Offsets is documented as: Specifies if term offsets should be returned.
 func (s *TermvectorService) Offsets(offsets bool) *TermvectorService {
 	s.offsets = &offsets
 	return s
 }
 
-// Parent id of documents..
+// Parent id of documents.
 func (s *TermvectorService) Parent(parent string) *TermvectorService {
 	s.parent = parent
 	return s
 }
 
-// Payloads is documented as: Specifies if term payloads should be returned..
+// Payloads is documented as: Specifies if term payloads should be returned.
 func (s *TermvectorService) Payloads(payloads bool) *TermvectorService {
 	s.payloads = &payloads
 	return s
 }
 
-// Positions is documented as: Specifies if term positions should be returned..
+// Positions is documented as: Specifies if term positions should be returned.
 func (s *TermvectorService) Positions(positions bool) *TermvectorService {
 	s.positions = &positions
 	return s
 }
 
-// Preference is documented as: Specify the node or shard the operation should be performed on (default: random)..
+// Preference is documented as: Specify the node or shard the operation should be performed on (default: random).
 func (s *TermvectorService) Preference(preference string) *TermvectorService {
 	s.preference = preference
 	return s
 }
 
-// Realtime is documented as: Specifies if request is real-time as opposed to near-real-time (default: true)..
+// Realtime is documented as: Specifies if request is real-time as opposed to near-real-time (default: true).
 func (s *TermvectorService) Realtime(realtime bool) *TermvectorService {
 	s.realtime = &realtime
 	return s
 }
 
-// Routing is documented as: Specific routing value..
+// Routing is documented as: Specific routing value.
 func (s *TermvectorService) Routing(routing string) *TermvectorService {
 	s.routing = routing
 	return s
 }
 
-// TermStatistics is documented as: Specifies if total term frequency and document frequency should be returned..
+// TermStatistics is documented as: Specifies if total term frequency and document frequency should be returned.
 func (s *TermvectorService) TermStatistics(termStatistics bool) *TermvectorService {
 	s.termStatistics = &termStatistics
 	return s
@@ -140,13 +140,13 @@ func (s *TermvectorService) Pretty(pretty bool) *TermvectorService {
 	return s
 }
 
-// BodyJson is documented as: Define parameters. See documentation..
+// BodyJson is documented as: Define parameters. See documentation.
 func (s *TermvectorService) BodyJson(body interface{}) *TermvectorService {
 	s.bodyJson = body
 	return s
 }
 
-// BodyString is documented as: Define parameters. See documentation..
+// BodyString is documented as: Define parameters. See documentation.
 func (s *TermvectorService) BodyString(body string) *TermvectorService {
 	s.bodyString = body
 	return s
