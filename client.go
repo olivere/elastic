@@ -1384,8 +1384,8 @@ func (c *Client) WaitForYellowStatus(timeout string) error {
 
 // TermVector returns information and statistics on terms in the fields
 // of a particular document.
-func (c *Client) TermVector(index, typ, id string) *TermvectorService {
+func (c *Client) TermVector(index, typ string) *TermvectorService {
 	builder := NewTermvectorService(c)
-	builder = builder.Index(index).Type(typ).Id(id)
+	builder = builder.Index(index).Type(typ)
 	return builder
 }

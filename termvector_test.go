@@ -28,7 +28,8 @@ func TestTermVectorWithId(t *testing.T) {
 
 	// TermVectors by specifying ID
 	field := "Message"
-	result, err := client.TermVector(testIndexName, "tweet", "1").
+	result, err := client.TermVector(testIndexName, "tweet").
+		Id("1").
 		Fields([]string{field}).
 		FieldStatistics(true).
 		TermStatistics(true).
@@ -59,7 +60,7 @@ func TestTermVectorWithDoc(t *testing.T) {
 		"fullname": "keyword",
 	}
 
-	result, err := client.TermVector(testIndexName, "tweet", "").
+	result, err := client.TermVector(testIndexName, "tweet").
 		Doc(doc).
 		PerFieldAnalyzer(perFieldAnalyzer).
 		FieldStatistics(true).
