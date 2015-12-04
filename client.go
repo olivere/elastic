@@ -1287,6 +1287,21 @@ func (c *Client) PutMapping() *PutMappingService {
 	return NewPutMappingService(c)
 }
 
+// GetWarmer gets a mapping.
+func (c *Client) GetWarmer() *GetWarmerService {
+	return NewGetWarmerService(c)
+}
+
+// PutWarmer registers a warmer.
+func (c *Client) PutWarmer() *PutWarmerService {
+	return NewPutWarmerService(c)
+}
+
+// DeleteWarmer deletes a warmer.
+func (c *Client) DeleteWarmer() *DeleteWarmerService {
+	return NewDeleteWarmerService(c)
+}
+
 // -- cat APIs --
 
 // TODO cat aliases
