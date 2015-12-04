@@ -19,13 +19,13 @@ func TestPutWarmerURL(t *testing.T) {
 			[]string{},
 			[]string{},
 			"warmer_1",
-			"/_warmer/warmer_1",
+			"/_all/_all/_warmer/warmer_1",
 		},
 		{
 			[]string{"*"},
 			[]string{},
 			"warmer_1",
-			"/%2A/_warmer/warmer_1",
+			"/%2A/_all/_warmer/warmer_1",
 		},
 		{
 			[]string{},
