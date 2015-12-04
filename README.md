@@ -191,7 +191,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Multi Get API
 - [x] Bulk API
 - [x] Delete By Query API
-- [ ] Term Vectors
+- [x] Term Vectors
 - [ ] Multi termvectors API
 
 ### Search APIs
