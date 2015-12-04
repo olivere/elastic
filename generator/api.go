@@ -7,12 +7,15 @@
 //go:generate go run builder.go -i=rest-api-spec/cat.help.json
 //go:generate go run builder.go -i=rest-api-spec/cat.indices.json
 //go:generate go run builder.go -i=rest-api-spec/cat.master.json
+//go:generate go run builder.go -i=rest-api-spec/cat.nodeattrs.json
 //go:generate go run builder.go -i=rest-api-spec/cat.nodes.json
 //go:generate go run builder.go -i=rest-api-spec/cat.pending_tasks.json
 //go:generate go run builder.go -i=rest-api-spec/cat.plugins.json
 //go:generate go run builder.go -i=rest-api-spec/cat.recovery.json
+//go:generate go run builder.go -i=rest-api-spec/cat.repositories.json
 //go:generate go run builder.go -i=rest-api-spec/cat.segments.json
 //go:generate go run builder.go -i=rest-api-spec/cat.shards.json
+//go:generate go run builder.go -i=rest-api-spec/cat.snapshots.json
 //go:generate go run builder.go -i=rest-api-spec/cat.thread_pool.json
 //go:generate go run builder.go -i=rest-api-spec/clear_scroll.json
 //go:generate go run builder.go -i=rest-api-spec/cluster.get_settings.json
@@ -49,6 +52,7 @@
 //go:generate go run builder.go -i=rest-api-spec/indices.exists_type.json
 //go:generate go run builder.go -i=rest-api-spec/indices.flush.json
 //go:generate go run builder.go -i=rest-api-spec/indices.flush_synced.json
+//go:generate go run builder.go -i=rest-api-spec/indices.forcemerge.json
 //go:generate go run builder.go -i=rest-api-spec/indices.get.json
 //go:generate go run builder.go -i=rest-api-spec/indices.get_alias.json
 //go:generate go run builder.go -i=rest-api-spec/indices.get_aliases.json
@@ -84,6 +88,7 @@
 //go:generate go run builder.go -i=rest-api-spec/ping.json
 //go:generate go run builder.go -i=rest-api-spec/put_script.json
 //go:generate go run builder.go -i=rest-api-spec/put_template.json
+//go:generate go run builder.go -i=rest-api-spec/render_search_template.json
 //go:generate go run builder.go -i=rest-api-spec/scroll.json
 //go:generate go run builder.go -i=rest-api-spec/search.json
 //go:generate go run builder.go -i=rest-api-spec/search_exists.json
@@ -100,5 +105,6 @@
 //go:generate go run builder.go -i=rest-api-spec/snapshot.verify_repository.json
 //go:generate go run builder.go -i=rest-api-spec/suggest.json
 //go:generate go run builder.go -i=rest-api-spec/termvector.json
+//go:generate go run builder.go -i=rest-api-spec/termvectors.json
 //go:generate go run builder.go -i=rest-api-spec/update.json
 package main
