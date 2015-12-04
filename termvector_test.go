@@ -4,7 +4,10 @@
 
 package elastic
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestTermVectorBuildURL(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
@@ -88,6 +91,11 @@ func TestTermVectorWithId(t *testing.T) {
 
 func TestTermVectorWithDoc(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
+
+	// Travis lags sometimes
+	if isTravis() {
+		time.Sleep(2 * time.Second)
+	}
 
 	// TermVectors by specifying Doc
 	var doc = map[string]interface{}{
