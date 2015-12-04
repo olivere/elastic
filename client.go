@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.22"
+	Version = "2.0.23"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1380,4 +1380,12 @@ func (c *Client) WaitForGreenStatus(timeout string) error {
 // See WaitForStatus for more details.
 func (c *Client) WaitForYellowStatus(timeout string) error {
 	return c.WaitForStatus("yellow", timeout)
+}
+
+// TermVector returns information and statistics on terms in the fields
+// of a particular document.
+func (c *Client) TermVector(index, typ string) *TermvectorService {
+	builder := NewTermvectorService(c)
+	builder = builder.Index(index).Type(typ)
+	return builder
 }

@@ -197,7 +197,7 @@ Here's the current API status.
 - [x] Multi Get
 - [x] Bulk
 - [ ] Bulk UDP
-- [ ] Term vectors
+- [x] Term vectors
 - [ ] Multi term vectors
 - [x] Count
 - [ ] Validate
