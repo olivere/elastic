@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.8"
+	Version = "3.0.9"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1210,8 +1210,15 @@ func (c *Client) IndexGetSettings(indices ...string) *IndicesGetSettingsService 
 }
 
 // Optimize asks Elasticsearch to optimize one or more indices.
+// Optimize is deprecated as of Elasticsearch 2.1 and replaced by Forcemerge.
 func (c *Client) Optimize(indices ...string) *OptimizeService {
 	return NewOptimizeService(c).Index(indices...)
+}
+
+// Forcemerge optimizes one or more indices.
+// It replaces the deprecated Optimize API.
+func (c *Client) Forcemerge(indices ...string) *IndicesForcemergeService {
+	return NewIndicesForcemergeService(c).Index(indices...)
 }
 
 // Refresh asks Elasticsearch to refresh one or more indices.
