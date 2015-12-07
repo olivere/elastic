@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.10"
+	Version = "3.0.11"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1292,6 +1292,21 @@ func (c *Client) GetMapping() *GetMappingService {
 // PutMapping registers a mapping.
 func (c *Client) PutMapping() *PutMappingService {
 	return NewPutMappingService(c)
+}
+
+// GetWarmer gets one or more warmers by name.
+func (c *Client) GetWarmer() *IndicesGetWarmerService {
+	return NewIndicesGetWarmerService(c)
+}
+
+// PutWarmer registers a warmer.
+func (c *Client) PutWarmer() *IndicesPutWarmerService {
+	return NewIndicesPutWarmerService(c)
+}
+
+// DeleteWarmer deletes one or more warmers.
+func (c *Client) DeleteWarmer() *IndicesDeleteWarmerService {
+	return NewIndicesDeleteWarmerService(c)
 }
 
 // -- cat APIs --

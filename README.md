@@ -275,7 +275,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Get Settings
 - [ ] Analyze
 - [x] Index Templates
-- [ ] Warmers
+- [x] Warmers
 - [x] Indices Stats
 - [ ] Indices Segments
 - [ ] Indices Recovery
