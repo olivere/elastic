@@ -229,7 +229,7 @@ Here's the current API status.
 - [x] Get settings
 - [ ] Analyze
 - [x] Index templates
-- [ ] Warmers
+- [x] Warmers
 - [ ] Status
 - [x] Indices stats
 - [ ] Indices segments
