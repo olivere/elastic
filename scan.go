@@ -227,6 +227,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	// Parameters
 	params := make(url.Values)
 	if !s.searchSource.hasSort() {
+		// TODO: ES 2.1 deprecates search_type=scan. See https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking_21_search_changes.html#_literal_search_type_scan_literal_deprecated.
 		params.Set("search_type", "scan")
 	}
 	if s.pretty {

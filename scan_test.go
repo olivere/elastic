@@ -181,6 +181,75 @@ func TestScanWithSort(t *testing.T) {
 	}
 }
 
+func TestScanWithSortByDoc(t *testing.T) {
+	// Sorting by doc is introduced in Elasticsearch 2.1,
+	// and replaces the deprecated search_type=scan.
+	// See https://www.elastic.co/guide/en/elasticsearch/reference/2.x/breaking_21_search_changes.html#_literal_search_type_scan_literal_deprecated
+	client := setupTestClientAndCreateIndex(t)
+
+	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if esversion < "2.1" {
+		t.Skipf(`Elasticsearch %s does not have {"sort":["_doc"]}`, esversion)
+		return
+	}
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	comment1 := comment{User: "nico", Comment: "You bet."}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Index().Index(testIndexName).Type("comment").Id("1").Parent("1").BodyJson(&comment1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Match all should return all documents
+	cursor, err := client.Scan(testIndexName).Sort("_doc", true).Size(1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	numDocs := 0
+	pages := 0
+
+	for {
+		searchResult, err := cursor.Next()
+		if err == EOS {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		pages += 1
+
+		for range searchResult.Hits.Hits {
+			numDocs += 1
+		}
+	}
+
+	if pages != 3 {
+		t.Errorf("expected to retrieve %d pages; got %d", 2, pages)
+	}
+	if numDocs != 2 {
+		t.Errorf("expected to retrieve %d hits; got %d", 2, numDocs)
+	}
+}
+
 func TestScanWithSearchSource(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndLog(t)
 	client := setupTestClientAndCreateIndex(t)
@@ -261,7 +330,6 @@ func TestScanWithSearchSource(t *testing.T) {
 	if pages != 3 {
 		t.Errorf("expected to retrieve %d pages; got %d", 2, pages)
 	}
-
 	if numDocs != 2 {
 		t.Errorf("expected to retrieve %d hits; got %d", 2, numDocs)
 	}
@@ -432,7 +500,7 @@ func TestScanAndScrollWithEmptyIndex(t *testing.T) {
 	}
 }
 
-func TestIssue119(t *testing.T) {
+func TestScanIssue119(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
