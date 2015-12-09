@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // IndicesStatsService provides stats on various metrics of one or more
@@ -113,16 +113,16 @@ func (s *IndicesStatsService) buildURL() (string, url.Values, error) {
 	var err error
 	var path string
 	if len(s.index) > 0 && len(s.metric) > 0 {
-		path, err = uritemplates.Expand("/{index}/_stats/{metric}", map[string]string{
+		path, err =  Expand("/{index}/_stats/{metric}", map[string]string{
 			"index":  strings.Join(s.index, ","),
 			"metric": strings.Join(s.metric, ","),
 		})
 	} else if len(s.index) > 0 {
-		path, err = uritemplates.Expand("/{index}/_stats", map[string]string{
+		path, err =  Expand("/{index}/_stats", map[string]string{
 			"index": strings.Join(s.index, ","),
 		})
 	} else if len(s.metric) > 0 {
-		path, err = uritemplates.Expand("/_stats/{metric}", map[string]string{
+		path, err =  Expand("/_stats/{metric}", map[string]string{
 			"metric": strings.Join(s.metric, ","),
 		})
 	} else {

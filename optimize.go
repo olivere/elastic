@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 type OptimizeService struct {
@@ -79,7 +79,7 @@ func (s *OptimizeService) Do() (*OptimizeResult, error) {
 	// Indices part
 	indexPart := make([]string, 0)
 	for _, index := range s.indices {
-		index, err := uritemplates.Expand("{index}", map[string]string{
+		index, err :=  Expand("{index}", map[string]string{
 			"index": index,
 		})
 		if err != nil {

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // IndicesPutTemplateService creates or updates index mappings.
@@ -93,7 +93,7 @@ func (s *IndicesPutTemplateService) BodyString(body string) *IndicesPutTemplateS
 // buildURL builds the URL for the operation.
 func (s *IndicesPutTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_template/{name}", map[string]string{
+	path, err :=  Expand("/_template/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {

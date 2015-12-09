@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 type DeleteService struct {
@@ -81,7 +81,7 @@ func (s *DeleteService) Do() (*DeleteResult, error) {
 	}
 
 	// Build url
-	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
+	path, err :=  Expand("/{index}/{type}/{id}", map[string]string{
 		"index": s.index,
 		"type":  s._type,
 		"id":    s.id,

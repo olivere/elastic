@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // DeleteByQueryService deletes documents that match a query.
@@ -189,7 +189,7 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 	// Indices part
 	indexPart := make([]string, 0)
 	for _, index := range s.indices {
-		index, err = uritemplates.Expand("{index}", map[string]string{
+		index, err =  Expand("{index}", map[string]string{
 			"index": index,
 		})
 		if err != nil {
@@ -204,7 +204,7 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 	// Types part
 	typesPart := make([]string, 0)
 	for _, typ := range s.types {
-		typ, err = uritemplates.Expand("{type}", map[string]string{
+		typ, err =  Expand("{type}", map[string]string{
 			"type": typ,
 		})
 		if err != nil {

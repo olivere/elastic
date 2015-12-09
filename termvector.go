@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v2/uritemplates"
+
 )
 
 // TermvectorService returns information and statistics on terms in the
@@ -176,9 +176,9 @@ func (s *TermvectorService) buildURL() (string, url.Values, error) {
 	// Build URL
 	if s.id != "" {
 		pathParam["id"] = s.id
-		path, err = uritemplates.Expand("/{index}/{type}/{id}/_termvector", pathParam)
+		path, err =  Expand("/{index}/{type}/{id}/_termvector", pathParam)
 	} else {
-		path, err = uritemplates.Expand("/{index}/{type}/_termvector", pathParam)
+		path, err =  Expand("/{index}/{type}/_termvector", pathParam)
 	}
 
 	if err != nil {

@@ -1,4 +1,4 @@
-package uritemplates
+package elastic
 
 func Expand(path string, expansions map[string]string) (string, error) {
 	template, err := Parse(path)

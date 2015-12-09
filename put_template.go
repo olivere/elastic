@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // PutTemplateService creates or updates a search template.
@@ -72,7 +72,7 @@ func (s *PutTemplateService) BodyString(body string) *PutTemplateService {
 // buildURL builds the URL for the operation.
 func (s *PutTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_search/template/{id}", map[string]string{
+	path, err :=  Expand("/_search/template/{id}", map[string]string{
 		"id": s.id,
 	})
 	if err != nil {

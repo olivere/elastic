@@ -8,14 +8,14 @@
 // To use uritemplates, parse a template string and expand it with a value
 // map:
 //
-//	template, _ := uritemplates.Parse("https://api.github.com/repos{/user,repo}")
+//	template, _ :=  Parse("https://api.github.com/repos{/user,repo}")
 //	values := make(map[string]interface{})
 //	values["user"] = "jtacoma"
 //	values["repo"] = "uritemplates"
 //	expanded, _ := template.ExpandString(values)
 //	fmt.Printf(expanded)
 //
-package uritemplates
+package elastic
 
 import (
 	"bytes"

@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 type BulkService struct {
@@ -107,7 +107,7 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	// Build url
 	path := "/"
 	if s.index != "" {
-		index, err := uritemplates.Expand("{index}", map[string]string{
+		index, err :=  Expand("{index}", map[string]string{
 			"index": s.index,
 		})
 		if err != nil {
@@ -116,7 +116,7 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 		path += index + "/"
 	}
 	if s._type != "" {
-		typ, err := uritemplates.Expand("{type}", map[string]string{
+		typ, err :=  Expand("{type}", map[string]string{
 			"type": s._type,
 		})
 		if err != nil {

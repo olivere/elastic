@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // IndicesGetTemplateService returns an index template.
@@ -62,7 +62,7 @@ func (s *IndicesGetTemplateService) buildURL() (string, url.Values, error) {
 	var err error
 	var path string
 	if len(s.name) > 0 {
-		path, err = uritemplates.Expand("/_template/{name}", map[string]string{
+		path, err =  Expand("/_template/{name}", map[string]string{
 			"name": strings.Join(s.name, ","),
 		})
 	} else {

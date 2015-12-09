@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // PercolateService is documented at http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/search-percolate.html.
@@ -181,12 +181,12 @@ func (s *PercolateService) buildURL() (string, url.Values, error) {
 	var path string
 	var err error
 	if s.id == "" {
-		path, err = uritemplates.Expand("/{index}/{type}/_percolate", map[string]string{
+		path, err =  Expand("/{index}/{type}/_percolate", map[string]string{
 			"index": s.index,
 			"type":  s.typ,
 		})
 	} else {
-		path, err = uritemplates.Expand("/{index}/{type}/{id}/_percolate", map[string]string{
+		path, err =  Expand("/{index}/{type}/{id}/_percolate", map[string]string{
 			"index": s.index,
 			"type":  s.typ,
 			"id":    s.id,

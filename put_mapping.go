@@ -11,14 +11,14 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 var (
 	_ = fmt.Print
 	_ = log.Print
 	_ = strings.Index
-	_ = uritemplates.Expand
+	_ =  Expand
 	_ = url.Parse
 )
 
@@ -127,12 +127,12 @@ func (s *PutMappingService) buildURL() (string, url.Values, error) {
 
 	// Build URL: Typ MUST be specified and is verified in Validate.
 	if len(s.index) > 0 {
-		path, err = uritemplates.Expand("/{index}/_mapping/{type}", map[string]string{
+		path, err =  Expand("/{index}/_mapping/{type}", map[string]string{
 			"index": strings.Join(s.index, ","),
 			"type":  s.typ,
 		})
 	} else {
-		path, err = uritemplates.Expand("/_mapping/{type}", map[string]string{
+		path, err =  Expand("/_mapping/{type}", map[string]string{
 			"type": s.typ,
 		})
 	}

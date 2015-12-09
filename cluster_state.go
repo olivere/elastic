@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // ClusterStateService returns the state of the cluster.
@@ -98,7 +98,7 @@ func (s *ClusterStateService) buildURL() (string, url.Values, error) {
 	if indices == "" {
 		indices = "_all"
 	}
-	path, err := uritemplates.Expand("/_cluster/state/{metrics}/{indices}", map[string]string{
+	path, err :=  Expand("/_cluster/state/{metrics}/{indices}", map[string]string{
 		"metrics": metrics,
 		"indices": indices,
 	})

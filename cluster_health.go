@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // ClusterHealthService allows to get the status of the cluster.
@@ -101,7 +101,7 @@ func (s *ClusterHealthService) Local(local bool) *ClusterHealthService {
 // buildURL builds the URL for the operation.
 func (s *ClusterHealthService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_cluster/health/{index}", map[string]string{
+	path, err :=  Expand("/_cluster/health/{index}", map[string]string{
 		"index": strings.Join(s.indices, ","),
 	})
 	if err != nil {

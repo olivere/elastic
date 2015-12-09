@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // GetTemplateService reads a search template.
@@ -50,7 +50,7 @@ func (s *GetTemplateService) VersionType(versionType string) *GetTemplateService
 // buildURL builds the URL for the operation.
 func (s *GetTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_search/template/{id}", map[string]string{
+	path, err :=  Expand("/_search/template/{id}", map[string]string{
 		"id": s.id,
 	})
 	if err != nil {

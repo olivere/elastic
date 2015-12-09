@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // ScrollService manages a cursor through documents in Elasticsearch.
@@ -113,7 +113,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	// Indices part
 	indexPart := make([]string, 0)
 	for _, index := range s.indices {
-		index, err := uritemplates.Expand("{index}", map[string]string{
+		index, err :=  Expand("{index}", map[string]string{
 			"index": index,
 		})
 		if err != nil {
@@ -128,7 +128,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	// Types
 	typesPart := make([]string, 0)
 	for _, typ := range s.types {
-		typ, err := uritemplates.Expand("{type}", map[string]string{
+		typ, err :=  Expand("{type}", map[string]string{
 			"type": typ,
 		})
 		if err != nil {

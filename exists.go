@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // ExistsService checks if a document exists.
@@ -95,7 +95,7 @@ func (s *ExistsService) Pretty(pretty bool) *ExistsService {
 // buildURL builds the URL for the operation.
 func (s *ExistsService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
+	path, err :=  Expand("/{index}/{type}/{id}", map[string]string{
 		"id":    s.id,
 		"index": s.index,
 		"type":  s.typ,

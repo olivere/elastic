@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // UpdateResult is the result of updating a document in Elasticsearch.
@@ -227,7 +227,7 @@ func (b *UpdateService) Pretty(pretty bool) *UpdateService {
 func (b *UpdateService) url() (string, url.Values, error) {
 	// Build url
 	path := "/{index}/{type}/{id}/_update"
-	path, err := uritemplates.Expand(path, map[string]string{
+	path, err :=  Expand(path, map[string]string{
 		"index": b.index,
 		"type":  b.typ,
 		"id":    b.id,

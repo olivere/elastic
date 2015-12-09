@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // ClusterStatsService is documented at http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/cluster-stats.html.
@@ -61,14 +61,14 @@ func (s *ClusterStatsService) buildURL() (string, url.Values, error) {
 	var path string
 
 	if len(s.nodeId) > 0 {
-		path, err = uritemplates.Expand("/_cluster/stats/nodes/{node_id}", map[string]string{
+		path, err =  Expand("/_cluster/stats/nodes/{node_id}", map[string]string{
 			"node_id": strings.Join(s.nodeId, ","),
 		})
 		if err != nil {
 			return "", url.Values{}, err
 		}
 	} else {
-		path, err = uritemplates.Expand("/_cluster/stats", map[string]string{})
+		path, err =  Expand("/_cluster/stats", map[string]string{})
 		if err != nil {
 			return "", url.Values{}, err
 		}

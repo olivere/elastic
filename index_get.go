@@ -11,14 +11,14 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 var (
 	_ = fmt.Print
 	_ = log.Print
 	_ = strings.Index
-	_ = uritemplates.Expand
+	_ =  Expand
 	_ = url.Parse
 )
 
@@ -104,13 +104,13 @@ func (s *IndicesGetService) buildURL() (string, url.Values, error) {
 
 	if len(s.feature) > 0 {
 		// Build URL
-		path, err = uritemplates.Expand("/{index}/{feature}", map[string]string{
+		path, err =  Expand("/{index}/{feature}", map[string]string{
 			"index":   strings.Join(index, ","),
 			"feature": strings.Join(s.feature, ","),
 		})
 	} else {
 		// Build URL
-		path, err = uritemplates.Expand("/{index}", map[string]string{
+		path, err =  Expand("/{index}", map[string]string{
 			"index": strings.Join(index, ","),
 		})
 	}

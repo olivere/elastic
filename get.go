@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 type GetService struct {
@@ -149,7 +149,7 @@ func (b *GetService) Do() (*GetResult, error) {
 	}
 
 	// Build url
-	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
+	path, err :=  Expand("/{index}/{type}/{id}", map[string]string{
 		"index": b.index,
 		"type":  b.typ,
 		"id":    b.id,

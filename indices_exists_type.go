@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // IndicesExistsTypeService checks if one or more types exist in one or more indices.
@@ -88,7 +88,7 @@ func (s *IndicesExistsTypeService) buildURL() (string, url.Values, error) {
 	}
 
 	// Build URL
-	path, err := uritemplates.Expand("/{index}/{type}", map[string]string{
+	path, err :=  Expand("/{index}/{type}", map[string]string{
 		"type":  strings.Join(s.typ, ","),
 		"index": strings.Join(s.index, ","),
 	})
