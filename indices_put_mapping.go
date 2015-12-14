@@ -7,25 +7,18 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
-var (
-	_ = fmt.Print
-	_ = log.Print
-	_ = strings.Index
-	_ = uritemplates.Expand
-	_ = url.Parse
-)
-
-// PutMappingService allows to register specific mapping definition
+// IndicesPutMappingService allows to register specific mapping definition
 // for a specific type.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-put-mapping.html.
-type PutMappingService struct {
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html
+// for details.
+type IndicesPutMappingService struct {
 	client            *Client
 	pretty            bool
 	typ               string
@@ -40,9 +33,15 @@ type PutMappingService struct {
 	bodyString        string
 }
 
-// NewPutMappingService creates a new PutMappingService.
-func NewPutMappingService(client *Client) *PutMappingService {
-	return &PutMappingService{
+// NewPutMappingService is an alias for NewIndicesPutMappingService.
+// Use NewIndicesPutMappingService.
+func NewPutMappingService(client *Client) *IndicesPutMappingService {
+	return NewIndicesPutMappingService(client)
+}
+
+// NewIndicesPutMappingService creates a new IndicesPutMappingService.
+func NewIndicesPutMappingService(client *Client) *IndicesPutMappingService {
+	return &IndicesPutMappingService{
 		client: client,
 		index:  make([]string, 0),
 	}
@@ -50,32 +49,32 @@ func NewPutMappingService(client *Client) *PutMappingService {
 
 // Index is a list of index names the mapping should be added to
 // (supports wildcards); use `_all` or omit to add the mapping on all indices.
-func (s *PutMappingService) Index(indices ...string) *PutMappingService {
+func (s *IndicesPutMappingService) Index(indices ...string) *IndicesPutMappingService {
 	s.index = append(s.index, indices...)
 	return s
 }
 
 // Type is the name of the document type.
-func (s *PutMappingService) Type(typ string) *PutMappingService {
+func (s *IndicesPutMappingService) Type(typ string) *IndicesPutMappingService {
 	s.typ = typ
 	return s
 }
 
 // Timeout is an explicit operation timeout.
-func (s *PutMappingService) Timeout(timeout string) *PutMappingService {
+func (s *IndicesPutMappingService) Timeout(timeout string) *IndicesPutMappingService {
 	s.timeout = timeout
 	return s
 }
 
 // MasterTimeout specifies the timeout for connection to master.
-func (s *PutMappingService) MasterTimeout(masterTimeout string) *PutMappingService {
+func (s *IndicesPutMappingService) MasterTimeout(masterTimeout string) *IndicesPutMappingService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
 // IgnoreUnavailable indicates whether specified concrete indices should be
 // ignored when unavailable (missing or closed).
-func (s *PutMappingService) IgnoreUnavailable(ignoreUnavailable bool) *PutMappingService {
+func (s *IndicesPutMappingService) IgnoreUnavailable(ignoreUnavailable bool) *IndicesPutMappingService {
 	s.ignoreUnavailable = &ignoreUnavailable
 	return s
 }
@@ -83,45 +82,45 @@ func (s *PutMappingService) IgnoreUnavailable(ignoreUnavailable bool) *PutMappin
 // AllowNoIndices indicates whether to ignore if a wildcard indices
 // expression resolves into no concrete indices.
 // This includes `_all` string or when no indices have been specified.
-func (s *PutMappingService) AllowNoIndices(allowNoIndices bool) *PutMappingService {
+func (s *IndicesPutMappingService) AllowNoIndices(allowNoIndices bool) *IndicesPutMappingService {
 	s.allowNoIndices = &allowNoIndices
 	return s
 }
 
 // ExpandWildcards indicates whether to expand wildcard expression to
 // concrete indices that are open, closed or both.
-func (s *PutMappingService) ExpandWildcards(expandWildcards string) *PutMappingService {
+func (s *IndicesPutMappingService) ExpandWildcards(expandWildcards string) *IndicesPutMappingService {
 	s.expandWildcards = expandWildcards
 	return s
 }
 
 // IgnoreConflicts specifies whether to ignore conflicts while updating
 // the mapping (default: false).
-func (s *PutMappingService) IgnoreConflicts(ignoreConflicts bool) *PutMappingService {
+func (s *IndicesPutMappingService) IgnoreConflicts(ignoreConflicts bool) *IndicesPutMappingService {
 	s.ignoreConflicts = &ignoreConflicts
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *PutMappingService) Pretty(pretty bool) *PutMappingService {
+func (s *IndicesPutMappingService) Pretty(pretty bool) *IndicesPutMappingService {
 	s.pretty = pretty
 	return s
 }
 
 // BodyJson contains the mapping definition.
-func (s *PutMappingService) BodyJson(mapping map[string]interface{}) *PutMappingService {
+func (s *IndicesPutMappingService) BodyJson(mapping map[string]interface{}) *IndicesPutMappingService {
 	s.bodyJson = mapping
 	return s
 }
 
 // BodyString is the mapping definition serialized as a string.
-func (s *PutMappingService) BodyString(mapping string) *PutMappingService {
+func (s *IndicesPutMappingService) BodyString(mapping string) *IndicesPutMappingService {
 	s.bodyString = mapping
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *PutMappingService) buildURL() (string, url.Values, error) {
+func (s *IndicesPutMappingService) buildURL() (string, url.Values, error) {
 	var err error
 	var path string
 
@@ -167,7 +166,7 @@ func (s *PutMappingService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *PutMappingService) Validate() error {
+func (s *IndicesPutMappingService) Validate() error {
 	var invalid []string
 	if s.typ == "" {
 		invalid = append(invalid, "Type")
@@ -182,7 +181,7 @@ func (s *PutMappingService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *PutMappingService) Do() (*PutMappingResponse, error) {
+func (s *IndicesPutMappingService) Do() (*PutMappingResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -216,7 +215,7 @@ func (s *PutMappingService) Do() (*PutMappingResponse, error) {
 	return ret, nil
 }
 
-// PutMappingResponse is the response of PutMappingService.Do.
+// PutMappingResponse is the response of IndicesPutMappingService.Do.
 type PutMappingResponse struct {
 	Acknowledged bool `json:"acknowledged"`
 }

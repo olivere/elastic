@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestGetMappingURL(t *testing.T) {
+func TestIndicesGetMappingURL(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tests := []struct {

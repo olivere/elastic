@@ -7,24 +7,18 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
-var (
-	_ = fmt.Print
-	_ = log.Print
-	_ = strings.Index
-	_ = uritemplates.Expand
-	_ = url.Parse
-)
-
-// GetMappingService retrieves the mapping definitions for an index or
-// index/type. See at http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-get-mapping.html.
-type GetMappingService struct {
+// IndicesGetMappingService retrieves the mapping definitions for an index or
+// index/type.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-mapping.html
+// for details.
+type IndicesGetMappingService struct {
 	client            *Client
 	pretty            bool
 	index             []string
@@ -35,9 +29,15 @@ type GetMappingService struct {
 	expandWildcards   string
 }
 
-// NewGetMappingService creates a new GetMappingService.
-func NewGetMappingService(client *Client) *GetMappingService {
-	return &GetMappingService{
+// NewGetMappingService is an alias for NewIndicesGetMappingService.
+// Use NewIndicesGetMappingService.
+func NewGetMappingService(client *Client) *IndicesGetMappingService {
+	return NewIndicesGetMappingService(client)
+}
+
+// NewIndicesGetMappingService creates a new IndicesGetMappingService.
+func NewIndicesGetMappingService(client *Client) *IndicesGetMappingService {
+	return &IndicesGetMappingService{
 		client: client,
 		index:  make([]string, 0),
 		typ:    make([]string, 0),
@@ -45,13 +45,13 @@ func NewGetMappingService(client *Client) *GetMappingService {
 }
 
 // Index is a list of index names.
-func (s *GetMappingService) Index(indices ...string) *GetMappingService {
+func (s *IndicesGetMappingService) Index(indices ...string) *IndicesGetMappingService {
 	s.index = append(s.index, indices...)
 	return s
 }
 
 // Type is a list of document types.
-func (s *GetMappingService) Type(types ...string) *GetMappingService {
+func (s *IndicesGetMappingService) Type(types ...string) *IndicesGetMappingService {
 	s.typ = append(s.typ, types...)
 	return s
 }
@@ -59,40 +59,40 @@ func (s *GetMappingService) Type(types ...string) *GetMappingService {
 // AllowNoIndices indicates whether to ignore if a wildcard indices
 // expression resolves into no concrete indices.
 // This includes `_all` string or when no indices have been specified.
-func (s *GetMappingService) AllowNoIndices(allowNoIndices bool) *GetMappingService {
+func (s *IndicesGetMappingService) AllowNoIndices(allowNoIndices bool) *IndicesGetMappingService {
 	s.allowNoIndices = &allowNoIndices
 	return s
 }
 
 // ExpandWildcards indicates whether to expand wildcard expression to
 // concrete indices that are open, closed or both..
-func (s *GetMappingService) ExpandWildcards(expandWildcards string) *GetMappingService {
+func (s *IndicesGetMappingService) ExpandWildcards(expandWildcards string) *IndicesGetMappingService {
 	s.expandWildcards = expandWildcards
 	return s
 }
 
 // Local indicates whether to return local information, do not retrieve
 // the state from master node (default: false).
-func (s *GetMappingService) Local(local bool) *GetMappingService {
+func (s *IndicesGetMappingService) Local(local bool) *IndicesGetMappingService {
 	s.local = &local
 	return s
 }
 
 // IgnoreUnavailable indicates whether specified concrete indices should be
 // ignored when unavailable (missing or closed).
-func (s *GetMappingService) IgnoreUnavailable(ignoreUnavailable bool) *GetMappingService {
+func (s *IndicesGetMappingService) IgnoreUnavailable(ignoreUnavailable bool) *IndicesGetMappingService {
 	s.ignoreUnavailable = &ignoreUnavailable
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *GetMappingService) Pretty(pretty bool) *GetMappingService {
+func (s *IndicesGetMappingService) Pretty(pretty bool) *IndicesGetMappingService {
 	s.pretty = pretty
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *GetMappingService) buildURL() (string, url.Values, error) {
+func (s *IndicesGetMappingService) buildURL() (string, url.Values, error) {
 	var index, typ []string
 
 	if len(s.index) > 0 {
@@ -137,15 +137,13 @@ func (s *GetMappingService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *GetMappingService) Validate() error {
+func (s *IndicesGetMappingService) Validate() error {
 	return nil
 }
 
-// Do executes the operation. When successful, it returns a json.RawMessage.
-// If you specify an index, Elasticsearch returns HTTP status 404.
-// if you specify a type that does not exist, Elasticsearch returns
-// an empty map.
-func (s *GetMappingService) Do() (map[string]interface{}, error) {
+// Do executes the operation. It returns mapping definitions for an index
+// or index/type.
+func (s *IndicesGetMappingService) Do() (map[string]interface{}, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
