@@ -7,23 +7,17 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 
 	"gopkg.in/olivere/elastic.v2/uritemplates"
 )
 
-var (
-	_ = fmt.Print
-	_ = log.Print
-	_ = strings.Index
-	_ = uritemplates.Expand
-	_ = url.Parse
-)
-
 // GetMappingService retrieves the mapping definitions for an index or
-// index/type. See at http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-get-mapping.html.
+// index/type.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/1.7/indices-get-mapping.html
+// for details.
 type GetMappingService struct {
 	client            *Client
 	pretty            bool
@@ -141,10 +135,7 @@ func (s *GetMappingService) Validate() error {
 	return nil
 }
 
-// Do executes the operation. When successful, it returns a json.RawMessage.
-// If you specify an index, Elasticsearch returns HTTP status 404.
-// if you specify a type that does not exist, Elasticsearch returns
-// an empty map.
+// Do executes the operation.
 func (s *GetMappingService) Do() (map[string]interface{}, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
