@@ -12,7 +12,8 @@ import (
 
 // GeoPoint is a geographic position described via latitude and longitude.
 type GeoPoint struct {
-	Lat, Lon float64
+	Lat float64 `json:"lat"`
+	Lon float64 `json:"lon"`
 }
 
 // Source returns the object to be serialized in Elasticsearch DSL.
