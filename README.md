@@ -12,7 +12,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for additional informati
 
 ## Releases
 
-**Notice that the master branch always refers to the latest version of Elastic. If you want to use stable versions of Elastic, you should use the packages released via [gopkg.in](https://gopkg.in).**
+**The release branches (e.g. [`release-branch.v3`](https://github.com/olivere/elastic/tree/release-branch.v3)) are actively being worked on and can break at any time. If you want to use stable versions of Elastic, please use the packages released via [gopkg.in](https://gopkg.in).**
 
 Here's the version matrix:
 
@@ -24,13 +24,13 @@ Elasticsearch version | Elastic version -| Package URL
 
 **Example:**
 
-You have Elasticsearch 2.0.0 installed and want to use Elastic. As listed above, you should use Elastic 3.0. So you first install Elastic 3.0.
+You have installed Elasticsearch 2.1.1 and want to use Elastic. As listed above, you should use Elastic 3.0. So you first install the stable release of Elastic 3.0 from gopkg.in.
 
 ```sh
 $ go get gopkg.in/olivere/elastic.v3
 ```
 
-Then you use it via the following import path:
+You then import it with this import path:
 
 ```go
 import "gopkg.in/olivere/elastic.v3"
