@@ -10,7 +10,12 @@ import (
 )
 
 func TestDateHistogramAggregation(t *testing.T) {
-	agg := NewDateHistogramAggregation().Field("date").Interval("month").Format("YYYY-MM")
+	agg := NewDateHistogramAggregation().
+		Field("date").
+		Interval("month").
+		Format("YYYY-MM").
+		TimeZone("UTC").
+		Offset("+6h")
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -20,7 +25,7 @@ func TestDateHistogramAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"date_histogram":{"field":"date","format":"YYYY-MM","interval":"month"}}`
+	expected := `{"date_histogram":{"field":"date","format":"YYYY-MM","interval":"month","offset":"+6h","time_zone":"UTC"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

@@ -13,27 +13,25 @@ type DateHistogramAggregation struct {
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 
-	interval                   string
-	order                      string
-	orderAsc                   bool
-	minDocCount                *int64
-	extendedBoundsMin          interface{}
-	extendedBoundsMax          interface{}
-	preZone                    string
-	postZone                   string
-	preZoneAdjustLargeInterval *bool
-	format                     string
-	preOffset                  int64
-	postOffset                 int64
-	factor                     *float64
+	interval          string
+	order             string
+	orderAsc          bool
+	minDocCount       *int64
+	extendedBoundsMin interface{}
+	extendedBoundsMax interface{}
+	timeZone          string
+	format            string
+	offset            string
 }
 
+// NewDateHistogramAggregation creates a new DateHistogramAggregation.
 func NewDateHistogramAggregation() *DateHistogramAggregation {
 	return &DateHistogramAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
 }
 
+// Field on which the aggregation is processed.
 func (a *DateHistogramAggregation) Field(field string) *DateHistogramAggregation {
 	a.field = field
 	return a
@@ -55,6 +53,7 @@ func (a *DateHistogramAggregation) Meta(metaData map[string]interface{}) *DateHi
 	return a
 }
 
+// Interval by which the aggregation gets processed.
 // Allowed values are: "year", "quarter", "month", "week", "day",
 // "hour", "minute". It also supports time settings like "1.5h"
 // (up to "w" for weeks).
@@ -144,43 +143,37 @@ func (a *DateHistogramAggregation) OrderByAggregationAndMetric(aggName, metric s
 	return a
 }
 
+// MinDocCount sets the minimum document count per bucket.
+// Buckets with less documents than this min value will not be returned.
 func (a *DateHistogramAggregation) MinDocCount(minDocCount int64) *DateHistogramAggregation {
 	a.minDocCount = &minDocCount
 	return a
 }
 
-func (a *DateHistogramAggregation) PreZone(preZone string) *DateHistogramAggregation {
-	a.preZone = preZone
+// TimeZone sets the timezone in which to translate dates before computing buckets.
+func (a *DateHistogramAggregation) TimeZone(timeZone string) *DateHistogramAggregation {
+	a.timeZone = timeZone
 	return a
 }
 
-func (a *DateHistogramAggregation) PostZone(postZone string) *DateHistogramAggregation {
-	a.postZone = postZone
-	return a
-}
-
-func (a *DateHistogramAggregation) PreZoneAdjustLargeInterval(preZoneAdjustLargeInterval bool) *DateHistogramAggregation {
-	a.preZoneAdjustLargeInterval = &preZoneAdjustLargeInterval
-	return a
-}
-
-func (a *DateHistogramAggregation) PreOffset(preOffset int64) *DateHistogramAggregation {
-	a.preOffset = preOffset
-	return a
-}
-
-func (a *DateHistogramAggregation) PostOffset(postOffset int64) *DateHistogramAggregation {
-	a.postOffset = postOffset
-	return a
-}
-
-func (a *DateHistogramAggregation) Factor(factor float64) *DateHistogramAggregation {
-	a.factor = &factor
-	return a
-}
-
+// Format sets the format to use for dates.
 func (a *DateHistogramAggregation) Format(format string) *DateHistogramAggregation {
 	a.format = format
+	return a
+}
+
+// Offset sets the offset of time intervals in the histogram, e.g. "+6h".
+func (a *DateHistogramAggregation) Offset(offset string) *DateHistogramAggregation {
+	a.offset = offset
+	return a
+}
+
+// ExtendedBounds accepts int, int64, string, or time.Time values.
+// In case the lower value in the histogram would be greater than min or the
+// upper value would be less than max, empty buckets will be generated.
+func (a *DateHistogramAggregation) ExtendedBounds(min, max interface{}) *DateHistogramAggregation {
+	a.extendedBoundsMin = min
+	a.extendedBoundsMax = max
 	return a
 }
 
@@ -240,23 +233,11 @@ func (a *DateHistogramAggregation) Source() (interface{}, error) {
 		}
 		opts["order"] = o
 	}
-	if a.preZone != "" {
-		opts["pre_zone"] = a.preZone
+	if a.timeZone != "" {
+		opts["time_zone"] = a.timeZone
 	}
-	if a.postZone != "" {
-		opts["post_zone"] = a.postZone
-	}
-	if a.preZoneAdjustLargeInterval != nil {
-		opts["pre_zone_adjust_large_interval"] = *a.preZoneAdjustLargeInterval
-	}
-	if a.preOffset != 0 {
-		opts["pre_offset"] = a.preOffset
-	}
-	if a.postOffset != 0 {
-		opts["post_offset"] = a.postOffset
-	}
-	if a.factor != nil {
-		opts["factor"] = *a.factor
+	if a.offset != "" {
+		opts["offset"] = a.offset
 	}
 	if a.format != "" {
 		opts["format"] = a.format
