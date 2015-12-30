@@ -61,14 +61,45 @@ func TestDeleteByQuery(t *testing.T) {
 	if res == nil {
 		t.Fatalf("expected response != nil; got: %v", res)
 	}
-	idx, found := res.Indices[testIndexName]
+
+	// Check response
+	if got, want := len(res.IndexNames()), 2; got != want {
+		t.Fatalf("expected %d indices; got: %d", want, got)
+	}
+	idx, found := res.Indices["_all"]
+	if !found {
+		t.Fatalf("expected to find index %q", "_all")
+	}
+	if got, want := idx.Found, 1; got != want {
+		t.Fatalf("expected Found = %v; got: %v", want, got)
+	}
+	if got, want := idx.Deleted, 1; got != want {
+		t.Fatalf("expected Deleted = %v; got: %v", want, got)
+	}
+	if got, want := idx.Missing, 0; got != want {
+		t.Fatalf("expected Missing = %v; got: %v", want, got)
+	}
+	if got, want := idx.Failed, 0; got != want {
+		t.Fatalf("expected Failed = %v; got: %v", want, got)
+	}
+	idx, found = res.Indices[testIndexName]
 	if !found {
 		t.Errorf("expected Found = true; got: %v", found)
 	}
-	if idx.Shards.Failed > 0 {
-		t.Errorf("expected no failed shards; got: %d", idx.Shards.Failed)
+	if got, want := idx.Found, 1; got != want {
+		t.Fatalf("expected Found = %v; got: %v", want, got)
+	}
+	if got, want := idx.Deleted, 1; got != want {
+		t.Fatalf("expected Deleted = %v; got: %v", want, got)
+	}
+	if got, want := idx.Missing, 0; got != want {
+		t.Fatalf("expected Missing = %v; got: %v", want, got)
+	}
+	if got, want := idx.Failed, 0; got != want {
+		t.Fatalf("expected Failed = %v; got: %v", want, got)
 	}
 
+	// Flush and check count
 	_, err = client.Flush().Index(testIndexName).Do()
 	if err != nil {
 		t.Fatal(err)

@@ -164,12 +164,6 @@ func (s *IndicesFlushService) Do() (*IndicesFlushResponse, error) {
 
 // -- Result of a flush request.
 
-type shardsInfo struct {
-	Total      int `json:"total"`
-	Successful int `json:"successful"`
-	Failed     int `json:"failed"`
-}
-
 type IndicesFlushResponse struct {
 	Shards shardsInfo `json:"_shards"`
 }

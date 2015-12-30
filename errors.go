@@ -128,3 +128,20 @@ func IsTimeout(err interface{}) bool {
 	}
 	return false
 }
+
+// -- General errors --
+
+// shardsInfo represents information from a shard.
+type shardsInfo struct {
+	Total      int `json:"total"`
+	Successful int `json:"successful"`
+	Failed     int `json:"failed"`
+}
+
+// shardOperationFailure represents a shard failure.
+type shardOperationFailure struct {
+	Shard  int    `json:"shard"`
+	Index  string `json:"index"`
+	Status string `json:"status"`
+	// "reason"
+}

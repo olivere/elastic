@@ -267,11 +267,36 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 
 // DeleteByQueryResult is the outcome of executing Do with DeleteByQueryService.
 type DeleteByQueryResult struct {
-	Indices map[string]IndexDeleteByQueryResult `json:"_indices"`
+	Took     int64                               `json:"took"`
+	TimedOut bool                                `json:"timed_out"`
+	Indices  map[string]IndexDeleteByQueryResult `json:"_indices"`
+	Failures []shardOperationFailure             `json:"failures"`
+}
+
+// IndexNames returns the names of the indices the DeleteByQuery touched.
+func (res DeleteByQueryResult) IndexNames() []string {
+	var indices []string
+	for index, _ := range res.Indices {
+		indices = append(indices, index)
+	}
+	return indices
+}
+
+// All returns the index delete-by-query result of all indices.
+func (res DeleteByQueryResult) All() IndexDeleteByQueryResult {
+	all, _ := res.Indices["_all"]
+	return all
 }
 
 // IndexDeleteByQueryResult is the result of a delete-by-query for a specific
 // index.
 type IndexDeleteByQueryResult struct {
-	Shards shardsInfo `json:"_shards"`
+	// Found documents, matching the query.
+	Found int `json:"found"`
+	// Deleted documents, successfully, from the given index.
+	Deleted int `json:"deleted"`
+	// Missing documents when trying to delete them.
+	Missing int `json:"missing"`
+	// Failed documents to be deleted for the given index.
+	Failed int `json:"failed"`
 }
