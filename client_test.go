@@ -187,6 +187,41 @@ func TestClientSniffDisabled(t *testing.T) {
 	}
 }
 
+func TestClientWillMarkConnectionsAsAliveWhenAllAreDead(t *testing.T) {
+	client, err := NewClient(SetURL("http://127.0.0.1:9201"),
+		SetSniff(false), SetHealthcheck(false), SetMaxRetries(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// We should have a connection.
+	if len(client.conns) != 1 {
+		t.Fatalf("expected 1 node, got: %d (%v)", len(client.conns), client.conns)
+	}
+
+	// Make a request, so that the connections is marked as dead.
+	client.Flush().Do()
+
+	// The connection should now be marked as dead.
+	if i, found := findConn("http://127.0.0.1:9201", client.conns...); !found {
+		t.Fatalf("expected connection to %q to be found", "http://127.0.0.1:9201")
+	} else {
+		if conn := client.conns[i]; !conn.IsDead() {
+			t.Fatalf("expected connection to be dead, got: %v", conn)
+		}
+	}
+
+	// Now send another request and the connection should be marked as alive again.
+	client.Flush().Do()
+
+	if i, found := findConn("http://127.0.0.1:9201", client.conns...); !found {
+		t.Fatalf("expected connection to %q to be found", "http://127.0.0.1:9201")
+	} else {
+		if conn := client.conns[i]; conn.IsDead() {
+			t.Fatalf("expected connection to be alive, got: %v", conn)
+		}
+	}
+}
+
 func TestClientWithRequiredPlugins(t *testing.T) {
 	_, err := NewClient(SetRequiredPlugins("no-such-plugin"))
 	if err == nil {
@@ -486,7 +521,8 @@ func TestClientSelectConnAllDead(t *testing.T) {
 	client.conns[0].MarkAsDead()
 	client.conns[1].MarkAsDead()
 
-	// #1: Return ErrNoClient
+	// If all connections are dead, next should make them alive again, but
+	// still return ErrNoClient when it first finds out.
 	c, err := client.next()
 	if err != ErrNoClient {
 		t.Fatal(err)
@@ -494,21 +530,21 @@ func TestClientSelectConnAllDead(t *testing.T) {
 	if c != nil {
 		t.Fatalf("expected no connection; got: %v", c)
 	}
-	// #2: Return ErrNoClient again
+	// Return a connection
 	c, err = client.next()
-	if err != ErrNoClient {
-		t.Fatal(err)
+	if err != nil {
+		t.Fatalf("expected no error; got: %v", err)
 	}
-	if c != nil {
-		t.Fatalf("expected no connection; got: %v", c)
+	if c == nil {
+		t.Fatalf("expected connection; got: %v", c)
 	}
-	// #3: Return ErrNoClient again and again
+	// Return a connection
 	c, err = client.next()
-	if err != ErrNoClient {
-		t.Fatal(err)
+	if err != nil {
+		t.Fatalf("expected no error; got: %v", err)
 	}
-	if c != nil {
-		t.Fatalf("expected no connection; got: %v", c)
+	if c == nil {
+		t.Fatalf("expected connection; got: %v", c)
 	}
 }
 

@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.16"
+	Version = "3.0.17"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -906,7 +906,16 @@ func (c *Client) next() (*conn, error) {
 		}
 	}
 
-	// TODO(oe) As a last resort, we could try to awake a dead connection here.
+	// We have a deadlock here: All nodes are marked as dead.
+	// If sniffing is disabled, connections will never be marked alive again.
+	// So we are marking them as alive--if sniffing is disabled.
+	// They'll then be picked up in the next call to PerformRequest.
+	if !c.snifferEnabled {
+		c.errorf("elastic: all %d nodes marked as dead; resurrecting them to prevent deadlock", len(c.conns))
+		for _, conn := range c.conns {
+			conn.MarkAsAlive()
+		}
+	}
 
 	// We tried hard, but there is no node available
 	return nil, ErrNoClient
