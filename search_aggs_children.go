@@ -35,14 +35,18 @@ func (a ChildrenAggregation) Source() interface{} {
 	//	{
 	//    "aggs" : {
 	//      "to-answers" : {
-	//        "type" : "answer"
+	//        "children": {
+	//          "type" : "answer"
+	//        }
 	//      }
 	//    }
 	//	}
 	// This method returns only the { "type" : ... } part.
 
 	source := make(map[string]interface{})
-	source["type"] = a.typ
+	opts := make(map[string]interface{})
+	source["children"] = opts
+	opts["type"] = a.typ
 
 	// AggregationBuilder (SubAggregations)
 	if len(a.subAggregations) > 0 {

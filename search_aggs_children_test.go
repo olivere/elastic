@@ -16,7 +16,7 @@ func TestChildrenAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"type":"answer"}`
+	expected := `{"children":{"type":"answer"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -31,7 +31,7 @@ func TestChildrenAggregationWithSubAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"aggregations":{"top-names":{"terms":{"field":"owner.display_name","size":10}}},"type":"answer"}`
+	expected := `{"aggregations":{"top-names":{"terms":{"field":"owner.display_name","size":10}}},"children":{"type":"answer"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
