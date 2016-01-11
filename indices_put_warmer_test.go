@@ -64,6 +64,10 @@ func TestWarmerLifecycle(t *testing.T) {
 	// Ensure well prepared test index
 	client.Flush().Index(testIndexName2).Do()
 
+	if err := client.WaitForGreenStatus(); err != nil {
+		t.Fatal(err)
+	}
+
 	putresp, err := client.PutWarmer().Index(testIndexName2).Type("tweet").Name("warmer_1").BodyString(mapping).Do()
 	if err != nil {
 		t.Fatalf("expected put warmer to succeed; got: %v", err)
