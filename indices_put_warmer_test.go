@@ -63,8 +63,7 @@ func TestWarmerLifecycle(t *testing.T) {
 
 	// Ensure well prepared test index
 	client.Flush().Index(testIndexName2).Do()
-
-	if err := client.WaitForGreenStatus(); err != nil {
+	if err := client.WaitForGreenStatus("3s"); err != nil {
 		t.Fatal(err)
 	}
 
