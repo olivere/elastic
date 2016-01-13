@@ -30,7 +30,7 @@ func Example() {
 	errorlog := log.New(os.Stdout, "APP ", log.LstdFlags)
 
 	// Obtain a client. You can provide your own HTTP client here.
-	client, err := elastic.NewClient(elastic.SetErrorLog(errorlog))
+	client, err := elastic.NewClient(elastic.SetErrorLog(errorlog), elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -202,7 +202,7 @@ func Example() {
 
 func ExampleClient_NewClient_default() {
 	// Obtain a client to the Elasticsearch instance on http://localhost:9200.
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		// Handle error
 		fmt.Printf("connection failed: %v\n", err)
@@ -214,17 +214,6 @@ func ExampleClient_NewClient_default() {
 	// connected
 }
 
-func ExampleClient_NewClient_cluster() {
-	// Obtain a client for an Elasticsearch cluster of two nodes,
-	// running on 10.0.1.1 and 10.0.1.2.
-	client, err := elastic.NewClient(elastic.SetURL("http://10.0.1.1:9200", "http://10.0.1.2:9200"))
-	if err != nil {
-		// Handle error
-		panic(err)
-	}
-	_ = client
-}
-
 func ExampleClient_NewClient_manyOptions() {
 	// Obtain a client for an Elasticsearch cluster of two nodes,
 	// running on 10.0.1.1 and 10.0.1.2. Do not run the sniffer.
@@ -232,10 +221,7 @@ func ExampleClient_NewClient_manyOptions() {
 	// retry 5 times. Print error messages to os.Stderr and informational
 	// messages to os.Stdout.
 	client, err := elastic.NewClient(
-		elastic.SetURL("http://10.0.1.1:9200", "http://10.0.1.2:9200"),
-		elastic.SetSniff(false),
-		elastic.SetHealthcheckInterval(10*time.Second),
-		elastic.SetMaxRetries(5),
+		elastic.SetURL("http://10.0.1.1:9200"),
 		elastic.SetErrorLog(log.New(os.Stderr, "ELASTIC ", log.LstdFlags)),
 		elastic.SetInfoLog(log.New(os.Stdout, "", log.LstdFlags)))
 	if err != nil {
@@ -247,7 +233,7 @@ func ExampleClient_NewClient_manyOptions() {
 
 func ExampleIndexExistsService() {
 	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -265,7 +251,7 @@ func ExampleIndexExistsService() {
 
 func ExampleCreateIndexService() {
 	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -283,7 +269,7 @@ func ExampleCreateIndexService() {
 
 func ExampleDeleteIndexService() {
 	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -301,7 +287,7 @@ func ExampleDeleteIndexService() {
 
 func ExampleSearchService() {
 	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -351,7 +337,7 @@ func ExampleSearchService() {
 
 func ExampleAggregations() {
 	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -395,7 +381,7 @@ func ExampleAggregations() {
 }
 
 func ExampleSearchResult() {
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		panic(err)
 	}
@@ -446,7 +432,7 @@ func ExampleSearchResult() {
 }
 
 func ExamplePutTemplateService() {
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		panic(err)
 	}
@@ -468,7 +454,7 @@ func ExamplePutTemplateService() {
 }
 
 func ExampleGetTemplateService() {
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		panic(err)
 	}
@@ -482,7 +468,7 @@ func ExampleGetTemplateService() {
 }
 
 func ExampleDeleteTemplateService() {
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		panic(err)
 	}
@@ -498,7 +484,7 @@ func ExampleDeleteTemplateService() {
 }
 
 func ExampleClusterHealthService() {
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		panic(err)
 	}
@@ -515,7 +501,7 @@ func ExampleClusterHealthService() {
 }
 
 func ExampleClusterHealthService_WaitForGreen() {
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		panic(err)
 	}
@@ -533,7 +519,7 @@ func ExampleClusterHealthService_WaitForGreen() {
 }
 
 func ExampleClusterStateService() {
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		panic(err)
 	}

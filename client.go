@@ -5,16 +5,12 @@
 package elastic
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -25,53 +21,7 @@ const (
 	Version = "2.0.26"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
-	// It is used e.g. when initializing a new Client without a specific URL.
 	DefaultURL = "http://127.0.0.1:9200"
-
-	// DefaultScheme is the default protocol scheme to use when sniffing
-	// the Elasticsearch cluster.
-	DefaultScheme = "http"
-
-	// DefaultHealthcheckEnabled specifies if healthchecks are enabled by default.
-	DefaultHealthcheckEnabled = true
-
-	// DefaultHealthcheckTimeoutStartup is the time the healthcheck waits
-	// for a response from Elasticsearch on startup, i.e. when creating a
-	// client. After the client is started, a shorter timeout is commonly used
-	// (its default is specified in DefaultHealthcheckTimeout).
-	DefaultHealthcheckTimeoutStartup = 5 * time.Second
-
-	// DefaultHealthcheckTimeout specifies the time a running client waits for
-	// a response from Elasticsearch. Notice that the healthcheck timeout
-	// when a client is created is larger by default (see DefaultHealthcheckTimeoutStartup).
-	DefaultHealthcheckTimeout = 1 * time.Second
-
-	// DefaultHealthcheckInterval is the default interval between
-	// two health checks of the nodes in the cluster.
-	DefaultHealthcheckInterval = 60 * time.Second
-
-	// DefaultSnifferEnabled specifies if the sniffer is enabled by default.
-	DefaultSnifferEnabled = true
-
-	// DefaultSnifferInterval is the interval between two sniffing procedures,
-	// i.e. the lookup of all nodes in the cluster and their addition/removal
-	// from the list of actual connections.
-	DefaultSnifferInterval = 15 * time.Minute
-
-	// DefaultSnifferTimeoutStartup is the default timeout for the sniffing
-	// process that is initiated while creating a new client. For subsequent
-	// sniffing processes, DefaultSnifferTimeout is used (by default).
-	DefaultSnifferTimeoutStartup = 5 * time.Second
-
-	// DefaultSnifferTimeout is the default timeout after which the
-	// sniffing process times out. Notice that for the initial sniffing
-	// process, DefaultSnifferTimeoutStartup is used.
-	DefaultSnifferTimeout = 2 * time.Second
-
-	// DefaultMaxRetries is the number of retries for a single request after
-	// Elastic will give up and return an error. It is zero by default, so
-	// retry is disabled by default.
-	DefaultMaxRetries = 0
 
 	// DefaultSendGetBodyAs is the HTTP method to use when elastic is sending
 	// a GET request with a body.
@@ -92,6 +42,15 @@ var (
 	// ErrTimeout is raised when a request timed out, e.g. when WaitForStatus
 	// didn't return in time.
 	ErrTimeout = errors.New("timeout")
+
+	// ErrNoURLSpecified is raised when no Elasticsearch URL has been specified.
+	ErrNoURLSpecified = errors.New("no Elasticsearch URL specified")
+
+	// ErrURLAlreadySpecified is raised when no Elasticsearch URL has been specified.
+	ErrURLAlreadySpecified = errors.New("Elasticsearch URL specified more than once")
+
+	// ErrInvalidURLSpecified is raised when no Elasticsearch URL has been specified.
+	ErrInvalidURLSpecified = errors.New("invalid Elasticsearch URL specified")
 )
 
 // ClientOptionFunc is a function that configures a Client.
@@ -102,34 +61,18 @@ type ClientOptionFunc func(*Client) error
 type Client struct {
 	c *http.Client // net/http Client to use for requests
 
-	connsMu sync.RWMutex // connsMu guards the next block
-	conns   []*conn      // all connections
-	cindex  int          // index into conns
-
-	mu                        sync.RWMutex  // guards the next block
-	urls                      []string      // set of URLs passed initially to the client
-	running                   bool          // true if the client's background processes are running
-	errorlog                  *log.Logger   // error log for critical messages
-	infolog                   *log.Logger   // information log for e.g. response times
-	tracelog                  *log.Logger   // trace log for debugging
-	maxRetries                int           // max. number of retries
-	scheme                    string        // http or https
-	healthcheckEnabled        bool          // healthchecks enabled or disabled
-	healthcheckTimeoutStartup time.Duration // time the healthcheck waits for a response from Elasticsearch on startup
-	healthcheckTimeout        time.Duration // time the healthcheck waits for a response from Elasticsearch
-	healthcheckInterval       time.Duration // interval between healthchecks
-	healthcheckStop           chan bool     // notify healthchecker to stop, and notify back
-	snifferEnabled            bool          // sniffer enabled or disabled
-	snifferTimeoutStartup     time.Duration // time the sniffer waits for a response from nodes info API on startup
-	snifferTimeout            time.Duration // time the sniffer waits for a response from nodes info API
-	snifferInterval           time.Duration // interval between sniffing
-	snifferStop               chan bool     // notify sniffer to stop, and notify back
-	decoder                   Decoder       // used to decode data sent from Elasticsearch
-	basicAuth                 bool          // indicates whether to send HTTP Basic Auth credentials
-	basicAuthUsername         string        // username for HTTP Basic Auth
-	basicAuthPassword         string        // password for HTTP Basic Auth
-	sendGetBodyAs             string        // override for when sending a GET with a body
-	gzipEnabled               bool          // gzip compression enabled or disabled (default)
+	mu                sync.RWMutex // guards the next block
+	url               string
+	errorlog          *log.Logger // error log for critical messages
+	infolog           *log.Logger // information log for e.g. response times
+	tracelog          *log.Logger // trace log for debugging
+	scheme            string      // http or https
+	decoder           Decoder     // used to decode data sent from Elasticsearch
+	basicAuth         bool        // indicates whether to send HTTP Basic Auth credentials
+	basicAuthUsername string      // username for HTTP Basic Auth
+	basicAuthPassword string      // password for HTTP Basic Auth
+	sendGetBodyAs     string      // override for when sending a GET with a body
+	gzipEnabled       bool        // gzip compression enabled or disabled (default)
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -179,23 +122,9 @@ type Client struct {
 func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	// Set up the client
 	c := &Client{
-		c:                         http.DefaultClient,
-		conns:                     make([]*conn, 0),
-		cindex:                    -1,
-		scheme:                    DefaultScheme,
-		decoder:                   &DefaultDecoder{},
-		maxRetries:                DefaultMaxRetries,
-		healthcheckEnabled:        DefaultHealthcheckEnabled,
-		healthcheckTimeoutStartup: DefaultHealthcheckTimeoutStartup,
-		healthcheckTimeout:        DefaultHealthcheckTimeout,
-		healthcheckInterval:       DefaultHealthcheckInterval,
-		healthcheckStop:           make(chan bool),
-		snifferEnabled:            DefaultSnifferEnabled,
-		snifferTimeoutStartup:     DefaultSnifferTimeoutStartup,
-		snifferTimeout:            DefaultSnifferTimeout,
-		snifferInterval:           DefaultSnifferInterval,
-		snifferStop:               make(chan bool),
-		sendGetBodyAs:             DefaultSendGetBodyAs,
+		c:             http.DefaultClient,
+		decoder:       &DefaultDecoder{},
+		sendGetBodyAs: DefaultSendGetBodyAs,
 	}
 
 	// Run the options on it
@@ -205,49 +134,14 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		}
 	}
 
-	if len(c.urls) == 0 {
-		c.urls = []string{DefaultURL}
+	u, err := url.Parse(c.url)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") {
+		return nil, ErrInvalidURLSpecified
 	}
-	c.urls = canonicalize(c.urls...)
-
-	// Check if we can make a request to any of the specified URLs
-	if c.healthcheckEnabled {
-		if err := c.startupHealthcheck(c.healthcheckTimeoutStartup); err != nil {
-			return nil, err
-		}
-	}
-
-	if c.snifferEnabled {
-		// Sniff the cluster initially
-		if err := c.sniff(c.snifferTimeoutStartup); err != nil {
-			return nil, err
-		}
-	} else {
-		// Do not sniff the cluster initially. Use the provided URLs instead.
-		for _, url := range c.urls {
-			c.conns = append(c.conns, newConn(url, url))
-		}
-	}
-
-	if c.healthcheckEnabled {
-		// Perform an initial health check
-		c.healthcheck(c.healthcheckTimeoutStartup, true)
-	}
-	// Ensure that we have at least one connection available
-	if err := c.mustActiveConn(); err != nil {
-		return nil, err
-	}
-
-	if c.snifferEnabled {
-		go c.sniffer() // periodically update cluster information
-	}
-	if c.healthcheckEnabled {
-		go c.healthchecker() // start goroutine periodically ping all nodes of the cluster
-	}
-
-	c.mu.Lock()
-	c.running = true
-	c.mu.Unlock()
+	u.Fragment = ""
+	u.Path = ""
+	u.RawQuery = ""
+	c.url = u.String()
 
 	return c, nil
 }
@@ -279,114 +173,13 @@ func SetBasicAuth(username, password string) ClientOptionFunc {
 // SetURL defines the URL endpoints of the Elasticsearch nodes. Notice that
 // when sniffing is enabled, these URLs are used to initially sniff the
 // cluster on startup.
-func SetURL(urls ...string) ClientOptionFunc {
+func SetURL(url string) ClientOptionFunc {
 	return func(c *Client) error {
-		switch len(urls) {
-		case 0:
-			c.urls = []string{DefaultURL}
-		default:
-			c.urls = urls
+		if len(c.url) != 0 {
+			return ErrURLAlreadySpecified
 		}
-		return nil
-	}
-}
 
-// SetScheme sets the HTTP scheme to look for when sniffing (http or https).
-// This is http by default.
-func SetScheme(scheme string) ClientOptionFunc {
-	return func(c *Client) error {
-		c.scheme = scheme
-		return nil
-	}
-}
-
-// SetSniff enables or disables the sniffer (enabled by default).
-func SetSniff(enabled bool) ClientOptionFunc {
-	return func(c *Client) error {
-		c.snifferEnabled = enabled
-		return nil
-	}
-}
-
-// SetSnifferTimeoutStartup sets the timeout for the sniffer that is used
-// when creating a new client. The default is 5 seconds. Notice that the
-// timeout being used for subsequent sniffing processes is set with
-// SetSnifferTimeout.
-func SetSnifferTimeoutStartup(timeout time.Duration) ClientOptionFunc {
-	return func(c *Client) error {
-		c.snifferTimeoutStartup = timeout
-		return nil
-	}
-}
-
-// SetSnifferTimeout sets the timeout for the sniffer that finds the
-// nodes in a cluster. The default is 2 seconds. Notice that the timeout
-// used when creating a new client on startup is usually greater and can
-// be set with SetSnifferTimeoutStartup.
-func SetSnifferTimeout(timeout time.Duration) ClientOptionFunc {
-	return func(c *Client) error {
-		c.snifferTimeout = timeout
-		return nil
-	}
-}
-
-// SetSnifferInterval sets the interval between two sniffing processes.
-// The default interval is 15 minutes.
-func SetSnifferInterval(interval time.Duration) ClientOptionFunc {
-	return func(c *Client) error {
-		c.snifferInterval = interval
-		return nil
-	}
-}
-
-// SetHealthcheck enables or disables healthchecks (enabled by default).
-func SetHealthcheck(enabled bool) ClientOptionFunc {
-	return func(c *Client) error {
-		c.healthcheckEnabled = enabled
-		return nil
-	}
-}
-
-// SetHealthcheckTimeoutStartup sets the timeout for the initial health check.
-// The default timeout is 5 seconds (see DefaultHealthcheckTimeoutStartup).
-// Notice that timeouts for subsequent health checks can be modified with
-// SetHealthcheckTimeout.
-func SetHealthcheckTimeoutStartup(timeout time.Duration) ClientOptionFunc {
-	return func(c *Client) error {
-		c.healthcheckTimeoutStartup = timeout
-		return nil
-	}
-}
-
-// SetHealthcheckTimeout sets the timeout for periodic health checks.
-// The default timeout is 1 second (see DefaultHealthcheckTimeout).
-// Notice that a different (usually larger) timeout is used for the initial
-// healthcheck, which is initiated while creating a new client.
-// The startup timeout can be modified with SetHealthcheckTimeoutStartup.
-func SetHealthcheckTimeout(timeout time.Duration) ClientOptionFunc {
-	return func(c *Client) error {
-		c.healthcheckTimeout = timeout
-		return nil
-	}
-}
-
-// SetHealthcheckInterval sets the interval between two health checks.
-// The default interval is 60 seconds.
-func SetHealthcheckInterval(interval time.Duration) ClientOptionFunc {
-	return func(c *Client) error {
-		c.healthcheckInterval = interval
-		return nil
-	}
-}
-
-// SetMaxRetries sets the maximum number of retries before giving up when
-// performing a HTTP request to Elasticsearch.
-func SetMaxRetries(maxRetries int) func(*Client) error {
-	return func(c *Client) error {
-		if maxRetries < 0 {
-			return errors.New("MaxRetries must be greater than or equal to 0")
-		}
-		c.maxRetries = maxRetries
+		c.url = url
 		return nil
 	}
 }
@@ -450,83 +243,7 @@ func SetSendGetBodyAs(httpMethod string) func(*Client) error {
 
 // String returns a string representation of the client status.
 func (c *Client) String() string {
-	c.connsMu.Lock()
-	conns := c.conns
-	c.connsMu.Unlock()
-
-	var buf bytes.Buffer
-	for i, conn := range conns {
-		if i > 0 {
-			buf.WriteString(", ")
-		}
-		buf.WriteString(conn.String())
-	}
-	return buf.String()
-}
-
-// IsRunning returns true if the background processes of the client are
-// running, false otherwise.
-func (c *Client) IsRunning() bool {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	return c.running
-}
-
-// Start starts the background processes like sniffing the cluster and
-// periodic health checks. You don't need to run Start when creating a
-// client with NewClient; the background processes are run by default.
-//
-// If the background processes are already running, this is a no-op.
-func (c *Client) Start() {
-	c.mu.RLock()
-	if c.running {
-		c.mu.RUnlock()
-		return
-	}
-	c.mu.RUnlock()
-
-	if c.snifferEnabled {
-		go c.sniffer()
-	}
-	if c.healthcheckEnabled {
-		go c.healthchecker()
-	}
-
-	c.mu.Lock()
-	c.running = true
-	c.mu.Unlock()
-
-	c.infof("elastic: client started")
-}
-
-// Stop stops the background processes that the client is running,
-// i.e. sniffing the cluster periodically and running health checks
-// on the nodes.
-//
-// If the background processes are not running, this is a no-op.
-func (c *Client) Stop() {
-	c.mu.RLock()
-	if !c.running {
-		c.mu.RUnlock()
-		return
-	}
-	c.mu.RUnlock()
-
-	if c.healthcheckEnabled {
-		c.healthcheckStop <- true
-		<-c.healthcheckStop
-	}
-
-	if c.snifferEnabled {
-		c.snifferStop <- true
-		<-c.snifferStop
-	}
-
-	c.mu.Lock()
-	c.running = false
-	c.mu.Unlock()
-
-	c.infof("elastic: client stopped")
+	return fmt.Sprintf("ElasticsearchClient(%s)", c.url)
 }
 
 // errorf logs to the error log.
@@ -570,349 +287,12 @@ func (c *Client) dumpResponse(resp *http.Response) {
 	}
 }
 
-// sniffer periodically runs sniff.
-func (c *Client) sniffer() {
-	for {
-		c.mu.RLock()
-		timeout := c.snifferTimeout
-		ticker := time.After(c.snifferInterval)
-		c.mu.RUnlock()
-
-		select {
-		case <-c.snifferStop:
-			// we are asked to stop, so we signal back that we're stopping now
-			c.snifferStop <- true
-			return
-		case <-ticker:
-			c.sniff(timeout)
-		}
-	}
-}
-
-// sniff uses the Node Info API to return the list of nodes in the cluster.
-// It uses the list of URLs passed on startup plus the list of URLs found
-// by the preceding sniffing process (if sniffing is enabled).
-//
-// If sniffing is disabled, this is a no-op.
-func (c *Client) sniff(timeout time.Duration) error {
-	c.mu.RLock()
-	if !c.snifferEnabled {
-		c.mu.RUnlock()
-		return nil
-	}
-
-	// Use all available URLs provided to sniff the cluster.
-	urlsMap := make(map[string]bool)
-	urls := make([]string, 0)
-
-	// Add all URLs provided on startup
-	for _, url := range c.urls {
-		urlsMap[url] = true
-		urls = append(urls, url)
-	}
-	c.mu.RUnlock()
-
-	// Add all URLs found by sniffing
-	c.connsMu.RLock()
-	for _, conn := range c.conns {
-		if !conn.IsDead() {
-			url := conn.URL()
-			if _, found := urlsMap[url]; !found {
-				urls = append(urls, url)
-			}
-		}
-	}
-	c.connsMu.RUnlock()
-
-	if len(urls) == 0 {
-		return ErrNoClient
-	}
-
-	// Start sniffing on all found URLs
-	ch := make(chan []*conn, len(urls))
-	for _, url := range urls {
-		go func(url string) { ch <- c.sniffNode(url) }(url)
-	}
-
-	// Wait for the results to come back, or the process times out.
-	for {
-		select {
-		case conns := <-ch:
-			if len(conns) > 0 {
-				c.updateConns(conns)
-				return nil
-			}
-		case <-time.After(timeout):
-			// We get here if no cluster responds in time
-			return ErrNoClient
-		}
-	}
-}
-
-// reSniffHostAndPort is used to extract hostname and port from a result
-// from a Nodes Info API (example: "inet[/127.0.0.1:9200]").
-var reSniffHostAndPort = regexp.MustCompile(`\/([^:]*):([0-9]+)\]`)
-
-// sniffNode sniffs a single node. This method is run as a goroutine
-// in sniff. If successful, it returns the list of node URLs extracted
-// from the result of calling Nodes Info API. Otherwise, an empty array
-// is returned.
-func (c *Client) sniffNode(url string) []*conn {
-	nodes := make([]*conn, 0)
-
-	// Call the Nodes Info API at /_nodes/http
-	req, err := NewRequest("GET", url+"/_nodes/http")
-	if err != nil {
-		return nodes
-	}
-
-	c.mu.RLock()
-	if c.basicAuth {
-		req.SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
-	}
-	c.mu.RUnlock()
-
-	res, err := c.c.Do((*http.Request)(req))
-	if err != nil {
-		return nodes
-	}
-	if res == nil {
-		return nodes
-	}
-
-	if res.Body != nil {
-		defer res.Body.Close()
-	}
-
-	var info NodesInfoResponse
-	if err := json.NewDecoder(res.Body).Decode(&info); err == nil {
-		if len(info.Nodes) > 0 {
-			switch c.scheme {
-			case "https":
-				for nodeID, node := range info.Nodes {
-					m := reSniffHostAndPort.FindStringSubmatch(node.HTTPSAddress)
-					if len(m) == 3 {
-						url := fmt.Sprintf("https://%s:%s", m[1], m[2])
-						nodes = append(nodes, newConn(nodeID, url))
-					}
-				}
-			default:
-				for nodeID, node := range info.Nodes {
-					m := reSniffHostAndPort.FindStringSubmatch(node.HTTPAddress)
-					if len(m) == 3 {
-						url := fmt.Sprintf("http://%s:%s", m[1], m[2])
-						nodes = append(nodes, newConn(nodeID, url))
-					}
-				}
-			}
-		}
-	}
-	return nodes
-}
-
-// updateConns updates the clients' connections with new information
-// gather by a sniff operation.
-func (c *Client) updateConns(conns []*conn) {
-	c.connsMu.Lock()
-
-	newConns := make([]*conn, 0)
-
-	// Build up new connections:
-	// If we find an existing connection, use that (including no. of failures etc.).
-	// If we find a new connection, add it.
-	for _, conn := range conns {
-		var found bool
-		for _, oldConn := range c.conns {
-			if oldConn.NodeID() == conn.NodeID() {
-				// Take over the old connection
-				newConns = append(newConns, oldConn)
-				found = true
-				break
-			}
-		}
-		if !found {
-			// New connection didn't exist, so add it to our list of new conns.
-			c.errorf("elastic: %s joined the cluster", conn.URL())
-			newConns = append(newConns, conn)
-		}
-	}
-
-	c.conns = newConns
-	c.cindex = -1
-	c.connsMu.Unlock()
-}
-
-// healthchecker periodically runs healthcheck.
-func (c *Client) healthchecker() {
-	for {
-		c.mu.RLock()
-		timeout := c.healthcheckTimeout
-		ticker := time.After(c.healthcheckInterval)
-		c.mu.RUnlock()
-
-		select {
-		case <-c.healthcheckStop:
-			// we are asked to stop, so we signal back that we're stopping now
-			c.healthcheckStop <- true
-			return
-		case <-ticker:
-			c.healthcheck(timeout, false)
-		}
-	}
-}
-
-// healthcheck does a health check on all nodes in the cluster. Depending on
-// the node state, it marks connections as dead, sets them alive etc.
-// If healthchecks are disabled this is a no-op.
-// The timeout specifies how long to wait for a response from Elasticsearch.
-func (c *Client) healthcheck(timeout time.Duration, force bool) {
-	c.mu.RLock()
-	if !c.healthcheckEnabled && !force {
-		c.mu.RUnlock()
-		return
-	}
-	c.mu.RUnlock()
-
-	c.connsMu.RLock()
-	conns := c.conns
-	basicAuth := c.basicAuth
-	basicAuthUsername := c.basicAuthUsername
-	basicAuthPassword := c.basicAuthPassword
-	c.connsMu.RUnlock()
-
-	timeoutInMillis := int64(timeout / time.Millisecond)
-
-	for _, conn := range conns {
-		params := make(url.Values)
-		params.Set("timeout", fmt.Sprintf("%dms", timeoutInMillis))
-		req, err := NewRequest("HEAD", conn.URL()+"/?"+params.Encode())
-		if err == nil {
-			if basicAuth {
-				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
-			}
-			res, err := c.c.Do((*http.Request)(req))
-			if err == nil {
-				if res.Body != nil {
-					defer res.Body.Close()
-				}
-				if res.StatusCode >= 200 && res.StatusCode < 300 {
-					conn.MarkAsAlive()
-				} else {
-					conn.MarkAsDead()
-					c.errorf("elastic: %s is dead [status=%d]", conn.URL(), res.StatusCode)
-				}
-			} else {
-				c.errorf("elastic: %s is dead", conn.URL())
-				conn.MarkAsDead()
-			}
-		} else {
-			c.errorf("elastic: %s is dead", conn.URL())
-			conn.MarkAsDead()
-		}
-	}
-}
-
-// startupHealthcheck is used at startup to check if the server is available
-// at all.
-func (c *Client) startupHealthcheck(timeout time.Duration) error {
-	c.mu.Lock()
-	urls := c.urls
-	basicAuth := c.basicAuth
-	basicAuthUsername := c.basicAuthUsername
-	basicAuthPassword := c.basicAuthPassword
-	c.mu.Unlock()
-
-	// If we don't get a connection after "timeout", we bail.
-	start := time.Now()
-	for {
-		// Make a copy of the HTTP client provided via options to respect
-		// settings like Basic Auth or a user-specified http.Transport.
-		cl := new(http.Client)
-		*cl = *c.c
-		cl.Timeout = timeout
-
-		for _, url := range urls {
-			req, err := http.NewRequest("HEAD", url, nil)
-			if err != nil {
-				return err
-			}
-			if basicAuth {
-				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
-			}
-			res, err := cl.Do(req)
-			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
-				return nil
-			}
-		}
-		time.Sleep(1 * time.Second)
-		if time.Now().Sub(start) > timeout {
-			break
-		}
-	}
-	return ErrNoClient
-}
-
-// next returns the next available connection, or ErrNoClient.
-func (c *Client) next() (*conn, error) {
-	// We do round-robin here.
-	// TODO(oe) This should be a pluggable strategy, like the Selector in the official clients.
-	c.connsMu.Lock()
-	defer c.connsMu.Unlock()
-
-	i := 0
-	numConns := len(c.conns)
-	for {
-		i += 1
-		if i > numConns {
-			break // we visited all conns: they all seem to be dead
-		}
-		c.cindex += 1
-		if c.cindex >= numConns {
-			c.cindex = 0
-		}
-		conn := c.conns[c.cindex]
-		if !conn.IsDead() {
-			return conn, nil
-		}
-	}
-
-	// We have a deadlock here: All nodes are marked as dead.
-	// If sniffing is disabled, connections will never be marked alive again.
-	// So we are marking them as alive--if sniffing is disabled.
-	// They'll then be picked up in the next call to PerformRequest.
-	if !c.snifferEnabled {
-		c.errorf("elastic: all %d nodes marked as dead; resurrecting them to prevent deadlock", len(c.conns))
-		for _, conn := range c.conns {
-			conn.MarkAsAlive()
-		}
-	}
-
-	// We tried hard, but there is no node available
-	return nil, ErrNoClient
-}
-
-// mustActiveConn returns nil if there is an active connection,
-// otherwise ErrNoClient is returned.
-func (c *Client) mustActiveConn() error {
-	c.connsMu.Lock()
-	defer c.connsMu.Unlock()
-
-	for _, c := range c.conns {
-		if !c.IsDead() {
-			return nil
-		}
-	}
-	return ErrNoClient
-}
-
 // PerformRequest does a HTTP request to Elasticsearch.
 // It returns a response and an error on failure.
 func (c *Client) PerformRequest(method, path string, params url.Values, body interface{}) (*Response, error) {
 	start := time.Now().UTC()
 
 	c.mu.RLock()
-	timeout := c.healthcheckTimeout
-	retries := c.maxRetries
 	basicAuth := c.basicAuth
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
@@ -921,107 +301,58 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	c.mu.RUnlock()
 
 	var err error
-	var conn *conn
 	var req *Request
 	var resp *Response
-	var retried bool
-
-	// We wait between retries, using simple exponential back-off.
-	// TODO: Make this configurable, including the jitter.
-	retryWaitMsec := int64(100 + (rand.Intn(20) - 10))
 
 	// Change method if sendGetBodyAs is specified.
 	if method == "GET" && body != nil && sendGetBodyAs != "GET" {
 		method = sendGetBodyAs
 	}
 
-	for {
-		pathWithParams := path
-		if len(params) > 0 {
-			pathWithParams += "?" + params.Encode()
-		}
+	pathWithParams := path
+	if len(params) > 0 {
+		pathWithParams += "?" + params.Encode()
+	}
 
-		// Get a connection
-		conn, err = c.next()
-		if err == ErrNoClient {
-			if !retried {
-				// Force a healtcheck as all connections seem to be dead.
-				c.healthcheck(timeout, false)
-			}
-			retries -= 1
-			if retries <= 0 {
-				return nil, err
-			}
-			retried = true
-			time.Sleep(time.Duration(retryWaitMsec) * time.Millisecond)
-			retryWaitMsec += retryWaitMsec
-			continue // try again
-		}
-		if err != nil {
-			c.errorf("elastic: cannot get connection from pool")
-			return nil, err
-		}
+	req, err = NewRequest(method, c.url+pathWithParams)
+	if err != nil {
+		c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(method), c.url+pathWithParams, err)
+		return nil, err
+	}
 
-		req, err = NewRequest(method, conn.URL()+pathWithParams)
-		if err != nil {
-			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(method), conn.URL()+pathWithParams, err)
-			return nil, err
-		}
+	if basicAuth {
+		req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+	}
 
-		if basicAuth {
-			req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
-		}
+	// Set body
+	if body != nil {
+		req.SetBody(body, gzipEnabled)
+	}
 
-		// Set body
-		if body != nil {
-			req.SetBody(body, gzipEnabled)
-		}
+	// Tracing
+	c.dumpRequest((*http.Request)(req))
 
-		// Tracing
-		c.dumpRequest((*http.Request)(req))
+	// Get response
+	res, err := c.c.Do((*http.Request)(req))
+	if err != nil {
+		return nil, err
+	}
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
 
-		// Get response
-		res, err := c.c.Do((*http.Request)(req))
-		if err != nil {
-			retries -= 1
-			if retries <= 0 {
-				c.errorf("elastic: %s is dead", conn.URL())
-				conn.MarkAsDead()
-				return nil, err
-			}
-			retried = true
-			time.Sleep(time.Duration(retryWaitMsec) * time.Millisecond)
-			retryWaitMsec += retryWaitMsec
-			continue // try again
-		}
-		if res.Body != nil {
-			defer res.Body.Close()
-		}
+	// Check for errors
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
 
-		// Check for errors
-		if err := checkResponse(res); err != nil {
-			retries -= 1
-			if retries <= 0 {
-				return nil, err
-			}
-			retried = true
-			time.Sleep(time.Duration(retryWaitMsec) * time.Millisecond)
-			retryWaitMsec += retryWaitMsec
-			continue // try again
-		}
+	//TODO: move this before response check for consistent logs?
+	// Tracing
+	c.dumpResponse(res)
 
-		// Tracing
-		c.dumpResponse(res)
-
-		// We successfully made a request with this connection
-		conn.MarkAsHealthy()
-
-		resp, err = c.newResponse(res)
-		if err != nil {
-			return nil, err
-		}
-
-		break
+	resp, err = c.newResponse(res)
+	if err != nil {
+		return nil, err
 	}
 
 	duration := time.Now().UTC().Sub(start)
