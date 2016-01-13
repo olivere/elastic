@@ -104,6 +104,8 @@ type logger interface {
 func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 	var err error
 
+	options = append(options, SetURL(DefaultURL))
+
 	client, err = NewClient(options...)
 	if err != nil {
 		t.Fatal(err)

@@ -7,7 +7,7 @@ package elastic
 import "testing"
 
 func TestNodesInfo(t *testing.T) {
-	client, err := NewClient()
+	client, err := NewClient(SetURL(DefaultURL))
 	if err != nil {
 		t.Fatal(err)
 	}

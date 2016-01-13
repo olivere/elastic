@@ -13,7 +13,7 @@ import (
 
 func ExampleWildcardQuery() {
 	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(elastic.SetURL(elastic.DefaultURL))
 	if err != nil {
 		// Handle error
 		panic(err)

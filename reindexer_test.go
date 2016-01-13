@@ -157,7 +157,7 @@ func TestReindexerProgress(t *testing.T) {
 
 func TestReindexerWithTargetClient(t *testing.T) {
 	sourceClient := setupTestClientAndCreateIndexAndAddDocs(t)
-	targetClient, err := NewClient()
+	targetClient, err := NewClient(SetURL(DefaultURL))
 	if err != nil {
 		t.Fatal(err)
 	}
