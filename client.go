@@ -394,7 +394,7 @@ func SetHealthcheckInterval(interval time.Duration) ClientOptionFunc {
 
 // SetMaxRetries sets the maximum number of retries before giving up when
 // performing a HTTP request to Elasticsearch.
-func SetMaxRetries(maxRetries int) func(*Client) error {
+func SetMaxRetries(maxRetries int) ClientOptionFunc {
 	return func(c *Client) error {
 		if maxRetries < 0 {
 			return errors.New("MaxRetries must be greater than or equal to 0")
@@ -414,7 +414,7 @@ func SetGzip(enabled bool) ClientOptionFunc {
 
 // SetDecoder sets the Decoder to use when decoding data from Elasticsearch.
 // DefaultDecoder is used by default.
-func SetDecoder(decoder Decoder) func(*Client) error {
+func SetDecoder(decoder Decoder) ClientOptionFunc {
 	return func(c *Client) error {
 		if decoder != nil {
 			c.decoder = decoder
@@ -439,7 +439,7 @@ func SetRequiredPlugins(plugins ...string) ClientOptionFunc {
 
 // SetErrorLog sets the logger for critical messages like nodes joining
 // or leaving the cluster or failing requests. It is nil by default.
-func SetErrorLog(logger *log.Logger) func(*Client) error {
+func SetErrorLog(logger *log.Logger) ClientOptionFunc {
 	return func(c *Client) error {
 		c.errorlog = logger
 		return nil
@@ -448,7 +448,7 @@ func SetErrorLog(logger *log.Logger) func(*Client) error {
 
 // SetInfoLog sets the logger for informational messages, e.g. requests
 // and their response times. It is nil by default.
-func SetInfoLog(logger *log.Logger) func(*Client) error {
+func SetInfoLog(logger *log.Logger) ClientOptionFunc {
 	return func(c *Client) error {
 		c.infolog = logger
 		return nil
@@ -457,7 +457,7 @@ func SetInfoLog(logger *log.Logger) func(*Client) error {
 
 // SetTraceLog specifies the log.Logger to use for output of HTTP requests
 // and responses which is helpful during debugging. It is nil by default.
-func SetTraceLog(logger *log.Logger) func(*Client) error {
+func SetTraceLog(logger *log.Logger) ClientOptionFunc {
 	return func(c *Client) error {
 		c.tracelog = logger
 		return nil
@@ -466,7 +466,7 @@ func SetTraceLog(logger *log.Logger) func(*Client) error {
 
 // SendGetBodyAs specifies the HTTP method to use when sending a GET request
 // with a body. It is GET by default.
-func SetSendGetBodyAs(httpMethod string) func(*Client) error {
+func SetSendGetBodyAs(httpMethod string) ClientOptionFunc {
 	return func(c *Client) error {
 		c.sendGetBodyAs = httpMethod
 		return nil
