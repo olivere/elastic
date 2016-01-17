@@ -229,21 +229,28 @@ if err != nil {
 }
 ```
 
-
 ## Delete-by-Query API
 
 The Delete-by-Query API is [a plugin now](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/_removed_features.html#_delete_by_query_is_now_a_plugin). It is no longer core part of Elasticsearch. You can [install it as a plugin as described here](https://www.elastic.co/guide/en/elasticsearch/plugins/2.0/plugins-delete-by-query.html).
 
-Elastic 3.0 still contains the `DeleteByQueryService` but it will fail with `ErrPluginNotFound` when the plugin is not installed.
+Elastic 3.0 still contains the `DeleteByQueryService`, but you need to install the plugin first. If you don't install it and use `DeleteByQueryService` you will most probably get a 404.
 
-Example for Elastic 3.0 (new):
+An older version of this document stated the following:
 
-```go
-_, err := client.DeleteByQuery().Query(elastic.NewTermQuery("client", "1")).Do()
-if err == elastic.ErrPluginNotFound {
-	// Delete By Query API is not available
-}
-```
+> Elastic 3.0 still contains the `DeleteByQueryService` but it will fail with `ErrPluginNotFound` when the plugin is not installed.
+>
+> Example for Elastic 3.0 (new):
+>
+> ```go
+> _, err := client.DeleteByQuery().Query(elastic.NewTermQuery("client", "1")).Do()
+> if err == elastic.ErrPluginNotFound {
+> 	// Delete By Query API is not available
+> }
+> ```
+
+I have decided that this is not a good way to handle the case of a missing plugin. The main reason is that with this logic, you'd always have to check if the plugin is missing in case of an error. This is not only slow, but it also puts logic into a service where it should really be just opaque and return the response of Elasticsearch.
+
+If you rely on certain plugins to be installed, you should check on startup. That's where the following two helpers come into play.
 
 ## HasPlugin and SetRequiredPlugins
 

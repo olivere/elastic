@@ -6,15 +6,9 @@ package elastic
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-)
-
-var (
-	// ErrPluginNotFound is returned when using a service that requires a plugin that is not available.
-	ErrPluginNotFound = errors.New("elastic: plugin not found")
 )
 
 // checkResponse will return an error if the request/response indicates
