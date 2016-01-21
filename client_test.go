@@ -244,6 +244,51 @@ func TestClientHealthcheckStartupTimeout(t *testing.T) {
 	}
 }
 
+// -- NewSimpleClient --
+
+func TestSimpleClientDefaults(t *testing.T) {
+	client, err := NewSimpleClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if client.healthcheckEnabled != false {
+		t.Errorf("expected health checks to be disabled, got: %v", client.healthcheckEnabled)
+	}
+	if client.healthcheckTimeoutStartup != off {
+		t.Errorf("expected health checks timeout on startup = %v, got: %v", off, client.healthcheckTimeoutStartup)
+	}
+	if client.healthcheckTimeout != off {
+		t.Errorf("expected health checks timeout = %v, got: %v", off, client.healthcheckTimeout)
+	}
+	if client.healthcheckInterval != off {
+		t.Errorf("expected health checks interval = %v, got: %v", off, client.healthcheckInterval)
+	}
+	if client.snifferEnabled != false {
+		t.Errorf("expected sniffing to be disabled, got: %v", client.snifferEnabled)
+	}
+	if client.snifferTimeoutStartup != off {
+		t.Errorf("expected sniffer timeout on startup = %v, got: %v", off, client.snifferTimeoutStartup)
+	}
+	if client.snifferTimeout != off {
+		t.Errorf("expected sniffer timeout = %v, got: %v", off, client.snifferTimeout)
+	}
+	if client.snifferInterval != off {
+		t.Errorf("expected sniffer interval = %v, got: %v", off, client.snifferInterval)
+	}
+	if client.basicAuth != false {
+		t.Errorf("expected no basic auth; got: %v", client.basicAuth)
+	}
+	if client.basicAuthUsername != "" {
+		t.Errorf("expected no basic auth username; got: %q", client.basicAuthUsername)
+	}
+	if client.basicAuthPassword != "" {
+		t.Errorf("expected no basic auth password; got: %q", client.basicAuthUsername)
+	}
+	if client.sendGetBodyAs != "GET" {
+		t.Errorf("expected sendGetBodyAs to be GET; got: %q", client.sendGetBodyAs)
+	}
+}
+
 // -- Start and stop --
 
 func TestClientStartAndStop(t *testing.T) {
@@ -591,6 +636,28 @@ func TestIndexNames(t *testing.T) {
 
 func TestPerformRequest(t *testing.T) {
 	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.PerformRequest("GET", "/", nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+
+	ret := new(PingResult)
+	if err := json.Unmarshal(res.Body, ret); err != nil {
+		t.Fatalf("expected no error on decode; got: %v", err)
+	}
+	if ret.ClusterName == "" {
+		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
+	}
+}
+
+func TestPerformRequestWithSimpleClient(t *testing.T) {
+	client, err := NewSimpleClient()
 	if err != nil {
 		t.Fatal(err)
 	}

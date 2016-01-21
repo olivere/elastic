@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.18"
+	Version = "3.0.19"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -79,6 +79,9 @@ const (
 
 	// DefaultGzipEnabled specifies if gzip compression is enabled by default.
 	DefaultGzipEnabled = false
+
+	// off is used to disable timeouts.
+	off = -1 * time.Second
 )
 
 var (
@@ -134,6 +137,10 @@ type Client struct {
 }
 
 // NewClient creates a new client to work with Elasticsearch.
+//
+// NewClient, by default, is meant to be long-lived and shared across
+// your application. If you need a short-lived client, e.g. for request-scope,
+// consider using NewSimpleClient instead.
 //
 // The caller can configure the new client by passing configuration options
 // to the func.
@@ -256,6 +263,82 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	}
 	if c.healthcheckEnabled {
 		go c.healthchecker() // start goroutine periodically ping all nodes of the cluster
+	}
+
+	c.mu.Lock()
+	c.running = true
+	c.mu.Unlock()
+
+	return c, nil
+}
+
+// NewSimpleClient creates a new short-lived Client that can be used in
+// use cases where you need e.g. one client per request.
+//
+// While NewClient by default sets up e.g. periodic health checks
+// and sniffing for new nodes in separate goroutines, NewSimpleClient does
+// not and it meant as a simple replacement where you don't need all the
+// heavy lifting of NewClient.
+//
+// NewSimpleClient does the following by default: First, all health checks
+// are disabled, including timeouts and periodic checks. Second, sniffing
+// is disable, including timeouts and periodic checks. The number of retries
+// is set to 1. NewSimpleClient also does not start any goroutines.
+//
+// Notice that you can still override settings by passing additional options,
+// just like with NewClient.
+func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
+	c := &Client{
+		c:                         http.DefaultClient,
+		conns:                     make([]*conn, 0),
+		cindex:                    -1,
+		scheme:                    DefaultScheme,
+		decoder:                   &DefaultDecoder{},
+		maxRetries:                1,
+		healthcheckEnabled:        false,
+		healthcheckTimeoutStartup: off,
+		healthcheckTimeout:        off,
+		healthcheckInterval:       off,
+		healthcheckStop:           make(chan bool),
+		snifferEnabled:            false,
+		snifferTimeoutStartup:     off,
+		snifferTimeout:            off,
+		snifferInterval:           off,
+		snifferStop:               make(chan bool),
+		sendGetBodyAs:             DefaultSendGetBodyAs,
+		gzipEnabled:               DefaultGzipEnabled,
+	}
+
+	// Run the options on it
+	for _, option := range options {
+		if err := option(c); err != nil {
+			return nil, err
+		}
+	}
+
+	if len(c.urls) == 0 {
+		c.urls = []string{DefaultURL}
+	}
+	c.urls = canonicalize(c.urls...)
+
+	for _, url := range c.urls {
+		c.conns = append(c.conns, newConn(url, url))
+	}
+
+	// Ensure that we have at least one connection available
+	if err := c.mustActiveConn(); err != nil {
+		return nil, err
+	}
+
+	// Check the required plugins
+	for _, plugin := range c.requiredPlugins {
+		found, err := c.HasPlugin(plugin)
+		if err != nil {
+			return nil, err
+		}
+		if !found {
+			return nil, fmt.Errorf("elastic: plugin %s not found", plugin)
+		}
 	}
 
 	c.mu.Lock()
