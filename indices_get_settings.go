@@ -7,19 +7,10 @@ package elastic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 
 	"gopkg.in/olivere/elastic.v2/uritemplates"
-)
-
-var (
-	_ = fmt.Print
-	_ = log.Print
-	_ = strings.Index
-	_ = uritemplates.Expand
-	_ = url.Parse
 )
 
 // IndicesGetSettingsService allows to retrieve settings of one
