@@ -404,6 +404,11 @@ Thanks a lot for the great folks working hard on
 and
 [Go](http://www.golang.org/).
 
+Elastic uses portions of the
+[uritemplates](https://github.com/jtacoma/uritemplates) library
+by Joshua Tacoma and
+[backoff](https://github.com/cenkalti/backoff) by Cenk Altı.
+
 ## LICENSE
 
 MIT-LICENSE. See [LICENSE](http://olivere.mit-license.org/)

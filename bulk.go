@@ -25,6 +25,8 @@ type BulkService struct {
 	timeout string
 	refresh *bool
 	pretty  bool
+
+	sizeInBytes int64
 }
 
 func NewBulkService(client *Client) *BulkService {
@@ -37,6 +39,7 @@ func NewBulkService(client *Client) *BulkService {
 
 func (s *BulkService) reset() {
 	s.requests = make([]BulkableRequest, 0)
+	s.sizeInBytes = 0
 }
 
 func (s *BulkService) Index(index string) *BulkService {
@@ -66,7 +69,17 @@ func (s *BulkService) Pretty(pretty bool) *BulkService {
 
 func (s *BulkService) Add(r BulkableRequest) *BulkService {
 	s.requests = append(s.requests, r)
+	s.sizeInBytes += s.estimateSizeInBytes(r)
 	return s
+}
+
+func (s *BulkService) EstimatedSizeInBytes() int64 {
+	return s.sizeInBytes
+}
+
+func (s *BulkService) estimateSizeInBytes(r BulkableRequest) int64 {
+	// +1 for the \n
+	return int64(1 + len([]byte(r.String())))
 }
 
 func (s *BulkService) NumberOfActions() int {

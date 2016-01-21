@@ -415,3 +415,49 @@ func TestFailedBulkRequests(t *testing.T) {
 		t.Errorf("expected %d failed items; got: %d", 2, len(failed))
 	}
 }
+
+func TestBulkEstimatedSizeInBytes(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
+
+	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("1").Doc(tweet1)
+	index2Req := NewBulkIndexRequest().OpType("create").Index(testIndexName).Type("tweet").Id("2").Doc(tweet2)
+	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
+	update2Req := NewBulkUpdateRequest().Index(testIndexName).Type("tweet").Id("2").
+		Doc(struct {
+		Retweets int `json:"retweets"`
+	}{
+		Retweets: 42,
+	})
+
+	bulkRequest := client.Bulk()
+	bulkRequest = bulkRequest.Add(index1Req)
+	bulkRequest = bulkRequest.Add(index2Req)
+	bulkRequest = bulkRequest.Add(delete1Req)
+	bulkRequest = bulkRequest.Add(update2Req)
+
+	if bulkRequest.NumberOfActions() != 4 {
+		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 4, bulkRequest.NumberOfActions())
+	}
+
+	// The estimated size of the bulk request in bytes must be at least
+	// the length of the body request.
+	raw, err := bulkRequest.bodyAsString()
+	if err != nil {
+		t.Fatal(err)
+	}
+	rawlen := int64(len([]byte(raw)))
+
+	if got, want := bulkRequest.EstimatedSizeInBytes(), rawlen; got < want {
+		t.Errorf("expected an EstimatedSizeInBytes = %d; got: %v", want, got)
+	}
+
+	// Reset should also reset the calculated estimated byte size
+	bulkRequest.reset()
+
+	if got, want := bulkRequest.EstimatedSizeInBytes(), int64(0); got != want {
+		t.Errorf("expected an EstimatedSizeInBytes = %d; got: %v", want, got)
+	}
+}
