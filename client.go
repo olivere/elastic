@@ -1296,9 +1296,14 @@ func (c *Client) IndexGet(indices ...string) *IndicesGetService {
 	return NewIndicesGetService(c).Index(indices...)
 }
 
-// IndexGetSettings retrieves settings about one or more indices.
+// IndexGetSettings retrieves settings of all, one or more indices.
 func (c *Client) IndexGetSettings(indices ...string) *IndicesGetSettingsService {
 	return NewIndicesGetSettingsService(c).Index(indices...)
+}
+
+// IndexPutSettings sets settings for all, one or more indices.
+func (c *Client) IndexPutSettings(indices ...string) *IndicesPutSettingsService {
+	return NewIndicesPutSettingsService(c).Index(indices...)
 }
 
 // Optimize asks Elasticsearch to optimize one or more indices.
