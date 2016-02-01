@@ -27,7 +27,7 @@ func TestNotQuery(t *testing.T) {
 }
 
 func TestNotQueryWithParams(t *testing.T) {
-	postDateFilter := NewRangeQuery("postDate").From("2010-03-01").To("2010-04-01")
+	postDateFilter := NewRangeQuery("postDate").Gte("2010-03-01").Lte("2010-04-01")
 	f := NewNotQuery(postDateFilter)
 	f = f.QueryName("MyQueryName")
 	src, err := f.Source()
@@ -39,7 +39,7 @@ func TestNotQueryWithParams(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"not":{"_name":"MyQueryName","query":{"range":{"postDate":{"from":"2010-03-01","include_lower":true,"include_upper":true,"to":"2010-04-01"}}}}}`
+	expected := `{"not":{"_name":"MyQueryName","query":{"range":{"postDate":{"gte":"2010-03-01","lte":"2010-04-01"}}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
