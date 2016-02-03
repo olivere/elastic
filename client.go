@@ -965,7 +965,11 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 
 		// Set body
 		if body != nil {
-			req.SetBody(body, gzipEnabled)
+			err = req.SetBody(body, gzipEnabled)
+			if err != nil {
+				c.errorf("elastic: couldn't set body %+v for request: %v", body, err)
+				return nil, err
+			}
 		}
 
 		// Tracing
