@@ -10,6 +10,7 @@ package elastic
 type DateHistogramAggregation struct {
 	field           string
 	script          *Script
+	missing         interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 
@@ -39,6 +40,12 @@ func (a *DateHistogramAggregation) Field(field string) *DateHistogramAggregation
 
 func (a *DateHistogramAggregation) Script(script *Script) *DateHistogramAggregation {
 	a.script = script
+	return a
+}
+
+// Missing configures the value to use when documents miss a value.
+func (a *DateHistogramAggregation) Missing(missing interface{}) *DateHistogramAggregation {
+	a.missing = missing
 	return a
 }
 
@@ -218,6 +225,9 @@ func (a *DateHistogramAggregation) Source() (interface{}, error) {
 			return nil, err
 		}
 		opts["script"] = src
+	}
+	if a.missing != nil {
+		opts["missing"] = a.missing
 	}
 
 	opts["interval"] = a.interval

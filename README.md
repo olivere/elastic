@@ -243,7 +243,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Nested
   - [x] Range
   - [x] Reverse Nested
-  - [ ] Sampler
+  - [x] Sampler
   - [x] Significant Terms
   - [x] Terms
 - Pipeline Aggregations

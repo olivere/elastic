@@ -134,3 +134,23 @@ func TestRangeAggregationWithMetaData(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestRangeAggregationWithMissing(t *testing.T) {
+	agg := NewRangeAggregation().Field("price").Missing(0)
+	agg = agg.AddRange(nil, 50)
+	agg = agg.AddRange(50, 100)
+	agg = agg.AddRange(100, nil)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"range":{"field":"price","missing":0,"ranges":[{"to":50},{"from":50,"to":100},{"from":100}]}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}

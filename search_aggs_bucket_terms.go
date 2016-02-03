@@ -10,6 +10,7 @@ package elastic
 type TermsAggregation struct {
 	field           string
 	script          *Script
+	missing         interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 
@@ -47,6 +48,12 @@ func (a *TermsAggregation) Field(field string) *TermsAggregation {
 
 func (a *TermsAggregation) Script(script *Script) *TermsAggregation {
 	a.script = script
+	return a
+}
+
+// Missing configures the value to use when documents miss a value.
+func (a *TermsAggregation) Missing(missing interface{}) *TermsAggregation {
+	a.missing = missing
 	return a
 }
 
@@ -243,6 +250,9 @@ func (a *TermsAggregation) Source() (interface{}, error) {
 			return nil, err
 		}
 		opts["script"] = src
+	}
+	if a.missing != nil {
+		opts["missing"] = a.missing
 	}
 
 	// TermsBuilder

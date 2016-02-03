@@ -12,6 +12,7 @@ package elastic
 type HistogramAggregation struct {
 	field           string
 	script          *Script
+	missing         interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 
@@ -37,6 +38,12 @@ func (a *HistogramAggregation) Field(field string) *HistogramAggregation {
 
 func (a *HistogramAggregation) Script(script *Script) *HistogramAggregation {
 	a.script = script
+	return a
+}
+
+// Missing configures the value to use when documents miss a value.
+func (a *HistogramAggregation) Missing(missing interface{}) *HistogramAggregation {
+	a.missing = missing
 	return a
 }
 
@@ -192,6 +199,9 @@ func (a *HistogramAggregation) Source() (interface{}, error) {
 			return nil, err
 		}
 		opts["script"] = src
+	}
+	if a.missing != nil {
+		opts["missing"] = a.missing
 	}
 
 	opts["interval"] = a.interval

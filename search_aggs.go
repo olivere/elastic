@@ -323,6 +323,21 @@ func (a Aggregations) SignificantTerms(name string) (*AggregationBucketSignifica
 	return nil, false
 }
 
+// Sampler returns sampler aggregation results.
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-sampler-aggregation.html
+func (a Aggregations) Sampler(name string) (*AggregationSingleBucket, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationSingleBucket)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // Range returns range aggregation results.
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html
 func (a Aggregations) Range(name string) (*AggregationBucketRangeItems, bool) {
