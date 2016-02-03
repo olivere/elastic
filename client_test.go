@@ -831,3 +831,25 @@ func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 		t.Errorf("expected %d failed requests; got: %d", 1, numFailedReqs)
 	}
 }
+
+// failingBody will return an error when json.Marshal is called on it.
+type failingBody struct{}
+
+// MarshalJSON implements the json.Marshaler interface and always returns an error.
+func (fb failingBody) MarshalJSON() ([]byte, error) {
+	return nil, errors.New("failing to marshal")
+}
+
+func TestPerformRequestWithSetBodyError(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.PerformRequest("GET", "/", nil, failingBody{})
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if res != nil {
+		t.Fatal("expected no response")
+	}
+}
