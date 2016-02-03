@@ -23,7 +23,7 @@ func TestNestedQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"nested":{"_name":"qname","path":"obj1","query":{"bool":{"must":[{"term":{"obj1.name":"blue"}},{"range":{"obj1.count":{"from":5,"include_lower":false,"include_upper":true,"to":null}}}]}}}}`
+	expected := `{"nested":{"_name":"qname","path":"obj1","query":{"bool":{"must":[{"term":{"obj1.name":"blue"}},{"range":{"obj1.count":{"gt":5}}}]}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -45,7 +45,7 @@ func TestNestedQueryWithInnerHit(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"nested":{"_name":"qname","inner_hits":{"name":"comments","query":{"term":{"user":"olivere"}}},"path":"obj1","query":{"bool":{"must":[{"term":{"obj1.name":"blue"}},{"range":{"obj1.count":{"from":5,"include_lower":false,"include_upper":true,"to":null}}}]}}}}`
+	expected := `{"nested":{"_name":"qname","inner_hits":{"name":"comments","query":{"term":{"user":"olivere"}}},"path":"obj1","query":{"bool":{"must":[{"term":{"obj1.name":"blue"}},{"range":{"obj1.count":{"gt":5}}}]}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

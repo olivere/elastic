@@ -9,79 +9,84 @@ package elastic
 // For details, see
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
 type RangeQuery struct {
-	name         string
-	from         interface{}
-	to           interface{}
-	timeZone     string
-	includeLower bool
-	includeUpper bool
-	boost        *float64
-	queryName    string
-	format       string
+	name      string
+	gt        interface{}
+	gte       interface{}
+	lt        interface{}
+	lte       interface{}
+	timeZone  string
+	boost     *float64
+	queryName string
+	format    string
 }
 
 // NewRangeQuery creates and initializes a new RangeQuery.
 func NewRangeQuery(name string) *RangeQuery {
-	return &RangeQuery{name: name, includeLower: true, includeUpper: true}
+	return &RangeQuery{name: name}
 }
 
-// From indicates the from part of the RangeQuery.
+// From indicates the `gte` part of the RangeQuery.
 // Use nil to indicate an unbounded from part.
 func (q *RangeQuery) From(from interface{}) *RangeQuery {
-	q.from = from
-	return q
+	return q.Gte(from)
 }
 
-// Gt indicates a greater-than value for the from part.
-// Use nil to indicate an unbounded from part.
-func (q *RangeQuery) Gt(from interface{}) *RangeQuery {
-	q.from = from
-	q.includeLower = false
-	return q
-}
-
-// Gte indicates a greater-than-or-equal value for the from part.
-// Use nil to indicate an unbounded from part.
-func (q *RangeQuery) Gte(from interface{}) *RangeQuery {
-	q.from = from
-	q.includeLower = true
-	return q
-}
-
-// To indicates the to part of the RangeQuery.
-// Use nil to indicate an unbounded to part.
+// To indicates the `lte` part of the RangeQuery.
 func (q *RangeQuery) To(to interface{}) *RangeQuery {
-	q.to = to
+	return q.Lte(to)
+}
+
+// Gt indicates a greater-than value.
+// Use nil to indicate an unbounded gt part.
+func (q *RangeQuery) Gt(gt interface{}) *RangeQuery {
+	q.gt = gt
 	return q
 }
 
-// Lt indicates a less-than value for the to part.
-// Use nil to indicate an unbounded to part.
-func (q *RangeQuery) Lt(to interface{}) *RangeQuery {
-	q.to = to
-	q.includeUpper = false
+// Gte indicates a greater-than-equal value.
+// Use nil to indicate an unbounded gte part.
+func (q *RangeQuery) Gte(gte interface{}) *RangeQuery {
+	q.gte = gte
 	return q
 }
 
-// Lte indicates a less-than-or-equal value for the to part.
-// Use nil to indicate an unbounded to part.
-func (q *RangeQuery) Lte(to interface{}) *RangeQuery {
-	q.to = to
-	q.includeUpper = true
+// Lt indicates a less-than value.
+// Use nil to indicate an unbounded `lt` part.
+func (q *RangeQuery) Lt(lt interface{}) *RangeQuery {
+	q.lt = lt
+	return q
+}
+
+// Lte indicates a less-than-or-equal value.
+// Use nil to indicate an unbounded `lte` part.
+func (q *RangeQuery) Lte(lte interface{}) *RangeQuery {
+	q.lte = lte
 	return q
 }
 
 // IncludeLower indicates whether the lower bound should be included or not.
 // Defaults to true.
 func (q *RangeQuery) IncludeLower(includeLower bool) *RangeQuery {
-	q.includeLower = includeLower
+	if includeLower {
+		q.lte = q.lt
+		q.lt = nil
+	} else {
+		q.lt = q.lte
+		q.lte = nil
+	}
 	return q
 }
 
 // IncludeUpper indicates whether the upper bound should be included or not.
 // Defaults to true.
 func (q *RangeQuery) IncludeUpper(includeUpper bool) *RangeQuery {
-	q.includeUpper = includeUpper
+	if includeUpper {
+		q.gte = q.gt
+		q.gt = nil
+	} else {
+		q.gt = q.gte
+		q.gte = nil
+	}
 	return q
 }
 
@@ -120,19 +125,31 @@ func (q *RangeQuery) Source() (interface{}, error) {
 	source["range"] = rangeQ
 
 	params := make(map[string]interface{})
+
+	if q.gt != nil {
+		params["gt"] = q.gt
+	}
+
+	if q.gte != nil {
+		params["gte"] = q.gte
+	}
+
+	if q.lt != nil {
+		params["lt"] = q.lt
+	}
+
+	if q.lte != nil {
+		params["lte"] = q.lte
+	}
+
 	rangeQ[q.name] = params
 
-	params["from"] = q.from
-	params["to"] = q.to
 	if q.timeZone != "" {
 		params["time_zone"] = q.timeZone
 	}
 	if q.format != "" {
 		params["format"] = q.format
 	}
-	params["include_lower"] = q.includeLower
-	params["include_upper"] = q.includeUpper
-
 	if q.boost != nil {
 		rangeQ["boost"] = *q.boost
 	}
