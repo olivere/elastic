@@ -30,6 +30,7 @@ type TermsAggregation struct {
 	showTermDocCountError *bool
 	includeTerms          []string
 	excludeTerms          []string
+	missingTerm           string
 }
 
 func NewTermsAggregation() *TermsAggregation {
@@ -218,6 +219,11 @@ func (a *TermsAggregation) ExcludeTerms(terms ...string) *TermsAggregation {
 	return a
 }
 
+func (a *TermsAggregation) Missing(missingTerm string) *TermsAggregation {
+	a.missingTerm = missingTerm
+	return a
+}
+
 func (a *TermsAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{
@@ -309,6 +315,9 @@ func (a *TermsAggregation) Source() (interface{}, error) {
 		opts["execution_hint"] = a.executionHint
 	}
 
+	if a.missingTerm != "" {
+		opts["missing"] = a.missingTerm
+	}
 	// AggregationBuilder (SubAggregations)
 	if len(a.subAggregations) > 0 {
 		aggsMap := make(map[string]interface{})

@@ -85,3 +85,20 @@ func TestTermsAggregationWithMetaData(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestTermsAggregationWithMissingField(t *testing.T) {
+	agg := NewTermsAggregation().Field("gender").Size(10).Missing("NotSpecified")
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"terms":{"field":"gender","missing":"NotSpecified","size":10}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
