@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"net/http/httputil"
@@ -22,7 +21,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "2.0.28"
+	Version = "2.0.29"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -112,9 +111,9 @@ type Client struct {
 	mu                        sync.RWMutex  // guards the next block
 	urls                      []string      // set of URLs passed initially to the client
 	running                   bool          // true if the client's background processes are running
-	errorlog                  *log.Logger   // error log for critical messages
-	infolog                   *log.Logger   // information log for e.g. response times
-	tracelog                  *log.Logger   // trace log for debugging
+	errorlog                  Logger        // error log for critical messages
+	infolog                   Logger        // information log for e.g. response times
+	tracelog                  Logger        // trace log for debugging
 	maxRetries                int           // max. number of retries
 	scheme                    string        // http or https
 	healthcheckEnabled        bool          // healthchecks enabled or disabled
@@ -486,7 +485,7 @@ func SetDecoder(decoder Decoder) ClientOptionFunc {
 
 // SetErrorLog sets the logger for critical messages like nodes joining
 // or leaving the cluster or failing requests. It is nil by default.
-func SetErrorLog(logger *log.Logger) ClientOptionFunc {
+func SetErrorLog(logger Logger) ClientOptionFunc {
 	return func(c *Client) error {
 		c.errorlog = logger
 		return nil
@@ -495,7 +494,7 @@ func SetErrorLog(logger *log.Logger) ClientOptionFunc {
 
 // SetInfoLog sets the logger for informational messages, e.g. requests
 // and their response times. It is nil by default.
-func SetInfoLog(logger *log.Logger) ClientOptionFunc {
+func SetInfoLog(logger Logger) ClientOptionFunc {
 	return func(c *Client) error {
 		c.infolog = logger
 		return nil
@@ -504,7 +503,7 @@ func SetInfoLog(logger *log.Logger) ClientOptionFunc {
 
 // SetTraceLog specifies the log.Logger to use for output of HTTP requests
 // and responses which is helpful during debugging. It is nil by default.
-func SetTraceLog(logger *log.Logger) ClientOptionFunc {
+func SetTraceLog(logger Logger) ClientOptionFunc {
 	return func(c *Client) error {
 		c.tracelog = logger
 		return nil
