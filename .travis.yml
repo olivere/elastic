@@ -8,7 +8,7 @@ env:
   global:
     - GO15VENDOREXPERIMENT=1
   matrix:
-    - ES_VERSION=1.7.4
+    - ES_VERSION=1.7.5
   allow_failures:
     - go: tip
 before_script:
