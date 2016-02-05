@@ -276,12 +276,12 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 //
 // While NewClient by default sets up e.g. periodic health checks
 // and sniffing for new nodes in separate goroutines, NewSimpleClient does
-// not and it meant as a simple replacement where you don't need all the
+// not and is meant as a simple replacement where you don't need all the
 // heavy lifting of NewClient.
 //
 // NewSimpleClient does the following by default: First, all health checks
 // are disabled, including timeouts and periodic checks. Second, sniffing
-// is disable, including timeouts and periodic checks. The number of retries
+// is disabled, including timeouts and periodic checks. The number of retries
 // is set to 1. NewSimpleClient also does not start any goroutines.
 //
 // Notice that you can still override settings by passing additional options,
