@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"regexp"
@@ -750,6 +751,49 @@ func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
 	tgot := tw.String()
 	if tgot == "" {
 		t.Errorf("expected tracer output; got: %q", tgot)
+	}
+}
+
+type customLogger struct {
+	out bytes.Buffer
+}
+
+func (l *customLogger) Printf(format string, v ...interface{}) {
+	l.out.WriteString(fmt.Sprintf(format, v...) + "\n")
+}
+
+func TestPerformRequestWithCustomLogger(t *testing.T) {
+	logger := &customLogger{}
+
+	client, err := NewClient(SetInfoLog(logger))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := client.PerformRequest("GET", "/", nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+
+	ret := new(PingResult)
+	if err := json.Unmarshal(res.Body, ret); err != nil {
+		t.Fatalf("expected no error on decode; got: %v", err)
+	}
+	if ret.ClusterName == "" {
+		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
+	}
+
+	got := logger.out.String()
+	pattern := `^GET http://.*/ \[status:200, request:\d+\.\d{3}s\]\n`
+	matched, err := regexp.MatchString(pattern, got)
+	if err != nil {
+		t.Fatalf("expected log line to match %q; got: %v", pattern, err)
+	}
+	if !matched {
+		t.Errorf("expected log line to match %q; got: %v", pattern, got)
 	}
 }
 
