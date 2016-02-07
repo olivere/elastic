@@ -499,3 +499,105 @@ func TestIssue119(t *testing.T) {
 		}
 	}
 }
+
+func TestScanWithSorter(t *testing.T) {
+	//client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "user1", Message: "Welcome to Golang and Elasticsearch.", Retweets: 8}
+	tweet2 := tweet{User: "user2", Message: "Another unrelated topic.", Retweets: 4}
+	tweet3 := tweet{User: "user3", Message: "Cycling is fun.", Retweets: 1}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Return tweets from olivere only
+	cursor, err := client.Scan(testIndexName).
+		Size(1).
+		SortBy(NewFieldSort("retweets").Desc()).
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res := cursor.Results
+
+	if res == nil {
+		t.Fatalf("expected results != nil; got nil")
+	}
+	if res.Hits == nil {
+		t.Fatalf("expected results.Hits != nil; got nil")
+	}
+	if res.Hits.TotalHits != 3 {
+		t.Fatalf("expected results.Hits.TotalHits = %d; got %d", 3, cursor.Results.Hits.TotalHits)
+	}
+
+	pages := 0
+	numDocs := 0
+
+	for {
+		pages += 1
+
+		for _, hit := range res.Hits.Hits {
+			if hit.Index != testIndexName {
+				t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
+			}
+			var doc tweet
+			err := json.Unmarshal(*hit.Source, &doc)
+			if err != nil {
+				t.Fatal(err)
+			}
+			numDocs += 1
+			switch numDocs {
+			case 1:
+				if got, want := doc.User, "user1"; got != want {
+					t.Fatalf("expected document from %q first; got: %q", want, got)
+				}
+			case 2:
+				if got, want := doc.User, "user2"; got != want {
+					t.Fatalf("expected document from %q first; got: %q", want, got)
+				}
+			case 3:
+				if got, want := doc.User, "user3"; got != want {
+					t.Fatalf("expected document from %q first; got: %q", want, got)
+				}
+			default:
+				t.Fatalf("expected no more than 3 documents; got: %d", numDocs)
+			}
+		}
+
+		res, err = cursor.Next()
+		if err == EOS {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if pages <= 0 {
+		t.Errorf("expected to retrieve at least 1 page; got %d", pages)
+	}
+
+	if numDocs != 3 {
+		t.Errorf("expected to retrieve %d hits; got %d", 2, numDocs)
+	}
+}
