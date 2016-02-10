@@ -83,7 +83,7 @@ func (s *SearchService) Type(typ string) *SearchService {
 	return s
 }
 
-// Types adds search restrictions to a list of types.
+// Types adds search restrictions for a list of types.
 func (s *SearchService) Types(types ...string) *SearchService {
 	if s.types == nil {
 		s.types = make([]string, 0)
