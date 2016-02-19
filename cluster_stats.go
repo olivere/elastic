@@ -238,7 +238,7 @@ type ClusterStatsIndicesPercolate struct {
 // ---
 
 type ClusterStatsNodes struct {
-	Count    *ClusterStatsNodesCounts       `json:"counts"`
+	Count    *ClusterStatsNodesCounts       `json:"count"`
 	Versions []string                       `json:"versions"`
 	OS       *ClusterStatsNodesOsStats      `json:"os"`
 	Process  *ClusterStatsNodesProcessStats `json:"process"`
