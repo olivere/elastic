@@ -1075,14 +1075,8 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 
 		// Check for errors
 		if err := checkResponse(res); err != nil {
-			retries -= 1
-			if retries <= 0 {
-				return nil, err
-			}
-			retried = true
-			time.Sleep(time.Duration(retryWaitMsec) * time.Millisecond)
-			retryWaitMsec += retryWaitMsec
-			continue // try again
+			// No retry if request succeeded
+			return nil, err
 		}
 
 		// Tracing
