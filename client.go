@@ -942,7 +942,8 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 	// If we don't get a connection after "timeout", we bail.
 	start := time.Now()
 	for {
-		cl := &http.Client{Timeout: timeout}
+		cl := *(c.c)
+		cl.Timeout = timeout
 		for _, url := range urls {
 			req, err := http.NewRequest("HEAD", url, nil)
 			if err != nil {

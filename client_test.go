@@ -235,7 +235,7 @@ func TestClientWithRequiredPlugins(t *testing.T) {
 
 func TestClientHealthcheckStartupTimeout(t *testing.T) {
 	start := time.Now()
-	_, err := NewClient(SetURL("http://localhost:9299"), SetHealthcheckTimeoutStartup(5*time.Second))
+	_, err := NewClient(SetURL("http://localhost:9299"), SetHealthcheckTimeoutStartup(6*time.Second))
 	duration := time.Now().Sub(start)
 	if err != ErrNoClient {
 		t.Fatal(err)
