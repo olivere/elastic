@@ -23,6 +23,12 @@ func TestClusterStats(t *testing.T) {
 	if res.ClusterName == "" {
 		t.Fatalf("expected a cluster name; got: %q", res.ClusterName)
 	}
+	if res.Nodes == nil {
+		t.Fatalf("expected nodes; got: %v", res.Nodes)
+	}
+	if res.Nodes.Count == nil {
+		t.Fatalf("expected nodes count; got: %v", res.Nodes.Count)
+	}
 }
 
 func TestClusterStatsURLs(t *testing.T) {
