@@ -828,7 +828,7 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 	tr := &failingTransport{path: "/fail", fail: fail}
 	httpClient := &http.Client{Transport: tr}
 
-	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(5))
+	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(5), SetHealthcheck(false))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -858,7 +858,7 @@ func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 	tr := &failingTransport{path: "/fail", fail: fail}
 	httpClient := &http.Client{Transport: tr}
 
-	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(5))
+	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(5), SetHealthcheck(false))
 	if err != nil {
 		t.Fatal(err)
 	}
