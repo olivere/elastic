@@ -61,7 +61,7 @@ func (s *SearchService) Index(indices ...string) *SearchService {
 	return s
 }
 
-// Type allows to restrict the search to a list of types.
+// Types adds search restrictions for a list of types.
 func (s *SearchService) Type(types ...string) *SearchService {
 	if s.types == nil {
 		s.types = make([]string, 0)
