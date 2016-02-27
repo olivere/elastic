@@ -683,7 +683,7 @@ func TestPerformRequestWithLogger(t *testing.T) {
 	var w bytes.Buffer
 	out := log.New(&w, "LOGGER ", log.LstdFlags)
 
-	client, err := NewClient(SetInfoLog(out))
+	client, err := NewClient(SetInfoLog(out), SetSniff(false))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -722,7 +722,7 @@ func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
 	var tw bytes.Buffer
 	tout := log.New(&tw, "TRACER ", log.LstdFlags)
 
-	client, err := NewClient(SetInfoLog(lout), SetTraceLog(tout))
+	client, err := NewClient(SetInfoLog(lout), SetTraceLog(tout), SetSniff(false))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -765,7 +765,7 @@ func (l *customLogger) Printf(format string, v ...interface{}) {
 func TestPerformRequestWithCustomLogger(t *testing.T) {
 	logger := &customLogger{}
 
-	client, err := NewClient(SetInfoLog(logger))
+	client, err := NewClient(SetInfoLog(logger), SetSniff(false))
 	if err != nil {
 		t.Fatal(err)
 	}

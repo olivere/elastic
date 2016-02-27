@@ -849,7 +849,7 @@ func (c *Client) updateConns(conns []*conn) {
 		}
 		if !found {
 			// New connection didn't exist, so add it to our list of new conns.
-			c.errorf("elastic: %s joined the cluster", conn.URL())
+			c.infof("elastic: %s joined the cluster", conn.URL())
 			newConns = append(newConns, conn)
 		}
 	}
