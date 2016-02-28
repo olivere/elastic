@@ -413,10 +413,11 @@ type SearchSuggestion struct {
 // SearchSuggestionOption is an option of a SearchSuggestion.
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters.html.
 type SearchSuggestionOption struct {
-	Text    string      `json:"text"`
-	Score   float64     `json:"score"`
-	Freq    int         `json:"freq"`
-	Payload interface{} `json:"payload"`
+	Text        string      `json:"text"`
+	Score       float64     `json:"score"`
+	Freq        int         `json:"freq"`
+	Payload     interface{} `json:"payload"`
+	Highlighted string      `json:"highlighted"`
 }
 
 // Aggregations (see search_aggs.go)
