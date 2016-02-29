@@ -463,6 +463,9 @@ func (w *bulkWorker) commit() error {
 		w.p.beforeFn(id, w.service.requests)
 	}
 
+	// Store requests for after callback
+	reqs := w.service.requests
+
 	// Commit bulk requests
 	policy := backoff.NewExponentialBackoff(w.p.initialTimeout, w.p.maxTimeout).SendStop(true)
 	err := backoff.RetryNotify(commitFunc, policy, notifyFunc)
@@ -473,7 +476,7 @@ func (w *bulkWorker) commit() error {
 
 	// Invoke after callback
 	if w.p.afterFn != nil {
-		w.p.afterFn(id, w.service.requests, res, err)
+		w.p.afterFn(id, reqs, res, err)
 	}
 
 	return err
