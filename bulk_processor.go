@@ -458,9 +458,12 @@ func (w *bulkWorker) commit() error {
 	}
 	w.p.statsMu.Unlock()
 
+	// Save requests because they will be reset in commitFunc
+	reqs := w.service.requests
+
 	// Invoke before callback
 	if w.p.beforeFn != nil {
-		w.p.beforeFn(id, w.service.requests)
+		w.p.beforeFn(id, reqs)
 	}
 
 	// Commit bulk requests
@@ -473,7 +476,7 @@ func (w *bulkWorker) commit() error {
 
 	// Invoke after callback
 	if w.p.afterFn != nil {
-		w.p.afterFn(id, w.service.requests, res, err)
+		w.p.afterFn(id, reqs, res, err)
 	}
 
 	return err
