@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2016 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -202,9 +202,6 @@ func (r BulkUpdateRequest) Source() ([]string, error) {
 	if r.retryOnConflict != nil {
 		updateCommand["_retry_on_conflict"] = *r.retryOnConflict
 	}
-	if r.upsert != nil {
-		updateCommand["upsert"] = r.upsert
-	}
 	command["update"] = updateCommand
 	line, err := json.Marshal(command)
 	if err != nil {
@@ -216,6 +213,9 @@ func (r BulkUpdateRequest) Source() ([]string, error) {
 	source := make(map[string]interface{})
 	if r.docAsUpsert != nil {
 		source["doc_as_upsert"] = *r.docAsUpsert
+	}
+	if r.upsert != nil {
+		source["upsert"] = r.upsert
 	}
 	if r.doc != nil {
 		// {"doc":{...}}

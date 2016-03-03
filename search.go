@@ -446,10 +446,12 @@ type SearchSuggestion struct {
 // SearchSuggestionOption is an option of a SearchSuggestion.
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters.html.
 type SearchSuggestionOption struct {
-	Text    string      `json:"text"`
-	Score   float32     `json:"score"`
-	Freq    int         `json:"freq"`
-	Payload interface{} `json:"payload"`
+	Text         string      `json:"text"`
+	Highlighted  string      `json:"highlighted"`
+	Score        float32     `json:"score"`
+	CollateMatch bool        `json:"collate_match"`
+	Freq         int         `json:"freq"` // deprecated
+	Payload      interface{} `json:"payload"`
 }
 
 // Facets

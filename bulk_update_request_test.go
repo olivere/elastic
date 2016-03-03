@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-2016 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -53,8 +53,8 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 				Counter: 42,
 			}),
 			Expected: []string{
-				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet","upsert":{"counter":42}}}`,
-				`{"lang":"js","params":{"param1":42},"script":"ctx._source.retweets += param1"}`,
+				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
+				`{"lang":"js","params":{"param1":42},"script":"ctx._source.retweets += param1","upsert":{"counter":42}}`,
 			},
 		},
 	}
@@ -72,7 +72,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 		}
 		for j, line := range lines {
 			if line != test.Expected[j] {
-				t.Errorf("case #%d: expected line #%d to be %s, got: %s", i, j, test.Expected[j], line)
+				t.Errorf("case #%d: expected line #%d to be\n%s, got:\n%s", i, j, test.Expected[j], line)
 			}
 		}
 	}
