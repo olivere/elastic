@@ -93,6 +93,7 @@ func TestBulkProcessorBasedOnFlushInterval(t *testing.T) {
 	var befores int64
 	var afters int64
 	var failures int64
+	var afterRequests int64
 
 	beforeFn := func(executionId int64, requests []BulkableRequest) {
 		atomic.AddInt64(&beforeRequests, int64(len(requests)))
@@ -103,6 +104,7 @@ func TestBulkProcessorBasedOnFlushInterval(t *testing.T) {
 		if err != nil {
 			atomic.AddInt64(&failures, 1)
 		}
+		atomic.AddInt64(&afterRequests, int64(len(requests)))
 	}
 
 	svc := client.BulkProcessor().
@@ -141,6 +143,9 @@ func TestBulkProcessorBasedOnFlushInterval(t *testing.T) {
 	if got, want := beforeRequests, int64(numDocs); got != want {
 		t.Errorf("expected %d requests to before callback; got: %d", want, got)
 	}
+	if got, want := afterRequests, int64(numDocs); got != want {
+		t.Errorf("expected %d requests to after callback; got: %d", want, got)
+	}
 	if befores == 0 {
 		t.Error("expected at least 1 call to before callback")
 	}
@@ -173,6 +178,7 @@ func TestBulkProcessorClose(t *testing.T) {
 	var befores int64
 	var afters int64
 	var failures int64
+	var afterRequests int64
 
 	beforeFn := func(executionId int64, requests []BulkableRequest) {
 		atomic.AddInt64(&beforeRequests, int64(len(requests)))
@@ -183,6 +189,7 @@ func TestBulkProcessorClose(t *testing.T) {
 		if err != nil {
 			atomic.AddInt64(&failures, 1)
 		}
+		atomic.AddInt64(&afterRequests, int64(len(requests)))
 	}
 
 	p, err := client.BulkProcessor().
@@ -219,6 +226,9 @@ func TestBulkProcessorClose(t *testing.T) {
 	}
 	if got, want := beforeRequests, int64(numDocs); got != want {
 		t.Errorf("expected %d requests to before callback; got: %d", want, got)
+	}
+	if got, want := afterRequests, int64(numDocs); got != want {
+		t.Errorf("expected %d requests to after callback; got: %d", want, got)
 	}
 	if befores == 0 {
 		t.Error("expected at least 1 call to before callback")
@@ -324,6 +334,7 @@ func testBulkProcessor(t *testing.T, numDocs int, svc *BulkProcessorService) {
 	var befores int64
 	var afters int64
 	var failures int64
+	var afterRequests int64
 
 	beforeFn := func(executionId int64, requests []BulkableRequest) {
 		atomic.AddInt64(&beforeRequests, int64(len(requests)))
@@ -334,6 +345,7 @@ func testBulkProcessor(t *testing.T, numDocs int, svc *BulkProcessorService) {
 		if err != nil {
 			atomic.AddInt64(&failures, 1)
 		}
+		atomic.AddInt64(&afterRequests, int64(len(requests)))
 	}
 
 	p, err := svc.Before(beforeFn).After(afterFn).Stats(true).Do()
@@ -380,6 +392,9 @@ func testBulkProcessor(t *testing.T, numDocs int, svc *BulkProcessorService) {
 	}
 	if got, want := beforeRequests, int64(numDocs); got != want {
 		t.Errorf("expected %d requests to before callback; got: %d", want, got)
+	}
+	if got, want := afterRequests, int64(numDocs); got != want {
+		t.Errorf("expected %d requests to after callback; got: %d", want, got)
 	}
 	if befores == 0 {
 		t.Error("expected at least 1 call to before callback")
