@@ -7,7 +7,7 @@ package elastic
 import "net/url"
 
 // canonicalize takes a list of URLs and returns its canonicalized form, i.e.
-// remove anything but scheme, userinfo, host, and port. It also removes the
+// remove anything but scheme, userinfo, host, port, and path. It also removes the
 // slash at the end. It also skips invalid URLs or URLs that do not use
 // protocol http or https.
 //
@@ -19,7 +19,6 @@ func canonicalize(rawurls ...string) []string {
 		u, err := url.Parse(rawurl)
 		if err == nil && (u.Scheme == "http" || u.Scheme == "https") {
 			u.Fragment = ""
-			u.Path = ""
 			u.RawQuery = ""
 			canonicalized = append(canonicalized, u.String())
 		}
