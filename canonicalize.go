@@ -12,7 +12,7 @@ import "net/url"
 // protocol http or https.
 //
 // Example:
-// http://127.0.0.1:9200/path?query=1 -> http://127.0.0.1:9200
+// http://127.0.0.1:9200/path?query=1 -> http://127.0.0.1:9200/path
 func canonicalize(rawurls ...string) []string {
 	canonicalized := make([]string, 0)
 	for _, rawurl := range rawurls {
