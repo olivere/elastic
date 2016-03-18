@@ -38,6 +38,7 @@ type QueryStringQuery struct {
 	rewrite                   string
 	minimumShouldMatch        string
 	lenient                   *bool
+	timeZone                  string
 }
 
 // Creates a new query string query.
@@ -161,6 +162,11 @@ func (q QueryStringQuery) Lenient(lenient bool) QueryStringQuery {
 	return q
 }
 
+func (q QueryStringQuery) TimeZone(timeZone string) QueryStringQuery {
+	q.timeZone = timeZone
+	return q
+}
+
 // Creates the query source for the query string query.
 func (q QueryStringQuery) Source() interface{} {
 	// {
@@ -275,6 +281,10 @@ func (q QueryStringQuery) Source() interface{} {
 
 	if q.lenient != nil {
 		query["lenient"] = *q.lenient
+	}
+
+	if q.timeZone != "" {
+		query["time_zone"] = q.timeZone
 	}
 
 	return source
