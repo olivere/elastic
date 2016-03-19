@@ -38,6 +38,8 @@ type QueryStringQuery struct {
 	rewrite                   string
 	minimumShouldMatch        string
 	lenient                   *bool
+	timeZone                  string
+	maxDeterminizedStates     *int
 }
 
 // Creates a new query string query.
@@ -93,6 +95,12 @@ func (q QueryStringQuery) QuoteAnalyzer(quoteAnalyzer string) QueryStringQuery {
 
 func (q QueryStringQuery) AutoGeneratePhraseQueries(autoGeneratePhraseQueries bool) QueryStringQuery {
 	q.autoGeneratePhraseQueries = &autoGeneratePhraseQueries
+	return q
+}
+
+// MaxDeterminizedState protects against too-difficult regular expression queries.
+func (q QueryStringQuery) MaxDeterminizedState(maxDeterminizedStates int) QueryStringQuery {
+	q.maxDeterminizedStates = &maxDeterminizedStates
 	return q
 }
 
@@ -161,6 +169,13 @@ func (q QueryStringQuery) Lenient(lenient bool) QueryStringQuery {
 	return q
 }
 
+// TimeZone can be used to automatically adjust to/from fields using a
+// timezone. Only used with date fields, of course.
+func (q QueryStringQuery) TimeZone(timeZone string) QueryStringQuery {
+	q.timeZone = timeZone
+	return q
+}
+
 // Creates the query source for the query string query.
 func (q QueryStringQuery) Source() interface{} {
 	// {
@@ -221,6 +236,10 @@ func (q QueryStringQuery) Source() interface{} {
 		query["auto_generate_phrase_queries"] = *q.autoGeneratePhraseQueries
 	}
 
+	if q.maxDeterminizedStates != nil {
+		query["max_determinized_states"] = *q.maxDeterminizedStates
+	}
+
 	if q.allowLeadingWildcard != nil {
 		query["allow_leading_wildcard"] = *q.allowLeadingWildcard
 	}
@@ -275,6 +294,10 @@ func (q QueryStringQuery) Source() interface{} {
 
 	if q.lenient != nil {
 		query["lenient"] = *q.lenient
+	}
+
+	if q.timeZone != "" {
+		query["time_zone"] = q.timeZone
 	}
 
 	return source
