@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -24,11 +24,23 @@ func TestCanonicalize(t *testing.T) {
 		},
 		{
 			Input:  []string{"http://user:secret@127.0.0.1/path?query=1#fragment"},
-			Output: []string{"http://user:secret@127.0.0.1"},
+			Output: []string{"http://user:secret@127.0.0.1/path"},
 		},
 		{
 			Input:  []string{"https://somewhere.on.mars:9999/path?query=1#fragment"},
-			Output: []string{"https://somewhere.on.mars:9999"},
+			Output: []string{"https://somewhere.on.mars:9999/path"},
+		},
+		{
+			Input:  []string{"https://prod1:9999/one?query=1#fragment", "https://prod2:9998/two?query=1#fragment"},
+			Output: []string{"https://prod1:9999/one", "https://prod2:9998/two"},
+		},
+		{
+			Input:  []string{"http://127.0.0.1/one/"},
+			Output: []string{"http://127.0.0.1/one"},
+		},
+		{
+			Input:  []string{"http://127.0.0.1/one///"},
+			Output: []string{"http://127.0.0.1/one"},
 		},
 	}
 
