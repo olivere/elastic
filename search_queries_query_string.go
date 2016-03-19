@@ -41,6 +41,7 @@ type QueryStringQuery struct {
 	queryName                 string
 	timeZone                  string
 	maxDeterminizedStates     *int
+	escape                    *bool
 }
 
 // NewQueryStringQuery creates and initializes a new QueryStringQuery.
@@ -244,6 +245,12 @@ func (q *QueryStringQuery) TimeZone(timeZone string) *QueryStringQuery {
 	return q
 }
 
+// Escape performs escaping of the query string.
+func (q *QueryStringQuery) Escape(escape bool) *QueryStringQuery {
+	q.escape = &escape
+	return q
+}
+
 // Source returns JSON for the query.
 func (q *QueryStringQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
@@ -343,6 +350,9 @@ func (q *QueryStringQuery) Source() (interface{}, error) {
 	}
 	if q.timeZone != "" {
 		query["time_zone"] = q.timeZone
+	}
+	if q.escape != nil {
+		query["escape"] = *q.escape
 	}
 
 	return source, nil
