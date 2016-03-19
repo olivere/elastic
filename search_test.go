@@ -61,11 +61,8 @@ func BenchmarkSearchMatchAll(b *testing.B) {
 		if searchResult.Hits == nil {
 			b.Errorf("expected SearchResult.Hits != nil; got nil")
 		}
-		if searchResult.Hits.TotalHits != 4 {
-			b.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 4, searchResult.Hits.TotalHits)
-		}
-		if len(searchResult.Hits.Hits) != 4 {
-			b.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", 4, len(searchResult.Hits.Hits))
+		if searchResult.Hits.TotalHits == 0 {
+			b.Errorf("expected SearchResult.Hits.TotalHits > %d; got %d", 0, searchResult.Hits.TotalHits)
 		}
 	}
 }

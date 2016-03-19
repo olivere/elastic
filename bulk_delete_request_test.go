@@ -40,3 +40,14 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 		}
 	}
 }
+
+var bulkDeleteRequestSerializationResult string
+
+func BenchmarkBulkDeleteRequestSerialization(b *testing.B) {
+	r := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
+	var s string
+	for n := 0; n < b.N; n++ {
+		s = r.String()
+	}
+	bulkDeleteRequestSerializationResult = s // ensure the compiler doesn't optimize
+}

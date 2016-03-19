@@ -209,10 +209,10 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
 	update2Req := NewBulkUpdateRequest().Index(testIndexName).Type("tweet").Id("2").
 		Doc(struct {
-		Retweets int `json:"retweets"`
-	}{
-		Retweets: 42,
-	})
+			Retweets int `json:"retweets"`
+		}{
+			Retweets: 42,
+		})
 
 	bulkRequest := client.Bulk()
 	bulkRequest = bulkRequest.Add(index1Req)
@@ -427,10 +427,10 @@ func TestBulkEstimatedSizeInBytes(t *testing.T) {
 	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
 	update2Req := NewBulkUpdateRequest().Index(testIndexName).Type("tweet").Id("2").
 		Doc(struct {
-		Retweets int `json:"retweets"`
-	}{
-		Retweets: 42,
-	})
+			Retweets int `json:"retweets"`
+		}{
+			Retweets: 42,
+		})
 
 	bulkRequest := client.Bulk()
 	bulkRequest = bulkRequest.Add(index1Req)
@@ -460,4 +460,28 @@ func TestBulkEstimatedSizeInBytes(t *testing.T) {
 	if got, want := bulkRequest.EstimatedSizeInBytes(), int64(0); got != want {
 		t.Errorf("expected an EstimatedSizeInBytes = %d; got: %v", want, got)
 	}
+}
+
+func TestBulkEstimatedSizeInBytesLength(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+	s := client.Bulk()
+	r := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
+	s = s.Add(r)
+	if got, want := s.estimateSizeInBytes(r), int64(1+len(r.String())); got != want {
+		t.Fatalf("expected %d; got: %d", want, got)
+	}
+}
+
+var benchmarkBulkEstimatedSizeInBytes int64
+
+func BenchmarkBulkEstimatedSizeInBytes(b *testing.B) {
+	client := setupTestClientAndCreateIndex(b)
+	s := client.Bulk()
+	r := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
+	s = s.Add(r)
+	var result int64
+	for n := 0; n < b.N; n++ {
+		result = s.estimateSizeInBytes(r)
+	}
+	benchmarkBulkEstimatedSizeInBytes = result // ensure the compiler doesn't optimize
 }

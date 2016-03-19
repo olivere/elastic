@@ -79,7 +79,7 @@ func (s *BulkService) EstimatedSizeInBytes() int64 {
 
 func (s *BulkService) estimateSizeInBytes(r BulkableRequest) int64 {
 	// +1 for the \n
-	return int64(1 + len([]byte(r.String())))
+	return int64(1 + len(r.String()))
 }
 
 func (s *BulkService) NumberOfActions() int {

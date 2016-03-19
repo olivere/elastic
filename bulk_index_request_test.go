@@ -61,3 +61,15 @@ func TestBulkIndexRequestSerialization(t *testing.T) {
 		}
 	}
 }
+
+var bulkIndexRequestSerializationResult string
+
+func BenchmarkBulkIndexRequestSerialization(b *testing.B) {
+	r := NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("1").
+		Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)})
+	var s string
+	for n := 0; n < b.N; n++ {
+		s = r.String()
+	}
+	bulkIndexRequestSerializationResult = s // ensure the compiler doesn't optimize
+}
