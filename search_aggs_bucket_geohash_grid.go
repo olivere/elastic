@@ -3,6 +3,8 @@ package elastic
 type GeohashGridAggregation struct {
 	field           string
 	precision       int
+	size            int
+	shardSize       int
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 }
@@ -10,6 +12,9 @@ type GeohashGridAggregation struct {
 func NewGeohashGridAggregation() *GeohashGridAggregation {
 	return &GeohashGridAggregation{
 		subAggregations: make(map[string]Aggregation),
+		precision:       -1,
+		size:            -1,
+		shardSize:       -1,
 	}
 }
 
@@ -20,6 +25,16 @@ func (a *GeohashGridAggregation) Field(field string) *GeohashGridAggregation {
 
 func (a *GeohashGridAggregation) Precision(precision int) *GeohashGridAggregation {
 	a.precision = precision
+	return a
+}
+
+func (a *GeohashGridAggregation) Size(size int) *GeohashGridAggregation {
+	a.size = size
+	return a
+}
+
+func (a *GeohashGridAggregation) ShardSize(shardSize int) *GeohashGridAggregation {
+	a.shardSize = shardSize
 	return a
 }
 
@@ -54,8 +69,16 @@ func (a *GeohashGridAggregation) Source() (interface{}, error) {
 		opts["field"] = a.field
 	}
 
-	if a.precision != 0 {
+	if a.precision != -1 {
 		opts["precision"] = a.precision
+	}
+
+	if a.size != -1 {
+		opts["size"] = a.size
+	}
+
+	if a.shardSize != -1 {
+		opts["shard_size"] = a.shardSize
 	}
 
 	// AggregationBuilder (SubAggregations)
