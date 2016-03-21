@@ -8,7 +8,7 @@ type GeohashGridAggregation struct {
 }
 
 func NewGeohashGridAggregation() *GeohashGridAggregation {
-	return &GeoHashAggregation{
+	return &GeohashGridAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
 }
@@ -18,9 +18,9 @@ func (a *GeohashGridAggregation) Field(field string) *GeohashGridAggregation {
 	return a
 }
 
-func (a *GeohashGridAggregation) Precision(precision int) 8GeohashGridAggregation {
-    a.precision = precision
-    return a
+func (a *GeohashGridAggregation) Precision(precision int) *GeohashGridAggregation {
+	a.precision = precision
+	return a
 }
 
 func (a *GeohashGridAggregation) SubAggregation(name string, subAggregation Aggregation) *GeohashGridAggregation {
@@ -54,9 +54,9 @@ func (a *GeohashGridAggregation) Source() (interface{}, error) {
 		opts["field"] = a.field
 	}
 
-    if a.precision != 0 {
-        opts["precision"] = a.precision
-    }
+	if a.precision != 0 {
+		opts["precision"] = a.precision
+	}
 
 	// AggregationBuilder (SubAggregations)
 	if len(a.subAggregations) > 0 {
@@ -75,5 +75,5 @@ func (a *GeohashGridAggregation) Source() (interface{}, error) {
 		source["meta"] = a.meta
 	}
 
-    return source, nil
+	return source, nil
 }
