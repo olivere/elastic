@@ -435,6 +435,51 @@ func TestClientSniffOnDefaultURL(t *testing.T) {
 	}
 }
 
+func TestClientExtractHostname(t *testing.T) {
+	tests := []struct {
+		Scheme  string
+		Address string
+		Output  string
+	}{
+		{
+			Scheme:  "http",
+			Address: "",
+			Output:  "",
+		},
+		{
+			Scheme:  "https",
+			Address: "abc",
+			Output:  "",
+		},
+		{
+			Scheme:  "http",
+			Address: "127.0.0.1:19200",
+			Output:  "http://127.0.0.1:19200",
+		},
+		{
+			Scheme:  "https",
+			Address: "127.0.0.1:9200",
+			Output:  "https://127.0.0.1:9200",
+		},
+		{
+			Scheme:  "http",
+			Address: "myelk.local/10.1.0.24:9200",
+			Output:  "http://10.1.0.24:9200",
+		},
+	}
+
+	client, err := NewClient(SetSniff(false), SetHealthcheck(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range tests {
+		got := client.extractHostname(test.Scheme, test.Address)
+		if want := test.Output; want != got {
+			t.Errorf("expected %q; got: %q", want, got)
+		}
+	}
+}
+
 // -- Selector --
 
 func TestClientSelectConnHealthy(t *testing.T) {

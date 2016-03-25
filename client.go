@@ -21,7 +21,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.26"
+	Version = "3.0.27"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -756,10 +756,6 @@ func (c *Client) sniff(timeout time.Duration) error {
 	}
 }
 
-// reSniffHostAndPort is used to extract hostname and port from a result
-// from a Nodes Info API (example: "inet[/127.0.0.1:9200]").
-var reSniffHostAndPort = regexp.MustCompile(`\/([^:]*):([0-9]+)\]`)
-
 // sniffNode sniffs a single node. This method is run as a goroutine
 // in sniff. If successful, it returns the list of node URLs extracted
 // from the result of calling Nodes Info API. Otherwise, an empty array
@@ -797,27 +793,15 @@ func (c *Client) sniffNode(url string) []*conn {
 			switch c.scheme {
 			case "https":
 				for nodeID, node := range info.Nodes {
-					if strings.HasPrefix(node.HTTPSAddress, "inet") {
-						m := reSniffHostAndPort.FindStringSubmatch(node.HTTPSAddress)
-						if len(m) == 3 {
-							url := fmt.Sprintf("https://%s:%s", m[1], m[2])
-							nodes = append(nodes, newConn(nodeID, url))
-						}
-					} else {
-						url := fmt.Sprintf("https://%s", node.HTTPSAddress)
+					url := c.extractHostname("https", node.HTTPSAddress)
+					if url != "" {
 						nodes = append(nodes, newConn(nodeID, url))
 					}
 				}
 			default:
 				for nodeID, node := range info.Nodes {
-					if strings.HasPrefix(node.HTTPAddress, "inet") {
-						m := reSniffHostAndPort.FindStringSubmatch(node.HTTPAddress)
-						if len(m) == 3 {
-							url := fmt.Sprintf("http://%s:%s", m[1], m[2])
-							nodes = append(nodes, newConn(nodeID, url))
-						}
-					} else {
-						url := fmt.Sprintf("http://%s", node.HTTPAddress)
+					url := c.extractHostname("http", node.HTTPAddress)
+					if url != "" {
 						nodes = append(nodes, newConn(nodeID, url))
 					}
 				}
@@ -825,6 +809,27 @@ func (c *Client) sniffNode(url string) []*conn {
 		}
 	}
 	return nodes
+}
+
+// reSniffHostAndPort is used to extract hostname and port from a result
+// from a Nodes Info API (example: "inet[/127.0.0.1:9200]").
+var reSniffHostAndPort = regexp.MustCompile(`\/([^:]*):([0-9]+)\]`)
+
+func (c *Client) extractHostname(scheme, address string) string {
+	if strings.HasPrefix(address, "inet") {
+		m := reSniffHostAndPort.FindStringSubmatch(address)
+		if len(m) == 3 {
+			return fmt.Sprintf("%s://%s:%s", scheme, m[1], m[2])
+		}
+	}
+	s := address
+	if idx := strings.Index(s, "/"); idx >= 0 {
+		s = s[idx+1:]
+	}
+	if strings.Index(s, ":") < 0 {
+		return ""
+	}
+	return fmt.Sprintf("%s://%s", scheme, s)
 }
 
 // updateConns updates the clients' connections with new information
