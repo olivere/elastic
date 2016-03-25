@@ -87,10 +87,12 @@ func (s *BulkService) Pretty(pretty bool) *BulkService {
 	return s
 }
 
-// Add adds a bulkable request, i.e. a BulkIndexRequest, a BulkUpdateRequest,
-// or a BulkDeleteRequest.
-func (s *BulkService) Add(r BulkableRequest) *BulkService {
-	s.requests = append(s.requests, r)
+// Add adds bulkable requests, i.e. BulkIndexRequest, BulkUpdateRequest,
+// and/or BulkDeleteRequest.
+func (s *BulkService) Add(requests ...BulkableRequest) *BulkService {
+	for _, r := range requests {
+		s.requests = append(s.requests, r)
+	}
 	return s
 }
 
