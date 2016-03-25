@@ -462,7 +462,7 @@ func TestBulkEstimatedSizeInBytes(t *testing.T) {
 	}
 }
 
-func TestBulkEstimatedSizeInBytesLength(t *testing.T) {
+func TestBulkEstimateSizeInBytesLength(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 	s := client.Bulk()
 	r := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
@@ -474,14 +474,34 @@ func TestBulkEstimatedSizeInBytesLength(t *testing.T) {
 
 var benchmarkBulkEstimatedSizeInBytes int64
 
-func BenchmarkBulkEstimatedSizeInBytes(b *testing.B) {
+func BenchmarkBulkEstimatedSizeInBytesWith1Request(b *testing.B) {
 	client := setupTestClientAndCreateIndex(b)
 	s := client.Bulk()
-	r := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
-	s = s.Add(r)
 	var result int64
 	for n := 0; n < b.N; n++ {
-		result = s.estimateSizeInBytes(r)
+		s = s.Add(NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("1").Doc(struct{ A string }{"1"}))
+		s = s.Add(NewBulkUpdateRequest().Index(testIndexName).Type("tweet").Id("1").Doc(struct{ A string }{"2"}))
+		s = s.Add(NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1"))
+		result = s.EstimatedSizeInBytes()
+		s.reset()
 	}
+	b.ReportAllocs()
+	benchmarkBulkEstimatedSizeInBytes = result // ensure the compiler doesn't optimize
+}
+
+func BenchmarkBulkEstimatedSizeInBytesWith100Requests(b *testing.B) {
+	client := setupTestClientAndCreateIndex(b)
+	s := client.Bulk()
+	var result int64
+	for n := 0; n < b.N; n++ {
+		for i := 0; i < 100; i++ {
+			s = s.Add(NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("1").Doc(struct{ A string }{"1"}))
+			s = s.Add(NewBulkUpdateRequest().Index(testIndexName).Type("tweet").Id("1").Doc(struct{ A string }{"2"}))
+			s = s.Add(NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1"))
+		}
+		result = s.EstimatedSizeInBytes()
+		s.reset()
+	}
+	b.ReportAllocs()
 	benchmarkBulkEstimatedSizeInBytes = result // ensure the compiler doesn't optimize
 }

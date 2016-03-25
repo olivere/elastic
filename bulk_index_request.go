@@ -95,10 +95,10 @@ func (r *BulkIndexRequest) Doc(doc interface{}) *BulkIndexRequest {
 
 func (r *BulkIndexRequest) String() string {
 	lines, err := r.Source()
-	if err == nil {
-		return strings.Join(lines, "\n")
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
 	}
-	return fmt.Sprintf("error: %v", err)
+	return strings.Join(lines, "\n")
 }
 
 func (r *BulkIndexRequest) Source() ([]string, error) {
