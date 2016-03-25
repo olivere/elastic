@@ -186,6 +186,29 @@ func newBulkProcessorStats(workers int) *BulkProcessorStats {
 	return stats
 }
 
+func (st *BulkProcessorStats) dup() *BulkProcessorStats {
+	dst := new(BulkProcessorStats)
+	dst.Flushed = st.Flushed
+	dst.Committed = st.Committed
+	dst.Indexed = st.Indexed
+	dst.Created = st.Created
+	dst.Updated = st.Updated
+	dst.Deleted = st.Deleted
+	dst.Succeeded = st.Succeeded
+	dst.Failed = st.Failed
+	for _, src := range st.Workers {
+		dst.Workers = append(dst.Workers, src.dup())
+	}
+	return dst
+}
+
+func (st *BulkProcessorWorkerStats) dup() *BulkProcessorWorkerStats {
+	dst := new(BulkProcessorWorkerStats)
+	dst.Queued = st.Queued
+	dst.LastDuration = st.LastDuration
+	return dst
+}
+
 // -- Bulk Processor --
 
 // BulkProcessor encapsulates a task that accepts bulk requests and
@@ -324,7 +347,7 @@ func (p *BulkProcessor) Close() error {
 func (p *BulkProcessor) Stats() BulkProcessorStats {
 	p.statsMu.Lock()
 	defer p.statsMu.Unlock()
-	return *p.stats
+	return *p.stats.dup()
 }
 
 // Add adds a single request to commit by the BulkProcessorService.
