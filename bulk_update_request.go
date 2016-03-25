@@ -132,10 +132,10 @@ func (r *BulkUpdateRequest) Timestamp(timestamp string) *BulkUpdateRequest {
 
 func (r *BulkUpdateRequest) String() string {
 	lines, err := r.Source()
-	if err == nil {
-		return strings.Join(lines, "\n")
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
 	}
-	return fmt.Sprintf("error: %v", err)
+	return strings.Join(lines, "\n")
 }
 
 func (r *BulkUpdateRequest) getSourceAsString(data interface{}) (string, error) {

@@ -14,6 +14,17 @@ import (
 	"gopkg.in/olivere/elastic.v2/uritemplates"
 )
 
+// BulkService allows for batching bulk requests and sending them to
+// Elasticsearch in one roundtrip. Use the Add method with BulkIndexRequest,
+// BulkUpdateRequest, and BulkDeleteRequest to add bulk requests to a batch,
+// then use Do to send them to Elasticsearch.
+//
+// BulkService will be reset after each Do call. In other words, you can
+// reuse BulkService to send many batches. You do not have to create a new
+// BulkService for each batch.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/1.7/docs-bulk.html
+// for more details.
 type BulkService struct {
 	client *Client
 
@@ -25,10 +36,9 @@ type BulkService struct {
 	timeout string
 	refresh *bool
 	pretty  bool
-
-	sizeInBytes int64
 }
 
+// NewBulkService initializes a new BulkService.
 func NewBulkService(client *Client) *BulkService {
 	builder := &BulkService{
 		client:   client,
@@ -39,49 +49,73 @@ func NewBulkService(client *Client) *BulkService {
 
 func (s *BulkService) reset() {
 	s.requests = make([]BulkableRequest, 0)
-	s.sizeInBytes = 0
 }
 
+// Index specifies the index to use for all batches. You may also leave
+// this blank and specify the index in the individual bulk requests.
 func (s *BulkService) Index(index string) *BulkService {
 	s.index = index
 	return s
 }
 
+// Type specifies the type to use for all batches. You may also leave
+// this blank and specify the type in the individual bulk requests.
 func (s *BulkService) Type(_type string) *BulkService {
 	s._type = _type
 	return s
 }
 
+// Timeout is a global timeout for processing bulk requests. This is a
+// server-side timeout, i.e. it tells Elasticsearch the time after which
+// it should stop processing.
 func (s *BulkService) Timeout(timeout string) *BulkService {
 	s.timeout = timeout
 	return s
 }
 
+// Refresh, when set to true, tells Elasticsearch to make the bulk requests
+// available to search immediately after being processed. Normally, this
+// only happens after a specified refresh interval.
 func (s *BulkService) Refresh(refresh bool) *BulkService {
 	s.refresh = &refresh
 	return s
 }
 
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
 func (s *BulkService) Pretty(pretty bool) *BulkService {
 	s.pretty = pretty
 	return s
 }
 
-func (s *BulkService) Add(r BulkableRequest) *BulkService {
-	s.requests = append(s.requests, r)
-	s.sizeInBytes += s.estimateSizeInBytes(r)
+// Add adds bulkable requests, i.e. BulkIndexRequest, BulkUpdateRequest,
+// and/or BulkDeleteRequest.
+func (s *BulkService) Add(requests ...BulkableRequest) *BulkService {
+	for _, r := range requests {
+		s.requests = append(s.requests, r)
+	}
 	return s
 }
 
+// EstimatedSizeInBytes returns the estimated size of all bulkable
+// requests added via Add.
 func (s *BulkService) EstimatedSizeInBytes() int64 {
-	return s.sizeInBytes
+	var size int64
+	for _, r := range s.requests {
+		size += s.estimateSizeInBytes(r)
+	}
+	return size
 }
 
+// estimateSizeInBytes returns the estimates size of the given
+// bulkable request, i.e. BulkIndexRequest, BulkUpdateRequest, and
+// BulkDeleteRequest.
 func (s *BulkService) estimateSizeInBytes(r BulkableRequest) int64 {
 	// +1 for the \n
-	return int64(1 + len([]byte(r.String())))
+	return int64(1 + len(r.String()))
 }
 
+// NumberOfActions returns the number of bulkable requests that need to
+// be sent to Elasticsearch on the next batch.
 func (s *BulkService) NumberOfActions() int {
 	return len(s.requests)
 }
@@ -105,6 +139,9 @@ func (s *BulkService) bodyAsString() (string, error) {
 	return buf.String(), nil
 }
 
+// Do sends the batched requests to Elasticsearch. Note that, when successful,
+// you can reuse the BulkService for the next batch as the list of bulk
+// requests is cleared on success.
 func (s *BulkService) Do() (*BulkResponse, error) {
 	// No actions?
 	if s.NumberOfActions() == 0 {

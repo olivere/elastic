@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -98,6 +98,7 @@ func TestAggs(t *testing.T) {
 	topTagsHitsAgg := NewTopHitsAggregation().Sort("created", false).Size(5).FetchSource(true)
 	topTagsAgg := NewTermsAggregation().Field("tags").Size(3).SubAggregation("top_tag_hits", topTagsHitsAgg)
 	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
+	geoHashAgg := NewGeoHashGridAggregation().Field("location").Precision(5)
 
 	// Run query
 	builder := client.Search().Index(testIndexName).Query(&all)
@@ -125,6 +126,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("queryFilter", queryFilterAgg)
 	builder = builder.Aggregation("top-tags", topTagsAgg)
 	builder = builder.Aggregation("viewport", geoBoundsAgg)
+	builder = builder.Aggregation("geohashed", geoHashAgg)
 	if esversion >= "1.4" {
 		countByUserAgg := NewFiltersAggregation().Filters(NewTermFilter("user", "olivere"), NewTermFilter("user", "sandrae"))
 		builder = builder.Aggregation("countByUser", countByUserAgg)
@@ -827,6 +829,15 @@ func TestAggs(t *testing.T) {
 		t.Errorf("expected %v; got: %v", true, found)
 	}
 	if geoBoundsRes == nil {
+		t.Fatalf("expected != nil; got: nil")
+	}
+
+	// geohashed via geohash
+	geoHashRes, found := agg.GeoHash("geohashed")
+	if !found {
+		t.Errorf("expected %v; got: %v", true, found)
+	}
+	if geoHashRes == nil {
 		t.Fatalf("expected != nil; got: nil")
 	}
 
