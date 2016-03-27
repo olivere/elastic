@@ -120,7 +120,6 @@ func (r *BulkUpdateRequest) Upsert(doc interface{}) *BulkUpdateRequest {
 func (r *BulkUpdateRequest) Ttl(ttl int64) *BulkUpdateRequest {
 	r.ttl = ttl
 	r.source = nil
-	r.source = nil
 	return r
 }
 
