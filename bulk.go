@@ -118,10 +118,10 @@ func (s *BulkService) estimateSizeInBytes(r BulkableRequest) int64 {
 	lines, _ := r.Source()
 	size := 0
 	for _, line := range lines {
-		size += len(line)
+		// +1 for the \n
+		size += len(line) + 1
 	}
-	// +1 for the \n
-	return int64(1 + size)
+	return int64(size)
 }
 
 // NumberOfActions returns the number of bulkable requests that need to
