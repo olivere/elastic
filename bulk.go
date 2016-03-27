@@ -36,6 +36,8 @@ type BulkService struct {
 	timeout string
 	refresh *bool
 	pretty  bool
+
+	sizeInBytes int64
 }
 
 // NewBulkService initializes a new BulkService.
@@ -49,6 +51,7 @@ func NewBulkService(client *Client) *BulkService {
 
 func (s *BulkService) reset() {
 	s.requests = make([]BulkableRequest, 0)
+	s.sizeInBytes = 0
 }
 
 // Index specifies the index to use for all batches. You may also leave
@@ -92,6 +95,7 @@ func (s *BulkService) Pretty(pretty bool) *BulkService {
 func (s *BulkService) Add(requests ...BulkableRequest) *BulkService {
 	for _, r := range requests {
 		s.requests = append(s.requests, r)
+		s.sizeInBytes += s.estimateSizeInBytes(r)
 	}
 	return s
 }
@@ -99,19 +103,25 @@ func (s *BulkService) Add(requests ...BulkableRequest) *BulkService {
 // EstimatedSizeInBytes returns the estimated size of all bulkable
 // requests added via Add.
 func (s *BulkService) EstimatedSizeInBytes() int64 {
-	var size int64
-	for _, r := range s.requests {
-		size += s.estimateSizeInBytes(r)
-	}
-	return size
+	// var size int64
+	// for _, r := range s.requests {
+	// 	size += s.estimateSizeInBytes(r)
+	// }
+	// return size
+	return s.sizeInBytes
 }
 
 // estimateSizeInBytes returns the estimates size of the given
 // bulkable request, i.e. BulkIndexRequest, BulkUpdateRequest, and
 // BulkDeleteRequest.
 func (s *BulkService) estimateSizeInBytes(r BulkableRequest) int64 {
+	lines, _ := r.Source()
+	size := 0
+	for _, line := range lines {
+		size += len(line)
+	}
 	// +1 for the \n
-	return int64(1 + len(r.String()))
+	return int64(1 + size)
 }
 
 // NumberOfActions returns the number of bulkable requests that need to

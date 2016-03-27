@@ -70,6 +70,7 @@ func BenchmarkBulkIndexRequestSerialization(b *testing.B) {
 	var s string
 	for n := 0; n < b.N; n++ {
 		s = r.String()
+		r.source = nil // Don't let caching spoil the benchmark
 	}
 	bulkIndexRequestSerializationResult = s // ensure the compiler doesn't optimize
 }

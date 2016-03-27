@@ -25,6 +25,8 @@ type BulkIndexRequest struct {
 	version     int64  // default is MATCH_ANY
 	versionType string // default is "internal"
 	doc         interface{}
+
+	source []string
 }
 
 func NewBulkIndexRequest() *BulkIndexRequest {
@@ -35,61 +37,73 @@ func NewBulkIndexRequest() *BulkIndexRequest {
 
 func (r *BulkIndexRequest) Index(index string) *BulkIndexRequest {
 	r.index = index
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) Type(typ string) *BulkIndexRequest {
 	r.typ = typ
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) Id(id string) *BulkIndexRequest {
 	r.id = id
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) OpType(opType string) *BulkIndexRequest {
 	r.opType = opType
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) Routing(routing string) *BulkIndexRequest {
 	r.routing = routing
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) Parent(parent string) *BulkIndexRequest {
 	r.parent = parent
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) Timestamp(timestamp string) *BulkIndexRequest {
 	r.timestamp = timestamp
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) Ttl(ttl int64) *BulkIndexRequest {
 	r.ttl = ttl
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) Refresh(refresh bool) *BulkIndexRequest {
 	r.refresh = &refresh
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) Version(version int64) *BulkIndexRequest {
 	r.version = version
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) VersionType(versionType string) *BulkIndexRequest {
 	r.versionType = versionType
+	r.source = nil
 	return r
 }
 
 func (r *BulkIndexRequest) Doc(doc interface{}) *BulkIndexRequest {
 	r.doc = doc
+	r.source = nil
 	return r
 }
 
@@ -104,6 +118,10 @@ func (r *BulkIndexRequest) String() string {
 func (r *BulkIndexRequest) Source() ([]string, error) {
 	// { "index" : { "_index" : "test", "_type" : "type1", "_id" : "1" } }
 	// { "field1" : "value1" }
+
+	if r.source != nil {
+		return r.source, nil
+	}
 
 	lines := make([]string, 2)
 
@@ -169,5 +187,6 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 		lines[1] = "{}"
 	}
 
+	r.source = lines
 	return lines, nil
 }

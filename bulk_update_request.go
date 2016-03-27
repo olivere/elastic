@@ -29,6 +29,8 @@ type BulkUpdateRequest struct {
 	doc             interface{}
 	ttl             int64
 	timestamp       string
+
+	source []string
 }
 
 func NewBulkUpdateRequest() *BulkUpdateRequest {
@@ -37,41 +39,49 @@ func NewBulkUpdateRequest() *BulkUpdateRequest {
 
 func (r *BulkUpdateRequest) Index(index string) *BulkUpdateRequest {
 	r.index = index
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Type(typ string) *BulkUpdateRequest {
 	r.typ = typ
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Id(id string) *BulkUpdateRequest {
 	r.id = id
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Routing(routing string) *BulkUpdateRequest {
 	r.routing = routing
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Parent(parent string) *BulkUpdateRequest {
 	r.parent = parent
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Script(script *Script) *BulkUpdateRequest {
 	r.script = script
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) RetryOnConflict(retryOnConflict int) *BulkUpdateRequest {
 	r.retryOnConflict = &retryOnConflict
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Version(version int64) *BulkUpdateRequest {
 	r.version = version
+	r.source = nil
 	return r
 }
 
@@ -79,36 +89,44 @@ func (r *BulkUpdateRequest) Version(version int64) *BulkUpdateRequest {
 // "external_gt", or "force".
 func (r *BulkUpdateRequest) VersionType(versionType string) *BulkUpdateRequest {
 	r.versionType = versionType
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Refresh(refresh bool) *BulkUpdateRequest {
 	r.refresh = &refresh
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Doc(doc interface{}) *BulkUpdateRequest {
 	r.doc = doc
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) DocAsUpsert(docAsUpsert bool) *BulkUpdateRequest {
 	r.docAsUpsert = &docAsUpsert
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Upsert(doc interface{}) *BulkUpdateRequest {
 	r.upsert = doc
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Ttl(ttl int64) *BulkUpdateRequest {
 	r.ttl = ttl
+	r.source = nil
+	r.source = nil
 	return r
 }
 
 func (r *BulkUpdateRequest) Timestamp(timestamp string) *BulkUpdateRequest {
 	r.timestamp = timestamp
+	r.source = nil
 	return r
 }
 
@@ -145,6 +163,10 @@ func (r BulkUpdateRequest) Source() ([]string, error) {
 	// or
 	// { "update" : { "_index" : "test", "_type" : "type1", "_id" : "1", ... } }
 	// { "script" : { ... } }
+
+	if r.source != nil {
+		return r.source, nil
+	}
 
 	lines := make([]string, 2)
 
@@ -215,5 +237,6 @@ func (r BulkUpdateRequest) Source() ([]string, error) {
 		return nil, err
 	}
 
+	r.source = lines
 	return lines, nil
 }
