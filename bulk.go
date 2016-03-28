@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -29,13 +29,11 @@ type BulkService struct {
 	client *Client
 
 	index    string
-	_type    string
+	typ      string
 	requests []BulkableRequest
-	//replicationType string
-	//consistencyLevel string
-	timeout string
-	refresh *bool
-	pretty  bool
+	timeout  string
+	refresh  *bool
+	pretty   bool
 
 	sizeInBytes int64
 }
@@ -63,8 +61,8 @@ func (s *BulkService) Index(index string) *BulkService {
 
 // Type specifies the type to use for all batches. You may also leave
 // this blank and specify the type in the individual bulk requests.
-func (s *BulkService) Type(_type string) *BulkService {
-	s._type = _type
+func (s *BulkService) Type(typ string) *BulkService {
+	s.typ = typ
 	return s
 }
 
@@ -103,11 +101,6 @@ func (s *BulkService) Add(requests ...BulkableRequest) *BulkService {
 // EstimatedSizeInBytes returns the estimated size of all bulkable
 // requests added via Add.
 func (s *BulkService) EstimatedSizeInBytes() int64 {
-	// var size int64
-	// for _, r := range s.requests {
-	// 	size += s.estimateSizeInBytes(r)
-	// }
-	// return size
 	return s.sizeInBytes
 }
 
@@ -175,9 +168,9 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 		}
 		path += index + "/"
 	}
-	if s._type != "" {
+	if s.typ != "" {
 		typ, err := uritemplates.Expand("{type}", map[string]string{
-			"type": s._type,
+			"type": s.typ,
 		})
 		if err != nil {
 			return nil, err
