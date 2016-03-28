@@ -31,10 +31,10 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 				RetryOnConflict(3).
 				DocAsUpsert(true).
 				Doc(struct {
-					Counter int64 `json:"counter"`
-				}{
-					Counter: 42,
-				}),
+				Counter int64 `json:"counter"`
+			}{
+				Counter: 42,
+			}),
 			Expected: []string{
 				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
 				`{"doc":{"counter":42},"doc_as_upsert":true}`,
@@ -46,10 +46,10 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 				RetryOnConflict(3).
 				Script(NewScript(`ctx._source.retweets += param1`).Lang("javascript").Param("param1", 42)).
 				Upsert(struct {
-					Counter int64 `json:"counter"`
-				}{
-					Counter: 42,
-				}),
+				Counter int64 `json:"counter"`
+			}{
+				Counter: 42,
+			}),
 			Expected: []string{
 				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
 				`{"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}},"upsert":{"counter":42}}`,
@@ -87,6 +87,7 @@ func BenchmarkBulkUpdateRequestSerialization(b *testing.B) {
 	var s string
 	for n := 0; n < b.N; n++ {
 		s = r.String()
+		r.source = nil // Don't let caching spoil the benchmark
 	}
 	bulkUpdateRequestSerializationResult = s // ensure the compiler doesn't optimize
 }
