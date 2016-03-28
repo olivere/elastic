@@ -55,6 +55,15 @@ func TestPutWarmerBuildURL(t *testing.T) {
 func TestWarmerLifecycle(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
+	// Ensure preconditions are met: A green cluster.
+	health, err := client.ClusterHealth().Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := health.Status, "green"; got != want {
+		t.Skipf("precondition failed: expected cluster to be %q, not %q", want, got)
+	}
+
 	mapping := `{
 		"query": {
 			"match_all": {}

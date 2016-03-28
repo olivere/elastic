@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -60,4 +60,17 @@ func TestBulkIndexRequestSerialization(t *testing.T) {
 			}
 		}
 	}
+}
+
+var bulkIndexRequestSerializationResult string
+
+func BenchmarkBulkIndexRequestSerialization(b *testing.B) {
+	r := NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("1").
+		Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)})
+	var s string
+	for n := 0; n < b.N; n++ {
+		s = r.String()
+		r.source = nil // Don't let caching spoil the benchmark
+	}
+	bulkIndexRequestSerializationResult = s // ensure the compiler doesn't optimize
 }

@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -39,4 +39,16 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 			}
 		}
 	}
+}
+
+var bulkDeleteRequestSerializationResult string
+
+func BenchmarkBulkDeleteRequestSerialization(b *testing.B) {
+	r := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
+	var s string
+	for n := 0; n < b.N; n++ {
+		s = r.String()
+		r.source = nil // Don't let caching spoil the benchmark
+	}
+	bulkDeleteRequestSerializationResult = s // ensure the compiler doesn't optimize
 }
