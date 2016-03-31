@@ -188,8 +188,10 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Get API
 - [x] Delete API
 - [x] Update API
+- [x] Update By Query API
 - [x] Multi Get API
 - [x] Bulk API
+- [x] Reindex API
 - [x] Delete By Query API
 - [x] Term Vectors
 - [ ] Multi termvectors API
@@ -315,6 +317,7 @@ The cat APIs are not implemented as of now. We think they are better suited for 
 - [ ] Cluster Update Settings
 - [ ] Nodes Stats
 - [x] Nodes Info
+- [x] Task Management API
 - [ ] Nodes hot_threads
 
 ### Query DSL
