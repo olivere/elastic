@@ -1,6 +1,6 @@
 {
   "indices.stats": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/indices-stats.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/indices-stats.html",
     "methods": ["GET"],
     "url": {
       "path": "/_stats",
@@ -17,7 +17,7 @@
         },
         "metric" : {
           "type" : "list",
-          "options" : ["_all", "completion", "docs", "fielddata", "filter_cache", "flush", "get", "id_cache", "indexing", "merge", "percolate", "query_cache", "refresh", "search", "segments", "store", "warmer", "suggest"],
+          "options" : ["_all", "completion", "docs", "fielddata", "query_cache", "flush", "get", "indexing", "merge", "percolate", "request_cache", "refresh", "search", "segments", "store", "warmer", "suggest"],
           "description" : "Limit the information returned the specific metrics."
         }
       },
@@ -53,8 +53,8 @@
           "type" : "list",
           "description" : "A comma-separated list of document types for the `indexing` index metric"
         }
-      },
-      "body": null
-    }
+      }
+    },
+    "body": null
   }
 }

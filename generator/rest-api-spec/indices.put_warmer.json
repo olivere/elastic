@@ -1,6 +1,6 @@
 {
   "indices.put_warmer": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.6/indices-warmers.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/indices-warmers.html",
     "methods": ["PUT", "POST"],
     "url": {
       "path": "/{index}/_warmer/{name}",
@@ -38,6 +38,10 @@
           "options" : ["open","closed","none","all"],
           "default" : "open",
           "description" : "Whether to expand wildcard expression to concrete indices that are open, closed or both, in the search request to warm."
+        },
+        "request_cache": {
+          "type" : "boolean",
+          "description" : "Specify whether the request to be warmed should use the request cache, defaults to index level setting"
         }
       }
     },

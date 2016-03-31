@@ -1,6 +1,6 @@
 {
   "indices.flush_synced": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/1.7/indices-synced-flush.html",
+    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/indices-synced-flush.html",
     "methods": ["POST", "GET"],
     "url": {
       "path": "/_flush/synced",
@@ -12,7 +12,9 @@
         "index": {
           "type" : "list",
           "description" : "A comma-separated list of index names; use `_all` or empty string for all indices"
-        },
+        }
+      },
+      "params": {
         "ignore_unavailable": {
           "type": "boolean",
           "description": "Whether specified concrete indices should be ignored when unavailable (missing or closed)"

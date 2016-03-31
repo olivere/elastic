@@ -28,6 +28,7 @@
 //go:generate go run builder.go -i=rest-api-spec/count.json
 //go:generate go run builder.go -i=rest-api-spec/count_percolate.json
 //go:generate go run builder.go -i=rest-api-spec/delete.json
+//go:generate go run builder.go -i=rest-api-spec/delete_by_query.json
 //go:generate go run builder.go -i=rest-api-spec/delete_script.json
 //go:generate go run builder.go -i=rest-api-spec/delete_template.json
 //go:generate go run builder.go -i=rest-api-spec/exists.json
@@ -44,6 +45,7 @@
 //go:generate go run builder.go -i=rest-api-spec/indices.create.json
 //go:generate go run builder.go -i=rest-api-spec/indices.delete.json
 //go:generate go run builder.go -i=rest-api-spec/indices.delete_alias.json
+//go:generate go run builder.go -i=rest-api-spec/indices.delete_mapping.json
 //go:generate go run builder.go -i=rest-api-spec/indices.delete_template.json
 //go:generate go run builder.go -i=rest-api-spec/indices.delete_warmer.json
 //go:generate go run builder.go -i=rest-api-spec/indices.exists.json
@@ -72,22 +74,27 @@
 //go:generate go run builder.go -i=rest-api-spec/indices.recovery.json
 //go:generate go run builder.go -i=rest-api-spec/indices.refresh.json
 //go:generate go run builder.go -i=rest-api-spec/indices.segments.json
+//go:generate go run builder.go -i=rest-api-spec/indices.shard_stores.json
 //go:generate go run builder.go -i=rest-api-spec/indices.stats.json
+//go:generate go run builder.go -i=rest-api-spec/indices.status.json
 //go:generate go run builder.go -i=rest-api-spec/indices.update_aliases.json
 //go:generate go run builder.go -i=rest-api-spec/indices.upgrade.json
 //go:generate go run builder.go -i=rest-api-spec/indices.validate_query.json
 //go:generate go run builder.go -i=rest-api-spec/info.json
 //go:generate go run builder.go -i=rest-api-spec/mget.json
+//go:generate go run builder.go -i=rest-api-spec/mlt.json
 //go:generate go run builder.go -i=rest-api-spec/mpercolate.json
 //go:generate go run builder.go -i=rest-api-spec/msearch.json
 //go:generate go run builder.go -i=rest-api-spec/mtermvectors.json
 //go:generate go run builder.go -i=rest-api-spec/nodes.hot_threads.json
 //go:generate go run builder.go -i=rest-api-spec/nodes.info.json
+//go:generate go run builder.go -i=rest-api-spec/nodes.shutdown.json
 //go:generate go run builder.go -i=rest-api-spec/nodes.stats.json
 //go:generate go run builder.go -i=rest-api-spec/percolate.json
 //go:generate go run builder.go -i=rest-api-spec/ping.json
 //go:generate go run builder.go -i=rest-api-spec/put_script.json
 //go:generate go run builder.go -i=rest-api-spec/put_template.json
+//go:generate go run builder.go -i=rest-api-spec/reindex.json
 //go:generate go run builder.go -i=rest-api-spec/render_search_template.json
 //go:generate go run builder.go -i=rest-api-spec/scroll.json
 //go:generate go run builder.go -i=rest-api-spec/search.json
@@ -104,7 +111,10 @@
 //go:generate go run builder.go -i=rest-api-spec/snapshot.status.json
 //go:generate go run builder.go -i=rest-api-spec/snapshot.verify_repository.json
 //go:generate go run builder.go -i=rest-api-spec/suggest.json
+//go:generate go run builder.go -i=rest-api-spec/tasks.cancel.json
+//go:generate go run builder.go -i=rest-api-spec/tasks.list.json
 //go:generate go run builder.go -i=rest-api-spec/termvector.json
 //go:generate go run builder.go -i=rest-api-spec/termvectors.json
 //go:generate go run builder.go -i=rest-api-spec/update.json
+//go:generate go run builder.go -i=rest-api-spec/update_by_query.json
 package main
