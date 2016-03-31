@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -12,12 +13,14 @@ import (
 // query details (see SearchSource).
 // It is used in combination with MultiSearch.
 type SearchRequest struct {
-	searchType string // default in ES is "query_then_fetch"
-	indices    []string
-	types      []string
-	routing    *string
-	preference *string
-	source     interface{}
+	searchType   string // default in ES is "query_then_fetch"
+	indices      []string
+	types        []string
+	routing      *string
+	preference   *string
+	requestCache *bool
+	scroll       string
+	source       interface{}
 }
 
 // NewSearchRequest creates a new search request.
@@ -94,6 +97,20 @@ func (r *SearchRequest) Preference(preference string) *SearchRequest {
 	return r
 }
 
+func (r *SearchRequest) RequestCache(requestCache bool) *SearchRequest {
+	r.requestCache = &requestCache
+	return r
+}
+
+func (r *SearchRequest) Scroll(scroll string) *SearchRequest {
+	r.scroll = scroll
+	return r
+}
+
+func (r *SearchRequest) SearchSource(searchSource *SearchSource) *SearchRequest {
+	return r.Source(searchSource)
+}
+
 func (r *SearchRequest) Source(source interface{}) *SearchRequest {
 	switch v := source.(type) {
 	case *SearchSource:
@@ -109,7 +126,7 @@ func (r *SearchRequest) Source(source interface{}) *SearchRequest {
 	return r
 }
 
-// header is used by MultiSearch to get information about the search header
+// header is used e.g. by MultiSearch to get information about the search header
 // of one SearchRequest.
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-multi-search.html
 func (r *SearchRequest) header() interface{} {
@@ -129,9 +146,9 @@ func (r *SearchRequest) header() interface{} {
 	switch len(r.types) {
 	case 0:
 	case 1:
-		h["types"] = r.types[0]
+		h["type"] = r.types[0]
 	default:
-		h["type"] = r.types
+		h["types"] = r.types
 	}
 
 	if r.routing != nil && *r.routing != "" {
@@ -142,10 +159,18 @@ func (r *SearchRequest) header() interface{} {
 		h["preference"] = *r.preference
 	}
 
+	if r.requestCache != nil {
+		h["request_cache"] = fmt.Sprintf("%v", *r.requestCache)
+	}
+
+	if r.scroll != "" {
+		h["scroll"] = r.scroll
+	}
+
 	return h
 }
 
-// bidy is used by MultiSearch to get information about the search body
+// body is used by MultiSearch to get information about the search body
 // of one SearchRequest.
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-multi-search.html
 func (r *SearchRequest) body() interface{} {

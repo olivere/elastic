@@ -21,7 +21,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.28"
+	Version = "3.0.29"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1194,6 +1194,11 @@ func (c *Client) Update() *UpdateService {
 	return NewUpdateService(c)
 }
 
+// UpdateByQuery performs an update on a set of documents.
+func (c *Client) UpdateByQuery(indices ...string) *UpdateByQueryService {
+	return NewUpdateByQueryService(c).Index(indices...)
+}
+
 // Bulk is the entry point to mass insert/update/delete documents.
 func (c *Client) Bulk() *BulkService {
 	return NewBulkService(c)
@@ -1202,6 +1207,31 @@ func (c *Client) Bulk() *BulkService {
 // BulkProcessor allows setting up a concurrent processor of bulk requests.
 func (c *Client) BulkProcessor() *BulkProcessorService {
 	return NewBulkProcessorService(c)
+}
+
+// Reindex returns a service that will reindex documents from a source
+// index into a target index.
+//
+// Notice that this Reindexer is an Elastic-specific solution that pre-dated
+// the Reindex API introduced in Elasticsearch 2.3.0 (see ReindexTask).
+//
+// See http://www.elastic.co/guide/en/elasticsearch/guide/current/reindex.html
+// for more information about reindexing.
+func (c *Client) Reindex(sourceIndex, targetIndex string) *Reindexer {
+	return NewReindexer(c, sourceIndex, CopyToTargetIndex(targetIndex))
+}
+
+// ReindexTask copies data from a source index into a destination index.
+//
+// The Reindex API has been introduced in Elasticsearch 2.3.0. Notice that
+// there is a Elastic-specific Reindexer that pre-dates the Reindex API from
+// Elasticsearch. If you rely on that, use the ReindexerService via
+// Client.Reindex.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
+// for details on the Reindex API.
+func (c *Client) ReindexTask() *ReindexService {
+	return NewReindexService(c)
 }
 
 // TODO Term Vectors
@@ -1462,6 +1492,16 @@ func (c *Client) NodesInfo() *NodesInfoService {
 	return NewNodesInfoService(c)
 }
 
+// TasksCancel cancels tasks running on the specified nodes.
+func (c *Client) TasksCancel() *TasksCancelService {
+	return NewTasksCancelService(c)
+}
+
+// TasksList retrieves the list of tasks running on the specified nodes.
+func (c *Client) TasksList() *TasksListService {
+	return NewTasksListService(c)
+}
+
 // TODO Pending cluster tasks
 // TODO Cluster Reroute
 // TODO Cluster Update Settings
@@ -1512,14 +1552,6 @@ func (c *Client) IndexNames() ([]string, error) {
 // Notice that you need to specify a URL here explicitly.
 func (c *Client) Ping(url string) *PingService {
 	return NewPingService(c).URL(url)
-}
-
-// Reindex returns a service that will reindex documents from a source
-// index into a target index. See
-// http://www.elastic.co/guide/en/elasticsearch/guide/current/reindex.html
-// for more information about reindexing.
-func (c *Client) Reindex(sourceIndex, targetIndex string) *Reindexer {
-	return NewReindexer(c, sourceIndex, CopyToTargetIndex(targetIndex))
 }
 
 // WaitForStatus waits for the cluster to have the given status.
