@@ -84,3 +84,128 @@ func TestSignificantTermsAggregationWithMetaData(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestSignificantTermsAggregationWithChiSquare(t *testing.T) {
+	agg := NewSignificantTermsAggregation().Field("crime_type")
+	agg = agg.SignificanceHeuristic(
+		NewChiSquareSignificanceHeuristic().
+			BackgroundIsSuperset(true).
+			IncludeNegatives(false),
+	)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_terms":{"chi_square":{"background_is_superset":true,"include_negatives":false},"field":"crime_type"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSignificantTermsAggregationWithGND(t *testing.T) {
+	agg := NewSignificantTermsAggregation().Field("crime_type")
+	agg = agg.SignificanceHeuristic(
+		NewGNDSignificanceHeuristic(),
+	)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_terms":{"field":"crime_type","gnd":{}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSignificantTermsAggregationWithJLH(t *testing.T) {
+	agg := NewSignificantTermsAggregation().Field("crime_type")
+	agg = agg.SignificanceHeuristic(
+		NewJLHScoreSignificanceHeuristic(),
+	)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_terms":{"field":"crime_type","jlh":{}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSignificantTermsAggregationWithMutualInformation(t *testing.T) {
+	agg := NewSignificantTermsAggregation().Field("crime_type")
+	agg = agg.SignificanceHeuristic(
+		NewMutualInformationSignificanceHeuristic().
+			BackgroundIsSuperset(false).
+			IncludeNegatives(true),
+	)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_terms":{"field":"crime_type","mutual_information":{"background_is_superset":false,"include_negatives":true}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSignificantTermsAggregationWithPercentageScore(t *testing.T) {
+	agg := NewSignificantTermsAggregation().Field("crime_type")
+	agg = agg.SignificanceHeuristic(
+		NewPercentageScoreSignificanceHeuristic(),
+	)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_terms":{"field":"crime_type","percentage":{}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSignificantTermsAggregationWithScript(t *testing.T) {
+	agg := NewSignificantTermsAggregation().Field("crime_type")
+	agg = agg.SignificanceHeuristic(
+		NewScriptSignificanceHeuristic().
+			Script(NewScript("_subset_freq/(_superset_freq - _subset_freq + 1)")),
+	)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_terms":{"field":"crime_type","script_heuristic":{"script":"_subset_freq/(_superset_freq - _subset_freq + 1)"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
