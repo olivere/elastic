@@ -16,15 +16,18 @@ import (
 
 // Search for documents in Elasticsearch.
 type SearchService struct {
-	client       *Client
-	searchSource *SearchSource
-	source       interface{}
-	pretty       bool
-	searchType   string
-	indices      []string
-	routing      string
-	preference   string
-	types        []string
+	client            *Client
+	searchSource      *SearchSource
+	source            interface{}
+	pretty            bool
+	searchType        string
+	index             []string
+	typ               []string
+	routing           string
+	preference        string
+	ignoreUnavailable *bool
+	allowNoIndices    *bool
+	expandWildcards   string
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -53,20 +56,20 @@ func (s *SearchService) Source(source interface{}) *SearchService {
 }
 
 // Index sets the names of the indices to use for search.
-func (s *SearchService) Index(indices ...string) *SearchService {
-	if s.indices == nil {
-		s.indices = make([]string, 0)
+func (s *SearchService) Index(index ...string) *SearchService {
+	if s.index == nil {
+		s.index = make([]string, 0)
 	}
-	s.indices = append(s.indices, indices...)
+	s.index = append(s.index, index...)
 	return s
 }
 
 // Types adds search restrictions for a list of types.
-func (s *SearchService) Type(types ...string) *SearchService {
-	if s.types == nil {
-		s.types = make([]string, 0)
+func (s *SearchService) Type(typ ...string) *SearchService {
+	if s.typ == nil {
+		s.typ = make([]string, 0)
 	}
-	s.types = append(s.types, types...)
+	s.typ = append(s.typ, typ...)
 	return s
 }
 
@@ -238,45 +241,55 @@ func (s *SearchService) Fields(fields ...string) *SearchService {
 	return s
 }
 
-// Do executes the search and returns a SearchResult.
-func (s *SearchService) Do() (*SearchResult, error) {
-	// Build url
-	path := "/"
+// IgnoreUnavailable indicates whether the specified concrete indices
+// should be ignored when unavailable (missing or closed).
+func (s *SearchService) IgnoreUnavailable(ignoreUnavailable bool) *SearchService {
+	s.ignoreUnavailable = &ignoreUnavailable
+	return s
+}
 
-	// Indices part
-	indexPart := make([]string, 0)
-	for _, index := range s.indices {
-		index, err := uritemplates.Expand("{index}", map[string]string{
-			"index": index,
+// AllowNoIndices indicates whether to ignore if a wildcard indices
+// expression resolves into no concrete indices. (This includes `_all` string
+// or when no indices have been specified).
+func (s *SearchService) AllowNoIndices(allowNoIndices bool) *SearchService {
+	s.allowNoIndices = &allowNoIndices
+	return s
+}
+
+// ExpandWildcards indicates whether to expand wildcard expression to
+// concrete indices that are open, closed or both.
+func (s *SearchService) ExpandWildcards(expandWildcards string) *SearchService {
+	s.expandWildcards = expandWildcards
+	return s
+}
+
+// buildURL builds the URL for the operation.
+func (s *SearchService) buildURL() (string, url.Values, error) {
+	var err error
+	var path string
+
+	if len(s.index) > 0 && len(s.typ) > 0 {
+		path, err = uritemplates.Expand("/{index}/{type}/_search", map[string]string{
+			"index": strings.Join(s.index, ","),
+			"type":  strings.Join(s.typ, ","),
 		})
-		if err != nil {
-			return nil, err
-		}
-		indexPart = append(indexPart, index)
+	} else if len(s.index) > 0 {
+		path, err = uritemplates.Expand("/{index}/_search", map[string]string{
+			"index": strings.Join(s.index, ","),
+		})
+	} else if len(s.typ) > 0 {
+		path, err = uritemplates.Expand("/_all/{type}/_search", map[string]string{
+			"type": strings.Join(s.typ, ","),
+		})
+	} else {
+		path = "/_search"
 	}
-	path += strings.Join(indexPart, ",")
-
-	// Types part
-	if len(s.types) > 0 {
-		typesPart := make([]string, 0)
-		for _, typ := range s.types {
-			typ, err := uritemplates.Expand("{type}", map[string]string{
-				"type": typ,
-			})
-			if err != nil {
-				return nil, err
-			}
-			typesPart = append(typesPart, typ)
-		}
-		path += "/"
-		path += strings.Join(typesPart, ",")
+	if err != nil {
+		return "", url.Values{}, err
 	}
 
-	// Search
-	path += "/_search"
-
-	// Parameters
-	params := make(url.Values)
+	// Add query string parameters
+	params := url.Values{}
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
@@ -285,6 +298,35 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	}
 	if s.routing != "" {
 		params.Set("routing", s.routing)
+	}
+	if s.allowNoIndices != nil {
+		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+	}
+	if s.expandWildcards != "" {
+		params.Set("expand_wildcards", s.expandWildcards)
+	}
+	if s.ignoreUnavailable != nil {
+		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	}
+	return path, params, nil
+}
+
+// Validate checks if the operation is valid.
+func (s *SearchService) Validate() error {
+	return nil
+}
+
+// Do executes the search and returns a SearchResult.
+func (s *SearchService) Do() (*SearchResult, error) {
+	// Check pre-conditions
+	if err := s.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Get URL for request
+	path, params, err := s.buildURL()
+	if err != nil {
+		return nil, err
 	}
 
 	// Perform request
