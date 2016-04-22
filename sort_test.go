@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -21,6 +21,30 @@ func TestSortInfo(t *testing.T) {
 	}
 	got := string(data)
 	expected := `{"grade":{"order":"desc"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSortInfoComplex(t *testing.T) {
+	builder := SortInfo{
+		Field:        "price",
+		Ascending:    false,
+		Missing:      "_last",
+		SortMode:     "avg",
+		NestedFilter: NewTermQuery("product.color", "blue"),
+		NestedPath:   "variant",
+	}
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"price":{"missing":"_last","mode":"avg","nested_filter":{"term":{"product.color":"blue"}},"nested_path":"variant","order":"desc"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
