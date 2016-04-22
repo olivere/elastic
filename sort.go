@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -40,10 +40,10 @@ func (info SortInfo) Source() interface{} {
 		prop["ignore_unmapped"] = *info.IgnoreUnmapped
 	}
 	if info.SortMode != "" {
-		prop["sort_mode"] = info.SortMode
+		prop["mode"] = info.SortMode
 	}
 	if info.NestedFilter != nil {
-		prop["nested_filter"] = info.NestedFilter
+		prop["nested_filter"] = info.NestedFilter.Source()
 	}
 	if info.NestedPath != "" {
 		prop["nested_path"] = info.NestedPath
