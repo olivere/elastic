@@ -16,7 +16,7 @@ func TestReverseNestedAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{}`
+	expected := `{"reverse_nested":{}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -29,7 +29,7 @@ func TestReverseNestedAggregationWithPath(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"path":"comments"}`
+	expected := `{"reverse_nested":{"path":"comments"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -45,7 +45,7 @@ func TestReverseNestedAggregationWithSubAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"aggregations":{"avg_price":{"avg":{"field":"price"}}},"path":"a_path"}`
+	expected := `{"aggregations":{"avg_price":{"avg":{"field":"price"}}},"reverse_nested":{"path":"a_path"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -60,7 +60,7 @@ func TestReverseNestedAggregationWithMeta(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"meta":{"name":"Oliver"},"path":"a_path"}`
+	expected := `{"meta":{"name":"Oliver"},"reverse_nested":{"path":"a_path"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
