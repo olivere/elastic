@@ -11,7 +11,7 @@ import (
 
 func TestReverseNestedAggregation(t *testing.T) {
 	agg := NewReverseNestedAggregation()
-	data := json.Marshal(agg.Source())
+	data, err := json.Marshal(agg.Source())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
