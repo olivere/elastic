@@ -54,11 +54,14 @@ func (a *ReverseNestedAggregation) Source() (interface{}, error) {
 	//      }
 	//    }
 	//	}
-	// This method returns only the { "path" : "..." } part.
+	// This method returns only the { "reverse_nested" : {} } part.
 
 	source := make(map[string]interface{})
+	opts := make(map[string]interface{})
+	source["reverse_nested"] = opts
+
 	if a.path != "" {
-		source["path"] = a.path
+		opts["path"] = a.path
 	}
 
 	// AggregationBuilder (SubAggregations)
