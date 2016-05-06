@@ -147,7 +147,7 @@ for _, item := range searchResult.Each(reflect.TypeOf(ttyp)) {
 fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
 
 // Here's how you iterate through results with full control over each step.
-if searchResult.Hits != nil {
+if searchResult.Hits.TotalHits != 0 {
     fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
 
     // Iterate through results
