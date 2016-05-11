@@ -16,16 +16,19 @@ import (
 
 // Search for documents in Elasticsearch.
 type SearchService struct {
-	client       *Client
-	searchSource *SearchSource
-	source       interface{}
-	pretty       bool
-	searchType   string
-	indices      []string
-	queryHint    string
-	routing      string
-	preference   string
-	types        []string
+	client            *Client
+	searchSource      *SearchSource
+	source            interface{}
+	pretty            bool
+	searchType        string
+	indices           []string
+	queryHint         string
+	routing           string
+	preference        string
+	types             []string
+	ignoreUnavailable *bool
+	allowNoIndices    *bool
+	expandWildcards   string
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -281,6 +284,28 @@ func (s *SearchService) Fields(fields ...string) *SearchService {
 	return s
 }
 
+// IgnoreUnavailable indicates whether the specified concrete indices
+// should be ignored when unavailable (missing or closed).
+func (s *SearchService) IgnoreUnavailable(ignoreUnavailable bool) *SearchService {
+	s.ignoreUnavailable = &ignoreUnavailable
+	return s
+}
+
+// AllowNoIndices indicates whether to ignore if a wildcard indices
+// expression resolves into no concrete indices. (This includes `_all` string
+// or when no indices have been specified).
+func (s *SearchService) AllowNoIndices(allowNoIndices bool) *SearchService {
+	s.allowNoIndices = &allowNoIndices
+	return s
+}
+
+// ExpandWildcards indicates whether to expand wildcard expression to
+// concrete indices that are open, closed or both.
+func (s *SearchService) ExpandWildcards(expandWildcards string) *SearchService {
+	s.expandWildcards = expandWildcards
+	return s
+}
+
 // Do executes the search and returns a SearchResult.
 func (s *SearchService) Do() (*SearchResult, error) {
 	// Build url
@@ -328,6 +353,15 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	}
 	if s.routing != "" {
 		params.Set("routing", s.routing)
+	}
+	if s.ignoreUnavailable != nil {
+		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	}
+	if s.allowNoIndices != nil {
+		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+	}
+	if s.expandWildcards != "" {
+		params.Set("expand_wildcards", s.expandWildcards)
 	}
 
 	// Perform request
