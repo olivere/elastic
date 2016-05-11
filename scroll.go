@@ -15,20 +15,24 @@ import (
 
 // ScrollService manages a cursor through documents in Elasticsearch.
 type ScrollService struct {
-	client    *Client
-	indices   []string
-	types     []string
-	keepAlive string
-	query     Query
-	size      *int
-	pretty    bool
-	scrollId  string
+	client     *Client
+	indices    []string
+	types      []string
+	keepAlive  string
+	query      Query
+	sorts      []SortInfo
+	sorters    []Sorter
+	size       *int
+	pretty     bool
+	scrollId   string
+	searchType string
 }
 
 func NewScrollService(client *Client) *ScrollService {
 	builder := &ScrollService{
-		client: client,
-		query:  NewMatchAllQuery(),
+		client:     client,
+		query:      NewMatchAllQuery(),
+		searchType: "scan",
 	}
 	return builder
 }
@@ -83,6 +87,33 @@ func (s *ScrollService) ScrollId(scrollId string) *ScrollService {
 	return s
 }
 
+func (s *ScrollService) SearchType(searchType string) *ScrollService {
+	s.searchType = searchType
+	return s
+}
+
+// Sort adds a sort order.
+func (s *ScrollService) Sort(field string, ascending bool) *ScrollService {
+	s.sorts = append(s.sorts, SortInfo{Field: field, Ascending: ascending})
+	return s
+}
+
+// SortWithInfo adds a sort order.
+func (s *ScrollService) SortWithInfo(info SortInfo) *ScrollService {
+	s.sorts = append(s.sorts, info)
+	return s
+}
+
+// SortBy	adds a sort order.
+func (s *ScrollService) SortBy(sorter ...Sorter) *ScrollService {
+	s.sorters = append(s.sorters, sorter...)
+	return s
+}
+
+func (s *ScrollService) hasSort() bool {
+	return len(s.sorts) > 0 || len(s.sorters) > 0
+}
+
 func (s *ScrollService) Do() (*SearchResult, error) {
 	if s.scrollId == "" {
 		return s.GetFirstPage()
@@ -129,8 +160,9 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 
 	// Parameters
 	params := make(url.Values)
-	// TODO: ES 2.1 deprecates search_type=scan. See https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking_21_search_changes.html#_literal_search_type_scan_literal_deprecated.
-	params.Set("search_type", "scan")
+	if s.searchType != "" {
+		params.Set("search_type", s.searchType)
+	}
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
@@ -151,6 +183,28 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 			return nil, err
 		}
 		body["query"] = src
+	}
+
+	if len(s.sorters) > 0 {
+		sortarr := make([]interface{}, 0)
+		for _, sorter := range s.sorters {
+			src, err := sorter.Source()
+			if err != nil {
+				return nil, err
+			}
+			sortarr = append(sortarr, src)
+		}
+		body["sort"] = sortarr
+	} else if len(s.sorts) > 0 {
+		sortarr := make([]interface{}, 0)
+		for _, sort := range s.sorts {
+			src, err := sort.Source()
+			if err != nil {
+				return nil, err
+			}
+			sortarr = append(sortarr, src)
+		}
+		body["sort"] = sortarr
 	}
 
 	// Get response
