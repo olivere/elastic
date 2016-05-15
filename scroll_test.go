@@ -53,7 +53,7 @@ func TestScroll(t *testing.T) {
 	if res.Hits.TotalHits != 3 {
 		t.Errorf("expected results.Hits.TotalHits = %d; got %d", 3, res.Hits.TotalHits)
 	}
-	if len(res.Hits.Hits) != 0 {
+	if len(res.Hits.Hits) != 1 {
 		t.Errorf("expected len(results.Hits.Hits) = %d; got %d", 0, len(res.Hits.Hits))
 	}
 	if res.ScrollId == "" {
@@ -100,7 +100,7 @@ func TestScroll(t *testing.T) {
 		t.Errorf("expected to retrieve at least 1 page; got %d", pages)
 	}
 
-	if numDocs != 3 {
+	if numDocs != 2 {
 		t.Errorf("expected to retrieve %d hits; got %d", 3, numDocs)
 	}
 }
