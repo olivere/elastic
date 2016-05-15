@@ -18,7 +18,6 @@ type BulkDeleteRequest struct {
 	index       string
 	typ         string
 	id          string
-	parent      string
 	routing     string
 	refresh     *bool
 	version     int64  // default is MATCH_ANY
@@ -41,11 +40,6 @@ func (r *BulkDeleteRequest) Type(typ string) *BulkDeleteRequest {
 
 func (r *BulkDeleteRequest) Id(id string) *BulkDeleteRequest {
 	r.id = id
-	return r
-}
-
-func (r *BulkDeleteRequest) Parent(parent string) *BulkDeleteRequest {
-	r.parent = parent
 	return r
 }
 
@@ -92,9 +86,6 @@ func (r *BulkDeleteRequest) Source() ([]string, error) {
 	}
 	if r.id != "" {
 		deleteCommand["_id"] = r.id
-	}
-	if r.parent != "" {
-		deleteCommand["_parent"] = r.parent
 	}
 	if r.routing != "" {
 		deleteCommand["_routing"] = r.routing
