@@ -20,6 +20,20 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 				`{"delete":{"_id":"1","_index":"index1","_type":"tweet"}}`,
 			},
 		},
+		// #1
+		{
+			Request: NewBulkDeleteRequest().Index("index1").Type("tweet").Id("1").Parent("2"),
+			Expected: []string{
+				`{"delete":{"_id":"1","_index":"index1","_parent":"2","_type":"tweet"}}`,
+			},
+		},
+		// #2
+		{
+			Request: NewBulkDeleteRequest().Index("index1").Type("tweet").Id("1").Routing("3"),
+			Expected: []string{
+				`{"delete":{"_id":"1","_index":"index1","_routing":"3","_type":"tweet"}}`,
+			},
+		},
 	}
 
 	for i, test := range tests {
