@@ -21,6 +21,7 @@ type BulkDeleteRequest struct {
 	index       string
 	typ         string
 	id          string
+	parent      string
 	routing     string
 	refresh     *bool
 	version     int64  // default is MATCH_ANY
@@ -53,6 +54,14 @@ func (r *BulkDeleteRequest) Type(typ string) *BulkDeleteRequest {
 // Id specifies the identifier of the document to delete.
 func (r *BulkDeleteRequest) Id(id string) *BulkDeleteRequest {
 	r.id = id
+	r.source = nil
+	return r
+}
+
+// Parent specifies the parent of the request, which is used in parent/child
+// mappings.
+func (r *BulkDeleteRequest) Parent(parent string) *BulkDeleteRequest {
+	r.parent = parent
 	r.source = nil
 	return r
 }
@@ -119,6 +128,9 @@ func (r *BulkDeleteRequest) Source() ([]string, error) {
 	}
 	if r.id != "" {
 		deleteCommand["_id"] = r.id
+	}
+	if r.parent != "" {
+		deleteCommand["_parent"] = r.parent
 	}
 	if r.routing != "" {
 		deleteCommand["_routing"] = r.routing
