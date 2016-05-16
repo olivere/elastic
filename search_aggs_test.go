@@ -12,7 +12,7 @@ import (
 )
 
 func TestAggs(t *testing.T) {
-	//client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndex(t)
 
 	esversion, err := client.ElasticsearchVersion(DefaultURL)
@@ -134,8 +134,15 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("viewport", geoBoundsAgg)
 	builder = builder.Aggregation("geohashed", geoHashAgg)
 	if esversion >= "1.4" {
-		countByUserAgg := NewFiltersAggregation().Filters(NewTermQuery("user", "olivere"), NewTermQuery("user", "sandrae"))
+		// Unnamed filters
+		countByUserAgg := NewFiltersAggregation().
+			Filters(NewTermQuery("user", "olivere"), NewTermQuery("user", "sandrae"))
 		builder = builder.Aggregation("countByUser", countByUserAgg)
+		// Named filters
+		countByUserAgg2 := NewFiltersAggregation().
+			FilterWithName("olivere", NewTermQuery("user", "olivere")).
+			FilterWithName("sandrae", NewTermQuery("user", "sandrae"))
+		builder = builder.Aggregation("countByUser2", countByUserAgg2)
 	}
 	if esversion >= "2.0" {
 		// AvgBucket
@@ -917,7 +924,7 @@ func TestAggs(t *testing.T) {
 	}
 
 	if esversion >= "1.4" {
-		// Filters agg "countByUser"
+		// Filters agg "countByUser" (unnamed)
 		countByUserAggRes, found := agg.Filters("countByUser")
 		if !found {
 			t.Errorf("expected %v; got: %v", true, found)
@@ -928,11 +935,49 @@ func TestAggs(t *testing.T) {
 		if len(countByUserAggRes.Buckets) != 2 {
 			t.Fatalf("expected %d; got: %d", 2, len(countByUserAggRes.Buckets))
 		}
+		if len(countByUserAggRes.NamedBuckets) != 0 {
+			t.Fatalf("expected %d; got: %d", 0, len(countByUserAggRes.NamedBuckets))
+		}
 		if countByUserAggRes.Buckets[0].DocCount != 2 {
 			t.Errorf("expected %d; got: %d", 2, countByUserAggRes.Buckets[0].DocCount)
 		}
 		if countByUserAggRes.Buckets[1].DocCount != 1 {
 			t.Errorf("expected %d; got: %d", 1, countByUserAggRes.Buckets[1].DocCount)
+		}
+
+		// Filters agg "countByUser2" (named)
+		countByUser2AggRes, found := agg.Filters("countByUser2")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if countByUser2AggRes == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if len(countByUser2AggRes.Buckets) != 0 {
+			t.Fatalf("expected %d; got: %d", 0, len(countByUser2AggRes.Buckets))
+		}
+		if len(countByUser2AggRes.NamedBuckets) != 2 {
+			t.Fatalf("expected %d; got: %d", 2, len(countByUser2AggRes.NamedBuckets))
+		}
+		b, found := countByUser2AggRes.NamedBuckets["olivere"]
+		if !found {
+			t.Fatalf("expected bucket %q; got: %v", "olivere", found)
+		}
+		if b == nil {
+			t.Fatalf("expected bucket %q; got: %v", "olivere", b)
+		}
+		if b.DocCount != 2 {
+			t.Errorf("expected %d; got: %d", 2, b.DocCount)
+		}
+		b, found = countByUser2AggRes.NamedBuckets["sandrae"]
+		if !found {
+			t.Fatalf("expected bucket %q; got: %v", "sandrae", found)
+		}
+		if b == nil {
+			t.Fatalf("expected bucket %q; got: %v", "sandrae", b)
+		}
+		if b.DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, b.DocCount)
 		}
 	}
 }

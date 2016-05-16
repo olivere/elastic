@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestFiltersAggregation(t *testing.T) {
+func TestFiltersAggregationFilters(t *testing.T) {
 	f1 := NewRangeQuery("stock").Gt(0)
 	f2 := NewTermQuery("symbol", "GOOG")
 	agg := NewFiltersAggregation().Filters(f1, f2)
@@ -25,6 +25,37 @@ func TestFiltersAggregation(t *testing.T) {
 	expected := `{"filters":{"filters":[{"range":{"stock":{"from":0,"include_lower":false,"include_upper":true,"to":null}}},{"term":{"symbol":"GOOG"}}]}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestFiltersAggregationFilterWithName(t *testing.T) {
+	f1 := NewRangeQuery("stock").Gt(0)
+	f2 := NewTermQuery("symbol", "GOOG")
+	agg := NewFiltersAggregation().
+		FilterWithName("f1", f1).
+		FilterWithName("f2", f2)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"filters":{"filters":{"f1":{"range":{"stock":{"from":0,"include_lower":false,"include_upper":true,"to":null}}},"f2":{"term":{"symbol":"GOOG"}}}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestFiltersAggregationWithKeyedAndNonKeyedFilters(t *testing.T) {
+	agg := NewFiltersAggregation().
+		Filter(NewTermQuery("symbol", "MSFT")).               // unnamed
+		FilterWithName("one", NewTermQuery("symbol", "GOOG")) // named filter
+	_, err := agg.Source()
+	if err == nil {
+		t.Fatal("expected error, got nil")
 	}
 }
 
