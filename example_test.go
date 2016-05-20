@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"time"
 
-	"gopkg.in/olivere/elastic.v3"
+	elastic "gopkg.in/olivere/elastic.v3"
 )
 
 type Tweet struct {
@@ -29,7 +29,7 @@ type Tweet struct {
 func Example() {
 	errorlog := log.New(os.Stdout, "APP ", log.LstdFlags)
 
-	// Obtain a client. You can provide your own HTTP client here.
+	// Obtain a client. You can also provide your own HTTP client here.
 	client, err := elastic.NewClient(elastic.SetErrorLog(errorlog))
 	if err != nil {
 		// Handle error
@@ -152,7 +152,7 @@ func Example() {
 	fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
 
 	// Here's how you iterate through results with full control over each step.
-	if searchResult.Hits != nil {
+	if searchResult.Hits.TotalHits > 0 {
 		fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
 
 		// Iterate through results
@@ -326,7 +326,7 @@ func ExampleSearchService() {
 	fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
 	// Number of hits
-	if searchResult.Hits != nil {
+	if searchResult.Hits.TotalHits > 0 {
 		fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
 
 		// Iterate through results
@@ -422,7 +422,7 @@ func ExampleSearchResult() {
 	fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
 
 	// Here's how you iterate hits with full control.
-	if searchResult.Hits != nil {
+	if searchResult.Hits.TotalHits > 0 {
 		fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
 
 		// Iterate through results
