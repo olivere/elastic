@@ -152,7 +152,7 @@ func Example() {
 	fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
 
 	// Here's how you iterate through results with full control over each step.
-	if searchResult.Hits != nil {
+	if searchResult.Hits.TotalHits > 0 {
 		fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
 
 		// Iterate through results
@@ -326,7 +326,7 @@ func ExampleSearchService() {
 	fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
 	// Number of hits
-	if searchResult.Hits != nil {
+	if searchResult.Hits.TotalHits > 0 {
 		fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
 
 		// Iterate through results
@@ -422,7 +422,7 @@ func ExampleSearchResult() {
 	fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
 
 	// Here's how you iterate hits with full control.
-	if searchResult.Hits != nil {
+	if searchResult.Hits.TotalHits > 0 {
 		fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
 
 		// Iterate through results

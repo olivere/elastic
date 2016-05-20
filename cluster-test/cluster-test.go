@@ -324,7 +324,7 @@ func (t *TestCase) search() {
 		//fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
 		// Number of hits
-		if searchResult.Hits != nil {
+		if searchResult.Hits.TotalHits > 0 {
 			//fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
 
 			// Iterate through results
