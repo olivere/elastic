@@ -21,7 +21,7 @@ func TestRangeQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"range":{"_name":"my_query","postDate":{"from":"2010-03-01","include_lower":true,"include_upper":true,"to":"2010-04-01,"boost":3}}}`
+	expected := `{"range":{"_name":"my_query","postDate":{"boost":3,"from":"2010-03-01","include_lower":true,"include_upper":true,"to":"2010-04-01}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
