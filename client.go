@@ -1278,7 +1278,11 @@ func (c *Client) Percolate() *PercolateService {
 // TODO Search Shards API
 // TODO Search Exists API
 // TODO Validate API
-// TODO Field Stats API
+
+// FieldStats returns statistical information about fields in indices
+func (c *Client) FieldStats(indices ...string) *FieldStatsService {
+	return NewFieldStatsService(c).Indices(indices...)
+}
 
 // Exists checks if a document exists.
 func (c *Client) Exists() *ExistsService {
