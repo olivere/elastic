@@ -130,12 +130,11 @@ func (q *RangeQuery) Source() (interface{}, error) {
 	if q.format != "" {
 		params["format"] = q.format
 	}
+	if q.boost != nil {
+		params["boost"] = *q.boost
+	}
 	params["include_lower"] = q.includeLower
 	params["include_upper"] = q.includeUpper
-
-	if q.boost != nil {
-		rangeQ["boost"] = *q.boost
-	}
 
 	if q.queryName != "" {
 		rangeQ["_name"] = q.queryName
