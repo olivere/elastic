@@ -212,7 +212,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [ ] Validate API
 - [x] Explain API
 - [x] Percolator API
-- [ ] Field Stats API
+- [x] Field Stats API
 
 ### Aggregations
 
