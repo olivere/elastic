@@ -1,3 +1,7 @@
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
+// Use of this source code is governed by a MIT-license.
+// See http://olivere.mit-license.org/license.txt for details.
+
 package elastic
 
 import (
@@ -15,43 +19,47 @@ func TestFieldStatsURLs(t *testing.T) {
 		ExpectedParams url.Values
 	}{
 		{
-			Service: &FieldStatsService{
-				level: ClusterLevel,
-			},
+			Service:        &FieldStatsService{},
 			ExpectedPath:   "/_field_stats",
-			ExpectedParams: url.Values{"level": []string{ClusterLevel}},
+			ExpectedParams: url.Values{},
 		},
 		{
 			Service: &FieldStatsService{
-				level:   IndicesLevel,
-				indices: make([]string, 0),
+				level: FieldStatsClusterLevel,
 			},
 			ExpectedPath:   "/_field_stats",
-			ExpectedParams: url.Values{"level": []string{IndicesLevel}},
+			ExpectedParams: url.Values{"level": []string{FieldStatsClusterLevel}},
 		},
 		{
 			Service: &FieldStatsService{
-				level:   ClusterLevel,
-				indices: []string{"index1"},
+				level: FieldStatsIndicesLevel,
+			},
+			ExpectedPath:   "/_field_stats",
+			ExpectedParams: url.Values{"level": []string{FieldStatsIndicesLevel}},
+		},
+		{
+			Service: &FieldStatsService{
+				level: FieldStatsClusterLevel,
+				index: []string{"index1"},
 			},
 			ExpectedPath:   "/index1/_field_stats",
-			ExpectedParams: url.Values{"level": []string{ClusterLevel}},
+			ExpectedParams: url.Values{"level": []string{FieldStatsClusterLevel}},
 		},
 		{
 			Service: &FieldStatsService{
-				level:   IndicesLevel,
-				indices: []string{"index1", "index2"},
+				level: FieldStatsIndicesLevel,
+				index: []string{"index1", "index2"},
 			},
 			ExpectedPath:   "/index1%2Cindex2/_field_stats",
-			ExpectedParams: url.Values{"level": []string{IndicesLevel}},
+			ExpectedParams: url.Values{"level": []string{FieldStatsIndicesLevel}},
 		},
 		{
 			Service: &FieldStatsService{
-				level:   IndicesLevel,
-				indices: []string{"index_*"},
+				level: FieldStatsIndicesLevel,
+				index: []string{"index_*"},
 			},
 			ExpectedPath:   "/index_%2A/_field_stats",
-			ExpectedParams: url.Values{"level": []string{IndicesLevel}},
+			ExpectedParams: url.Values{"level": []string{FieldStatsIndicesLevel}},
 		},
 	}
 
@@ -69,41 +77,52 @@ func TestFieldStatsURLs(t *testing.T) {
 	}
 }
 
-func TestFieldStatsValid(t *testing.T) {
+func TestFieldStatsValidate(t *testing.T) {
 	tests := []struct {
 		Service *FieldStatsService
 		Valid   bool
 	}{
 		{
-			Service: &FieldStatsService{
-				level: ClusterLevel,
-				body: FieldStatsRequest{
-					Fields:	[]string{"field"},
-				},
-			},
+			Service: &FieldStatsService{},
 			Valid:   true,
 		},
 		{
 			Service: &FieldStatsService{
-				level: IndicesLevel,
-				body: FieldStatsRequest{
-					Fields:	[]string{"field"},
+				fields: []string{"field"},
+			},
+			Valid: true,
+		},
+		{
+			Service: &FieldStatsService{
+				bodyJson: FieldStatsRequest{
+					Fields: []string{"field"},
 				},
 			},
-			Valid:   true,
+			Valid: true,
+		},
+		{
+			Service: &FieldStatsService{
+				level: FieldStatsClusterLevel,
+				bodyJson: FieldStatsRequest{
+					Fields: []string{"field"},
+				},
+			},
+			Valid: true,
+		},
+		{
+			Service: &FieldStatsService{
+				level: FieldStatsIndicesLevel,
+				bodyJson: FieldStatsRequest{
+					Fields: []string{"field"},
+				},
+			},
+			Valid: true,
 		},
 		{
 			Service: &FieldStatsService{
 				level: "random",
 			},
-			Valid:   false,
-		},
-		{
-			Service: &FieldStatsService{
-				level: ClusterLevel,
-				body: FieldStatsRequest{},
-			},
-			Valid:   false,
+			Valid: false,
 		},
 	}
 
@@ -148,7 +167,7 @@ func TestFieldStatsRequestJson(t *testing.T) {
 		t.Errorf("expected field creation_date, didn't find it!")
 	}
 
-	if constraints.Min.Lt != "" {
+	if constraints.Min.Lt != nil {
 		t.Errorf("expected min value less than constraint to be empty, got %v", constraints.Min.Lt)
 	}
 
@@ -209,8 +228,8 @@ func TestFieldStatsResponseUnmarshalling(t *testing.T) {
 		t.Errorf("expected creation_date to be in the fields map, didn't find it")
 	}
 
-	if fieldStats.MinValue != "2008-08-01T16:37:51.513Z" {
-		t.Errorf("expected creation_date min value to be %v, got %v", "2008-08-01T16:37:51.513Z", fieldStats.MinValue)
+	if fieldStats.MinValueAsString != "2008-08-01T16:37:51.513Z" {
+		t.Errorf("expected creation_date min value to be %v, got %v", "2008-08-01T16:37:51.513Z", fieldStats.MinValueAsString)
 	}
 }
 
