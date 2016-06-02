@@ -1239,6 +1239,11 @@ func (c *Client) MultiGet() *MultiGetService {
 	return builder
 }
 
+// FieldStats returns statistical information about fields in indices
+func (c *Client) FieldStats(indices ...string) *FieldStatsService {
+	return NewFieldStatsService(c).Index(indices...)
+}
+
 // Exists checks if a document exists.
 func (c *Client) Exists() *ExistsService {
 	builder := NewExistsService(c)
