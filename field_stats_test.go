@@ -94,7 +94,7 @@ func TestFieldStatsValidate(t *testing.T) {
 		},
 		{
 			Service: &FieldStatsService{
-				bodyJson: FieldStatsRequest{
+				bodyJson: &FieldStatsRequest{
 					Fields: []string{"field"},
 				},
 			},
@@ -103,7 +103,7 @@ func TestFieldStatsValidate(t *testing.T) {
 		{
 			Service: &FieldStatsService{
 				level: FieldStatsClusterLevel,
-				bodyJson: FieldStatsRequest{
+				bodyJson: &FieldStatsRequest{
 					Fields: []string{"field"},
 				},
 			},
@@ -112,7 +112,7 @@ func TestFieldStatsValidate(t *testing.T) {
 		{
 			Service: &FieldStatsService{
 				level: FieldStatsIndicesLevel,
-				bodyJson: FieldStatsRequest{
+				bodyJson: &FieldStatsRequest{
 					Fields: []string{"field"},
 				},
 			},
@@ -135,7 +135,28 @@ func TestFieldStatsValidate(t *testing.T) {
 	}
 }
 
-func TestFieldStatsRequestJson(t *testing.T) {
+func TestFieldStatsRequestSerialize(t *testing.T) {
+	req := &FieldStatsRequest{
+		Fields: []string{"creation_date", "answer_count"},
+		IndexConstraints: map[string]*FieldStatsConstraints{
+			"creation_date": &FieldStatsConstraints{
+				Min: &FieldStatsComparison{Gte: "2014-01-01T00:00:00.000Z"},
+				Max: &FieldStatsComparison{Lt: "2015-01-01T10:00:00.000Z"},
+			},
+		},
+	}
+	data, err := json.Marshal(req)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"fields":["creation_date","answer_count"],"index_constraints":{"creation_date":{"min_value":{"gte":"2014-01-01T00:00:00.000Z"},"max_value":{"lt":"2015-01-01T10:00:00.000Z"}}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestFieldStatsRequestDeserialize(t *testing.T) {
 	body := `{
 		"fields" : ["creation_date", "answer_count"],
    	"index_constraints" : {
@@ -166,15 +187,12 @@ func TestFieldStatsRequestJson(t *testing.T) {
 	if !ok {
 		t.Errorf("expected field creation_date, didn't find it!")
 	}
-
 	if constraints.Min.Lt != nil {
 		t.Errorf("expected min value less than constraint to be empty, got %v", constraints.Min.Lt)
 	}
-
 	if constraints.Min.Gte != "2014-01-01T00:00:00.000Z" {
 		t.Errorf("expected min value >= %v, found %v", "2014-01-01T00:00:00.000Z", constraints.Min.Gte)
 	}
-
 	if constraints.Max.Lt != "2015-01-01T10:00:00.000Z" {
 		t.Errorf("expected max value < %v, found %v", "2015-01-01T10:00:00.000Z", constraints.Max.Lt)
 	}
@@ -227,7 +245,6 @@ func TestFieldStatsResponseUnmarshalling(t *testing.T) {
 	if !ok {
 		t.Errorf("expected creation_date to be in the fields map, didn't find it")
 	}
-
 	if fieldStats.MinValueAsString != "2008-08-01T16:37:51.513Z" {
 		t.Errorf("expected creation_date min value to be %v, got %v", "2008-08-01T16:37:51.513Z", fieldStats.MinValueAsString)
 	}

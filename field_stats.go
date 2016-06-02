@@ -205,25 +205,31 @@ func (s *FieldStatsService) Do() (*FieldStatsResponse, error) {
 	return ret, nil
 }
 
-// FieldStatsRequest is the request body content
+// -- Request --
+
+// FieldStatsRequest can be used to set up the body to be used in the
+// Field Stats API.
 type FieldStatsRequest struct {
-	Fields           []string                    `json:"fields"`
-	IndexConstraints map[string]FieldConstraints `json:"index_constraints,omitempty"`
+	Fields           []string                          `json:"fields"`
+	IndexConstraints map[string]*FieldStatsConstraints `json:"index_constraints,omitempty"`
 }
 
-// FieldConstraints is a constraint on a field
-type FieldConstraints struct {
-	Min *Comparisons `json:"min_value,omitempty"`
-	Max *Comparisons `json:"max_value,omitempty"`
+// FieldStatsConstraints is a constraint on a field.
+type FieldStatsConstraints struct {
+	Min *FieldStatsComparison `json:"min_value,omitempty"`
+	Max *FieldStatsComparison `json:"max_value,omitempty"`
 }
 
-// Comparisons contain all comparison operations
-type Comparisons struct {
+// FieldStatsComparison contain all comparison operations that can be used
+// in FieldStatsConstraints.
+type FieldStatsComparison struct {
 	Lte interface{} `json:"lte,omitempty"`
 	Lt  interface{} `json:"lt,omitempty"`
 	Gte interface{} `json:"gte,omitempty"`
 	Gt  interface{} `json:"gt,omitempty"`
 }
+
+// -- Response --
 
 // FieldStatsResponse is the response body content
 type FieldStatsResponse struct {

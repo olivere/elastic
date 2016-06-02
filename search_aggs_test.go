@@ -2163,7 +2163,7 @@ func TestAggsBucketSampler(t *testing.T) {
 	}
 	sub, found := agg.Aggregations["keywords"]
 	if !found {
-		t.Fatal("expected sub aggregation %q", "keywords")
+		t.Fatalf("expected sub aggregation %q", "keywords")
 	}
 	if sub == nil {
 		t.Fatalf("expected sub aggregation %q; got: %v", "keywords", sub)

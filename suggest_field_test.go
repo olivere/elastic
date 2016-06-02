@@ -15,9 +15,9 @@ func TestSuggestField(t *testing.T) {
 		Output("Golang and Elasticsearch: An introduction.").
 		Weight(1).
 		ContextQuery(
-		NewSuggesterCategoryMapping("color").FieldName("color_field").DefaultValues("red", "green", "blue"),
-		NewSuggesterGeoMapping("location").Precision("5m").Neighbors(true).DefaultLocations(GeoPointFromLatLon(52.516275, 13.377704)),
-	)
+			NewSuggesterCategoryMapping("color").FieldName("color_field").DefaultValues("red", "green", "blue"),
+			NewSuggesterGeoMapping("location").Precision("5m").Neighbors(true).DefaultLocations(GeoPointFromLatLon(52.516275, 13.377704)),
+		)
 	data, err := json.Marshal(field)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
