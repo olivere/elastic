@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -257,7 +256,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 
 	// Return result
 	searchResult := new(SearchResult)
-	if err := json.Unmarshal(res.Body, searchResult); err != nil {
+	if err := s.client.decoder.Decode(res.Body, searchResult); err != nil {
 		return nil, err
 	}
 
@@ -349,7 +348,7 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 
 	// Return result
 	c.Results = &SearchResult{ScrollId: body}
-	if err := json.Unmarshal(res.Body, c.Results); err != nil {
+	if err := c.client.decoder.Decode(res.Body, c.Results); err != nil {
 		return nil, err
 	}
 

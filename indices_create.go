@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"errors"
 	"net/url"
 
@@ -115,7 +114,7 @@ func (b *IndicesCreateService) Do() (*IndicesCreateResult, error) {
 	}
 
 	ret := new(IndicesCreateResult)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := b.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

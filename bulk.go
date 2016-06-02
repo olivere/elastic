@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -199,7 +198,7 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 
 	// Return results
 	ret := new(BulkResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 

@@ -43,7 +43,7 @@ func TestDecoder(t *testing.T) {
 	if indexResult == nil {
 		t.Errorf("expected result to be != nil; got: %v", indexResult)
 	}
-	if dec.N <= 0 {
+	if dec.N == 0 {
 		t.Errorf("expected at least 1 call of decoder; got: %d", dec.N)
 	}
 }

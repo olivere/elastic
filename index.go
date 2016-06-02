@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 
@@ -267,7 +266,7 @@ func (s *IndexService) Do() (*IndexResponse, error) {
 
 	// Return operation response
 	ret := new(IndexResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

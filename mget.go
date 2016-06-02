@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -103,7 +102,7 @@ func (b *MgetService) Do() (*MgetResponse, error) {
 
 	// Return result
 	ret := new(MgetResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := b.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -85,7 +84,7 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 	//   },
 	// }
 	indexMap := make(map[string]interface{})
-	if err := json.Unmarshal(res.Body, &indexMap); err != nil {
+	if err := s.client.decoder.Decode(res.Body, &indexMap); err != nil {
 		return nil, err
 	}
 

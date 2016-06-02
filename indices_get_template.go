@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -112,7 +111,7 @@ func (s *IndicesGetTemplateService) Do() (map[string]*IndicesGetTemplateResponse
 
 	// Return operation response
 	var ret map[string]*IndicesGetTemplateResponse
-	if err := json.Unmarshal(res.Body, &ret); err != nil {
+	if err := s.client.decoder.Decode(res.Body, &ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

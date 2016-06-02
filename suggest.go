@@ -108,18 +108,18 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	// There is a _shard object that cannot be deserialized.
 	// So we use json.RawMessage instead.
 	var suggestions map[string]*json.RawMessage
-	if err := json.Unmarshal(res.Body, &suggestions); err != nil {
+	if err := s.client.decoder.Decode(res.Body, &suggestions); err != nil {
 		return nil, err
 	}
 
 	ret := make(SuggestResult)
 	for name, result := range suggestions {
 		if name != "_shards" {
-			var s []Suggestion
-			if err := json.Unmarshal(*result, &s); err != nil {
+			var sug []Suggestion
+			if err := s.client.decoder.Decode(*result, &sug); err != nil {
 				return nil, err
 			}
-			ret[name] = s
+			ret[name] = sug
 		}
 	}
 

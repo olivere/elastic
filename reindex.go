@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -274,7 +273,7 @@ func (s *ReindexService) Do() (*ReindexResponse, error) {
 
 	// Return operation response
 	ret := new(ReindexResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

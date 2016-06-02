@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -159,7 +158,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 
 	// Return result
 	searchResult := new(SearchResult)
-	if err := json.Unmarshal(res.Body, searchResult); err != nil {
+	if err := s.client.decoder.Decode(res.Body, searchResult); err != nil {
 		return nil, err
 	}
 
@@ -193,7 +192,7 @@ func (s *ScrollService) GetNextPage() (*SearchResult, error) {
 
 	// Return result
 	searchResult := new(SearchResult)
-	if err := json.Unmarshal(res.Body, searchResult); err != nil {
+	if err := s.client.decoder.Decode(res.Body, searchResult); err != nil {
 		return nil, err
 	}
 
