@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -309,7 +308,7 @@ func (s *CountService) Do() (int64, error) {
 
 	// Return result
 	ret := new(CountResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return 0, err
 	}
 	if ret != nil {

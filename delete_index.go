@@ -4,11 +4,7 @@
 
 package elastic
 
-import (
-	"encoding/json"
-
-	"gopkg.in/olivere/elastic.v2/uritemplates"
-)
+import "gopkg.in/olivere/elastic.v2/uritemplates"
 
 type DeleteIndexService struct {
 	client *Client
@@ -44,7 +40,7 @@ func (b *DeleteIndexService) Do() (*DeleteIndexResult, error) {
 
 	// Return result
 	ret := new(DeleteIndexResult)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := b.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

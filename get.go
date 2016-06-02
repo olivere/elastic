@@ -203,7 +203,7 @@ func (b *GetService) Do() (*GetResult, error) {
 
 	// Return result
 	ret := new(GetResult)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := b.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

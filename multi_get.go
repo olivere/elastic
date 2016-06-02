@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -82,7 +81,7 @@ func (b *MultiGetService) Do() (*MultiGetResult, error) {
 
 	// Return result
 	ret := new(MultiGetResult)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := b.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -340,7 +339,7 @@ func (b *UpdateService) Do() (*UpdateResult, error) {
 
 	// Return result
 	ret := new(UpdateResult)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := b.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

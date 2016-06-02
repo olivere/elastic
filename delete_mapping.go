@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
@@ -124,7 +123,7 @@ func (s *DeleteMappingService) Do() (*DeleteMappingResponse, error) {
 
 	// Return operation response
 	ret := new(DeleteMappingResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

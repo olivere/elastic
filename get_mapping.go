@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -156,7 +155,7 @@ func (s *GetMappingService) Do() (map[string]interface{}, error) {
 
 	// Return operation response
 	var ret map[string]interface{}
-	if err := json.Unmarshal(res.Body, &ret); err != nil {
+	if err := s.client.decoder.Decode(res.Body, &ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

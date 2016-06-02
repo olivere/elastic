@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -163,11 +162,11 @@ func (s *ClusterHealthService) Do() (*ClusterHealthResponse, error) {
 	}
 
 	// Return operation response
-	resp := new(ClusterHealthResponse)
-	if err := json.Unmarshal(res.Body, resp); err != nil {
+	ret := new(ClusterHealthResponse)
+	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return ret, nil
 }
 
 // ClusterHealthResponse is the response of ClusterHealthService.Do.

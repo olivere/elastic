@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -114,7 +113,7 @@ func (s *ClusterStatsService) Do() (*ClusterStatsResponse, error) {
 
 	// Return operation response
 	ret := new(ClusterStatsResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

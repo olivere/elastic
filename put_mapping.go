@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
@@ -210,7 +209,7 @@ func (s *PutMappingService) Do() (*PutMappingResponse, error) {
 
 	// Return operation response
 	ret := new(PutMappingResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
