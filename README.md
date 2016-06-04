@@ -109,6 +109,7 @@ _, err = client.Index().
     Type("tweet").
     Id("1").
     BodyJson(tweet).
+    Refresh(true).
     Do()
 if err != nil {
     // Handle error
@@ -176,6 +177,8 @@ if err != nil {
     panic(err)
 }
 ```
+
+Here's a [link to a complete working example](https://gist.github.com/olivere/114347ff9d9cfdca7bdc0ecea8b82263).
 
 See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 
