@@ -299,6 +299,9 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	if s.routing != "" {
 		params.Set("routing", s.routing)
 	}
+	if s.preference != "" {
+		params.Set("preference", s.preference)
+	}
 	if s.allowNoIndices != nil {
 		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
 	}
