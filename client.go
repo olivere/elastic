@@ -1239,7 +1239,14 @@ func (c *Client) ReindexTask() *ReindexService {
 }
 
 // TODO Term Vectors
-// TODO Multi termvectors API
+
+// MultiTermVectors returns information and statistics on terms in the fields
+// of multiple documents.
+func (c *Client) MultiTermVectors(index, typ string) *MultiTermvectorService {
+	builder := NewMultiTermvectorService(c)
+	builder = builder.Index(index).Type(typ)
+	return builder
+}
 
 // -- Search APIs --
 
