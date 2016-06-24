@@ -1248,10 +1248,8 @@ func (c *Client) TermVectors(index, typ string) *TermvectorsService {
 
 // MultiTermVectors returns information and statistics on terms in the fields
 // of multiple documents.
-func (c *Client) MultiTermVectors(index, typ string) *MultiTermvectorService {
-	builder := NewMultiTermvectorService(c)
-	builder = builder.Index(index).Type(typ)
-	return builder
+func (c *Client) MultiTermVectors() *MultiTermvectorService {
+	return NewMultiTermvectorService(c)
 }
 
 // -- Search APIs --

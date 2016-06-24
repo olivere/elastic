@@ -48,7 +48,7 @@ func TestMultiTermVectorsValidateAndBuildURL(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		builder := client.MultiTermVectors(test.Index, test.Type)
+		builder := client.MultiTermVectors().Index(test.Index).Type(test.Type)
 		// Validate
 		err := builder.Validate()
 		if err != nil {
@@ -112,7 +112,9 @@ func TestMultiTermVectorsWithIds(t *testing.T) {
 
 	// MultiTermVectors by specifying ID by 1 and 3
 	field := "Message"
-	res, err := client.MultiTermVectors(testIndexName, "tweet").
+	res, err := client.MultiTermVectors().
+		Index(testIndexName).
+		Type("tweet").
 		Add(NewMultiTermvectorItem().Index(testIndexName).Type("tweet").Id("1").Fields(field)).
 		Add(NewMultiTermvectorItem().Index(testIndexName).Type("tweet").Id("3").Fields(field)).
 		Do()
