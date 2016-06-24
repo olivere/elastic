@@ -136,8 +136,9 @@ type Suggestion struct {
 }
 
 type suggestionOption struct {
-	Text    string      `json:"text"`
-	Score   float64     `json:"score"`
-	Freq    int         `json:"freq"`
-	Payload interface{} `json:"payload"`
+	Text         string      `json:"text"`
+	Score        float64     `json:"score"`
+	Freq         int         `json:"freq"`
+	Payload      interface{} `json:"payload"`
+	CollateMatch bool        `json:"collate_match"`
 }
