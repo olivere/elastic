@@ -190,14 +190,14 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Index API
 - [x] Get API
 - [x] Delete API
+- [x] Delete By Query API
 - [x] Update API
 - [x] Update By Query API
 - [x] Multi Get API
 - [x] Bulk API
 - [x] Reindex API
-- [x] Delete By Query API
 - [x] Term Vectors
-- [ ] Multi termvectors API
+- [x] Multi termvectors API
 
 ### Search APIs
 

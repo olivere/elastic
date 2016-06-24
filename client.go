@@ -1238,8 +1238,21 @@ func (c *Client) ReindexTask() *ReindexService {
 	return NewReindexService(c)
 }
 
-// TODO Term Vectors
-// TODO Multi termvectors API
+// TermVectors returns information and statistics on terms in the fields
+// of a particular document.
+func (c *Client) TermVectors(index, typ string) *TermvectorsService {
+	builder := NewTermvectorsService(c)
+	builder = builder.Index(index).Type(typ)
+	return builder
+}
+
+// MultiTermVectors returns information and statistics on terms in the fields
+// of multiple documents.
+func (c *Client) MultiTermVectors(index, typ string) *MultiTermvectorService {
+	builder := NewMultiTermvectorService(c)
+	builder = builder.Index(index).Type(typ)
+	return builder
+}
 
 // -- Search APIs --
 
@@ -1589,12 +1602,4 @@ func (c *Client) WaitForGreenStatus(timeout string) error {
 // See WaitForStatus for more details.
 func (c *Client) WaitForYellowStatus(timeout string) error {
 	return c.WaitForStatus("yellow", timeout)
-}
-
-// TermVectors returns information and statistics on terms in the fields
-// of a particular document.
-func (c *Client) TermVectors(index, typ string) *TermvectorsService {
-	builder := NewTermvectorsService(c)
-	builder = builder.Index(index).Type(typ)
-	return builder
 }
