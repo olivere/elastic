@@ -238,7 +238,7 @@ func (s *TermvectorService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *TermvectorService) Do() (*TermvectorResponse, error) {
+func (s *TermvectorService) Do() (*TermvectorsResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -276,7 +276,7 @@ func (s *TermvectorService) Do() (*TermvectorResponse, error) {
 	}
 
 	// Return operation response
-	ret := new(TermvectorResponse)
+	ret := new(TermvectorsResponse)
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
@@ -308,8 +308,8 @@ type TermVectorsFieldInfo struct {
 	Terms           map[string]TermsInfo `json:"terms"`
 }
 
-// TermvectorResponse is the response of TermvectorService.Do.
-type TermvectorResponse struct {
+// TermvectorsResponse is the response of TermvectorService.Do.
+type TermvectorsResponse struct {
 	Index       string                          `json:"_index"`
 	Type        string                          `json:"_type"`
 	Id          string                          `json:"_id,omitempty"`

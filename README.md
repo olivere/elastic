@@ -199,7 +199,7 @@ Here's the current API status.
 - [x] Bulk
 - [ ] Bulk UDP
 - [x] Term vectors
-- [ ] Multi term vectors
+- [x] Multi term vectors
 - [x] Count
 - [ ] Validate
 - [x] Explain

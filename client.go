@@ -1500,3 +1500,9 @@ func (c *Client) TermVector(index, typ string) *TermvectorService {
 	builder = builder.Index(index).Type(typ)
 	return builder
 }
+
+// MultiTermVectors returns information and statistics on terms in the fields
+// of multiple documents.
+func (c *Client) MultiTermVectors() *MultiTermvectorService {
+	return NewMultiTermvectorService(c)
+}
