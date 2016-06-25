@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // BulkService allows for batching bulk requests and sending them to
@@ -31,7 +31,7 @@ type BulkService struct {
 	typ      string
 	requests []BulkableRequest
 	timeout  string
-	refresh  *bool
+	refresh  string
 	pretty   bool
 
 	sizeInBytes int64
@@ -73,11 +73,13 @@ func (s *BulkService) Timeout(timeout string) *BulkService {
 	return s
 }
 
-// Refresh, when set to true, tells Elasticsearch to make the bulk requests
-// available to search immediately after being processed. Normally, this
-// only happens after a specified refresh interval.
-func (s *BulkService) Refresh(refresh bool) *BulkService {
-	s.refresh = &refresh
+// Refresh controls when changes made by this request are made visible
+// to search. The allowed values are: "true" (refresh the relevant
+// primary and replica shards immediately), "wait_for" (wait for the
+// changes to be made visible by a refresh before applying), or "false"
+// (no refresh related actions).
+func (s *BulkService) Refresh(refresh string) *BulkService {
+	s.refresh = refresh
 	return s
 }
 
@@ -183,8 +185,8 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
-	if s.refresh != nil {
-		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
+	if s.refresh != "" {
+		params.Set("refresh", s.refresh)
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)

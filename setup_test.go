@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -32,15 +32,20 @@ const (
 		},
 		"tweet":{
 			"properties":{
+				"user":{
+					"type":"keyword"
+				},
+				"message":{
+					"type":"text"
+				},
 				"tags":{
-					"type":"string"
+					"type":"keyword"
 				},
 				"location":{
 					"type":"geo_point"
 				},
 				"suggest_field":{
-					"type":"completion",
-					"payloads":true
+					"type":"completion"
 				}
 			}
 		},
@@ -52,11 +57,10 @@ const (
 		"order":{
 			"properties":{
 				"article":{
-					"type":"string"
+					"type":"text"
 				},
 				"manufacturer":{
-					"type":"string",
-					"index" : "not_analyzed"
+					"type":"keyword"
 				},
 				"price":{
 					"type":"float"

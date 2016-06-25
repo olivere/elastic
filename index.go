@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // IndexService adds or updates a typed JSON document in a specified index,
@@ -31,7 +31,7 @@ type IndexService struct {
 	version     interface{}
 	opType      string
 	versionType string
-	refresh     *bool
+	refresh     string
 	consistency string
 	bodyJson    interface{}
 	bodyString  string
@@ -69,8 +69,8 @@ func (s *IndexService) Consistency(consistency string) *IndexService {
 }
 
 // Refresh the index after performing the operation.
-func (s *IndexService) Refresh(refresh bool) *IndexService {
-	s.refresh = &refresh
+func (s *IndexService) Refresh(refresh string) *IndexService {
+	s.refresh = refresh
 	return s
 }
 
@@ -186,8 +186,8 @@ func (s *IndexService) buildURL() (string, string, url.Values, error) {
 	if s.consistency != "" {
 		params.Set("consistency", s.consistency)
 	}
-	if s.refresh != nil {
-		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
+	if s.refresh != "" {
+		params.Set("refresh", s.refresh)
 	}
 	if s.opType != "" {
 		params.Set("op_type", s.opType)

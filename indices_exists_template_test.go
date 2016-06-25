@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -21,14 +21,13 @@ func TestIndexExistsTemplate(t *testing.T) {
 		"tweet":{
 			"properties":{
 				"tags":{
-					"type":"string"
+					"type":"keyword"
 				},
 				"location":{
 					"type":"geo_point"
 				},
 				"suggest_field":{
-					"type":"completion",
-					"payloads":true
+					"type":"completion"
 				}
 			}
 		}

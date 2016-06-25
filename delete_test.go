@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -66,7 +66,7 @@ func TestDelete(t *testing.T) {
 	}
 
 	// Delete non existent document 99
-	res, err = client.Delete().Index(testIndexName).Type("tweet").Id("99").Refresh(true).Do()
+	res, err = client.Delete().Index(testIndexName).Type("tweet").Id("99").Refresh("true").Do()
 	if err == nil {
 		t.Fatalf("expected error; got: %v", err)
 	}

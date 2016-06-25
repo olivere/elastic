@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // DeleteService allows to delete a typed JSON document from a specified
@@ -28,7 +28,7 @@ type DeleteService struct {
 	versionType string
 	consistency string
 	parent      string
-	refresh     *bool
+	refresh     string
 	replication string
 }
 
@@ -100,8 +100,8 @@ func (s *DeleteService) Parent(parent string) *DeleteService {
 }
 
 // Refresh the index after performing the operation.
-func (s *DeleteService) Refresh(refresh bool) *DeleteService {
-	s.refresh = &refresh
+func (s *DeleteService) Refresh(refresh string) *DeleteService {
+	s.refresh = refresh
 	return s
 }
 
@@ -128,8 +128,8 @@ func (s *DeleteService) buildURL() (string, url.Values, error) {
 	if s.pretty {
 		params.Set("pretty", "1")
 	}
-	if s.refresh != nil {
-		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
+	if s.refresh != "" {
+		params.Set("refresh", s.refresh)
 	}
 	if s.replication != "" {
 		params.Set("replication", s.replication)

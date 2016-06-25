@@ -11,7 +11,7 @@ import (
 
 func TestReindexSourceWithSourceIndexAndDestinationIndex(t *testing.T) {
 	client := setupTestClient(t)
-	out, err := client.ReindexTask().SourceIndex("twitter").DestinationIndex("new_twitter").body()
+	out, err := client.Reindex().SourceIndex("twitter").DestinationIndex("new_twitter").body()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,7 +30,7 @@ func TestReindexSourceWithSourceAndDestinationAndVersionType(t *testing.T) {
 	client := setupTestClient(t)
 	src := NewReindexSource().Index("twitter")
 	dst := NewReindexDestination().Index("new_twitter").VersionType("external")
-	out, err := client.ReindexTask().Source(src).Destination(dst).body()
+	out, err := client.Reindex().Source(src).Destination(dst).body()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestReindexSourceWithSourceAndDestinationAndOpType(t *testing.T) {
 	client := setupTestClient(t)
 	src := NewReindexSource().Index("twitter")
 	dst := NewReindexDestination().Index("new_twitter").OpType("create")
-	out, err := client.ReindexTask().Source(src).Destination(dst).body()
+	out, err := client.Reindex().Source(src).Destination(dst).body()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +68,7 @@ func TestReindexSourceWithConflictsProceed(t *testing.T) {
 	client := setupTestClient(t)
 	src := NewReindexSource().Index("twitter")
 	dst := NewReindexDestination().Index("new_twitter").OpType("create")
-	out, err := client.ReindexTask().Conflicts("proceed").Source(src).Destination(dst).body()
+	out, err := client.Reindex().Conflicts("proceed").Source(src).Destination(dst).body()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -87,7 +87,7 @@ func TestReindexSourceWithProceedOnVersionConflict(t *testing.T) {
 	client := setupTestClient(t)
 	src := NewReindexSource().Index("twitter")
 	dst := NewReindexDestination().Index("new_twitter").OpType("create")
-	out, err := client.ReindexTask().ProceedOnVersionConflict().Source(src).Destination(dst).body()
+	out, err := client.Reindex().ProceedOnVersionConflict().Source(src).Destination(dst).body()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func TestReindexSourceWithQuery(t *testing.T) {
 	client := setupTestClient(t)
 	src := NewReindexSource().Index("twitter").Type("tweet").Query(NewTermQuery("user", "olivere"))
 	dst := NewReindexDestination().Index("new_twitter")
-	out, err := client.ReindexTask().Source(src).Destination(dst).body()
+	out, err := client.Reindex().Source(src).Destination(dst).body()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,7 +125,7 @@ func TestReindexSourceWithMultipleSourceIndicesAndTypes(t *testing.T) {
 	client := setupTestClient(t)
 	src := NewReindexSource().Index("twitter", "blog").Type("tweet", "post")
 	dst := NewReindexDestination().Index("all_together")
-	out, err := client.ReindexTask().Source(src).Destination(dst).body()
+	out, err := client.Reindex().Source(src).Destination(dst).body()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,7 +144,7 @@ func TestReindexSourceWithSourceAndSize(t *testing.T) {
 	client := setupTestClient(t)
 	src := NewReindexSource().Index("twitter").Sort("date", false)
 	dst := NewReindexDestination().Index("new_twitter")
-	out, err := client.ReindexTask().Size(10000).Source(src).Destination(dst).body()
+	out, err := client.Reindex().Size(10000).Source(src).Destination(dst).body()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,7 +164,7 @@ func TestReindexSourceWithScript(t *testing.T) {
 	src := NewReindexSource().Index("twitter")
 	dst := NewReindexDestination().Index("new_twitter").VersionType("external")
 	scr := NewScriptInline("if (ctx._source.foo == 'bar') {ctx._version++; ctx._source.remove('foo')}")
-	out, err := client.ReindexTask().Source(src).Destination(dst).Script(scr).body()
+	out, err := client.Reindex().Source(src).Destination(dst).Script(scr).body()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -183,7 +183,7 @@ func TestReindexSourceWithRouting(t *testing.T) {
 	client := setupTestClient(t)
 	src := NewReindexSource().Index("source").Query(NewMatchQuery("company", "cat"))
 	dst := NewReindexDestination().Index("dest").Routing("=cat")
-	out, err := client.ReindexTask().Source(src).Destination(dst).body()
+	out, err := client.Reindex().Source(src).Destination(dst).body()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -227,7 +227,7 @@ func TestReindex(t *testing.T) {
 	// Simple copying
 	src := NewReindexSource().Index(testIndexName)
 	dst := NewReindexDestination().Index(testIndexName2)
-	res, err := client.ReindexTask().Source(src).Destination(dst).Refresh(true).Do()
+	res, err := client.Reindex().Source(src).Destination(dst).Refresh("true").Do()
 	if err != nil {
 		t.Fatal(err)
 	}

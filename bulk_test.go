@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -10,7 +10,7 @@ import (
 )
 
 func TestBulk(t *testing.T) {
-	//client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
@@ -117,7 +117,7 @@ func TestBulk(t *testing.T) {
 	if bulkRequest.NumberOfActions() != 1 {
 		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 1, bulkRequest.NumberOfActions())
 	}
-	bulkResponse, err = bulkRequest.Do()
+	bulkResponse, err = bulkRequest.Refresh("wait_for").Do()
 	if err != nil {
 		t.Fatal(err)
 	}

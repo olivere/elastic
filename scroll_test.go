@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"encoding/json"
+	"io"
 	_ "net/http"
 	"testing"
 )
@@ -69,14 +70,14 @@ func TestScroll(t *testing.T) {
 			Size(1).
 			ScrollId(scrollId).
 			Do()
-		if err == EOS {
+		if err == io.EOF {
 			break
 		}
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		pages += 1
+		pages++
 
 		for _, hit := range searchResult.Hits.Hits {
 			if hit.Index != testIndexName {
@@ -87,7 +88,7 @@ func TestScroll(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			numDocs += 1
+			numDocs++
 		}
 
 		scrollId = searchResult.ScrollId

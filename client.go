@@ -21,7 +21,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.41"
+	Version = "5.0.0"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -763,7 +763,7 @@ func (c *Client) sniff(timeout time.Duration) error {
 // from the result of calling Nodes Info API. Otherwise, an empty array
 // is returned.
 func (c *Client) sniffNode(url string) []*conn {
-	nodes := make([]*conn, 0)
+	var nodes []*conn
 
 	// Call the Nodes Info API at /_nodes/http
 	req, err := NewRequest("GET", url+"/_nodes/http")
@@ -839,11 +839,10 @@ func (c *Client) extractHostname(scheme, address string) string {
 func (c *Client) updateConns(conns []*conn) {
 	c.connsMu.Lock()
 
-	newConns := make([]*conn, 0)
-
 	// Build up new connections:
 	// If we find an existing connection, use that (including no. of failures etc.).
 	// If we find a new connection, add it.
+	var newConns []*conn
 	for _, conn := range conns {
 		var found bool
 		for _, oldConn := range c.conns {
@@ -1213,28 +1212,11 @@ func (c *Client) BulkProcessor() *BulkProcessorService {
 	return NewBulkProcessorService(c)
 }
 
-// Reindex returns a service that will reindex documents from a source
-// index into a target index.
-//
-// Notice that this Reindexer is an Elastic-specific solution that pre-dated
-// the Reindex API introduced in Elasticsearch 2.3.0 (see ReindexTask).
-//
-// See http://www.elastic.co/guide/en/elasticsearch/guide/current/reindex.html
-// for more information about reindexing.
-func (c *Client) Reindex(sourceIndex, targetIndex string) *Reindexer {
-	return NewReindexer(c, sourceIndex, CopyToTargetIndex(targetIndex))
-}
-
-// ReindexTask copies data from a source index into a destination index.
-//
-// The Reindex API has been introduced in Elasticsearch 2.3.0. Notice that
-// there is a Elastic-specific Reindexer that pre-dates the Reindex API from
-// Elasticsearch. If you rely on that, use the ReindexerService via
-// Client.Reindex.
+// Reindex copies data from a source index into a destination index.
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
 // for details on the Reindex API.
-func (c *Client) ReindexTask() *ReindexService {
+func (c *Client) Reindex() *ReindexService {
 	return NewReindexService(c)
 }
 
@@ -1300,15 +1282,8 @@ func (c *Client) Exists() *ExistsService {
 	return NewExistsService(c)
 }
 
-// Scan through documents. Use this to iterate inside a server process
-// where the results will be processed without returning them to a client.
-func (c *Client) Scan(indices ...string) *ScanService {
-	return NewScanService(c).Index(indices...)
-}
-
 // Scroll through documents. Use this to efficiently scroll through results
-// while returning the results to a client. Use Scan when you don't need
-// to return requests to a client (i.e. not paginating via request/response).
+// while returning the results to a client.
 func (c *Client) Scroll(indices ...string) *ScrollService {
 	return NewScrollService(c).Index(indices...)
 }
@@ -1370,12 +1345,6 @@ func (c *Client) IndexGetSettings(indices ...string) *IndicesGetSettingsService 
 // IndexPutSettings sets settings for all, one or more indices.
 func (c *Client) IndexPutSettings(indices ...string) *IndicesPutSettingsService {
 	return NewIndicesPutSettingsService(c).Index(indices...)
-}
-
-// Optimize asks Elasticsearch to optimize one or more indices.
-// Optimize is deprecated as of Elasticsearch 2.1 and replaced by Forcemerge.
-func (c *Client) Optimize(indices ...string) *OptimizeService {
-	return NewOptimizeService(c).Index(indices...)
 }
 
 // Forcemerge optimizes one or more indices.
@@ -1455,21 +1424,6 @@ func (c *Client) GetMapping() *IndicesGetMappingService {
 // PutMapping registers a mapping.
 func (c *Client) PutMapping() *IndicesPutMappingService {
 	return NewIndicesPutMappingService(c)
-}
-
-// GetWarmer gets one or more warmers by name.
-func (c *Client) GetWarmer() *IndicesGetWarmerService {
-	return NewIndicesGetWarmerService(c)
-}
-
-// PutWarmer registers a warmer.
-func (c *Client) PutWarmer() *IndicesPutWarmerService {
-	return NewIndicesPutWarmerService(c)
-}
-
-// DeleteWarmer deletes one or more warmers.
-func (c *Client) DeleteWarmer() *IndicesDeleteWarmerService {
-	return NewIndicesDeleteWarmerService(c)
 }
 
 // -- cat APIs --

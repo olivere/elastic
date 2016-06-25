@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // DeleteByQueryService deletes documents that match a query.
@@ -197,7 +197,7 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 	}
 
 	// Search
-	path += "/_query"
+	path += "/_delete_by_query"
 
 	// Parameters
 	params := make(url.Values)
@@ -266,10 +266,27 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 
 // DeleteByQueryResult is the outcome of executing Do with DeleteByQueryService.
 type DeleteByQueryResult struct {
-	Took     int64                               `json:"took"`
-	TimedOut bool                                `json:"timed_out"`
-	Indices  map[string]IndexDeleteByQueryResult `json:"_indices"`
-	Failures []shardOperationFailure             `json:"failures"`
+	Took             int64                               `json:"took"`
+	TimedOut         bool                                `json:"timed_out"`
+	Indices          map[string]IndexDeleteByQueryResult `json:"_indices"`
+	Total            int64                               `json:"total"`
+	Updated          int64                               `json:"updated"`
+	Created          int64                               `json:"created"`
+	Deleted          int64                               `json:"deleted"`
+	Batches          int64                               `json:"batches"`
+	VersionConflicts int64                               `json:"version_conflicts"`
+	Noops            int64                               `json:"noops"`
+	Retries          struct {
+		Bulk   int64 `json:"bulk"`
+		Search int64 `json:"search"`
+	} `json:"retries"`
+	Throttled            string                  `json:"throttled"`
+	ThrottledMillis      int64                   `json:"throttled_millis"`
+	RequestsPerSecond    string                  `json:"requests_per_second"`
+	Canceled             string                  `json:"canceled"`
+	ThrottledUntil       string                  `json:"throttled_until"`
+	ThrottledUntilMillis int64                   `json:"throttled_until_millis"`
+	Failures             []shardOperationFailure `json:"failures"`
 }
 
 // IndexNames returns the names of the indices the DeleteByQuery touched.

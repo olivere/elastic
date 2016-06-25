@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -21,7 +21,7 @@ type MgetService struct {
 	pretty     bool
 	preference string
 	realtime   *bool
-	refresh    *bool
+	refresh    string
 	items      []*MultiGetItem
 }
 
@@ -38,8 +38,8 @@ func (b *MgetService) Preference(preference string) *MgetService {
 	return b
 }
 
-func (b *MgetService) Refresh(refresh bool) *MgetService {
-	b.refresh = &refresh
+func (b *MgetService) Refresh(refresh string) *MgetService {
+	b.refresh = refresh
 	return b
 }
 
@@ -84,8 +84,8 @@ func (b *MgetService) Do() (*MgetResponse, error) {
 	if b.preference != "" {
 		params.Add("preference", b.preference)
 	}
-	if b.refresh != nil {
-		params.Add("refresh", fmt.Sprintf("%v", *b.refresh))
+	if b.refresh != "" {
+		params.Add("refresh", b.refresh)
 	}
 
 	// Set body

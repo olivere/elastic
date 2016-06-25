@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -6,10 +6,16 @@ package elastic
 
 import (
 	"fmt"
+	"io"
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v5/uritemplates"
+)
+
+const (
+	// default time the cursor will be kept alive.
+	defaultKeepAlive = "2m"
 )
 
 // ScrollService manages a cursor through documents in Elasticsearch.
@@ -94,7 +100,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	path := "/"
 
 	// Indices part
-	indexPart := make([]string, 0)
+	var indexPart []string
 	for _, index := range s.indices {
 		index, err := uritemplates.Expand("{index}", map[string]string{
 			"index": index,
@@ -109,7 +115,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	}
 
 	// Types
-	typesPart := make([]string, 0)
+	var typesPart []string
 	for _, typ := range s.types {
 		typ, err := uritemplates.Expand("{type}", map[string]string{
 			"type": typ,
@@ -167,7 +173,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 
 func (s *ScrollService) GetNextPage() (*SearchResult, error) {
 	if s.scrollId == "" {
-		return nil, EOS
+		return nil, io.EOF
 	}
 
 	// Build url
@@ -198,7 +204,7 @@ func (s *ScrollService) GetNextPage() (*SearchResult, error) {
 
 	// Determine last page
 	if searchResult == nil || searchResult.Hits == nil || len(searchResult.Hits.Hits) == 0 || searchResult.Hits.TotalHits == 0 {
-		return nil, EOS
+		return nil, io.EOF
 	}
 
 	return searchResult, nil

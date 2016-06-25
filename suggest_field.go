@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -13,7 +13,6 @@ import (
 // http://www.elasticsearch.org/blog/you-complete-me/.
 type SuggestField struct {
 	inputs         []string
-	output         *string
 	payload        interface{}
 	weight         int
 	contextQueries []SuggesterContextQuery
@@ -28,11 +27,6 @@ func (f *SuggestField) Input(input ...string) *SuggestField {
 		f.inputs = make([]string, 0)
 	}
 	f.inputs = append(f.inputs, input...)
-	return f
-}
-
-func (f *SuggestField) Output(output string) *SuggestField {
-	f.output = &output
 	return f
 }
 
@@ -62,10 +56,6 @@ func (f *SuggestField) MarshalJSON() ([]byte, error) {
 		default:
 			source["input"] = f.inputs
 		}
-	}
-
-	if f.output != nil {
-		source["output"] = *f.output
 	}
 
 	if f.payload != nil {

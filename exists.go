@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // ExistsService checks for the existence of a document using HEAD.
@@ -24,7 +24,7 @@ type ExistsService struct {
 	typ        string
 	preference string
 	realtime   *bool
-	refresh    *bool
+	refresh    string
 	routing    string
 	parent     string
 }
@@ -68,8 +68,8 @@ func (s *ExistsService) Realtime(realtime bool) *ExistsService {
 }
 
 // Refresh the shard containing the document before performing the operation.
-func (s *ExistsService) Refresh(refresh bool) *ExistsService {
-	s.refresh = &refresh
+func (s *ExistsService) Refresh(refresh string) *ExistsService {
+	s.refresh = refresh
 	return s
 }
 
@@ -111,8 +111,8 @@ func (s *ExistsService) buildURL() (string, url.Values, error) {
 	if s.realtime != nil {
 		params.Set("realtime", fmt.Sprintf("%v", *s.realtime))
 	}
-	if s.refresh != nil {
-		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
+	if s.refresh != "" {
+		params.Set("refresh", s.refresh)
 	}
 	if s.routing != "" {
 		params.Set("routing", s.routing)

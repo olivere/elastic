@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // UpdateByQueryService is documented at https://www.elastic.co/guide/en/elasticsearch/plugins/master/plugins-reindex.html.
@@ -38,7 +38,7 @@ type UpdateByQueryService struct {
 	lowercaseExpandedTerms *bool
 	preference             string
 	q                      string
-	refresh                *bool
+	refresh                string
 	requestCache           *bool
 	routing                []string
 	scroll                 string
@@ -240,8 +240,8 @@ func (s *UpdateByQueryService) Q(q string) *UpdateByQueryService {
 }
 
 // Refresh indicates whether the effected indexes should be refreshed.
-func (s *UpdateByQueryService) Refresh(refresh bool) *UpdateByQueryService {
-	s.refresh = &refresh
+func (s *UpdateByQueryService) Refresh(refresh string) *UpdateByQueryService {
+	s.refresh = refresh
 	return s
 }
 
@@ -507,8 +507,8 @@ func (s *UpdateByQueryService) buildURL() (string, url.Values, error) {
 	if s.q != "" {
 		params.Set("q", s.q)
 	}
-	if s.refresh != nil {
-		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
+	if s.refresh != "" {
+		params.Set("refresh", s.refresh)
 	}
 	if s.requestCache != nil {
 		params.Set("request_cache", fmt.Sprintf("%v", *s.requestCache))
@@ -640,16 +640,24 @@ func (s *UpdateByQueryService) Do() (*UpdateByQueryResponse, error) {
 
 // UpdateByQueryResponse is the response of UpdateByQueryService.Do.
 type UpdateByQueryResponse struct {
-	Took             int64                   `json:"took"`
-	TimedOut         bool                    `json:"timed_out"`
-	Total            int64                   `json:"total"`
-	Updated          int64                   `json:"updated"`
-	Created          int64                   `json:"created"`
-	Deleted          int64                   `json:"deleted"`
-	Batches          int64                   `json:"batches"`
-	VersionConflicts int64                   `json:"version_conflicts"`
-	Noops            int64                   `json:"noops"`
-	Retries          int64                   `json:"retries"`
-	Canceled         string                  `json:"canceled"`
-	Failures         []shardOperationFailure `json:"failures"`
+	Took             int64 `json:"took"`
+	TimedOut         bool  `json:"timed_out"`
+	Total            int64 `json:"total"`
+	Updated          int64 `json:"updated"`
+	Created          int64 `json:"created"`
+	Deleted          int64 `json:"deleted"`
+	Batches          int64 `json:"batches"`
+	VersionConflicts int64 `json:"version_conflicts"`
+	Noops            int64 `json:"noops"`
+	Retries          struct {
+		Bulk   int64 `json:"bulk"`
+		Search int64 `json:"search"`
+	} `json:"retries"`
+	Throttled            string                  `json:"throttled"`
+	ThrottledMillis      int64                   `json:"throttled_millis"`
+	RequestsPerSecond    string                  `json:"requests_per_second"`
+	Canceled             string                  `json:"canceled"`
+	ThrottledUntil       string                  `json:"throttled_until"`
+	ThrottledUntilMillis int64                   `json:"throttled_until_millis"`
+	Failures             []shardOperationFailure `json:"failures"`
 }

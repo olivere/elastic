@@ -1,10 +1,14 @@
 # Elastic
 
+**WARNING** This branch contains a work-in-progress, preparing
+Elastic 5.0 to be in sync with Elasticsearch 5.0 and the
+[Elastic v5 Stack](https://www.elastic.co/v5).
+
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for the
 [Go](http://www.golang.org/) programming language.
 
-[![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=release-branch.v3)](https://travis-ci.org/olivere/elastic)
-[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](http://godoc.org/gopkg.in/olivere/elastic.v3)
+[![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=release-branch.v5)](https://travis-ci.org/olivere/elastic)
+[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](http://godoc.org/gopkg.in/olivere/elastic.v5)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/olivere/elastic/master/LICENSE)
 
 See the [wiki](https://github.com/olivere/elastic/wiki) for additional information about Elastic.
@@ -12,39 +16,55 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for additional informati
 
 ## Releases
 
-**The release branches (e.g. [`release-branch.v3`](https://github.com/olivere/elastic/tree/release-branch.v3)) are actively being worked on and can break at any time. If you want to use stable versions of Elastic, please use the packages released via [gopkg.in](https://gopkg.in).**
+**The release branches (e.g. [`release-branch.v5`](https://github.com/olivere/elastic/tree/release-branch.v5))
+are actively being worked on and can break at any time. 
+If you want to use stable versions of Elastic, please use the packages released via [gopkg.in](https://gopkg.in).**
 
 Here's the version matrix:
 
 Elasticsearch version | Elastic version -| Package URL
 ----------------------|------------------|------------
+5.x                   | 5.0              | **not released yet** [`gopkg.in/olivere/elastic.v5`](https://gopkg.in/olivere/elastic.v5) ([source](https://github.com/olivere/elastic/tree/release-branch.v5) [doc](http://godoc.org/gopkg.in/olivere/elastic.v5))
 2.x                   | 3.0              | [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3) ([source](https://github.com/olivere/elastic/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/olivere/elastic.v3))
 1.x                   | 2.0              | [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2) ([source](https://github.com/olivere/elastic/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/olivere/elastic.v2))
 0.9-1.3               | 1.0              | [`gopkg.in/olivere/elastic.v1`](https://gopkg.in/olivere/elastic.v1) ([source](https://github.com/olivere/elastic/tree/release-branch.v1) [doc](http://godoc.org/gopkg.in/olivere/elastic.v1))
 
 **Example:**
 
-You have installed Elasticsearch 2.1.1 and want to use Elastic. As listed above, you should use Elastic 3.0. So you first install the stable release of Elastic 3.0 from gopkg.in.
+You have installed Elasticsearch 5.0.0 and want to use Elastic.
+As listed above, you should use Elastic 5.0.
+So you first install the stable release of Elastic 5.0 from gopkg.in.
 
 ```sh
-$ go get gopkg.in/olivere/elastic.v3
+$ go get gopkg.in/olivere/elastic.v5
 ```
 
 You then import it with this import path:
 
 ```go
-import "gopkg.in/olivere/elastic.v3"
+import elastic "gopkg.in/olivere/elastic.v5"
 ```
+
+### Elastic 5.0
+
+Elastic 5.0 targets Elasticsearch 5.0.0 and later. Elasticsearch 5.0.0 is currently
+at alpha 3, [released on 31st May 2016](https://www.elastic.co/blog/elasticsearch-5-0-0-alpha3-released).
+
+Notice that there are will be a lot of [breaking changes in Elasticsearch 5.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking-changes-5.0.html)
+and we used this as an opportunity to [clean up and refactor Elastic](https://github.com/olivere/elastic/blob/release-branch.v5/CHANGELOG-5.0.md)
+as we did in the transition from Elastic 2.0 (for Elasticsearch 1.x) to Elastic 3.0 (for Elasticsearch 2.x).
+
+Furthermore, the jump in version numbers will give us a chance to be in sync with the Elastic Stack.
 
 ### Elastic 3.0
 
-Elastic 3.0 targets Elasticsearch 2.0 and later. Elasticsearch 2.0.0 was [released on 28th October 2015](https://www.elastic.co/blog/elasticsearch-2-0-0-released).
-
-Notice that there are a lot of [breaking changes in Elasticsearch 2.0](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/breaking-changes-2.0.html) and we used this as an opportunity to [clean up and refactor Elastic as well](https://github.com/olivere/elastic/blob/release-branch.v3/CHANGELOG-3.0.md).
+Elastic 3.0 targets Elasticsearch 2.x and is published via [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3).
 
 ### Elastic 2.0
 
 Elastic 2.0 targets Elasticsearch 1.x and is published via [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2).
+
+Elastic 2.0 will only get critical bug fixes. You should update to a recent version.
 
 ### Elastic 1.0
 
@@ -68,7 +88,7 @@ to rewrite your application big time. More often than not it's renaming APIs
 and adding/removing features so that Elastic is in sync with Elasticsearch.
 
 Elastic has been used in production with the following Elasticsearch versions:
-0.90, 1.0-1.7. Furthermore, we use [Travis CI](https://travis-ci.org/)
+0.90, 1.0-1.7, and 2.0-2.3.3. Furthermore, we use [Travis CI](https://travis-ci.org/)
 to test Elastic with the most recent versions of Elasticsearch and Go.
 See the [.travis.yml](https://github.com/olivere/elastic/blob/master/.travis.yml)
 file for the exact matrix and [Travis](https://travis-ci.org/olivere/elastic)
@@ -83,7 +103,8 @@ Having said that, I hope you find the project useful.
 
 ## Getting Started
 
-The first thing you do is to create a [Client](https://github.com/olivere/elastic/blob/master/client.go). The client connects to Elasticsearch on `http://127.0.0.1:9200` by default.
+The first thing you do is to create a [Client](https://github.com/olivere/elastic/blob/master/client.go).
+The client connects to Elasticsearch on `http://127.0.0.1:9200` by default.
 
 You typically create one client for your app. Here's a complete example of
 creating a client, creating an index, adding a document, executing a search etc.
@@ -203,6 +224,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 
 - [x] Search
 - [x] Search Template
+- [ ] Multi Search Template
 - [ ] Search Shards API
 - [x] Suggesters
   - [x] Term Suggester
@@ -214,6 +236,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [ ] Search Exists API
 - [ ] Validate API
 - [x] Explain API
+- [ ] Profile API
 - [x] Percolator API
 - [x] Field Stats API
 
@@ -224,6 +247,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Cardinality
   - [x] Extended Stats
   - [x] Geo Bounds
+  - [ ] Geo Centroid
   - [x] Max
   - [x] Min
   - [x] Percentiles
@@ -243,7 +267,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [ ] GeoHash Grid
   - [x] Global
   - [x] Histogram
-  - [x] IPv4 Range
+  - [x] IP Range
   - [x] Missing
   - [x] Nested
   - [x] Range
@@ -257,11 +281,16 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Max Bucket
   - [x] Min Bucket
   - [x] Sum Bucket
+  - [ ] Stats Bucket
+  - [ ] Extended Stats Bucket
+  - [ ] Percentiles Bucket
   - [x] Moving Average
   - [x] Cumulative Sum
   - [x] Bucket Script
   - [x] Bucket Selector
   - [x] Serial Differencing
+- [ ] Matrix Aggregations
+  - [ ] Matrix Stats
 - [x] Aggregation Metadata
 
 ### Indices APIs
@@ -271,6 +300,8 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Get Index
 - [x] Indices Exists
 - [x] Open / Close Index
+- [ ] Shrink Index
+- [ ] Rollover Index
 - [x] Put Mapping
 - [x] Get Mapping
 - [ ] Get Field Mapping
@@ -280,15 +311,15 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Get Settings
 - [ ] Analyze
 - [x] Index Templates
-- [x] Warmers
+- [ ] Shadow Replica Indices
 - [x] Indices Stats
 - [ ] Indices Segments
 - [ ] Indices Recovery
+- [ ] Indices Shard Stores
 - [ ] Clear Cache
 - [x] Flush
 - [x] Refresh
-- [x] Optimize
-- [ ] Shadow Replica Indices
+- [x] Force Merge
 - [ ] Upgrade
 
 ### cat APIs
@@ -302,13 +333,16 @@ The cat APIs are not implemented as of now. We think they are better suited for 
 - [ ] cat health
 - [ ] cat indices
 - [ ] cat master
+- [ ] cat nodeattrs
 - [ ] cat nodes
 - [ ] cat pending tasks
 - [ ] cat plugins
 - [ ] cat recovery
+- [ ] cat repositories
 - [ ] cat thread pool
 - [ ] cat shards
 - [ ] cat segments
+- [ ] cat snapshots
 
 ### Cluster APIs
 
@@ -322,6 +356,7 @@ The cat APIs are not implemented as of now. We think they are better suited for 
 - [x] Nodes Info
 - [x] Task Management API
 - [ ] Nodes hot_threads
+- [ ] Cluster Allocation Explain API
 
 ### Query DSL
 
@@ -329,6 +364,8 @@ The cat APIs are not implemented as of now. We think they are better suited for 
 - [x] Inner hits
 - Full text queries
   - [x] Match Query
+  - [x] Match Phrase Query
+  - [x] Match Phrase Prefix Query
   - [x] Multi Match Query
   - [x] Common Terms Query
   - [x] Query String Query
@@ -338,7 +375,6 @@ The cat APIs are not implemented as of now. We think they are better suited for 
   - [x] Terms Query
   - [x] Range Query
   - [x] Exists Query
-  - [x] Missing Query
   - [x] Prefix Query
   - [x] Wildcard Query
   - [x] Regexp Query
@@ -352,15 +388,11 @@ The cat APIs are not implemented as of now. We think they are better suited for 
   - [x] Function Score Query
   - [x] Boosting Query
   - [x] Indices Query
-  - [x] And Query (deprecated)
-  - [x] Not Query
-  - [x] Or Query (deprecated)
-  - [ ] Filtered Query (deprecated)
-  - [ ] Limit Query (deprecated)
 - Joining queries
   - [x] Nested Query
   - [x] Has Child Query
   - [x] Has Parent Query
+  - [ ] Parent Id Query
 - Geo queries
   - [ ] GeoShape Query
   - [x] Geo Bounding Box Query
@@ -372,6 +404,7 @@ The cat APIs are not implemented as of now. We think they are better suited for 
   - [x] More Like This Query
   - [x] Template Query
   - [x] Script Query
+  - [ ] Percolate Query
 - Span queries
   - [ ] Span Term Query
   - [ ] Span Multi Term Query
@@ -381,6 +414,8 @@ The cat APIs are not implemented as of now. We think they are better suited for 
   - [ ] Span Not Query
   - [ ] Span Containing Query
   - [ ] Span Within Query
+- [ ] Minimum Should Match
+- [ ] Multi Term Query Rewrite
 
 ### Modules
 
@@ -393,11 +428,14 @@ The cat APIs are not implemented as of now. We think they are better suited for 
 - [x] Sort by geo distance
 - [x] Sort by script
 
-### Scan
+### Scrolling
 
-Scrolling through documents (e.g. `search_type=scan`) are implemented via
-the `Scroll` and `Scan` services. The `ClearScroll` API is implemented as well.
+Scrolling is supported via a  `IteratorService`. It supports an iterator-like interface.
+The `ClearScroll` API is implemented as well.
 
+### Task Management
+
+TODO ...
 
 ## How to contribute
 

@@ -1,4 +1,4 @@
-// Copyright 2012-2016 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"gopkg.in/olivere/elastic.v3/backoff"
+	"gopkg.in/olivere/elastic.v5/backoff"
 )
 
 // BulkProcessorService allows to easily process bulk requests. It allows setting

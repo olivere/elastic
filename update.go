@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // UpdateService updates a document in Elasticsearch.
@@ -27,7 +27,7 @@ type UpdateService struct {
 	version          *int64
 	versionType      string
 	retryOnConflict  *int
-	refresh          *bool
+	refresh          string
 	replicationType  string
 	consistencyLevel string
 	upsert           interface{}
@@ -111,8 +111,8 @@ func (b *UpdateService) VersionType(versionType string) *UpdateService {
 }
 
 // Refresh the index after performing the update.
-func (b *UpdateService) Refresh(refresh bool) *UpdateService {
-	b.refresh = &refresh
+func (b *UpdateService) Refresh(refresh string) *UpdateService {
+	b.refresh = refresh
 	return b
 }
 
@@ -203,8 +203,8 @@ func (b *UpdateService) url() (string, url.Values, error) {
 	if b.timeout != "" {
 		params.Set("timeout", b.timeout)
 	}
-	if b.refresh != nil {
-		params.Set("refresh", fmt.Sprintf("%v", *b.refresh))
+	if b.refresh != "" {
+		params.Set("refresh", b.refresh)
 	}
 	if b.replicationType != "" {
 		params.Set("replication", b.replicationType)

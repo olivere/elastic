@@ -20,7 +20,7 @@ type ReindexService struct {
 	client            *Client
 	pretty            bool
 	consistency       string
-	refresh           *bool
+	refresh           string
 	timeout           string
 	waitForCompletion *bool
 	bodyJson          interface{}
@@ -47,8 +47,8 @@ func (s *ReindexService) Consistency(consistency string) *ReindexService {
 
 // Refresh indicates whether Elasticsearch should refresh the effected indexes
 // immediately.
-func (s *ReindexService) Refresh(refresh bool) *ReindexService {
-	s.refresh = &refresh
+func (s *ReindexService) Refresh(refresh string) *ReindexService {
+	s.refresh = refresh
 	return s
 }
 
@@ -175,8 +175,8 @@ func (s *ReindexService) buildURL() (string, url.Values, error) {
 	if s.consistency != "" {
 		params.Set("consistency", s.consistency)
 	}
-	if s.refresh != nil {
-		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
+	if s.refresh != "" {
+		params.Set("refresh", s.refresh)
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)
@@ -281,18 +281,26 @@ func (s *ReindexService) Do() (*ReindexResponse, error) {
 
 // ReindexResponse is the response of ReindexService.Do.
 type ReindexResponse struct {
-	Took             interface{}             `json:"took"` // 2.3.0 returns "37.7ms" while 2.2 returns 38 for took
-	TimedOut         bool                    `json:"timed_out"`
-	Total            int64                   `json:"total"`
-	Updated          int64                   `json:"updated"`
-	Created          int64                   `json:"created"`
-	Deleted          int64                   `json:"deleted"`
-	Batches          int64                   `json:"batches"`
-	VersionConflicts int64                   `json:"version_conflicts"`
-	Noops            int64                   `json:"noops"`
-	Retries          int64                   `json:"retries"`
-	Canceled         string                  `json:"canceled"`
-	Failures         []shardOperationFailure `json:"failures"`
+	Took             interface{} `json:"took"` // 2.3.0 returns "37.7ms" while 2.2 returns 38 for took
+	TimedOut         bool        `json:"timed_out"`
+	Total            int64       `json:"total"`
+	Updated          int64       `json:"updated"`
+	Created          int64       `json:"created"`
+	Deleted          int64       `json:"deleted"`
+	Batches          int64       `json:"batches"`
+	VersionConflicts int64       `json:"version_conflicts"`
+	Noops            int64       `json:"noops"`
+	Retries          struct {
+		Bulk   int64 `json:"bulk"`
+		Search int64 `json:"search"`
+	} `json:"retries"`
+	Throttled            string                  `json:"throttled"`
+	ThrottledMillis      int64                   `json:"throttled_millis"`
+	RequestsPerSecond    string                  `json:"requests_per_second"`
+	Canceled             string                  `json:"canceled"`
+	ThrottledUntil       string                  `json:"throttled_until"`
+	ThrottledUntilMillis int64                   `json:"throttled_until_millis"`
+	Failures             []shardOperationFailure `json:"failures"`
 }
 
 // -- Source of Reindex --
@@ -314,12 +322,7 @@ type ReindexSource struct {
 
 // NewReindexSource creates a new ReindexSource.
 func NewReindexSource() *ReindexSource {
-	return &ReindexSource{
-		indices: make([]string, 0),
-		types:   make([]string, 0),
-		sorts:   make([]SortInfo, 0),
-		sorters: make([]Sorter, 0),
-	}
+	return &ReindexSource{}
 }
 
 // SearchType is the search operation type. Possible values are
@@ -436,7 +439,7 @@ func (r *ReindexSource) Source() (interface{}, error) {
 	}
 
 	if len(r.sorters) > 0 {
-		sortarr := make([]interface{}, 0)
+		var sortarr []interface{}
 		for _, sorter := range r.sorters {
 			src, err := sorter.Source()
 			if err != nil {
@@ -446,7 +449,7 @@ func (r *ReindexSource) Source() (interface{}, error) {
 		}
 		source["sort"] = sortarr
 	} else if len(r.sorts) > 0 {
-		sortarr := make([]interface{}, 0)
+		var sortarr []interface{}
 		for _, sort := range r.sorts {
 			src, err := sort.Source()
 			if err != nil {

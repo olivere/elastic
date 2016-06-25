@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v3/uritemplates"
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // GetService allows to get a typed JSON document from the index based
@@ -27,7 +27,7 @@ type GetService struct {
 	routing                       string
 	preference                    string
 	fields                        []string
-	refresh                       *bool
+	refresh                       string
 	realtime                      *bool
 	fsc                           *FetchSourceContext
 	version                       interface{}
@@ -43,17 +43,6 @@ func NewGetService(client *Client) *GetService {
 		typ:    "_all",
 	}
 }
-
-/*
-// String returns a string representation of the GetService request.
-func (s *GetService) String() string {
-	return fmt.Sprintf("[%v][%v][%v]: routing [%v]",
-		s.index,
-		s.typ,
-		s.id,
-		s.routing)
-}
-*/
 
 // Index is the name of the index.
 func (s *GetService) Index(index string) *GetService {
@@ -116,8 +105,8 @@ func (s *GetService) FetchSourceContext(fetchSourceContext *FetchSourceContext) 
 }
 
 // Refresh the shard containing the document before performing the operation.
-func (s *GetService) Refresh(refresh bool) *GetService {
-	s.refresh = &refresh
+func (s *GetService) Refresh(refresh string) *GetService {
+	s.refresh = refresh
 	return s
 }
 
@@ -199,8 +188,8 @@ func (s *GetService) buildURL() (string, url.Values, error) {
 	if len(s.fields) > 0 {
 		params.Set("fields", strings.Join(s.fields, ","))
 	}
-	if s.refresh != nil {
-		params.Set("refresh", fmt.Sprintf("%v", *s.refresh))
+	if s.refresh != "" {
+		params.Set("refresh", s.refresh)
 	}
 	if s.version != nil {
 		params.Set("version", fmt.Sprintf("%v", s.version))
