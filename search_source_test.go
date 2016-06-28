@@ -217,6 +217,27 @@ func TestSearchSourceIndexBoost(t *testing.T) {
 	}
 }
 
+func TestSearchSourceMixDifferentSorters(t *testing.T) {
+	matchAllQ := NewMatchAllQuery()
+	builder := NewSearchSource().Query(matchAllQ).
+		Sort("a", false).
+		SortWithInfo(SortInfo{Field: "b", Ascending: true}).
+		SortBy(NewScriptSort(NewScript("doc['field_name'].value * factor").Param("factor", 1.1), "number"))
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"query":{"match_all":{}},"sort":[{"a":{"order":"desc"}},{"b":{"order":"asc"}},{"_script":{"script":{"inline":"doc['field_name'].value * factor","params":{"factor":1.1}},"type":"number"}}]}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestSearchSourceInnerHits(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	builder := NewSearchSource().Query(matchAllQ).
