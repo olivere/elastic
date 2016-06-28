@@ -17,7 +17,6 @@ type SearchSource struct {
 	size                     int
 	explain                  *bool
 	version                  *bool
-	sorts                    []SortInfo
 	sorters                  []Sorter
 	trackScores              bool
 	minScore                 *float64
@@ -44,7 +43,6 @@ func NewSearchSource() *SearchSource {
 		from:            -1,
 		size:            -1,
 		trackScores:     false,
-		sorts:           make([]SortInfo, 0),
 		sorters:         make([]Sorter, 0),
 		fieldDataFields: make([]string, 0),
 		scriptFields:    make([]*ScriptField, 0),
@@ -124,13 +122,13 @@ func (s *SearchSource) TerminateAfter(terminateAfter int) *SearchSource {
 
 // Sort adds a sort order.
 func (s *SearchSource) Sort(field string, ascending bool) *SearchSource {
-	s.sorts = append(s.sorts, SortInfo{Field: field, Ascending: ascending})
+	s.sorters = append(s.sorters, SortInfo{Field: field, Ascending: ascending})
 	return s
 }
 
 // SortWithInfo adds a sort order.
 func (s *SearchSource) SortWithInfo(info SortInfo) *SearchSource {
-	s.sorts = append(s.sorts, info)
+	s.sorters = append(s.sorters, info)
 	return s
 }
 
@@ -141,7 +139,7 @@ func (s *SearchSource) SortBy(sorter ...Sorter) *SearchSource {
 }
 
 func (s *SearchSource) hasSort() bool {
-	return len(s.sorts) > 0 || len(s.sorters) > 0
+	return len(s.sorters) > 0
 }
 
 // TrackScores is applied when sorting and controls if scores will be
@@ -369,16 +367,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 		sortarr := make([]interface{}, 0)
 		for _, sorter := range s.sorters {
 			src, err := sorter.Source()
-			if err != nil {
-				return nil, err
-			}
-			sortarr = append(sortarr, src)
-		}
-		source["sort"] = sortarr
-	} else if len(s.sorts) > 0 {
-		sortarr := make([]interface{}, 0)
-		for _, sort := range s.sorts {
-			src, err := sort.Source()
 			if err != nil {
 				return nil, err
 			}
