@@ -1372,6 +1372,15 @@ func (c *Client) IndexPutSettings(indices ...string) *IndicesPutSettingsService 
 	return NewIndicesPutSettingsService(c).Index(indices...)
 }
 
+// Index Analyzer analyzer text for debug purpose
+func (c *Client) IndexAnalyze(indices ...string) *IndicesAnalyzeService {
+	if len(indices) > 0 {
+		return NewIndicesAnalyzeService(c).Index(indices[0])
+	} else {
+		return NewIndicesAnalyzeService(c)
+	}
+}
+
 // Optimize asks Elasticsearch to optimize one or more indices.
 // Optimize is deprecated as of Elasticsearch 2.1 and replaced by Forcemerge.
 func (c *Client) Optimize(indices ...string) *OptimizeService {
