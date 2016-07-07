@@ -26,6 +26,7 @@ type MultiTermvectorService struct {
 	typ             string
 	fieldStatistics *bool
 	fields          []string
+	filter          *MultiTermvectorFilterSettings
 	ids             []string
 	offsets         *bool
 	parent          string
@@ -82,6 +83,12 @@ func (s *MultiTermvectorService) FieldStatistics(fieldStatistics bool) *MultiTer
 // Fields is a comma-separated list of fields to return. Applies to all returned documents unless otherwise specified in body "params" or "docs".
 func (s *MultiTermvectorService) Fields(fields []string) *MultiTermvectorService {
 	s.fields = fields
+	return s
+}
+
+// Filter adds terms filter settings.
+func (s *MultiTermvectorService) Filter(filter *MultiTermvectorFilterSettings) *MultiTermvectorService {
+	s.filter = filter
 	return s
 }
 
@@ -238,6 +245,9 @@ func (s *MultiTermvectorService) buildURL() (string, url.Values, error) {
 	if s.versionType != "" {
 		params.Set("version_type", s.versionType)
 	}
+	if s.filter != nil {
+		params.Set("filter", fmt.Sprintf("%v", s.filter.Source()))
+	}
 	return path, params, nil
 }
 
@@ -305,6 +315,7 @@ type MultiTermvectorItem struct {
 	doc              interface{}
 	fieldStatistics  *bool
 	fields           []string
+	filter           *MultiTermvectorFilterSettings
 	perFieldAnalyzer map[string]string
 	offsets          *bool
 	parent           string
@@ -354,6 +365,12 @@ func (s *MultiTermvectorItem) Fields(fields ...string) *MultiTermvectorItem {
 		s.fields = make([]string, 0)
 	}
 	s.fields = append(s.fields, fields...)
+	return s
+}
+
+// Filter adds terms filter settings.
+func (s *MultiTermvectorItem) Filter(filter *MultiTermvectorFilterSettings) *MultiTermvectorItem {
+	s.filter = filter
 	return s
 }
 
@@ -464,6 +481,99 @@ func (s *MultiTermvectorItem) Source() interface{} {
 	if s.perFieldAnalyzer != nil && len(s.perFieldAnalyzer) > 0 {
 		source["per_field_analyzer"] = s.perFieldAnalyzer
 	}
+	if s.filter != nil {
+		source["filter"] = s.filter.Source()
+	}
 
+	return source
+}
+
+// -- Filter settings --
+
+// MultiTermvectorFilterSettings adds additional filters to a MultiTermsvector request.
+// It allows to filter terms based on their tf-idf scores.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/2.3/docs-termvectors.html#_terms_filtering
+// for more information.
+type MultiTermvectorFilterSettings struct {
+	maxNumTerms   *int64
+	minTermFreq   *int64
+	maxTermFreq   *int64
+	minDocFreq    *int64
+	maxDocFreq    *int64
+	minWordLength *int64
+	maxWordLength *int64
+}
+
+// NewMultiTermvectorFilterSettings creates and initializes a new MultiTermvectorFilterSettings struct.
+func NewMultiTermvectorFilterSettings() *MultiTermvectorFilterSettings {
+	return &MultiTermvectorFilterSettings{}
+}
+
+// MaxNumTerms specifies the maximum number of terms the must be returned per field.
+func (fs *MultiTermvectorFilterSettings) MaxNumTerms(value int64) *MultiTermvectorFilterSettings {
+	fs.maxNumTerms = &value
+	return fs
+}
+
+// MinTermFreq ignores words with less than this frequency in the source doc.
+func (fs *MultiTermvectorFilterSettings) MinTermFreq(value int64) *MultiTermvectorFilterSettings {
+	fs.minTermFreq = &value
+	return fs
+}
+
+// MaxTermFreq ignores words with more than this frequency in the source doc.
+func (fs *MultiTermvectorFilterSettings) MaxTermFreq(value int64) *MultiTermvectorFilterSettings {
+	fs.maxTermFreq = &value
+	return fs
+}
+
+// MinDocFreq ignores terms which do not occur in at least this many docs.
+func (fs *MultiTermvectorFilterSettings) MinDocFreq(value int64) *MultiTermvectorFilterSettings {
+	fs.minDocFreq = &value
+	return fs
+}
+
+// MaxDocFreq ignores terms which occur in more than this many docs.
+func (fs *MultiTermvectorFilterSettings) MaxDocFreq(value int64) *MultiTermvectorFilterSettings {
+	fs.maxDocFreq = &value
+	return fs
+}
+
+// MinWordLength specifies the minimum word length below which words will be ignored.
+func (fs *MultiTermvectorFilterSettings) MinWordLength(value int64) *MultiTermvectorFilterSettings {
+	fs.minWordLength = &value
+	return fs
+}
+
+// MaxWordLength specifies the maximum word length above which words will be ignored.
+func (fs *MultiTermvectorFilterSettings) MaxWordLength(value int64) *MultiTermvectorFilterSettings {
+	fs.maxWordLength = &value
+	return fs
+}
+
+// Source returns JSON for the query.
+func (fs *MultiTermvectorFilterSettings) Source() interface{} {
+	source := make(map[string]interface{})
+	if fs.maxNumTerms != nil {
+		source["max_num_terms"] = *fs.maxNumTerms
+	}
+	if fs.minTermFreq != nil {
+		source["min_term_freq"] = *fs.minTermFreq
+	}
+	if fs.maxTermFreq != nil {
+		source["max_term_freq"] = *fs.maxTermFreq
+	}
+	if fs.minDocFreq != nil {
+		source["min_doc_freq"] = *fs.minDocFreq
+	}
+	if fs.maxDocFreq != nil {
+		source["max_doc_freq"] = *fs.maxDocFreq
+	}
+	if fs.minWordLength != nil {
+		source["min_word_length"] = *fs.minWordLength
+	}
+	if fs.maxWordLength != nil {
+		source["max_word_length"] = *fs.maxWordLength
+	}
 	return source
 }
