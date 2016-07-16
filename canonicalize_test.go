@@ -42,6 +42,14 @@ func TestCanonicalize(t *testing.T) {
 			Input:  []string{"http://127.0.0.1/one///"},
 			Output: []string{"http://127.0.0.1/one"},
 		},
+		{
+			Input:  []string{"127.0.0.1/"},
+			Output: []string{"http://127.0.0.1"},
+		},
+		{
+			Input:  []string{"127.0.0.1:9200"},
+			Output: []string{"http://127.0.0.1:9200"},
+		},
 	}
 
 	for _, test := range tests {
