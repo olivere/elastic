@@ -306,45 +306,33 @@ func (s *SearchService) ExpandWildcards(expandWildcards string) *SearchService {
 	return s
 }
 
-// Do executes the search and returns a SearchResult.
-func (s *SearchService) Do() (*SearchResult, error) {
-	// Build url
-	path := "/"
+// buildURL builds the URL for the operation.
+func (s *SearchService) buildURL() (string, url.Values, error) {
+	var err error
+	var path string
 
-	// Indices part
-	indexPart := make([]string, 0)
-	for _, index := range s.indices {
-		index, err := uritemplates.Expand("{index}", map[string]string{
-			"index": index,
+	if len(s.indices) > 0 && len(s.types) > 0 {
+		path, err = uritemplates.Expand("/{index}/{type}/_search", map[string]string{
+			"index": strings.Join(s.indices, ","),
+			"type":  strings.Join(s.types, ","),
 		})
-		if err != nil {
-			return nil, err
-		}
-		indexPart = append(indexPart, index)
+	} else if len(s.indices) > 0 {
+		path, err = uritemplates.Expand("/{index}/_search", map[string]string{
+			"index": strings.Join(s.indices, ","),
+		})
+	} else if len(s.types) > 0 {
+		path, err = uritemplates.Expand("/_all/{type}/_search", map[string]string{
+			"type": strings.Join(s.types, ","),
+		})
+	} else {
+		path = "/_search"
 	}
-	path += strings.Join(indexPart, ",")
-
-	// Types part
-	if len(s.types) > 0 {
-		typesPart := make([]string, 0)
-		for _, typ := range s.types {
-			typ, err := uritemplates.Expand("{type}", map[string]string{
-				"type": typ,
-			})
-			if err != nil {
-				return nil, err
-			}
-			typesPart = append(typesPart, typ)
-		}
-		path += "/"
-		path += strings.Join(typesPart, ",")
+	if err != nil {
+		return "", url.Values{}, err
 	}
 
-	// Search
-	path += "/_search"
-
-	// Parameters
-	params := make(url.Values)
+	// Add query string parameters
+	params := url.Values{}
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
@@ -357,14 +345,34 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	if s.preference != "" {
 		params.Set("preference", s.preference)
 	}
-	if s.ignoreUnavailable != nil {
-		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
-	}
 	if s.allowNoIndices != nil {
 		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
+	}
+	if s.ignoreUnavailable != nil {
+		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	}
+	return path, params, nil
+}
+
+// Validate checks if the operation is valid.
+func (s *SearchService) Validate() error {
+	return nil
+}
+
+// Do executes the search and returns a SearchResult.
+func (s *SearchService) Do() (*SearchResult, error) {
+	// Check pre-conditions
+	if err := s.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Get URL for request
+	path, params, err := s.buildURL()
+	if err != nil {
+		return nil, err
 	}
 
 	// Perform request
