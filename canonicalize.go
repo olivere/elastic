@@ -14,18 +14,24 @@ import "net/url"
 // Example:
 // http://127.0.0.1:9200/?query=1 -> http://127.0.0.1:9200
 // http://127.0.0.1:9200/db1/ -> http://127.0.0.1:9200/db1
+// 127.0.0.1:9200 -> http://127.0.0.1:9200
 func canonicalize(rawurls ...string) []string {
-	canonicalized := make([]string, 0)
+	var canonicalized []string
 	for _, rawurl := range rawurls {
 		u, err := url.Parse(rawurl)
-		if err == nil && (u.Scheme == "http" || u.Scheme == "https") {
-			// Trim trailing slashes
-			for len(u.Path) > 0 && u.Path[len(u.Path)-1] == '/' {
-				u.Path = u.Path[0 : len(u.Path)-1]
+		if err == nil {
+			if len(u.Scheme) == 0 {
+				u.Scheme = DefaultScheme
 			}
-			u.Fragment = ""
-			u.RawQuery = ""
-			canonicalized = append(canonicalized, u.String())
+			if u.Scheme == "http" || u.Scheme == "https" {
+				// Trim trailing slashes
+				for len(u.Path) > 0 && u.Path[len(u.Path)-1] == '/' {
+					u.Path = u.Path[0 : len(u.Path)-1]
+				}
+				u.Fragment = ""
+				u.RawQuery = ""
+				canonicalized = append(canonicalized, u.String())
+			}
 		}
 	}
 	return canonicalized
