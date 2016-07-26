@@ -74,7 +74,7 @@ func (s *ScrollService) Pretty(pretty bool) *ScrollService {
 }
 
 func (s *ScrollService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *ScrollService {
-	s.fetchSourceContext = &fetchSourceContext
+	s.fetchSourceContext = fetchSourceContext
 	return s
 }
 
@@ -145,17 +145,6 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	if s.size != nil && *s.size > 0 {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
 	}
-	if s.searchSource != nil {
-		params.Set("_source")
-	}
-
-	if s.fetchSourceContext != nil {
-		src, err := s.fetchSourceContext.Source()
-		if err != nil {
-			return nil, err
-		}
-		params.Set("_source", src)
-	}
 
 	// Set body
 	body := make(map[string]interface{})
@@ -165,6 +154,14 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 			return nil, err
 		}
 		body["query"] = src
+	}
+
+	if s.fetchSourceContext != nil {
+		src, err := s.fetchSourceContext.Source()
+		if err != nil {
+			return nil, err
+		}
+		body["_source"] = src
 	}
 
 	// Get response
