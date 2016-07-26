@@ -73,7 +73,7 @@ func (s *ScrollService) Pretty(pretty bool) *ScrollService {
 	return s
 }
 
-func (s *ScrollService) SetFetchSourceContext(fetchSourceContext *FetchSourceContext) *ScrollService {
+func (s *ScrollService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *ScrollService {
 	s.fetchSourceContext = &fetchSourceContext
 	return s
 }
