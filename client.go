@@ -681,9 +681,10 @@ func (c *Client) dumpResponse(resp *http.Response) {
 func (c *Client) sniffer() {
 	c.mu.RLock()
 	timeout := c.snifferTimeout
+	interval := c.snifferInterval
 	c.mu.RUnlock()
 
-	ticker := time.NewTicker(timeout)
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	for {
