@@ -102,9 +102,18 @@ func (q CompletionSuggester) Source(includeName bool) interface{} {
 	case 1:
 		suggester["context"] = q.contextQueries[0].Source()
 	default:
-		ctxq := make([]interface{}, 0)
+		ctxq := make(map[string]interface{})
 		for _, query := range q.contextQueries {
-			ctxq = append(ctxq, query.Source())
+			src := query.Source()
+			// Merge the dictionary into ctxq
+			m, ok := src.(map[string]interface{})
+			if !ok {
+				// We have no way of reporting errors in v2, so we just swallow it.
+				continue
+			}
+			for k, v := range m {
+				ctxq[k] = v
+			}
 		}
 		suggester["context"] = ctxq
 	}
