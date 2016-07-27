@@ -4,6 +4,8 @@
 
 package elastic
 
+import "errors"
+
 // CompletionSuggester is a fast suggester for e.g. type-ahead completion.
 // See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
 // for more details.
@@ -74,7 +76,7 @@ type completionSuggesterRequest struct {
 	Completion interface{} `json:"completion"`
 }
 
-// Creates the source for the completion suggester.
+// Source creates the JSON structure for the completion suggester.
 func (q *CompletionSuggester) Source(includeName bool) (interface{}, error) {
 	cs := &completionSuggesterRequest{}
 
@@ -106,13 +108,20 @@ func (q *CompletionSuggester) Source(includeName bool) (interface{}, error) {
 		}
 		suggester["context"] = src
 	default:
-		ctxq := make([]interface{}, 0)
+		ctxq := make(map[string]interface{})
 		for _, query := range q.contextQueries {
 			src, err := query.Source()
 			if err != nil {
 				return nil, err
 			}
-			ctxq = append(ctxq, src)
+			// Merge the dictionary into ctxq
+			m, ok := src.(map[string]interface{})
+			if !ok {
+				return nil, errors.New("elastic: context query is not a map")
+			}
+			for k, v := range m {
+				ctxq[k] = v
+			}
 		}
 		suggester["context"] = ctxq
 	}

@@ -27,3 +27,26 @@ func TestCompletionSuggesterSource(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestCompletionSuggesterSourceWithMultipleContexts(t *testing.T) {
+	s := NewCompletionSuggester("song-suggest").
+		Text("n").
+		Field("suggest").
+		ContextQueries(
+			NewSuggesterCategoryQuery("artist", "Sting"),
+			NewSuggesterCategoryQuery("label", "BMG"),
+		)
+	src, err := s.Source(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"song-suggest":{"text":"n","completion":{"context":{"artist":"Sting","label":"BMG"},"field":"suggest"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
