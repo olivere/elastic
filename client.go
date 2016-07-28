@@ -546,7 +546,7 @@ func SetTraceLog(logger Logger) ClientOptionFunc {
 	}
 }
 
-// SendGetBodyAs specifies the HTTP method to use when sending a GET request
+// SetSendGetBodyAs specifies the HTTP method to use when sending a GET request
 // with a body. It is GET by default.
 func SetSendGetBodyAs(httpMethod string) ClientOptionFunc {
 	return func(c *Client) error {
@@ -712,8 +712,8 @@ func (c *Client) sniff(timeout time.Duration) error {
 	}
 
 	// Use all available URLs provided to sniff the cluster.
+	var urls []string
 	urlsMap := make(map[string]bool)
-	urls := make([]string, 0)
 
 	// Add all URLs provided on startup
 	for _, url := range c.urls {
@@ -987,11 +987,11 @@ func (c *Client) next() (*conn, error) {
 	i := 0
 	numConns := len(c.conns)
 	for {
-		i += 1
+		i++
 		if i > numConns {
 			break // we visited all conns: they all seem to be dead
 		}
-		c.cindex += 1
+		c.cindex++
 		if c.cindex >= numConns {
 			c.cindex = 0
 		}
@@ -1077,7 +1077,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 				// Force a healtcheck as all connections seem to be dead.
 				c.healthcheck(timeout, false)
 			}
-			retries -= 1
+			retries--
 			if retries <= 0 {
 				return nil, err
 			}
@@ -1116,7 +1116,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		// Get response
 		res, err := c.c.Do((*http.Request)(req))
 		if err != nil {
-			retries -= 1
+			retries--
 			if retries <= 0 {
 				c.errorf("elastic: %s is dead", conn.URL())
 				conn.MarkAsDead()
@@ -1513,7 +1513,7 @@ func (c *Client) IndexNames() ([]string, error) {
 		return nil, err
 	}
 	var names []string
-	for name, _ := range res {
+	for name := range res {
 		names = append(names, name)
 	}
 	return names, nil

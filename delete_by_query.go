@@ -167,7 +167,7 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 	path := "/"
 
 	// Indices part
-	indexPart := make([]string, 0)
+	var indexPart []string
 	for _, index := range s.indices {
 		index, err = uritemplates.Expand("{index}", map[string]string{
 			"index": index,
@@ -182,7 +182,7 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 	}
 
 	// Types part
-	typesPart := make([]string, 0)
+	var typesPart []string
 	for _, typ := range s.types {
 		typ, err = uritemplates.Expand("{type}", map[string]string{
 			"type": typ,

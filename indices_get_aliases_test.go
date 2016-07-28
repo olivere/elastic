@@ -8,6 +8,39 @@ import (
 	"testing"
 )
 
+func TestAliasesBuildURL(t *testing.T) {
+	client := setupTestClient(t)
+
+	tests := []struct {
+		Indices  []string
+		Expected string
+	}{
+		{
+			[]string{},
+			"/_aliases",
+		},
+		{
+			[]string{"index1"},
+			"/index1/_aliases",
+		},
+		{
+			[]string{"index1", "index2"},
+			"/index1%2Cindex2/_aliases",
+		},
+	}
+
+	for i, test := range tests {
+		path, _, err := client.Aliases().Index(test.Indices...).buildURL()
+		if err != nil {
+			t.Errorf("case #%d: %v", i+1, err)
+			continue
+		}
+		if path != test.Expected {
+			t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+		}
+	}
+}
+
 func TestAliases(t *testing.T) {
 	var err error
 

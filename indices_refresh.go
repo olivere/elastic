@@ -12,64 +12,73 @@ import (
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
+// RefreshService explicitly refreshes one or more indices.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-refresh.html.
 type RefreshService struct {
-	client  *Client
-	indices []string
-	force   *bool
-	pretty  bool
+	client *Client
+	index  []string
+	force  *bool
+	pretty bool
 }
 
+// NewRefreshService creates a new instance of RefreshService.
 func NewRefreshService(client *Client) *RefreshService {
 	builder := &RefreshService{
-		client:  client,
-		indices: make([]string, 0),
+		client: client,
 	}
 	return builder
 }
 
-func (s *RefreshService) Index(indices ...string) *RefreshService {
-	s.indices = append(s.indices, indices...)
+// Index specifies the indices to refresh.
+func (s *RefreshService) Index(index ...string) *RefreshService {
+	s.index = append(s.index, index...)
 	return s
 }
 
+// Force forces a refresh.
 func (s *RefreshService) Force(force bool) *RefreshService {
 	s.force = &force
 	return s
 }
 
+// Pretty asks Elasticsearch to return indented JSON.
 func (s *RefreshService) Pretty(pretty bool) *RefreshService {
 	s.pretty = pretty
 	return s
 }
 
-func (s *RefreshService) Do() (*RefreshResult, error) {
-	// Build url
-	path := "/"
+// buildURL builds the URL for the operation.
+func (s *RefreshService) buildURL() (string, url.Values, error) {
+	var err error
+	var path string
 
-	// Indices part
-	indexPart := make([]string, 0)
-	for _, index := range s.indices {
-		index, err := uritemplates.Expand("{index}", map[string]string{
-			"index": index,
+	if len(s.index) > 0 {
+		path, err = uritemplates.Expand("/{index}/_refresh", map[string]string{
+			"index": strings.Join(s.index, ","),
 		})
-		if err != nil {
-			return nil, err
-		}
-		indexPart = append(indexPart, index)
+	} else {
+		path = "/_refresh"
 	}
-	if len(indexPart) > 0 {
-		path += strings.Join(indexPart, ",")
+	if err != nil {
+		return "", url.Values{}, err
 	}
 
-	path += "/_refresh"
-
-	// Parameters
-	params := make(url.Values)
+	// Add query string parameters
+	params := url.Values{}
 	if s.force != nil {
 		params.Set("force", fmt.Sprintf("%v", *s.force))
 	}
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	}
+	return path, params, nil
+}
+
+// Do executes the request.
+func (s *RefreshService) Do() (*RefreshResult, error) {
+	path, params, err := s.buildURL()
+	if err != nil {
+		return nil, err
 	}
 
 	// Get response
@@ -88,6 +97,7 @@ func (s *RefreshService) Do() (*RefreshResult, error) {
 
 // -- Result of a refresh request.
 
+// RefreshResult is the outcome of RefreshService.Do.
 type RefreshResult struct {
 	Shards shardsInfo `json:"_shards,omitempty"`
 }

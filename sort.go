@@ -341,7 +341,7 @@ func (s GeoDistanceSort) Source() (interface{}, error) {
 	source["_geo_distance"] = x
 
 	// Points
-	ptarr := make([]interface{}, 0)
+	var ptarr []interface{}
 	for _, pt := range s.points {
 		ptarr = append(ptarr, pt.Source())
 	}

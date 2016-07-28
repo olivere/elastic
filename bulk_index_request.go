@@ -22,8 +22,6 @@ type BulkIndexRequest struct {
 	opType      string
 	routing     string
 	parent      string
-	timestamp   string
-	ttl         int64
 	version     int64  // default is MATCH_ANY
 	versionType string // default is "internal"
 	doc         interface{}
@@ -82,25 +80,6 @@ func (r *BulkIndexRequest) Routing(routing string) *BulkIndexRequest {
 // Parent specifies the identifier of the parent document (if available).
 func (r *BulkIndexRequest) Parent(parent string) *BulkIndexRequest {
 	r.parent = parent
-	r.source = nil
-	return r
-}
-
-// Timestamp can be used to index a document with a timestamp.
-// This is deprecated as of 2.0.0-beta2; you should use a normal date field
-// and set its value explicitly.
-func (r *BulkIndexRequest) Timestamp(timestamp string) *BulkIndexRequest {
-	r.timestamp = timestamp
-	r.source = nil
-	return r
-}
-
-// Ttl (time to live) sets an expiration date for the document. Expired
-// documents will be expunged automatically.
-// This is deprecated as of 2.0.0-beta2 and will be replaced by a different
-// implementation in a future version.
-func (r *BulkIndexRequest) Ttl(ttl int64) *BulkIndexRequest {
-	r.ttl = ttl
 	r.source = nil
 	return r
 }
@@ -172,12 +151,6 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 	}
 	if r.parent != "" {
 		indexCommand["_parent"] = r.parent
-	}
-	if r.timestamp != "" {
-		indexCommand["_timestamp"] = r.timestamp
-	}
-	if r.ttl > 0 {
-		indexCommand["_ttl"] = r.ttl
 	}
 	if r.version > 0 {
 		indexCommand["_version"] = r.version

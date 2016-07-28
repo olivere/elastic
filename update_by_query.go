@@ -233,7 +233,7 @@ func (s *UpdateByQueryService) Preference(preference string) *UpdateByQueryServi
 	return s
 }
 
-// Query in the Lucene query string syntax.
+// Q specifies the query in the Lucene query string syntax.
 func (s *UpdateByQueryService) Q(q string) *UpdateByQueryService {
 	s.q = q
 	return s
@@ -410,7 +410,7 @@ func (s *UpdateByQueryService) BodyJson(body interface{}) *UpdateByQueryService 
 	return s
 }
 
-// Body specifies e.g. a query to restrict the results specified with
+// BodyString specifies e.g. a query to restrict the results specified with
 // the Query DSL (optional).
 func (s *UpdateByQueryService) BodyString(body string) *UpdateByQueryService {
 	s.bodyString = body

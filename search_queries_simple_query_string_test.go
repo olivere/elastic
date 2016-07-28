@@ -27,6 +27,7 @@ func TestSimpleQueryStringQuery(t *testing.T) {
 }
 
 func TestSimpleQueryStringQueryExec(t *testing.T) {
+	// client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
@@ -55,10 +56,9 @@ func TestSimpleQueryStringQueryExec(t *testing.T) {
 	}
 
 	// Match all should return all documents
-	query := NewSimpleQueryStringQuery("+Golang +Elasticsearch")
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(query).
+		Query(NewSimpleQueryStringQuery("+Golang +Elasticsearch")).
 		Do()
 	if err != nil {
 		t.Fatal(err)

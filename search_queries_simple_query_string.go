@@ -135,7 +135,7 @@ func (q *SimpleQueryStringQuery) Source() (interface{}, error) {
 	query["query"] = q.queryText
 
 	if len(q.fields) > 0 {
-		fields := make([]string, 0)
+		var fields []string
 		for _, field := range q.fields {
 			if boost, found := q.fieldBoosts[field]; found {
 				if boost != nil {

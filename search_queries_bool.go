@@ -124,7 +124,7 @@ func (q *BoolQuery) Source() (interface{}, error) {
 		}
 		boolClause["must"] = src
 	} else if len(q.mustClauses) > 1 {
-		clauses := make([]interface{}, 0)
+		var clauses []interface{}
 		for _, subQuery := range q.mustClauses {
 			src, err := subQuery.Source()
 			if err != nil {
@@ -143,7 +143,7 @@ func (q *BoolQuery) Source() (interface{}, error) {
 		}
 		boolClause["must_not"] = src
 	} else if len(q.mustNotClauses) > 1 {
-		clauses := make([]interface{}, 0)
+		var clauses []interface{}
 		for _, subQuery := range q.mustNotClauses {
 			src, err := subQuery.Source()
 			if err != nil {
@@ -162,7 +162,7 @@ func (q *BoolQuery) Source() (interface{}, error) {
 		}
 		boolClause["filter"] = src
 	} else if len(q.filterClauses) > 1 {
-		clauses := make([]interface{}, 0)
+		var clauses []interface{}
 		for _, subQuery := range q.filterClauses {
 			src, err := subQuery.Source()
 			if err != nil {
@@ -181,7 +181,7 @@ func (q *BoolQuery) Source() (interface{}, error) {
 		}
 		boolClause["should"] = src
 	} else if len(q.shouldClauses) > 1 {
-		clauses := make([]interface{}, 0)
+		var clauses []interface{}
 		for _, subQuery := range q.shouldClauses {
 			src, err := subQuery.Source()
 			if err != nil {

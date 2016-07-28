@@ -14,71 +14,73 @@ import (
 )
 
 // SuggestService returns suggestions for text.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/master/search-suggesters.html.
 type SuggestService struct {
 	client     *Client
 	pretty     bool
 	routing    string
 	preference string
-	indices    []string
+	index      []string
 	suggesters []Suggester
 }
 
+// NewSuggestService creates a new instance of SuggestService.
 func NewSuggestService(client *Client) *SuggestService {
 	builder := &SuggestService{
-		client:     client,
-		indices:    make([]string, 0),
-		suggesters: make([]Suggester, 0),
+		client: client,
 	}
 	return builder
 }
 
-func (s *SuggestService) Index(indices ...string) *SuggestService {
-	s.indices = append(s.indices, indices...)
+// Index adds one or more indices to use for the suggestion request.
+func (s *SuggestService) Index(index ...string) *SuggestService {
+	s.index = append(s.index, index...)
 	return s
 }
 
+// Pretty asks Elasticsearch to return indented JSON.
 func (s *SuggestService) Pretty(pretty bool) *SuggestService {
 	s.pretty = pretty
 	return s
 }
 
+// Routing specifies the routing value.
 func (s *SuggestService) Routing(routing string) *SuggestService {
 	s.routing = routing
 	return s
 }
 
+// Preference specifies the node or shard the operation should be
+// performed on (default: random).
 func (s *SuggestService) Preference(preference string) *SuggestService {
 	s.preference = preference
 	return s
 }
 
+// Suggester adds a suggester to the request.
 func (s *SuggestService) Suggester(suggester Suggester) *SuggestService {
 	s.suggesters = append(s.suggesters, suggester)
 	return s
 }
 
-func (s *SuggestService) Do() (SuggestResult, error) {
-	// Build url
-	path := "/"
+// buildURL builds the URL for the operation.
+func (s *SuggestService) buildURL() (string, url.Values, error) {
+	var err error
+	var path string
 
-	// Indices part
-	indexPart := make([]string, 0)
-	for _, index := range s.indices {
-		index, err := uritemplates.Expand("{index}", map[string]string{
-			"index": index,
+	if len(s.index) > 0 {
+		path, err = uritemplates.Expand("/{index}/_suggest", map[string]string{
+			"index": strings.Join(s.index, ","),
 		})
-		if err != nil {
-			return nil, err
-		}
-		indexPart = append(indexPart, index)
+	} else {
+		path = "/_suggest"
 	}
-	path += strings.Join(indexPart, ",")
+	if err != nil {
+		return "", url.Values{}, err
+	}
 
-	// Suggest
-	path += "/_suggest"
-
-	// Parameters
-	params := make(url.Values)
+	// Add query string parameters
+	params := url.Values{}
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
@@ -87,6 +89,15 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	}
 	if s.preference != "" {
 		params.Set("preference", s.preference)
+	}
+	return path, params, nil
+}
+
+// Do executes the request.
+func (s *SuggestService) Do() (SuggestResult, error) {
+	path, params, err := s.buildURL()
+	if err != nil {
+		return nil, err
 	}
 
 	// Set body
@@ -126,8 +137,10 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	return ret, nil
 }
 
+// SuggestResult is the outcome of SuggestService.Do.
 type SuggestResult map[string][]Suggestion
 
+// Suggestion is a single suggester outcome.
 type Suggestion struct {
 	Text    string             `json:"text"`
 	Offset  int                `json:"offset"`

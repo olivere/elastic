@@ -207,7 +207,7 @@ func (q *MultiMatchQuery) Source() (interface{}, error) {
 	multiMatch["query"] = q.text
 
 	if len(q.fields) > 0 {
-		fields := make([]string, 0)
+		var fields []string
 		for _, field := range q.fields {
 			if boost, found := q.fieldBoosts[field]; found {
 				if boost != nil {

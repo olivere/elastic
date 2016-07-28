@@ -38,6 +38,10 @@ Use `bool` query instead, which supports `filter` clauses too.
 The `limit` query has been [removed](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking_50_search_changes.html#_deprecated_queries_removed).
 Use the `terminate_after` parameter instead.
 
+## `_timestamp` and `_ttl` removed
+
+Both of these fields were deprecated and are now [removed](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking_50_mapping_changes.html#_literal__timestamp_literal_and_literal__ttl_literal).
+
 ## Refresh parameter changed
 
 The `?refresh` parameter previously could be a boolean value. It indicated

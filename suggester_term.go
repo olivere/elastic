@@ -4,8 +4,9 @@
 
 package elastic
 
+// TermSuggester suggests terms based on edit distance.
 // For more details, see
-// http://www.elasticsearch.org/guide/reference/api/search/term-suggest/
+// https://www.elastic.co/guide/en/elasticsearch/reference/master/search-suggesters-term.html.
 type TermSuggester struct {
 	Suggester
 	name           string
@@ -29,11 +30,10 @@ type TermSuggester struct {
 	minDocFreq     *float64
 }
 
-// Creates a new term suggester.
+// NewTermSuggester creates a new TermSuggester.
 func NewTermSuggester(name string) *TermSuggester {
 	return &TermSuggester{
-		name:           name,
-		contextQueries: make([]SuggesterContextQuery, 0),
+		name: name,
 	}
 }
 
@@ -135,7 +135,7 @@ type termSuggesterRequest struct {
 	Term interface{} `json:"term"`
 }
 
-// Creates the source for the term suggester.
+// Source generates the source for the term suggester.
 func (q *TermSuggester) Source(includeName bool) (interface{}, error) {
 	// "suggest" : {
 	//   "my-suggest-1" : {
@@ -180,13 +180,13 @@ func (q *TermSuggester) Source(includeName bool) (interface{}, error) {
 		}
 		suggester["context"] = src
 	default:
-		ctxq := make([]interface{}, 0)
-		for _, query := range q.contextQueries {
+		ctxq := make([]interface{}, len(q.contextQueries))
+		for i, query := range q.contextQueries {
 			src, err := query.Source()
 			if err != nil {
 				return nil, err
 			}
-			ctxq = append(ctxq, src)
+			ctxq[i] = src
 		}
 		suggester["context"] = ctxq
 	}

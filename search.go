@@ -386,7 +386,7 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 	if r.Hits == nil || r.Hits.Hits == nil || len(r.Hits.Hits) == 0 {
 		return nil
 	}
-	slice := make([]interface{}, 0)
+	var slice []interface{}
 	for _, hit := range r.Hits.Hits {
 		v := reflect.New(typ).Elem()
 		if err := json.Unmarshal(*hit.Source, v.Addr().Interface()); err == nil {
@@ -410,8 +410,6 @@ type SearchHit struct {
 	Type           string                         `json:"_type"`           // type meta field
 	Id             string                         `json:"_id"`             // external or internal
 	Uid            string                         `json:"_uid"`            // uid meta field (see MapperService.java for all meta fields)
-	Timestamp      int64                          `json:"_timestamp"`      // timestamp meta field
-	TTL            int64                          `json:"_ttl"`            // ttl meta field
 	Routing        string                         `json:"_routing"`        // routing meta field
 	Parent         string                         `json:"_parent"`         // parent meta field
 	Version        *int64                         `json:"_version"`        // version number, when Version is set to true in SearchService

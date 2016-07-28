@@ -294,7 +294,7 @@ func (r *BulkResponse) ByAction(action string) []*BulkResponseItem {
 	if r.Items == nil {
 		return nil
 	}
-	items := make([]*BulkResponseItem, 0)
+	var items []*BulkResponseItem
 	for _, item := range r.Items {
 		if result, found := item[action]; found {
 			items = append(items, result)
@@ -309,7 +309,7 @@ func (r *BulkResponse) ById(id string) []*BulkResponseItem {
 	if r.Items == nil {
 		return nil
 	}
-	items := make([]*BulkResponseItem, 0)
+	var items []*BulkResponseItem
 	for _, item := range r.Items {
 		for _, result := range item {
 			if result.Id == id {
@@ -326,7 +326,7 @@ func (r *BulkResponse) Failed() []*BulkResponseItem {
 	if r.Items == nil {
 		return nil
 	}
-	errors := make([]*BulkResponseItem, 0)
+	var errors []*BulkResponseItem
 	for _, item := range r.Items {
 		for _, result := range item {
 			if !(result.Status >= 200 && result.Status <= 299) {
@@ -343,7 +343,7 @@ func (r *BulkResponse) Succeeded() []*BulkResponseItem {
 	if r.Items == nil {
 		return nil
 	}
-	succeeded := make([]*BulkResponseItem, 0)
+	var succeeded []*BulkResponseItem
 	for _, item := range r.Items {
 		for _, result := range item {
 			if result.Status >= 200 && result.Status <= 299 {

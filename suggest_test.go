@@ -9,6 +9,39 @@ import (
 	"testing"
 )
 
+func TestSuggestBuildURL(t *testing.T) {
+	client := setupTestClient(t)
+
+	tests := []struct {
+		Indices  []string
+		Expected string
+	}{
+		{
+			[]string{},
+			"/_suggest",
+		},
+		{
+			[]string{"index1"},
+			"/index1/_suggest",
+		},
+		{
+			[]string{"index1", "index2"},
+			"/index1%2Cindex2/_suggest",
+		},
+	}
+
+	for i, test := range tests {
+		path, _, err := client.Suggest().Index(test.Indices...).buildURL()
+		if err != nil {
+			t.Errorf("case #%d: %v", i+1, err)
+			continue
+		}
+		if path != test.Expected {
+			t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+		}
+	}
+}
+
 func TestSuggestService(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))

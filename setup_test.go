@@ -23,10 +23,7 @@ const (
 	},
 	"mappings":{
 		"_default_": {
-			"_timestamp": {
-				"enabled": true
-			},
-			"_ttl": {
+			"_all": {
 				"enabled": true
 			}
 		},

@@ -19,9 +19,7 @@ type SuggesterGeoMapping struct {
 // NewSuggesterGeoMapping creates a new SuggesterGeoMapping.
 func NewSuggesterGeoMapping(name string) *SuggesterGeoMapping {
 	return &SuggesterGeoMapping{
-		name:             name,
-		defaultLocations: make([]*GeoPoint, 0),
-		precision:        make([]string, 0),
+		name: name,
 	}
 }
 
@@ -66,7 +64,7 @@ func (q *SuggesterGeoMapping) Source() (interface{}, error) {
 	case 1:
 		x["default"] = q.defaultLocations[0].Source()
 	default:
-		arr := make([]interface{}, 0)
+		var arr []interface{}
 		for _, p := range q.defaultLocations {
 			arr = append(arr, p.Source())
 		}

@@ -29,8 +29,6 @@ type BulkUpdateRequest struct {
 	upsert          interface{}
 	docAsUpsert     *bool
 	doc             interface{}
-	ttl             int64
-	timestamp       string
 
 	source []string
 }
@@ -136,22 +134,6 @@ func (r *BulkUpdateRequest) Upsert(doc interface{}) *BulkUpdateRequest {
 	return r
 }
 
-// Ttl specifies the time to live, and optional expiry time.
-// This is deprecated as of 2.0.0-beta2.
-func (r *BulkUpdateRequest) Ttl(ttl int64) *BulkUpdateRequest {
-	r.ttl = ttl
-	r.source = nil
-	return r
-}
-
-// Timestamp specifies a timestamp for the document.
-// This is deprecated as of 2.0.0-beta2.
-func (r *BulkUpdateRequest) Timestamp(timestamp string) *BulkUpdateRequest {
-	r.timestamp = timestamp
-	r.source = nil
-	return r
-}
-
 // String returns the on-wire representation of the update request,
 // concatenated as a single string.
 func (r *BulkUpdateRequest) String() string {
@@ -215,12 +197,6 @@ func (r BulkUpdateRequest) Source() ([]string, error) {
 	}
 	if r.parent != "" {
 		updateCommand["_parent"] = r.parent
-	}
-	if r.timestamp != "" {
-		updateCommand["_timestamp"] = r.timestamp
-	}
-	if r.ttl > 0 {
-		updateCommand["_ttl"] = r.ttl
 	}
 	if r.version > 0 {
 		updateCommand["_version"] = r.version
