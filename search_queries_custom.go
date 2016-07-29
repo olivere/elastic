@@ -6,11 +6,6 @@ package elastic
 
 import "encoding/json"
 
-// CustomQuery is a user provided query
-//
-// For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/master/query-dsl-custom-query.html
-
 // CustomQuery can be used to treat a string representation of an ES query
 // as a Query.  Example usage:
 //    q := CustomQuery("{\"query\":{\"match_all\":{}}}")
