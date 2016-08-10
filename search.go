@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"log"
 
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
@@ -391,6 +392,8 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 		v := reflect.New(typ).Elem()
 		if err := json.Unmarshal(*hit.Source, v.Addr().Interface()); err == nil {
 			slice = append(slice, v.Interface())
+		} else {
+			log.Println("[Elastic] error on unmarshal. err:", err)
 		}
 	}
 	return slice
