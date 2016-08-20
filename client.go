@@ -21,7 +21,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.46"
+	Version = "3.0.47"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -871,9 +871,10 @@ func (c *Client) updateConns(conns []*conn) {
 func (c *Client) healthchecker() {
 	c.mu.RLock()
 	timeout := c.healthcheckTimeout
+	interval := c.healthcheckInterval
 	c.mu.RUnlock()
 
-	ticker := time.NewTicker(timeout)
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	for {
