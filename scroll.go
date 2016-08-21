@@ -14,14 +14,15 @@ import (
 
 // ScrollService manages a cursor through documents in Elasticsearch.
 type ScrollService struct {
-	client    *Client
-	indices   []string
-	types     []string
-	keepAlive string
-	query     Query
-	size      *int
-	pretty    bool
-	scrollId  string
+	client             *Client
+	indices            []string
+	types              []string
+	keepAlive          string
+	query              Query
+	size               *int
+	pretty             bool
+	fetchSourceContext *FetchSourceContext
+	scrollId           string
 }
 
 func NewScrollService(client *Client) *ScrollService {
@@ -69,6 +70,11 @@ func (s *ScrollService) Query(query Query) *ScrollService {
 
 func (s *ScrollService) Pretty(pretty bool) *ScrollService {
 	s.pretty = pretty
+	return s
+}
+
+func (s *ScrollService) FetchSourceContext(fetchSourceContext *FetchSourceContext) *ScrollService {
+	s.fetchSourceContext = fetchSourceContext
 	return s
 }
 
@@ -148,6 +154,14 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 			return nil, err
 		}
 		body["query"] = src
+	}
+
+	if s.fetchSourceContext != nil {
+		src, err := s.fetchSourceContext.Source()
+		if err != nil {
+			return nil, err
+		}
+		body["_source"] = src
 	}
 
 	// Get response
