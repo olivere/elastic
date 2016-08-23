@@ -19,6 +19,7 @@ type ScrollService struct {
 	types     []string
 	keepAlive string
 	query     Query
+	sorts     []SortInfo
 	size      *int
 	pretty    bool
 	scrollId  string
@@ -59,6 +60,11 @@ func (s *ScrollService) Scroll(keepAlive string) *ScrollService {
 // available before expiration (e.g. "5m" for 5 minutes).
 func (s *ScrollService) KeepAlive(keepAlive string) *ScrollService {
 	s.keepAlive = keepAlive
+	return s
+}
+
+func (s *ScrollService) Sort(field string, ascending bool) *ScrollService {
+	s.sorts = append(s.sorts, SortInfo{Field: field, Ascending: ascending})
 	return s
 }
 
@@ -148,6 +154,19 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 			return nil, err
 		}
 		body["query"] = src
+	}
+
+	//  Set Sort
+	if len(s.sorts) > 0 {
+		sortarr := make([]interface{}, 0)
+		for _, sort := range s.sorts {
+			src, err := sort.Source()
+			if err != nil {
+				return nil, err
+			}
+			sortarr = append(sortarr, src)
+		}
+		body["sort"] = sortarr
 	}
 
 	// Get response
