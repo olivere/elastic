@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	testAliasName = "elastic-test-alias"
+	testAliasName  = "elastic-test-alias"
+	testAliasName2 = "elastic-test-alias-filtered"
 )
 
 func TestAliasLifecycle(t *testing.T) {
@@ -120,4 +121,56 @@ func TestAliasLifecycle(t *testing.T) {
 		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 1, searchResult2.Hits.TotalHits)
 	}
 
+	// Add filtered alias for both indices
+	userFilter := NewTermFilter("user", tweet1.User)
+	filteredAliasCreate, err := client.Alias().
+		Actions(
+			NewAliasAddAction(testIndexName, testAliasName2).Filter(userFilter),
+			NewAliasAddAction(testIndexName2, testAliasName2).Filter(userFilter),
+		).
+		//Pretty(true).
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !filteredAliasCreate.Acknowledged {
+		t.Errorf("expected AliasResult.Acknowledged %v; got %v", true, filteredAliasCreate.Acknowledged)
+	}
+
+	// Search should return 2 tweets from the first user
+	searchResult3, err := client.Search().Index(testAliasName2).Query(&matchAll).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult3.Hits == nil {
+		t.Errorf("expected SearchResult.Hits != nil; got nil")
+	}
+	if searchResult3.Hits.TotalHits != 2 {
+		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 2, searchResult3.Hits.TotalHits)
+	}
+
+	// Remove second index should remove one tweet, so should only yield 1
+	aliasRemove2, err := client.Alias().
+		Actions(
+			NewAliasRemoveAction(testIndexName2, testAliasName2),
+		).
+		//Pretty(true).
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !aliasRemove2.Acknowledged {
+		t.Errorf("expected AliasResult.Acknowledged %v; got %v", true, aliasRemove2.Acknowledged)
+	}
+
+	searchResult4, err := client.Search().Index(testAliasName2).Query(&matchAll).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult4.Hits == nil {
+		t.Errorf("expected SearchResult.Hits != nil; got nil")
+	}
+	if searchResult4.Hits.TotalHits != 1 {
+		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 1, searchResult4.Hits.TotalHits)
+	}
 }
