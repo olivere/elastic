@@ -1458,6 +1458,12 @@ func (c *Client) NodesInfo() *NodesInfoService {
 	return NewNodesInfoService(c)
 }
 
+// NodesStats retrieves one or more or all of the cluster nodes information.
+func (c *Client) NodesStats() *NodesStatsService {
+	return NewNodesStatsService(c)
+}
+
+
 // Reindex returns a service that will reindex documents from a source
 // index into a target index. See
 // http://www.elastic.co/guide/en/elasticsearch/guide/current/reindex.html
