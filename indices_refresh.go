@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -43,6 +45,10 @@ func (s *RefreshService) Pretty(pretty bool) *RefreshService {
 }
 
 func (s *RefreshService) Do() (*RefreshResult, error) {
+	return s.DoC(nil)
+}
+
+func (s *RefreshService) DoC(ctx context.Context) (*RefreshResult, error) {
 	// Build url
 	path := "/"
 
@@ -73,7 +79,7 @@ func (s *RefreshService) Do() (*RefreshResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

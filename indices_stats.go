@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -167,6 +169,11 @@ func (s *IndicesStatsService) Validate() error {
 
 // Do executes the operation.
 func (s *IndicesStatsService) Do() (*IndicesStatsResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *IndicesStatsService) DoC(ctx context.Context) (*IndicesStatsResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -179,7 +186,7 @@ func (s *IndicesStatsService) Do() (*IndicesStatsResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("GET", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

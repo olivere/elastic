@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -322,6 +324,11 @@ func (s *SearchService) Validate() error {
 
 // Do executes the search and returns a SearchResult.
 func (s *SearchService) Do() (*SearchResult, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the search and returns a SearchResult.
+func (s *SearchService) DoC(ctx context.Context) (*SearchResult, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -344,7 +351,7 @@ func (s *SearchService) Do() (*SearchResult, error) {
 		}
 		body = src
 	}
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -359,12 +366,13 @@ func (s *SearchService) Do() (*SearchResult, error) {
 
 // SearchResult is the result of a search in Elasticsearch.
 type SearchResult struct {
-	TookInMillis int64         `json:"took"`         // search time in milliseconds
-	ScrollId     string        `json:"_scroll_id"`   // only used with Scroll and Scan operations
-	Hits         *SearchHits   `json:"hits"`         // the actual search hits
-	Suggest      SearchSuggest `json:"suggest"`      // results from suggesters
-	Aggregations Aggregations  `json:"aggregations"` // results from aggregations
-	TimedOut     bool          `json:"timed_out"`    // true if the search timed out
+	TookInMillis    int64         `json:"took"`             // search time in milliseconds
+	ScrollId        string        `json:"_scroll_id"`       // only used with Scroll and Scan operations
+	Hits            *SearchHits   `json:"hits"`             // the actual search hits
+	Suggest         SearchSuggest `json:"suggest"`          // results from suggesters
+	Aggregations    Aggregations  `json:"aggregations"`     // results from aggregations
+	TimedOut        bool          `json:"timed_out"`        // true if the search timed out
+	TerminatedEarly bool          `json:"terminated_early"` // true if the operation has terminated before e.g. an expiration was reached
 	//Error        string        `json:"error,omitempty"` // used in MultiSearch only
 	// TODO double-check that MultiGet now returns details error information
 	Error *ErrorDetails `json:"error,omitempty"` // only used in MultiGet

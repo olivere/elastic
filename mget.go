@@ -7,6 +7,8 @@ package elastic
 import (
 	"fmt"
 	"net/url"
+
+	"golang.org/x/net/context"
 )
 
 // MgetService allows to get multiple documents based on an index,
@@ -74,6 +76,10 @@ func (b *MgetService) Source() (interface{}, error) {
 }
 
 func (b *MgetService) Do() (*MgetResponse, error) {
+	return b.DoC(nil)
+}
+
+func (b *MgetService) DoC(ctx context.Context) (*MgetResponse, error) {
 	// Build url
 	path := "/_mget"
 
@@ -95,7 +101,7 @@ func (b *MgetService) Do() (*MgetResponse, error) {
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest("GET", path, params, body)
+	res, err := b.client.PerformRequestC(ctx, "GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}

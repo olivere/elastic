@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -143,6 +145,11 @@ func (s *TasksListService) Validate() error {
 
 // Do executes the operation.
 func (s *TasksListService) Do() (*TasksListResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *TasksListService) DoC(ctx context.Context) (*TasksListResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -155,7 +162,7 @@ func (s *TasksListService) Do() (*TasksListResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("GET", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

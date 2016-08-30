@@ -7,6 +7,8 @@ package elastic
 import (
 	"fmt"
 	"net/url"
+
+	"golang.org/x/net/context"
 )
 
 type AliasService struct {
@@ -58,6 +60,10 @@ func (s *AliasService) Remove(indexName string, aliasName string) *AliasService 
 }
 
 func (s *AliasService) Do() (*AliasResult, error) {
+	return s.DoC(nil)
+}
+
+func (s *AliasService) DoC(ctx context.Context) (*AliasResult, error) {
 	// Build url
 	path := "/_aliases"
 
@@ -90,7 +96,7 @@ func (s *AliasService) Do() (*AliasResult, error) {
 	body["actions"] = actionsJson
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

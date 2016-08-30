@@ -8,6 +8,8 @@ import (
 	"errors"
 	"net/url"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -76,6 +78,11 @@ func (b *IndicesCreateService) Pretty(pretty bool) *IndicesCreateService {
 
 // Do executes the operation.
 func (b *IndicesCreateService) Do() (*IndicesCreateResult, error) {
+	return b.DoC(nil)
+}
+
+// DoC executes the operation.
+func (b *IndicesCreateService) DoC(ctx context.Context) (*IndicesCreateResult, error) {
 	if b.index == "" {
 		return nil, errors.New("missing index name")
 	}
@@ -108,7 +115,7 @@ func (b *IndicesCreateService) Do() (*IndicesCreateResult, error) {
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest("PUT", path, params, body)
+	res, err := b.client.PerformRequestC(ctx, "PUT", path, params, body)
 	if err != nil {
 		return nil, err
 	}

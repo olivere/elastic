@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -37,6 +39,10 @@ func (s *AliasesService) Index(indices ...string) *AliasesService {
 }
 
 func (s *AliasesService) Do() (*AliasesResult, error) {
+	return s.DoC(nil)
+}
+
+func (s *AliasesService) DoC(ctx context.Context) (*AliasesResult, error) {
 	var err error
 
 	// Build url
@@ -67,7 +73,7 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("GET", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

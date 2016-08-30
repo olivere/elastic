@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -607,6 +609,11 @@ func (s *UpdateByQueryService) body() (interface{}, error) {
 
 // Do executes the operation.
 func (s *UpdateByQueryService) Do() (*UpdateByQueryResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *UpdateByQueryService) DoC(ctx context.Context) (*UpdateByQueryResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -625,7 +632,7 @@ func (s *UpdateByQueryService) Do() (*UpdateByQueryResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

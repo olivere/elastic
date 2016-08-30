@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -181,6 +183,11 @@ func (s *IndicesPutMappingService) Validate() error {
 
 // Do executes the operation.
 func (s *IndicesPutMappingService) Do() (*PutMappingResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *IndicesPutMappingService) DoC(ctx context.Context) (*PutMappingResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -201,7 +208,7 @@ func (s *IndicesPutMappingService) Do() (*PutMappingResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("PUT", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "PUT", path, params, body)
 	if err != nil {
 		return nil, err
 	}

@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -136,6 +138,11 @@ func (s *IndicesFlushService) Validate() error {
 
 // Do executes the service.
 func (s *IndicesFlushService) Do() (*IndicesFlushResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the service.
+func (s *IndicesFlushService) DoC(ctx context.Context) (*IndicesFlushResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -148,7 +155,7 @@ func (s *IndicesFlushService) Do() (*IndicesFlushResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("POST", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, nil)
 	if err != nil {
 		return nil, err
 	}
