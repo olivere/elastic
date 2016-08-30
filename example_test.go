@@ -7,10 +7,14 @@ package elastic_test
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"reflect"
 	"time"
+
+	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 
 	elastic "gopkg.in/olivere/elastic.v3"
 )
@@ -443,6 +447,92 @@ func ExampleSearchResult() {
 		// No hits
 		fmt.Print("Found no tweets\n")
 	}
+}
+
+func ExampleScrollService() {
+	client, err := elastic.NewClient()
+	if err != nil {
+		panic(err)
+	}
+
+	// This example illustrates how to use two goroutines to iterate
+	// through a resultset via ScrollService.
+	//
+	// It uses the excellent golang.org/x/sync/errgroup package to do so.
+	//
+	// The first goroutine will Scroll through the resultset and send
+	// individual results to a channel.
+	//
+	// The second goroutine will receive results from the channel and
+	// deserialize them.
+	//
+	// Feel free to add a third goroutine to do something with the
+	// deserialized results from the 2nd goroutine.
+	//
+	// Let's go.
+
+	// 1st goroutine sends individual hits to channel.
+	hits := make(chan *elastic.SearchHit)
+	g, ctx := errgroup.WithContext(context.Background())
+	g.Go(func() error {
+		defer close(hits)
+		for {
+			results, err := client.Scroll("twitter").Size(100).Do()
+			if err == io.EOF {
+				return nil // all results retrieved
+			}
+			if err != nil {
+				return err // something went wrong
+			}
+
+			// Send the hits to the hits channel
+			for _, hit := range results.Hits.Hits {
+				hits <- hit
+			}
+
+			// Check if we need to terminate early
+			select {
+			default:
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+		return nil
+	})
+
+	// 2nd goroutine receives hits and deserializes them.
+	//
+	// If you want, setup a number of goroutines handling deserialization in parallel.
+	g.Go(func() error {
+		for hit := range hits {
+			// Deserialize
+			var tw Tweet
+			err := json.Unmarshal(*hit.Source, &tw)
+			if err != nil {
+				return err
+			}
+
+			// Do something with the tweet here, e.g. send it to another channel
+			// for further processing.
+			_ = tw
+
+			// Terminate early?
+			select {
+			default:
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+		return nil
+	})
+
+	// Check whether any goroutines failed.
+	if err := g.Wait(); err != nil {
+		panic(err)
+	}
+
+	// Done.
+	fmt.Print("Successfully processed tweets in parallel via ScrollService.\n")
 }
 
 func ExamplePutTemplateService() {
