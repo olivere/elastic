@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+
+	"golang.org/x/net/context"
 )
 
 // MultiSearch executes one or more searches in one roundtrip.
@@ -47,6 +49,10 @@ func (s *MultiSearchService) Pretty(pretty bool) *MultiSearchService {
 }
 
 func (s *MultiSearchService) Do() (*MultiSearchResult, error) {
+	return s.DoC(nil)
+}
+
+func (s *MultiSearchService) DoC(ctx context.Context) (*MultiSearchResult, error) {
 	// Build url
 	path := "/_msearch"
 
@@ -78,7 +84,7 @@ func (s *MultiSearchService) Do() (*MultiSearchResult, error) {
 	body := strings.Join(lines, "\n") + "\n" // Don't forget trailing \n
 
 	// Get response
-	res, err := s.client.PerformRequest("GET", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}

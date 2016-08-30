@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -83,6 +85,11 @@ func (s *IndicesExistsTemplateService) Validate() error {
 
 // Do executes the operation.
 func (s *IndicesExistsTemplateService) Do() (bool, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *IndicesExistsTemplateService) DoC(ctx context.Context) (bool, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return false, err
@@ -95,7 +102,7 @@ func (s *IndicesExistsTemplateService) Do() (bool, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("HEAD", path, params, nil, 404)
+	res, err := s.client.PerformRequestC(ctx, "HEAD", path, params, nil, 404)
 	if err != nil {
 		return false, err
 	}

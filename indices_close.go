@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"net/url"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -121,6 +123,11 @@ func (s *IndicesCloseService) Validate() error {
 
 // Do executes the operation.
 func (s *IndicesCloseService) Do() (*IndicesCloseResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *IndicesCloseService) DoC(ctx context.Context) (*IndicesCloseResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -133,7 +140,7 @@ func (s *IndicesCloseService) Do() (*IndicesCloseResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("POST", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -26,6 +26,23 @@ func TestSortInfo(t *testing.T) {
 	}
 }
 
+func TestSortByDoc(t *testing.T) {
+	builder := SortByDoc{}
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `"_doc"`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestSortInfoComplex(t *testing.T) {
 	builder := SortInfo{
 		Field:        "price",

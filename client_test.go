@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -15,6 +15,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"golang.org/x/net/context"
 )
 
 func findConn(s string, slice ...*conn) (int, bool) {
@@ -702,6 +704,28 @@ func TestPerformRequest(t *testing.T) {
 	}
 }
 
+func TestPerformRequestC(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.PerformRequestC(context.Background(), "GET", "/", nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+
+	ret := new(PingResult)
+	if err := json.Unmarshal(res.Body, ret); err != nil {
+		t.Fatalf("expected no error on decode; got: %v", err)
+	}
+	if ret.ClusterName == "" {
+		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
+	}
+}
+
 func TestPerformRequestWithSimpleClient(t *testing.T) {
 	client, err := NewSimpleClient()
 	if err != nil {
@@ -940,5 +964,81 @@ func TestPerformRequestWithSetBodyError(t *testing.T) {
 	}
 	if res != nil {
 		t.Fatal("expected no response")
+	}
+}
+
+// sleepingTransport will sleep before doing a request.
+type sleepingTransport struct {
+	timeout time.Duration
+}
+
+// RoundTrip implements a "sleepy" transport.
+func (tr *sleepingTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	time.Sleep(tr.timeout)
+	return http.DefaultTransport.RoundTrip(r)
+}
+
+func TestPerformRequestCWithCancel(t *testing.T) {
+	tr := &sleepingTransport{timeout: 3 * time.Second}
+	httpClient := &http.Client{Transport: tr}
+
+	client, err := NewSimpleClient(SetHttpClient(httpClient), SetMaxRetries(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	type result struct {
+		res *Response
+		err error
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+
+	resc := make(chan result, 1)
+	go func() {
+		res, err := client.PerformRequestC(ctx, "GET", "/", nil, nil)
+		resc <- result{res: res, err: err}
+	}()
+	select {
+	case <-time.After(1 * time.Second):
+		cancel()
+	case res := <-resc:
+		t.Fatalf("expected response before cancel, got %v", res)
+	case <-ctx.Done():
+		t.Fatalf("expected no early termination, got ctx.Done(): %v", ctx.Err())
+	}
+	err = ctx.Err()
+	if err != context.Canceled {
+		t.Fatalf("expected error context.Canceled, got: %v", err)
+	}
+}
+
+func TestPerformRequestCWithTimeout(t *testing.T) {
+	tr := &sleepingTransport{timeout: 3 * time.Second}
+	httpClient := &http.Client{Transport: tr}
+
+	client, err := NewSimpleClient(SetHttpClient(httpClient), SetMaxRetries(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	type result struct {
+		res *Response
+		err error
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 1*time.Second)
+
+	resc := make(chan result, 1)
+	go func() {
+		res, err := client.PerformRequestC(ctx, "GET", "/", nil, nil)
+		resc <- result{res: res, err: err}
+	}()
+	select {
+	case res := <-resc:
+		t.Fatalf("expected timeout before response, got %v", res)
+	case <-ctx.Done():
+		err := ctx.Err()
+		if err != context.DeadlineExceeded {
+			t.Fatalf("expected error context.DeadlineExceeded, got: %v", err)
+		}
 	}
 }

@@ -17,6 +17,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/net/context"
+	"golang.org/x/net/context/ctxhttp"
 )
 
 const (
@@ -1039,6 +1042,19 @@ func (c *Client) mustActiveConn() error {
 // This is necessary for services that expect e.g. HTTP status 404 as a
 // valid outcome (Exists, IndicesExists, IndicesTypeExists).
 func (c *Client) PerformRequest(method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
+	return c.PerformRequestC(nil, method, path, params, body, ignoreErrors...)
+}
+
+// PerformRequestC does a HTTP request to Elasticsearch.
+// It returns a response and an error on failure.
+//
+// Optionally, a list of HTTP error codes to ignore can be passed.
+// This is necessary for services that expect e.g. HTTP status 404 as a
+// valid outcome (Exists, IndicesExists, IndicesTypeExists).
+//
+// If ctx is not nil, it uses the ctxhttp to do the request,
+// enabling both request cancelation as well as timeout.
+func (c *Client) PerformRequestC(ctx context.Context, method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
 	start := time.Now().UTC()
 
 	c.mu.RLock()
@@ -1116,7 +1132,12 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		c.dumpRequest((*http.Request)(req))
 
 		// Get response
-		res, err := c.c.Do((*http.Request)(req))
+		var res *http.Response
+		if ctx == nil {
+			res, err = c.c.Do((*http.Request)(req))
+		} else {
+			res, err = ctxhttp.Do(ctx, c.c, (*http.Request)(req))
+		}
 		if err != nil {
 			retries -= 1
 			if retries <= 0 {

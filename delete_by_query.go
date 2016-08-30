@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
@@ -161,6 +163,11 @@ func (s *DeleteByQueryService) Query(query Query) *DeleteByQueryService {
 
 // Do executes the delete-by-query operation.
 func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the delete-by-query operation.
+func (s *DeleteByQueryService) DoC(ctx context.Context) (*DeleteByQueryResult, error) {
 	var err error
 
 	// Build url
@@ -251,7 +258,7 @@ func (s *DeleteByQueryService) Do() (*DeleteByQueryResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("DELETE", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "DELETE", path, params, body)
 	if err != nil {
 		return nil, err
 	}
