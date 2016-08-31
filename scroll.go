@@ -315,31 +315,17 @@ func (s *ScrollService) buildFirstURL() (string, url.Values, error) {
 
 // bodyFirst returns the request to fetch the first batch of results.
 func (s *ScrollService) bodyFirst() (interface{}, error) {
-	body := make(map[string]interface{})
-
-	// Query
-	if s.ss.query != nil {
-		src, err := s.ss.query.Source()
-		if err != nil {
-			return nil, err
-		}
-		body["query"] = src
-	}
-
-	// Sort
+	// Use _doc sort by default if none is specified
 	if !s.ss.hasSort() {
 		// Use efficient sorting when no user-defined query/body is specified
 		s.ss = s.ss.SortBy(SortByDoc{})
 	}
-	var sorters []interface{}
-	for _, sorter := range s.ss.sorters {
-		src, err := sorter.Source()
-		if err != nil {
-			return nil, err
-		}
-		sorters = append(sorters, src)
+
+	// Body from search source
+	body, err := s.ss.Source()
+	if err != nil {
+		return nil, err
 	}
-	body["sort"] = sorters
 
 	// Slicing (in ES 5.x+)
 	/*

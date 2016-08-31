@@ -456,11 +456,11 @@ func ExampleScrollService() {
 	}
 
 	// This example illustrates how to use two goroutines to iterate
-	// through a resultset via ScrollService.
+	// through a result set via ScrollService.
 	//
 	// It uses the excellent golang.org/x/sync/errgroup package to do so.
 	//
-	// The first goroutine will Scroll through the resultset and send
+	// The first goroutine will Scroll through the result set and send
 	// individual results to a channel.
 	//
 	// The second goroutine will receive results from the channel and
@@ -472,12 +472,13 @@ func ExampleScrollService() {
 	// Let's go.
 
 	// 1st goroutine sends individual hits to channel.
-	hits := make(chan *elastic.SearchHit)
+	hits := make(chan json.RawMessage)
 	g, ctx := errgroup.WithContext(context.Background())
 	g.Go(func() error {
 		defer close(hits)
+		scroll := client.Scroll("twitter").Size(100)
 		for {
-			results, err := client.Scroll("twitter").Size(100).Do()
+			results, err := scroll.Do()
 			if err == io.EOF {
 				return nil // all results retrieved
 			}
@@ -487,7 +488,7 @@ func ExampleScrollService() {
 
 			// Send the hits to the hits channel
 			for _, hit := range results.Hits.Hits {
-				hits <- hit
+				hits <- *hit.Source
 			}
 
 			// Check if we need to terminate early
@@ -497,7 +498,6 @@ func ExampleScrollService() {
 				return ctx.Err()
 			}
 		}
-		return nil
 	})
 
 	// 2nd goroutine receives hits and deserializes them.
@@ -507,7 +507,7 @@ func ExampleScrollService() {
 		for hit := range hits {
 			// Deserialize
 			var tw Tweet
-			err := json.Unmarshal(*hit.Source, &tw)
+			err := json.Unmarshal(hit, &tw)
 			if err != nil {
 				return err
 			}

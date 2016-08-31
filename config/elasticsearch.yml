@@ -8,6 +8,8 @@ network.host:
 
 network.publish_host: _local_
 
+# Disable disk space warnings
+cluster.routing.allocation.disk.threshold_enabled: false
 
 # Enable scripting as described here: https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-scripting.html
 script.inline: true
