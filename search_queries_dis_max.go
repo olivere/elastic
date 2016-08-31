@@ -90,7 +90,7 @@ func (q *DisMaxQuery) Source() (interface{}, error) {
 	}
 
 	// queries
-	clauses := make([]interface{}, 0)
+	var clauses []interface{}
 	for _, subQuery := range q.queries {
 		src, err := subQuery.Source()
 		if err != nil {

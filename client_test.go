@@ -887,7 +887,7 @@ func (tr *failingTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 func TestPerformRequestRetryOnHttpError(t *testing.T) {
 	var numFailedReqs int
 	fail := func(r *http.Request) (*http.Response, error) {
-		numFailedReqs += 1
+		numFailedReqs++
 		//return &http.Response{Request: r, StatusCode: 400}, nil
 		return nil, errors.New("request failed")
 	}
@@ -918,7 +918,7 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 	var numFailedReqs int
 	fail := func(r *http.Request) (*http.Response, error) {
-		numFailedReqs += 1
+		numFailedReqs++
 		return &http.Response{Request: r, StatusCode: 500}, nil
 	}
 

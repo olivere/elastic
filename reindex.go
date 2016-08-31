@@ -443,7 +443,7 @@ func (r *ReindexSource) Source() (interface{}, error) {
 	}
 
 	if len(r.sorters) > 0 {
-		sortarr := make([]interface{}, 0)
+		var sortarr []interface{}
 		for _, sorter := range r.sorters {
 			src, err := sorter.Source()
 			if err != nil {
@@ -453,7 +453,7 @@ func (r *ReindexSource) Source() (interface{}, error) {
 		}
 		source["sort"] = sortarr
 	} else if len(r.sorts) > 0 {
-		sortarr := make([]interface{}, 0)
+		var sortarr []interface{}
 		for _, sort := range r.sorts {
 			src, err := sort.Source()
 			if err != nil {

@@ -181,7 +181,7 @@ func (a *RangeAggregation) Source() (interface{}, error) {
 		opts["unmapped"] = *a.unmapped
 	}
 
-	ranges := make([]interface{}, 0)
+	var ranges []interface{}
 	for _, ent := range a.entries {
 		r := make(map[string]interface{})
 		if ent.Key != "" {

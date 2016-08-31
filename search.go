@@ -394,7 +394,7 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 	if r.Hits == nil || r.Hits.Hits == nil || len(r.Hits.Hits) == 0 {
 		return nil
 	}
-	slice := make([]interface{}, 0)
+	var slice []interface{}
 	for _, hit := range r.Hits.Hits {
 		v := reflect.New(typ).Elem()
 		if err := json.Unmarshal(*hit.Source, v.Addr().Interface()); err == nil {

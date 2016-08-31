@@ -42,8 +42,7 @@ type BulkService struct {
 // NewBulkService initializes a new BulkService.
 func NewBulkService(client *Client) *BulkService {
 	builder := &BulkService{
-		client:   client,
-		requests: make([]BulkableRequest, 0),
+		client: client,
 	}
 	return builder
 }
@@ -75,7 +74,7 @@ func (s *BulkService) Timeout(timeout string) *BulkService {
 	return s
 }
 
-// Refresh, when set to true, tells Elasticsearch to make the bulk requests
+// Refresh tells Elasticsearch to make the bulk requests
 // available to search immediately after being processed. Normally, this
 // only happens after a specified refresh interval.
 func (s *BulkService) Refresh(refresh bool) *BulkService {
@@ -125,7 +124,7 @@ func (s *BulkService) NumberOfActions() int {
 }
 
 func (s *BulkService) bodyAsString() (string, error) {
-	buf := bytes.NewBufferString("")
+	var buf bytes.Buffer
 
 	for _, req := range s.requests {
 		source, err := req.Source()
@@ -133,10 +132,8 @@ func (s *BulkService) bodyAsString() (string, error) {
 			return "", err
 		}
 		for _, line := range source {
-			_, err := buf.WriteString(fmt.Sprintf("%s\n", line))
-			if err != nil {
-				return "", nil
-			}
+			buf.WriteString(line)
+			buf.WriteByte('\n')
 		}
 	}
 
@@ -167,7 +164,7 @@ func (s *BulkService) DoC(ctx context.Context) (*BulkResponse, error) {
 
 	// Build url
 	path := "/"
-	if s.index != "" {
+	if len(s.index) > 0 {
 		index, err := uritemplates.Expand("{index}", map[string]string{
 			"index": s.index,
 		})
@@ -176,7 +173,7 @@ func (s *BulkService) DoC(ctx context.Context) (*BulkResponse, error) {
 		}
 		path += index + "/"
 	}
-	if s.typ != "" {
+	if len(s.typ) > 0 {
 		typ, err := uritemplates.Expand("{type}", map[string]string{
 			"type": s.typ,
 		})
@@ -301,7 +298,7 @@ func (r *BulkResponse) ByAction(action string) []*BulkResponseItem {
 	if r.Items == nil {
 		return nil
 	}
-	items := make([]*BulkResponseItem, 0)
+	var items []*BulkResponseItem
 	for _, item := range r.Items {
 		if result, found := item[action]; found {
 			items = append(items, result)
@@ -316,7 +313,7 @@ func (r *BulkResponse) ById(id string) []*BulkResponseItem {
 	if r.Items == nil {
 		return nil
 	}
-	items := make([]*BulkResponseItem, 0)
+	var items []*BulkResponseItem
 	for _, item := range r.Items {
 		for _, result := range item {
 			if result.Id == id {
@@ -333,7 +330,7 @@ func (r *BulkResponse) Failed() []*BulkResponseItem {
 	if r.Items == nil {
 		return nil
 	}
-	errors := make([]*BulkResponseItem, 0)
+	var errors []*BulkResponseItem
 	for _, item := range r.Items {
 		for _, result := range item {
 			if !(result.Status >= 200 && result.Status <= 299) {
@@ -350,7 +347,7 @@ func (r *BulkResponse) Succeeded() []*BulkResponseItem {
 	if r.Items == nil {
 		return nil
 	}
-	succeeded := make([]*BulkResponseItem, 0)
+	var succeeded []*BulkResponseItem
 	for _, item := range r.Items {
 		for _, result := range item {
 			if result.Status >= 200 && result.Status <= 299 {

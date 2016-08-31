@@ -40,15 +40,13 @@ func (r *Request) SetBody(body interface{}, gzipCompress bool) error {
 	case string:
 		if gzipCompress {
 			return r.setBodyGzip(b)
-		} else {
-			return r.setBodyString(b)
 		}
+		return r.setBodyString(b)
 	default:
 		if gzipCompress {
 			return r.setBodyGzip(body)
-		} else {
-			return r.setBodyJson(body)
 		}
+		return r.setBodyJson(body)
 	}
 }
 

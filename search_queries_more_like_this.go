@@ -214,7 +214,7 @@ func (q *MoreLikeThisQuery) Source() (interface{}, error) {
 		params["fields"] = q.fields
 	}
 
-	likes := make([]interface{}, 0)
+	var likes []interface{}
 	for _, doc := range q.docs {
 		src, err := doc.Source()
 		if err != nil {
@@ -225,7 +225,7 @@ func (q *MoreLikeThisQuery) Source() (interface{}, error) {
 	params["like"] = likes
 
 	if len(q.unlikeDocs) > 0 {
-		dontLikes := make([]interface{}, 0)
+		var dontLikes []interface{}
 		for _, doc := range q.unlikeDocs {
 			src, err := doc.Source()
 			if err != nil {

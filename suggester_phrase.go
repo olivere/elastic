@@ -214,7 +214,7 @@ func (q *PhraseSuggester) Source(includeName bool) (interface{}, error) {
 		}
 		suggester["context"] = src
 	default:
-		ctxq := make([]interface{}, 0)
+		var ctxq []interface{}
 		for _, query := range q.contextQueries {
 			src, err := query.Source()
 			if err != nil {
@@ -249,7 +249,7 @@ func (q *PhraseSuggester) Source(includeName bool) (interface{}, error) {
 	}
 	if q.generators != nil && len(q.generators) > 0 {
 		for typ, generators := range q.generators {
-			arr := make([]interface{}, 0)
+			var arr []interface{}
 			for _, g := range generators {
 				src, err := g.Source()
 				if err != nil {

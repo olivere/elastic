@@ -58,7 +58,7 @@ func (q *GeoPolygonQuery) Source() (interface{}, error) {
 	polygon := make(map[string]interface{})
 	params[q.name] = polygon
 
-	points := make([]interface{}, 0)
+	var points []interface{}
 	for _, point := range q.points {
 		points = append(points, point.Source())
 	}

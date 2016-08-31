@@ -70,7 +70,7 @@ func (s *ClusterStateService) ExpandWildcards(expandWildcards string) *ClusterSt
 	return s
 }
 
-// FlatSettings, when set, returns settings in flat format (default: false).
+// FlatSettings indicates whether to return settings in flat format (default: false).
 func (s *ClusterStateService) FlatSettings(flatSettings bool) *ClusterStateService {
 	s.flatSettings = &flatSettings
 	return s

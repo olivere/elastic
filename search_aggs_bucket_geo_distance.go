@@ -142,7 +142,7 @@ func (a *GeoDistanceAggregation) Source() (interface{}, error) {
 		opts["origin"] = a.point
 	}
 
-	ranges := make([]interface{}, 0)
+	var ranges []interface{}
 	for _, ent := range a.ranges {
 		r := make(map[string]interface{})
 		if ent.Key != "" {

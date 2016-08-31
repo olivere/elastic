@@ -66,7 +66,7 @@ func TestScroll(t *testing.T) {
 			t.Errorf("expected len(results.Hits.Hits) = %d; got %d", 0, len(res.Hits.Hits))
 		}
 
-		pages += 1
+		pages++
 
 		for _, hit := range res.Hits.Hits {
 			if hit.Index != testIndexName {
@@ -77,7 +77,7 @@ func TestScroll(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			numDocs += 1
+			numDocs++
 		}
 
 		if len(res.ScrollId) == 0 {
@@ -158,7 +158,7 @@ func TestScrollWithQueryAndSort(t *testing.T) {
 			t.Errorf("expected len(results.Hits.Hits) = %d; got %d", 0, len(res.Hits.Hits))
 		}
 
-		pages += 1
+		pages++
 
 		for _, hit := range res.Hits.Hits {
 			if hit.Index != testIndexName {
@@ -169,7 +169,7 @@ func TestScrollWithQueryAndSort(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			numDocs += 1
+			numDocs++
 		}
 	}
 

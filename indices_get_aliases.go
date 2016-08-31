@@ -49,7 +49,7 @@ func (s *AliasesService) DoC(ctx context.Context) (*AliasesResult, error) {
 	path := "/"
 
 	// Indices part
-	indexPart := make([]string, 0)
+	var indexPart []string
 	for _, index := range s.indices {
 		index, err = uritemplates.Expand("{index}", map[string]string{
 			"index": index,
@@ -109,7 +109,7 @@ func (s *AliasesService) DoC(ctx context.Context) (*AliasesResult, error) {
 		if ok {
 			aliasesData, ok := indexDataMap["aliases"].(map[string]interface{})
 			if ok {
-				for aliasName, _ := range aliasesData {
+				for aliasName := range aliasesData {
 					aliasRes := aliasResult{AliasName: aliasName}
 					indexOut.Aliases = append(indexOut.Aliases, aliasRes)
 				}
@@ -137,7 +137,7 @@ type aliasResult struct {
 }
 
 func (ar AliasesResult) IndicesByAlias(aliasName string) []string {
-	indices := make([]string, 0)
+	var indices []string
 
 	for indexName, indexInfo := range ar.Indices {
 		for _, aliasInfo := range indexInfo.Aliases {

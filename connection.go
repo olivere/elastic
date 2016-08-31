@@ -67,7 +67,7 @@ func (c *conn) MarkAsDead() {
 		utcNow := time.Now().UTC()
 		c.deadSince = &utcNow
 	}
-	c.failures += 1
+	c.failures++
 	c.Unlock()
 }
 

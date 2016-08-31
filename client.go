@@ -716,7 +716,7 @@ func (c *Client) sniff(timeout time.Duration) error {
 
 	// Use all available URLs provided to sniff the cluster.
 	urlsMap := make(map[string]bool)
-	urls := make([]string, 0)
+	var urls []string
 
 	// Add all URLs provided on startup
 	for _, url := range c.urls {
@@ -767,7 +767,7 @@ func (c *Client) sniff(timeout time.Duration) error {
 // from the result of calling Nodes Info API. Otherwise, an empty array
 // is returned.
 func (c *Client) sniffNode(url string) []*conn {
-	nodes := make([]*conn, 0)
+	var nodes []*conn
 
 	// Call the Nodes Info API at /_nodes/http
 	req, err := NewRequest("GET", url+"/_nodes/http")
@@ -843,7 +843,7 @@ func (c *Client) extractHostname(scheme, address string) string {
 func (c *Client) updateConns(conns []*conn) {
 	c.connsMu.Lock()
 
-	newConns := make([]*conn, 0)
+	var newConns []*conn
 
 	// Build up new connections:
 	// If we find an existing connection, use that (including no. of failures etc.).
@@ -992,11 +992,11 @@ func (c *Client) next() (*conn, error) {
 	i := 0
 	numConns := len(c.conns)
 	for {
-		i += 1
+		i++
 		if i > numConns {
 			break // we visited all conns: they all seem to be dead
 		}
-		c.cindex += 1
+		c.cindex++
 		if c.cindex >= numConns {
 			c.cindex = 0
 		}
@@ -1095,7 +1095,7 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 				// Force a healtcheck as all connections seem to be dead.
 				c.healthcheck(timeout, false)
 			}
-			retries -= 1
+			retries--
 			if retries <= 0 {
 				return nil, err
 			}
@@ -1139,7 +1139,7 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 			res, err = ctxhttp.Do(ctx, c.c, (*http.Request)(req))
 		}
 		if err != nil {
-			retries -= 1
+			retries--
 			if retries <= 0 {
 				c.errorf("elastic: %s is dead", conn.URL())
 				conn.MarkAsDead()
@@ -1581,7 +1581,7 @@ func (c *Client) IndexNames() ([]string, error) {
 		return nil, err
 	}
 	var names []string
-	for name, _ := range res {
+	for name := range res {
 		names = append(names, name)
 	}
 	return names, nil

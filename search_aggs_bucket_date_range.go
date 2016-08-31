@@ -182,7 +182,7 @@ func (a *DateRangeAggregation) Source() (interface{}, error) {
 		opts["format"] = a.format
 	}
 
-	ranges := make([]interface{}, 0)
+	var ranges []interface{}
 	for _, ent := range a.entries {
 		r := make(map[string]interface{})
 		if ent.Key != "" {

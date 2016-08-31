@@ -68,7 +68,7 @@ func (s *SuggestService) DoC(ctx context.Context) (SuggestResult, error) {
 	path := "/"
 
 	// Indices part
-	indexPart := make([]string, 0)
+	var indexPart []string
 	for _, index := range s.indices {
 		index, err := uritemplates.Expand("{index}", map[string]string{
 			"index": index,

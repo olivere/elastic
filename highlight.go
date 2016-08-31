@@ -211,7 +211,7 @@ func (hl *Highlight) Source() (interface{}, error) {
 	if hl.fields != nil && len(hl.fields) > 0 {
 		if hl.useExplicitFieldOrder {
 			// Use a slice for the fields
-			fields := make([]map[string]interface{}, 0)
+			var fields []map[string]interface{}
 			for _, field := range hl.fields {
 				src, err := field.Source()
 				if err != nil {

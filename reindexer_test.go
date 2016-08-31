@@ -122,7 +122,7 @@ func TestReindexerProgress(t *testing.T) {
 	var calls int64
 	totalsOk := true
 	progress := func(current, total int64) {
-		calls += 1
+		calls++
 		totalsOk = totalsOk && total == sourceCount
 	}
 

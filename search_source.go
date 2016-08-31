@@ -364,7 +364,7 @@ func (s *SearchSource) Source() (interface{}, error) {
 	}
 
 	if len(s.sorters) > 0 {
-		sortarr := make([]interface{}, 0)
+		var sortarr []interface{}
 		for _, sorter := range s.sorters {
 			src, err := sorter.Source()
 			if err != nil {
@@ -420,7 +420,7 @@ func (s *SearchSource) Source() (interface{}, error) {
 
 	if len(s.rescores) > 0 {
 		// Strip empty rescores from request
-		rescores := make([]*Rescore, 0)
+		var rescores []*Rescore
 		for _, r := range s.rescores {
 			if !r.IsEmpty() {
 				rescores = append(rescores, r)
@@ -435,7 +435,7 @@ func (s *SearchSource) Source() (interface{}, error) {
 			}
 			source["rescore"] = src
 		} else {
-			slice := make([]interface{}, 0)
+			var slice []interface{}
 			for _, r := range rescores {
 				r.defaultRescoreWindowSize = s.defaultRescoreWindowSize
 				src, err := r.Source()

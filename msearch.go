@@ -63,7 +63,7 @@ func (s *MultiSearchService) DoC(ctx context.Context) (*MultiSearchResult, error
 	}
 
 	// Set body
-	lines := make([]string, 0)
+	var lines []string
 	for _, sr := range s.requests {
 		// Set default indices if not specified in the request
 		if !sr.HasIndices() && len(s.indices) > 0 {

@@ -180,7 +180,7 @@ func (q *TermSuggester) Source(includeName bool) (interface{}, error) {
 		}
 		suggester["context"] = src
 	default:
-		ctxq := make([]interface{}, 0)
+		var ctxq []interface{}
 		for _, query := range q.contextQueries {
 			src, err := query.Source()
 			if err != nil {
