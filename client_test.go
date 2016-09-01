@@ -979,7 +979,7 @@ func (tr *sleepingTransport) RoundTrip(r *http.Request) (*http.Response, error) 
 }
 
 func TestPerformRequestCWithCancel(t *testing.T) {
-	tr := &sleepingTransport{timeout: 3 * time.Second}
+	tr := &sleepingTransport{timeout: 5 * time.Second}
 	httpClient := &http.Client{Transport: tr}
 
 	client, err := NewSimpleClient(SetHttpClient(httpClient), SetMaxRetries(0))
@@ -1013,7 +1013,7 @@ func TestPerformRequestCWithCancel(t *testing.T) {
 }
 
 func TestPerformRequestCWithTimeout(t *testing.T) {
-	tr := &sleepingTransport{timeout: 3 * time.Second}
+	tr := &sleepingTransport{timeout: 5 * time.Second}
 	httpClient := &http.Client{Transport: tr}
 
 	client, err := NewSimpleClient(SetHttpClient(httpClient), SetMaxRetries(0))
