@@ -42,8 +42,7 @@ type BulkService struct {
 // NewBulkService initializes a new BulkService.
 func NewBulkService(client *Client) *BulkService {
 	builder := &BulkService{
-		client:   client,
-		requests: make([]BulkableRequest, 0),
+		client: client,
 	}
 	return builder
 }
@@ -127,7 +126,7 @@ func (s *BulkService) NumberOfActions() int {
 }
 
 func (s *BulkService) bodyAsString() (string, error) {
-	buf := bytes.NewBufferString("")
+	var buf bytes.Buffer
 
 	for _, req := range s.requests {
 		source, err := req.Source()
@@ -135,10 +134,8 @@ func (s *BulkService) bodyAsString() (string, error) {
 			return "", err
 		}
 		for _, line := range source {
-			_, err := buf.WriteString(fmt.Sprintf("%s\n", line))
-			if err != nil {
-				return "", nil
-			}
+			buf.WriteString(line)
+			buf.WriteByte('\n')
 		}
 	}
 
@@ -162,7 +159,7 @@ func (s *BulkService) Do(ctx context.Context) (*BulkResponse, error) {
 
 	// Build url
 	path := "/"
-	if s.index != "" {
+	if len(s.index) > 0 {
 		index, err := uritemplates.Expand("{index}", map[string]string{
 			"index": s.index,
 		})
@@ -171,7 +168,7 @@ func (s *BulkService) Do(ctx context.Context) (*BulkResponse, error) {
 		}
 		path += index + "/"
 	}
-	if s.typ != "" {
+	if len(s.typ) > 0 {
 		typ, err := uritemplates.Expand("{type}", map[string]string{
 			"type": s.typ,
 		})
