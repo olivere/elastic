@@ -4,9 +4,7 @@
 
 package elastic
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestTasksCancelBuildURL(t *testing.T) {
 	client := setupTestClient(t)
@@ -42,7 +40,7 @@ func TestTasksCancel(t *testing.T) {
 	if esversion < "2.3.0" {
 		t.Skipf("Elasticsearch %v does not support Tasks Management API yet", esversion)
 	}
-	res, err := client.TasksCancel("1").Do()
+	res, err := client.TasksCancel("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

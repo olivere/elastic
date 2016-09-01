@@ -6,13 +6,15 @@ package elastic
 
 import (
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestFlush(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	// Flush all indices
-	res, err := client.Flush().Do()
+	res, err := client.Flush().Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

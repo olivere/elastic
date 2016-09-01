@@ -7,6 +7,8 @@ package elastic
 import (
 	"encoding/json"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestIndexLifecycle(t *testing.T) {
@@ -20,7 +22,7 @@ func TestIndexLifecycle(t *testing.T) {
 		Type("tweet").
 		Id("1").
 		BodyJson(&tweet1).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,7 +31,7 @@ func TestIndexLifecycle(t *testing.T) {
 	}
 
 	// Exists
-	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id("1").Do()
+	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +44,7 @@ func TestIndexLifecycle(t *testing.T) {
 		Index(testIndexName).
 		Type("tweet").
 		Id("1").
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +75,7 @@ func TestIndexLifecycle(t *testing.T) {
 	}
 
 	// Delete document again
-	deleteResult, err := client.Delete().Index(testIndexName).Type("tweet").Id("1").Do()
+	deleteResult, err := client.Delete().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +84,7 @@ func TestIndexLifecycle(t *testing.T) {
 	}
 
 	// Exists
-	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id("1").Do()
+	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +103,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 		Index(testIndexName).
 		Type("tweet").
 		BodyJson(&tweet1).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +116,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	id := indexResult.Id
 
 	// Exists
-	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id(id).Do()
+	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id(id).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +129,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 		Index(testIndexName).
 		Type("tweet").
 		Id(id).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,7 +160,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	}
 
 	// Delete document again
-	deleteResult, err := client.Delete().Index(testIndexName).Type("tweet").Id(id).Do()
+	deleteResult, err := client.Delete().Index(testIndexName).Type("tweet").Id(id).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -167,7 +169,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	}
 
 	// Exists
-	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id(id).Do()
+	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id(id).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +184,7 @@ func TestIndexValidate(t *testing.T) {
 	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 
 	// No index name -> fail with error
-	res, err := NewIndexService(client).Type("tweet").Id("1").BodyJson(&tweet).Do()
+	res, err := NewIndexService(client).Type("tweet").Id("1").BodyJson(&tweet).Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected Index to fail without index name")
 	}
@@ -191,7 +193,7 @@ func TestIndexValidate(t *testing.T) {
 	}
 
 	// No index name -> fail with error
-	res, err = NewIndexService(client).Index(testIndexName).Id("1").BodyJson(&tweet).Do()
+	res, err = NewIndexService(client).Index(testIndexName).Id("1").BodyJson(&tweet).Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected Index to fail without type")
 	}
@@ -209,7 +211,7 @@ func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
 	client := setupTestClient(t)
 
 	// Create index
-	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).Do()
+	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -221,7 +223,7 @@ func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
 	}
 
 	// Exists
-	indexExists, err := client.IndexExists(testIndexName).Do()
+	indexExists, err := client.IndexExists(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -230,13 +232,13 @@ func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
 	}
 
 	// Flush
-	_, err = client.Flush().Index(testIndexName).Do()
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Close index
-	closeIndex, err := client.CloseIndex(testIndexName).Do()
+	closeIndex, err := client.CloseIndex(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -248,7 +250,7 @@ func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
 	}
 
 	// Open index
-	openIndex, err := client.OpenIndex(testIndexName).Do()
+	openIndex, err := client.OpenIndex(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -260,13 +262,13 @@ func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
 	}
 
 	// Flush
-	_, err = client.Flush().Index(testIndexName).Do()
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Delete index
-	deleteIndex, err := client.DeleteIndex(testIndexName).Do()
+	deleteIndex, err := client.DeleteIndex(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

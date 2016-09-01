@@ -4,13 +4,17 @@
 
 package elastic
 
-import "testing"
+import (
+	"testing"
+
+	"golang.org/x/net/context"
+)
 
 func TestIndicesExistsWithoutIndex(t *testing.T) {
 	client := setupTestClient(t)
 
 	// No index name -> fail with error
-	res, err := NewIndicesExistsService(client).Do()
+	res, err := NewIndicesExistsService(client).Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected IndicesExists to fail without index name")
 	}

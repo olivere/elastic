@@ -6,6 +6,8 @@ package elastic
 
 import (
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestGetPutDeleteTemplate(t *testing.T) {
@@ -23,7 +25,7 @@ func TestGetPutDeleteTemplate(t *testing.T) {
 		"my_size" : 5
 	}
 }`
-	putres, err := client.PutTemplate().Id("elastic-template").BodyString(tmpl).Do()
+	putres, err := client.PutTemplate().Id("elastic-template").BodyString(tmpl).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}
@@ -35,10 +37,10 @@ func TestGetPutDeleteTemplate(t *testing.T) {
 	}
 
 	// Always delete template
-	defer client.DeleteTemplate().Id("elastic-template").Do()
+	defer client.DeleteTemplate().Id("elastic-template").Do(context.TODO())
 
 	// Get template
-	getres, err := client.GetTemplate().Id("elastic-template").Do()
+	getres, err := client.GetTemplate().Id("elastic-template").Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}

@@ -12,6 +12,8 @@ import (
 	"reflect"
 	"time"
 
+	"golang.org/x/net/context"
+
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
@@ -40,7 +42,7 @@ func Example() {
 	//client.SetTracer(log.New(os.Stdout, "", 0))
 
 	// Ping the Elasticsearch server to get e.g. the version number
-	info, code, err := client.Ping("http://127.0.0.1:9200").Do()
+	info, code, err := client.Ping("http://127.0.0.1:9200").Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -56,14 +58,14 @@ func Example() {
 	fmt.Printf("Elasticsearch version %s", esversion)
 
 	// Use the IndexExists service to check if a specified index exists.
-	exists, err := client.IndexExists("twitter").Do()
+	exists, err := client.IndexExists("twitter").Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
 	}
 	if !exists {
 		// Create a new index.
-		createIndex, err := client.CreateIndex("twitter").Do()
+		createIndex, err := client.CreateIndex("twitter").Do(context.Background())
 		if err != nil {
 			// Handle error
 			panic(err)
@@ -80,7 +82,7 @@ func Example() {
 		Type("tweet").
 		Id("1").
 		BodyJson(tweet1).
-		Do()
+		Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -94,7 +96,7 @@ func Example() {
 		Type("tweet").
 		Id("2").
 		BodyString(tweet2).
-		Do()
+		Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -106,7 +108,7 @@ func Example() {
 		Index("twitter").
 		Type("tweet").
 		Id("1").
-		Do()
+		Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -116,7 +118,7 @@ func Example() {
 	}
 
 	// Flush to make sure the documents got written.
-	_, err = client.Flush().Index("twitter").Do()
+	_, err = client.Flush().Index("twitter").Do(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -124,12 +126,12 @@ func Example() {
 	// Search with a term query
 	termQuery := elastic.NewTermQuery("user", "olivere")
 	searchResult, err := client.Search().
-		Index("twitter").   // search in index "twitter"
-		Query(termQuery).   // specify the query
-		Sort("user", true). // sort by "user" field, ascending
-		From(0).Size(10).   // take documents 0-9
-		Pretty(true).       // pretty print request and response JSON
-		Do()                // execute
+		Index("twitter").        // search in index "twitter"
+		Query(termQuery).        // specify the query
+		Sort("user", true).      // sort by "user" field, ascending
+		From(0).Size(10).        // take documents 0-9
+		Pretty(true).            // pretty print request and response JSON
+		Do(context.Background()) // execute
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -180,7 +182,7 @@ func Example() {
 	update, err := client.Update().Index("twitter").Type("tweet").Id("1").
 		Script(script).
 		Upsert(map[string]interface{}{"retweets": 0}).
-		Do()
+		Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -190,7 +192,7 @@ func Example() {
 	// ...
 
 	// Delete an index.
-	deleteIndex, err := client.DeleteIndex("twitter").Do()
+	deleteIndex, err := client.DeleteIndex("twitter").Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -253,7 +255,7 @@ func ExampleIndexExistsService() {
 		panic(err)
 	}
 	// Use the IndexExists service to check if the index "twitter" exists.
-	exists, err := client.IndexExists("twitter").Do()
+	exists, err := client.IndexExists("twitter").Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -271,7 +273,7 @@ func ExampleCreateIndexService() {
 		panic(err)
 	}
 	// Create a new index.
-	createIndex, err := client.CreateIndex("twitter").Do()
+	createIndex, err := client.CreateIndex("twitter").Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -289,7 +291,7 @@ func ExampleDeleteIndexService() {
 		panic(err)
 	}
 	// Delete an index.
-	deleteIndex, err := client.DeleteIndex("twitter").Do()
+	deleteIndex, err := client.DeleteIndex("twitter").Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -310,12 +312,12 @@ func ExampleSearchService() {
 	// Search with a term query
 	termQuery := elastic.NewTermQuery("user", "olivere")
 	searchResult, err := client.Search().
-		Index("twitter").   // search in index "twitter"
-		Query(termQuery).   // specify the query
-		Sort("user", true). // sort by "user" field, ascending
-		From(0).Size(10).   // take documents 0-9
-		Pretty(true).       // pretty print request and response JSON
-		Do()                // execute
+		Index("twitter").        // search in index "twitter"
+		Query(termQuery).        // specify the query
+		Sort("user", true).      // sort by "user" field, ascending
+		From(0).Size(10).        // take documents 0-9
+		Pretty(true).            // pretty print request and response JSON
+		Do(context.Background()) // execute
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -369,7 +371,7 @@ func ExampleAggregations() {
 		SearchType("count").               // ... do not return hits, just the count
 		Aggregation("timeline", timeline). // add our aggregation to the query
 		Pretty(true).                      // pretty print request and response JSON
-		Do()                               // execute
+		Do(context.Background())           // execute
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -401,7 +403,7 @@ func ExampleSearchResult() {
 	}
 
 	// Do a search
-	searchResult, err := client.Search().Index("twitter").Query(elastic.NewMatchAllQuery()).Do()
+	searchResult, err := client.Search().Index("twitter").Query(elastic.NewMatchAllQuery()).Do(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -458,7 +460,7 @@ func ExamplePutTemplateService() {
 	resp, err := client.PutTemplate().
 		Id("my-search-template"). // Name of the template
 		BodyString(tmpl).         // Search template itself
-		Do()                      // Execute
+		Do(context.Background())  // Execute
 	if err != nil {
 		panic(err)
 	}
@@ -474,7 +476,7 @@ func ExampleGetTemplateService() {
 	}
 
 	// Get template stored under "my-search-template"
-	resp, err := client.GetTemplate().Id("my-search-template").Do()
+	resp, err := client.GetTemplate().Id("my-search-template").Do(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -488,7 +490,7 @@ func ExampleDeleteTemplateService() {
 	}
 
 	// Delete template
-	resp, err := client.DeleteTemplate().Id("my-search-template").Do()
+	resp, err := client.DeleteTemplate().Id("my-search-template").Do(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -504,7 +506,7 @@ func ExampleClusterHealthService() {
 	}
 
 	// Get cluster health
-	res, err := client.ClusterHealth().Index("twitter").Do()
+	res, err := client.ClusterHealth().Index("twitter").Do(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -521,7 +523,7 @@ func ExampleClusterHealthService_WaitForGreen() {
 	}
 
 	// Wait for status green
-	res, err := client.ClusterHealth().WaitForStatus("green").Timeout("15s").Do()
+	res, err := client.ClusterHealth().WaitForStatus("green").Timeout("15s").Do(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -539,7 +541,7 @@ func ExampleClusterStateService() {
 	}
 
 	// Get cluster state
-	res, err := client.ClusterState().Metric("version").Do()
+	res, err := client.ClusterState().Metric("version").Do(context.Background())
 	if err != nil {
 		panic(err)
 	}

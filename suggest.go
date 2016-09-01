@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
@@ -94,7 +96,7 @@ func (s *SuggestService) buildURL() (string, url.Values, error) {
 }
 
 // Do executes the request.
-func (s *SuggestService) Do() (SuggestResult, error) {
+func (s *SuggestService) Do(ctx context.Context) (SuggestResult, error) {
 	path, params, err := s.buildURL()
 	if err != nil {
 		return nil, err
@@ -111,7 +113,7 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

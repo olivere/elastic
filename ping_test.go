@@ -7,12 +7,14 @@ package elastic
 import (
 	"net/http"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestPingGet(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	res, code, err := client.Ping(DefaultURL).Do()
+	res, code, err := client.Ping(DefaultURL).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,7 +35,7 @@ func TestPingGet(t *testing.T) {
 func TestPingHead(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	res, code, err := client.Ping(DefaultURL).HttpHeadOnly(true).Do()
+	res, code, err := client.Ping(DefaultURL).HttpHeadOnly(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +53,7 @@ func TestPingHeadFailure(t *testing.T) {
 	res, code, err := client.
 		Ping("http://127.0.0.1:9299").
 		HttpHeadOnly(true).
-		Do()
+		Do(context.TODO())
 	if err == nil {
 		t.Error("expected error, got nil")
 	}

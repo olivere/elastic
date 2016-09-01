@@ -7,19 +7,21 @@ package elastic
 import (
 	"encoding/json"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestGet(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Get document 1
-	res, err := client.Get().Index(testIndexName).Type("tweet").Id("1").Do()
+	res, err := client.Get().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +33,7 @@ func TestGet(t *testing.T) {
 	}
 
 	// Get non existent document 99
-	res, err = client.Get().Index(testIndexName).Type("tweet").Id("99").Do()
+	res, err = client.Get().Index(testIndexName).Type("tweet").Id("99").Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected error; got: %v", err)
 	}
@@ -47,13 +49,13 @@ func TestGetWithSourceFiltering(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Get document 1, without source
-	res, err := client.Get().Index(testIndexName).Type("tweet").Id("1").FetchSource(false).Do()
+	res, err := client.Get().Index(testIndexName).Type("tweet").Id("1").FetchSource(false).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +68,7 @@ func TestGetWithSourceFiltering(t *testing.T) {
 
 	// Get document 1, exclude Message field
 	fsc := NewFetchSourceContext(true).Exclude("message")
-	res, err = client.Get().Index(testIndexName).Type("tweet").Id("1").FetchSourceContext(fsc).Do()
+	res, err = client.Get().Index(testIndexName).Type("tweet").Id("1").FetchSourceContext(fsc).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,13 +95,13 @@ func TestGetWithFields(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Get document 1, specifying fields
-	res, err := client.Get().Index(testIndexName).Type("tweet").Id("1").Fields("message").Do()
+	res, err := client.Get().Index(testIndexName).Type("tweet").Id("1").Fields("message").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,22 +146,22 @@ func TestGetValidate(t *testing.T) {
 	// Mitigate against http://stackoverflow.com/questions/27491738/elasticsearch-go-index-failures-no-feature-for-name
 	client := setupTestClientAndCreateIndex(t)
 
-	if _, err := client.Get().Do(); err == nil {
+	if _, err := client.Get().Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
-	if _, err := client.Get().Index(testIndexName).Do(); err == nil {
+	if _, err := client.Get().Index(testIndexName).Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
-	if _, err := client.Get().Type("tweet").Do(); err == nil {
+	if _, err := client.Get().Type("tweet").Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
-	if _, err := client.Get().Id("1").Do(); err == nil {
+	if _, err := client.Get().Id("1").Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
-	if _, err := client.Get().Index(testIndexName).Type("tweet").Do(); err == nil {
+	if _, err := client.Get().Index(testIndexName).Type("tweet").Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
-	if _, err := client.Get().Type("tweet").Id("1").Do(); err == nil {
+	if _, err := client.Get().Type("tweet").Id("1").Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
 }

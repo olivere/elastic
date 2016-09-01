@@ -9,6 +9,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v5/backoff"
 )
 
@@ -464,7 +466,7 @@ func (w *bulkWorker) commit() error {
 	// via exponential backoff
 	commitFunc := func() error {
 		var err error
-		res, err = w.service.Do()
+		res, err = w.service.Do(context.Background())
 		return err
 	}
 	// notifyFunc will be called if retry fails

@@ -4,6 +4,8 @@
 
 package elastic
 
+import "golang.org/x/net/context"
+
 // HasPlugin indicates whether the cluster has the named plugin.
 func (c *Client) HasPlugin(name string) (bool, error) {
 	plugins, err := c.Plugins()
@@ -20,7 +22,7 @@ func (c *Client) HasPlugin(name string) (bool, error) {
 
 // Plugins returns the list of all registered plugins.
 func (c *Client) Plugins() ([]string, error) {
-	stats, err := c.ClusterStats().Do()
+	stats, err := c.ClusterStats().Do(context.Background())
 	if err != nil {
 		return nil, err
 	}

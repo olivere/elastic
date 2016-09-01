@@ -6,6 +6,8 @@ package elastic
 
 import (
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestMultiTermVectorsValidateAndBuildURL(t *testing.T) {
@@ -81,28 +83,28 @@ func TestMultiTermVectorsWithIds(t *testing.T) {
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do()
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Count documents
-	count, err := client.Count(testIndexName).Do()
+	count, err := client.Count(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -117,7 +119,7 @@ func TestMultiTermVectorsWithIds(t *testing.T) {
 		Type("tweet").
 		Add(NewMultiTermvectorItem().Index(testIndexName).Type("tweet").Id("1").Fields(field)).
 		Add(NewMultiTermvectorItem().Index(testIndexName).Type("tweet").Id("3").Fields(field)).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

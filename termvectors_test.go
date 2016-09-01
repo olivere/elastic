@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"testing"
 	"time"
 )
@@ -59,7 +60,7 @@ func TestTermVectorsWithId(t *testing.T) {
 		Id("1").
 		BodyJson(&tweet1).
 		Refresh("true").
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +75,7 @@ func TestTermVectorsWithId(t *testing.T) {
 		Fields(field).
 		FieldStatistics(true).
 		TermStatistics(true).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +112,7 @@ func TestTermVectorsWithDoc(t *testing.T) {
 		PerFieldAnalyzer(perFieldAnalyzer).
 		FieldStatistics(true).
 		TermStatistics(true).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,7 +150,7 @@ func TestTermVectorsWithFilter(t *testing.T) {
 		FieldStatistics(true).
 		TermStatistics(true).
 		Filter(NewTermvectorsFilterSettings().MinTermFreq(1)).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

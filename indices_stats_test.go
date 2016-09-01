@@ -6,6 +6,8 @@ package elastic
 
 import (
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestIndexStatsBuildURL(t *testing.T) {
@@ -62,7 +64,7 @@ func TestIndexStatsBuildURL(t *testing.T) {
 func TestIndexStats(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	stats, err := client.IndexStats(testIndexName).Do()
+	stats, err := client.IndexStats(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}

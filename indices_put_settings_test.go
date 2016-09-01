@@ -4,7 +4,11 @@
 
 package elastic
 
-import "testing"
+import (
+	"testing"
+
+	"golang.org/x/net/context"
+)
 
 func TestIndicesPutSettingsBuildURL(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
@@ -48,7 +52,7 @@ func TestIndicesSettingsLifecycle(t *testing.T) {
 	}`
 
 	// Put settings
-	putres, err := client.IndexPutSettings().Index(testIndexName).BodyString(body).Do()
+	putres, err := client.IndexPutSettings().Index(testIndexName).BodyString(body).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected put settings to succeed; got: %v", err)
 	}
@@ -60,7 +64,7 @@ func TestIndicesSettingsLifecycle(t *testing.T) {
 	}
 
 	// Read settings
-	getres, err := client.IndexGetSettings().Index(testIndexName).Do()
+	getres, err := client.IndexGetSettings().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected get mapping to succeed; got: %v", err)
 	}

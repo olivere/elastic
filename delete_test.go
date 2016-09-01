@@ -6,6 +6,8 @@ package elastic
 
 import (
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestDelete(t *testing.T) {
@@ -16,28 +18,28 @@ func TestDelete(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do()
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Count documents
-	count, err := client.Count(testIndexName).Do()
+	count, err := client.Count(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,18 +48,18 @@ func TestDelete(t *testing.T) {
 	}
 
 	// Delete document 1
-	res, err := client.Delete().Index(testIndexName).Type("tweet").Id("1").Do()
+	res, err := client.Delete().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 	if res.Found != true {
 		t.Errorf("expected Found = true; got %v", res.Found)
 	}
-	_, err = client.Flush().Index(testIndexName).Do()
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
-	count, err = client.Count(testIndexName).Do()
+	count, err = client.Count(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +68,7 @@ func TestDelete(t *testing.T) {
 	}
 
 	// Delete non existent document 99
-	res, err = client.Delete().Index(testIndexName).Type("tweet").Id("99").Refresh("true").Do()
+	res, err = client.Delete().Index(testIndexName).Type("tweet").Id("99").Refresh("true").Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected error; got: %v", err)
 	}
@@ -77,7 +79,7 @@ func TestDelete(t *testing.T) {
 		t.Fatalf("expected no response; got: %v", res)
 	}
 
-	count, err = client.Count(testIndexName).Do()
+	count, err = client.Count(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,7 +92,7 @@ func TestDeleteValidate(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
 	// No index name -> fail with error
-	res, err := NewDeleteService(client).Type("tweet").Id("1").Do()
+	res, err := NewDeleteService(client).Type("tweet").Id("1").Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected Delete to fail without index name")
 	}
@@ -99,7 +101,7 @@ func TestDeleteValidate(t *testing.T) {
 	}
 
 	// No type -> fail with error
-	res, err = NewDeleteService(client).Index(testIndexName).Id("1").Do()
+	res, err = NewDeleteService(client).Index(testIndexName).Id("1").Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected Delete to fail without type")
 	}
@@ -108,7 +110,7 @@ func TestDeleteValidate(t *testing.T) {
 	}
 
 	// No id -> fail with error
-	res, err = NewDeleteService(client).Index(testIndexName).Type("tweet").Do()
+	res, err = NewDeleteService(client).Index(testIndexName).Type("tweet").Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected Delete to fail without id")
 	}

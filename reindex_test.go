@@ -7,6 +7,8 @@ package elastic
 import (
 	"encoding/json"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestReindexSourceWithSourceIndexAndDestinationIndex(t *testing.T) {
@@ -208,7 +210,7 @@ func TestReindex(t *testing.T) {
 		t.Skipf("Elasticsearch %v does not support Reindex API yet", esversion)
 	}
 
-	sourceCount, err := client.Count(testIndexName).Do()
+	sourceCount, err := client.Count(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -216,7 +218,7 @@ func TestReindex(t *testing.T) {
 		t.Fatalf("expected more than %d documents; got: %d", 0, sourceCount)
 	}
 
-	targetCount, err := client.Count(testIndexName2).Do()
+	targetCount, err := client.Count(testIndexName2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -227,7 +229,7 @@ func TestReindex(t *testing.T) {
 	// Simple copying
 	src := NewReindexSource().Index(testIndexName)
 	dst := NewReindexDestination().Index(testIndexName2)
-	res, err := client.Reindex().Source(src).Destination(dst).Refresh("true").Do()
+	res, err := client.Reindex().Source(src).Destination(dst).Refresh("true").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -244,7 +246,7 @@ func TestReindex(t *testing.T) {
 		t.Errorf("expected %d, got %d", sourceCount, res.Created)
 	}
 
-	targetCount, err = client.Count(testIndexName2).Do()
+	targetCount, err = client.Count(testIndexName2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

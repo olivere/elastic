@@ -4,13 +4,17 @@
 
 package elastic
 
-import "testing"
+import (
+	"testing"
+
+	"golang.org/x/net/context"
+)
 
 func TestIndicesOpenValidate(t *testing.T) {
 	client := setupTestClient(t)
 
 	// No index name -> fail with error
-	res, err := NewIndicesOpenService(client).Do()
+	res, err := NewIndicesOpenService(client).Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected IndicesOpen to fail without index name")
 	}

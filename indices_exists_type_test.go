@@ -6,6 +6,8 @@ package elastic
 
 import (
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestIndicesExistsTypeBuildURL(t *testing.T) {
@@ -81,7 +83,7 @@ func TestIndicesExistsType(t *testing.T) {
 	client := setupTestClient(t)
 
 	// Create index with tweet type
-	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).Do()
+	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,7 +95,7 @@ func TestIndicesExistsType(t *testing.T) {
 	}
 
 	// Check if type exists
-	exists, err := client.TypeExists().Index(testIndexName).Type("tweet").Do()
+	exists, err := client.TypeExists().Index(testIndexName).Type("tweet").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,7 +104,7 @@ func TestIndicesExistsType(t *testing.T) {
 	}
 
 	// Delete index
-	deleteIndex, err := client.DeleteIndex(testIndexName).Do()
+	deleteIndex, err := client.DeleteIndex(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +113,7 @@ func TestIndicesExistsType(t *testing.T) {
 	}
 
 	// Check if type exists
-	exists, err = client.TypeExists().Index(testIndexName).Type("tweet").Do()
+	exists, err = client.TypeExists().Index(testIndexName).Type("tweet").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,7 +126,7 @@ func TestIndicesExistsTypeValidate(t *testing.T) {
 	client := setupTestClient(t)
 
 	// No index name -> fail with error
-	res, err := NewIndicesExistsTypeService(client).Do()
+	res, err := NewIndicesExistsTypeService(client).Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected IndicesExistsType to fail without index name")
 	}

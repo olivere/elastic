@@ -15,6 +15,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"golang.org/x/net/context"
 )
 
 func findConn(s string, slice ...*conn) (int, bool) {
@@ -168,7 +170,7 @@ func TestClientSniffDisabled(t *testing.T) {
 	}
 	// Make two requests, so that both connections are being used
 	for i := 0; i < len(client.conns); i++ {
-		client.Flush().Do()
+		client.Flush().Do(context.TODO())
 	}
 	// The first connection (127.0.0.1:9200) should now be okay.
 	if i, found := findConn("http://127.0.0.1:9200", client.conns...); !found {
@@ -200,7 +202,7 @@ func TestClientWillMarkConnectionsAsAliveWhenAllAreDead(t *testing.T) {
 	}
 
 	// Make a request, so that the connections is marked as dead.
-	client.Flush().Do()
+	client.Flush().Do(context.TODO())
 
 	// The connection should now be marked as dead.
 	if i, found := findConn("http://127.0.0.1:9201", client.conns...); !found {
@@ -212,7 +214,7 @@ func TestClientWillMarkConnectionsAsAliveWhenAllAreDead(t *testing.T) {
 	}
 
 	// Now send another request and the connection should be marked as alive again.
-	client.Flush().Do()
+	client.Flush().Do(context.TODO())
 
 	if i, found := findConn("http://127.0.0.1:9201", client.conns...); !found {
 		t.Fatalf("expected connection to %q to be found", "http://127.0.0.1:9201")
@@ -685,7 +687,7 @@ func TestPerformRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest("GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -707,7 +709,7 @@ func TestPerformRequestWithSimpleClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest("GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -733,7 +735,7 @@ func TestPerformRequestWithLogger(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest("GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -772,7 +774,7 @@ func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest("GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -815,7 +817,7 @@ func TestPerformRequestWithCustomLogger(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest("GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -878,7 +880,7 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest("GET", "/fail", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -908,7 +910,7 @@ func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest("GET", "/fail", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -934,11 +936,87 @@ func TestPerformRequestWithSetBodyError(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest("GET", "/", nil, failingBody{})
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, failingBody{})
 	if err == nil {
 		t.Fatal("expected error")
 	}
 	if res != nil {
 		t.Fatal("expected no response")
+	}
+}
+
+// sleepingTransport will sleep before doing a request.
+type sleepingTransport struct {
+	timeout time.Duration
+}
+
+// RoundTrip implements a "sleepy" transport.
+func (tr *sleepingTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	time.Sleep(tr.timeout)
+	return http.DefaultTransport.RoundTrip(r)
+}
+
+func TestPerformRequestWithCancel(t *testing.T) {
+	tr := &sleepingTransport{timeout: 3 * time.Second}
+	httpClient := &http.Client{Transport: tr}
+
+	client, err := NewSimpleClient(SetHttpClient(httpClient), SetMaxRetries(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	type result struct {
+		res *Response
+		err error
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+
+	resc := make(chan result, 1)
+	go func() {
+		res, err := client.PerformRequest(ctx, "GET", "/", nil, nil)
+		resc <- result{res: res, err: err}
+	}()
+	select {
+	case <-time.After(1 * time.Second):
+		cancel()
+	case res := <-resc:
+		t.Fatalf("expected response before cancel, got %v", res)
+	case <-ctx.Done():
+		t.Fatalf("expected no early termination, got ctx.Done(): %v", ctx.Err())
+	}
+	err = ctx.Err()
+	if err != context.Canceled {
+		t.Fatalf("expected error context.Canceled, got: %v", err)
+	}
+}
+
+func TestPerformRequestWithTimeout(t *testing.T) {
+	tr := &sleepingTransport{timeout: 3 * time.Second}
+	httpClient := &http.Client{Transport: tr}
+
+	client, err := NewSimpleClient(SetHttpClient(httpClient), SetMaxRetries(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	type result struct {
+		res *Response
+		err error
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 1*time.Second)
+
+	resc := make(chan result, 1)
+	go func() {
+		res, err := client.PerformRequest(ctx, "GET", "/", nil, nil)
+		resc <- result{res: res, err: err}
+	}()
+	select {
+	case res := <-resc:
+		t.Fatalf("expected timeout before response, got %v", res)
+	case <-ctx.Done():
+		err := ctx.Err()
+		if err != context.DeadlineExceeded {
+			t.Fatalf("expected error context.DeadlineExceeded, got: %v", err)
+		}
 	}
 }

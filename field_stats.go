@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
@@ -166,7 +168,7 @@ func (s *FieldStatsService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *FieldStatsService) Do() (*FieldStatsResponse, error) {
+func (s *FieldStatsService) Do(ctx context.Context) (*FieldStatsResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -187,7 +189,7 @@ func (s *FieldStatsService) Do() (*FieldStatsResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("POST", path, params, body, http.StatusNotFound)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, http.StatusNotFound)
 	if err != nil {
 		return nil, err
 	}

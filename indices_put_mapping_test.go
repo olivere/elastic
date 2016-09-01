@@ -4,7 +4,11 @@
 
 package elastic
 
-import "testing"
+import (
+	"testing"
+
+	"golang.org/x/net/context"
+)
 
 func TestPutMappingURL(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
@@ -55,7 +59,7 @@ func TestMappingLifecycle(t *testing.T) {
 		}
 	}`
 
-	putresp, err := client.PutMapping().Index(testIndexName2).Type("tweetdoc").BodyString(mapping).Do()
+	putresp, err := client.PutMapping().Index(testIndexName2).Type("tweetdoc").BodyString(mapping).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected put mapping to succeed; got: %v", err)
 	}
@@ -66,7 +70,7 @@ func TestMappingLifecycle(t *testing.T) {
 		t.Fatalf("expected put mapping ack; got: %v", putresp.Acknowledged)
 	}
 
-	getresp, err := client.GetMapping().Index(testIndexName2).Type("tweetdoc").Do()
+	getresp, err := client.GetMapping().Index(testIndexName2).Type("tweetdoc").Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected get mapping to succeed; got: %v", err)
 	}

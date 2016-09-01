@@ -6,20 +6,13 @@ package elastic
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 	"time"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
-)
+	"golang.org/x/net/context"
 
-var (
-	_ = fmt.Print
-	_ = log.Print
-	_ = strings.Index
-	_ = uritemplates.Expand
-	_ = url.Parse
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // NodesInfoService allows to retrieve one or more or all of the
@@ -108,7 +101,7 @@ func (s *NodesInfoService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *NodesInfoService) Do() (*NodesInfoResponse, error) {
+func (s *NodesInfoService) Do(ctx context.Context) (*NodesInfoResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -121,7 +114,7 @@ func (s *NodesInfoService) Do() (*NodesInfoResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

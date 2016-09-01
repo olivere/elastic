@@ -7,13 +7,15 @@ package elastic
 import (
 	"net/url"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestClusterHealth(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	// Get cluster health
-	res, err := client.ClusterHealth().Index(testIndexName).Level("shards").Pretty(true).Do()
+	res, err := client.ClusterHealth().Index(testIndexName).Level("shards").Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +79,7 @@ func TestClusterHealthWaitForStatus(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	// Ensure preconditions are met: A green cluster.
-	health, err := client.ClusterHealth().Do()
+	health, err := client.ClusterHealth().Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -86,7 +88,7 @@ func TestClusterHealthWaitForStatus(t *testing.T) {
 	}
 
 	// Cluster health on an index that does not exist should never get to yellow
-	health, err = client.ClusterHealth().Index("no-such-index").WaitForStatus("yellow").Timeout("1s").Do()
+	health, err = client.ClusterHealth().Index("no-such-index").WaitForStatus("yellow").Timeout("1s").Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected timeout error; got: %v", err)
 	}
@@ -98,7 +100,7 @@ func TestClusterHealthWaitForStatus(t *testing.T) {
 	}
 
 	// Cluster wide health
-	health, err = client.ClusterHealth().WaitForGreenStatus().Timeout("10s").Do()
+	health, err = client.ClusterHealth().WaitForGreenStatus().Timeout("10s").Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}

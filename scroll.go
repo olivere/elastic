@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
@@ -88,14 +90,14 @@ func (s *ScrollService) ScrollId(scrollId string) *ScrollService {
 	return s
 }
 
-func (s *ScrollService) Do() (*SearchResult, error) {
+func (s *ScrollService) Do(ctx context.Context) (*SearchResult, error) {
 	if s.scrollId == "" {
-		return s.GetFirstPage()
+		return s.GetFirstPage(ctx)
 	}
-	return s.GetNextPage()
+	return s.GetNextPage(ctx)
 }
 
-func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
+func (s *ScrollService) GetFirstPage(ctx context.Context) (*SearchResult, error) {
 	// Build url
 	path := "/"
 
@@ -157,7 +159,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +173,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	return searchResult, nil
 }
 
-func (s *ScrollService) GetNextPage() (*SearchResult, error) {
+func (s *ScrollService) GetNextPage(ctx context.Context) (*SearchResult, error) {
 	if s.scrollId == "" {
 		return nil, io.EOF
 	}
@@ -191,7 +193,7 @@ func (s *ScrollService) GetNextPage() (*SearchResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, s.scrollId)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, s.scrollId)
 	if err != nil {
 		return nil, err
 	}

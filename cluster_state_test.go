@@ -7,13 +7,15 @@ package elastic
 import (
 	"net/url"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestClusterState(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	// Get cluster state
-	res, err := client.ClusterState().Index("_all").Metric("_all").Pretty(true).Do()
+	res, err := client.ClusterState().Index("_all").Metric("_all").Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

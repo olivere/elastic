@@ -4,7 +4,11 @@
 
 package elastic
 
-import "testing"
+import (
+	"testing"
+
+	"golang.org/x/net/context"
+)
 
 func TestTasksListBuildURL(t *testing.T) {
 	client := setupTestClient(t)
@@ -49,7 +53,7 @@ func TestTasksList(t *testing.T) {
 		t.Skipf("Elasticsearch %v does not support Tasks Management API yet", esversion)
 	}
 
-	res, err := client.TasksList().Pretty(true).Do()
+	res, err := client.TasksList().Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

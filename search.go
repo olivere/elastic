@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
@@ -321,7 +323,7 @@ func (s *SearchService) Validate() error {
 }
 
 // Do executes the search and returns a SearchResult.
-func (s *SearchService) Do() (*SearchResult, error) {
+func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -344,7 +346,7 @@ func (s *SearchService) Do() (*SearchResult, error) {
 		}
 		body = src
 	}
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

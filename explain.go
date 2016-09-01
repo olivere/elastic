@@ -6,19 +6,12 @@ package elastic
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
-)
+	"golang.org/x/net/context"
 
-var (
-	_ = fmt.Print
-	_ = log.Print
-	_ = strings.Index
-	_ = uritemplates.Expand
-	_ = url.Parse
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // ExplainService computes a score explanation for a query and
@@ -285,7 +278,7 @@ func (s *ExplainService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *ExplainService) Do() (*ExplainResponse, error) {
+func (s *ExplainService) Do(ctx context.Context) (*ExplainResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -306,7 +299,7 @@ func (s *ExplainService) Do() (*ExplainResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("GET", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}

@@ -6,6 +6,8 @@ package elastic
 
 import (
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestAliasesBuildURL(t *testing.T) {
@@ -52,26 +54,26 @@ func TestAliases(t *testing.T) {
 	tweet3 := tweet{User: "olivere", Message: "Another unrelated topic."}
 
 	// Add tweets to first index
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 	// Add tweets to second index
-	_, err = client.Index().Index(testIndexName2).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	_, err = client.Index().Index(testIndexName2).Type("tweet").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Flush
-	_, err = client.Flush().Index(testIndexName).Do()
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Flush().Index(testIndexName2).Do()
+	_, err = client.Flush().Index(testIndexName2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +82,7 @@ func TestAliases(t *testing.T) {
 	aliasesResult1, err := client.Aliases().
 		Index(testIndexName, testIndexName2).
 		//Pretty(true).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,7 +100,7 @@ func TestAliases(t *testing.T) {
 		Add(testIndexName, testAliasName).
 		Add(testIndexName2, testAliasName).
 		//Pretty(true).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,7 +112,7 @@ func TestAliases(t *testing.T) {
 	aliasesResult2, err := client.Aliases().
 		Index(testIndexName, testIndexName2).
 		//Pretty(true).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +149,7 @@ func TestAliases(t *testing.T) {
 	aliasRemove1, err := client.Alias().
 		Remove(testIndexName, testAliasName).
 		//Pretty(true).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -156,7 +158,7 @@ func TestAliases(t *testing.T) {
 	}
 
 	// Alias should now exist only for index 2
-	aliasesResult3, err := client.Aliases().Index(testIndexName, testIndexName2).Do()
+	aliasesResult3, err := client.Aliases().Index(testIndexName, testIndexName2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

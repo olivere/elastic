@@ -5,6 +5,7 @@
 package elastic_test
 
 import (
+	"context"
 	"encoding/json"
 	"testing"
 
@@ -22,9 +23,9 @@ func ExampleWildcardQuery() {
 	// Define wildcard query
 	q := elastic.NewWildcardQuery("user", "oli*er?").Boost(1.2)
 	searchResult, err := client.Search().
-		Index("twitter"). // search in index "twitter"
-		Query(q).         // use wildcard query defined above
-		Do()              // execute
+		Index("twitter").  // search in index "twitter"
+		Query(q).          // use wildcard query defined above
+		Do(context.TODO()) // execute
 	if err != nil {
 		// Handle error
 		panic(err)

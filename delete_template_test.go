@@ -6,13 +6,15 @@ package elastic
 
 import (
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestDeleteTemplateValidate(t *testing.T) {
 	client := setupTestClient(t)
 
 	// No template id -> fail with error
-	res, err := NewDeleteTemplateService(client).Do()
+	res, err := NewDeleteTemplateService(client).Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected Delete to fail without index name")
 	}

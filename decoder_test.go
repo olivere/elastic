@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 	"sync/atomic"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 type decoder struct {
@@ -36,7 +38,7 @@ func TestDecoder(t *testing.T) {
 		Type("tweet").
 		Id("1").
 		BodyJson(&tweet).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

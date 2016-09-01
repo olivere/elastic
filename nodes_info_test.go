@@ -4,7 +4,11 @@
 
 package elastic
 
-import "testing"
+import (
+	"testing"
+
+	"golang.org/x/net/context"
+)
 
 func TestNodesInfo(t *testing.T) {
 	client, err := NewClient()
@@ -12,7 +16,7 @@ func TestNodesInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	info, err := client.NodesInfo().Do()
+	info, err := client.NodesInfo().Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

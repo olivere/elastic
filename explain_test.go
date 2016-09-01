@@ -4,7 +4,11 @@
 
 package elastic
 
-import "testing"
+import (
+	"testing"
+
+	"golang.org/x/net/context"
+)
 
 func TestExplain(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
@@ -18,7 +22,7 @@ func TestExplain(t *testing.T) {
 		Id("1").
 		BodyJson(&tweet1).
 		Refresh("true").
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -28,7 +32,7 @@ func TestExplain(t *testing.T) {
 
 	// Explain
 	query := NewTermQuery("user", "olivere")
-	expl, err := client.Explain(testIndexName, "tweet", "1").Query(query).Do()
+	expl, err := client.Explain(testIndexName, "tweet", "1").Query(query).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

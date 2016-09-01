@@ -6,6 +6,8 @@ package elastic
 
 import (
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestIndexGetSettingsURL(t *testing.T) {
@@ -61,7 +63,7 @@ func TestIndexGetSettingsService(t *testing.T) {
 		return
 	}
 
-	res, err := client.IndexGetSettings().Index(testIndexName).Do()
+	res, err := client.IndexGetSettings().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

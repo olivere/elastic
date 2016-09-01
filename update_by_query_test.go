@@ -7,6 +7,8 @@ package elastic
 import (
 	"encoding/json"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestUpdateByQueryBuildURL(t *testing.T) {
@@ -108,7 +110,7 @@ func TestUpdateByQuery(t *testing.T) {
 		t.Skipf("Elasticsearch %v does not support update-by-query yet", esversion)
 	}
 
-	sourceCount, err := client.Count(testIndexName).Do()
+	sourceCount, err := client.Count(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -116,7 +118,7 @@ func TestUpdateByQuery(t *testing.T) {
 		t.Fatalf("expected more than %d documents; got: %d", 0, sourceCount)
 	}
 
-	res, err := client.UpdateByQuery(testIndexName).ProceedOnVersionConflict().Do()
+	res, err := client.UpdateByQuery(testIndexName).ProceedOnVersionConflict().Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

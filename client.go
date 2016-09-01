@@ -17,6 +17,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/net/context"
+	"golang.org/x/net/context/ctxhttp"
 )
 
 const (
@@ -1029,7 +1032,7 @@ func (c *Client) mustActiveConn() error {
 // Optionally, a list of HTTP error codes to ignore can be passed.
 // This is necessary for services that expect e.g. HTTP status 404 as a
 // valid outcome (Exists, IndicesExists, IndicesTypeExists).
-func (c *Client) PerformRequest(method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
+func (c *Client) PerformRequest(ctx context.Context, method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
 	start := time.Now().UTC()
 
 	c.mu.RLock()
@@ -1107,7 +1110,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		c.dumpRequest((*http.Request)(req))
 
 		// Get response
-		res, err := c.c.Do((*http.Request)(req))
+		res, err := ctxhttp.Do(ctx, c.c, (*http.Request)(req))
 		if err != nil {
 			retries--
 			if retries <= 0 {
@@ -1459,6 +1462,11 @@ func (c *Client) NodesInfo() *NodesInfoService {
 	return NewNodesInfoService(c)
 }
 
+// NodesStats retrieves one or more or all of the cluster nodes statistics.
+func (c *Client) NodesStats() *NodesStatsService {
+	return NewNodesStatsService(c)
+}
+
 // TasksCancel cancels tasks running on the specified nodes.
 func (c *Client) TasksCancel() *TasksCancelService {
 	return NewTasksCancelService(c)
@@ -1492,7 +1500,7 @@ func (c *Client) TasksList() *TasksListService {
 // ElasticsearchVersion returns the version number of Elasticsearch
 // running on the given URL.
 func (c *Client) ElasticsearchVersion(url string) (string, error) {
-	res, _, err := c.Ping(url).Do()
+	res, _, err := c.Ping(url).Do(context.Background())
 	if err != nil {
 		return "", err
 	}
@@ -1501,7 +1509,7 @@ func (c *Client) ElasticsearchVersion(url string) (string, error) {
 
 // IndexNames returns the names of all indices in the cluster.
 func (c *Client) IndexNames() ([]string, error) {
-	res, err := c.IndexGetSettings().Index("_all").Do()
+	res, err := c.IndexGetSettings().Index("_all").Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -1528,7 +1536,7 @@ func (c *Client) Ping(url string) *PingService {
 // If the cluster will have the given state within the timeout, nil is returned.
 // If the request timed out, ErrTimeout is returned.
 func (c *Client) WaitForStatus(status string, timeout string) error {
-	health, err := c.ClusterHealth().WaitForStatus(status).Timeout(timeout).Do()
+	health, err := c.ClusterHealth().WaitForStatus(status).Timeout(timeout).Do(context.Background())
 	if err != nil {
 		return err
 	}

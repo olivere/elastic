@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
@@ -142,7 +144,7 @@ func (s *IndicesGetMappingService) Validate() error {
 
 // Do executes the operation. It returns mapping definitions for an index
 // or index/type.
-func (s *IndicesGetMappingService) Do() (map[string]interface{}, error) {
+func (s *IndicesGetMappingService) Do(ctx context.Context) (map[string]interface{}, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -155,7 +157,7 @@ func (s *IndicesGetMappingService) Do() (map[string]interface{}, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

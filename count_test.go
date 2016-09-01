@@ -4,7 +4,11 @@
 
 package elastic
 
-import "testing"
+import (
+	"testing"
+
+	"golang.org/x/net/context"
+)
 
 func TestCountURL(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
@@ -55,28 +59,28 @@ func TestCount(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do()
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Count documents
-	count, err := client.Count(testIndexName).Do()
+	count, err := client.Count(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +89,7 @@ func TestCount(t *testing.T) {
 	}
 
 	// Count documents
-	count, err = client.Count(testIndexName).Type("tweet").Do()
+	count, err = client.Count(testIndexName).Type("tweet").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +98,7 @@ func TestCount(t *testing.T) {
 	}
 
 	// Count documents
-	count, err = client.Count(testIndexName).Type("gezwitscher").Do()
+	count, err = client.Count(testIndexName).Type("gezwitscher").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,7 +108,7 @@ func TestCount(t *testing.T) {
 
 	// Count with query
 	query := NewTermQuery("user", "olivere")
-	count, err = client.Count(testIndexName).Query(query).Do()
+	count, err = client.Count(testIndexName).Query(query).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +118,7 @@ func TestCount(t *testing.T) {
 
 	// Count with query and type
 	query = NewTermQuery("user", "olivere")
-	count, err = client.Count(testIndexName).Type("tweet").Query(query).Do()
+	count, err = client.Count(testIndexName).Type("tweet").Query(query).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

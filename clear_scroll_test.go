@@ -7,6 +7,8 @@ package elastic
 import (
 	_ "net/http"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestClearScroll(t *testing.T) {
@@ -17,28 +19,28 @@ func TestClearScroll(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do()
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Match all should return all documents
-	res, err := client.Scroll(testIndexName).Size(1).Do()
+	res, err := client.Scroll(testIndexName).Size(1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,13 +52,13 @@ func TestClearScroll(t *testing.T) {
 	}
 
 	// Search should succeed
-	_, err = client.Scroll(testIndexName).Size(1).ScrollId(res.ScrollId).Do()
+	_, err = client.Scroll(testIndexName).Size(1).ScrollId(res.ScrollId).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Clear scroll id
-	clearScrollRes, err := client.ClearScroll().ScrollId(res.ScrollId).Do()
+	clearScrollRes, err := client.ClearScroll().ScrollId(res.ScrollId).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +67,7 @@ func TestClearScroll(t *testing.T) {
 	}
 
 	// Search result should fail
-	_, err = client.Scroll(testIndexName).Size(1).ScrollId(res.ScrollId).Do()
+	_, err = client.Scroll(testIndexName).Size(1).ScrollId(res.ScrollId).Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected scroll to fail")
 	}
@@ -75,7 +77,7 @@ func TestClearScrollValidate(t *testing.T) {
 	client := setupTestClient(t)
 
 	// No scroll id -> fail with error
-	res, err := NewClearScrollService(client).Do()
+	res, err := NewClearScrollService(client).Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected ClearScroll to fail without scroll ids")
 	}

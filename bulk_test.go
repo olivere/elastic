@@ -7,6 +7,8 @@ package elastic
 import (
 	"encoding/json"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestBulk(t *testing.T) {
@@ -29,7 +31,7 @@ func TestBulk(t *testing.T) {
 		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 3, bulkRequest.NumberOfActions())
 	}
 
-	bulkResponse, err := bulkRequest.Do()
+	bulkResponse, err := bulkRequest.Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +44,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	// Document with Id="1" should not exist
-	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id("1").Do()
+	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +53,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	// Document with Id="2" should exist
-	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id("2").Do()
+	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id("2").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +75,7 @@ func TestBulk(t *testing.T) {
 		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 1, bulkRequest.NumberOfActions())
 	}
 
-	bulkResponse, err = bulkRequest.Do()
+	bulkResponse, err = bulkRequest.Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -86,7 +88,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	// Document with Id="1" should have a retweets count of 42
-	doc, err := client.Get().Index(testIndexName).Type("tweet").Id("2").Do()
+	doc, err := client.Get().Index(testIndexName).Type("tweet").Id("2").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -117,7 +119,7 @@ func TestBulk(t *testing.T) {
 	if bulkRequest.NumberOfActions() != 1 {
 		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 1, bulkRequest.NumberOfActions())
 	}
-	bulkResponse, err = bulkRequest.Refresh("wait_for").Do()
+	bulkResponse, err = bulkRequest.Refresh("wait_for").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,7 +132,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	// Document with Id="1" should have a retweets count of 43
-	doc, err = client.Get().Index(testIndexName).Type("tweet").Id("2").Do()
+	doc, err = client.Get().Index(testIndexName).Type("tweet").Id("2").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,7 +173,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 3, bulkRequest.NumberOfActions())
 	}
 
-	bulkResponse, err := bulkRequest.Do()
+	bulkResponse, err := bulkRequest.Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +182,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 	}
 
 	// Document with Id="1" should not exist
-	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id("1").Do()
+	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -189,7 +191,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 	}
 
 	// Document with Id="2" should exist
-	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id("2").Do()
+	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id("2").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -241,7 +243,7 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	}
 
 	// Run the bulk request
-	bulkResponse, err := bulkRequest.Do()
+	bulkResponse, err := bulkRequest.Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

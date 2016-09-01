@@ -4,7 +4,11 @@
 
 package elastic
 
-import "testing"
+import (
+	"testing"
+
+	"golang.org/x/net/context"
+)
 
 func TestPercolate(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
@@ -12,7 +16,7 @@ func TestPercolate(t *testing.T) {
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 
 	// Add a document
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +30,7 @@ func TestPercolate(t *testing.T) {
 	_, err = client.Index().
 		Index(testIndexName).Type(".percolator").Id("1").
 		BodyJson(searchSrc).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +41,7 @@ func TestPercolate(t *testing.T) {
 		Index(testIndexName).Type("tweet").
 		Doc(newTweet). // shortcut for: BodyJson(map[string]interface{}{"doc": newTweet}).
 		Pretty(true).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +70,7 @@ func TestPercolate(t *testing.T) {
 		Index(testIndexName).Type("tweet").
 		Id("1").
 		Pretty(true).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

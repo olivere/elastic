@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
@@ -94,7 +96,7 @@ func (s *IndicesDeleteService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *IndicesDeleteService) Do() (*IndicesDeleteResponse, error) {
+func (s *IndicesDeleteService) Do(ctx context.Context) (*IndicesDeleteResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -107,7 +109,7 @@ func (s *IndicesDeleteService) Do() (*IndicesDeleteResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("DELETE", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

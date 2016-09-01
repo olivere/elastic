@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"net/url"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
@@ -109,7 +111,7 @@ func (s *PutTemplateService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *PutTemplateService) Do() (*PutTemplateResponse, error) {
+func (s *PutTemplateService) Do(ctx context.Context) (*PutTemplateResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -130,7 +132,7 @@ func (s *PutTemplateService) Do() (*PutTemplateResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
 	if err != nil {
 		return nil, err
 	}

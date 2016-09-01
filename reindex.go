@@ -7,6 +7,8 @@ package elastic
 import (
 	"fmt"
 	"net/url"
+
+	"golang.org/x/net/context"
 )
 
 // ReindexService is a method to copy documents from one index to another.
@@ -247,7 +249,7 @@ func (s *ReindexService) body() (interface{}, error) {
 }
 
 // Do executes the operation.
-func (s *ReindexService) Do() (*ReindexResponse, error) {
+func (s *ReindexService) Do(ctx context.Context) (*ReindexResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -266,7 +268,7 @@ func (s *ReindexService) Do() (*ReindexResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

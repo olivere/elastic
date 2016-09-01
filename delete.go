@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"net/url"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
@@ -174,7 +176,7 @@ func (s *DeleteService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *DeleteService) Do() (*DeleteResponse, error) {
+func (s *DeleteService) Do(ctx context.Context) (*DeleteResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -187,7 +189,7 @@ func (s *DeleteService) Do() (*DeleteResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("DELETE", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

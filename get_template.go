@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"net/url"
 
+	"golang.org/x/net/context"
+
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
@@ -81,7 +83,7 @@ func (s *GetTemplateService) Validate() error {
 }
 
 // Do executes the operation and returns the template.
-func (s *GetTemplateService) Do() (*GetTemplateResponse, error) {
+func (s *GetTemplateService) Do(ctx context.Context) (*GetTemplateResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -94,7 +96,7 @@ func (s *GetTemplateService) Do() (*GetTemplateResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

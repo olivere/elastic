@@ -6,13 +6,15 @@ package elastic
 
 import (
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestIndicesGetValidate(t *testing.T) {
 	client := setupTestClient(t)
 
 	// No index name -> fail with error
-	res, err := NewIndicesGetService(client).Index("").Do()
+	res, err := NewIndicesGetService(client).Index("").Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected IndicesGet to fail without index name")
 	}
@@ -74,7 +76,7 @@ func TestIndicesGetService(t *testing.T) {
 		return
 	}
 
-	res, err := client.IndexGet().Index(testIndexName).Do()
+	res, err := client.IndexGet().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
