@@ -1534,6 +1534,11 @@ func (c *Client) NodesInfo() *NodesInfoService {
 	return NewNodesInfoService(c)
 }
 
+// NodesStats retrieves one or more or all of the cluster nodes statistics.
+func (c *Client) NodesStats() *NodesStatsService {
+	return NewNodesStatsService(c)
+}
+
 // TasksCancel cancels tasks running on the specified nodes.
 func (c *Client) TasksCancel() *TasksCancelService {
 	return NewTasksCancelService(c)
