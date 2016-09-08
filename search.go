@@ -29,6 +29,7 @@ type SearchService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	requestCache      bool
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -48,6 +49,18 @@ func (s *SearchService) SearchSource(searchSource *SearchSource) *SearchService 
 	}
 	return s
 }
+
+// set request cache status
+func (s *SearchService) RequestCache(cacheStatus bool) {
+        s.requestCache= cacheStatus
+}
+
+
+// get set source
+func (s *SearchService) GetSource() interface{} {
+        return s.source
+}
+
 
 // Source allows the user to set the request body manually without using
 // any of the structs and interfaces in Elastic.
@@ -312,6 +325,9 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	}
 	if s.ignoreUnavailable != nil {
 		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	}
+	if s.requestCache {
+		params.Set("request_cache", "true")
 	}
 	return path, params, nil
 }
