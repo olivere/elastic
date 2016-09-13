@@ -93,6 +93,7 @@ creating a client, creating an index, adding a document, executing a search etc.
 client, err := elastic.NewClient()
 if err != nil {
     // Handle error
+    panic(err)
 }
 
 // Create an index
@@ -160,6 +161,7 @@ if searchResult.Hits.TotalHits > 0 {
         err := json.Unmarshal(*hit.Source, &t)
         if err != nil {
             // Deserialization failed
+            panic(err)
         }
 
         // Work with tweet
