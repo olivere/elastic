@@ -222,6 +222,30 @@ func (s *ScrollService) DoC(ctx context.Context) (*SearchResult, error) {
 	return s.next(ctx)
 }
 
+func (s *ScrollService) Clear(ctx context.Context) error {
+	s.mu.RLock()
+	nextScrollId := s.scrollId
+	s.mu.RUnlock()
+	if len(nextScrollId) == 0 {
+		return nil
+	}
+
+	path := "/_search/scroll"
+	params := url.Values{}
+	body := struct {
+		ScrollId []string `json:"scroll_id,omitempty"`
+	}{
+		ScrollId: []string{s.scrollId},
+	}
+
+	_, err := s.client.PerformRequestC(ctx, "DELETE", path, params, body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // -- First --
 
 // first takes the first page of search results.

@@ -9,6 +9,8 @@ import (
 	"io"
 	_ "net/http"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 func TestScroll(t *testing.T) {
@@ -91,6 +93,16 @@ func TestScroll(t *testing.T) {
 
 	if numDocs != 3 {
 		t.Errorf("expected to retrieve %d hits; got %d", 3, numDocs)
+	}
+
+	err = svc.Clear(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = svc.Do()
+	if err == nil {
+		t.Fatal(err)
 	}
 }
 
