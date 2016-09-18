@@ -222,11 +222,14 @@ func (s *ScrollService) DoC(ctx context.Context) (*SearchResult, error) {
 	return s.next(ctx)
 }
 
+// Clear cancels the current scroll operation. If you don't do this manually,
+// the scroll will be expired automatically by Elasticsearch. You can control
+// how long a scroll cursor is kept alive with the KeepAlive func.
 func (s *ScrollService) Clear(ctx context.Context) error {
 	s.mu.RLock()
-	nextScrollId := s.scrollId
+	scrollId := s.scrollId
 	s.mu.RUnlock()
-	if len(nextScrollId) == 0 {
+	if len(scrollId) == 0 {
 		return nil
 	}
 
@@ -235,7 +238,7 @@ func (s *ScrollService) Clear(ctx context.Context) error {
 	body := struct {
 		ScrollId []string `json:"scroll_id,omitempty"`
 	}{
-		ScrollId: []string{s.scrollId},
+		ScrollId: []string{scrollId},
 	}
 
 	_, err := s.client.PerformRequestC(ctx, "DELETE", path, params, body)
