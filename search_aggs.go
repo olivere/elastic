@@ -1144,7 +1144,7 @@ func (a *AggregationBucketHistogramItems) UnmarshalJSON(data []byte) error {
 type AggregationBucketHistogramItem struct {
 	Aggregations
 
-	Key         int64   //`json:"key"`
+	Key         float64 //`json:"key"`
 	KeyAsString *string //`json:"key_as_string"`
 	DocCount    int64   //`json:"doc_count"`
 }

@@ -88,7 +88,7 @@ func TestAggs(t *testing.T) {
 	percentileRanksRetweetsAgg := NewPercentileRanksAggregation().Field("retweets").Values(25, 50, 75)
 	cardinalityAgg := NewCardinalityAggregation().Field("user")
 	significantTermsAgg := NewSignificantTermsAggregation().Field("message")
-	samplerAgg := NewSamplerAggregation().Field("user").SubAggregation("tagged_with", NewTermsAggregation().Field("tags"))
+	samplerAgg := NewSamplerAggregation().SubAggregation("tagged_with", NewTermsAggregation().Field("tags"))
 	retweetsRangeAgg := NewRangeAggregation().Field("retweets").Lt(10).Between(10, 100).Gt(100)
 	retweetsKeyedRangeAgg := NewRangeAggregation().Field("retweets").Keyed(true).Lt(10).Between(10, 100).Gt(100)
 	dateRangeAgg := NewDateRangeAggregation().Field("created").Lt("2012-01-01").Between("2012-01-01", "2013-01-01").Gt("2013-01-01")
@@ -609,8 +609,8 @@ func TestAggs(t *testing.T) {
 	if samplerAggRes == nil {
 		t.Fatalf("expected != nil; got: nil")
 	}
-	if samplerAggRes.DocCount != 2 {
-		t.Errorf("expected %v; got: %v", 2, samplerAggRes.DocCount)
+	if samplerAggRes.DocCount != 3 {
+		t.Errorf("expected %v; got: %v", 3, samplerAggRes.DocCount)
 	}
 	sub, found := samplerAggRes.Aggregations["tagged_with"]
 	if !found {
@@ -771,7 +771,7 @@ func TestAggs(t *testing.T) {
 		t.Errorf("expected %d; got: %d", 1, histoRes.Buckets[1].DocCount)
 	}
 	if histoRes.Buckets[1].Key != 100.0 {
-		t.Errorf("expected %v; got: %v", 100.0, histoRes.Buckets[1].Key)
+		t.Errorf("expected %v; got: %+v", 100.0, histoRes.Buckets[1].Key)
 	}
 
 	// dateHisto
