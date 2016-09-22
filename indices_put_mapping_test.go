@@ -53,7 +53,8 @@ func TestMappingLifecycle(t *testing.T) {
 		"tweetdoc":{
 			"properties":{
 				"message":{
-					"type":"string"
+					"type":"string",
+					"store": true
 				}
 			}
 		}
