@@ -46,6 +46,14 @@ Use `bool` query instead, which supports `filter` clauses too.
 The `limit` query has been [removed](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking_50_search_changes.html#_deprecated_queries_removed).
 Use the `terminate_after` parameter instead.
 
+# Template Query removed
+
+The `template` query has been [deprecated](https://www.elastic.co/guide/en/elasticsearch/reference/5.x/query-dsl-template-query.html). You should use
+Search Templates instead.
+
+We remove it from Elastic 5.0 as the 5.0 update is already a good opportunity
+to get rid of old stuff.
+
 ## `_timestamp` and `_ttl` removed
 
 Both of these fields were deprecated and are now [removed](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking_50_mapping_changes.html#_literal__timestamp_literal_and_literal__ttl_literal).

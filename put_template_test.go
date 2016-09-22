@@ -5,8 +5,6 @@
 package elastic
 
 import (
-	"log"
-	"os"
 	"testing"
 
 	"golang.org/x/net/context"
@@ -52,52 +50,5 @@ func TestSearchTemplatesLifecycle(t *testing.T) {
 	}
 	if !dresp.Acknowledged {
 		t.Fatalf("expected acknowledged = %v; got: %v", true, dresp.Acknowledged)
-	}
-}
-
-func TestSearchTemplatesInlineQuery(t *testing.T) {
-	// client := setupTestClientAndCreateIndex(t)
-	client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
-
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
-	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
-
-	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Run query with (inline) search template
-	// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-template-query.html
-	tq := NewTemplateQuery(`{"match_{{template}}": {}}`).Var("template", "all")
-	resp, err := client.Search(testIndexName).Query(tq).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if resp == nil {
-		t.Fatalf("expected response != nil; got: %v", resp)
-	}
-	if resp.Hits == nil {
-		t.Fatalf("expected response hits != nil; got: %v", resp.Hits)
-	}
-	if resp.Hits.TotalHits != 3 {
-		t.Fatalf("expected 3 hits; got: %d", resp.Hits.TotalHits)
 	}
 }
