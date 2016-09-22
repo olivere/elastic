@@ -249,7 +249,7 @@ func (s *ReindexService) body() (interface{}, error) {
 }
 
 // Do executes the operation.
-func (s *ReindexService) Do(ctx context.Context) (*ReindexResponse, error) {
+func (s *ReindexService) Do(ctx context.Context) (*BulkIndexByScrollResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -274,35 +274,11 @@ func (s *ReindexService) Do(ctx context.Context) (*ReindexResponse, error) {
 	}
 
 	// Return operation response
-	ret := new(ReindexResponse)
+	ret := new(BulkIndexByScrollResponse)
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
-}
-
-// ReindexResponse is the response of ReindexService.Do.
-type ReindexResponse struct {
-	Took             interface{} `json:"took"` // 2.3.0 returns "37.7ms" while 2.2 returns 38 for took
-	TimedOut         bool        `json:"timed_out"`
-	Total            int64       `json:"total"`
-	Updated          int64       `json:"updated"`
-	Created          int64       `json:"created"`
-	Deleted          int64       `json:"deleted"`
-	Batches          int64       `json:"batches"`
-	VersionConflicts int64       `json:"version_conflicts"`
-	Noops            int64       `json:"noops"`
-	Retries          struct {
-		Bulk   int64 `json:"bulk"`
-		Search int64 `json:"search"`
-	} `json:"retries"`
-	Throttled            string                  `json:"throttled"`
-	ThrottledMillis      int64                   `json:"throttled_millis"`
-	RequestsPerSecond    string                  `json:"requests_per_second"`
-	Canceled             string                  `json:"canceled"`
-	ThrottledUntil       string                  `json:"throttled_until"`
-	ThrottledUntilMillis int64                   `json:"throttled_until_millis"`
-	Failures             []shardOperationFailure `json:"failures"`
 }
 
 // -- Source of Reindex --
