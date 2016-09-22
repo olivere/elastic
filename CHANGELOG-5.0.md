@@ -169,3 +169,13 @@ Some changes:
 
 TODO Fix all structural changes in suggesters
 
+## Percolator
+
+Percolator has [changed considerably](https://www.elastic.co/guide/en/elasticsearch/reference/5.x/breaking_50_percolator.html).
+
+Elastic 5.0 adds the new
+[Percolator Query](https://www.elastic.co/guide/en/elasticsearch/reference/5.x/query-dsl-percolate-query.html)
+which can be used in combination with the new
+[Percolator type](https://www.elastic.co/guide/en/elasticsearch/reference/5.x/percolator.html).
+
+The Percolate service is removed from Elastic 5.0.

@@ -70,6 +70,21 @@ const (
 					"format": "YYYY-MM-dd"
 				}
 			}
+		},
+		"doctype":{
+			"properties":{
+				"message":{
+					"type":"text",
+					"store": true
+				}
+			}
+		},
+		"queries":{
+			"properties": {
+				"query": {
+					"type":	"percolator"
+				}
+			}
 		}
 	}
 }
@@ -110,6 +125,16 @@ type order struct {
 
 func (o order) String() string {
 	return fmt.Sprintf("order{Article:%q,Manufacturer:%q,Price:%v,Time:%v}", o.Article, o.Manufacturer, o.Price, o.Time)
+}
+
+// doctype is required for Percolate tests.
+type doctype struct {
+	Message string `json:"message"`
+}
+
+// queries is required for Percolate tests.
+type queries struct {
+	Query string `json:"query"`
 }
 
 func isTravis() bool {

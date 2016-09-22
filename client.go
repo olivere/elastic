@@ -1258,12 +1258,6 @@ func (c *Client) Explain(index, typ, id string) *ExplainService {
 	return NewExplainService(c).Index(index).Type(typ).Id(id)
 }
 
-// Percolate allows to send a document and return matching queries.
-// See http://www.elastic.co/guide/en/elasticsearch/reference/current/search-percolate.html.
-func (c *Client) Percolate() *PercolateService {
-	return NewPercolateService(c)
-}
-
 // TODO Search Template
 // TODO Search Shards API
 // TODO Search Exists API

@@ -13,84 +13,46 @@ import (
 func TestPercolate(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-
 	// Add a document
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Register a query in the ".percolator" type.
-	search := NewSearchSource().Query(NewMatchQuery("message", "Golang"))
-	searchSrc, err := search.Source()
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = client.Index().
-		Index(testIndexName).Type(".percolator").Id("1").
-		BodyJson(searchSrc).
+	_, err := client.Index().
+		Index(testIndexName).
+		Type("queries").
+		Id("1").
+		BodyJson(`{"query":{"match":{"message":"bonsai tree"}}}`).
+		Refresh("wait_for").
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Percolate should return our registered query
-	newTweet := tweet{User: "olivere", Message: "Golang is fun."}
-	res, err := client.Percolate().
-		Index(testIndexName).Type("tweet").
-		Doc(newTweet). // shortcut for: BodyJson(map[string]interface{}{"doc": newTweet}).
-		Pretty(true).
-		Do(context.TODO())
+	pq := NewPercolatorQuery().
+		Field("query").
+		DocumentType("doctype").
+		Document(doctype{Message: "A new bonsai tree in the office"})
+	res, err := client.Search(testIndexName).Query(pq).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 	if res == nil {
-		t.Errorf("expected results != nil; got nil")
+		t.Fatal("expected results != nil; got nil")
 	}
-	if res.Total != 1 {
-		t.Fatalf("expected 1 result; got: %d", res.Total)
+	if res.Hits == nil {
+		t.Fatal("expected SearchResult.Hits != nil; got nil")
 	}
-	if res.Matches == nil {
-		t.Fatalf("expected Matches; got: %v", res.Matches)
+	if got, want := res.Hits.TotalHits, int64(1); got != want {
+		t.Fatalf("expected SearchResult.Hits.TotalHits = %d; got %d", want, got)
 	}
-	matches := res.Matches
-	if matches == nil {
-		t.Fatalf("expected matches as map; got: %v", matches)
+	if got, want := len(res.Hits.Hits), 1; got != want {
+		t.Fatalf("expected len(SearchResult.Hits.Hits) = %d; got %d", want, got)
 	}
-	if len(matches) != 1 {
-		t.Fatalf("expected %d registered matches; got: %d", 1, len(matches))
+	hit := res.Hits.Hits[0]
+	if hit.Index != testIndexName {
+		t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
 	}
-	if matches[0].Id != "1" {
-		t.Errorf("expected to return query %q; got: %q", "1", matches[0].Id)
-	}
-
-	// Percolating an existsing document should return our registered query
-	res, err = client.Percolate().
-		Index(testIndexName).Type("tweet").
-		Id("1").
-		Pretty(true).
-		Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if res == nil {
-		t.Errorf("expected results != nil; got nil")
-	}
-	if res.Total != 1 {
-		t.Fatalf("expected 1 result; got: %d", res.Total)
-	}
-	if res.Matches == nil {
-		t.Fatalf("expected Matches; got: %v", res.Matches)
-	}
-	matches = res.Matches
-	if matches == nil {
-		t.Fatalf("expected matches as map; got: %v", matches)
-	}
-	if len(matches) != 1 {
-		t.Fatalf("expected %d registered matches; got: %d", 1, len(matches))
-	}
-	if matches[0].Id != "1" {
-		t.Errorf("expected to return query %q; got: %q", "1", matches[0].Id)
+	got := string(*hit.Source)
+	expected := `{"query":{"match":{"message":"bonsai tree"}}}`
+	if got != expected {
+		t.Fatalf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
