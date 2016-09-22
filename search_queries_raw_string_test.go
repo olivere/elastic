@@ -10,7 +10,7 @@ import (
 )
 
 func TestRawStringQuery(t *testing.T) {
-	q := RawStringQuery(`{"query":{"match_all":{}}}`)
+	q := RawStringQuery(`{"match_all":{}}`)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -20,14 +20,14 @@ func TestRawStringQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"query":{"match_all":{}}}`
+	expected := `{"match_all":{}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
 func TestNewRawStringQuery(t *testing.T) {
-	q := NewRawStringQuery(`{"query":{"match_all":{}}}`)
+	q := NewRawStringQuery(`{"match_all":{}}`)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +37,7 @@ func TestNewRawStringQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"query":{"match_all":{}}}`
+	expected := `{"match_all":{}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

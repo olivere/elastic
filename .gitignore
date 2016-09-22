@@ -21,6 +21,7 @@ _testmain.go
 
 *.exe
 
+/config/scripts
 /generator
 /cluster-test/cluster-test
 /cluster-test/*.log

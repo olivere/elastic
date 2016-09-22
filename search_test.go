@@ -521,6 +521,7 @@ func TestSearchSource(t *testing.T) {
 }
 
 func TestSearchRawString(t *testing.T) {
+	// client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{
@@ -560,7 +561,7 @@ func TestSearchRawString(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	query := RawStringQuery(`{"query":{"match_all":{}}}`)
+	query := RawStringQuery(`{"match_all":{}}`)
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Query(query).
