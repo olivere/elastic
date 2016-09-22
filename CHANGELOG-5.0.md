@@ -50,6 +50,11 @@ Use the `terminate_after` parameter instead.
 
 Both of these fields were deprecated and are now [removed](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking_50_mapping_changes.html#_literal__timestamp_literal_and_literal__ttl_literal).
 
+## Search template Put/Delete API returns `acknowledged` only
+
+The response type for Put/Delete search templates has changed.
+It only returns a single `acknowledged` flag now.
+
 ## Fields has been renamed to Stored Fields
 
 The `fields` parameter has been renamed to `stored_fields`.

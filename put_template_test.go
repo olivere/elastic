@@ -5,6 +5,8 @@
 package elastic
 
 import (
+	"log"
+	"os"
 	"testing"
 
 	"golang.org/x/net/context"
@@ -24,8 +26,8 @@ func TestSearchTemplatesLifecycle(t *testing.T) {
 	if cresp == nil {
 		t.Fatalf("expected response != nil; got: %v", cresp)
 	}
-	if !cresp.Created {
-		t.Errorf("expected created = %v; got: %v", true, cresp.Created)
+	if !cresp.Acknowledged {
+		t.Errorf("expected acknowledged = %v; got: %v", true, cresp.Acknowledged)
 	}
 
 	// Get template
@@ -48,13 +50,14 @@ func TestSearchTemplatesLifecycle(t *testing.T) {
 	if dresp == nil {
 		t.Fatalf("expected response != nil; got: %v", dresp)
 	}
-	if !dresp.Found {
-		t.Fatalf("expected found = %v; got: %v", true, dresp.Found)
+	if !dresp.Acknowledged {
+		t.Fatalf("expected acknowledged = %v; got: %v", true, dresp.Acknowledged)
 	}
 }
 
 func TestSearchTemplatesInlineQuery(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	// client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}

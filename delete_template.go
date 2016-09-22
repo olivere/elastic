@@ -83,7 +83,7 @@ func (s *DeleteTemplateService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *DeleteTemplateService) Do(ctx context.Context) (*DeleteTemplateResponse, error) {
+func (s *DeleteTemplateService) Do(ctx context.Context) (*AcknowledgedResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -102,18 +102,9 @@ func (s *DeleteTemplateService) Do(ctx context.Context) (*DeleteTemplateResponse
 	}
 
 	// Return operation response
-	ret := new(DeleteTemplateResponse)
+	ret := new(AcknowledgedResponse)
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
-}
-
-// DeleteTemplateResponse is the response of DeleteTemplateService.Do.
-type DeleteTemplateResponse struct {
-	Found   bool   `json:"found"`
-	Index   string `json:"_index"`
-	Type    string `json:"_type"`
-	Id      string `json:"_id"`
-	Version int    `json:"_version"`
 }

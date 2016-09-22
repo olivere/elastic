@@ -464,8 +464,8 @@ func ExamplePutTemplateService() {
 	if err != nil {
 		panic(err)
 	}
-	if resp.Created {
-		fmt.Println("search template created")
+	if resp.Acknowledged {
+		fmt.Println("search template creation acknowledged")
 	}
 }
 
@@ -494,7 +494,7 @@ func ExampleDeleteTemplateService() {
 	if err != nil {
 		panic(err)
 	}
-	if resp != nil && resp.Found {
+	if resp != nil && resp.Acknowledged {
 		fmt.Println("template deleted")
 	}
 }

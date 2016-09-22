@@ -111,7 +111,7 @@ func (s *PutTemplateService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *PutTemplateService) Do(ctx context.Context) (*PutTemplateResponse, error) {
+func (s *PutTemplateService) Do(ctx context.Context) (*AcknowledgedResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -138,16 +138,9 @@ func (s *PutTemplateService) Do(ctx context.Context) (*PutTemplateResponse, erro
 	}
 
 	// Return operation response
-	ret := new(PutTemplateResponse)
+	ret := new(AcknowledgedResponse)
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
-}
-
-// PutTemplateResponse is the response of PutTemplateService.Do.
-type PutTemplateResponse struct {
-	Id      string `json:"_id"`
-	Version int    `json:"_version"`
-	Created bool   `json:"created"`
 }

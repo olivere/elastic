@@ -32,8 +32,8 @@ func TestGetPutDeleteTemplate(t *testing.T) {
 	if putres == nil {
 		t.Fatalf("expected response; got: %v", putres)
 	}
-	if !putres.Created {
-		t.Fatalf("expected template to be created; got: %v", putres.Created)
+	if !putres.Acknowledged {
+		t.Fatalf("expected template creation to be acknowledged; got: %v", putres.Acknowledged)
 	}
 
 	// Always delete template
