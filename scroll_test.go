@@ -107,8 +107,7 @@ func TestScroll(t *testing.T) {
 }
 
 func TestScrollWithQueryAndSort(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
-	// client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	client := setupTestClientAndCreateIndex(t) // , SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}

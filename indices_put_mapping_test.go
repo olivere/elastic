@@ -52,9 +52,8 @@ func TestMappingLifecycle(t *testing.T) {
 	mapping := `{
 		"tweetdoc":{
 			"properties":{
-				"message":{
-					"type":"string",
-					"store": true
+				"field":{
+					"type":"string"
 				}
 			}
 		}

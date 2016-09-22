@@ -36,7 +36,8 @@ const (
 				},
 				"message":{
 					"type":"text",
-					"store": true
+					"store": true,
+					"fielddata": true
 				},
 				"tags":{
 					"type":"keyword"
@@ -75,7 +76,8 @@ const (
 			"properties":{
 				"message":{
 					"type":"text",
-					"store": true
+					"store": true,
+					"fielddata": true
 				}
 			}
 		},
