@@ -1,5 +1,13 @@
 # Changes in Elastic 5.0
 
+## Enforce context.Context in PerformRequest and Do
+
+We enforce the usage of `context.Context` everywhere you execute a request.
+You need to change all your `Do()` calls to pass a context: `Do(ctx)`.
+This enables automatic request cancelation and many other patterns.
+
+If you don't need this, simply pass `context.TODO` or `context.Background`.
+
 ## Warmers removed
 
 Warmers are no longer necessary and have been [removed in ES 5.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking_50_index_apis.html#_warmers).
@@ -12,7 +20,7 @@ Use [Force Merge](https://www.elastic.co/guide/en/elasticsearch/reference/master
 ## Missing Query removed
 
 The `missing` query has been [removed](https://www.elastic.co/guide/en/elasticsearch/reference/master/query-dsl-exists-query.html#_literal_missing_literal_query).
-Use `exists` query with `must_not` in `bool` query instead. 
+Use `exists` query with `must_not` in `bool` query instead.
 
 ## And Query removed
 
@@ -41,6 +49,16 @@ Use the `terminate_after` parameter instead.
 ## `_timestamp` and `_ttl` removed
 
 Both of these fields were deprecated and are now [removed](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking_50_mapping_changes.html#_literal__timestamp_literal_and_literal__ttl_literal).
+
+## Fields has been renamed to Stored Fields
+
+The `fields` parameter has been renamed to `stored_fields`.
+See [here](https://www.elastic.co/guide/en/elasticsearch/reference/5.x/breaking_50_search_changes.html#_literal_fields_literal_parameter).
+
+## Fielddatafields has been renamed to Docvaluefields
+
+The `fielddata_fields` parameter [has been renamed](https://www.elastic.co/guide/en/elasticsearch/reference/5.x/breaking_50_search_changes.html#_literal_fielddata_fields_literal_parameter)
+to `docvalue_fields`.
 
 ## Refresh parameter changed
 
@@ -122,7 +140,7 @@ removes all the problems with the older services.
 In other words:
 If you used `ScanService`, switch to `ScrollService`.
 If you used the old `ScrollService`, you might need to fix some things but
-overall it should just work. 
+overall it should just work.
 
 Changes:
 - We replaced `elastic.EOS` with `io.EOF` to indicate the "end of scroll".
@@ -138,6 +156,3 @@ Some changes:
 
 TODO Fix all structural changes in suggesters
 
-## Support context.Context in PerformRequest and Do
-
-TODO Support context.Context everywhere

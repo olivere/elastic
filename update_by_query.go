@@ -424,21 +424,15 @@ func (s *UpdateByQueryService) buildURL() (string, url.Values, error) {
 	// Build URL
 	var err error
 	var path string
-	if len(s.index) > 0 && len(s.typ) > 0 {
+	if len(s.typ) > 0 {
 		path, err = uritemplates.Expand("/{index}/{type}/_update_by_query", map[string]string{
 			"index": strings.Join(s.index, ","),
 			"type":  strings.Join(s.typ, ","),
 		})
-	} else if len(s.index) > 0 && len(s.typ) == 0 {
+	} else {
 		path, err = uritemplates.Expand("/{index}/_update_by_query", map[string]string{
 			"index": strings.Join(s.index, ","),
 		})
-	} else if len(s.index) == 0 && len(s.typ) > 0 {
-		path, err = uritemplates.Expand("/_all/{type}/_update_by_query", map[string]string{
-			"type": strings.Join(s.typ, ","),
-		})
-	} else {
-		path = "/_all/_update_by_query"
 	}
 	if err != nil {
 		return "", url.Values{}, err
@@ -574,6 +568,13 @@ func (s *UpdateByQueryService) buildURL() (string, url.Values, error) {
 
 // Validate checks if the operation is valid.
 func (s *UpdateByQueryService) Validate() error {
+	var invalid []string
+	if len(s.index) == 0 {
+		invalid = append(invalid, "Index")
+	}
+	if len(invalid) > 0 {
+		return fmt.Errorf("missing required fields: %v", invalid)
+	}
 	return nil
 }
 
@@ -608,7 +609,7 @@ func (s *UpdateByQueryService) body() (interface{}, error) {
 }
 
 // Do executes the operation.
-func (s *UpdateByQueryService) Do(ctx context.Context) (*UpdateByQueryResponse, error) {
+func (s *UpdateByQueryService) Do(ctx context.Context) (*BulkIndexByScrollResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -632,34 +633,10 @@ func (s *UpdateByQueryService) Do(ctx context.Context) (*UpdateByQueryResponse, 
 		return nil, err
 	}
 
-	// Return operation response
-	ret := new(UpdateByQueryResponse)
+	// Return operation response (BulkIndexByScrollResponse is defined in DeleteByQuery)
+	ret := new(BulkIndexByScrollResponse)
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
-}
-
-// UpdateByQueryResponse is the response of UpdateByQueryService.Do.
-type UpdateByQueryResponse struct {
-	Took             int64 `json:"took"`
-	TimedOut         bool  `json:"timed_out"`
-	Total            int64 `json:"total"`
-	Updated          int64 `json:"updated"`
-	Created          int64 `json:"created"`
-	Deleted          int64 `json:"deleted"`
-	Batches          int64 `json:"batches"`
-	VersionConflicts int64 `json:"version_conflicts"`
-	Noops            int64 `json:"noops"`
-	Retries          struct {
-		Bulk   int64 `json:"bulk"`
-		Search int64 `json:"search"`
-	} `json:"retries"`
-	Throttled            string                  `json:"throttled"`
-	ThrottledMillis      int64                   `json:"throttled_millis"`
-	RequestsPerSecond    string                  `json:"requests_per_second"`
-	Canceled             string                  `json:"canceled"`
-	ThrottledUntil       string                  `json:"throttled_until"`
-	ThrottledUntilMillis int64                   `json:"throttled_until_millis"`
-	Failures             []shardOperationFailure `json:"failures"`
 }

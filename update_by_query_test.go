@@ -15,50 +15,67 @@ func TestUpdateByQueryBuildURL(t *testing.T) {
 	client := setupTestClient(t)
 
 	tests := []struct {
-		Indices  []string
-		Types    []string
-		Expected string
+		Indices   []string
+		Types     []string
+		Expected  string
+		ExpectErr bool
 	}{
 		{
 			[]string{},
 			[]string{},
-			"/_all/_update_by_query",
+			"",
+			true,
 		},
 		{
 			[]string{"index1"},
 			[]string{},
 			"/index1/_update_by_query",
+			false,
 		},
 		{
 			[]string{"index1", "index2"},
 			[]string{},
 			"/index1%2Cindex2/_update_by_query",
+			false,
 		},
 		{
 			[]string{},
 			[]string{"type1"},
-			"/_all/type1/_update_by_query",
+			"",
+			true,
 		},
 		{
 			[]string{"index1"},
 			[]string{"type1"},
 			"/index1/type1/_update_by_query",
+			false,
 		},
 		{
 			[]string{"index1", "index2"},
 			[]string{"type1", "type2"},
 			"/index1%2Cindex2/type1%2Ctype2/_update_by_query",
+			false,
 		},
 	}
 
 	for i, test := range tests {
-		path, _, err := client.UpdateByQuery().Index(test.Indices...).Type(test.Types...).buildURL()
+		builder := client.UpdateByQuery().Index(test.Indices...).Type(test.Types...)
+		err := builder.Validate()
 		if err != nil {
-			t.Errorf("case #%d: %v", i+1, err)
-			continue
-		}
-		if path != test.Expected {
-			t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+			if !test.ExpectErr {
+				t.Errorf("case #%d: %v", i+1, err)
+				continue
+			}
+		} else {
+			// err == nil
+			if test.ExpectErr {
+				t.Errorf("case #%d: expected error", i+1)
+				continue
+			}
+			path, _, _ := builder.buildURL()
+			if path != test.Expected {
+				t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+			}
 		}
 	}
 }

@@ -6,8 +6,6 @@ package elastic
 
 import (
 	"encoding/json"
-	"log"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -305,6 +303,7 @@ func TestSearchSortingBySorters(t *testing.T) {
 }
 
 func TestSearchSpecificFields(t *testing.T) {
+	// client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
@@ -337,7 +336,7 @@ func TestSearchSpecificFields(t *testing.T) {
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Query(all).
-		Fields("message").
+		StoredFields("message").
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -525,8 +524,8 @@ func TestSearchSource(t *testing.T) {
 }
 
 func TestSearchRawString(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
-	// client := setupTestClientAndCreateIndex(t)
+	// client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
@@ -565,7 +564,7 @@ func TestSearchRawString(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	query := RawStringQuery(`{"query":{"match_all":{}}}`)
+	query := RawStringQuery(`{"match_all":{}}`)
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Query(query).

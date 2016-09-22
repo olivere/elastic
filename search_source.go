@@ -22,8 +22,8 @@ type SearchSource struct {
 	minScore                 *float64
 	timeout                  string
 	terminateAfter           *int
-	fieldNames               []string
-	fieldDataFields          []string
+	storedFieldNames         []string
+	docvalueFields           []string
 	scriptFields             []*ScriptField
 	fetchSourceContext       *FetchSourceContext
 	aggregations             map[string]Aggregation
@@ -40,17 +40,12 @@ type SearchSource struct {
 // NewSearchSource initializes a new SearchSource.
 func NewSearchSource() *SearchSource {
 	return &SearchSource{
-		from:            -1,
-		size:            -1,
-		trackScores:     false,
-		sorters:         make([]Sorter, 0),
-		fieldDataFields: make([]string, 0),
-		scriptFields:    make([]*ScriptField, 0),
-		aggregations:    make(map[string]Aggregation),
-		rescores:        make([]*Rescore, 0),
-		indexBoosts:     make(map[string]float64),
-		stats:           make([]string, 0),
-		innerHits:       make(map[string]*InnerHit),
+		from:         -1,
+		size:         -1,
+		trackScores:  false,
+		aggregations: make(map[string]Aggregation),
+		indexBoosts:  make(map[string]float64),
+		innerHits:    make(map[string]*InnerHit),
 	}
 }
 
@@ -218,45 +213,39 @@ func (s *SearchSource) FetchSourceContext(fetchSourceContext *FetchSourceContext
 	return s
 }
 
-// NoFields indicates that no fields should be loaded, resulting in only
+// NoStoredFields indicates that no fields should be loaded, resulting in only
 // id and type to be returned per field.
-func (s *SearchSource) NoFields() *SearchSource {
-	s.fieldNames = make([]string, 0)
+func (s *SearchSource) NoStoredFields() *SearchSource {
+	s.storedFieldNames = nil
 	return s
 }
 
-// Field adds a single field to load and return (note, must be stored) as
+// StoredField adds a single field to load and return (note, must be stored) as
 // part of the search request. If none are specified, the source of the
 // document will be returned.
-func (s *SearchSource) Field(fieldName string) *SearchSource {
-	if s.fieldNames == nil {
-		s.fieldNames = make([]string, 0)
-	}
-	s.fieldNames = append(s.fieldNames, fieldName)
+func (s *SearchSource) StoredField(storedFieldName string) *SearchSource {
+	s.storedFieldNames = append(s.storedFieldNames, storedFieldName)
 	return s
 }
 
-// Fields	sets the fields to load and return as part of the search request.
+// StoredFields	sets the fields to load and return as part of the search request.
 // If none are specified, the source of the document will be returned.
-func (s *SearchSource) Fields(fieldNames ...string) *SearchSource {
-	if s.fieldNames == nil {
-		s.fieldNames = make([]string, 0)
-	}
-	s.fieldNames = append(s.fieldNames, fieldNames...)
+func (s *SearchSource) StoredFields(storedFieldNames ...string) *SearchSource {
+	s.storedFieldNames = append(s.storedFieldNames, storedFieldNames...)
 	return s
 }
 
-// FieldDataField adds a single field to load from the field data cache
+// DocvalueField adds a single field to load from the field data cache
 // and return as part of the search request.
-func (s *SearchSource) FieldDataField(fieldDataField string) *SearchSource {
-	s.fieldDataFields = append(s.fieldDataFields, fieldDataField)
+func (s *SearchSource) DocvalueField(fieldDataField string) *SearchSource {
+	s.docvalueFields = append(s.docvalueFields, fieldDataField)
 	return s
 }
 
-// FieldDataFields adds one or more fields to load from the field data cache
+// DocvalueFields adds one or more fields to load from the field data cache
 // and return as part of the search request.
-func (s *SearchSource) FieldDataFields(fieldDataFields ...string) *SearchSource {
-	s.fieldDataFields = append(s.fieldDataFields, fieldDataFields...)
+func (s *SearchSource) DocvalueFields(docvalueFields ...string) *SearchSource {
+	s.docvalueFields = append(s.docvalueFields, docvalueFields...)
 	return s
 }
 
@@ -338,17 +327,17 @@ func (s *SearchSource) Source() (interface{}, error) {
 		source["_source"] = src
 	}
 
-	if s.fieldNames != nil {
-		switch len(s.fieldNames) {
+	if s.storedFieldNames != nil {
+		switch len(s.storedFieldNames) {
 		case 1:
-			source["fields"] = s.fieldNames[0]
+			source["stored_fields"] = s.storedFieldNames[0]
 		default:
-			source["fields"] = s.fieldNames
+			source["stored_fields"] = s.storedFieldNames
 		}
 	}
 
-	if len(s.fieldDataFields) > 0 {
-		source["fielddata_fields"] = s.fieldDataFields
+	if len(s.docvalueFields) > 0 {
+		source["docvalue_fields"] = s.docvalueFields
 	}
 
 	if len(s.scriptFields) > 0 {

@@ -35,7 +35,8 @@ const (
 					"type":"keyword"
 				},
 				"message":{
-					"type":"text"
+					"type":"text",
+					"store": true
 				},
 				"tags":{
 					"type":"keyword"

@@ -49,8 +49,8 @@ func (a *TopHitsAggregation) Version(version bool) *TopHitsAggregation {
 	return a
 }
 
-func (a *TopHitsAggregation) NoFields() *TopHitsAggregation {
-	a.searchSource = a.searchSource.NoFields()
+func (a *TopHitsAggregation) NoStoredFields() *TopHitsAggregation {
+	a.searchSource = a.searchSource.NoStoredFields()
 	return a
 }
 
@@ -64,13 +64,13 @@ func (a *TopHitsAggregation) FetchSourceContext(fetchSourceContext *FetchSourceC
 	return a
 }
 
-func (a *TopHitsAggregation) FieldDataFields(fieldDataFields ...string) *TopHitsAggregation {
-	a.searchSource = a.searchSource.FieldDataFields(fieldDataFields...)
+func (a *TopHitsAggregation) DocvalueFields(docvalueFields ...string) *TopHitsAggregation {
+	a.searchSource = a.searchSource.DocvalueFields(docvalueFields...)
 	return a
 }
 
-func (a *TopHitsAggregation) FieldDataField(fieldDataField string) *TopHitsAggregation {
-	a.searchSource = a.searchSource.FieldDataField(fieldDataField)
+func (a *TopHitsAggregation) DocvalueField(docvalueField string) *TopHitsAggregation {
+	a.searchSource = a.searchSource.DocvalueField(docvalueField)
 	return a
 }
 

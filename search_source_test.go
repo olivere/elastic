@@ -27,9 +27,9 @@ func TestSearchSourceMatchAllQuery(t *testing.T) {
 	}
 }
 
-func TestSearchSourceNoFields(t *testing.T) {
+func TestSearchSourceNoStoredFields(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
-	builder := NewSearchSource().Query(matchAllQ).NoFields()
+	builder := NewSearchSource().Query(matchAllQ).NoStoredFields()
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -39,15 +39,15 @@ func TestSearchSourceNoFields(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"fields":[],"query":{"match_all":{}}}`
+	expected := `{"query":{"match_all":{}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
-func TestSearchSourceFields(t *testing.T) {
+func TestSearchSourceStoredFields(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
-	builder := NewSearchSource().Query(matchAllQ).Fields("message", "tags")
+	builder := NewSearchSource().Query(matchAllQ).StoredFields("message", "tags")
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -57,7 +57,7 @@ func TestSearchSourceFields(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"fields":["message","tags"],"query":{"match_all":{}}}`
+	expected := `{"query":{"match_all":{}},"stored_fields":["message","tags"]}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -100,9 +100,9 @@ func TestSearchSourceFetchSourceByWildcards(t *testing.T) {
 	}
 }
 
-func TestSearchSourceFieldDataFields(t *testing.T) {
+func TestSearchSourceDocvalueFields(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
-	builder := NewSearchSource().Query(matchAllQ).FieldDataFields("test1", "test2")
+	builder := NewSearchSource().Query(matchAllQ).DocvalueFields("test1", "test2")
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -112,7 +112,7 @@ func TestSearchSourceFieldDataFields(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"fielddata_fields":["test1","test2"],"query":{"match_all":{}}}`
+	expected := `{"docvalue_fields":["test1","test2"],"query":{"match_all":{}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

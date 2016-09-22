@@ -66,18 +66,18 @@ func (hit *InnerHit) Version(version bool) *InnerHit {
 	return hit
 }
 
-func (hit *InnerHit) Field(fieldName string) *InnerHit {
-	hit.source.Field(fieldName)
+func (hit *InnerHit) StoredField(storedFieldName string) *InnerHit {
+	hit.source.StoredField(storedFieldName)
 	return hit
 }
 
-func (hit *InnerHit) Fields(fieldNames ...string) *InnerHit {
-	hit.source.Fields(fieldNames...)
+func (hit *InnerHit) StoredFields(storedFieldNames ...string) *InnerHit {
+	hit.source.StoredFields(storedFieldNames...)
 	return hit
 }
 
-func (hit *InnerHit) NoFields() *InnerHit {
-	hit.source.NoFields()
+func (hit *InnerHit) NoStoredFields() *InnerHit {
+	hit.source.NoStoredFields()
 	return hit
 }
 
@@ -91,13 +91,13 @@ func (hit *InnerHit) FetchSourceContext(fetchSourceContext *FetchSourceContext) 
 	return hit
 }
 
-func (hit *InnerHit) FieldDataFields(fieldDataFields ...string) *InnerHit {
-	hit.source.FieldDataFields(fieldDataFields...)
+func (hit *InnerHit) DocvalueFields(docvalueFields ...string) *InnerHit {
+	hit.source.DocvalueFields(docvalueFields...)
 	return hit
 }
 
-func (hit *InnerHit) FieldDataField(fieldDataField string) *InnerHit {
-	hit.source.FieldDataField(fieldDataField)
+func (hit *InnerHit) DocvalueField(docvalueField string) *InnerHit {
+	hit.source.DocvalueField(docvalueField)
 	return hit
 }
 

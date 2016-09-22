@@ -222,25 +222,25 @@ func (s *SearchService) SortBy(sorter ...Sorter) *SearchService {
 	return s
 }
 
-// NoFields indicates that no fields should be loaded, resulting in only
+// NoStoredFields indicates that no stored fields should be loaded, resulting in only
 // id and type to be returned per field.
-func (s *SearchService) NoFields() *SearchService {
-	s.searchSource = s.searchSource.NoFields()
+func (s *SearchService) NoStoredFields() *SearchService {
+	s.searchSource = s.searchSource.NoStoredFields()
 	return s
 }
 
-// Field adds a single field to load and return (note, must be stored) as
+// StoredField adds a single field to load and return (note, must be stored) as
 // part of the search request. If none are specified, the source of the
 // document will be returned.
-func (s *SearchService) Field(fieldName string) *SearchService {
-	s.searchSource = s.searchSource.Field(fieldName)
+func (s *SearchService) StoredField(fieldName string) *SearchService {
+	s.searchSource = s.searchSource.StoredField(fieldName)
 	return s
 }
 
-// Fields	sets the fields to load and return as part of the search request.
+// StoredFields	sets the fields to load and return as part of the search request.
 // If none are specified, the source of the document will be returned.
-func (s *SearchService) Fields(fields ...string) *SearchService {
-	s.searchSource = s.searchSource.Fields(fields...)
+func (s *SearchService) StoredFields(fields ...string) *SearchService {
+	s.searchSource = s.searchSource.StoredFields(fields...)
 	return s
 }
 
@@ -418,7 +418,7 @@ type SearchHit struct {
 	Sort           []interface{}                  `json:"sort"`            // sort information
 	Highlight      SearchHitHighlight             `json:"highlight"`       // highlighter information
 	Source         *json.RawMessage               `json:"_source"`         // stored document source
-	Fields         map[string]interface{}         `json:"fields"`          // returned fields
+	Fields         map[string]interface{}         `json:"fields"`          // returned (stored) fields
 	Explanation    *SearchExplanation             `json:"_explanation"`    // explains how the score was computed
 	MatchedQueries []string                       `json:"matched_queries"` // matched queries
 	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits"`      // inner hits with ES >= 1.5.0

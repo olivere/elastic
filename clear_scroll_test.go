@@ -13,6 +13,7 @@ import (
 
 func TestClearScroll(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
+	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
@@ -45,10 +46,10 @@ func TestClearScroll(t *testing.T) {
 		t.Fatal(err)
 	}
 	if res == nil {
-		t.Errorf("expected results != nil; got nil")
+		t.Fatal("expected results != nil; got nil")
 	}
 	if res.ScrollId == "" {
-		t.Errorf("expected scrollId in results; got %q", res.ScrollId)
+		t.Fatalf("expected scrollId in results; got %q", res.ScrollId)
 	}
 
 	// Search should succeed
@@ -63,7 +64,7 @@ func TestClearScroll(t *testing.T) {
 		t.Fatal(err)
 	}
 	if clearScrollRes == nil {
-		t.Error("expected results != nil; got nil")
+		t.Fatal("expected results != nil; got nil")
 	}
 
 	// Search result should fail

@@ -8,7 +8,7 @@ import "encoding/json"
 
 // RawStringQuery can be used to treat a string representation of an ES query
 // as a Query.  Example usage:
-//    q := RawStringQuery("{\"query\":{\"match_all\":{}}}")
+//    q := RawStringQuery("{\"match_all\":{}}")
 //    db.Search().Query(q).From(1).Size(100).Do()
 type RawStringQuery string
 
