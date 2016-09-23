@@ -12,8 +12,7 @@ import (
 )
 
 func TestBulk(t *testing.T) {
-	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
@@ -113,7 +112,7 @@ func TestBulk(t *testing.T) {
 	// Update with script
 	update2Req := NewBulkUpdateRequest().Index(testIndexName).Type("tweet").Id("2").
 		RetryOnConflict(3).
-		Script(NewScript("ctx._source.retweets += v").Param("v", 1))
+		Script(NewScript("ctx._source.retweets += params.v").Param("v", 1))
 	bulkRequest = client.Bulk()
 	bulkRequest = bulkRequest.Add(update2Req)
 	if bulkRequest.NumberOfActions() != 1 {

@@ -651,8 +651,7 @@ func TestAggsIntegrationCumulativeSum(t *testing.T) {
 }
 
 func TestAggsIntegrationBucketScript(t *testing.T) {
-	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
-	client := setupTestClientAndCreateIndexAndAddDocs(t)
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 
 	esversion, err := client.ElasticsearchVersion(DefaultURL)
 	if err != nil {
@@ -680,10 +679,10 @@ func TestAggsIntegrationBucketScript(t *testing.T) {
 			GapPolicy("insert_zeros").
 			AddBucketsPath("appleSales", "apple_sales>sales").
 			AddBucketsPath("totalSales", "total_sales").
-			Script(NewScript("appleSales / totalSales * 100")))
+			Script(NewScript("params.appleSales / params.totalSales * 100")))
 	builder = builder.Aggregation("sales_per_month", h)
 
-	res, err := builder.Do(context.TODO())
+	res, err := builder.Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("%v (maybe scripting is disabled?)", err)
 	}
@@ -833,7 +832,7 @@ func TestAggsIntegrationBucketSelector(t *testing.T) {
 	h = h.SubAggregation("sales_bucket_filter",
 		NewBucketSelectorAggregation().
 			AddBucketsPath("totalSales", "total_sales").
-			Script(NewScript("totalSales <= 100")))
+			Script(NewScript("params.totalSales <= 100")))
 	builder = builder.Aggregation("sales_per_month", h)
 
 	res, err := builder.Do(context.TODO())
