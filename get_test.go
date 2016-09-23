@@ -92,7 +92,7 @@ func TestGetWithSourceFiltering(t *testing.T) {
 }
 
 func TestGetWithFields(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
@@ -101,7 +101,7 @@ func TestGetWithFields(t *testing.T) {
 	}
 
 	// Get document 1, specifying fields
-	res, err := client.Get().Index(testIndexName).Type("tweet").Id("1").Fields("message").Do(context.TODO())
+	res, err := client.Get().Index(testIndexName).Type("tweet").Id("1").StoredFields("message").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

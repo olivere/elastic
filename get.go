@@ -28,7 +28,7 @@ type GetService struct {
 	id                            string
 	routing                       string
 	preference                    string
-	fields                        []string
+	storedFields                  []string
 	refresh                       string
 	realtime                      *bool
 	fsc                           *FetchSourceContext
@@ -83,12 +83,9 @@ func (s *GetService) Preference(preference string) *GetService {
 	return s
 }
 
-// Fields is a list of fields to return in the response.
-func (s *GetService) Fields(fields ...string) *GetService {
-	if s.fields == nil {
-		s.fields = make([]string, 0)
-	}
-	s.fields = append(s.fields, fields...)
+// StoredFields is a list of fields to return in the response.
+func (s *GetService) StoredFields(storedFields ...string) *GetService {
+	s.storedFields = append(s.storedFields, storedFields...)
 	return s
 }
 
@@ -187,8 +184,8 @@ func (s *GetService) buildURL() (string, url.Values, error) {
 	if s.preference != "" {
 		params.Set("preference", s.preference)
 	}
-	if len(s.fields) > 0 {
-		params.Set("fields", strings.Join(s.fields, ","))
+	if len(s.storedFields) > 0 {
+		params.Set("stored_fields", strings.Join(s.storedFields, ","))
 	}
 	if s.refresh != "" {
 		params.Set("refresh", s.refresh)
