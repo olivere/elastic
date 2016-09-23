@@ -6,7 +6,7 @@ We enforce the usage of `context.Context` everywhere you execute a request.
 You need to change all your `Do()` calls to pass a context: `Do(ctx)`.
 This enables automatic request cancelation and many other patterns.
 
-If you don't need this, simply pass `context.TODO` or `context.Background`.
+If you don't need this, simply pass `context.TODO()` or `context.Background()`.
 
 ## Warmers removed
 

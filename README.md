@@ -17,7 +17,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for additional informati
 ## Releases
 
 **The release branches (e.g. [`release-branch.v5`](https://github.com/olivere/elastic/tree/release-branch.v5))
-are actively being worked on and can break at any time. 
+are actively being worked on and can break at any time.
 If you want to use stable versions of Elastic, please use the packages released via [gopkg.in](https://gopkg.in).**
 
 Here's the version matrix:
@@ -48,7 +48,7 @@ import elastic "gopkg.in/olivere/elastic.v5"
 ### Elastic 5.0
 
 Elastic 5.0 targets Elasticsearch 5.0.0 and later. Elasticsearch 5.0.0 is currently
-at alpha 3, [released on 31st May 2016](https://www.elastic.co/blog/elasticsearch-5-0-0-alpha3-released).
+at beta 1, [released on 22nd September 2016](https://www.elastic.co/blog/elastic-stack-release-5-0-0-beta1).
 
 Notice that there are will be a lot of [breaking changes in Elasticsearch 5.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking-changes-5.0.html)
 and we used this as an opportunity to [clean up and refactor Elastic](https://github.com/olivere/elastic/blob/release-branch.v5/CHANGELOG-5.0.md)
@@ -237,7 +237,6 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [ ] Validate API
 - [x] Explain API
 - [ ] Profile API
-- [x] Percolator API
 - [x] Field Stats API
 
 ### Aggregations
@@ -352,7 +351,7 @@ The cat APIs are not implemented as of now. We think they are better suited for 
 - [ ] Pending Cluster Tasks
 - [ ] Cluster Reroute
 - [ ] Cluster Update Settings
-- [ ] Nodes Stats
+- [x] Nodes Stats
 - [x] Nodes Info
 - [x] Task Management API
 - [ ] Nodes hot_threads
@@ -404,7 +403,7 @@ The cat APIs are not implemented as of now. We think they are better suited for 
   - [x] More Like This Query
   - [x] Template Query
   - [x] Script Query
-  - [ ] Percolate Query
+  - [x] Percolate Query
 - Span queries
   - [ ] Span Term Query
   - [ ] Span Multi Term Query
@@ -414,6 +413,7 @@ The cat APIs are not implemented as of now. We think they are better suited for 
   - [ ] Span Not Query
   - [ ] Span Containing Query
   - [ ] Span Within Query
+  - [ ] Span Field Masking Query
 - [ ] Minimum Should Match
 - [ ] Multi Term Query Rewrite
 
@@ -427,11 +427,15 @@ The cat APIs are not implemented as of now. We think they are better suited for 
 - [x] Sort by field
 - [x] Sort by geo distance
 - [x] Sort by script
+- [x] Sort by doc
 
 ### Scrolling
 
-Scrolling is supported via a  `IteratorService`. It supports an iterator-like interface.
+Scrolling is supported via a  `ScrollService`. It supports an iterator-like interface.
 The `ClearScroll` API is implemented as well.
+
+A pattern for [efficiently scrolling in parallel](https://github.com/olivere/elastic/wiki/ScrollParallel)
+is described in the [Wiki](https://github.com/olivere/elastic/wiki).
 
 ### Task Management
 
@@ -444,9 +448,9 @@ Read [the contribution guidelines](https://github.com/olivere/elastic/blob/maste
 ## Credits
 
 Thanks a lot for the great folks working hard on
-[Elasticsearch](http://www.elasticsearch.org/)
+[Elasticsearch](https://www.elastic.co/products/elasticsearch)
 and
-[Go](http://www.golang.org/).
+[Go](https://golang.org/).
 
 Elastic uses portions of the
 [uritemplates](https://github.com/jtacoma/uritemplates) library
