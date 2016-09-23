@@ -5,6 +5,7 @@ your issue/question without further inquiry. Thank you.
 
 [ ] elastic.v2 (for Elasticsearch 1.x)
 [ ] elastic.v3 (for Elasticsearch 2.x)
+[ ] elastic.v5 (for Elasticsearch 5.x)
 
 ### Please describe the expected behavior
 
