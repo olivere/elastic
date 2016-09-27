@@ -335,9 +335,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 	if s.version != nil {
 		source["version"] = *s.version
 	}
-	if s.requestCache != nil {
-		source["request_cache"] = *s.requestCache
-	}
 	if s.explain != nil {
 		source["explain"] = *s.explain
 	}
