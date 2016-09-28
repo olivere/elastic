@@ -305,6 +305,9 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	if s.preference != "" {
 		params.Set("preference", s.preference)
 	}
+	if s.searchSource != nil && s.searchSource.requestCache != nil {
+		params.Set("request_cache", fmt.Sprintf("%v", *s.searchSource.requestCache))
+	}
 	if s.allowNoIndices != nil {
 		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
 	}
