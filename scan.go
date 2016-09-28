@@ -5,13 +5,13 @@
 package elastic
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"gopkg.in/olivere/elastic.v3/uritemplates"
 	"io"
 	"net/url"
 	"strings"
-
-	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
 
 const (
@@ -33,6 +33,7 @@ type ScanService struct {
 	types        []string
 	keepAlive    string
 	searchSource *SearchSource
+	source       map[string]interface{}
 	pretty       bool
 	routing      string
 	preference   string
@@ -94,6 +95,26 @@ func (s *ScanService) SearchSource(searchSource *SearchSource) *ScanService {
 	if s.searchSource == nil {
 		s.searchSource = NewSearchSource().Query(NewMatchAllQuery())
 	}
+	return s
+}
+
+// Source allows the user to set the request body manually without using
+// any of the structs and interfaces in Elastic.
+func (s *ScanService) Source(sourceToSet interface{}) *ScanService {
+	switch sourceToSet.(type) {
+	case string:
+		err := json.Unmarshal([]byte(sourceToSet.(string)), &s.source)
+
+		if err != nil {
+			panic(err)
+		}
+	case map[string]interface{}:
+		s.source = sourceToSet.(map[string]interface{})
+	default:
+		panic(errors.New("Source requires string or map"))
+	}
+	// TODO: We could decide what to do with errors, could return err
+	// but then couldn't change
 	return s
 }
 
@@ -221,12 +242,29 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 		path += "/" + strings.Join(typesPart, ",")
 	}
 
+	// Define the body of the request
+	var body map[string]interface{}
+
+	if s.source != nil {
+		body = s.source
+	} else {
+		src, err := s.searchSource.Source()
+
+		if err != nil {
+			return nil, err
+		}
+
+		// searchSource.Source() actually returns a map, yet its return type
+		// is specified as interface...
+		body = src.(map[string]interface{})
+	}
+
 	// Search
 	path += "/_search"
 
 	// Parameters
 	params := make(url.Values)
-	if !s.searchSource.hasSort() {
+	if _, ok := body["sort"]; !ok {
 		// TODO: ES 2.1 deprecates search_type=scan. See https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking_21_search_changes.html#_literal_search_type_scan_literal_deprecated.
 		params.Set("search_type", "scan")
 	}
@@ -246,10 +284,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	}
 
 	// Get response
-	body, err := s.searchSource.Source()
-	if err != nil {
-		return nil, err
-	}
+	// Perform request
 	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
@@ -257,6 +292,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 
 	// Return result
 	searchResult := new(SearchResult)
+
 	if err := s.client.decoder.Decode(res.Body, searchResult); err != nil {
 		return nil, err
 	}
