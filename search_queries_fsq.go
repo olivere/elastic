@@ -13,7 +13,6 @@ package elastic
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html
 type FunctionScoreQuery struct {
 	query      Query
-	filter     Query
 	boost      *float64
 	maxBoost   *float64
 	scoreMode  string
@@ -35,14 +34,6 @@ func NewFunctionScoreQuery() *FunctionScoreQuery {
 // Query sets the query for the function score query.
 func (q *FunctionScoreQuery) Query(query Query) *FunctionScoreQuery {
 	q.query = query
-	q.filter = nil
-	return q
-}
-
-// Filter sets the filter for the function score query.
-func (q *FunctionScoreQuery) Filter(filter Query) *FunctionScoreQuery {
-	q.query = nil
-	q.filter = filter
 	return q
 }
 
@@ -107,12 +98,6 @@ func (q *FunctionScoreQuery) Source() (interface{}, error) {
 			return nil, err
 		}
 		query["query"] = src
-	} else if q.filter != nil {
-		src, err := q.filter.Source()
-		if err != nil {
-			return nil, err
-		}
-		query["filter"] = src
 	}
 
 	if len(q.filters) == 1 && q.filters[0] == nil {

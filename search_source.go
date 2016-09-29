@@ -17,7 +17,6 @@ type SearchSource struct {
 	size                     int
 	explain                  *bool
 	version                  *bool
-	requestCache             *bool
 	sorters                  []Sorter
 	trackScores              bool
 	minScore                 *float64
@@ -98,13 +97,6 @@ func (s *SearchSource) Explain(explain bool) *SearchSource {
 // a version associated to it.
 func (s *SearchSource) Version(version bool) *SearchSource {
 	s.version = &version
-	return s
-}
-
-// RequestCache indicates whether the cache should be used for this
-// request or not, defaults to index level setting.
-func (s *SearchSource) RequestCache(requestCache bool) *SearchSource {
-	s.requestCache = &requestCache
 	return s
 }
 
@@ -334,9 +326,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 	}
 	if s.version != nil {
 		source["version"] = *s.version
-	}
-	if s.requestCache != nil {
-		source["request_cache"] = *s.requestCache
 	}
 	if s.explain != nil {
 		source["explain"] = *s.explain
