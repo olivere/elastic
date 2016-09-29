@@ -282,7 +282,187 @@ func TestScanWithSearchSource(t *testing.T) {
 	src := NewSearchSource().
 		Query(NewTermQuery("user", "olivere")).
 		FetchSourceContext(NewFetchSourceContext(true).Include("retweets"))
+
 	cursor, err := client.Scan(testIndexName).SearchSource(src).Size(1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if cursor.Results == nil {
+		t.Fatalf("expected results != nil; got nil")
+	}
+	if cursor.Results.Hits == nil {
+		t.Fatalf("expected results.Hits != nil; got nil")
+	}
+	if cursor.Results.Hits.TotalHits != 2 {
+		t.Fatalf("expected results.Hits.TotalHits = %d; got %d", 2, cursor.Results.Hits.TotalHits)
+	}
+
+	numDocs := 0
+	pages := 0
+
+	for {
+		searchResult, err := cursor.Next()
+		if err == EOS {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		pages += 1
+
+		for _, hit := range searchResult.Hits.Hits {
+			if hit.Index != testIndexName {
+				t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
+			}
+			item := make(map[string]interface{})
+			err := json.Unmarshal(*hit.Source, &item)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, found := item["message"]; found {
+				t.Fatalf("expected to not see field %q; got: %#v", "message", item)
+			}
+			numDocs += 1
+		}
+	}
+
+	if pages != 3 {
+		t.Errorf("expected to retrieve %d pages; got %d", 2, pages)
+	}
+	if numDocs != 2 {
+		t.Errorf("expected to retrieve %d hits; got %d", 2, numDocs)
+	}
+}
+
+func TestScanWithSourceString(t *testing.T) {
+	//client := setupTestClientAndCreateIndexAndLog(t)
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch.", Retweets: 4}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic.", Retweets: 8}
+	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun.", Retweets: 3}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	src := `{"query": {"term": {"user": "olivere"}}, "_source": {"includes": ["retweets"]}}`
+
+	cursor, err := client.Scan(testIndexName).Source(src).Size(1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if cursor.Results == nil {
+		t.Fatalf("expected results != nil; got nil")
+	}
+	if cursor.Results.Hits == nil {
+		t.Fatalf("expected results.Hits != nil; got nil")
+	}
+	if cursor.Results.Hits.TotalHits != 2 {
+		t.Fatalf("expected results.Hits.TotalHits = %d; got %d", 2, cursor.Results.Hits.TotalHits)
+	}
+
+	numDocs := 0
+	pages := 0
+
+	for {
+		searchResult, err := cursor.Next()
+
+		if err == EOS {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		pages += 1
+
+		for _, hit := range searchResult.Hits.Hits {
+			if hit.Index != testIndexName {
+				t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
+			}
+			item := make(map[string]interface{})
+			err := json.Unmarshal(*hit.Source, &item)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, found := item["message"]; found {
+				t.Fatalf("expected to not see field %q; got: %#v", "message", item)
+			}
+
+			numDocs += 1
+		}
+	}
+
+	if pages != 3 {
+		t.Errorf("expected to retrieve %d pages; got %d", 2, pages)
+	}
+	if numDocs != 2 {
+		t.Errorf("expected to retrieve %d hits; got %d", 2, numDocs)
+	}
+}
+
+func TestScanWithSourceMap(t *testing.T) {
+	//client := setupTestClientAndCreateIndexAndLog(t)
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch.", Retweets: 4}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic.", Retweets: 10}
+	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun.", Retweets: 3}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	src := map[string]interface{}{
+		"query": map[string]interface{}{
+			"term": map[string]interface{}{
+				"user": "olivere",
+			},
+		},
+		"_source": map[string]interface{}{
+			"includes": []string{"retweets"},
+		},
+	}
+
+	cursor, err := client.Scan(testIndexName).Source(src).Size(1).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
