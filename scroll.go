@@ -22,6 +22,7 @@ type ScrollService struct {
 	indices           []string
 	types             []string
 	keepAlive         string
+	body              interface{}
 	ss                *SearchSource
 	size              *int
 	pretty            bool
@@ -81,6 +82,15 @@ func (s *ScrollService) KeepAlive(keepAlive string) *ScrollService {
 // from each shard, per page.
 func (s *ScrollService) Size(size int) *ScrollService {
 	s.size = &size
+	return s
+}
+
+// Body sets the raw body to send to Elasticsearch. This can be e.g. a string,
+// a map[string]interface{} or anything that can be serialized into JSON.
+// Notice that setting the body disables the use of SearchSource and many
+// other properties of the ScanService.
+func (s *ScrollService) Body(body interface{}) *ScrollService {
+	s.body = body
 	return s
 }
 
@@ -342,28 +352,35 @@ func (s *ScrollService) buildFirstURL() (string, url.Values, error) {
 
 // bodyFirst returns the request to fetch the first batch of results.
 func (s *ScrollService) bodyFirst() (interface{}, error) {
-	// Use _doc sort by default if none is specified
-	if !s.ss.hasSort() {
-		// Use efficient sorting when no user-defined query/body is specified
-		s.ss = s.ss.SortBy(SortByDoc{})
-	}
+	var err error
+	var body interface{}
 
-	// Body from search source
-	body, err := s.ss.Source()
-	if err != nil {
-		return nil, err
-	}
-
-	// Slicing (in ES 5.x+)
-	/*
-		if s.slice != nil {
-			src, err := s.slice.Source()
-			if err != nil {
-				return nil, err
-			}
-			body["slice"] = src
+	if s.body != nil {
+		body = s.body
+	} else {
+		// Use _doc sort by default if none is specified
+		if !s.ss.hasSort() {
+			// Use efficient sorting when no user-defined query/body is specified
+			s.ss = s.ss.SortBy(SortByDoc{})
 		}
-	*/
+
+		// Body from search source
+		body, err = s.ss.Source()
+		if err != nil {
+			return nil, err
+		}
+
+		// Slicing (in ES 5.x+)
+		/*
+			if s.slice != nil {
+				src, err := s.slice.Source()
+				if err != nil {
+					return nil, err
+				}
+				body["slice"] = src
+			}
+		*/
+	}
 
 	return body, nil
 }
