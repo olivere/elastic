@@ -4,7 +4,7 @@
 
 package elastic
 
-// Filters documents that have fiels containing terms
+// Filters documents that have fields containing terms
 // with a specified prefix (not analyzed).
 // For details, see:
 // http://www.elasticsearch.org/guide/reference/query-dsl/prefix-filter.html
