@@ -92,7 +92,7 @@ func TestScroll(t *testing.T) {
 
 		scrollId = searchResult.ScrollId
 		if scrollId == "" {
-			t.Errorf("expeced scrollId in results; got %q", scrollId)
+			t.Errorf("expected scrollId in results; got %q", scrollId)
 		}
 	}
 
