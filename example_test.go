@@ -382,7 +382,7 @@ func ExampleAggregations() {
 	// Access "timeline" aggregate in search result.
 	agg, found := searchResult.Aggregations.Terms("timeline")
 	if !found {
-		log.Fatalf("we sould have a terms aggregation called %q", "timeline")
+		log.Fatalf("we should have a terms aggregation called %q", "timeline")
 	}
 	for _, userBucket := range agg.Buckets {
 		// Every bucket should have the user field as key.
