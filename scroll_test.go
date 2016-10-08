@@ -83,7 +83,7 @@ func TestScroll(t *testing.T) {
 		}
 
 		if len(res.ScrollId) == 0 {
-			t.Fatalf("expeced scrollId in results; got %q", res.ScrollId)
+			t.Fatalf("expected scrollId in results; got %q", res.ScrollId)
 		}
 	}
 
@@ -304,7 +304,7 @@ func TestScrollWithBody(t *testing.T) {
 			}
 
 			if len(res.ScrollId) == 0 {
-				t.Fatalf("#%d: expeced scrollId in results; got %q", i, res.ScrollId)
+				t.Fatalf("#%d: expected scrollId in results; got %q", i, res.ScrollId)
 			}
 		}
 
