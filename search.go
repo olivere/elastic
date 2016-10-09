@@ -360,6 +360,14 @@ type SearchResult struct {
 	Aggregations Aggregations  `json:"aggregations"`    // results from aggregations
 	TimedOut     bool          `json:"timed_out"`       // true if the search timed out
 	Error        string        `json:"error,omitempty"` // used in MultiSearch only
+	Shards       *ShardDetails `json:"_shards"`         // details of shards used by the query
+}
+
+// ShardDetails holds counts of shards used by a query
+type ShardDetails struct {
+	Total      int64 `json:"total"`
+	Successful int64 `json:"successful"`
+	Failed     int64 `json:"failed"`
 }
 
 // TotalHits is a convenience function to return the number of hits for
