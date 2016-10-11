@@ -133,6 +133,7 @@ type Client struct {
 	basicAuth                 bool          // indicates whether to send HTTP Basic Auth credentials
 	basicAuthUsername         string        // username for HTTP Basic Auth
 	basicAuthPassword         string        // password for HTTP Basic Auth
+	authorizeHeader           string        // custom string for Authorize HTTP header
 	sendGetBodyAs             string        // override for when sending a GET with a body
 	requiredPlugins           []string      // list of required plugins
 	gzipEnabled               bool          // gzip compression enabled or disabled (default)
@@ -370,6 +371,14 @@ func SetBasicAuth(username, password string) ClientOptionFunc {
 		c.basicAuthUsername = username
 		c.basicAuthPassword = password
 		c.basicAuth = c.basicAuthUsername != "" || c.basicAuthPassword != ""
+		return nil
+	}
+}
+
+// SetAuthorizeHeader sets an authorize header to be sent with every request
+func SetAuthorizeHeader(authorize string) ClientOptionFunc {
+	return func(c *Client) error {
+		c.authorizeHeader = authorize
 		return nil
 	}
 }
@@ -778,6 +787,8 @@ func (c *Client) sniffNode(url string) []*conn {
 	c.mu.RLock()
 	if c.basicAuth {
 		req.SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
+	} else if c.authorizeHeader != "" {
+		req.SetAuthorizeHeader(c.authorizeHeader)
 	}
 	c.mu.RUnlock()
 
@@ -920,6 +931,8 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 		if err == nil {
 			if basicAuth {
 				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+			} else if c.authorizeHeader != "" {
+				req.SetAuthorizeHeader(c.authorizeHeader)
 			}
 			res, err := c.c.Do((*http.Request)(req))
 			if err == nil {
@@ -968,6 +981,8 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 			}
 			if basicAuth {
 				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+			} else if c.authorizeHeader != "" {
+				req.SetAuthorizeHeader(c.authorizeHeader)
 			}
 			res, err := cl.Do(req)
 			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
@@ -1117,6 +1132,8 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 
 		if basicAuth {
 			req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+		} else if c.authorizeHeader != "" {
+			req.SetAuthorizeHeader(c.authorizeHeader)
 		}
 
 		// Set body
