@@ -24,7 +24,7 @@ import (
 // reuse BulkService to send many batches. You do not have to create a new
 // BulkService for each batch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/2.x/docs-bulk.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
 // for more details.
 type BulkService struct {
 	client *Client
