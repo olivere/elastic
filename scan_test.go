@@ -182,7 +182,7 @@ func TestScanWithSort(t *testing.T) {
 func TestScanWithSortByDoc(t *testing.T) {
 	// Sorting by doc is introduced in Elasticsearch 2.1,
 	// and replaces the deprecated search_type=scan.
-	// See https://www.elastic.co/guide/en/elasticsearch/reference/2.x/breaking_21_search_changes.html#_literal_search_type_scan_literal_deprecated
+	// See https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking_21_search_changes.html#_literal_search_type_scan_literal_deprecated
 	client := setupTestClientAndCreateIndex(t)
 
 	esversion, err := client.ElasticsearchVersion(DefaultURL)
