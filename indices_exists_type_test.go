@@ -40,19 +40,19 @@ func TestIndicesExistsTypeBuildURL(t *testing.T) {
 		{
 			[]string{"index1"},
 			[]string{"type1"},
-			"/index1/type1",
+			"/index1/_mapping/type1",
 			false,
 		},
 		{
 			[]string{"index1", "index2"},
 			[]string{"type1"},
-			"/index1%2Cindex2/type1",
+			"/index1%2Cindex2/_mapping/type1",
 			false,
 		},
 		{
 			[]string{"index1", "index2"},
 			[]string{"type1", "type2"},
-			"/index1%2Cindex2/type1%2Ctype2",
+			"/index1%2Cindex2/_mapping/type1%2Ctype2",
 			false,
 		},
 	}
@@ -60,20 +60,20 @@ func TestIndicesExistsTypeBuildURL(t *testing.T) {
 	for i, test := range tests {
 		err := client.TypeExists().Index(test.Indices...).Type(test.Types...).Validate()
 		if err == nil && test.ExpectValidateFailure {
-			t.Errorf("case #%d: expected validate to fail", i+1)
+			t.Errorf("#%d: expected validate to fail", i+1)
 			continue
 		}
 		if err != nil && !test.ExpectValidateFailure {
-			t.Errorf("case #%d: expected validate to succeed", i+1)
+			t.Errorf("#%d: expected validate to succeed", i+1)
 			continue
 		}
 		if !test.ExpectValidateFailure {
 			path, _, err := client.TypeExists().Index(test.Indices...).Type(test.Types...).buildURL()
 			if err != nil {
-				t.Fatalf("case #%d: %v", i+1, err)
+				t.Fatalf("#%d: %v", i+1, err)
 			}
 			if path != test.Expected {
-				t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+				t.Errorf("#%d: expected %q; got: %q", i+1, test.Expected, path)
 			}
 		}
 	}

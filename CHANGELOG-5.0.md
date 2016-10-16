@@ -73,6 +73,12 @@ See [here](https://www.elastic.co/guide/en/elasticsearch/reference/5.x/breaking_
 The `fielddata_fields` parameter [has been renamed](https://www.elastic.co/guide/en/elasticsearch/reference/5.x/breaking_50_search_changes.html#_literal_fielddata_fields_literal_parameter)
 to `docvalue_fields`.
 
+## Type exists endpoint changed
+
+The endpoint for checking whether a type exists has been changed from
+`HEAD {index}/{type}` to `HEAD {index}/_mapping/{type}`.
+See [here](https://www.elastic.co/guide/en/elasticsearch/reference/5.0/breaking_50_rest_api_changes.html#_literal_head_index_type_literal_replaced_with_literal_head_index__mapping_type_literal).
+
 ## Refresh parameter changed
 
 The `?refresh` parameter previously could be a boolean value. It indicated

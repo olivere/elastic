@@ -34,8 +34,6 @@ type IndicesExistsTypeService struct {
 func NewIndicesExistsTypeService(client *Client) *IndicesExistsTypeService {
 	return &IndicesExistsTypeService{
 		client: client,
-		index:  make([]string, 0),
-		typ:    make([]string, 0),
 	}
 }
 
@@ -89,7 +87,7 @@ func (s *IndicesExistsTypeService) Pretty(pretty bool) *IndicesExistsTypeService
 // buildURL builds the URL for the operation.
 func (s *IndicesExistsTypeService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/{index}/{type}", map[string]string{
+	path, err := uritemplates.Expand("/{index}/_mapping/{type}", map[string]string{
 		"index": strings.Join(s.index, ","),
 		"type":  strings.Join(s.typ, ","),
 	})
