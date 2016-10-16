@@ -386,7 +386,8 @@ type SearchResult struct {
 	TerminatedEarly bool          `json:"terminated_early"` // true if the operation has terminated before e.g. an expiration was reached
 	//Error        string        `json:"error,omitempty"` // used in MultiSearch only
 	// TODO double-check that MultiGet now returns details error information
-	Error *ErrorDetails `json:"error,omitempty"` // only used in MultiGet
+	Error  *ErrorDetails `json:"error,omitempty"`   // only used in MultiGet
+	Shards *shardsInfo   `json:"_shards,omitempty"` // shard information
 }
 
 // TotalHits is a convenience function to return the number of hits for

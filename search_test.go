@@ -1020,3 +1020,25 @@ func TestSearchBuildURL(t *testing.T) {
 		}
 	}
 }
+
+func TestSearchResultHasShards(t *testing.T) {
+	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+
+	// Match all should return all documents
+	searchResult, err := client.Search().
+		Index(testIndexName).
+		Query(NewMatchAllQuery()).
+		Size(100).
+		Pretty(true).
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult.Shards == nil {
+		t.Errorf("expected SearchResult.Shards != nil; got nil")
+	}
+	if got, want := searchResult.Shards.Failed, 0; got != want {
+		t.Errorf("expected SearchResult.Shards.Failed = %d; got %d", want, got)
+	}
+}
