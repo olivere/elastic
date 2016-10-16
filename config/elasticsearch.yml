@@ -1,4 +1,4 @@
-bootstrap.ignore_system_bootstrap_checks: true
+# bootstrap.ignore_system_bootstrap_checks: true
 
 discovery.zen.minimum_master_nodes: 1
 
