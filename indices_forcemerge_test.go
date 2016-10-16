@@ -46,7 +46,7 @@ func TestIndicesForcemergeBuildURL(t *testing.T) {
 func TestIndicesForcemerge(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	_, err := client.Forcemerge(testIndexName).MaxNumSegments(1).WaitForMerge(true).Do(context.TODO())
+	_, err := client.Forcemerge(testIndexName).MaxNumSegments(1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
