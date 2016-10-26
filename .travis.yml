@@ -9,7 +9,7 @@ env:
     - go: tip
 before_script:
   - mkdir ${HOME}/elasticsearch
-  - wget http://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz
+  - wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
   - tar -xzvf elasticsearch-${ES_VERSION}.tar.gz -C ${HOME}/elasticsearch
   - ls -alFR ${HOME}/elasticsearch
   - cp config/elasticsearch.yml ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/config/
