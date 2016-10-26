@@ -1,11 +1,10 @@
 sudo: false
 language: go
 go:
-  - 1.7.1
-  - tip
+  - 1.7.3
 env:
   matrix:
-    - ES_VERSION=5.0.0-rc1
+    - ES_VERSION=5.0.0
   allow_failures:
     - go: tip
 before_script:
