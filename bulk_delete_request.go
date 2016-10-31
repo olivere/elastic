@@ -12,9 +12,9 @@ import (
 
 // -- Bulk delete request --
 
-// Bulk request to remove a document from Elasticsearch.
+// BulkDeleteRequest is a request to remove a document from Elasticsearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.0/docs-bulk.html
 // for details.
 type BulkDeleteRequest struct {
 	BulkableRequest

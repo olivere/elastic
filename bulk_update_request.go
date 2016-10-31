@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-// Bulk request to update a document in Elasticsearch.
+// BulkUpdateRequest is a request to update a document in Elasticsearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.0/docs-bulk.html
 // for details.
 type BulkUpdateRequest struct {
 	BulkableRequest

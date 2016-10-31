@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-// Bulk request to add a document to Elasticsearch.
+// BulkIndexRequest is a request to add a document to Elasticsearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.0/docs-bulk.html
 // for details.
 type BulkIndexRequest struct {
 	BulkableRequest
