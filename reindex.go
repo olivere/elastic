@@ -12,26 +12,21 @@ import (
 )
 
 // ReindexService is a method to copy documents from one index to another.
-// It was introduced in Elasticsearch 2.3.0.
-//
-// Notice that Elastic already had a Reindexer service that pre-dated
-// the Reindex API. Use that if you're on an earlier version of Elasticsearch.
-//
-// It is documented at https://www.elastic.co/guide/en/elasticsearch/plugins/master/plugins-reindex.html.
+// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.0/docs-reindex.html.
 type ReindexService struct {
-	client            *Client
-	pretty            bool
-	consistency       string
-	refresh           string
-	timeout           string
-	waitForCompletion *bool
-	bodyJson          interface{}
-	bodyString        string
-	source            *ReindexSource
-	destination       *ReindexDestination
-	conflicts         string
-	size              *int
-	script            *Script
+	client              *Client
+	pretty              bool
+	refresh             string
+	timeout             string
+	waitForActiveShards string
+	waitForCompletion   *bool
+	requestsPerSecond   *int
+	body                interface{}
+	source              *ReindexSource
+	destination         *ReindexDestination
+	conflicts           string
+	size                *int
+	script              *Script
 }
 
 // NewReindexService creates a new ReindexService.
@@ -41,9 +36,19 @@ func NewReindexService(client *Client) *ReindexService {
 	}
 }
 
-// Consistency specifies an explicit write consistency setting for the operation.
-func (s *ReindexService) Consistency(consistency string) *ReindexService {
-	s.consistency = consistency
+// WaitForActiveShards sets the number of shard copies that must be active before
+// proceeding with the reindex operation. Defaults to 1, meaning the primary shard only.
+// Set to `all` for all shard copies, otherwise set to any non-negative value less than or
+// equal to the total number of copies for the shard (number of replicas + 1).
+func (s *ReindexService) WaitForActiveShards(waitForActiveShards string) *ReindexService {
+	s.waitForActiveShards = waitForActiveShards
+	return s
+}
+
+// RequestsPerSecond specifies the throttle to set on this request in sub-requests per second.
+// -1 means set no throttle as does "unlimited" which is the only non-float this accepts.
+func (s *ReindexService) RequestsPerSecond(requestsPerSecond int) *ReindexService {
+	s.requestsPerSecond = &requestsPerSecond
 	return s
 }
 
@@ -149,18 +154,10 @@ func (s *ReindexService) Script(script *Script) *ReindexService {
 	return s
 }
 
-// BodyJson specifies e.g. the query to restrict the results specified with the
-// Query DSL (optional). The interface{} will be serialized to a JSON document,
-// so use a map[string]interface{}.
-func (s *ReindexService) BodyJson(body interface{}) *ReindexService {
-	s.bodyJson = body
-	return s
-}
-
-// Body specifies e.g. a query to restrict the results specified with
-// the Query DSL (optional).
-func (s *ReindexService) BodyString(body string) *ReindexService {
-	s.bodyString = body
+// Body specifies the body of the request to send to Elasticsearch.
+// It overrides settings specified with other setters, e.g. Query.
+func (s *ReindexService) Body(body interface{}) *ReindexService {
+	s.body = body
 	return s
 }
 
@@ -174,14 +171,17 @@ func (s *ReindexService) buildURL() (string, url.Values, error) {
 	if s.pretty {
 		params.Set("pretty", "1")
 	}
-	if s.consistency != "" {
-		params.Set("consistency", s.consistency)
-	}
 	if s.refresh != "" {
 		params.Set("refresh", s.refresh)
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)
+	}
+	if s.requestsPerSecond != nil {
+		params.Set("requests_per_second", fmt.Sprintf("%v", *s.requestsPerSecond))
+	}
+	if s.waitForActiveShards != "" {
+		params.Set("wait_for_active_shards", s.waitForActiveShards)
 	}
 	if s.waitForCompletion != nil {
 		params.Set("wait_for_completion", fmt.Sprintf("%v", *s.waitForCompletion))
@@ -192,6 +192,9 @@ func (s *ReindexService) buildURL() (string, url.Values, error) {
 // Validate checks if the operation is valid.
 func (s *ReindexService) Validate() error {
 	var invalid []string
+	if s.body != nil {
+		return nil
+	}
 	if s.source == nil {
 		invalid = append(invalid, "Source")
 	} else {
@@ -208,13 +211,10 @@ func (s *ReindexService) Validate() error {
 	return nil
 }
 
-// body returns the body part of the document request.
-func (s *ReindexService) body() (interface{}, error) {
-	if s.bodyJson != nil {
-		return s.bodyJson, nil
-	}
-	if s.bodyString != "" {
-		return s.bodyString, nil
+// getBody returns the body part of the document request.
+func (s *ReindexService) getBody() (interface{}, error) {
+	if s.body != nil {
+		return s.body, nil
 	}
 
 	body := make(map[string]interface{})
@@ -262,7 +262,7 @@ func (s *ReindexService) Do(ctx context.Context) (*BulkIndexByScrollResponse, er
 	}
 
 	// Setup HTTP request body
-	body, err := s.body()
+	body, err := s.getBody()
 	if err != nil {
 		return nil, err
 	}

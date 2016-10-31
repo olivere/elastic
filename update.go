@@ -15,30 +15,29 @@ import (
 )
 
 // UpdateService updates a document in Elasticsearch.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs-update.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.0/docs-update.html
 // for details.
 type UpdateService struct {
-	client           *Client
-	index            string
-	typ              string
-	id               string
-	routing          string
-	parent           string
-	script           *Script
-	fields           []string
-	version          *int64
-	versionType      string
-	retryOnConflict  *int
-	refresh          string
-	replicationType  string
-	consistencyLevel string
-	upsert           interface{}
-	scriptedUpsert   *bool
-	docAsUpsert      *bool
-	detectNoop       *bool
-	doc              interface{}
-	timeout          string
-	pretty           bool
+	client              *Client
+	index               string
+	typ                 string
+	id                  string
+	routing             string
+	parent              string
+	script              *Script
+	fields              []string
+	version             *int64
+	versionType         string
+	retryOnConflict     *int
+	refresh             string
+	waitForActiveShards string
+	upsert              interface{}
+	scriptedUpsert      *bool
+	docAsUpsert         *bool
+	detectNoop          *bool
+	doc                 interface{}
+	timeout             string
+	pretty              bool
 }
 
 // NewUpdateService creates the service to update documents in Elasticsearch.
@@ -118,16 +117,12 @@ func (b *UpdateService) Refresh(refresh string) *UpdateService {
 	return b
 }
 
-// ReplicationType is one of "sync" or "async".
-func (b *UpdateService) ReplicationType(replicationType string) *UpdateService {
-	b.replicationType = replicationType
-	return b
-}
-
-// ConsistencyLevel is one of "one", "quorum", or "all".
-// It sets the write consistency setting for the update operation.
-func (b *UpdateService) ConsistencyLevel(consistencyLevel string) *UpdateService {
-	b.consistencyLevel = consistencyLevel
+// WaitForActiveShards sets the number of shard copies that must be active before
+// proceeding with the update operation. Defaults to 1, meaning the primary shard only.
+// Set to `all` for all shard copies, otherwise set to any non-negative value less than
+// or equal to the total number of copies for the shard (number of replicas + 1).
+func (b *UpdateService) WaitForActiveShards(waitForActiveShards string) *UpdateService {
+	b.waitForActiveShards = waitForActiveShards
 	return b
 }
 
@@ -208,11 +203,8 @@ func (b *UpdateService) url() (string, url.Values, error) {
 	if b.refresh != "" {
 		params.Set("refresh", b.refresh)
 	}
-	if b.replicationType != "" {
-		params.Set("replication", b.replicationType)
-	}
-	if b.consistencyLevel != "" {
-		params.Set("consistency", b.consistencyLevel)
+	if b.waitForActiveShards != "" {
+		params.Set("wait_for_active_shards", b.waitForActiveShards)
 	}
 	if len(b.fields) > 0 {
 		params.Set("fields", strings.Join(b.fields, ","))

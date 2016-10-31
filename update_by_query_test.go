@@ -82,7 +82,7 @@ func TestUpdateByQueryBuildURL(t *testing.T) {
 
 func TestUpdateByQueryBodyWithQuery(t *testing.T) {
 	client := setupTestClient(t)
-	out, err := client.UpdateByQuery().Query(NewTermQuery("user", "olivere")).body()
+	out, err := client.UpdateByQuery().Query(NewTermQuery("user", "olivere")).getBody()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,7 +102,7 @@ func TestUpdateByQueryBodyWithQueryAndScript(t *testing.T) {
 	out, err := client.UpdateByQuery().
 		Query(NewTermQuery("user", "olivere")).
 		Script(NewScriptInline("ctx._source.likes++")).
-		body()
+		getBody()
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -16,27 +16,27 @@ import (
 // IndexService adds or updates a typed JSON document in a specified index,
 // making it searchable.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.0/docs-index_.html
 // for details.
 type IndexService struct {
-	client      *Client
-	pretty      bool
-	id          string
-	index       string
-	typ         string
-	parent      string
-	replication string
-	routing     string
-	timeout     string
-	timestamp   string
-	ttl         string
-	version     interface{}
-	opType      string
-	versionType string
-	refresh     string
-	consistency string
-	bodyJson    interface{}
-	bodyString  string
+	client              *Client
+	pretty              bool
+	id                  string
+	index               string
+	typ                 string
+	parent              string
+	routing             string
+	timeout             string
+	timestamp           string
+	ttl                 string
+	version             interface{}
+	opType              string
+	versionType         string
+	refresh             string
+	waitForActiveShards string
+	pipeline            string
+	bodyJson            interface{}
+	bodyString          string
 }
 
 // NewIndexService creates a new IndexService.
@@ -64,9 +64,19 @@ func (s *IndexService) Type(typ string) *IndexService {
 	return s
 }
 
-// Consistency is an explicit write consistency setting for the operation.
-func (s *IndexService) Consistency(consistency string) *IndexService {
-	s.consistency = consistency
+// WaitForActiveShards sets the number of shard copies that must be active
+// before proceeding with the index operation. Defaults to 1, meaning the
+// primary shard only. Set to `all` for all shard copies, otherwise set to
+// any non-negative value less than or equal to the total number of copies
+// for the shard (number of replicas + 1).
+func (s *IndexService) WaitForActiveShards(waitForActiveShards string) *IndexService {
+	s.waitForActiveShards = waitForActiveShards
+	return s
+}
+
+// Pipeline specifies the pipeline id to preprocess incoming documents with.
+func (s *IndexService) Pipeline(pipeline string) *IndexService {
+	s.pipeline = pipeline
 	return s
 }
 
@@ -103,12 +113,6 @@ func (s *IndexService) OpType(opType string) *IndexService {
 // Parent is the ID of the parent document.
 func (s *IndexService) Parent(parent string) *IndexService {
 	s.parent = parent
-	return s
-}
-
-// Replication is a specific replication type.
-func (s *IndexService) Replication(replication string) *IndexService {
-	s.replication = replication
 	return s
 }
 
@@ -185,8 +189,8 @@ func (s *IndexService) buildURL() (string, string, url.Values, error) {
 	if s.pretty {
 		params.Set("pretty", "1")
 	}
-	if s.consistency != "" {
-		params.Set("consistency", s.consistency)
+	if s.waitForActiveShards != "" {
+		params.Set("wait_for_active_shards", s.waitForActiveShards)
 	}
 	if s.refresh != "" {
 		params.Set("refresh", s.refresh)
@@ -197,8 +201,8 @@ func (s *IndexService) buildURL() (string, string, url.Values, error) {
 	if s.parent != "" {
 		params.Set("parent", s.parent)
 	}
-	if s.replication != "" {
-		params.Set("replication", s.replication)
+	if s.pipeline != "" {
+		params.Set("pipeline", s.pipeline)
 	}
 	if s.routing != "" {
 		params.Set("routing", s.routing)
