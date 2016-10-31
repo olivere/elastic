@@ -185,3 +185,11 @@ which can be used in combination with the new
 [Percolator type](https://www.elastic.co/guide/en/elasticsearch/reference/5.x/percolator.html).
 
 The Percolate service is removed from Elastic 5.0.
+
+## Remove Consistency, add WaitForActiveShards
+
+The `consistency` parameter has been removed in a lot of places, e.g. the Bulk,
+Index, Delete, Delete-by-Query, Reindex, Update, and Update-by-Query API.
+
+It has been replaced by a somewhat similar `wait_for_active_shards` parameter.
+See https://github.com/elastic/elasticsearch/pull/19454.
