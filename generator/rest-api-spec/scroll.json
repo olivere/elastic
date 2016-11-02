@@ -1,6 +1,6 @@
 {
   "scroll": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/search-request-scroll.html",
+    "documentation": "https://www.elastic.co/guide/en/elasticsearch/reference/5.x/search-request-scroll.html",
     "methods": ["GET", "POST"],
     "url": {
       "path": "/_search/scroll",
@@ -13,7 +13,7 @@
       },
       "params": {
         "scroll": {
-          "type" : "duration",
+          "type" : "time",
           "description" : "Specify how long a consistent view of the index should be maintained for scrolled search"
         },
         "scroll_id": {

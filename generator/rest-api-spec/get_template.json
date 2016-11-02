@@ -1,6 +1,6 @@
 {
   "get_template": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/search-template.html",
+    "documentation": "https://www.elastic.co/guide/en/elasticsearch/reference/5.x/search-template.html",
     "methods": ["GET"],
     "url": {
       "path": "/_search/template/{id}",
@@ -13,15 +13,6 @@
         }
       },
       "params" : {
-        "version": {
-          "type": "number",
-          "description": "Explicit version number for concurrency control"
-        },
-        "version_type": {
-          "type": "enum",
-          "options": ["internal", "external", "external_gte", "force"],
-          "description": "Specific version type"
-        }
       }
     },
     "body": null

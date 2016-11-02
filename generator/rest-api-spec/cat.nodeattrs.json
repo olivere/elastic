@@ -1,6 +1,6 @@
 {
   "cat.nodeattrs": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/cat-nodeattrs.html",
+    "documentation": "https://www.elastic.co/guide/en/elasticsearch/reference/5.x/cat-nodeattrs.html",
     "methods": ["GET"],
     "url": {
       "path": "/_cat/nodeattrs",
@@ -8,6 +8,10 @@
       "parts": {
       },
       "params": {
+        "format": {
+          "type" : "string",
+          "description" : "a short version of the Accept header, e.g. json, yaml"
+        },
         "local": {
           "type" : "boolean",
           "description" : "Return local information, do not retrieve the state from master node (default: false)"

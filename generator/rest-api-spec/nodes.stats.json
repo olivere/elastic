@@ -1,6 +1,6 @@
 {
   "nodes.stats": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-nodes-stats.html",
+    "documentation": "https://www.elastic.co/guide/en/elasticsearch/reference/5.x/cluster-nodes-stats.html",
     "methods": ["GET"],
     "url": {
       "path": "/_nodes/stats",
@@ -15,7 +15,7 @@
       "parts": {
         "metric" : {
           "type" : "list",
-          "options" : ["_all", "breaker", "fs", "http", "indices", "jvm", "os", "process", "thread_pool", "transport"],
+          "options" : ["_all", "breaker", "fs", "http", "indices", "jvm", "os", "process", "thread_pool", "transport", "discovery"],
           "description" : "Limit the information returned to the specified metrics"
         },
         "index_metric" : {
@@ -52,8 +52,8 @@
         },
         "level": {
           "type" : "enum",
-          "description": "Return indices stats aggregated at node, index or shard level",
-          "options" : ["node", "indices", "shards"],
+          "description": "Return indices stats aggregated at index, node or shard level",
+          "options" : ["indices", "node", "shards"],
           "default" : "node"
         },
         "types" : {

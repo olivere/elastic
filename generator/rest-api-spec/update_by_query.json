@@ -1,6 +1,6 @@
 {
   "update_by_query": {
-    "documentation": "https://www.elastic.co/guide/en/elasticsearch/plugins/master/plugins-reindex.html",
+    "documentation": "https://www.elastic.co/guide/en/elasticsearch/reference/5.x/docs-update-by-query.html",
     "methods": ["POST"],
     "url": {
       "path": "/{index}/_update_by_query",
@@ -8,6 +8,7 @@
       "comment": "most things below this are just copied from search.json",
       "parts": {
         "index": {
+         "required" : true,
          "type" : "list",
          "description" : "A comma-separated list of index names to search; use `_all` or empty string to perform the operation on all indices"
         },
@@ -39,13 +40,17 @@
           "type" : "boolean",
           "description" : "Specify whether to return detailed information about score computation as part of a hit"
         },
-        "fields": {
+        "stored_fields": {
           "type" : "list",
-          "description" : "A comma-separated list of fields to return as part of a hit"
+          "description" : "A comma-separated list of stored fields to return as part of a hit"
+        },
+        "docvalue_fields": {
+          "type" : "list",
+          "description" : "A comma-separated list of fields to return as the docvalue representation of a field for each hit"
         },
         "fielddata_fields": {
           "type" : "list",
-          "description" : "A comma-separated list of fields to return as the field data representation of a field for each hit"
+          "description" : "A comma-separated list of fields to return as the docvalue representation of a field for each hit"
         },
         "from": {
           "type" : "number",
@@ -80,6 +85,10 @@
           "type" : "boolean",
           "description" : "Specify whether query terms should be lowercased"
         },
+        "pipeline": {
+          "type" : "string",
+          "description" : "Ingest pipeline to set on index requests made by this action. (default: none)"
+        },
         "preference": {
           "type" : "string",
           "description" : "Specify the node or shard the operation should be performed on (default: random)"
@@ -93,7 +102,7 @@
           "description" : "A comma-separated list of specific routing values"
         },
         "scroll": {
-          "type" : "duration",
+          "type" : "time",
           "description" : "Specify how long a consistent view of the index should be maintained for scrolled search"
         },
         "search_type": {
@@ -148,7 +157,7 @@
           "description" : "How many suggestions to return in response"
         },
         "suggest_text": {
-          "type" : "text",
+          "type" : "string",
           "description" : "The source text for which the suggestions should be returned"
         },
         "timeout": {
@@ -180,13 +189,12 @@
           "default": "1m",
           "description" : "Time each individual bulk request should wait for shards that are unavailable."
         },
-        "consistency": {
-          "type" : "enum",
-          "options" : ["one", "quorum", "all"],
-          "description" : "Explicit write consistency setting for the operation"
+        "wait_for_active_shards": {
+          "type" : "string",
+          "description" : "Sets the number of shard copies that must be active before proceeding with the update by query operation. Defaults to 1, meaning the primary shard only. Set to `all` for all shard copies, otherwise set to any non-negative value less than or equal to the total number of copies for the shard (number of replicas + 1)"
         },
         "scroll_size": {
-          "type": "integer",
+          "type": "number",
           "defaut_value": 100,
           "description": "Size on the scroll request powering the update_by_query"
         },
@@ -194,6 +202,11 @@
            "type" : "boolean",
            "default": false,
            "description" : "Should the request should block until the reindex is complete."
+        },
+        "requests_per_second": {
+          "type": "number",
+          "default": 0,
+          "description": "The throttle to set on this request in sub-requests per second. -1 means set no throttle as does \"unlimited\" which is the only non-float this accepts."
         }
       }
     },

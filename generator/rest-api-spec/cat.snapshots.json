@@ -1,10 +1,12 @@
 {
   "cat.snapshots": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/cat-snapshots.html",
+    "documentation": "https://www.elastic.co/guide/en/elasticsearch/reference/5.x/cat-snapshots.html",
     "methods": ["GET"],
     "url": {
-      "path": "/_cat/snapshots/{repository}",
-      "paths": ["/_cat/snapshots/{repository}"],
+      "path": "/_cat/snapshots",
+      "paths": [
+        "/_cat/snapshots",
+        "/_cat/snapshots/{repository}"],
       "parts": {
         "repository": {
           "type" : "list",
@@ -13,6 +15,10 @@
         }
       },
       "params": {
+        "format": {
+          "type" : "string",
+          "description" : "a short version of the Accept header, e.g. json, yaml"
+        },
         "ignore_unavailable": {
           "type": "boolean",
           "description": "Set to true to ignore unavailable snapshots",

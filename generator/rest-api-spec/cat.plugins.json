@@ -1,11 +1,15 @@
 {
   "cat.plugins": {
-    "documentation": "http://www.elastic.co/guide/en/elasticsearch/reference/master/cat-plugins.html",
+    "documentation": "https://www.elastic.co/guide/en/elasticsearch/reference/5.x/cat-plugins.html",
     "methods": ["GET"],
     "url": {
       "path": "/_cat/plugins",
       "paths": ["/_cat/plugins"],
       "params": {
+        "format": {
+          "type" : "string",
+          "description" : "a short version of the Accept header, e.g. json, yaml"
+        },
         "local": {
           "type" : "boolean",
           "description" : "Return local information, do not retrieve the state from master node (default: false)"
