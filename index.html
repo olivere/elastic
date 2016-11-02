@@ -43,7 +43,7 @@
       for the
       <a href="https://golang.org/">Go programming language</a>.
       We use it in production since 2012.
-      It supports Elasticsearch versions 1.x and 2.x.
+      It supports Elasticsearch versions 1.x, 2.x and 5.x.
     </p>
     <p>
       The code is MIT licensed and hosted on
@@ -71,6 +71,14 @@
       </thead>
       <tbody>
         <tr>
+          <td>5.x</td>
+          <td>5.0</td>
+          <td>
+            <a href="https://gopkg.in/olivere/elastic.v5">gopkg.in/olivere/elastic.v5</a>
+             (<a href="https://github.com/olivere/elastic/tree/release-branch.v5">source</a>&nbsp;&bull;&nbsp;<a href="http://godoc.org/gopkg.in/olivere/elastic.v5">docs</a>&nbsp;&bull;&nbsp;<a href="https://github.com/olivere/elastic/blob/release-branch.v5/CHANGELOG-5.0.md">changelog</a>)
+          </td>
+        </tr>
+        <tr>
           <td>2.x</td>
           <td>3.0</td>
           <td>
@@ -97,13 +105,13 @@
       </tbody>
     </table>
     <p>
-      <b>Example:</b> You have Elasticsearch 2.0.0 installed and want
-      to use Elastic. As listed above, you should use Elastic 3.0.
-      So you first install Elastic 3.0 with:
-      <pre class="code-example"><code class="code-example-body prettyprint">go get gopkg.in/olivere/elastic.v3
+      <b>Example:</b> You have Elasticsearch 5.0.0 installed and want
+      to use Elastic. As listed above, you should use Elastic 5.0.
+      So you first install Elastic 5.0 with:
+      <pre class="code-example"><code class="code-example-body prettyprint">go get gopkg.in/olivere/elastic.v5
 </code></pre>
       You the use the following import path in your Go code:
-      <pre class="code-example"><code class="code-example-body prettyprint">import "gopkg.in/olivere/elastic.v3"
+      <pre class="code-example"><code class="code-example-body prettyprint">import "gopkg.in/olivere/elastic.v5"
 </code></pre>
     </p>
     <h5>Notice</h5>
@@ -118,10 +126,10 @@
   <section id="getting-started">
     <h4>Getting Started</h4>
     <p>
-      The following code targets Elasticsearch 1.x and uses Elastic 2.0.
-      To use Elastic 2.0 in your Go project, first <code>go get</code> it:
+      The following code targets Elasticsearch 5.x and uses Elastic 5.0.
+      To use Elastic 5.0 in your Go project, first <code>go get</code> it:
     </p>
-    <pre class="code-example"><code class="code-example-body prettyprint">go get gopkg.in/olivere/elastic.v2
+    <pre class="code-example"><code class="code-example-body prettyprint">go get gopkg.in/olivere/elastic.v5
 </code></pre>
     <p>
       Then start using it in your code. Here's a complete example:
@@ -134,7 +142,7 @@ import (
   "net/http"
   "time"
 
-  "gopkg.in/olivere/elastic.v2"
+  elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // Tweet is a structure used for serializing/deserializing data in Elasticsearch.
