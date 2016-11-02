@@ -24,7 +24,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "5.0.1"
+	Version = "5.0.2"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1317,6 +1317,11 @@ func (c *Client) DeleteIndex(indices ...string) *IndicesDeleteService {
 // IndexExists allows to check if an index exists.
 func (c *Client) IndexExists(indices ...string) *IndicesExistsService {
 	return NewIndicesExistsService(c).Index(indices)
+}
+
+// ShrinkIndex returns a service to shrink one index into another.
+func (c *Client) ShrinkIndex(source, target string) *IndicesShrinkService {
+	return NewIndicesShrinkService(c).Source(source).Target(target)
 }
 
 // TypeExists allows to check if one or more types exist in one or more indices.

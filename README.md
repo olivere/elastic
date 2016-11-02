@@ -1,9 +1,5 @@
 # Elastic
 
-**WARNING** This branch contains a work-in-progress, preparing
-Elastic 5.0 to be in sync with Elasticsearch 5.0 and the
-[Elastic v5 Stack](https://www.elastic.co/v5).
-
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for the
 [Go](http://www.golang.org/) programming language.
 
@@ -24,7 +20,7 @@ Here's the version matrix:
 
 Elasticsearch version | Elastic version -| Package URL
 ----------------------|------------------|------------
-5.x                   | 5.0              | **not released yet** [`gopkg.in/olivere/elastic.v5`](https://gopkg.in/olivere/elastic.v5) ([source](https://github.com/olivere/elastic/tree/release-branch.v5) [doc](http://godoc.org/gopkg.in/olivere/elastic.v5))
+5.x                   | 5.0              | [`gopkg.in/olivere/elastic.v5`](https://gopkg.in/olivere/elastic.v5) ([source](https://github.com/olivere/elastic/tree/release-branch.v5) [doc](http://godoc.org/gopkg.in/olivere/elastic.v5))
 2.x                   | 3.0              | [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3) ([source](https://github.com/olivere/elastic/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/olivere/elastic.v3))
 1.x                   | 2.0              | [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2) ([source](https://github.com/olivere/elastic/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/olivere/elastic.v2))
 0.9-1.3               | 1.0              | [`gopkg.in/olivere/elastic.v1`](https://gopkg.in/olivere/elastic.v1) ([source](https://github.com/olivere/elastic/tree/release-branch.v1) [doc](http://godoc.org/gopkg.in/olivere/elastic.v1))
@@ -47,10 +43,10 @@ import elastic "gopkg.in/olivere/elastic.v5"
 
 ### Elastic 5.0
 
-Elastic 5.0 targets Elasticsearch 5.0.0 and later. Elasticsearch 5.0.0 is currently
-at beta 1, [released on 22nd September 2016](https://www.elastic.co/blog/elastic-stack-release-5-0-0-beta1).
+Elastic 5.0 targets Elasticsearch 5.0.0 and later. Elasticsearch 5.0.0 was
+[released on 26th October 2016](https://www.elastic.co/blog/elasticsearch-5-0-0-released).
 
-Notice that there are will be a lot of [breaking changes in Elasticsearch 5.0](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking-changes-5.0.html)
+Notice that there are will be a lot of [breaking changes in Elasticsearch 5.0](https://www.elastic.co/guide/en/elasticsearch/reference/5.0/breaking-changes-5.0.html)
 and we used this as an opportunity to [clean up and refactor Elastic](https://github.com/olivere/elastic/blob/release-branch.v5/CHANGELOG-5.0.md)
 as we did in the transition from Elastic 2.0 (for Elasticsearch 1.x) to Elastic 3.0 (for Elasticsearch 2.x).
 
@@ -59,6 +55,8 @@ Furthermore, the jump in version numbers will give us a chance to be in sync wit
 ### Elastic 3.0
 
 Elastic 3.0 targets Elasticsearch 2.x and is published via [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3).
+
+Elastic 3.0 will only get critical bug fixes. You should update to a recent version.
 
 ### Elastic 2.0
 
@@ -88,7 +86,7 @@ to rewrite your application big time. More often than not it's renaming APIs
 and adding/removing features so that Elastic is in sync with Elasticsearch.
 
 Elastic has been used in production with the following Elasticsearch versions:
-0.90, 1.0-1.7, and 2.0-2.3.3. Furthermore, we use [Travis CI](https://travis-ci.org/)
+0.90, 1.0-1.7, and 2.0-2.4.1. Furthermore, we use [Travis CI](https://travis-ci.org/)
 to test Elastic with the most recent versions of Elasticsearch and Go.
 See the [.travis.yml](https://github.com/olivere/elastic/blob/master/.travis.yml)
 file for the exact matrix and [Travis](https://travis-ci.org/olivere/elastic)
@@ -299,7 +297,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Get Index
 - [x] Indices Exists
 - [x] Open / Close Index
-- [ ] Shrink Index
+- [x] Shrink Index
 - [ ] Rollover Index
 - [x] Put Mapping
 - [x] Get Mapping
@@ -436,10 +434,6 @@ The `ClearScroll` API is implemented as well.
 
 A pattern for [efficiently scrolling in parallel](https://github.com/olivere/elastic/wiki/ScrollParallel)
 is described in the [Wiki](https://github.com/olivere/elastic/wiki).
-
-### Task Management
-
-TODO ...
 
 ## How to contribute
 

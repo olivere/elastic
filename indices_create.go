@@ -126,5 +126,6 @@ func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 
 // IndicesCreateResult is the outcome of creating a new index.
 type IndicesCreateResult struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool `json:"acknowledged"`
+	ShardsAcknowledged bool `json:"shards_acknowledged"`
 }
