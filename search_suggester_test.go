@@ -39,8 +39,6 @@ func TestTermSuggester(t *testing.T) {
 	}
 
 	// Match all should return all documents
-	all := NewMatchAllQuery()
-
 	tsName := "my-suggestions"
 	ts := NewTermSuggester(tsName)
 	ts = ts.Text("Goolang")
@@ -48,7 +46,7 @@ func TestTermSuggester(t *testing.T) {
 
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(all).
+		Query(NewMatchAllQuery()).
 		Suggester(ts).
 		Do(context.TODO())
 	if err != nil {
@@ -85,12 +83,6 @@ func TestTermSuggester(t *testing.T) {
 	if myOption.Text != "golang" {
 		t.Errorf("expected Text = 'golang'; got %s", myOption.Text)
 	}
-	if myOption.Score == float64(0.0) {
-		t.Errorf("expected Score != 0.0; got %v", myOption.Score)
-	}
-	if myOption.Freq == 0 {
-		t.Errorf("expected Freq != 0; got %v", myOption.Freq)
-	}
 }
 
 func TestPhraseSuggester(t *testing.T) {
@@ -122,8 +114,6 @@ func TestPhraseSuggester(t *testing.T) {
 	}
 
 	// Match all should return all documents
-	all := NewMatchAllQuery()
-
 	phraseSuggesterName := "my-suggestions"
 	ps := NewPhraseSuggester(phraseSuggesterName)
 	ps = ps.Text("Goolang")
@@ -131,7 +121,7 @@ func TestPhraseSuggester(t *testing.T) {
 
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(all).
+		Query(NewMatchAllQuery()).
 		Suggester(ps).
 		Do(context.TODO())
 	if err != nil {
@@ -161,28 +151,26 @@ func TestPhraseSuggester(t *testing.T) {
 	if mySuggestion.Length != 7 {
 		t.Errorf("expected Length = %d; got %d", 7, mySuggestion.Length)
 	}
-	/*
-		if len(mySuggestion.Options) != 1 {
-			t.Errorf("expected 1 option; got %d", len(mySuggestion.Options))
-		}
-			myOption := mySuggestion.Options[0]
-			if myOption.Text != "golang" {
-				t.Errorf("expected Text = 'golang'; got %s", myOption.Text)
-			}
-			if myOption.Score == float64(0.0) {
-				t.Errorf("expected Score != 0.0; got %v", myOption.Score)
-			}
-	*/
 }
 
-// TODO(oe): I get a "Completion suggester not supported" exception on 0.90.2?!
-/*
 func TestCompletionSuggester(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
-	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
+	tweet1 := tweet{
+		User:    "olivere",
+		Message: "Welcome to Golang and Elasticsearch.",
+		Suggest: NewSuggestField("Golang", "Elasticsearch"),
+	}
+	tweet2 := tweet{
+		User:    "olivere",
+		Message: "Another unrelated topic.",
+		Suggest: NewSuggestField("Another unrelated topic."),
+	}
+	tweet3 := tweet{
+		User:    "sandrae",
+		Message: "Cycling is fun.",
+		Suggest: NewSuggestField("Cycling is fun."),
+	}
 
 	// Add all documents
 	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
@@ -206,18 +194,16 @@ func TestCompletionSuggester(t *testing.T) {
 	}
 
 	// Match all should return all documents
-	all := NewMatchAllQuery()
-
 	suggesterName := "my-suggestions"
 	cs := NewCompletionSuggester(suggesterName)
-	cs = cs.Text("Goolang")
-	cs = cs.Field("message")
+	cs = cs.Text("Golang")
+	cs = cs.Field("suggest_field")
 
 	searchResult, err := client.Search().
 		Index(testIndexName).
-		Query(&all).
+		Query(NewMatchAllQuery()).
 		Suggester(cs).
-		Do()
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -236,24 +222,20 @@ func TestCompletionSuggester(t *testing.T) {
 		t.Errorf("expected 1 suggestion; got %d", len(mySuggestions))
 	}
 	mySuggestion := mySuggestions[0]
-	if mySuggestion.Text != "Goolang" {
-		t.Errorf("expected Text = 'Goolang'; got %s", mySuggestion.Text)
+	if mySuggestion.Text != "Golang" {
+		t.Errorf("expected Text = 'Golang'; got %s", mySuggestion.Text)
 	}
 	if mySuggestion.Offset != 0 {
 		t.Errorf("expected Offset = %d; got %d", 0, mySuggestion.Offset)
 	}
-	if mySuggestion.Length != 7 {
+	if mySuggestion.Length != 6 {
 		t.Errorf("expected Length = %d; got %d", 7, mySuggestion.Length)
 	}
 	if len(mySuggestion.Options) != 1 {
 		t.Errorf("expected 1 option; got %d", len(mySuggestion.Options))
 	}
 	myOption := mySuggestion.Options[0]
-	if myOption.Text != "golang" {
-		t.Errorf("expected Text = 'golang'; got %s", myOption.Text)
-	}
-	if myOption.Score == float64(0.0) {
-		t.Errorf("expected Score != 0.0; got %v", myOption.Score)
+	if myOption.Text != "Golang" {
+		t.Errorf("expected Text = 'Golang'; got %s", myOption.Text)
 	}
 }
-//*/

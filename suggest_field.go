@@ -13,13 +13,15 @@ import (
 // http://www.elasticsearch.org/blog/you-complete-me/.
 type SuggestField struct {
 	inputs         []string
-	payload        interface{}
 	weight         int
 	contextQueries []SuggesterContextQuery
 }
 
-func NewSuggestField() *SuggestField {
-	return &SuggestField{weight: -1}
+func NewSuggestField(input ...string) *SuggestField {
+	return &SuggestField{
+		inputs: input,
+		weight: -1,
+	}
 }
 
 func (f *SuggestField) Input(input ...string) *SuggestField {
@@ -27,11 +29,6 @@ func (f *SuggestField) Input(input ...string) *SuggestField {
 		f.inputs = make([]string, 0)
 	}
 	f.inputs = append(f.inputs, input...)
-	return f
-}
-
-func (f *SuggestField) Payload(payload interface{}) *SuggestField {
-	f.payload = payload
 	return f
 }
 
@@ -56,10 +53,6 @@ func (f *SuggestField) MarshalJSON() ([]byte, error) {
 		default:
 			source["input"] = f.inputs
 		}
-	}
-
-	if f.payload != nil {
-		source["payload"] = f.payload
 	}
 
 	if f.weight >= 0 {
