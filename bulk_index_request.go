@@ -16,15 +16,18 @@ import (
 // for details.
 type BulkIndexRequest struct {
 	BulkableRequest
-	index       string
-	typ         string
-	id          string
-	opType      string
-	routing     string
-	parent      string
-	version     int64  // default is MATCH_ANY
-	versionType string // default is "internal"
-	doc         interface{}
+	index           string
+	typ             string
+	id              string
+	opType          string
+	routing         string
+	parent          string
+	version         int64  // default is MATCH_ANY
+	versionType     string // default is "internal"
+	doc             interface{}
+	pipeline        string
+	retryOnConflict *int
+	ttl             string
 
 	source []string
 }
@@ -110,6 +113,27 @@ func (r *BulkIndexRequest) Doc(doc interface{}) *BulkIndexRequest {
 	return r
 }
 
+// RetryOnConflict specifies how often to retry in case of a version conflict.
+func (r *BulkIndexRequest) RetryOnConflict(retryOnConflict int) *BulkIndexRequest {
+	r.retryOnConflict = &retryOnConflict
+	r.source = nil
+	return r
+}
+
+// TTL is an expiration time for the document.
+func (r *BulkIndexRequest) TTL(ttl string) *BulkIndexRequest {
+	r.ttl = ttl
+	r.source = nil
+	return r
+}
+
+// Pipeline to use while processing the request.
+func (r *BulkIndexRequest) Pipeline(pipeline string) *BulkIndexRequest {
+	r.pipeline = pipeline
+	r.source = nil
+	return r
+}
+
 // String returns the on-wire representation of the index request,
 // concatenated as a single string.
 func (r *BulkIndexRequest) String() string {
@@ -157,6 +181,15 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 	}
 	if r.versionType != "" {
 		indexCommand["_version_type"] = r.versionType
+	}
+	if r.retryOnConflict != nil {
+		indexCommand["_retry_on_conflict"] = *r.retryOnConflict
+	}
+	if r.ttl != "" {
+		indexCommand["_ttl"] = r.ttl
+	}
+	if r.pipeline != "" {
+		indexCommand["pipeline"] = r.pipeline
 	}
 	command[r.opType] = indexCommand
 	line, err := json.Marshal(command)

@@ -41,6 +41,33 @@ func TestBulkIndexRequestSerialization(t *testing.T) {
 				`{"user":"olivere","message":"","retweets":0,"created":"2014-01-18T23:59:58Z"}`,
 			},
 		},
+		// #3
+		{
+			Request: NewBulkIndexRequest().OpType("index").Index("index1").Type("tweet").Id("1").RetryOnConflict(42).
+				Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)}),
+			Expected: []string{
+				`{"index":{"_id":"1","_index":"index1","_retry_on_conflict":42,"_type":"tweet"}}`,
+				`{"user":"olivere","message":"","retweets":0,"created":"2014-01-18T23:59:58Z"}`,
+			},
+		},
+		// #4
+		{
+			Request: NewBulkIndexRequest().OpType("index").Index("index1").Type("tweet").Id("1").Pipeline("my_pipeline").
+				Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)}),
+			Expected: []string{
+				`{"index":{"_id":"1","_index":"index1","_type":"tweet","pipeline":"my_pipeline"}}`,
+				`{"user":"olivere","message":"","retweets":0,"created":"2014-01-18T23:59:58Z"}`,
+			},
+		},
+		// #5
+		{
+			Request: NewBulkIndexRequest().OpType("index").Index("index1").Type("tweet").Id("1").TTL("1m").
+				Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)}),
+			Expected: []string{
+				`{"index":{"_id":"1","_index":"index1","_ttl":"1m","_type":"tweet"}}`,
+				`{"user":"olivere","message":"","retweets":0,"created":"2014-01-18T23:59:58Z"}`,
+			},
+		},
 	}
 
 	for i, test := range tests {
