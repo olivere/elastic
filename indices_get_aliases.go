@@ -42,34 +42,34 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 	return s.DoC(nil)
 }
 
-func (s *AliasesService) DoC(ctx context.Context) (*AliasesResult, error) {
+// buildURL builds the URL for the operation.
+func (s *AliasesService) buildURL() (string, url.Values, error) {
 	var err error
+	var path string
 
-	// Build url
-	path := "/"
-
-	// Indices part
-	var indexPart []string
-	for _, index := range s.indices {
-		index, err = uritemplates.Expand("{index}", map[string]string{
-			"index": index,
+	if len(s.indices) > 0 {
+		path, err = uritemplates.Expand("/{index}/_aliases", map[string]string{
+			"index": strings.Join(s.indices, ","),
 		})
-		if err != nil {
-			return nil, err
-		}
-		indexPart = append(indexPart, index)
+	} else {
+		path = "/_aliases"
 	}
-	path += strings.Join(indexPart, ",")
+	if err != nil {
+		return "", url.Values{}, err
+	}
 
-	// TODO Add types here
-
-	// Search
-	path += "/_aliases"
-
-	// Parameters
-	params := make(url.Values)
+	// Add query string parameters
+	params := url.Values{}
 	if s.pretty {
 		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	}
+	return path, params, nil
+}
+
+func (s *AliasesService) DoC(ctx context.Context) (*AliasesResult, error) {
+	path, params, err := s.buildURL()
+	if err != nil {
+		return nil, err
 	}
 
 	// Get response
@@ -158,3 +158,4 @@ func (ir indexResult) HasAlias(aliasName string) bool {
 	}
 	return false
 }
+
