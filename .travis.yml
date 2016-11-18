@@ -1,16 +1,12 @@
 sudo: false
 language: go
 go:
-  - 1.6.3
-  - 1.7.1
-  - tip
+  - 1.7.3
 env:
   global:
     - GO15VENDOREXPERIMENT=1
   matrix:
     - ES_VERSION=1.7.5
-  allow_failures:
-    - go: tip
 before_script:
   - mkdir ${HOME}/elasticsearch
   - wget http://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
