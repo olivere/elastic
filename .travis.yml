@@ -2,7 +2,7 @@ sudo: false
 language: go
 go:
   - 1.7.3
-  - tip
+# - tip
 env:
   global:
     - GO15VENDOREXPERIMENT=1
