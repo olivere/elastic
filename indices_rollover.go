@@ -234,10 +234,13 @@ func (s *IndicesRolloverService) Do(ctx context.Context) (*IndicesRolloverRespon
 
 	// Setup HTTP request body
 	var body interface{}
-	if s.bodyJson != nil {
+	switch {
+	case s.bodyJson != nil:
 		body = s.bodyJson
-	} else {
+	case s.bodyString != "":
 		body = s.bodyString
+	default:
+		body = s.getBody()
 	}
 
 	// Get HTTP response
