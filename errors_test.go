@@ -15,11 +15,16 @@ func TestResponseError(t *testing.T) {
 		`{"status":500,"error":"` + message + `"}` + "\r\n"
 	r := bufio.NewReader(strings.NewReader(raw))
 
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	resp, err := http.ReadResponse(r, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = checkResponse(resp)
+	err = checkResponse(req, resp)
 	if err == nil {
 		t.Fatalf("expected error; got: %v", err)
 	}
@@ -56,11 +61,16 @@ func TestResponseErrorHTML(t *testing.T) {
 </html>` + "\r\n"
 	r := bufio.NewReader(strings.NewReader(raw))
 
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	resp, err := http.ReadResponse(r, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = checkResponse(resp)
+	err = checkResponse(req, resp)
 	if err == nil {
 		t.Fatalf("expected error; got: %v", err)
 	}
@@ -70,5 +80,30 @@ func TestResponseErrorHTML(t *testing.T) {
 	got := err.Error()
 	if got != expected {
 		t.Fatalf("expected %q; got: %q", expected, got)
+	}
+}
+
+func TestResponseErrorWithIgnore(t *testing.T) {
+	raw := "HTTP/1.1 500 Not Found\r\n" +
+		"\r\n" +
+		`{"some":"response"}` + "\r\n"
+	r := bufio.NewReader(strings.NewReader(raw))
+
+	req, err := http.NewRequest("HEAD", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := http.ReadResponse(r, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = checkResponse(req, resp)
+	if err == nil {
+		t.Fatalf("expected error; got: %v", err)
+	}
+	err = checkResponse(req, resp, 500) // ignore 500 errors
+	if err != nil {
+		t.Fatalf("expected no error; got: %v", err)
 	}
 }
