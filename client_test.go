@@ -914,8 +914,11 @@ func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error")
 	}
-	if res != nil {
-		t.Fatal("expected no response")
+	if res == nil {
+		t.Fatal("expected response, got nil")
+	}
+	if want, got := 500, res.StatusCode; want != got {
+		t.Fatalf("expected status code = %d, got %d", want, got)
 	}
 	// Retry should not have triggered additional requests because
 	if numFailedReqs != 1 {
