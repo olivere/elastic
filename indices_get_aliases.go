@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -38,38 +38,38 @@ func (s *AliasesService) Index(indices ...string) *AliasesService {
 	return s
 }
 
+// buildURL builds the URL for the operation.
+func (s *AliasesService) buildURL() (string, url.Values, error) {
+	var err error
+	var path string
+
+	if len(s.indices) > 0 {
+		path, err = uritemplates.Expand("/{index}/_aliases", map[string]string{
+			"index": strings.Join(s.indices, ","),
+		})
+	} else {
+		path = "/_aliases"
+	}
+	if err != nil {
+		return "", url.Values{}, err
+	}
+
+	// Add query string parameters
+	params := url.Values{}
+	if s.pretty {
+		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	}
+	return path, params, nil
+}
+
 func (s *AliasesService) Do() (*AliasesResult, error) {
 	return s.DoC(nil)
 }
 
 func (s *AliasesService) DoC(ctx context.Context) (*AliasesResult, error) {
-	var err error
-
-	// Build url
-	path := "/"
-
-	// Indices part
-	var indexPart []string
-	for _, index := range s.indices {
-		index, err = uritemplates.Expand("{index}", map[string]string{
-			"index": index,
-		})
-		if err != nil {
-			return nil, err
-		}
-		indexPart = append(indexPart, index)
-	}
-	path += strings.Join(indexPart, ",")
-
-	// TODO Add types here
-
-	// Search
-	path += "/_aliases"
-
-	// Parameters
-	params := make(url.Values)
-	if s.pretty {
-		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	path, params, err := s.buildURL()
+	if err != nil {
+		return nil, err
 	}
 
 	// Get response
