@@ -126,9 +126,6 @@ func (s *IndicesShrinkService) Validate() error {
 	if s.target == "" {
 		invalid = append(invalid, "Target")
 	}
-	if s.bodyJson != nil && s.bodyString == "" {
-		invalid = append(invalid, "BodyJson")
-	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
 	}
@@ -152,7 +149,7 @@ func (s *IndicesShrinkService) Do(ctx context.Context) (*IndicesShrinkResponse, 
 	var body interface{}
 	if s.bodyJson != nil {
 		body = s.bodyJson
-	} else {
+	} else if s.bodyString != "" {
 		body = s.bodyString
 	}
 
