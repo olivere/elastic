@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -285,20 +286,24 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 type ScanCursor struct {
 	Results *SearchResult
 
-	client      *Client
-	keepAlive   string
-	pretty      bool
-	currentPage int
+	client       *Client
+	keepAlive    string
+	pretty       bool
+	currentPage  int
+	fetch_mutex  *sync.Mutex
+	return_mutex *sync.Mutex
 }
 
 // newScanCursor returns a new initialized instance
 // of scanCursor.
 func NewScanCursor(client *Client, keepAlive string, pretty bool, searchResult *SearchResult) *ScanCursor {
 	return &ScanCursor{
-		client:    client,
-		keepAlive: keepAlive,
-		pretty:    pretty,
-		Results:   searchResult,
+		client:       client,
+		keepAlive:    keepAlive,
+		pretty:       pretty,
+		Results:      searchResult,
+		fetch_mutex:  &sync.Mutex{},
+		return_mutex: &sync.Mutex{},
 	}
 }
 
@@ -352,6 +357,9 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 		params.Set("scroll", defaultKeepAlive)
 	}
 
+	// Lock the mutex so only one thread will fetch results at a time
+	c.fetch_mutex.Lock()
+
 	// Set body
 	body := c.Results.ScrollId
 
@@ -360,14 +368,22 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 	if err != nil {
 		return nil, err
 	}
+	c.fetch_mutex.Unlock()
+
+	c.currentPage += 1
 
 	// Return result
-	c.Results = &SearchResult{ScrollId: body}
-	if err := json.Unmarshal(res.Body, c.Results); err != nil {
+	ret := new(SearchResult)
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 
-	c.currentPage += 1
+	// Lock the mutex again, so that only one thread updates the cursor and
+	// returns results at a time.
+	c.return_mutex.Lock()
+	defer c.return_mutex.Unlock()
+	c.Results = ret
+	//c.Results.ScrollId = body
 
 	return c.Results, nil
 }
