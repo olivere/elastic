@@ -13,26 +13,26 @@ type FiltersAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewFiltersAggregation() FiltersAggregation {
-	return FiltersAggregation{
+func NewFiltersAggregation() *FiltersAggregation {
+	return &FiltersAggregation{
 		filters:         make([]Filter, 0),
 		subAggregations: make(map[string]Aggregation),
 	}
 }
 
-func (a FiltersAggregation) Filter(filter Filter) FiltersAggregation {
+func (a *FiltersAggregation) Filter(filter Filter) *FiltersAggregation {
 	a.filters = append(a.filters, filter)
 	return a
 }
 
-func (a FiltersAggregation) Filters(filters ...Filter) FiltersAggregation {
+func (a *FiltersAggregation) Filters(filters ...Filter) *FiltersAggregation {
 	if len(filters) > 0 {
 		a.filters = append(a.filters, filters...)
 	}
 	return a
 }
 
-func (a FiltersAggregation) SubAggregation(name string, subAggregation Aggregation) FiltersAggregation {
+func (a *FiltersAggregation) SubAggregation(name string, subAggregation Aggregation) *FiltersAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }

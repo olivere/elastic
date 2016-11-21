@@ -20,45 +20,44 @@ type AvgAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewAvgAggregation() AvgAggregation {
-	a := AvgAggregation{
+func NewAvgAggregation() *AvgAggregation {
+	return &AvgAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a AvgAggregation) Field(field string) AvgAggregation {
+func (a *AvgAggregation) Field(field string) *AvgAggregation {
 	a.field = field
 	return a
 }
 
-func (a AvgAggregation) Script(script string) AvgAggregation {
+func (a *AvgAggregation) Script(script string) *AvgAggregation {
 	a.script = script
 	return a
 }
 
-func (a AvgAggregation) ScriptFile(scriptFile string) AvgAggregation {
+func (a *AvgAggregation) ScriptFile(scriptFile string) *AvgAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a AvgAggregation) Lang(lang string) AvgAggregation {
+func (a *AvgAggregation) Lang(lang string) *AvgAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a AvgAggregation) Format(format string) AvgAggregation {
+func (a *AvgAggregation) Format(format string) *AvgAggregation {
 	a.format = format
 	return a
 }
 
-func (a AvgAggregation) Param(name string, value interface{}) AvgAggregation {
+func (a *AvgAggregation) Param(name string, value interface{}) *AvgAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a AvgAggregation) SubAggregation(name string, subAggregation Aggregation) AvgAggregation {
+func (a *AvgAggregation) SubAggregation(name string, subAggregation Aggregation) *AvgAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }

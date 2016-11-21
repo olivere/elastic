@@ -33,111 +33,110 @@ type rangeAggregationEntry struct {
 	To   interface{}
 }
 
-func NewRangeAggregation() RangeAggregation {
-	a := RangeAggregation{
+func NewRangeAggregation() *RangeAggregation {
+	return &RangeAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 		entries:         make([]rangeAggregationEntry, 0),
 	}
-	return a
 }
 
-func (a RangeAggregation) Field(field string) RangeAggregation {
+func (a *RangeAggregation) Field(field string) *RangeAggregation {
 	a.field = field
 	return a
 }
 
-func (a RangeAggregation) Script(script string) RangeAggregation {
+func (a *RangeAggregation) Script(script string) *RangeAggregation {
 	a.script = script
 	return a
 }
 
-func (a RangeAggregation) ScriptFile(scriptFile string) RangeAggregation {
+func (a *RangeAggregation) ScriptFile(scriptFile string) *RangeAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a RangeAggregation) Lang(lang string) RangeAggregation {
+func (a *RangeAggregation) Lang(lang string) *RangeAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a RangeAggregation) Param(name string, value interface{}) RangeAggregation {
+func (a *RangeAggregation) Param(name string, value interface{}) *RangeAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a RangeAggregation) SubAggregation(name string, subAggregation Aggregation) RangeAggregation {
+func (a *RangeAggregation) SubAggregation(name string, subAggregation Aggregation) *RangeAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
-func (a RangeAggregation) Keyed(keyed bool) RangeAggregation {
+func (a *RangeAggregation) Keyed(keyed bool) *RangeAggregation {
 	a.keyed = &keyed
 	return a
 }
 
-func (a RangeAggregation) Unmapped(unmapped bool) RangeAggregation {
+func (a *RangeAggregation) Unmapped(unmapped bool) *RangeAggregation {
 	a.unmapped = &unmapped
 	return a
 }
 
-func (a RangeAggregation) AddRange(from, to interface{}) RangeAggregation {
+func (a *RangeAggregation) AddRange(from, to interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{From: from, To: to})
 	return a
 }
 
-func (a RangeAggregation) AddRangeWithKey(key string, from, to interface{}) RangeAggregation {
+func (a *RangeAggregation) AddRangeWithKey(key string, from, to interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: from, To: to})
 	return a
 }
 
-func (a RangeAggregation) AddUnboundedTo(from interface{}) RangeAggregation {
+func (a *RangeAggregation) AddUnboundedTo(from interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{From: from, To: nil})
 	return a
 }
 
-func (a RangeAggregation) AddUnboundedToWithKey(key string, from interface{}) RangeAggregation {
+func (a *RangeAggregation) AddUnboundedToWithKey(key string, from interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: from, To: nil})
 	return a
 }
 
-func (a RangeAggregation) AddUnboundedFrom(to interface{}) RangeAggregation {
+func (a *RangeAggregation) AddUnboundedFrom(to interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{From: nil, To: to})
 	return a
 }
 
-func (a RangeAggregation) AddUnboundedFromWithKey(key string, to interface{}) RangeAggregation {
+func (a *RangeAggregation) AddUnboundedFromWithKey(key string, to interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: nil, To: to})
 	return a
 }
 
-func (a RangeAggregation) Lt(to interface{}) RangeAggregation {
+func (a *RangeAggregation) Lt(to interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{From: nil, To: to})
 	return a
 }
 
-func (a RangeAggregation) LtWithKey(key string, to interface{}) RangeAggregation {
+func (a *RangeAggregation) LtWithKey(key string, to interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: nil, To: to})
 	return a
 }
 
-func (a RangeAggregation) Between(from, to interface{}) RangeAggregation {
+func (a *RangeAggregation) Between(from, to interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{From: from, To: to})
 	return a
 }
 
-func (a RangeAggregation) BetweenWithKey(key string, from, to interface{}) RangeAggregation {
+func (a *RangeAggregation) BetweenWithKey(key string, from, to interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: from, To: to})
 	return a
 }
 
-func (a RangeAggregation) Gt(from interface{}) RangeAggregation {
+func (a *RangeAggregation) Gt(from interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{From: from, To: nil})
 	return a
 }
 
-func (a RangeAggregation) GtWithKey(key string, from interface{}) RangeAggregation {
+func (a *RangeAggregation) GtWithKey(key string, from interface{}) *RangeAggregation {
 	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: from, To: nil})
 	return a
 }

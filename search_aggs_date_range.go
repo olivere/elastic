@@ -35,116 +35,115 @@ type DateRangeAggregationEntry struct {
 	To   interface{}
 }
 
-func NewDateRangeAggregation() DateRangeAggregation {
-	a := DateRangeAggregation{
+func NewDateRangeAggregation() *DateRangeAggregation {
+	return &DateRangeAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 		entries:         make([]DateRangeAggregationEntry, 0),
 	}
-	return a
 }
 
-func (a DateRangeAggregation) Field(field string) DateRangeAggregation {
+func (a *DateRangeAggregation) Field(field string) *DateRangeAggregation {
 	a.field = field
 	return a
 }
 
-func (a DateRangeAggregation) Script(script string) DateRangeAggregation {
+func (a *DateRangeAggregation) Script(script string) *DateRangeAggregation {
 	a.script = script
 	return a
 }
 
-func (a DateRangeAggregation) ScriptFile(scriptFile string) DateRangeAggregation {
+func (a *DateRangeAggregation) ScriptFile(scriptFile string) *DateRangeAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a DateRangeAggregation) Lang(lang string) DateRangeAggregation {
+func (a *DateRangeAggregation) Lang(lang string) *DateRangeAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a DateRangeAggregation) Param(name string, value interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) Param(name string, value interface{}) *DateRangeAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a DateRangeAggregation) SubAggregation(name string, subAggregation Aggregation) DateRangeAggregation {
+func (a *DateRangeAggregation) SubAggregation(name string, subAggregation Aggregation) *DateRangeAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
-func (a DateRangeAggregation) Keyed(keyed bool) DateRangeAggregation {
+func (a *DateRangeAggregation) Keyed(keyed bool) *DateRangeAggregation {
 	a.keyed = &keyed
 	return a
 }
 
-func (a DateRangeAggregation) Unmapped(unmapped bool) DateRangeAggregation {
+func (a *DateRangeAggregation) Unmapped(unmapped bool) *DateRangeAggregation {
 	a.unmapped = &unmapped
 	return a
 }
 
-func (a DateRangeAggregation) Format(format string) DateRangeAggregation {
+func (a *DateRangeAggregation) Format(format string) *DateRangeAggregation {
 	a.format = format
 	return a
 }
 
-func (a DateRangeAggregation) AddRange(from, to interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) AddRange(from, to interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{From: from, To: to})
 	return a
 }
 
-func (a DateRangeAggregation) AddRangeWithKey(key string, from, to interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) AddRangeWithKey(key string, from, to interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{Key: key, From: from, To: to})
 	return a
 }
 
-func (a DateRangeAggregation) AddUnboundedTo(from interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) AddUnboundedTo(from interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{From: from, To: nil})
 	return a
 }
 
-func (a DateRangeAggregation) AddUnboundedToWithKey(key string, from interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) AddUnboundedToWithKey(key string, from interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{Key: key, From: from, To: nil})
 	return a
 }
 
-func (a DateRangeAggregation) AddUnboundedFrom(to interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) AddUnboundedFrom(to interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{From: nil, To: to})
 	return a
 }
 
-func (a DateRangeAggregation) AddUnboundedFromWithKey(key string, to interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) AddUnboundedFromWithKey(key string, to interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{Key: key, From: nil, To: to})
 	return a
 }
 
-func (a DateRangeAggregation) Lt(to interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) Lt(to interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{From: nil, To: to})
 	return a
 }
 
-func (a DateRangeAggregation) LtWithKey(key string, to interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) LtWithKey(key string, to interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{Key: key, From: nil, To: to})
 	return a
 }
 
-func (a DateRangeAggregation) Between(from, to interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) Between(from, to interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{From: from, To: to})
 	return a
 }
 
-func (a DateRangeAggregation) BetweenWithKey(key string, from, to interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) BetweenWithKey(key string, from, to interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{Key: key, From: from, To: to})
 	return a
 }
 
-func (a DateRangeAggregation) Gt(from interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) Gt(from interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{From: from, To: nil})
 	return a
 }
 
-func (a DateRangeAggregation) GtWithKey(key string, from interface{}) DateRangeAggregation {
+func (a *DateRangeAggregation) GtWithKey(key string, from interface{}) *DateRangeAggregation {
 	a.entries = append(a.entries, DateRangeAggregationEntry{Key: key, From: from, To: nil})
 	return a
 }

@@ -19,62 +19,61 @@ type PercentileRanksAggregation struct {
 	estimator       string
 }
 
-func NewPercentileRanksAggregation() PercentileRanksAggregation {
-	a := PercentileRanksAggregation{
+func NewPercentileRanksAggregation() *PercentileRanksAggregation {
+	return &PercentileRanksAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 		values:          make([]float64, 0),
 	}
-	return a
 }
 
-func (a PercentileRanksAggregation) Field(field string) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Field(field string) *PercentileRanksAggregation {
 	a.field = field
 	return a
 }
 
-func (a PercentileRanksAggregation) Script(script string) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Script(script string) *PercentileRanksAggregation {
 	a.script = script
 	return a
 }
 
-func (a PercentileRanksAggregation) ScriptFile(scriptFile string) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) ScriptFile(scriptFile string) *PercentileRanksAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a PercentileRanksAggregation) Lang(lang string) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Lang(lang string) *PercentileRanksAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a PercentileRanksAggregation) Format(format string) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Format(format string) *PercentileRanksAggregation {
 	a.format = format
 	return a
 }
 
-func (a PercentileRanksAggregation) Param(name string, value interface{}) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Param(name string, value interface{}) *PercentileRanksAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a PercentileRanksAggregation) SubAggregation(name string, subAggregation Aggregation) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) SubAggregation(name string, subAggregation Aggregation) *PercentileRanksAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
-func (a PercentileRanksAggregation) Values(values ...float64) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Values(values ...float64) *PercentileRanksAggregation {
 	a.values = make([]float64, 0)
 	a.values = append(a.values, values...)
 	return a
 }
 
-func (a PercentileRanksAggregation) Compression(compression float64) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Compression(compression float64) *PercentileRanksAggregation {
 	a.compression = &compression
 	return a
 }
 
-func (a PercentileRanksAggregation) Estimator(estimator string) PercentileRanksAggregation {
+func (a *PercentileRanksAggregation) Estimator(estimator string) *PercentileRanksAggregation {
 	a.estimator = estimator
 	return a
 }

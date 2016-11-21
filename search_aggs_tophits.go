@@ -18,99 +18,98 @@ type TopHitsAggregation struct {
 	searchSource *SearchSource
 }
 
-func NewTopHitsAggregation() TopHitsAggregation {
-	a := TopHitsAggregation{
+func NewTopHitsAggregation() *TopHitsAggregation {
+	return &TopHitsAggregation{
 		searchSource: NewSearchSource(),
 	}
-	return a
 }
 
-func (a TopHitsAggregation) From(from int) TopHitsAggregation {
+func (a *TopHitsAggregation) From(from int) *TopHitsAggregation {
 	a.searchSource = a.searchSource.From(from)
 	return a
 }
 
-func (a TopHitsAggregation) Size(size int) TopHitsAggregation {
+func (a *TopHitsAggregation) Size(size int) *TopHitsAggregation {
 	a.searchSource = a.searchSource.Size(size)
 	return a
 }
 
-func (a TopHitsAggregation) TrackScores(trackScores bool) TopHitsAggregation {
+func (a *TopHitsAggregation) TrackScores(trackScores bool) *TopHitsAggregation {
 	a.searchSource = a.searchSource.TrackScores(trackScores)
 	return a
 }
 
-func (a TopHitsAggregation) Explain(explain bool) TopHitsAggregation {
+func (a *TopHitsAggregation) Explain(explain bool) *TopHitsAggregation {
 	a.searchSource = a.searchSource.Explain(explain)
 	return a
 }
 
-func (a TopHitsAggregation) Version(version bool) TopHitsAggregation {
+func (a *TopHitsAggregation) Version(version bool) *TopHitsAggregation {
 	a.searchSource = a.searchSource.Version(version)
 	return a
 }
 
-func (a TopHitsAggregation) NoFields() TopHitsAggregation {
+func (a *TopHitsAggregation) NoFields() *TopHitsAggregation {
 	a.searchSource = a.searchSource.NoFields()
 	return a
 }
 
-func (a TopHitsAggregation) FetchSource(fetchSource bool) TopHitsAggregation {
+func (a *TopHitsAggregation) FetchSource(fetchSource bool) *TopHitsAggregation {
 	a.searchSource = a.searchSource.FetchSource(fetchSource)
 	return a
 }
 
-func (a TopHitsAggregation) FetchSourceContext(fetchSourceContext *FetchSourceContext) TopHitsAggregation {
+func (a *TopHitsAggregation) FetchSourceContext(fetchSourceContext *FetchSourceContext) *TopHitsAggregation {
 	a.searchSource = a.searchSource.FetchSourceContext(fetchSourceContext)
 	return a
 }
 
-func (a TopHitsAggregation) FieldDataFields(fieldDataFields ...string) TopHitsAggregation {
+func (a *TopHitsAggregation) FieldDataFields(fieldDataFields ...string) *TopHitsAggregation {
 	a.searchSource = a.searchSource.FieldDataFields(fieldDataFields...)
 	return a
 }
 
-func (a TopHitsAggregation) FieldDataField(fieldDataField string) TopHitsAggregation {
+func (a *TopHitsAggregation) FieldDataField(fieldDataField string) *TopHitsAggregation {
 	a.searchSource = a.searchSource.FieldDataField(fieldDataField)
 	return a
 }
 
-func (a TopHitsAggregation) ScriptFields(scriptFields ...*ScriptField) TopHitsAggregation {
+func (a *TopHitsAggregation) ScriptFields(scriptFields ...*ScriptField) *TopHitsAggregation {
 	a.searchSource = a.searchSource.ScriptFields(scriptFields...)
 	return a
 }
 
-func (a TopHitsAggregation) ScriptField(scriptField *ScriptField) TopHitsAggregation {
+func (a *TopHitsAggregation) ScriptField(scriptField *ScriptField) *TopHitsAggregation {
 	a.searchSource = a.searchSource.ScriptField(scriptField)
 	return a
 }
 
-func (a TopHitsAggregation) PartialFields(partialFields ...*PartialField) TopHitsAggregation {
+func (a *TopHitsAggregation) PartialFields(partialFields ...*PartialField) *TopHitsAggregation {
 	a.searchSource = a.searchSource.PartialFields(partialFields...)
 	return a
 }
 
-func (a TopHitsAggregation) PartialField(partialField *PartialField) TopHitsAggregation {
+func (a *TopHitsAggregation) PartialField(partialField *PartialField) *TopHitsAggregation {
 	a.searchSource = a.searchSource.PartialField(partialField)
 	return a
 }
 
-func (a TopHitsAggregation) Sort(field string, ascending bool) TopHitsAggregation {
+func (a *TopHitsAggregation) Sort(field string, ascending bool) *TopHitsAggregation {
 	a.searchSource = a.searchSource.Sort(field, ascending)
 	return a
 }
 
-func (a TopHitsAggregation) SortWithInfo(info SortInfo) TopHitsAggregation {
+func (a *TopHitsAggregation) SortWithInfo(info SortInfo) *TopHitsAggregation {
 	a.searchSource = a.searchSource.SortWithInfo(info)
 	return a
 }
 
-func (a TopHitsAggregation) SortBy(sorter ...Sorter) TopHitsAggregation {
+func (a *TopHitsAggregation) SortBy(sorter ...Sorter) *TopHitsAggregation {
 	a.searchSource = a.searchSource.SortBy(sorter...)
 	return a
 }
 
-func (a TopHitsAggregation) Highlight(highlight *Highlight) TopHitsAggregation {
+func (a *TopHitsAggregation) Highlight(highlight *Highlight) *TopHitsAggregation {
 	a.searchSource = a.searchSource.Highlight(highlight)
 	return a
 }

@@ -13,19 +13,18 @@ type ChildrenAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewChildrenAggregation() ChildrenAggregation {
-	a := ChildrenAggregation{
+func NewChildrenAggregation() *ChildrenAggregation {
+	return &ChildrenAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a ChildrenAggregation) Type(typ string) ChildrenAggregation {
+func (a *ChildrenAggregation) Type(typ string) *ChildrenAggregation {
 	a.typ = typ
 	return a
 }
 
-func (a ChildrenAggregation) SubAggregation(name string, subAggregation Aggregation) ChildrenAggregation {
+func (a *ChildrenAggregation) SubAggregation(name string, subAggregation Aggregation) *ChildrenAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }

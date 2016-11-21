@@ -21,55 +21,54 @@ type CardinalityAggregation struct {
 	rehash             *bool
 }
 
-func NewCardinalityAggregation() CardinalityAggregation {
-	a := CardinalityAggregation{
+func NewCardinalityAggregation() *CardinalityAggregation {
+	return &CardinalityAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a CardinalityAggregation) Field(field string) CardinalityAggregation {
+func (a *CardinalityAggregation) Field(field string) *CardinalityAggregation {
 	a.field = field
 	return a
 }
 
-func (a CardinalityAggregation) Script(script string) CardinalityAggregation {
+func (a *CardinalityAggregation) Script(script string) *CardinalityAggregation {
 	a.script = script
 	return a
 }
 
-func (a CardinalityAggregation) ScriptFile(scriptFile string) CardinalityAggregation {
+func (a *CardinalityAggregation) ScriptFile(scriptFile string) *CardinalityAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a CardinalityAggregation) Lang(lang string) CardinalityAggregation {
+func (a *CardinalityAggregation) Lang(lang string) *CardinalityAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a CardinalityAggregation) Format(format string) CardinalityAggregation {
+func (a *CardinalityAggregation) Format(format string) *CardinalityAggregation {
 	a.format = format
 	return a
 }
 
-func (a CardinalityAggregation) Param(name string, value interface{}) CardinalityAggregation {
+func (a *CardinalityAggregation) Param(name string, value interface{}) *CardinalityAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a CardinalityAggregation) SubAggregation(name string, subAggregation Aggregation) CardinalityAggregation {
+func (a *CardinalityAggregation) SubAggregation(name string, subAggregation Aggregation) *CardinalityAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
 
-func (a CardinalityAggregation) PrecisionThreshold(threshold int64) CardinalityAggregation {
+func (a *CardinalityAggregation) PrecisionThreshold(threshold int64) *CardinalityAggregation {
 	a.precisionThreshold = &threshold
 	return a
 }
 
-func (a CardinalityAggregation) Rehash(rehash bool) CardinalityAggregation {
+func (a *CardinalityAggregation) Rehash(rehash bool) *CardinalityAggregation {
 	a.rehash = &rehash
 	return a
 }

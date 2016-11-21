@@ -22,45 +22,44 @@ type ValueCountAggregation struct {
 	subAggregations map[string]Aggregation
 }
 
-func NewValueCountAggregation() ValueCountAggregation {
-	a := ValueCountAggregation{
+func NewValueCountAggregation() *ValueCountAggregation {
+	return &ValueCountAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
 	}
-	return a
 }
 
-func (a ValueCountAggregation) Field(field string) ValueCountAggregation {
+func (a *ValueCountAggregation) Field(field string) *ValueCountAggregation {
 	a.field = field
 	return a
 }
 
-func (a ValueCountAggregation) Script(script string) ValueCountAggregation {
+func (a *ValueCountAggregation) Script(script string) *ValueCountAggregation {
 	a.script = script
 	return a
 }
 
-func (a ValueCountAggregation) ScriptFile(scriptFile string) ValueCountAggregation {
+func (a *ValueCountAggregation) ScriptFile(scriptFile string) *ValueCountAggregation {
 	a.scriptFile = scriptFile
 	return a
 }
 
-func (a ValueCountAggregation) Lang(lang string) ValueCountAggregation {
+func (a *ValueCountAggregation) Lang(lang string) *ValueCountAggregation {
 	a.lang = lang
 	return a
 }
 
-func (a ValueCountAggregation) Format(format string) ValueCountAggregation {
+func (a *ValueCountAggregation) Format(format string) *ValueCountAggregation {
 	a.format = format
 	return a
 }
 
-func (a ValueCountAggregation) Param(name string, value interface{}) ValueCountAggregation {
+func (a *ValueCountAggregation) Param(name string, value interface{}) *ValueCountAggregation {
 	a.params[name] = value
 	return a
 }
 
-func (a ValueCountAggregation) SubAggregation(name string, subAggregation Aggregation) ValueCountAggregation {
+func (a *ValueCountAggregation) SubAggregation(name string, subAggregation Aggregation) *ValueCountAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
 }
