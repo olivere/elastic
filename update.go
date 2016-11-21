@@ -21,6 +21,8 @@ type UpdateResult struct {
 	Id        string     `json:"_id"`
 	Version   int        `json:"_version"`
 	Created   bool       `json:"created"`
+	Error     string     `json:"error"`
+	Status    int        `json:"status"`
 	GetResult *GetResult `json:"get"`
 }
 
