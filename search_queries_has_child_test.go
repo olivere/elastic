@@ -10,7 +10,7 @@ import (
 )
 
 func TestHasChildQuery(t *testing.T) {
-	q := NewHasChildQuery("blog_tag", NewTermQuery("tag", "something"))
+	q := NewHasChildQuery("blog_tag", NewTermQuery("tag", "something")).ScoreMode("min")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -20,7 +20,7 @@ func TestHasChildQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"has_child":{"query":{"term":{"tag":"something"}},"type":"blog_tag"}}`
+	expected := `{"has_child":{"query":{"term":{"tag":"something"}},"score_mode":"min","type":"blog_tag"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
