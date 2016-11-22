@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"encoding/json"
+	"errors"
 )
 
 // SuggestField can be used by the caller to specify a suggest field
@@ -85,13 +86,19 @@ func (f *SuggestField) MarshalJSON() ([]byte, error) {
 		}
 		source["context"] = src
 	default:
-		var ctxq []interface{}
+		ctxq := make(map[string]interface{})
 		for _, query := range f.contextQueries {
 			src, err := query.Source()
 			if err != nil {
 				return nil, err
 			}
-			ctxq = append(ctxq, src)
+			m, ok := src.(map[string]interface{})
+			if !ok {
+				return nil, errors.New("elastic: context query is not a map")
+			}
+			for k, v := range m {
+				ctxq[k] = v
+			}
 		}
 		source["context"] = ctxq
 	}
