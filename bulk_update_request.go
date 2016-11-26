@@ -28,6 +28,7 @@ type BulkUpdateRequest struct {
 	retryOnConflict *int
 	upsert          interface{}
 	docAsUpsert     *bool
+	detectNoop      *bool
 	doc             interface{}
 
 	source []string
@@ -126,6 +127,15 @@ func (r *BulkUpdateRequest) DocAsUpsert(docAsUpsert bool) *BulkUpdateRequest {
 	return r
 }
 
+// DetectNoop specifies whether changes that don't affect the document
+// should be ignored (true) or unignored (false). This is enabled by default
+// in Elasticsearch.
+func (r *BulkUpdateRequest) DetectNoop(detectNoop bool) *BulkUpdateRequest {
+	r.detectNoop = &detectNoop
+	r.source = nil
+	return r
+}
+
 // Upsert specifies the document to use for upserts. It will be used for
 // create if the original document does not exist.
 func (r *BulkUpdateRequest) Upsert(doc interface{}) *BulkUpdateRequest {
@@ -218,6 +228,9 @@ func (r BulkUpdateRequest) Source() ([]string, error) {
 	source := make(map[string]interface{})
 	if r.docAsUpsert != nil {
 		source["doc_as_upsert"] = *r.docAsUpsert
+	}
+	if r.detectNoop != nil {
+		source["detect_noop"] = *r.detectNoop
 	}
 	if r.upsert != nil {
 		source["upsert"] = r.upsert
