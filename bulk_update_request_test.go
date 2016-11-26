@@ -55,6 +55,18 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 				`{"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}},"upsert":{"counter":42}}`,
 			},
 		},
+		// #3
+		{
+			Request: NewBulkUpdateRequest().Index("index1").Type("tweet").Id("1").DetectNoop(true).Doc(struct {
+				Counter int64 `json:"counter"`
+			}{
+				Counter: 42,
+			}),
+			Expected: []string{
+				`{"update":{"_id":"1","_index":"index1","_type":"tweet"}}`,
+				`{"detect_noop":true,"doc":{"counter":42}}`,
+			},
+		},
 	}
 
 	for i, test := range tests {

@@ -29,6 +29,7 @@ type BulkUpdateRequest struct {
 	refresh         *bool
 	upsert          interface{}
 	docAsUpsert     *bool
+	detectNoop      *bool
 	doc             interface{}
 	ttl             int64
 	timestamp       string
@@ -134,6 +135,15 @@ func (r *BulkUpdateRequest) Doc(doc interface{}) *BulkUpdateRequest {
 // for details.
 func (r *BulkUpdateRequest) DocAsUpsert(docAsUpsert bool) *BulkUpdateRequest {
 	r.docAsUpsert = &docAsUpsert
+	r.source = nil
+	return r
+}
+
+// DetectNoop specifies whether changes that don't affect the document
+// should be ignored (true) or unignored (false). This is enabled by default
+// in Elasticsearch.
+func (r *BulkUpdateRequest) DetectNoop(detectNoop bool) *BulkUpdateRequest {
+	r.detectNoop = &detectNoop
 	r.source = nil
 	return r
 }
@@ -255,6 +265,9 @@ func (r BulkUpdateRequest) Source() ([]string, error) {
 	source := make(map[string]interface{})
 	if r.docAsUpsert != nil {
 		source["doc_as_upsert"] = *r.docAsUpsert
+	}
+	if r.detectNoop != nil {
+		source["detect_noop"] = *r.detectNoop
 	}
 	if r.upsert != nil {
 		source["upsert"] = r.upsert
