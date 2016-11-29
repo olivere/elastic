@@ -13,6 +13,7 @@ import (
 type SearchSource struct {
 	query                    Query
 	postQuery                Query
+	sliceQuery               Query
 	from                     int
 	size                     int
 	explain                  *bool
@@ -60,6 +61,16 @@ func (s *SearchSource) Query(query Query) *SearchSource {
 // This filter is always executed as the last filtering mechanism.
 func (s *SearchSource) PostFilter(postFilter Query) *SearchSource {
 	s.postQuery = postFilter
+	return s
+}
+
+// Slice allows partitioning the documents in multiple slices.
+// It is e.g. used to slice a scroll operation, supported in
+// Elasticsearch 5.0 or later.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.0/search-request-scroll.html#sliced-scroll
+// for details.
+func (s *SearchSource) Slice(sliceQuery Query) *SearchSource {
+	s.sliceQuery = sliceQuery
 	return s
 }
 
@@ -309,6 +320,13 @@ func (s *SearchSource) Source() (interface{}, error) {
 			return nil, err
 		}
 		source["post_filter"] = src
+	}
+	if s.sliceQuery != nil {
+		src, err := s.sliceQuery.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["slice"] = src
 	}
 	if s.minScore != nil {
 		source["min_score"] = *s.minScore

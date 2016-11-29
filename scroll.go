@@ -125,6 +125,15 @@ func (s *ScrollService) PostFilter(postFilter Query) *ScrollService {
 	return s
 }
 
+// Slice allows slicing the scroll request into several batches.
+// This is supported in Elasticsearch 5.0 or later.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.0/search-request-scroll.html#sliced-scroll
+// for details.
+func (s *ScrollService) Slice(sliceQuery Query) *ScrollService {
+	s.ss = s.ss.Slice(sliceQuery)
+	return s
+}
+
 // FetchSource indicates whether the response should contain the stored
 // _source for every hit.
 func (s *ScrollService) FetchSource(fetchSource bool) *ScrollService {
@@ -368,17 +377,6 @@ func (s *ScrollService) bodyFirst() (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		// Slicing (in ES 5.x+)
-		/*
-			if s.slice != nil {
-				src, err := s.slice.Source()
-				if err != nil {
-					return nil, err
-				}
-				body["slice"] = src
-			}
-		*/
 	}
 
 	return body, nil

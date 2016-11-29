@@ -101,7 +101,7 @@ func TestScroll(t *testing.T) {
 
 	_, err = svc.Do(context.TODO())
 	if err == nil {
-		t.Fatal(err)
+		t.Fatal("expected to fail")
 	}
 }
 
@@ -322,7 +322,73 @@ func TestScrollWithBody(t *testing.T) {
 
 		_, err = svc.Do(context.TODO())
 		if err == nil {
-			t.Fatalf("#%d: failed to clear scroll context: %v", i, err)
+			t.Fatalf("#%d: expected to fail", i)
 		}
+	}
+}
+
+func TestScrollWithSlice(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+
+	// Should return all documents. Just don't call Do yet!
+	sliceQuery := NewSliceQuery().Id(0).Max(2)
+	svc := client.Scroll(testIndexName).Type("order").Slice(sliceQuery).Size(1)
+
+	pages := 0
+	docs := 0
+
+	for {
+		res, err := svc.Do(context.TODO())
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res == nil {
+			t.Fatal("expected results != nil; got nil")
+		}
+		if res.Hits == nil {
+			t.Fatal("expected results.Hits != nil; got nil")
+		}
+		if want, have := int64(6), res.Hits.TotalHits; want != have {
+			t.Fatalf("expected results.Hits.TotalHits = %d; got %d", want, have)
+		}
+		if want, have := 1, len(res.Hits.Hits); want != have {
+			t.Fatalf("expected len(results.Hits.Hits) = %d; got %d", want, have)
+		}
+
+		pages++
+
+		for _, hit := range res.Hits.Hits {
+			if hit.Index != testIndexName {
+				t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
+			}
+			item := make(map[string]interface{})
+			err := json.Unmarshal(*hit.Source, &item)
+			if err != nil {
+				t.Fatal(err)
+			}
+			docs++
+		}
+
+		if len(res.ScrollId) == 0 {
+			t.Fatalf("expected scrollId in results; got %q", res.ScrollId)
+		}
+	}
+
+	if want, have := 6, pages; want != have {
+		t.Fatalf("expected to retrieve %d pages; got %d", want, have)
+	}
+	if want, have := 6, docs; want != have {
+		t.Fatalf("expected to retrieve %d hits; got %d", want, have)
+	}
+
+	if err := svc.Clear(context.TODO()); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := svc.Do(context.TODO()); err == nil {
+		t.Fatal("expected to fail")
 	}
 }
