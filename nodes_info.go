@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 var (
 	_ = fmt.Print
 	_ = log.Print
 	_ = strings.Index
-	_ = uritemplates.Expand
+	_ =  Expand
 	_ = url.Parse
 )
 
@@ -83,7 +83,7 @@ func (s *NodesInfoService) Pretty(pretty bool) *NodesInfoService {
 // buildURL builds the URL for the operation.
 func (s *NodesInfoService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_nodes/{node_id}/{metric}", map[string]string{
+	path, err :=  Expand("/_nodes/{node_id}/{metric}", map[string]string{
 		"node_id": strings.Join(s.nodeId, ","),
 		"metric":  strings.Join(s.metric, ","),
 	})

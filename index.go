@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // IndexResult is the result of indexing a document in Elasticsearch.
@@ -141,7 +141,7 @@ func (b *IndexService) Do() (*IndexResult, error) {
 		method = "POST"
 		path = "/{index}/{type}/"
 	}
-	path, err := uritemplates.Expand(path, map[string]string{
+	path, err :=  Expand(path, map[string]string{
 		"index": b.index,
 		"type":  b._type,
 		"id":    b.id,

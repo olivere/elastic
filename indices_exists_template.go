@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // IndicesExistsTemplateService checks if a given template exists.
@@ -50,7 +50,7 @@ func (s *IndicesExistsTemplateService) Pretty(pretty bool) *IndicesExistsTemplat
 // buildURL builds the URL for the operation.
 func (s *IndicesExistsTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_template/{name}", map[string]string{
+	path, err :=  Expand("/_template/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {

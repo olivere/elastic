@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // Search for documents in Elasticsearch.
@@ -289,7 +289,7 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	// Indices part
 	indexPart := make([]string, 0)
 	for _, index := range s.indices {
-		index, err := uritemplates.Expand("{index}", map[string]string{
+		index, err :=  Expand("{index}", map[string]string{
 			"index": index,
 		})
 		if err != nil {
@@ -303,7 +303,7 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	if len(s.types) > 0 {
 		typesPart := make([]string, 0)
 		for _, typ := range s.types {
-			typ, err := uritemplates.Expand("{type}", map[string]string{
+			typ, err :=  Expand("{type}", map[string]string{
 				"type": typ,
 			})
 			if err != nil {

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // CloseIndexService closes an index.
@@ -72,7 +72,7 @@ func (s *CloseIndexService) ExpandWildcards(expandWildcards string) *CloseIndexS
 // buildURL builds the URL for the operation.
 func (s *CloseIndexService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/{index}/_close", map[string]string{
+	path, err :=  Expand("/{index}/_close", map[string]string{
 		"index": s.index,
 	})
 	if err != nil {

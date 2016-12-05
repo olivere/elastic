@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // DeleteTemplateService deletes a search template. More information can
@@ -50,7 +50,7 @@ func (s *DeleteTemplateService) VersionType(versionType string) *DeleteTemplateS
 // buildURL builds the URL for the operation.
 func (s *DeleteTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_search/template/{id}", map[string]string{
+	path, err :=  Expand("/_search/template/{id}", map[string]string{
 		"id": s.id,
 	})
 	if err != nil {

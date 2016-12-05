@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // OpenIndexService opens an index.
@@ -73,7 +73,7 @@ func (s *OpenIndexService) ExpandWildcards(expandWildcards string) *OpenIndexSer
 // buildURL builds the URL for the operation.
 func (s *OpenIndexService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/{index}/_open", map[string]string{
+	path, err :=  Expand("/{index}/_open", map[string]string{
 		"index": s.index,
 	})
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // CreateIndexService creates a new index.
@@ -79,7 +79,7 @@ func (b *CreateIndexService) Do() (*CreateIndexResult, error) {
 	}
 
 	// Build url
-	path, err := uritemplates.Expand("/{index}", map[string]string{
+	path, err :=  Expand("/{index}", map[string]string{
 		"index": b.index,
 	})
 	if err != nil {

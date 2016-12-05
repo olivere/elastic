@@ -7,7 +7,7 @@ package elastic
 import (
 	"fmt"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 type IndexExistsService struct {
@@ -29,7 +29,7 @@ func (b *IndexExistsService) Index(index string) *IndexExistsService {
 
 func (b *IndexExistsService) Do() (bool, error) {
 	// Build url
-	path, err := uritemplates.Expand("/{index}", map[string]string{
+	path, err :=  Expand("/{index}", map[string]string{
 		"index": b.index,
 	})
 	if err != nil {

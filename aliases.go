@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-
-	"github.com/olivere/elastic/uritemplates"
 )
 
 type AliasesService struct {
@@ -51,7 +49,7 @@ func (s *AliasesService) Do() (*AliasesResult, error) {
 	// Indices part
 	indexPart := make([]string, 0)
 	for _, index := range s.indices {
-		index, err = uritemplates.Expand("{index}", map[string]string{
+		index, err =  Expand("{index}", map[string]string{
 			"index": index,
 		})
 		if err != nil {

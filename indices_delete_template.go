@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // IndicesDeleteTemplateService deletes index templates.
@@ -56,7 +56,7 @@ func (s *IndicesDeleteTemplateService) Pretty(pretty bool) *IndicesDeleteTemplat
 // buildURL builds the URL for the operation.
 func (s *IndicesDeleteTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_template/{name}", map[string]string{
+	path, err :=  Expand("/_template/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {

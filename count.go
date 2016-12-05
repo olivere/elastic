@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+
 )
 
 // CountService is a convenient service for determining the
@@ -205,16 +205,16 @@ func (s *CountService) buildURL() (string, url.Values, error) {
 	var path string
 
 	if len(s.index) > 0 && len(s.typ) > 0 {
-		path, err = uritemplates.Expand("/{index}/{type}/_count", map[string]string{
+		path, err =  Expand("/{index}/{type}/_count", map[string]string{
 			"index": strings.Join(s.index, ","),
 			"type":  strings.Join(s.typ, ","),
 		})
 	} else if len(s.index) > 0 {
-		path, err = uritemplates.Expand("/{index}/_count", map[string]string{
+		path, err =  Expand("/{index}/_count", map[string]string{
 			"index": strings.Join(s.index, ","),
 		})
 	} else if len(s.typ) > 0 {
-		path, err = uritemplates.Expand("/_all/{type}/_count", map[string]string{
+		path, err =  Expand("/_all/{type}/_count", map[string]string{
 			"type": strings.Join(s.typ, ","),
 		})
 	} else {
