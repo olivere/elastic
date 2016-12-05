@@ -24,10 +24,10 @@ type RangeAggregation struct {
 	subAggregations map[string]Aggregation
 	keyed           *bool
 	unmapped        *bool
-	entries         []rangeAggregationEntry
+	entries         []RangeAggregationEntry
 }
 
-type rangeAggregationEntry struct {
+type RangeAggregationEntry struct {
 	Key  string
 	From interface{}
 	To   interface{}
@@ -37,7 +37,7 @@ func NewRangeAggregation() RangeAggregation {
 	a := RangeAggregation{
 		params:          make(map[string]interface{}),
 		subAggregations: make(map[string]Aggregation),
-		entries:         make([]rangeAggregationEntry, 0),
+		entries:         make([]RangeAggregationEntry, 0),
 	}
 	return a
 }
@@ -83,62 +83,62 @@ func (a RangeAggregation) Unmapped(unmapped bool) RangeAggregation {
 }
 
 func (a RangeAggregation) AddRange(from, to interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{From: from, To: to})
+	a.entries = append(a.entries, RangeAggregationEntry{From: from, To: to})
 	return a
 }
 
 func (a RangeAggregation) AddRangeWithKey(key string, from, to interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: from, To: to})
+	a.entries = append(a.entries, RangeAggregationEntry{Key: key, From: from, To: to})
 	return a
 }
 
 func (a RangeAggregation) AddUnboundedTo(from interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{From: from, To: nil})
+	a.entries = append(a.entries, RangeAggregationEntry{From: from, To: nil})
 	return a
 }
 
 func (a RangeAggregation) AddUnboundedToWithKey(key string, from interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: from, To: nil})
+	a.entries = append(a.entries, RangeAggregationEntry{Key: key, From: from, To: nil})
 	return a
 }
 
 func (a RangeAggregation) AddUnboundedFrom(to interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{From: nil, To: to})
+	a.entries = append(a.entries, RangeAggregationEntry{From: nil, To: to})
 	return a
 }
 
 func (a RangeAggregation) AddUnboundedFromWithKey(key string, to interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: nil, To: to})
+	a.entries = append(a.entries, RangeAggregationEntry{Key: key, From: nil, To: to})
 	return a
 }
 
 func (a RangeAggregation) Lt(to interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{From: nil, To: to})
+	a.entries = append(a.entries, RangeAggregationEntry{From: nil, To: to})
 	return a
 }
 
 func (a RangeAggregation) LtWithKey(key string, to interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: nil, To: to})
+	a.entries = append(a.entries, RangeAggregationEntry{Key: key, From: nil, To: to})
 	return a
 }
 
 func (a RangeAggregation) Between(from, to interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{From: from, To: to})
+	a.entries = append(a.entries, RangeAggregationEntry{From: from, To: to})
 	return a
 }
 
 func (a RangeAggregation) BetweenWithKey(key string, from, to interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: from, To: to})
+	a.entries = append(a.entries, RangeAggregationEntry{Key: key, From: from, To: to})
 	return a
 }
 
 func (a RangeAggregation) Gt(from interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{From: from, To: nil})
+	a.entries = append(a.entries, RangeAggregationEntry{From: from, To: nil})
 	return a
 }
 
 func (a RangeAggregation) GtWithKey(key string, from interface{}) RangeAggregation {
-	a.entries = append(a.entries, rangeAggregationEntry{Key: key, From: from, To: nil})
+	a.entries = append(a.entries, RangeAggregationEntry{Key: key, From: from, To: nil})
 	return a
 }
 
