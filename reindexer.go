@@ -130,6 +130,13 @@ func (ix *Reindexer) Size(size int) *Reindexer {
 	return ix
 }
 
+// Size returns the number of documents to get from Elasticsearch per chunk.
+// The default is 10.
+func (ix *Reindexer) Size(size int) *Reindexer {
+	ix.size = size
+	return ix
+}
+
 // Scroll specifies for how long the scroll operation on the source index
 // should be maintained. The default is 5m.
 func (ix *Reindexer) Scroll(timeout string) *Reindexer {
