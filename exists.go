@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -20,7 +21,7 @@ type ExistsService struct {
 	client     *Client
 	pretty     bool
 	id         string
-	index      string
+	indices    []string
 	typ        string
 	parent     string
 	preference string
@@ -42,9 +43,21 @@ func (s *ExistsService) Id(id string) *ExistsService {
 	return s
 }
 
-// Index is the name of the index.
+// Index sets the name of the index.
 func (s *ExistsService) Index(index string) *ExistsService {
-	s.index = index
+	if s.indices == nil {
+		s.indices = make([]string, 0)
+	}
+	s.indices = append(s.indices, index)
+	return s
+}
+
+// Indices sets the names of the indices to use for search.
+func (s *ExistsService) Indices(indices ...string) *ExistsService {
+	if s.indices == nil {
+		s.indices = make([]string, 0)
+	}
+	s.indices = append(s.indices, indices...)
 	return s
 }
 
@@ -94,10 +107,23 @@ func (s *ExistsService) Pretty(pretty bool) *ExistsService {
 
 // buildURL builds the URL for the operation.
 func (s *ExistsService) buildURL() (string, url.Values, error) {
+	// Indices part
+	indexPart := make([]string, 0)
+	for _, index := range s.indices {
+		idxx, err := uritemplates.Expand("{index}", map[string]string{
+			"index": index,
+		})
+		if err != nil {
+			return "", url.Values{}, err
+		}
+		indexPart = append(indexPart, idxx)
+	}
+	idx := strings.Join(indexPart, ",")
+
 	// Build URL
 	path, err := uritemplates.Expand("/{index}/{type}/{id}", map[string]string{
 		"id":    s.id,
-		"index": s.index,
+		"index": idx,
 		"type":  s.typ,
 	})
 	if err != nil {
@@ -133,7 +159,7 @@ func (s *ExistsService) Validate() error {
 	if s.id == "" {
 		invalid = append(invalid, "Id")
 	}
-	if s.index == "" {
+	if len(s.indices) == 0 {
 		invalid = append(invalid, "Index")
 	}
 	if s.typ == "" {
