@@ -2967,6 +2967,62 @@ func TestAggsPipelineDerivative(t *testing.T) {
 	}
 }
 
+func TestAggsPipelineStatsBucket(t *testing.T) {
+	s := `{
+	"stats_monthly_sales": {
+	 "count": 3,
+	 "min": 60.0,
+	 "max": 550.0,
+	 "avg": 328.3333333333333,
+	 "sum": 985.0
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.StatsBucket("stats_monthly_sales")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Count == nil {
+		t.Fatalf("expected aggregation count != nil; got: %v", agg.Count)
+	}
+	if *agg.Count != float64(3) {
+		t.Fatalf("expected aggregation count = %v; got: %v", float64(3), *agg.Count)
+	}
+	if agg.Min == nil {
+		t.Fatalf("expected aggregation min != nil; got: %v", agg.Min)
+	}
+	if *agg.Min != float64(60.0) {
+		t.Fatalf("expected aggregation min = %v; got: %v", float64(60.0), *agg.Min)
+	}
+	if agg.Max == nil {
+		t.Fatalf("expected aggregation max != nil; got: %v", agg.Max)
+	}
+	if *agg.Max != float64(550.0) {
+		t.Fatalf("expected aggregation max = %v; got: %v", float64(550.0), *agg.Max)
+	}
+	if agg.Avg == nil {
+		t.Fatalf("expected aggregation avg != nil; got: %v", agg.Avg)
+	}
+	if *agg.Avg != float64(328.3333333333333) {
+		t.Fatalf("expected aggregation average = %v; got: %v", float64(328.3333333333333), *agg.Avg)
+	}
+	if agg.Sum == nil {
+		t.Fatalf("expected aggregation sum != nil; got: %v", agg.Sum)
+	}
+	if *agg.Sum != float64(985.0) {
+		t.Fatalf("expected aggregation sum = %v; got: %v", float64(985.0), *agg.Sum)
+	}
+}
+
 func TestAggsPipelineCumulativeSum(t *testing.T) {
 	s := `{
 	"cumulative_sales" : {

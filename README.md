@@ -264,6 +264,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Bucket Script
   - [x] Bucket Selector
   - [x] Serial Differencing
+  - [x] Stats Bucket
 - [x] Aggregation Metadata
 
 ### Indices APIs

@@ -503,6 +503,21 @@ func (a Aggregations) SumBucket(name string) (*AggregationPipelineSimpleValue, b
 	return nil, false
 }
 
+// StatsBucket returns stats bucket pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-stats-bucket-aggregation.html
+func (a Aggregations) StatsBucket(name string) (*AggregationPipelineStatsMetric, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineStatsMetric)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // MaxBucket returns maximum bucket pipeline aggregation results.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-max-bucket-aggregation.html
 func (a Aggregations) MaxBucket(name string) (*AggregationPipelineBucketMetricValue, bool) {
@@ -1265,6 +1280,70 @@ func (a *AggregationPipelineDerivative) UnmarshalJSON(data []byte) error {
 	}
 	if v, ok := aggs["normalized_value_as_string"]; ok && v != nil {
 		json.Unmarshal(*v, &a.NormalizedValueAsString)
+	}
+	if v, ok := aggs["meta"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Meta)
+	}
+	a.Aggregations = aggs
+	return nil
+}
+
+// -- Pipeline stats metric --
+
+// AggregationPipelineStatsMetric is a simple value, returned e.g. by a
+// MovAvg aggregation.
+type AggregationPipelineStatsMetric struct {
+	Aggregations
+
+	Count         *float64 // `json:"count"`
+	CountAsString string   // `json:"count_as_string"`
+	Min           *float64 // `json:"min"`
+	MinAsString   string   // `json:"min_as_string"`
+	Max           *float64 // `json:"max"`
+	MaxAsString   string   // `json:"max_as_string"`
+	Avg           *float64 // `json:"avg"`
+	AvgAsString   string   // `json:"avg_as_string"`
+	Sum           *float64 // `json:"sum"`
+	SumAsString   string   // `json:"sum_as_string"`
+
+	Meta map[string]interface{} // `json:"meta,omitempty"`
+}
+
+// UnmarshalJSON decodes JSON data and initializes an AggregationPipelineStatsMetric structure.
+func (a *AggregationPipelineStatsMetric) UnmarshalJSON(data []byte) error {
+	var aggs map[string]*json.RawMessage
+	if err := json.Unmarshal(data, &aggs); err != nil {
+		return err
+	}
+	if v, ok := aggs["count"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Count)
+	}
+	if v, ok := aggs["count_as_string"]; ok && v != nil {
+		json.Unmarshal(*v, &a.CountAsString)
+	}
+	if v, ok := aggs["min"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Min)
+	}
+	if v, ok := aggs["min_as_string"]; ok && v != nil {
+		json.Unmarshal(*v, &a.MinAsString)
+	}
+	if v, ok := aggs["max"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Max)
+	}
+	if v, ok := aggs["max_as_string"]; ok && v != nil {
+		json.Unmarshal(*v, &a.MaxAsString)
+	}
+	if v, ok := aggs["avg"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Avg)
+	}
+	if v, ok := aggs["avg_as_string"]; ok && v != nil {
+		json.Unmarshal(*v, &a.AvgAsString)
+	}
+	if v, ok := aggs["sum"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Sum)
+	}
+	if v, ok := aggs["sum_as_string"]; ok && v != nil {
+		json.Unmarshal(*v, &a.SumAsString)
 	}
 	if v, ok := aggs["meta"]; ok && v != nil {
 		json.Unmarshal(*v, &a.Meta)
