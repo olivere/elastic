@@ -278,7 +278,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Max Bucket
   - [x] Min Bucket
   - [x] Sum Bucket
-  - [ ] Stats Bucket
+  - [x] Stats Bucket
   - [ ] Extended Stats Bucket
   - [ ] Percentiles Bucket
   - [x] Moving Average
