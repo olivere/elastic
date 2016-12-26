@@ -32,6 +32,7 @@ type ScanService struct {
 	indices      []string
 	types        []string
 	keepAlive    string
+	source       interface{}
 	searchSource *SearchSource
 	pretty       bool
 	routing      string
@@ -112,6 +113,11 @@ func (s *ScanService) SearchSource(searchSource *SearchSource) *ScanService {
 	if s.searchSource == nil {
 		s.searchSource = NewSearchSource().Query(NewMatchAllQuery())
 	}
+	return s
+}
+
+func (s *ScanService) SetRawSource(source interface{}) *ScanService {
+	s.source = source
 	return s
 }
 
@@ -263,7 +269,13 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	}
 
 	// Get response
-	body := s.searchSource.Source()
+	var body interface{}
+	if s.source != nil {
+		body = s.source
+	} else {
+		body = s.searchSource.Source()
+	}
+
 	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
