@@ -35,7 +35,7 @@ methods to prepare the query and a Do function to execute it against the
 Elasticsearch REST interface and return a response. Here is an example
 of the IndexExists service that checks if a given index already exists.
 
-	exists, err := client.IndexExists("twitter").Do()
+	exists, err := client.IndexExists("twitter").Do(context.Background())
 	if err != nil {
 		// Handle error
 	}
