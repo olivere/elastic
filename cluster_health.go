@@ -19,17 +19,18 @@ import (
 // See http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html
 // for details.
 type ClusterHealthService struct {
-	client                  *Client
-	pretty                  bool
-	indices                 []string
-	level                   string
-	local                   *bool
-	masterTimeout           string
-	timeout                 string
-	waitForActiveShards     *int
-	waitForNodes            string
-	waitForRelocatingShards *int
-	waitForStatus           string
+	client                    *Client
+	pretty                    bool
+	indices                   []string
+	level                     string
+	local                     *bool
+	masterTimeout             string
+	timeout                   string
+	waitForActiveShards       *int
+	waitForNodes              string
+	waitForRelocatingShards   *int
+	waitForNoRelocatingShards *bool
+	waitForStatus             string
 }
 
 // NewClusterHealthService creates a new ClusterHealthService.
@@ -84,9 +85,15 @@ func (s *ClusterHealthService) WaitForNodes(waitForNodes string) *ClusterHealthS
 	return s
 }
 
-// WaitForRelocatingShards can be used to wait until the specified number of relocating shards is finished.
+// WaitForRelocatingShards has been removed, use WaitForNoRelocatingShards instead.
 func (s *ClusterHealthService) WaitForRelocatingShards(waitForRelocatingShards int) *ClusterHealthService {
 	s.waitForRelocatingShards = &waitForRelocatingShards
+	return s
+}
+
+// WaitForNoRelocatingShards can be used to wait until all shard relocations are finished.
+func (s *ClusterHealthService) WaitForNoRelocatingShards(waitForNoRelocatingShards bool) *ClusterHealthService {
+	s.waitForNoRelocatingShards = &waitForNoRelocatingShards
 	return s
 }
 
@@ -154,6 +161,9 @@ func (s *ClusterHealthService) buildURL() (string, url.Values, error) {
 	}
 	if s.waitForRelocatingShards != nil {
 		params.Set("wait_for_relocating_shards", fmt.Sprintf("%v", s.waitForRelocatingShards))
+	}
+	if s.waitForNoRelocatingShards != nil {
+		params.Set("wait_for_no_relocating_shards", fmt.Sprintf("%v", *s.waitForNoRelocatingShards))
 	}
 	if s.waitForStatus != "" {
 		params.Set("wait_for_status", s.waitForStatus)
