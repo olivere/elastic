@@ -47,7 +47,7 @@ func Example() {
 		// Handle error
 		panic(err)
 	}
-	fmt.Printf("Elasticsearch returned with code %d and version %s", code, info.Version.Number)
+	fmt.Printf("Elasticsearch returned with code %d and version %s\n", code, info.Version.Number)
 
 	// Getting the ES version number is quite common, so there's a shortcut
 	esversion, err := client.ElasticsearchVersion("http://127.0.0.1:9200")
@@ -55,7 +55,7 @@ func Example() {
 		// Handle error
 		panic(err)
 	}
-	fmt.Printf("Elasticsearch version %s", esversion)
+	fmt.Printf("Elasticsearch version %s\n", esversion)
 
 	// Use the IndexExists service to check if a specified index exists.
 	exists, err := client.IndexExists("twitter").Do(context.Background())
@@ -65,7 +65,46 @@ func Example() {
 	}
 	if !exists {
 		// Create a new index.
-		createIndex, err := client.CreateIndex("twitter").Do(context.Background())
+		mapping := `
+{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"_default_": {
+			"_all": {
+				"enabled": true
+			}
+		},
+		"tweet":{
+			"properties":{
+				"user":{
+					"type":"keyword"
+				},
+				"message":{
+					"type":"text",
+					"store": true,
+					"fielddata": true
+				},
+                "retweets":{
+                    "type":"long"
+                },
+				"tags":{
+					"type":"keyword"
+				},
+				"location":{
+					"type":"geo_point"
+				},
+				"suggest_field":{
+					"type":"completion"
+				}
+			}
+		}
+	}
+}
+`
+		createIndex, err := client.CreateIndex("twitter").Body(mapping).Do(context.Background())
 		if err != nil {
 			// Handle error
 			panic(err)
@@ -178,7 +217,7 @@ func Example() {
 
 	// Update a tweet by the update API of Elasticsearch.
 	// We just increment the number of retweets.
-	script := elastic.NewScript("ctx._source.retweets += num").Param("num", 1)
+	script := elastic.NewScript("ctx._source.retweets += params.num").Param("num", 1)
 	update, err := client.Update().Index("twitter").Type("tweet").Id("1").
 		Script(script).
 		Upsert(map[string]interface{}{"retweets": 0}).
