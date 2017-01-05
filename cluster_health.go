@@ -28,7 +28,6 @@ type ClusterHealthService struct {
 	timeout                   string
 	waitForActiveShards       *int
 	waitForNodes              string
-	waitForRelocatingShards   *int
 	waitForNoRelocatingShards *bool
 	waitForStatus             string
 }
@@ -82,12 +81,6 @@ func (s *ClusterHealthService) WaitForActiveShards(waitForActiveShards int) *Clu
 // Example: "12" to wait for exact values, ">12" and "<12" for ranges.
 func (s *ClusterHealthService) WaitForNodes(waitForNodes string) *ClusterHealthService {
 	s.waitForNodes = waitForNodes
-	return s
-}
-
-// WaitForRelocatingShards has been removed, use WaitForNoRelocatingShards instead.
-func (s *ClusterHealthService) WaitForRelocatingShards(waitForRelocatingShards int) *ClusterHealthService {
-	s.waitForRelocatingShards = &waitForRelocatingShards
 	return s
 }
 
@@ -158,9 +151,6 @@ func (s *ClusterHealthService) buildURL() (string, url.Values, error) {
 	}
 	if s.waitForNodes != "" {
 		params.Set("wait_for_nodes", s.waitForNodes)
-	}
-	if s.waitForRelocatingShards != nil {
-		params.Set("wait_for_relocating_shards", fmt.Sprintf("%v", s.waitForRelocatingShards))
 	}
 	if s.waitForNoRelocatingShards != nil {
 		params.Set("wait_for_no_relocating_shards", fmt.Sprintf("%v", *s.waitForNoRelocatingShards))
