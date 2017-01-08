@@ -22,7 +22,7 @@ func TestSuggestField(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"context":[{"color":{"default":["red","green","blue"],"path":"color_field","type":"category"}},{"location":{"default":{"lat":52.516275,"lon":13.377704},"neighbors":true,"precision":["5m"],"type":"geo"}}],"input":["Welcome to Golang and Elasticsearch.","Golang and Elasticsearch"],"weight":1}`
+	expected := `{"context":{"color":{"default":["red","green","blue"],"path":"color_field","type":"category"},"location":{"default":{"lat":52.516275,"lon":13.377704},"neighbors":true,"precision":["5m"],"type":"geo"}},"input":["Welcome to Golang and Elasticsearch.","Golang and Elasticsearch"],"weight":1}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
