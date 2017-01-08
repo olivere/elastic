@@ -34,6 +34,11 @@ func (r *Request) SetBasicAuth(username, password string) {
 	((*http.Request)(r)).SetBasicAuth(username, password)
 }
 
+// SetAuthorizeHeader sets the Authorize HTTP header of the request
+func (r *Request) SetAuthorizeHeader(authorize string) {
+	((*http.Request)(r)).Header.Set("Authorize", authorize)
+}
+
 // SetBody encodes the body in the request. Optionally, it performs GZIP compression.
 func (r *Request) SetBody(body interface{}, gzipCompress bool) error {
 	switch b := body.(type) {
