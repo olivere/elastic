@@ -159,6 +159,23 @@ func TestClientSniffFailure(t *testing.T) {
 	}
 }
 
+func TestClientSnifferCallback(t *testing.T) {
+	var calls int
+	cb := func(node *NodesInfoNode) bool {
+		calls++
+		return false
+	}
+	_, err := NewClient(
+		SetURL("http://127.0.0.1:19200", "http://127.0.0.1:9200"),
+		SetSnifferCallback(cb))
+	if err == nil {
+		t.Fatalf("expected cluster to fail with no nodes found")
+	}
+	if calls != 1 {
+		t.Fatalf("expected 1 call to the sniffer callback, got %d", calls)
+	}
+}
+
 func TestClientSniffDisabled(t *testing.T) {
 	client, err := NewClient(SetSniff(false), SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"))
 	if err != nil {
