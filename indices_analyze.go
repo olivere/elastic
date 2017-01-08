@@ -195,7 +195,7 @@ func (s *IndicesAnalyzeService) DoC(ctx context.Context) (*IndicesAnalyzeRespons
 		body = s.request
 	}
 
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
