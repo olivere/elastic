@@ -1369,6 +1369,12 @@ func (c *Client) IndexPutSettings(indices ...string) *IndicesPutSettingsService 
 	return NewIndicesPutSettingsService(c).Index(indices...)
 }
 
+// IndexAnalyze performs the analysis process on a text and returns the
+// token breakdown of the text.
+func (c *Client) IndexAnalyze() *IndicesAnalyzeService {
+	return NewIndicesAnalyzeService(c)
+}
+
 // Forcemerge optimizes one or more indices.
 // It replaces the deprecated Optimize API.
 func (c *Client) Forcemerge(indices ...string) *IndicesForcemergeService {
