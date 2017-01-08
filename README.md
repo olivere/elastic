@@ -284,7 +284,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Index Aliases
 - [x] Update Indices Settings
 - [x] Get Settings
-- [ ] Analyze
+- [x] Analyze
 - [x] Index Templates
 - [x] Warmers
 - [x] Indices Stats

@@ -1397,6 +1397,12 @@ func (c *Client) IndexPutSettings(indices ...string) *IndicesPutSettingsService 
 	return NewIndicesPutSettingsService(c).Index(indices...)
 }
 
+// IndexAnalyze performs the analysis process on a text and returns the
+// token breakdown of the text.
+func (c *Client) IndexAnalyze() *IndicesAnalyzeService {
+	return NewIndicesAnalyzeService(c)
+}
+
 // Optimize asks Elasticsearch to optimize one or more indices.
 // Optimize is deprecated as of Elasticsearch 2.1 and replaced by Forcemerge.
 func (c *Client) Optimize(indices ...string) *OptimizeService {
