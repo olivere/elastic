@@ -36,6 +36,7 @@ type ScanService struct {
 	routing      string
 	preference   string
 	size         *int
+	body         interface{}
 }
 
 // NewScanService creates a new service to iterate through the results
@@ -203,6 +204,15 @@ func (s *ScanService) Size(size int) *ScanService {
 	return s
 }
 
+// Body sets the raw body to send to Elasticsearch. This can be e.g. a string,
+// a map[string]interface{} or anything that can be serialized into JSON.
+// Notice that setting the body disables the use of SearchSource and many
+// other properties of the ScanService.
+func (s *ScanService) Body(body interface{}) *ScanService {
+	s.body = body
+	return s
+}
+
 // Do executes the query and returns a "server-side cursor".
 func (s *ScanService) Do() (*ScanCursor, error) {
 	// Build url
@@ -262,7 +272,12 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	}
 
 	// Get response
-	body := s.searchSource.Source()
+	var body interface{}
+	if s.body != nil {
+		body = s.body
+	} else {
+		body = s.searchSource.Source()
+	}
 	res, err := s.client.PerformRequest("POST", path, params, body)
 	if err != nil {
 		return nil, err
