@@ -2,8 +2,11 @@ bootstrap.ignore_system_bootstrap_checks: true
 
 discovery.zen.minimum_master_nodes: 1
 
-network.publish_host: 127.0.0.1
+#network.host:
+#- _local_
+#- _site_
 
+network.publish_host: 127.0.0.1
 
 # Enable scripting as described here: https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-scripting.html
 script.inline: true
