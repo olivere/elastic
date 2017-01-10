@@ -2991,11 +2991,8 @@ func TestAggsPipelineStatsBucket(t *testing.T) {
 	if agg == nil {
 		t.Fatalf("expected aggregation != nil; got: %v", agg)
 	}
-	if agg.Count == nil {
-		t.Fatalf("expected aggregation count != nil; got: %v", agg.Count)
-	}
-	if *agg.Count != float64(3) {
-		t.Fatalf("expected aggregation count = %v; got: %v", float64(3), *agg.Count)
+	if agg.Count != 3 {
+		t.Fatalf("expected aggregation count = %v; got: %v", 3, agg.Count)
 	}
 	if agg.Min == nil {
 		t.Fatalf("expected aggregation min != nil; got: %v", agg.Min)
