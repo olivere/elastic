@@ -1295,7 +1295,7 @@ func (a *AggregationPipelineDerivative) UnmarshalJSON(data []byte) error {
 type AggregationPipelineStatsMetric struct {
 	Aggregations
 
-	Count         *float64 // `json:"count"`
+	Count         int64    // `json:"count"`
 	CountAsString string   // `json:"count_as_string"`
 	Min           *float64 // `json:"min"`
 	MinAsString   string   // `json:"min_as_string"`
