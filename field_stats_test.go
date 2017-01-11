@@ -209,13 +209,18 @@ func TestFieldStatsResponseUnmarshalling(t *testing.T) {
 				"_all": {
 					 "fields": {
 							"creation_date": {
+								 "type": "date",
 								 "max_doc": 1326564,
 								 "doc_count": 564633,
 								 "density": 42,
 								 "sum_doc_freq": 2258532,
 								 "sum_total_term_freq": -1,
-								 "min_value_as_string": "2008-08-01T16:37:51.513Z",
-								 "max_value_as_string": "2013-06-02T03:23:11.593Z"
+								 "searchable": true,
+								 "aggregatable": true,
+								 "min_value":1483016404000,
+								 "min_value_as_string": "2016-12-29T13:00:04.000Z",
+								 "max_value":1484152326000,
+								 "max_value_as_string": "2017-01-11T16:32:06.000Z"
 							},
 							"answer_count": {
 								 "max_doc": 1326564,
@@ -223,8 +228,12 @@ func TestFieldStatsResponseUnmarshalling(t *testing.T) {
 								 "density": 10,
 								 "sum_doc_freq": 559540,
 								 "sum_total_term_freq": -1,
-								 "min_value_as_string": "0",
-								 "max_value_as_string": "160"
+								 "searchable": true,
+								 "aggregatable": true,
+								 "min_value":1483016404000,
+								 "min_value_as_string": "2016-12-29T13:00:04.000Z",
+								 "max_value":1484152326000,
+								 "max_value_as_string": "2017-01-11T16:32:06.000Z"
 							}
 					 }
 				}
@@ -245,8 +254,14 @@ func TestFieldStatsResponseUnmarshalling(t *testing.T) {
 	if !ok {
 		t.Errorf("expected creation_date to be in the fields map, didn't find it")
 	}
-	if fieldStats.MinValueAsString != "2008-08-01T16:37:51.513Z" {
-		t.Errorf("expected creation_date min value to be %v, got %v", "2008-08-01T16:37:51.513Z", fieldStats.MinValueAsString)
+	if want, have := true, fieldStats.Searchable; want != have {
+		t.Errorf("expected creation_date searchable to be %v, got %v", want, have)
+	}
+	if want, have := true, fieldStats.Aggregatable; want != have {
+		t.Errorf("expected creation_date aggregatable to be %v, got %v", want, have)
+	}
+	if want, have := "2016-12-29T13:00:04.000Z", fieldStats.MinValueAsString; want != have {
+		t.Errorf("expected creation_date min value string to be %q, got %q", want, have)
 	}
 }
 
