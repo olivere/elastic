@@ -92,7 +92,7 @@ You typically create one client for your app. Here's a complete example.
 
 ```go
 // Create a client
-client, err := elastic.NewClient()
+client, err := elastic.NewClient(&http.Client{})
 if err != nil {
     // Handle error
 }
