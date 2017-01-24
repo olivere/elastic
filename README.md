@@ -108,6 +108,9 @@ You typically create one client for your app. Here's a complete example of
 creating a client, creating an index, adding a document, executing a search etc.
 
 ```go
+// Create a context
+ctx := context.Background()
+
 // Create a client
 client, err := elastic.NewClient()
 if err != nil {
@@ -115,7 +118,7 @@ if err != nil {
 }
 
 // Create an index
-_, err = client.CreateIndex("twitter").Do()
+_, err = client.CreateIndex("twitter").Do(ctx)
 if err != nil {
     // Handle error
     panic(err)
@@ -129,7 +132,7 @@ _, err = client.Index().
     Id("1").
     BodyJson(tweet).
     Refresh(true).
-    Do()
+    Do(ctx)
 if err != nil {
     // Handle error
     panic(err)
@@ -143,7 +146,7 @@ searchResult, err := client.Search().
     Sort("user", true). // sort by "user" field, ascending
     From(0).Size(10).   // take documents 0-9
     Pretty(true).       // pretty print request and response JSON
-    Do()                // execute
+    Do(ctx)             // execute
 if err != nil {
     // Handle error
     panic(err)
@@ -190,7 +193,7 @@ if searchResult.Hits.TotalHits > 0 {
 }
 
 // Delete the index again
-_, err = client.DeleteIndex("twitter").Do()
+_, err = client.DeleteIndex("twitter").Do(ctx)
 if err != nil {
     // Handle error
     panic(err)
