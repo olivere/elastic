@@ -142,6 +142,8 @@ import (
   "net/http"
   "time"
 
+  "golang.org/x/net/context"
+
   elastic "gopkg.in/olivere/elastic.v5"
 )
 
@@ -158,6 +160,9 @@ type Tweet struct {
 }
 
 func main() {
+  // Starting with elastic.v5, you must pass a context to execute each service
+  ctx := context.Background()
+
   // Obtain a client and connect to the default Elasticsearch installation
   // on 127.0.0.1:9200. Of course you can configure your client to connect
   // to other hosts and configure it in various other ways.
@@ -168,7 +173,7 @@ func main() {
   }
 
   // Ping the Elasticsearch server to get e.g. the version number
-  info, code, err := client.Ping().Do()
+  info, code, err := client.Ping().Do(ctx)
   if err != nil {
     // Handle error
     panic(err)
@@ -184,14 +189,14 @@ func main() {
   fmt.Printf("Elasticsearch version %s", esversion)
 
   // Use the IndexExists service to check if a specified index exists.
-  exists, err := client.IndexExists("twitter").Do()
+  exists, err := client.IndexExists("twitter").Do(ctx)
   if err != nil {
     // Handle error
     panic(err)
   }
   if !exists {
     // Create a new index.
-    createIndex, err := client.CreateIndex("twitter").Do()
+    createIndex, err := client.CreateIndex("twitter").Do(ctx)
     if err != nil {
       // Handle error
       panic(err)
@@ -208,7 +213,7 @@ func main() {
     Type("tweet").
     Id("1").
     BodyJson(tweet1).
-    Do()
+    Do(ctx)
   if err != nil {
     // Handle error
     panic(err)
@@ -222,7 +227,7 @@ func main() {
     Type("tweet").
     Id("2").
     BodyString(tweet2).
-    Do()
+    Do(ctx)
   if err != nil {
     // Handle error
     panic(err)
@@ -234,7 +239,7 @@ func main() {
     Index("twitter").
     Type("tweet").
     Id("1").
-    Do()
+    Do(ctx)
   if err != nil {
     // Handle error
     panic(err)
@@ -244,7 +249,7 @@ func main() {
   }
 
   // Flush to make sure the documents got written.
-  _, err = client.Flush().Index("twitter").Do()
+  _, err = client.Flush().Index("twitter").Do(ctx)
   if err != nil {
     panic(err)
   }
@@ -257,7 +262,7 @@ func main() {
     Sort("user", true). // sort by "user" field, ascending
     From(0).Size(10).   // take documents 0-9
     Pretty(true).       // pretty print request and response JSON
-    Do()                // execute
+    Do(ctx)             // execute
   if err != nil {
     // Handle error
     panic(err)
@@ -309,7 +314,7 @@ func main() {
     Script("ctx._source.retweets += num").
     ScriptParams(map[string]interface{}{"num": 1}).
     Upsert(map[string]interface{}{"retweets": 0}).
-    Do()
+    Do(ctx)
   if err != nil {
     // Handle error
     panic(err)
@@ -319,7 +324,7 @@ func main() {
   // ...
 
   // Delete an index.
-  deleteIndex, err := client.DeleteIndex("twitter").Do()
+  deleteIndex, err := client.DeleteIndex("twitter").Do(ctx)
   if err != nil {
     // Handle error
     panic(err)
