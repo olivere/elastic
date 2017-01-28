@@ -40,7 +40,7 @@ var (
 	errorlogfile  = flag.String("errorlog", "", "error log file")
 	infologfile   = flag.String("infolog", "", "info log file")
 	tracelogfile  = flag.String("tracelog", "", "trace log file")
-	retries       = flag.Int("retries", elastic.DefaultMaxRetries, "number of retries")
+	retries       = flag.Int("retries", 0, "number of retries")
 	sniff         = flag.Bool("sniff", elastic.DefaultSnifferEnabled, "enable or disable sniffer")
 	sniffer       = flag.Duration("sniffer", elastic.DefaultSnifferInterval, "sniffer interval")
 	healthcheck   = flag.Bool("healthcheck", elastic.DefaultHealthcheckEnabled, "enable or disable healthchecks")
