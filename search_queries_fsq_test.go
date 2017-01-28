@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -12,6 +12,7 @@ import (
 func TestFunctionScoreQuery(t *testing.T) {
 	q := NewFunctionScoreQuery().
 		Query(NewTermQuery("name.last", "banon")).
+		Filter(NewTermQuery("name.last", "shay")).
 		Add(NewTermQuery("name.last", "banon"), NewWeightFactorFunction(1.5)).
 		AddScoreFunc(NewWeightFactorFunction(3)).
 		AddScoreFunc(NewRandomFunction()).
@@ -27,7 +28,7 @@ func TestFunctionScoreQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"function_score":{"boost":3,"functions":[{"filter":{"term":{"name.last":"banon"}},"weight":1.5},{"weight":3},{"random_score":{}}],"max_boost":10,"query":{"term":{"name.last":"banon"}},"score_mode":"avg"}}`
+	expected := `{"function_score":{"boost":3,"filter":{"term":{"name.last":"shay"}},"functions":[{"filter":{"term":{"name.last":"banon"}},"weight":1.5},{"weight":3},{"random_score":{}}],"max_boost":10,"query":{"term":{"name.last":"banon"}},"score_mode":"avg"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
