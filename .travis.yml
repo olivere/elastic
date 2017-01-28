@@ -2,7 +2,10 @@ sudo: false
 language: go
 go:
   - 1.7
-  - 1.8rc.1
+  - tip
+matrix:
+  allow_failures:
+    - go: tip
 env:
   global:
     - GO15VENDOREXPERIMENT=1
