@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -22,6 +22,7 @@ type SearchService struct {
 	searchSource      *SearchSource
 	source            interface{}
 	pretty            bool
+	filterPath        []string
 	searchType        string
 	index             []string
 	typ               []string
@@ -58,20 +59,22 @@ func (s *SearchService) Source(source interface{}) *SearchService {
 	return s
 }
 
+// FilterPath allows reducing the response, a mechanism known as
+// response filtering and described here:
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#common-options-response-filtering.
+func (s *SearchService) FilterPath(filterPath ...string) *SearchService {
+	s.filterPath = append(s.filterPath, filterPath...)
+	return s
+}
+
 // Index sets the names of the indices to use for search.
 func (s *SearchService) Index(index ...string) *SearchService {
-	if s.index == nil {
-		s.index = make([]string, 0)
-	}
 	s.index = append(s.index, index...)
 	return s
 }
 
 // Types adds search restrictions for a list of types.
 func (s *SearchService) Type(typ ...string) *SearchService {
-	if s.typ == nil {
-		s.typ = make([]string, 0)
-	}
 	s.typ = append(s.typ, typ...)
 	return s
 }
@@ -324,6 +327,9 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	}
 	if s.ignoreUnavailable != nil {
 		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	return path, params, nil
 }

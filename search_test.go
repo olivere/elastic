@@ -1,4 +1,4 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"encoding/json"
-	_ "net/http"
 	"reflect"
 	"testing"
 	"time"
@@ -1040,5 +1039,66 @@ func TestSearchResultHasShards(t *testing.T) {
 	}
 	if got, want := searchResult.Shards.Failed, 0; got != want {
 		t.Errorf("expected SearchResult.Shards.Failed = %d; got %d", want, got)
+	}
+}
+
+func TestSearchFilterPath(t *testing.T) {
+	// client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+
+	// Match all should return all documents
+	all := NewMatchAllQuery()
+	searchResult, err := client.Search().
+		Index(testIndexName).
+		Type("tweet").
+		Query(all).
+		FilterPath(
+			"took",
+			"hits.hits._id",
+			"hits.hits._source.user",
+			"hits.hits._source.message",
+		).
+		Timeout("1s").
+		Pretty(true).
+		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult.Hits == nil {
+		t.Fatalf("expected SearchResult.Hits != nil; got nil")
+	}
+	// 0 because it was filtered out
+	if want, got := int64(0), searchResult.Hits.TotalHits; want != got {
+		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", want, got)
+	}
+	if want, got := 3, len(searchResult.Hits.Hits); want != got {
+		t.Fatalf("expected len(SearchResult.Hits.Hits) = %d; got %d", want, got)
+	}
+
+	for _, hit := range searchResult.Hits.Hits {
+		if want, got := "", hit.Index; want != got {
+			t.Fatalf("expected index %q, got %q", want, got)
+		}
+		item := make(map[string]interface{})
+		err := json.Unmarshal(*hit.Source, &item)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// user field
+		v, found := item["user"]
+		if !found {
+			t.Fatalf("expected SearchResult.Hits.Hit[%q] to be found", "user")
+		}
+		if v == "" {
+			t.Fatalf("expected user field, got %v (%T)", v, v)
+		}
+		// No retweets field
+		v, found = item["retweets"]
+		if found {
+			t.Fatalf("expected SearchResult.Hits.Hit[%q] to not be found, got %v", "retweets", v)
+		}
+		if v == "" {
+			t.Fatalf("expected user field, got %v (%T)", v, v)
+		}
 	}
 }
