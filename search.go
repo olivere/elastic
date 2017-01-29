@@ -31,6 +31,7 @@ type SearchService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	requestCache      bool
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -109,6 +110,12 @@ func (s *SearchService) SearchType(searchType string) *SearchService {
 func (s *SearchService) Routing(routings ...string) *SearchService {
 	s.routing = strings.Join(routings, ",")
 	return s
+}
+
+// enable request cache
+// add parameters to path request_cache=true
+func (s *SearchService) RequestCache(cacheStatus bool) {
+	s.requestCache = cacheStatus
 }
 
 // Preference sets the preference to execute the search. Defaults to
@@ -324,6 +331,9 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	}
 	if s.ignoreUnavailable != nil {
 		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	}
+	if s.requestCache {
+		params.Set("request_cache", "true")
 	}
 	return path, params, nil
 }
