@@ -482,7 +482,7 @@ func (s *ScriptSort) Source() (interface{}, error) {
 	x["type"] = s.typ
 
 	if !s.ascending {
-		x["reverse"] = true
+		x["order"] = "desc"
 	}
 	if s.sortMode != nil {
 		x["mode"] = *s.sortMode
