@@ -64,7 +64,7 @@ func TestScoreSort(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_score":{}}`
+	expected := `{"_score":{"order":"desc"}}` // ScoreSort is "desc" by default
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -81,7 +81,7 @@ func TestScoreSortOrderAscending(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_score":{"reverse":true}}`
+	expected := `{"_score":{"order":"asc"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -98,7 +98,7 @@ func TestScoreSortOrderDescending(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_score":{}}`
+	expected := `{"_score":{"order":"desc"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -176,7 +176,7 @@ func TestGeoDistanceSort(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_geo_distance":{"distance_type":"sloppy_arc","mode":"min","pin.location":[{"lat":-70,"lon":40}],"unit":"km"}}`
+	expected := `{"_geo_distance":{"distance_type":"sloppy_arc","mode":"min","order":"asc","pin.location":[{"lat":-70,"lon":40}],"unit":"km"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -198,7 +198,7 @@ func TestGeoDistanceSortOrderDesc(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_geo_distance":{"distance_type":"sloppy_arc","mode":"min","pin.location":[{"lat":-70,"lon":40}],"reverse":true,"unit":"km"}}`
+	expected := `{"_geo_distance":{"distance_type":"sloppy_arc","mode":"min","order":"desc","pin.location":[{"lat":-70,"lon":40}],"unit":"km"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -214,7 +214,7 @@ func TestScriptSort(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_script":{"script":{"inline":"doc['field_name'].value * factor","params":{"factor":1.1}},"type":"number"}}`
+	expected := `{"_script":{"order":"asc","script":{"inline":"doc['field_name'].value * factor","params":{"factor":1.1}},"type":"number"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -231,7 +231,7 @@ func TestScriptSortOrderDesc(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_script":{"reverse":true,"script":{"inline":"doc['field_name'].value * factor","params":{"factor":1.1}},"type":"number"}}`
+	expected := `{"_script":{"order":"desc","script":{"inline":"doc['field_name'].value * factor","params":{"factor":1.1}},"type":"number"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
