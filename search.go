@@ -325,6 +325,9 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	if s.ignoreUnavailable != nil {
 		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
 	}
+	if s.searchSource.requestCache != nil {
+		params.Set("request_cache", fmt.Sprintf("%v", *s.searchSource.requestCache))
+	}
 	return path, params, nil
 }
 
