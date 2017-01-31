@@ -2,10 +2,10 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-// This file is (c) 2014 Cenk Altı and governed by the MIT license.
+// This file is based on code (c) 2014 Cenk Altı and governed by the MIT license.
 // See https://github.com/cenkalti/backoff for original source.
 
-package backoff
+package elastic
 
 import "time"
 
@@ -32,22 +32,25 @@ func Retry(o Operation, b Backoff) error { return RetryNotify(o, b, nil) }
 // for each failed attempt before sleep.
 func RetryNotify(operation Operation, b Backoff, notify Notify) error {
 	var err error
-	var next time.Duration
+	var wait time.Duration
+	var retry bool
 
-	b.Reset()
+	var i int
 	for {
 		if err = operation(); err == nil {
 			return nil
 		}
 
-		if next = b.Next(); next == Stop {
+		i++
+		wait, retry = b.Next(i)
+		if retry {
 			return err
 		}
 
 		if notify != nil {
-			notify(err, next)
+			notify(err, wait)
 		}
 
-		time.Sleep(next)
+		time.Sleep(wait)
 	}
 }
