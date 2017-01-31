@@ -13,12 +13,12 @@ import "time"
 // The operation will be retried using a backoff policy if it returns an error.
 type Operation func() error
 
-// Notify is a notify-on-error function. It receives an operation error and
-// backoff delay if the operation failed (with an error).
+// Notify is a notify-on-error function. It receives error returned
+// from an operation.
 //
-// NOTE that if the backoff policy stated to stop retrying,
+// Notice that if the backoff policy stated to stop retrying,
 // the notify function isn't called.
-type Notify func(error, time.Duration)
+type Notify func(error)
 
 // Retry the function f until it does not return error or BackOff stops.
 // f is guaranteed to be run at least once.
@@ -34,21 +34,21 @@ func RetryNotify(operation Operation, b Backoff, notify Notify) error {
 	var err error
 	var wait time.Duration
 	var retry bool
+	var n int
 
-	var i int
 	for {
 		if err = operation(); err == nil {
 			return nil
 		}
 
-		i++
-		wait, retry = b.Next(i)
-		if retry {
+		n++
+		wait, retry = b.Next(n)
+		if !retry {
 			return err
 		}
 
 		if notify != nil {
-			notify(err, wait)
+			notify(err)
 		}
 
 		time.Sleep(wait)

@@ -473,8 +473,8 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 		return err
 	}
 	// notifyFunc will be called if retry fails
-	notifyFunc := func(err error, d time.Duration) {
-		w.p.c.errorf("elastic: bulk processor %q failed but will retry in %v: %v", w.p.name, d, err)
+	notifyFunc := func(err error) {
+		w.p.c.errorf("elastic: bulk processor %q failed but will retry: %v", w.p.name, err)
 	}
 
 	id := atomic.AddInt64(&w.p.executionId, 1)
