@@ -6,9 +6,9 @@ package elastic
 
 // FuzzyFuzzyCompletionSuggester is a FuzzyCompletionSuggester that allows fuzzy
 // completion.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-suggesters-completion.html
 // for details, and
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters-completion.html#fuzzy
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-suggesters-completion.html#fuzzy
 // for details about the fuzzy completion suggester.
 type FuzzyCompletionSuggester struct {
 	Suggester
@@ -80,7 +80,7 @@ func (q *FuzzyCompletionSuggester) ContextQueries(queries ...SuggesterContextQue
 
 // Fuzziness defines the strategy used to describe what "fuzzy" actually
 // means for the suggester, e.g. 1, 2, "0", "1..2", ">4", or "AUTO".
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/common-options.html#fuzziness
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/common-options.html#fuzziness
 // for a detailed description.
 func (q *FuzzyCompletionSuggester) Fuzziness(fuzziness interface{}) *FuzzyCompletionSuggester {
 	q.fuzziness = fuzziness

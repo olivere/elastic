@@ -4,7 +4,7 @@
 
 /*
 Package elastic provides an interface to the Elasticsearch server
-(http://www.elasticsearch.org/).
+(https://www.elastic.co/products/elasticsearch).
 
 The first thing you do is to create a Client. If you have Elasticsearch
 installed and running with its default settings

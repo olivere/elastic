@@ -15,7 +15,7 @@ import (
 
 // IndicesOpenService opens an index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-open-close.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-open-close.html
 // for details.
 type IndicesOpenService struct {
 	client            *Client

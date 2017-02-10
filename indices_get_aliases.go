@@ -15,7 +15,7 @@ import (
 )
 
 // AliasesService returns the aliases associated with one or more indices.
-// See http://www.elastic.co/guide/en/elasticsearch/reference/master/indices-aliases.html.
+// See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-aliases.html.
 type AliasesService struct {
 	client *Client
 	index  []string

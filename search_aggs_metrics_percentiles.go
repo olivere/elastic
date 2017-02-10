@@ -5,7 +5,7 @@
 package elastic
 
 // PercentilesAggregation
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-percentile-aggregation.html
 type PercentilesAggregation struct {
 	field           string
 	script          *Script

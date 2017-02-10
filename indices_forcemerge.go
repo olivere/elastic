@@ -19,7 +19,7 @@ import (
 // within each shard. The force merge operation allows to reduce the number
 // of segments by merging them.
 //
-// See http://www.elastic.co/guide/en/elasticsearch/reference/2.4/indices-forcemerge.html
+// See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-forcemerge.html
 // for more information.
 type IndicesForcemergeService struct {
 	client             *Client

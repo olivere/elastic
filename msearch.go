@@ -14,7 +14,6 @@ import (
 )
 
 // MultiSearch executes one or more searches in one roundtrip.
-// See http://www.elasticsearch.org/guide/reference/api/multi-search/
 type MultiSearchService struct {
 	client     *Client
 	requests   []*SearchRequest

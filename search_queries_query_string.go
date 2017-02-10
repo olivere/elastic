@@ -11,7 +11,7 @@ import (
 // QueryStringQuery uses the query parser in order to parse its content.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/query-dsl-query-string-query.html
 type QueryStringQuery struct {
 	queryString               string
 	defaultField              string

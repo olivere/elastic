@@ -7,7 +7,7 @@ package elastic
 // A boosting query can be used to effectively
 // demote results that match a given query.
 // For more details, see:
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-boosting-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/query-dsl-boosting-query.html
 type BoostingQuery struct {
 	Query
 	positiveClause Query

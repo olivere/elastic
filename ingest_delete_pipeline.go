@@ -1,4 +1,4 @@
-// Copyright 2012-2016 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -15,7 +15,7 @@ import (
 )
 
 // IngestDeletePipelineService deletes pipelines by ID.
-// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.0/delete-pipeline-api.html.
+// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.2/delete-pipeline-api.html.
 type IngestDeletePipelineService struct {
 	client        *Client
 	pretty        bool

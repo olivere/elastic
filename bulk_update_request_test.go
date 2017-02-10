@@ -67,22 +67,38 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 				`{"detect_noop":true,"doc":{"counter":42}}`,
 			},
 		},
+		// #4
+		{
+			Request: NewBulkUpdateRequest().Index("index1").Type("tweet").Id("1").
+				RetryOnConflict(3).
+				ScriptedUpsert(true).
+				Script(NewScript(`ctx._source.retweets += param1`).Lang("javascript").Param("param1", 42)).
+				Upsert(struct {
+					Counter int64 `json:"counter"`
+				}{
+					Counter: 42,
+				}),
+			Expected: []string{
+				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
+				`{"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}},"scripted_upsert":true,"upsert":{"counter":42}}`,
+			},
+		},
 	}
 
 	for i, test := range tests {
 		lines, err := test.Request.Source()
 		if err != nil {
-			t.Fatalf("case #%d: expected no error, got: %v", i, err)
+			t.Fatalf("#%d: expected no error, got: %v", i, err)
 		}
 		if lines == nil {
-			t.Fatalf("case #%d: expected lines, got nil", i)
+			t.Fatalf("#%d: expected lines, got nil", i)
 		}
 		if len(lines) != len(test.Expected) {
-			t.Fatalf("case #%d: expected %d lines, got %d", i, len(test.Expected), len(lines))
+			t.Fatalf("#%d: expected %d lines, got %d", i, len(test.Expected), len(lines))
 		}
 		for j, line := range lines {
 			if line != test.Expected[j] {
-				t.Errorf("case #%d: expected line #%d to be\n%s\nbut got:\n%s", i, j, test.Expected[j], line)
+				t.Errorf("#%d: expected line #%d to be\n%s\nbut got:\n%s", i, j, test.Expected[j], line)
 			}
 		}
 	}

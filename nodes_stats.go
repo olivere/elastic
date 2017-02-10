@@ -16,7 +16,7 @@ import (
 )
 
 // NodesStatsService returns node statistics.
-// See http://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-nodes-stats.html
+// See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/cluster-nodes-stats.html
 // for details.
 type NodesStatsService struct {
 	client           *Client

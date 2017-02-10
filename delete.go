@@ -16,7 +16,7 @@ import (
 // DeleteService allows to delete a typed JSON document from a specified
 // index based on its id.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.0/docs-delete.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-delete.html
 // for details.
 type DeleteService struct {
 	client              *Client

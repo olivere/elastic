@@ -15,7 +15,7 @@ import (
 )
 
 // DeleteByQueryService deletes documents that match a query.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/docs-delete-by-query.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-delete-by-query.html.
 type DeleteByQueryService struct {
 	client                 *Client
 	index                  []string

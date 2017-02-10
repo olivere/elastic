@@ -17,7 +17,7 @@ import (
 
 // NodesInfoService allows to retrieve one or more or all of the
 // cluster nodes information.
-// It is documented at http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/cluster-nodes-info.html.
+// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.2/cluster-nodes-info.html.
 type NodesInfoService struct {
 	client       *Client
 	pretty       bool

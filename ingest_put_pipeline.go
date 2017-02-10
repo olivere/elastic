@@ -1,4 +1,4 @@
-// Copyright 2012-2016 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -17,7 +17,7 @@ import (
 // IngestPutPipelineService adds pipelines and updates existing pipelines in
 // the cluster.
 //
-// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.0/put-pipeline-api.html.
+// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.2/put-pipeline-api.html.
 type IngestPutPipelineService struct {
 	client        *Client
 	pretty        bool

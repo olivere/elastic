@@ -16,7 +16,7 @@ import (
 
 // IndicesGetService retrieves information about one or more indices.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-index.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-get-index.html
 // for more details.
 type IndicesGetService struct {
 	client            *Client

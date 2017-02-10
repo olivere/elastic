@@ -11,7 +11,7 @@ import (
 
 // SuggestField can be used by the caller to specify a suggest field
 // at index time. For a detailed example, see e.g.
-// http://www.elasticsearch.org/blog/you-complete-me/.
+// https://www.elastic.co/blog/you-complete-me.
 type SuggestField struct {
 	inputs         []string
 	weight         int

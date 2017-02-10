@@ -13,7 +13,7 @@ import (
 // analytic information over a set of documents. It is
 // (in many senses) the follow-up of facets in Elasticsearch.
 // For more details about aggregations, visit:
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations.html
 type Aggregation interface {
 	// Source returns a JSON-serializable aggregation that is a fragment
 	// of the request sent to Elasticsearch.
@@ -24,7 +24,7 @@ type Aggregation interface {
 type Aggregations map[string]*json.RawMessage
 
 // Min returns min aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-min-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-min-aggregation.html
 func (a Aggregations) Min(name string) (*AggregationValueMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationValueMetric)
@@ -39,7 +39,7 @@ func (a Aggregations) Min(name string) (*AggregationValueMetric, bool) {
 }
 
 // Max returns max aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-max-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-max-aggregation.html
 func (a Aggregations) Max(name string) (*AggregationValueMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationValueMetric)
@@ -54,7 +54,7 @@ func (a Aggregations) Max(name string) (*AggregationValueMetric, bool) {
 }
 
 // Sum returns sum aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-sum-aggregation.html
 func (a Aggregations) Sum(name string) (*AggregationValueMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationValueMetric)
@@ -69,7 +69,7 @@ func (a Aggregations) Sum(name string) (*AggregationValueMetric, bool) {
 }
 
 // Avg returns average aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-avg-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-avg-aggregation.html
 func (a Aggregations) Avg(name string) (*AggregationValueMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationValueMetric)
@@ -84,7 +84,7 @@ func (a Aggregations) Avg(name string) (*AggregationValueMetric, bool) {
 }
 
 // ValueCount returns value-count aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-valuecount-aggregation.html
 func (a Aggregations) ValueCount(name string) (*AggregationValueMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationValueMetric)
@@ -99,7 +99,7 @@ func (a Aggregations) ValueCount(name string) (*AggregationValueMetric, bool) {
 }
 
 // Cardinality returns cardinality aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-cardinality-aggregation.html
 func (a Aggregations) Cardinality(name string) (*AggregationValueMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationValueMetric)
@@ -114,7 +114,7 @@ func (a Aggregations) Cardinality(name string) (*AggregationValueMetric, bool) {
 }
 
 // Stats returns stats aggregation results.
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-stats-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-stats-aggregation.html
 func (a Aggregations) Stats(name string) (*AggregationStatsMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationStatsMetric)
@@ -129,7 +129,7 @@ func (a Aggregations) Stats(name string) (*AggregationStatsMetric, bool) {
 }
 
 // ExtendedStats returns extended stats aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-extendedstats-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-extendedstats-aggregation.html
 func (a Aggregations) ExtendedStats(name string) (*AggregationExtendedStatsMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationExtendedStatsMetric)
@@ -144,7 +144,7 @@ func (a Aggregations) ExtendedStats(name string) (*AggregationExtendedStatsMetri
 }
 
 // Percentiles returns percentiles results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-percentile-aggregation.html
 func (a Aggregations) Percentiles(name string) (*AggregationPercentilesMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPercentilesMetric)
@@ -159,7 +159,7 @@ func (a Aggregations) Percentiles(name string) (*AggregationPercentilesMetric, b
 }
 
 // PercentileRanks returns percentile ranks results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-percentile-rank-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-percentile-rank-aggregation.html
 func (a Aggregations) PercentileRanks(name string) (*AggregationPercentilesMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPercentilesMetric)
@@ -174,7 +174,7 @@ func (a Aggregations) PercentileRanks(name string) (*AggregationPercentilesMetri
 }
 
 // TopHits returns top-hits aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-top-hits-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-top-hits-aggregation.html
 func (a Aggregations) TopHits(name string) (*AggregationTopHitsMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationTopHitsMetric)
@@ -189,7 +189,7 @@ func (a Aggregations) TopHits(name string) (*AggregationTopHitsMetric, bool) {
 }
 
 // Global returns global results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-global-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-global-aggregation.html
 func (a Aggregations) Global(name string) (*AggregationSingleBucket, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationSingleBucket)
@@ -204,7 +204,7 @@ func (a Aggregations) Global(name string) (*AggregationSingleBucket, bool) {
 }
 
 // Filter returns filter results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filter-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-filter-aggregation.html
 func (a Aggregations) Filter(name string) (*AggregationSingleBucket, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationSingleBucket)
@@ -219,7 +219,7 @@ func (a Aggregations) Filter(name string) (*AggregationSingleBucket, bool) {
 }
 
 // Filters returns filters results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filters-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-filters-aggregation.html
 func (a Aggregations) Filters(name string) (*AggregationBucketFilters, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketFilters)
@@ -234,7 +234,7 @@ func (a Aggregations) Filters(name string) (*AggregationBucketFilters, bool) {
 }
 
 // Missing returns missing results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-missing-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-missing-aggregation.html
 func (a Aggregations) Missing(name string) (*AggregationSingleBucket, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationSingleBucket)
@@ -249,7 +249,7 @@ func (a Aggregations) Missing(name string) (*AggregationSingleBucket, bool) {
 }
 
 // Nested returns nested results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-nested-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-nested-aggregation.html
 func (a Aggregations) Nested(name string) (*AggregationSingleBucket, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationSingleBucket)
@@ -264,7 +264,7 @@ func (a Aggregations) Nested(name string) (*AggregationSingleBucket, bool) {
 }
 
 // ReverseNested returns reverse-nested results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-reverse-nested-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-reverse-nested-aggregation.html
 func (a Aggregations) ReverseNested(name string) (*AggregationSingleBucket, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationSingleBucket)
@@ -279,7 +279,7 @@ func (a Aggregations) ReverseNested(name string) (*AggregationSingleBucket, bool
 }
 
 // Children returns children results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-children-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-children-aggregation.html
 func (a Aggregations) Children(name string) (*AggregationSingleBucket, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationSingleBucket)
@@ -294,7 +294,7 @@ func (a Aggregations) Children(name string) (*AggregationSingleBucket, bool) {
 }
 
 // Terms returns terms aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-terms-aggregation.html
 func (a Aggregations) Terms(name string) (*AggregationBucketKeyItems, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketKeyItems)
@@ -309,7 +309,7 @@ func (a Aggregations) Terms(name string) (*AggregationBucketKeyItems, bool) {
 }
 
 // SignificantTerms returns significant terms aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-significantterms-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-significantterms-aggregation.html
 func (a Aggregations) SignificantTerms(name string) (*AggregationBucketSignificantTerms, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketSignificantTerms)
@@ -324,7 +324,7 @@ func (a Aggregations) SignificantTerms(name string) (*AggregationBucketSignifica
 }
 
 // Sampler returns sampler aggregation results.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-sampler-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-sampler-aggregation.html
 func (a Aggregations) Sampler(name string) (*AggregationSingleBucket, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationSingleBucket)
@@ -339,7 +339,7 @@ func (a Aggregations) Sampler(name string) (*AggregationSingleBucket, bool) {
 }
 
 // Range returns range aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-range-aggregation.html
 func (a Aggregations) Range(name string) (*AggregationBucketRangeItems, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketRangeItems)
@@ -354,7 +354,7 @@ func (a Aggregations) Range(name string) (*AggregationBucketRangeItems, bool) {
 }
 
 // KeyedRange returns keyed range aggregation results.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-range-aggregation.html.
 func (a Aggregations) KeyedRange(name string) (*AggregationBucketKeyedRangeItems, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketKeyedRangeItems)
@@ -369,7 +369,7 @@ func (a Aggregations) KeyedRange(name string) (*AggregationBucketKeyedRangeItems
 }
 
 // DateRange returns date range aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-daterange-aggregation.html
 func (a Aggregations) DateRange(name string) (*AggregationBucketRangeItems, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketRangeItems)
@@ -384,7 +384,7 @@ func (a Aggregations) DateRange(name string) (*AggregationBucketRangeItems, bool
 }
 
 // IPv4Range returns IPv4 range aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-iprange-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-iprange-aggregation.html
 func (a Aggregations) IPv4Range(name string) (*AggregationBucketRangeItems, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketRangeItems)
@@ -399,7 +399,7 @@ func (a Aggregations) IPv4Range(name string) (*AggregationBucketRangeItems, bool
 }
 
 // Histogram returns histogram aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-histogram-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-histogram-aggregation.html
 func (a Aggregations) Histogram(name string) (*AggregationBucketHistogramItems, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketHistogramItems)
@@ -414,7 +414,7 @@ func (a Aggregations) Histogram(name string) (*AggregationBucketHistogramItems, 
 }
 
 // DateHistogram returns date histogram aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-datehistogram-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-datehistogram-aggregation.html
 func (a Aggregations) DateHistogram(name string) (*AggregationBucketHistogramItems, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketHistogramItems)
@@ -429,7 +429,7 @@ func (a Aggregations) DateHistogram(name string) (*AggregationBucketHistogramIte
 }
 
 // GeoBounds returns geo-bounds aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-metrics-geobounds-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-geobounds-aggregation.html
 func (a Aggregations) GeoBounds(name string) (*AggregationGeoBoundsMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationGeoBoundsMetric)
@@ -444,7 +444,7 @@ func (a Aggregations) GeoBounds(name string) (*AggregationGeoBoundsMetric, bool)
 }
 
 // GeoHash returns geo-hash aggregation results.
-// http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geohashgrid-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-geohashgrid-aggregation.html
 func (a Aggregations) GeoHash(name string) (*AggregationBucketKeyItems, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketKeyItems)
@@ -459,7 +459,7 @@ func (a Aggregations) GeoHash(name string) (*AggregationBucketKeyItems, bool) {
 }
 
 // GeoDistance returns geo distance aggregation results.
-// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geodistance-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-geodistance-aggregation.html
 func (a Aggregations) GeoDistance(name string) (*AggregationBucketRangeItems, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketRangeItems)
@@ -474,7 +474,7 @@ func (a Aggregations) GeoDistance(name string) (*AggregationBucketRangeItems, bo
 }
 
 // AvgBucket returns average bucket pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-avg-bucket-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-pipeline-avg-bucket-aggregation.html
 func (a Aggregations) AvgBucket(name string) (*AggregationPipelineSimpleValue, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineSimpleValue)
@@ -489,7 +489,7 @@ func (a Aggregations) AvgBucket(name string) (*AggregationPipelineSimpleValue, b
 }
 
 // SumBucket returns sum bucket pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-sum-bucket-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-pipeline-sum-bucket-aggregation.html
 func (a Aggregations) SumBucket(name string) (*AggregationPipelineSimpleValue, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineSimpleValue)
@@ -504,7 +504,7 @@ func (a Aggregations) SumBucket(name string) (*AggregationPipelineSimpleValue, b
 }
 
 // StatsBucket returns stats bucket pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-stats-bucket-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-pipeline-stats-bucket-aggregation.html
 func (a Aggregations) StatsBucket(name string) (*AggregationPipelineStatsMetric, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineStatsMetric)
@@ -519,7 +519,7 @@ func (a Aggregations) StatsBucket(name string) (*AggregationPipelineStatsMetric,
 }
 
 // MaxBucket returns maximum bucket pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-max-bucket-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-pipeline-max-bucket-aggregation.html
 func (a Aggregations) MaxBucket(name string) (*AggregationPipelineBucketMetricValue, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineBucketMetricValue)
@@ -534,7 +534,7 @@ func (a Aggregations) MaxBucket(name string) (*AggregationPipelineBucketMetricVa
 }
 
 // MinBucket returns minimum bucket pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-min-bucket-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-pipeline-min-bucket-aggregation.html
 func (a Aggregations) MinBucket(name string) (*AggregationPipelineBucketMetricValue, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineBucketMetricValue)
@@ -549,7 +549,7 @@ func (a Aggregations) MinBucket(name string) (*AggregationPipelineBucketMetricVa
 }
 
 // MovAvg returns moving average pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-movavg-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-pipeline-movavg-aggregation.html
 func (a Aggregations) MovAvg(name string) (*AggregationPipelineSimpleValue, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineSimpleValue)
@@ -564,7 +564,7 @@ func (a Aggregations) MovAvg(name string) (*AggregationPipelineSimpleValue, bool
 }
 
 // Derivative returns derivative pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-derivative-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-pipeline-derivative-aggregation.html
 func (a Aggregations) Derivative(name string) (*AggregationPipelineDerivative, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineDerivative)
@@ -579,7 +579,7 @@ func (a Aggregations) Derivative(name string) (*AggregationPipelineDerivative, b
 }
 
 // CumulativeSum returns a cumulative sum pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-cumulative-sum-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-pipeline-cumulative-sum-aggregation.html
 func (a Aggregations) CumulativeSum(name string) (*AggregationPipelineSimpleValue, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineSimpleValue)
@@ -594,7 +594,7 @@ func (a Aggregations) CumulativeSum(name string) (*AggregationPipelineSimpleValu
 }
 
 // BucketScript returns bucket script pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-bucket-script-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-pipeline-bucket-script-aggregation.html
 func (a Aggregations) BucketScript(name string) (*AggregationPipelineSimpleValue, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineSimpleValue)
@@ -609,7 +609,7 @@ func (a Aggregations) BucketScript(name string) (*AggregationPipelineSimpleValue
 }
 
 // SerialDiff returns serial differencing pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-serialdiff-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-pipeline-serialdiff-aggregation.html
 func (a Aggregations) SerialDiff(name string) (*AggregationPipelineSimpleValue, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineSimpleValue)

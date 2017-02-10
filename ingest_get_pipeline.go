@@ -1,4 +1,4 @@
-// Copyright 2012-2016 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -15,7 +15,7 @@ import (
 )
 
 // IngestGetPipelineService returns pipelines based on ID.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.0/get-pipeline-api.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/get-pipeline-api.html
 // for documentation.
 type IngestGetPipelineService struct {
 	client        *Client

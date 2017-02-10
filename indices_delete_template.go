@@ -14,7 +14,7 @@ import (
 )
 
 // IndicesDeleteTemplateService deletes index templates.
-// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/1.4/indices-templates.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-templates.html.
 type IndicesDeleteTemplateService struct {
 	client        *Client
 	pretty        bool

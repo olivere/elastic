@@ -16,7 +16,7 @@ import (
 
 // ExistsService checks for the existence of a document using HEAD.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-get.html
 // for details.
 type ExistsService struct {
 	client     *Client

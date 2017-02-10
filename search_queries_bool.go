@@ -9,7 +9,7 @@ import "fmt"
 // A bool query matches documents matching boolean
 // combinations of other queries.
 // For more details, see:
-// http://www.elasticsearch.org/guide/reference/query-dsl/bool-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/query-dsl-bool-query.html
 type BoolQuery struct {
 	Query
 	mustClauses        []Query

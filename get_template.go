@@ -14,7 +14,7 @@ import (
 )
 
 // GetTemplateService reads a search template.
-// It is documented at http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-template.html.
+// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-template.html.
 type GetTemplateService struct {
 	client      *Client
 	pretty      bool

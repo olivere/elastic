@@ -16,7 +16,7 @@ import (
 
 // ClusterHealthService allows to get a very simple status on the health of the cluster.
 //
-// See http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html
+// See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/cluster-health.html
 // for details.
 type ClusterHealthService struct {
 	client                    *Client

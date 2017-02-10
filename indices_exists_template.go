@@ -15,7 +15,7 @@ import (
 )
 
 // IndicesExistsTemplateService checks if a given template exists.
-// See http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-templates.html#indices-templates-exists
+// See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-templates.html#indices-templates-exists
 // for documentation.
 type IndicesExistsTemplateService struct {
 	client *Client

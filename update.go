@@ -15,7 +15,7 @@ import (
 )
 
 // UpdateService updates a document in Elasticsearch.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.0/docs-update.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-update.html
 // for details.
 type UpdateService struct {
 	client              *Client

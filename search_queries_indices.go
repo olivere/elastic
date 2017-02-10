@@ -10,7 +10,7 @@ package elastic
 // executed on an index that does not match the listed indices.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-indices-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/query-dsl-indices-query.html
 type IndicesQuery struct {
 	query            Query
 	indices          []string

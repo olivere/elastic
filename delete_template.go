@@ -14,7 +14,7 @@ import (
 )
 
 // DeleteTemplateService deletes a search template. More information can
-// be found at http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-template.html.
+// be found at https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-template.html.
 type DeleteTemplateService struct {
 	client      *Client
 	pretty      bool

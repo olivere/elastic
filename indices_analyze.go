@@ -16,7 +16,7 @@ import (
 // IndicesAnalyzeService performs the analysis process on a text and returns
 // the tokens breakdown of the text.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-analyze.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-analyze.html
 // for detail.
 type IndicesAnalyzeService struct {
 	client      *Client
@@ -186,7 +186,7 @@ func (s *IndicesAnalyzeService) Do(ctx context.Context) (*IndicesAnalyzeResponse
 	} else {
 		// Request parameters are deprecated in 5.1.1, and we must use a JSON
 		// structure in the body to pass the parameters.
-		// See https://www.elastic.co/guide/en/elasticsearch/reference/5.1/indices-analyze.html
+		// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-analyze.html
 		body = s.request
 	}
 
