@@ -392,7 +392,7 @@ The cat APIs are not implemented as of now. We think they are better suited for 
   - [x] Nested Query
   - [x] Has Child Query
   - [x] Has Parent Query
-  - [ ] Parent Id Query
+  - [x] Parent Id Query
 - Geo queries
   - [ ] GeoShape Query
   - [x] Geo Bounding Box Query
