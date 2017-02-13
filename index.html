@@ -139,7 +139,7 @@
 import (
   "encoding/json"
   "fmt"
-  "net/http"
+  "reflect"
   "time"
 
   "golang.org/x/net/context"
@@ -173,7 +173,7 @@ func main() {
   }
 
   // Ping the Elasticsearch server to get e.g. the version number
-  info, code, err := client.Ping().Do(ctx)
+  info, code, err := client.Ping("http://127.0.0.1:9200").Do(ctx)
   if err != nil {
     // Handle error
     panic(err)
@@ -255,14 +255,14 @@ func main() {
   }
 
   // Search with a term query
-  termQuery := elastic.NewTermQuery("user", "olivere")
+  termQuery := elastic.NewTermQuery("user.keyword", "olivere")
   searchResult, err := client.Search().
-    Index("twitter").   // search in index "twitter"
-    Query(&termQuery).  // specify the query
-    Sort("user", true). // sort by "user" field, ascending
-    From(0).Size(10).   // take documents 0-9
-    Pretty(true).       // pretty print request and response JSON
-    Do(ctx)             // execute
+    Index("twitter").           // search in index "twitter"
+    Query(termQuery).           // specify the query
+    Sort("user.keyword", true). // sort by "user" field, ascending
+    From(0).Size(10).           // take documents 0-9
+    Pretty(true).               // pretty print request and response JSON
+    Do(ctx)                     // execute
   if err != nil {
     // Handle error
     panic(err)
@@ -278,9 +278,9 @@ func main() {
   // over iterating the hits, see below.
   var ttyp Tweet
   for _, item := range searchResult.Each(reflect.TypeOf(ttyp)) {
-      if t, ok := item.(Tweet); ok {
-        fmt.Printf("Tweet by %s: %s\n", t.User, t.Message)
-      }
+    if t, ok := item.(Tweet); ok {
+      fmt.Printf("Tweet by %s: %s\n", t.User, t.Message)
+    }
   }
   // TotalHits is another convenience function that works even when something goes wrong.
   fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
@@ -311,8 +311,7 @@ func main() {
   // Update a tweet by the update API of Elasticsearch.
   // We just increment the number of retweets.
   update, err := client.Update().Index("twitter").Type("tweet").Id("1").
-    Script("ctx._source.retweets += num").
-    ScriptParams(map[string]interface{}{"num": 1}).
+    Script(elastic.NewScriptInline("ctx._source.retweets += params.num").Lang("painless").Param("num", 1)).
     Upsert(map[string]interface{}{"retweets": 0}).
     Do(ctx)
   if err != nil {
