@@ -102,7 +102,7 @@ func (hl *Highlight) BoundaryMaxScan(boundaryMaxScan int) *Highlight {
 }
 
 func (hl *Highlight) BoundaryChars(boundaryChars string) *Highlight {
-	hl.boundaryChars = &boundaryChars //append(hl.boundaryChars, boundaryChars...)
+	hl.boundaryChars = &boundaryChars
 	return hl
 }
 
