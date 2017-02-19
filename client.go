@@ -23,7 +23,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "5.0.24"
+	Version = "5.0.25"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -217,10 +217,24 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		}
 	}
 
+	// Use a default URL and normalize them
 	if len(c.urls) == 0 {
 		c.urls = []string{DefaultURL}
 	}
 	c.urls = canonicalize(c.urls...)
+
+	// If the URLs have auth info, use them here as an alternative to SetBasicAuth
+	if !c.basicAuth {
+		for _, urlStr := range c.urls {
+			u, err := url.Parse(urlStr)
+			if err == nil && u.User != nil {
+				c.basicAuth = true
+				c.basicAuthUsername = u.User.Username()
+				c.basicAuthPassword, _ = u.User.Password()
+				break
+			}
+		}
+	}
 
 	// Check if we can make a request to any of the specified URLs
 	if c.healthcheckEnabled {
@@ -320,10 +334,24 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 		}
 	}
 
+	// Use a default URL and normalize them
 	if len(c.urls) == 0 {
 		c.urls = []string{DefaultURL}
 	}
 	c.urls = canonicalize(c.urls...)
+
+	// If the URLs have auth info, use them here as an alternative to SetBasicAuth
+	if !c.basicAuth {
+		for _, urlStr := range c.urls {
+			u, err := url.Parse(urlStr)
+			if err == nil && u.User != nil {
+				c.basicAuth = true
+				c.basicAuthUsername = u.User.Username()
+				c.basicAuthPassword, _ = u.User.Password()
+				break
+			}
+		}
+	}
 
 	for _, url := range c.urls {
 		c.conns = append(c.conns, newConn(url, url))

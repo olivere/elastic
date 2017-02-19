@@ -141,6 +141,22 @@ func TestClientWithBasicAuth(t *testing.T) {
 	}
 }
 
+func TestClientWithBasicAuthInUserInfo(t *testing.T) {
+	client, err := NewClient(SetURL("http://user1:secret1@localhost:9200", "http://user2:secret2@localhost:9200"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if client.basicAuth != true {
+		t.Errorf("expected basic auth; got: %v", client.basicAuth)
+	}
+	if got, want := client.basicAuthUsername, "user1"; got != want {
+		t.Errorf("expected basic auth username %q; got: %q", want, got)
+	}
+	if got, want := client.basicAuthPassword, "secret1"; got != want {
+		t.Errorf("expected basic auth password %q; got: %q", want, got)
+	}
+}
+
 func TestClientSniffSuccess(t *testing.T) {
 	client, err := NewClient(SetURL("http://127.0.0.1:19200", "http://127.0.0.1:9200"))
 	if err != nil {
