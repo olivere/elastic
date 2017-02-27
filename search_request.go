@@ -13,14 +13,15 @@ import (
 // query details (see SearchSource).
 // It is used in combination with MultiSearch.
 type SearchRequest struct {
-	searchType   string // default in ES is "query_then_fetch"
-	indices      []string
-	types        []string
-	routing      *string
-	preference   *string
-	requestCache *bool
-	scroll       string
-	source       interface{}
+	searchType        string // default in ES is "query_then_fetch"
+	indices           []string
+	types             []string
+	routing           *string
+	preference        *string
+	requestCache      *bool
+	ignoreUnavailable *bool
+	scroll            string
+	source            interface{}
 }
 
 // NewSearchRequest creates a new search request.
@@ -102,6 +103,11 @@ func (r *SearchRequest) RequestCache(requestCache bool) *SearchRequest {
 	return r
 }
 
+func (r *SearchRequest) IgnoreUnavailable(ia bool) *SearchRequest {
+	r.ignoreUnavailable = &ia
+	return r
+}
+
 func (r *SearchRequest) Scroll(scroll string) *SearchRequest {
 	r.scroll = scroll
 	return r
@@ -161,6 +167,10 @@ func (r *SearchRequest) header() interface{} {
 
 	if r.requestCache != nil {
 		h["request_cache"] = fmt.Sprintf("%v", *r.requestCache)
+	}
+
+	if r.ignoreUnavailable != nil {
+		h["ignore_unavailable"] = fmt.Sprintf("%v", *r.ignoreUnavailable)
 	}
 
 	if r.scroll != "" {
