@@ -20,6 +20,7 @@ type SearchSource struct {
 	version                  *bool
 	sorters                  []Sorter
 	trackScores              bool
+	searchAfterSortValues    []interface{}
 	minScore                 *float64
 	timeout                  string
 	terminateAfter           *int
@@ -152,6 +153,15 @@ func (s *SearchSource) hasSort() bool {
 // tracked as well. Defaults to false.
 func (s *SearchSource) TrackScores(trackScores bool) *SearchSource {
 	s.trackScores = trackScores
+	return s
+}
+
+// SearchAfter allows a different form of pagination by using a live cursor,
+// using the results of the previous page to help the retrieval of the next.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-request-search-after.html
+func (s *SearchSource) SearchAfter(sortValues ...interface{}) *SearchSource {
+	s.searchAfterSortValues = append(s.searchAfterSortValues, sortValues...)
 	return s
 }
 
@@ -384,6 +394,10 @@ func (s *SearchSource) Source() (interface{}, error) {
 
 	if s.trackScores {
 		source["track_scores"] = s.trackScores
+	}
+
+	if len(s.searchAfterSortValues) > 0 {
+		source["search_after"] = s.searchAfterSortValues
 	}
 
 	if len(s.indexBoosts) > 0 {

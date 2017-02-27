@@ -255,6 +255,15 @@ func (s *SearchService) StoredFields(fields ...string) *SearchService {
 	return s
 }
 
+// SearchAfter allows a different form of pagination by using a live cursor,
+// using the results of the previous page to help the retrieval of the next.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-request-search-after.html
+func (s *SearchService) SearchAfter(sortValues ...interface{}) *SearchService {
+	s.searchSource = s.searchSource.SearchAfter(sortValues...)
+	return s
+}
+
 // IgnoreUnavailable indicates whether the specified concrete indices
 // should be ignored when unavailable (missing or closed).
 func (s *SearchService) IgnoreUnavailable(ignoreUnavailable bool) *SearchService {

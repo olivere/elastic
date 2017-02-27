@@ -257,3 +257,21 @@ func TestSearchSourceInnerHits(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestSearchSourceSearchAfter(t *testing.T) {
+	matchAllQ := NewMatchAllQuery()
+	builder := NewSearchSource().Query(matchAllQ).SearchAfter(1463538857, "tweet#654323")
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"query":{"match_all":{}},"search_after":[1463538857,"tweet#654323"]}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
