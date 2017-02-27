@@ -36,6 +36,20 @@ func TestSearchRequestIndices(t *testing.T) {
 	}
 }
 
+func TestSearchRequestHasIgnoreUnavailable(t *testing.T) {
+	builder := NewSearchRequest().Index("test", "test2")
+	builder.IgnoreUnavailable(true)
+	data, err := json.Marshal(builder.header())
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"indices":["test","test2"],"ignore_unavailable":true}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestSearchRequestHasIndices(t *testing.T) {
 	builder := NewSearchRequest()
 	if builder.HasIndices() {
