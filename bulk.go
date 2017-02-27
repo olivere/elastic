@@ -234,6 +234,22 @@ func (r *BulkResponse) Deleted() []*BulkResponseItem {
 	return r.ByAction("delete")
 }
 
+// Errored returns all bulk request results that have failed
+func (r *BulkResponse) Errored() []*BulkResponseItem {
+	if r.Items == nil {
+		return nil
+	}
+	items := make([]*BulkResponseItem, 0)
+	for _, item := range r.Items {
+		for _, result := range item {
+			if 0 < len(result.Error) {
+				items = append(items, result)
+			}
+		}
+	}
+	return items
+}
+
 // ByAction returns all bulk request results of a certain action,
 // e.g. "index" or "delete".
 func (r *BulkResponse) ByAction(action string) []*BulkResponseItem {
