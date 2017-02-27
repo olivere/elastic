@@ -118,6 +118,23 @@ func TestHighlighterWithExplicitFieldOrder(t *testing.T) {
 	}
 }
 
+func TestHighlightWithBoundaryChars(t *testing.T) {
+	builder := NewHighlight().BoundaryChars(" \t\r")
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"boundary_chars":" \t\r"}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestHighlightWithTermQuery(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 

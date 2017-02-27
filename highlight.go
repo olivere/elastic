@@ -19,7 +19,7 @@ type Highlight struct {
 	encoder               *string
 	requireFieldMatch     *bool
 	boundaryMaxScan       *int
-	boundaryChars         []rune
+	boundaryChars         *string
 	highlighterType       *string
 	fragmenter            *string
 	highlightQuery        Query
@@ -32,11 +32,7 @@ type Highlight struct {
 
 func NewHighlight() *Highlight {
 	hl := &Highlight{
-		fields:        make([]*HighlighterField, 0),
-		preTags:       make([]string, 0),
-		postTags:      make([]string, 0),
-		boundaryChars: make([]rune, 0),
-		options:       make(map[string]interface{}),
+		options: make(map[string]interface{}),
 	}
 	return hl
 }
@@ -102,8 +98,8 @@ func (hl *Highlight) BoundaryMaxScan(boundaryMaxScan int) *Highlight {
 	return hl
 }
 
-func (hl *Highlight) BoundaryChars(boundaryChars ...rune) *Highlight {
-	hl.boundaryChars = append(hl.boundaryChars, boundaryChars...)
+func (hl *Highlight) BoundaryChars(boundaryChars string) *Highlight {
+	hl.boundaryChars = &boundaryChars
 	return hl
 }
 
@@ -179,8 +175,8 @@ func (hl *Highlight) Source() (interface{}, error) {
 	if hl.boundaryMaxScan != nil {
 		source["boundary_max_scan"] = *hl.boundaryMaxScan
 	}
-	if hl.boundaryChars != nil && len(hl.boundaryChars) > 0 {
-		source["boundary_chars"] = hl.boundaryChars
+	if hl.boundaryChars != nil {
+		source["boundary_chars"] = *hl.boundaryChars
 	}
 	if hl.highlighterType != nil {
 		source["type"] = *hl.highlighterType
