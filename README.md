@@ -131,7 +131,7 @@ _, err = client.Index().
     Type("tweet").
     Id("1").
     BodyJson(tweet).
-    Refresh(true).
+    Refresh("true").
     Do(ctx)
 if err != nil {
     // Handle error
