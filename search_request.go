@@ -1,34 +1,31 @@
-// Copyright 2012-2015 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
 package elastic
 
-import (
-	"fmt"
-	"strings"
-)
+import "strings"
 
 // SearchRequest combines a search request and its
 // query details (see SearchSource).
 // It is used in combination with MultiSearch.
 type SearchRequest struct {
-	searchType   string // default in ES is "query_then_fetch"
-	indices      []string
-	types        []string
-	routing      *string
-	preference   *string
-	requestCache *bool
-	scroll       string
-	source       interface{}
+	searchType        string // default in ES is "query_then_fetch"
+	indices           []string
+	types             []string
+	routing           *string
+	preference        *string
+	requestCache      *bool
+	ignoreUnavailable *bool
+	allowNoIndices    *bool
+	expandWildcards   string
+	scroll            string
+	source            interface{}
 }
 
 // NewSearchRequest creates a new search request.
 func NewSearchRequest() *SearchRequest {
-	return &SearchRequest{
-		indices: make([]string, 0),
-		types:   make([]string, 0),
-	}
+	return &SearchRequest{}
 }
 
 // SearchRequest must be one of "query_then_fetch", "query_and_fetch",
@@ -102,6 +99,27 @@ func (r *SearchRequest) RequestCache(requestCache bool) *SearchRequest {
 	return r
 }
 
+// IgnoreUnavailable indicates whether specified concrete indices should be
+// ignored when unavailable (missing or closed).
+func (s *SearchRequest) IgnoreUnavailable(ignoreUnavailable bool) *SearchRequest {
+	s.ignoreUnavailable = &ignoreUnavailable
+	return s
+}
+
+// AllowNoIndices indicates whether to ignore if a wildcard indices
+// expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified).
+func (s *SearchRequest) AllowNoIndices(allowNoIndices bool) *SearchRequest {
+	s.allowNoIndices = &allowNoIndices
+	return s
+}
+
+// ExpandWildcards indicates whether to expand wildcard expression to
+// concrete indices that are open, closed or both.
+func (s *SearchRequest) ExpandWildcards(expandWildcards string) *SearchRequest {
+	s.expandWildcards = expandWildcards
+	return s
+}
+
 func (r *SearchRequest) Scroll(scroll string) *SearchRequest {
 	r.scroll = scroll
 	return r
@@ -154,15 +172,21 @@ func (r *SearchRequest) header() interface{} {
 	if r.routing != nil && *r.routing != "" {
 		h["routing"] = *r.routing
 	}
-
 	if r.preference != nil && *r.preference != "" {
 		h["preference"] = *r.preference
 	}
-
 	if r.requestCache != nil {
-		h["request_cache"] = fmt.Sprintf("%v", *r.requestCache)
+		h["request_cache"] = *r.requestCache
 	}
-
+	if r.ignoreUnavailable != nil {
+		h["ignore_unavailable"] = *r.ignoreUnavailable
+	}
+	if r.allowNoIndices != nil {
+		h["allow_no_indices"] = *r.allowNoIndices
+	}
+	if r.expandWildcards != "" {
+		h["expand_wildcards"] = r.expandWildcards
+	}
 	if r.scroll != "" {
 		h["scroll"] = r.scroll
 	}
