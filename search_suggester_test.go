@@ -212,7 +212,7 @@ func TestCompletionSuggester(t *testing.T) {
 	}
 	mySuggestions, found := searchResult.Suggest[suggesterName]
 	if !found {
-		t.Errorf("expected to find SearchResult.Suggest[%s]; got false")
+		t.Errorf("expected to find SearchResult.Suggest[%s]; got false", suggesterName)
 	}
 	if mySuggestions == nil {
 		t.Errorf("expected SearchResult.Suggest[%s] != nil; got nil", suggesterName)
