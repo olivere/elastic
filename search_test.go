@@ -121,6 +121,20 @@ func TestSearchResultTotalHits(t *testing.T) {
 	}
 }
 
+func TestSearchResultWithProfiling(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+
+	all := NewMatchAllQuery()
+	searchResult, err := client.Search().Index(testIndexName).Query(all).Profile(true).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if searchResult.Profile == nil {
+		t.Fatal("Profiled MatchAll query did not return profiling data with results")
+	}
+}
+
 func TestSearchResultEach(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
