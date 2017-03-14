@@ -164,7 +164,7 @@ type NodesInfoNode struct {
 	Process *NodesInfoNodeProcess `json:"process"`
 
 	// JVM information, e.g. VM version.
-	JVM *NodesInfoNodeProcess `json:"jvm"`
+	JVM *NodesInfoNodeJVM `json:"jvm"`
 
 	// ThreadPool information.
 	ThreadPool *NodesInfoNodeThreadPool `json:"thread_pool"`
