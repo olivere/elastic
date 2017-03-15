@@ -23,9 +23,9 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.66"
+	Version = "3.0.67"
 
-	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
+	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
 	DefaultURL = "http://127.0.0.1:9200"
 
