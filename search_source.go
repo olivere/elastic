@@ -37,6 +37,7 @@ type SearchSource struct {
 	indexBoosts              map[string]float64
 	stats                    []string
 	innerHits                map[string]*InnerHit
+	profile                  bool
 }
 
 // NewSearchSource initializes a new SearchSource.
@@ -54,6 +55,13 @@ func NewSearchSource() *SearchSource {
 // Query sets the query to use with this search source.
 func (s *SearchSource) Query(query Query) *SearchSource {
 	s.query = query
+	return s
+}
+
+// Profile specifies that this search source should activate the
+// Profile API for queries made on it.
+func (s *SearchSource) Profile(profile bool) *SearchSource {
+	s.profile = profile
 	return s
 }
 
@@ -346,6 +354,9 @@ func (s *SearchSource) Source() (interface{}, error) {
 	}
 	if s.explain != nil {
 		source["explain"] = *s.explain
+	}
+	if s.profile {
+		source["profile"] = s.profile
 	}
 	if s.fetchSourceContext != nil {
 		src, err := s.fetchSourceContext.Source()
