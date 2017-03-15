@@ -60,8 +60,8 @@ func (s *SearchSource) Query(query Query) *SearchSource {
 
 // Profile specifies that this search source should activate the
 // Profile API for queries made on it.
-func (s *SearchSource) Profile(should bool) *SearchSource {
-	s.profile = should
+func (s *SearchSource) Profile(profile bool) *SearchSource {
+	s.profile = profile
 	return s
 }
 
