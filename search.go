@@ -91,6 +91,13 @@ func (s *SearchService) Timeout(timeout string) *SearchService {
 	return s
 }
 
+// Profile sets the Profile API flag on the search source.
+// A search executed by this service will return query profiling data too.
+func (s *SearchService) Profile(should bool) *SearchService {
+	s.searchSource.Profile(true)
+	return s
+}
+
 // TimeoutInMillis sets the timeout in milliseconds.
 func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
 	s.searchSource = s.searchSource.TimeoutInMillis(timeoutInMillis)
@@ -395,7 +402,8 @@ type SearchResult struct {
 	TimedOut     bool          `json:"timed_out"`    // true if the search timed out
 	//Error        string        `json:"error,omitempty"` // used in MultiSearch only
 	// TODO double-check that MultiGet now returns details error information
-	Error *ErrorDetails `json:"error,omitempty"` // only used in MultiGet
+	Error   *ErrorDetails  `json:"error,omitempty"`   // only used in MultiGet
+	Profile *SearchProfile `json:"profile,omitempty"` // profiling results, if optional Profile API was active for this search
 }
 
 // TotalHits is a convenience function to return the number of hits for
@@ -492,6 +500,46 @@ type SearchSuggestionOption struct {
 	Score  float64          `json:"_score"`
 	Source *json.RawMessage `json:"_source"`
 }
+
+// SearchProfile is a list of shard profiling data collected during
+// query execution in the "profile" section of a SearchResult
+type SearchProfile struct {
+	Shards []SearchShard `json:"shards"`
+}
+
+// SearchShard the profiling data for a single shard accessed during the search query or aggregation
+type SearchShard struct {
+	ID           string               `json:"id"`
+	Searches     []ShardProfileSearch `json:"searches"`
+	Aggregations []ProfiledQuery      `json:"aggregations"`
+}
+
+// ShardProfileSearch a map of profiling data from the search of a particular shard
+type ShardProfileSearch struct {
+	Query       []ProfiledQuery     `json:"query"`
+	RewriteTime int64               `json:"rewrite_time"`
+	Collector   []ProfiledCollector `json:"collector"`
+}
+
+// ProfiledQuery the query (or aggregation) section of a single shard's search profiling results
+type ProfiledQuery struct {
+	Type        string                 `json:"type"`
+	Description string                 `json:"description"`
+	Time        string                 `json:"time"`
+	Breakdown   ProfiledQueryBreakdown `json:"breakdown"`
+	Children    []ProfiledQuery        `json:"children"`
+}
+
+// ProfiledCollector the collector section of a single shard's search profiling results
+type ProfiledCollector struct {
+	Name     string              `json:"name"`
+	Reason   string              `json:"reason"`
+	Time     string              `json:"time"`
+	Children []ProfiledCollector `json:"children"`
+}
+
+// ProfiledQueryBreakdown a map of keys and integral metric values detailing timing of various operations
+type ProfiledQueryBreakdown map[string]int
 
 // Aggregations (see search_aggs.go)
 
