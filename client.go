@@ -1205,6 +1205,10 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 
 		// Get response
 		res, err := ctxhttp.Do(ctx, c.c, (*http.Request)(req))
+		if err == context.Canceled || err == context.DeadlineExceeded {
+			// Proceed, but don't mark the node as dead
+			return nil, err
+		}
 		if err != nil {
 			n++
 			wait, ok, rerr := c.retrier.Retry(ctx, n, (*http.Request)(req), res, err)
