@@ -4,9 +4,24 @@
 
 package elastic
 
+type OrderInfo struct {
+	Field     string
+	Ascending bool
+}
+
+func (info OrderInfo) Source() (interface{}, error) {
+	source := make(map[string]string)
+	if info.Ascending {
+		source[info.Field] = "asc"
+	} else {
+		source[info.Field] = "desc"
+	}
+	return source, nil
+}
+
 // TermsAggregation is a multi-bucket value source based aggregation
 // where buckets are dynamically built - one per unique value.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-terms-aggregation.html
+// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
 type TermsAggregation struct {
 	field           string
 	script          *Script
@@ -31,6 +46,7 @@ type TermsAggregation struct {
 	showTermDocCountError *bool
 	includeTerms          []string
 	excludeTerms          []string
+	orderer               []OrderInfo
 }
 
 func NewTermsAggregation() *TermsAggregation {
@@ -122,15 +138,13 @@ func (a *TermsAggregation) ValueType(valueType string) *TermsAggregation {
 }
 
 func (a *TermsAggregation) Order(order string, asc bool) *TermsAggregation {
-	a.order = order
-	a.orderAsc = asc
+	a.orderer = append(a.orderer, OrderInfo{Field: order, Ascending: asc})
 	return a
 }
 
 func (a *TermsAggregation) OrderByCount(asc bool) *TermsAggregation {
 	// "order" : { "_count" : "asc" }
-	a.order = "_count"
-	a.orderAsc = asc
+	a.orderer = append(a.orderer, OrderInfo{Field: "_count", Ascending: asc})
 	return a
 }
 
@@ -144,8 +158,7 @@ func (a *TermsAggregation) OrderByCountDesc() *TermsAggregation {
 
 func (a *TermsAggregation) OrderByTerm(asc bool) *TermsAggregation {
 	// "order" : { "_term" : "asc" }
-	a.order = "_term"
-	a.orderAsc = asc
+	a.orderer = append(a.orderer, OrderInfo{Field: "_term", Ascending: asc})
 	return a
 }
 
@@ -173,8 +186,7 @@ func (a *TermsAggregation) OrderByAggregation(aggName string, asc bool) *TermsAg
 	//         }
 	//     }
 	// }
-	a.order = aggName
-	a.orderAsc = asc
+	a.orderer = append(a.orderer, OrderInfo{Field: aggName, Ascending: asc})
 	return a
 }
 
@@ -194,8 +206,7 @@ func (a *TermsAggregation) OrderByAggregationAndMetric(aggName, metric string, a
 	//         }
 	//     }
 	// }
-	a.order = aggName + "." + metric
-	a.orderAsc = asc
+	a.orderer = append(a.orderer, OrderInfo{Field: aggName + "." + metric, Ascending: asc})
 	return a
 }
 
@@ -280,14 +291,16 @@ func (a *TermsAggregation) Source() (interface{}, error) {
 	if a.valueType != "" {
 		opts["value_type"] = a.valueType
 	}
-	if a.order != "" {
-		o := make(map[string]interface{})
-		if a.orderAsc {
-			o[a.order] = "asc"
-		} else {
-			o[a.order] = "desc"
+	if len(a.orderer) > 0 {
+		var orderarr []interface{}
+		for _, orderer := range a.orderer {
+			src, err := orderer.Source()
+			if err != nil {
+				return nil, err
+			}
+			orderarr = append(orderarr, src)
 		}
-		opts["order"] = o
+		opts["order"] = orderarr
 	}
 	if len(a.includeTerms) > 0 {
 		opts["include"] = a.includeTerms
