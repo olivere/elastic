@@ -188,7 +188,7 @@ func (r *BulkUpdateRequest) getSourceAsString(data interface{}) (string, error) 
 // split into an action-and-meta-data line and an (optional) source line.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-bulk.html
 // for details.
-func (r BulkUpdateRequest) Source() ([]string, error) {
+func (r *BulkUpdateRequest) Source() ([]string, error) {
 	// { "update" : { "_index" : "test", "_type" : "type1", "_id" : "1", ... } }
 	// { "doc" : { "field1" : "value1", ... } }
 	// or
