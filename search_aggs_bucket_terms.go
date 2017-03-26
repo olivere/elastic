@@ -6,7 +6,7 @@ package elastic
 
 // TermsAggregation is a multi-bucket value source based aggregation
 // where buckets are dynamically built - one per unique value.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-terms-aggregation.html
+// See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
 type TermsAggregation struct {
 	field           string
 	script          *Script
@@ -20,8 +20,6 @@ type TermsAggregation struct {
 	minDocCount           *int
 	shardMinDocCount      *int
 	valueType             string
-	order                 string
-	orderAsc              bool
 	includePattern        string
 	includeFlags          *int
 	excludePattern        string
@@ -31,13 +29,12 @@ type TermsAggregation struct {
 	showTermDocCountError *bool
 	includeTerms          []string
 	excludeTerms          []string
+	order                 []TermsOrder
 }
 
 func NewTermsAggregation() *TermsAggregation {
 	return &TermsAggregation{
 		subAggregations: make(map[string]Aggregation, 0),
-		includeTerms:    make([]string, 0),
-		excludeTerms:    make([]string, 0),
 	}
 }
 
@@ -122,15 +119,13 @@ func (a *TermsAggregation) ValueType(valueType string) *TermsAggregation {
 }
 
 func (a *TermsAggregation) Order(order string, asc bool) *TermsAggregation {
-	a.order = order
-	a.orderAsc = asc
+	a.order = append(a.order, TermsOrder{Field: order, Ascending: asc})
 	return a
 }
 
 func (a *TermsAggregation) OrderByCount(asc bool) *TermsAggregation {
 	// "order" : { "_count" : "asc" }
-	a.order = "_count"
-	a.orderAsc = asc
+	a.order = append(a.order, TermsOrder{Field: "_count", Ascending: asc})
 	return a
 }
 
@@ -144,8 +139,7 @@ func (a *TermsAggregation) OrderByCountDesc() *TermsAggregation {
 
 func (a *TermsAggregation) OrderByTerm(asc bool) *TermsAggregation {
 	// "order" : { "_term" : "asc" }
-	a.order = "_term"
-	a.orderAsc = asc
+	a.order = append(a.order, TermsOrder{Field: "_term", Ascending: asc})
 	return a
 }
 
@@ -173,8 +167,7 @@ func (a *TermsAggregation) OrderByAggregation(aggName string, asc bool) *TermsAg
 	//         }
 	//     }
 	// }
-	a.order = aggName
-	a.orderAsc = asc
+	a.order = append(a.order, TermsOrder{Field: aggName, Ascending: asc})
 	return a
 }
 
@@ -194,8 +187,7 @@ func (a *TermsAggregation) OrderByAggregationAndMetric(aggName, metric string, a
 	//         }
 	//     }
 	// }
-	a.order = aggName + "." + metric
-	a.orderAsc = asc
+	a.order = append(a.order, TermsOrder{Field: aggName + "." + metric, Ascending: asc})
 	return a
 }
 
@@ -280,14 +272,16 @@ func (a *TermsAggregation) Source() (interface{}, error) {
 	if a.valueType != "" {
 		opts["value_type"] = a.valueType
 	}
-	if a.order != "" {
-		o := make(map[string]interface{})
-		if a.orderAsc {
-			o[a.order] = "asc"
-		} else {
-			o[a.order] = "desc"
+	if len(a.order) > 0 {
+		var orderSlice []interface{}
+		for _, order := range a.order {
+			src, err := order.Source()
+			if err != nil {
+				return nil, err
+			}
+			orderSlice = append(orderSlice, src)
 		}
-		opts["order"] = o
+		opts["order"] = orderSlice
 	}
 	if len(a.includeTerms) > 0 {
 		opts["include"] = a.includeTerms
@@ -337,5 +331,22 @@ func (a *TermsAggregation) Source() (interface{}, error) {
 		source["meta"] = a.meta
 	}
 
+	return source, nil
+}
+
+// TermsOrder specifies a single order field for a terms aggregation.
+type TermsOrder struct {
+	Field     string
+	Ascending bool
+}
+
+// Source returns serializable JSON of the TermsOrder.
+func (order *TermsOrder) Source() (interface{}, error) {
+	source := make(map[string]string)
+	if order.Ascending {
+		source[order.Field] = "asc"
+	} else {
+		source[order.Field] = "desc"
+	}
 	return source, nil
 }

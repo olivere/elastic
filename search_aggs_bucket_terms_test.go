@@ -20,7 +20,7 @@ func TestTermsAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"terms":{"field":"gender","order":{"_term":"desc"},"size":10}}`
+	expected := `{"terms":{"field":"gender","order":[{"_term":"desc"}],"size":10}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -40,7 +40,7 @@ func TestTermsAggregationWithSubAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"aggregations":{"avg_height":{"avg":{"field":"height"}}},"terms":{"field":"gender","order":{"avg_height":"desc"},"size":10}}`
+	expected := `{"aggregations":{"avg_height":{"avg":{"field":"height"}}},"terms":{"field":"gender","order":[{"avg_height":"desc"}],"size":10}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -62,7 +62,7 @@ func TestTermsAggregationWithMultipleSubAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"aggregations":{"avg_height":{"avg":{"field":"height"}},"avg_width":{"avg":{"field":"width"}}},"terms":{"field":"gender","order":{"avg_height":"desc"},"size":10}}`
+	expected := `{"aggregations":{"avg_height":{"avg":{"field":"height"}},"avg_width":{"avg":{"field":"width"}}},"terms":{"field":"gender","order":[{"avg_height":"desc"}],"size":10}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -80,7 +80,7 @@ func TestTermsAggregationWithMetaData(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"meta":{"name":"Oliver"},"terms":{"field":"gender","order":{"_term":"desc"},"size":10}}`
+	expected := `{"meta":{"name":"Oliver"},"terms":{"field":"gender","order":[{"_term":"desc"}],"size":10}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
