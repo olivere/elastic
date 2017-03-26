@@ -23,7 +23,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.66"
+	Version = "3.0.67"
 
 	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1187,6 +1187,10 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 			res, err = c.c.Do((*http.Request)(req))
 		} else {
 			res, err = ctxhttp.Do(ctx, c.c, (*http.Request)(req))
+		}
+		if err == context.Canceled || err == context.DeadlineExceeded {
+			// Proceed, but don't mark the node as dead
+			return nil, err
 		}
 		if err != nil {
 			n++
