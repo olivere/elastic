@@ -4,21 +4,6 @@
 
 package elastic
 
-type OrderInfo struct {
-	Field     string
-	Ascending bool
-}
-
-func (info OrderInfo) Source() (interface{}, error) {
-	source := make(map[string]string)
-	if info.Ascending {
-		source[info.Field] = "asc"
-	} else {
-		source[info.Field] = "desc"
-	}
-	return source, nil
-}
-
 // TermsAggregation is a multi-bucket value source based aggregation
 // where buckets are dynamically built - one per unique value.
 // See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
@@ -35,8 +20,6 @@ type TermsAggregation struct {
 	minDocCount           *int
 	shardMinDocCount      *int
 	valueType             string
-	order                 string
-	orderAsc              bool
 	includePattern        string
 	includeFlags          *int
 	excludePattern        string
@@ -46,14 +29,12 @@ type TermsAggregation struct {
 	showTermDocCountError *bool
 	includeTerms          []string
 	excludeTerms          []string
-	orderer               []OrderInfo
+	order                 []TermsOrder
 }
 
 func NewTermsAggregation() *TermsAggregation {
 	return &TermsAggregation{
 		subAggregations: make(map[string]Aggregation, 0),
-		includeTerms:    make([]string, 0),
-		excludeTerms:    make([]string, 0),
 	}
 }
 
@@ -138,13 +119,13 @@ func (a *TermsAggregation) ValueType(valueType string) *TermsAggregation {
 }
 
 func (a *TermsAggregation) Order(order string, asc bool) *TermsAggregation {
-	a.orderer = append(a.orderer, OrderInfo{Field: order, Ascending: asc})
+	a.order = append(a.order, TermsOrder{Field: order, Ascending: asc})
 	return a
 }
 
 func (a *TermsAggregation) OrderByCount(asc bool) *TermsAggregation {
 	// "order" : { "_count" : "asc" }
-	a.orderer = append(a.orderer, OrderInfo{Field: "_count", Ascending: asc})
+	a.order = append(a.order, TermsOrder{Field: "_count", Ascending: asc})
 	return a
 }
 
@@ -158,7 +139,7 @@ func (a *TermsAggregation) OrderByCountDesc() *TermsAggregation {
 
 func (a *TermsAggregation) OrderByTerm(asc bool) *TermsAggregation {
 	// "order" : { "_term" : "asc" }
-	a.orderer = append(a.orderer, OrderInfo{Field: "_term", Ascending: asc})
+	a.order = append(a.order, TermsOrder{Field: "_term", Ascending: asc})
 	return a
 }
 
@@ -186,7 +167,7 @@ func (a *TermsAggregation) OrderByAggregation(aggName string, asc bool) *TermsAg
 	//         }
 	//     }
 	// }
-	a.orderer = append(a.orderer, OrderInfo{Field: aggName, Ascending: asc})
+	a.order = append(a.order, TermsOrder{Field: aggName, Ascending: asc})
 	return a
 }
 
@@ -206,7 +187,7 @@ func (a *TermsAggregation) OrderByAggregationAndMetric(aggName, metric string, a
 	//         }
 	//     }
 	// }
-	a.orderer = append(a.orderer, OrderInfo{Field: aggName + "." + metric, Ascending: asc})
+	a.order = append(a.order, TermsOrder{Field: aggName + "." + metric, Ascending: asc})
 	return a
 }
 
@@ -291,16 +272,16 @@ func (a *TermsAggregation) Source() (interface{}, error) {
 	if a.valueType != "" {
 		opts["value_type"] = a.valueType
 	}
-	if len(a.orderer) > 0 {
-		var orderarr []interface{}
-		for _, orderer := range a.orderer {
-			src, err := orderer.Source()
+	if len(a.order) > 0 {
+		var orderSlice []interface{}
+		for _, order := range a.order {
+			src, err := order.Source()
 			if err != nil {
 				return nil, err
 			}
-			orderarr = append(orderarr, src)
+			orderSlice = append(orderSlice, src)
 		}
-		opts["order"] = orderarr
+		opts["order"] = orderSlice
 	}
 	if len(a.includeTerms) > 0 {
 		opts["include"] = a.includeTerms
@@ -350,5 +331,22 @@ func (a *TermsAggregation) Source() (interface{}, error) {
 		source["meta"] = a.meta
 	}
 
+	return source, nil
+}
+
+// TermsOrder specifies a single order field for a terms aggregation.
+type TermsOrder struct {
+	Field     string
+	Ascending bool
+}
+
+// Source returns serializable JSON of the TermsOrder.
+func (order *TermsOrder) Source() (interface{}, error) {
+	source := make(map[string]string)
+	if order.Ascending {
+		source[order.Field] = "asc"
+	} else {
+		source[order.Field] = "desc"
+	}
 	return source, nil
 }
