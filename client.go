@@ -452,15 +452,15 @@ func SetHealthcheckInterval(interval time.Duration) ClientOptionFunc {
 	}
 }
 
-// SetMaxRetries sets the maximum number of retries before giving up when
-// performing a HTTP request to Elasticsearch.
+// SetMaxRetries sets the maximum number of Elastic HTTP requests per one
+// client request before giving up when ES returns an error.
 func SetMaxRetries(maxRetries int) ClientOptionFunc {
 	return func(c *Client) error {
 		if maxRetries < 0 {
 			return errors.New("MaxRetries must be greater than or equal to 0")
 		}
 		c.doRetryFunc = func(i int) bool {
-			return i <= maxRetries
+			return i < maxRetries
 		}
 		return nil
 	}
