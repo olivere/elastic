@@ -1051,7 +1051,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 				// Force a healtcheck as all connections seem to be dead.
 				c.healthcheck(timeout, false)
 			}
-			wait, ok, rerr := c.retrier.Retry(ctx, n, nil, nil, err)
+			wait, ok, rerr := c.retrier.Retry(n, nil, nil, err)
 			if rerr != nil {
 				return nil, rerr
 			}
@@ -1093,7 +1093,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		res, err := c.c.Do((*http.Request)(req))
 		if err != nil {
 			n++
-			wait, ok, rerr := c.retrier.Retry(ctx, n, (*http.Request)(req), res, err)
+			wait, ok, rerr := c.retrier.Retry(n, (*http.Request)(req), res, err)
 			if rerr != nil {
 				c.errorf("elastic: %s is dead", conn.URL())
 				conn.MarkAsDead()

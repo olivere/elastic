@@ -7,12 +7,10 @@ package elastic
 import (
 	"net/http"
 	"time"
-
-	"golang.org/x/net/context"
 )
 
 // RetrierFunc specifies the signature of a Retry function.
-type RetrierFunc func(context.Context, int, *http.Request, *http.Response, error) (time.Duration, bool, error)
+type RetrierFunc func(int, *http.Request, *http.Response, error) (time.Duration, bool, error)
 
 // Retrier decides whether to retry a failed HTTP request with Elasticsearch.
 type Retrier interface {
@@ -24,7 +22,7 @@ type Retrier interface {
 	// Callers may also use this to inspect the HTTP request/response and
 	// the error that happened. Additional data can be passed through via
 	// the context.
-	Retry(ctx context.Context, retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error)
+	Retry(retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error)
 }
 
 // -- StopRetrier --
@@ -39,7 +37,7 @@ func NewStopRetrier() *StopRetrier {
 }
 
 // Retry does not retry.
-func (r *StopRetrier) Retry(ctx context.Context, retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error) {
+func (r *StopRetrier) Retry(retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error) {
 	return 0, false, nil
 }
 
@@ -56,7 +54,7 @@ func NewBackoffRetrier(backoff Backoff) *BackoffRetrier {
 }
 
 // Retry calls into the backoff strategy and its wait interval.
-func (r *BackoffRetrier) Retry(ctx context.Context, retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error) {
+func (r *BackoffRetrier) Retry(retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error) {
 	wait, goahead := r.backoff.Next(retry)
 	return wait, goahead, nil
 }

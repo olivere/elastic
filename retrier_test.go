@@ -10,8 +10,6 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
-
-	"golang.org/x/net/context"
 )
 
 type testRetrier struct {
@@ -20,17 +18,17 @@ type testRetrier struct {
 	Err error
 }
 
-func (r *testRetrier) Retry(ctx context.Context, retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error) {
+func (r *testRetrier) Retry(retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error) {
 	atomic.AddInt64(&r.N, 1)
 	if r.Err != nil {
 		return 0, false, r.Err
 	}
-	return r.Retrier.Retry(ctx, retry, req, resp, err)
+	return r.Retrier.Retry(retry, req, resp, err)
 }
 
 func TestStopRetrier(t *testing.T) {
 	r := NewStopRetrier()
-	wait, ok, err := r.Retry(context.TODO(), 1, nil, nil, nil)
+	wait, ok, err := r.Retry(1, nil, nil, nil)
 	if want, got := 0*time.Second, wait; want != got {
 		t.Fatalf("expected %v, got %v", want, got)
 	}
@@ -66,7 +64,7 @@ func TestRetrier(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequestC(context.TODO(), "GET", "/fail", nil, nil)
+	res, err := client.PerformRequest("GET", "/fail", nil, nil)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -108,9 +106,9 @@ func TestRetrierWithError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequestC(context.TODO(), "GET", "/fail", nil, nil)
+	res, err := client.PerformRequest("GET", "/fail", nil, nil)
 	if err != kaboom {
-		t.Fatal("expected %v, got %v", kaboom, err)
+		t.Fatalf("expected %v, got %v", kaboom, err)
 	}
 	if res != nil {
 		t.Fatal("expected no response")
