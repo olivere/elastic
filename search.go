@@ -497,7 +497,7 @@ type SearchSuggestionOption struct {
 	Index  string           `json:"_index"`
 	Type   string           `json:"_type"`
 	Id     string           `json:"_id"`
-	Score  float64          `json:"_score"`
+	Score  float64          `json:"score"`
 	Source *json.RawMessage `json:"_source"`
 }
 
