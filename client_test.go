@@ -773,6 +773,41 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 	}
 }
 
+func TestPerformRequestRetryViaFuncOnHttpError(t *testing.T) {
+	var numFailedReqs int
+	fail := func(r *http.Request) (*http.Response, error) {
+		numFailedReqs++
+		//return &http.Response{Request: r, StatusCode: 400}, nil
+		return nil, errors.New("request failed")
+	}
+
+	// Run against a failing endpoint and see if PerformRequest
+	// retries correctly.
+	tr := &failingTransport{path: "/fail", fail: fail}
+	httpClient := &http.Client{Transport: tr}
+
+	retryFunc := func(i int) bool {
+		return i < 5
+	}
+
+	client, err := NewClient(SetHttpClient(httpClient), SetRetryFunc(retryFunc), SetHealthcheck(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := client.PerformRequest("GET", "/fail", nil, nil)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if res != nil {
+		t.Fatal("expected no response")
+	}
+	// Connection should be marked as dead after it failed
+	if numFailedReqs != 5 {
+		t.Errorf("expected %d failed requests; got: %d", 5, numFailedReqs)
+	}
+}
+
 func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 	var numFailedReqs int
 	fail := func(r *http.Request) (*http.Response, error) {
