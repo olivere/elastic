@@ -23,7 +23,7 @@ const (
 	// Version is the current version of Elastic.
 	Version = "2.0.57"
 
-	// DefaultUrl is the default endpoint of Elasticsearch on the local machine.
+	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
 	DefaultURL = "http://127.0.0.1:9200"
 
@@ -67,11 +67,6 @@ const (
 	// process, DefaultSnifferTimeoutStartup is used.
 	DefaultSnifferTimeout = 2 * time.Second
 
-	// DefaultMaxRetries is the number of retries for a single request after
-	// Elastic will give up and return an error. It is zero by default, so
-	// retry is disabled by default.
-	DefaultMaxRetries = 0
-
 	// DefaultSendGetBodyAs is the HTTP method to use when elastic is sending
 	// a GET request with a body.
 	DefaultSendGetBodyAs = "GET"
@@ -84,6 +79,13 @@ const (
 )
 
 var (
+	// DefaultMaxRetriesFunc is the function that decides if a retry should be
+	// performed for a single request after Elastic gives up and returns an error.
+	// Retry is disabled by default (i.e. function always returns false).
+	DefaultMaxRetriesFunc = func(int) bool {
+		return false
+	}
+
 	// ErrNoClient is raised when no Elasticsearch node is available.
 	ErrNoClient = errors.New("no Elasticsearch node available")
 
@@ -108,30 +110,30 @@ type Client struct {
 	conns   []*conn      // all connections
 	cindex  int          // index into conns
 
-	mu                        sync.RWMutex  // guards the next block
-	urls                      []string      // set of URLs passed initially to the client
-	running                   bool          // true if the client's background processes are running
-	errorlog                  Logger        // error log for critical messages
-	infolog                   Logger        // information log for e.g. response times
-	tracelog                  Logger        // trace log for debugging
-	maxRetries                int           // max. number of retries
-	scheme                    string        // http or https
-	healthcheckEnabled        bool          // healthchecks enabled or disabled
-	healthcheckTimeoutStartup time.Duration // time the healthcheck waits for a response from Elasticsearch on startup
-	healthcheckTimeout        time.Duration // time the healthcheck waits for a response from Elasticsearch
-	healthcheckInterval       time.Duration // interval between healthchecks
-	healthcheckStop           chan bool     // notify healthchecker to stop, and notify back
-	snifferEnabled            bool          // sniffer enabled or disabled
-	snifferTimeoutStartup     time.Duration // time the sniffer waits for a response from nodes info API on startup
-	snifferTimeout            time.Duration // time the sniffer waits for a response from nodes info API
-	snifferInterval           time.Duration // interval between sniffing
-	snifferStop               chan bool     // notify sniffer to stop, and notify back
-	decoder                   Decoder       // used to decode data sent from Elasticsearch
-	basicAuth                 bool          // indicates whether to send HTTP Basic Auth credentials
-	basicAuthUsername         string        // username for HTTP Basic Auth
-	basicAuthPassword         string        // password for HTTP Basic Auth
-	sendGetBodyAs             string        // override for when sending a GET with a body
-	gzipEnabled               bool          // gzip compression enabled or disabled (default)
+	mu                        sync.RWMutex   // guards the next block
+	urls                      []string       // set of URLs passed initially to the client
+	running                   bool           // true if the client's background processes are running
+	errorlog                  Logger         // error log for critical messages
+	infolog                   Logger         // information log for e.g. response times
+	tracelog                  Logger         // trace log for debugging
+	doRetryFunc               func(int) bool // function that decides if retry should be performed
+	scheme                    string         // http or https
+	healthcheckEnabled        bool           // healthchecks enabled or disabled
+	healthcheckTimeoutStartup time.Duration  // time the healthcheck waits for a response from Elasticsearch on startup
+	healthcheckTimeout        time.Duration  // time the healthcheck waits for a response from Elasticsearch
+	healthcheckInterval       time.Duration  // interval between healthchecks
+	healthcheckStop           chan bool      // notify healthchecker to stop, and notify back
+	snifferEnabled            bool           // sniffer enabled or disabled
+	snifferTimeoutStartup     time.Duration  // time the sniffer waits for a response from nodes info API on startup
+	snifferTimeout            time.Duration  // time the sniffer waits for a response from nodes info API
+	snifferInterval           time.Duration  // interval between sniffing
+	snifferStop               chan bool      // notify sniffer to stop, and notify back
+	decoder                   Decoder        // used to decode data sent from Elasticsearch
+	basicAuth                 bool           // indicates whether to send HTTP Basic Auth credentials
+	basicAuthUsername         string         // username for HTTP Basic Auth
+	basicAuthPassword         string         // password for HTTP Basic Auth
+	sendGetBodyAs             string         // override for when sending a GET with a body
+	gzipEnabled               bool           // gzip compression enabled or disabled (default)
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -190,7 +192,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		cindex:                    -1,
 		scheme:                    DefaultScheme,
 		decoder:                   &DefaultDecoder{},
-		maxRetries:                DefaultMaxRetries,
+		doRetryFunc:               DefaultMaxRetriesFunc,
 		healthcheckEnabled:        DefaultHealthcheckEnabled,
 		healthcheckTimeoutStartup: DefaultHealthcheckTimeoutStartup,
 		healthcheckTimeout:        DefaultHealthcheckTimeout,
@@ -280,7 +282,7 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 		cindex:                    -1,
 		scheme:                    DefaultScheme,
 		decoder:                   &DefaultDecoder{},
-		maxRetries:                1,
+		doRetryFunc:               func(i int) bool { return i <= 1 },
 		healthcheckEnabled:        false,
 		healthcheckTimeoutStartup: off,
 		healthcheckTimeout:        off,
@@ -457,7 +459,20 @@ func SetMaxRetries(maxRetries int) ClientOptionFunc {
 		if maxRetries < 0 {
 			return errors.New("MaxRetries must be greater than or equal to 0")
 		}
-		c.maxRetries = maxRetries
+		c.doRetryFunc = func(i int) bool {
+			return i <= maxRetries
+		}
+		return nil
+	}
+}
+
+// SetMaxRetriesFunc sets a function that decides if we should retry the
+// request after ES gives up and returns an error.
+// Function should accept int showing how many retries were already attempted,
+// starting from 1 (i.e. one request have been made).
+func SetMaxRetriesFunc(retriesFunc func(int) bool) ClientOptionFunc {
+	return func(c *Client) error {
+		c.doRetryFunc = retriesFunc
 		return nil
 	}
 }
@@ -993,7 +1008,6 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 
 	c.mu.RLock()
 	timeout := c.healthcheckTimeout
-	retries := c.maxRetries
 	basicAuth := c.basicAuth
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
@@ -1005,7 +1019,6 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	var conn *conn
 	var req *Request
 	var resp *Response
-	var retried bool
 
 	// We wait between retries, using simple exponential back-off.
 	// TODO: Make this configurable, including the jitter.
@@ -1016,7 +1029,9 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		method = sendGetBodyAs
 	}
 
+	triesMade := 0
 	for {
+		triesMade++
 		pathWithParams := path
 		if len(params) > 0 {
 			pathWithParams += "?" + params.Encode()
@@ -1025,15 +1040,15 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		// Get a connection
 		conn, err = c.next()
 		if err == ErrNoClient {
-			if !retried {
+			if triesMade > 1 {
 				// Force a healtcheck as all connections seem to be dead.
 				c.healthcheck(timeout, false)
 			}
-			retries -= 1
-			if retries <= 0 {
+
+			doRetry := c.doRetryFunc(triesMade)
+			if !doRetry {
 				return nil, err
 			}
-			retried = true
 			time.Sleep(time.Duration(retryWaitMsec) * time.Millisecond)
 			retryWaitMsec += retryWaitMsec
 			continue // try again
@@ -1068,13 +1083,12 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 		// Get response
 		res, err := c.c.Do((*http.Request)(req))
 		if err != nil {
-			retries -= 1
-			if retries <= 0 {
+			doRetry := c.doRetryFunc(triesMade)
+			if !doRetry {
 				c.errorf("elastic: %s is dead", conn.URL())
 				conn.MarkAsDead()
 				return nil, err
 			}
-			retried = true
 			time.Sleep(time.Duration(retryWaitMsec) * time.Millisecond)
 			retryWaitMsec += retryWaitMsec
 			continue // try again
