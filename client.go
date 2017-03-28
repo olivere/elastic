@@ -79,10 +79,10 @@ const (
 )
 
 var (
-	// DefaultMaxRetriesFunc is the function that decides if a retry should be
+	// DefaultRetryFunc is the function that decides if a retry should be
 	// performed for a single request after Elastic gives up and returns an error.
 	// Retry is disabled by default (i.e. function always returns false).
-	DefaultMaxRetriesFunc = func(int) bool {
+	DefaultRetryFunc = func(int) bool {
 		return false
 	}
 
@@ -192,7 +192,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		cindex:                    -1,
 		scheme:                    DefaultScheme,
 		decoder:                   &DefaultDecoder{},
-		doRetryFunc:               DefaultMaxRetriesFunc,
+		doRetryFunc:               DefaultRetryFunc,
 		healthcheckEnabled:        DefaultHealthcheckEnabled,
 		healthcheckTimeoutStartup: DefaultHealthcheckTimeoutStartup,
 		healthcheckTimeout:        DefaultHealthcheckTimeout,
@@ -466,11 +466,11 @@ func SetMaxRetries(maxRetries int) ClientOptionFunc {
 	}
 }
 
-// SetMaxRetriesFunc sets a function that decides if we should retry the
+// SetRetryFunc sets a function that decides if we should retry the
 // request after ES gives up and returns an error.
 // Function should accept int showing how many retries were already attempted,
 // starting from 1 (i.e. one request have been made).
-func SetMaxRetriesFunc(retriesFunc func(int) bool) ClientOptionFunc {
+func SetRetryFunc(retriesFunc func(int) bool) ClientOptionFunc {
 	return func(c *Client) error {
 		c.doRetryFunc = retriesFunc
 		return nil
