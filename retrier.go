@@ -20,8 +20,7 @@ type Retrier interface {
 	// request in the first place).
 	//
 	// Callers may also use this to inspect the HTTP request/response and
-	// the error that happened. Additional data can be passed through via
-	// the context.
+	// the error that happened.
 	Retry(retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error)
 }
 
