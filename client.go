@@ -1282,6 +1282,11 @@ func (c *Client) Update() *UpdateService {
 	return NewUpdateService(c)
 }
 
+// Replace a document.
+func (c *Client) Put() *PutService {
+	return NewPutService(c)
+}
+
 // UpdateByQuery performs an update on a set of documents.
 func (c *Client) UpdateByQuery(indices ...string) *UpdateByQueryService {
 	return NewUpdateByQueryService(c).Index(indices...)
