@@ -15,6 +15,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"golang.org/x/net/context"
 )
 
 func findConn(s string, slice ...*conn) (int, bool) {
@@ -770,6 +772,20 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 	// Connection should be marked as dead after it failed
 	if numFailedReqs != 5 {
 		t.Errorf("expected %d failed requests; got: %d", 5, numFailedReqs)
+	}
+}
+
+func TestPerformRequestCancelContext(t *testing.T) {
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	cancelFunc()
+
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.PerformRequestC(ctx, "GET", "/", nil, nil)
+	if err != context.Canceled {
+		t.Fatal("expected to return ctx Cancelled error")
 	}
 }
 
