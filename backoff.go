@@ -67,7 +67,6 @@ func (b *ConstantBackoff) Next(retry int) (time.Duration, bool) {
 // ExponentialBackoff implements the simple exponential backoff described by
 // Douglas Thain at http://dthain.blogspot.de/2009/02/exponential-backoff-in-distributed.html.
 type ExponentialBackoff struct {
-	sync.Mutex
 	t float64 // initial timeout (in msec)
 	f float64 // exponential factor (e.g. 2)
 	m float64 // maximum timeout (in msec)
@@ -86,9 +85,6 @@ func NewExponentialBackoff(initialTimeout, maxTimeout time.Duration) *Exponentia
 
 // Next implements BackoffFunc for ExponentialBackoff.
 func (b *ExponentialBackoff) Next(retry int) (time.Duration, bool) {
-	b.Lock()
-	defer b.Unlock()
-
 	r := 1.0 + rand.Float64() // random number in [1..2]
 	m := math.Min(r*b.t*math.Pow(b.f, float64(retry)), b.m)
 	if m >= b.m {
