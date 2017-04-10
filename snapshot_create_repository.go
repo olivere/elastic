@@ -1,4 +1,4 @@
-// Copyright 2012-2017 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -13,7 +13,9 @@ import (
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
-// SnapshotCreateRepositoryService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.x/modules-snapshots.html.
+// SnapshotCreateRepositoryService creates a snapshot repository.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.3/modules-snapshots.html
+// for details.
 type SnapshotCreateRepositoryService struct {
 	client        *Client
 	pretty        bool
@@ -21,6 +23,8 @@ type SnapshotCreateRepositoryService struct {
 	masterTimeout string
 	timeout       string
 	verify        *bool
+	typ           string
+	settings      map[string]interface{}
 	bodyJson      interface{}
 	bodyString    string
 }
@@ -32,25 +36,25 @@ func NewSnapshotCreateRepositoryService(client *Client) *SnapshotCreateRepositor
 	}
 }
 
-// Repository is documented as: A repository name.
+// Repository is the repository name.
 func (s *SnapshotCreateRepositoryService) Repository(repository string) *SnapshotCreateRepositoryService {
 	s.repository = repository
 	return s
 }
 
-// MasterTimeout is documented as: Explicit operation timeout for connection to master node.
+// MasterTimeout specifies an explicit operation timeout for connection to master node.
 func (s *SnapshotCreateRepositoryService) MasterTimeout(masterTimeout string) *SnapshotCreateRepositoryService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
-// Timeout is documented as: Explicit operation timeout.
+// Timeout is an explicit operation timeout.
 func (s *SnapshotCreateRepositoryService) Timeout(timeout string) *SnapshotCreateRepositoryService {
 	s.timeout = timeout
 	return s
 }
 
-// Verify is documented as: Whether to verify the repository after creation.
+// Verify indicates whether to verify the repository after creation.
 func (s *SnapshotCreateRepositoryService) Verify(verify bool) *SnapshotCreateRepositoryService {
 	s.verify = &verify
 	return s
@@ -59,6 +63,27 @@ func (s *SnapshotCreateRepositoryService) Verify(verify bool) *SnapshotCreateRep
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *SnapshotCreateRepositoryService) Pretty(pretty bool) *SnapshotCreateRepositoryService {
 	s.pretty = pretty
+	return s
+}
+
+// Type sets the snapshot repository type, e.g. "fs".
+func (s *SnapshotCreateRepositoryService) Type(typ string) *SnapshotCreateRepositoryService {
+	s.typ = typ
+	return s
+}
+
+// Settings sets all settings of the snapshot repository.
+func (s *SnapshotCreateRepositoryService) Settings(settings map[string]interface{}) *SnapshotCreateRepositoryService {
+	s.settings = settings
+	return s
+}
+
+// Setting sets a single settings of the snapshot repository.
+func (s *SnapshotCreateRepositoryService) Setting(name string, value interface{}) *SnapshotCreateRepositoryService {
+	if s.settings == nil {
+		s.settings = make(map[string]interface{})
+	}
+	s.settings[name] = value
 	return s
 }
 
@@ -101,6 +126,24 @@ func (s *SnapshotCreateRepositoryService) buildURL() (string, url.Values, error)
 	return path, params, nil
 }
 
+// buildBody builds the body for the operation.
+func (s *SnapshotCreateRepositoryService) buildBody() (interface{}, error) {
+	if s.bodyJson != nil {
+		return s.bodyJson, nil
+	}
+	if s.bodyString != "" {
+		return s.bodyString, nil
+	}
+
+	body := map[string]interface{}{
+		"type": s.typ,
+	}
+	if len(s.settings) > 0 {
+		body["settings"] = s.settings
+	}
+	return body, nil
+}
+
 // Validate checks if the operation is valid.
 func (s *SnapshotCreateRepositoryService) Validate() error {
 	var invalid []string
@@ -130,11 +173,9 @@ func (s *SnapshotCreateRepositoryService) Do(ctx context.Context) (*SnapshotCrea
 	}
 
 	// Setup HTTP request body
-	var body interface{}
-	if s.bodyJson != nil {
-		body = s.bodyJson
-	} else {
-		body = s.bodyString
+	body, err := s.buildBody()
+	if err != nil {
+		return nil, err
 	}
 
 	// Get HTTP response

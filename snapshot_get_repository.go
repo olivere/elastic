@@ -1,4 +1,4 @@
-// Copyright 2012-2017 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -14,7 +14,9 @@ import (
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
-// SnapshotGetRepositoryService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.x/modules-snapshots.html.
+// SnapshotGetRepositoryService reads a snapshot repository.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.3/modules-snapshots.html
+// for details.
 type SnapshotGetRepositoryService struct {
 	client        *Client
 	pretty        bool
@@ -31,19 +33,19 @@ func NewSnapshotGetRepositoryService(client *Client) *SnapshotGetRepositoryServi
 	}
 }
 
-// Repository is documented as: A comma-separated list of repository names.
+// Repository is the list of repository names.
 func (s *SnapshotGetRepositoryService) Repository(repositories ...string) *SnapshotGetRepositoryService {
 	s.repository = append(s.repository, repositories...)
 	return s
 }
 
-// Local is documented as: Return local information, do not retrieve the state from master node (default: false).
+// Local indicates whether to return local information, i.e. do not retrieve the state from master node (default: false).
 func (s *SnapshotGetRepositoryService) Local(local bool) *SnapshotGetRepositoryService {
 	s.local = &local
 	return s
 }
 
-// MasterTimeout is documented as: Explicit operation timeout for connection to master node.
+// MasterTimeout specifies an explicit operation timeout for connection to master node.
 func (s *SnapshotGetRepositoryService) MasterTimeout(masterTimeout string) *SnapshotGetRepositoryService {
 	s.masterTimeout = masterTimeout
 	return s
@@ -118,9 +120,11 @@ func (s *SnapshotGetRepositoryService) Do(ctx context.Context) (SnapshotGetRepos
 }
 
 // SnapshotGetRepositoryResponse is the response of SnapshotGetRepositoryService.Do.
-type SnapshotGetRepositoryResponse map[string]*SnapshotRepository
+type SnapshotGetRepositoryResponse map[string]*SnapshotRepositoryMetaData
 
-type SnapshotRepository struct {
-	Type     string      `json:"type"`
-	Settings interface{} `json:"settings,omitempty"`
+// SnapshotRepositoryMetaData contains all information about
+// a single snapshot repository.
+type SnapshotRepositoryMetaData struct {
+	Type     string                 `json:"type"`
+	Settings map[string]interface{} `json:"settings,omitempty"`
 }

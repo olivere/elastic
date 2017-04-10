@@ -1,4 +1,4 @@
-// Copyright 2012-2017 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -13,7 +13,9 @@ import (
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
-// SnapshotVerifyRepositoryService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.x/modules-snapshots.html.
+// SnapshotVerifyRepositoryService verifies a snapshop repository.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.3/modules-snapshots.html
+// for details.
 type SnapshotVerifyRepositoryService struct {
 	client        *Client
 	pretty        bool
@@ -29,19 +31,19 @@ func NewSnapshotVerifyRepositoryService(client *Client) *SnapshotVerifyRepositor
 	}
 }
 
-// Repository is documented as: A repository name.
+// Repository specifies the repository name.
 func (s *SnapshotVerifyRepositoryService) Repository(repository string) *SnapshotVerifyRepositoryService {
 	s.repository = repository
 	return s
 }
 
-// MasterTimeout is documented as: Explicit operation timeout for connection to master node.
+// MasterTimeout is the explicit operation timeout for connection to master node.
 func (s *SnapshotVerifyRepositoryService) MasterTimeout(masterTimeout string) *SnapshotVerifyRepositoryService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
-// Timeout is documented as: Explicit operation timeout.
+// Timeout is an explicit operation timeout.
 func (s *SnapshotVerifyRepositoryService) Timeout(timeout string) *SnapshotVerifyRepositoryService {
 	s.timeout = timeout
 	return s

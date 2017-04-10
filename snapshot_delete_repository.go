@@ -1,4 +1,4 @@
-// Copyright 2012-2017 Oliver Eilhard. All rights reserved.
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -14,7 +14,9 @@ import (
 	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
-// SnapshotDeleteRepositoryService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.x/modules-snapshots.html.
+// SnapshotDeleteRepositoryService deletes a snapshot repository.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.3/modules-snapshots.html
+// for details.
 type SnapshotDeleteRepositoryService struct {
 	client        *Client
 	pretty        bool
@@ -31,19 +33,19 @@ func NewSnapshotDeleteRepositoryService(client *Client) *SnapshotDeleteRepositor
 	}
 }
 
-// Repository is documented as: A comma-separated list of repository names.
+// Repository is the list of repository names.
 func (s *SnapshotDeleteRepositoryService) Repository(repositories ...string) *SnapshotDeleteRepositoryService {
 	s.repository = append(s.repository, repositories...)
 	return s
 }
 
-// MasterTimeout is documented as: Explicit operation timeout for connection to master node.
+// MasterTimeout specifies an explicit operation timeout for connection to master node.
 func (s *SnapshotDeleteRepositoryService) MasterTimeout(masterTimeout string) *SnapshotDeleteRepositoryService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
-// Timeout is documented as: Explicit operation timeout.
+// Timeout is an explicit operation timeout.
 func (s *SnapshotDeleteRepositoryService) Timeout(timeout string) *SnapshotDeleteRepositoryService {
 	s.timeout = timeout
 	return s
