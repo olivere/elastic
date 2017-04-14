@@ -1332,6 +1332,105 @@ func TestAggsMetricsExtendedStats(t *testing.T) {
 	}
 }
 
+func TestAggsMatrixStats(t *testing.T) {
+	s := `{
+	"matrixstats": {
+		"fields": [{
+			"name": "income",
+			"count": 50,
+			"mean": 51985.1,
+			"variance": 7.383377037755103E7,
+			"skewness": 0.5595114003506483,
+			"kurtosis": 2.5692365287787124,
+			"covariance": {
+				"income": 7.383377037755103E7,
+				"poverty": -21093.65836734694
+			},
+			"correlation": {
+				"income": 1.0,
+				"poverty": -0.8352655256272504
+			}
+		}, {
+			"name": "poverty",
+			"count": 51,
+			"mean": 12.732000000000001,
+			"variance": 8.637730612244896,
+			"skewness": 0.4516049811903419,
+			"kurtosis": 2.8615929677997767,
+			"covariance": {
+				"income": -21093.65836734694,
+				"poverty": 8.637730612244896
+			},
+			"correlation": {
+				"income": -0.8352655256272504,
+				"poverty": 1.0
+			}
+		}]
+	}
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.MatrixStats("matrixstats")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if want, got := 2, len(agg.Fields); want != got {
+		t.Fatalf("expected aggregaton len(Fields) = %v; got: %v", want, got)
+	}
+	field := agg.Fields[0]
+	if want, got := "income", field.Name; want != got {
+		t.Fatalf("expected aggregation field name == %q; got: %q", want, got)
+	}
+	if want, got := int64(50), field.Count; want != got {
+		t.Fatalf("expected aggregation field count == %v; got: %v", want, got)
+	}
+	if want, got := 51985.1, field.Mean; want != got {
+		t.Fatalf("expected aggregation field mean == %v; got: %v", want, got)
+	}
+	if want, got := 7.383377037755103e7, field.Variance; want != got {
+		t.Fatalf("expected aggregation field variance == %v; got: %v", want, got)
+	}
+	if want, got := 0.5595114003506483, field.Skewness; want != got {
+		t.Fatalf("expected aggregation field skewness == %v; got: %v", want, got)
+	}
+	if want, got := 2.5692365287787124, field.Kurtosis; want != got {
+		t.Fatalf("expected aggregation field kurtosis == %v; got: %v", want, got)
+	}
+	if field.Covariance == nil {
+		t.Fatalf("expected aggregation field covariance != nil; got: %v", nil)
+	}
+	if want, got := 7.383377037755103e7, field.Covariance["income"]; want != got {
+		t.Fatalf("expected aggregation field covariance == %v; got: %v", want, got)
+	}
+	if want, got := -21093.65836734694, field.Covariance["poverty"]; want != got {
+		t.Fatalf("expected aggregation field covariance == %v; got: %v", want, got)
+	}
+	if field.Correlation == nil {
+		t.Fatalf("expected aggregation field correlation != nil; got: %v", nil)
+	}
+	if want, got := 1.0, field.Correlation["income"]; want != got {
+		t.Fatalf("expected aggregation field correlation == %v; got: %v", want, got)
+	}
+	if want, got := -0.8352655256272504, field.Correlation["poverty"]; want != got {
+		t.Fatalf("expected aggregation field correlation == %v; got: %v", want, got)
+	}
+	field = agg.Fields[1]
+	if want, got := "poverty", field.Name; want != got {
+		t.Fatalf("expected aggregation field name == %q; got: %q", want, got)
+	}
+	if want, got := int64(51), field.Count; want != got {
+		t.Fatalf("expected aggregation field count == %v; got: %v", want, got)
+	}
+}
+
 func TestAggsMetricsPercentiles(t *testing.T) {
 	s := `{
   "load_time_outlier": {

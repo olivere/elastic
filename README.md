@@ -290,8 +290,8 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Bucket Script
   - [x] Bucket Selector
   - [x] Serial Differencing
-- [ ] Matrix Aggregations
-  - [ ] Matrix Stats
+- [x] Matrix Aggregations
+  - [x] Matrix Stats
 - [x] Aggregation Metadata
 
 ### Indices APIs
