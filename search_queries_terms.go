@@ -10,21 +10,27 @@ package elastic
 // For more details, see
 // https://www.elastic.co/guide/en/elasticsearch/reference/5.2/query-dsl-terms-query.html
 type TermsQuery struct {
-	name      string
-	values    []interface{}
-	queryName string
-	boost     *float64
+	name        string
+	values      []interface{}
+	termsLookup *TermsLookup
+	queryName   string
+	boost       *float64
 }
 
 // NewTermsQuery creates and initializes a new TermsQuery.
 func NewTermsQuery(name string, values ...interface{}) *TermsQuery {
 	q := &TermsQuery{
-		name:   name,
-		values: make([]interface{}, 0),
+		name: name,
 	}
 	if len(values) > 0 {
 		q.values = append(q.values, values...)
 	}
+	return q
+}
+
+// TermsLookup adds terms lookup details to the query.
+func (q *TermsQuery) TermsLookup(lookup *TermsLookup) *TermsQuery {
+	q.termsLookup = lookup
 	return q
 }
 
@@ -47,12 +53,22 @@ func (q *TermsQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
 	source["terms"] = params
-	params[q.name] = q.values
-	if q.boost != nil {
-		params["boost"] = *q.boost
+
+	if q.termsLookup != nil {
+		src, err := q.termsLookup.Source()
+		if err != nil {
+			return nil, err
+		}
+		params[q.name] = src
+	} else {
+		params[q.name] = q.values
+		if q.boost != nil {
+			params["boost"] = *q.boost
+		}
+		if q.queryName != "" {
+			params["_name"] = q.queryName
+		}
 	}
-	if q.queryName != "" {
-		params["_name"] = q.queryName
-	}
+
 	return source, nil
 }

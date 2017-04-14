@@ -99,6 +99,12 @@ func (s *SearchService) Profile(profile bool) *SearchService {
 	return s
 }
 
+// Collapse adds field collapsing.
+func (s *SearchService) Collapse(collapse *CollapseBuilder) *SearchService {
+	s.searchSource = s.searchSource.Collapse(collapse)
+	return s
+}
+
 // TimeoutInMillis sets the timeout in milliseconds.
 func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
 	s.searchSource = s.searchSource.TimeoutInMillis(timeoutInMillis)

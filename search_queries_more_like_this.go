@@ -208,7 +208,7 @@ func (q *MoreLikeThisQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	params := make(map[string]interface{})
-	source["mlt"] = params
+	source["more_like_this"] = params
 
 	if len(q.fields) > 0 {
 		params["fields"] = q.fields
