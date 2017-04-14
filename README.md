@@ -421,7 +421,13 @@ The cat APIs are not implemented as of now. We think they are better suited for 
 
 ### Modules
 
-- [ ] Snapshot and Restore
+- Snapshot and Restore
+  - [x] Repositories
+  - [ ] Snapshot
+  - [ ] Restore
+  - [ ] Snapshot status
+  - [ ] Monitoring snapshot/restore status
+  - [ ] Stopping currently running snapshot and restore
 
 ### Sorting
 
