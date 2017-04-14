@@ -50,6 +50,14 @@ func (r *BulkUpdateRequest) Index(index string) *BulkUpdateRequest {
 	return r
 }
 
+// DetectNoop will instruct Elasticsearch to check if changes will occur
+// when updating via Doc. It there aren't any changes, the request will
+// turn into a no-op.
+func (r *BulkUpdateRequest) DetectNoop(detectNoop bool) *BulkUpdateRequest {
+	r.detectNoop = &detectNoop
+	return r
+}
+
 // Type specifies the Elasticsearch type to use for this update request.
 // If unspecified, the type set on the BulkService will be used.
 func (r *BulkUpdateRequest) Type(typ string) *BulkUpdateRequest {
