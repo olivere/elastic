@@ -19,7 +19,9 @@ type IndicesPutTemplateService struct {
 	client        *Client
 	pretty        bool
 	name          string
+	cause         string
 	order         interface{}
+	version       *int
 	create        *bool
 	timeout       string
 	masterTimeout string
@@ -38,6 +40,13 @@ func NewIndicesPutTemplateService(client *Client) *IndicesPutTemplateService {
 // Name is the name of the index template.
 func (s *IndicesPutTemplateService) Name(name string) *IndicesPutTemplateService {
 	s.name = name
+	return s
+}
+
+// Cause describes the cause for this index template creation. This is currently
+// undocumented, but part of the Java source.
+func (s *IndicesPutTemplateService) Cause(cause string) *IndicesPutTemplateService {
+	s.cause = cause
 	return s
 }
 
@@ -63,6 +72,12 @@ func (s *IndicesPutTemplateService) FlatSettings(flatSettings bool) *IndicesPutT
 // (higher numbers are merged later, overriding the lower numbers).
 func (s *IndicesPutTemplateService) Order(order interface{}) *IndicesPutTemplateService {
 	s.order = order
+	return s
+}
+
+// Version sets the version number for this template.
+func (s *IndicesPutTemplateService) Version(version int) *IndicesPutTemplateService {
+	s.version = &version
 	return s
 }
 
@@ -109,8 +124,14 @@ func (s *IndicesPutTemplateService) buildURL() (string, url.Values, error) {
 	if s.order != nil {
 		params.Set("order", fmt.Sprintf("%v", s.order))
 	}
+	if s.version != nil {
+		params.Set("version", fmt.Sprintf("%v", *s.version))
+	}
 	if s.create != nil {
 		params.Set("create", fmt.Sprintf("%v", *s.create))
+	}
+	if s.cause != "" {
+		params.Set("cause", s.cause)
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)
