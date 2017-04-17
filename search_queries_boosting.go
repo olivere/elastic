@@ -10,10 +10,10 @@ package elastic
 // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-boosting-query.html
 type BoostingQuery struct {
 	Query
-	positiveClause Query
-	negativeClause Query
-	negativeBoost  *float64
-	boost          *float64
+	positiveClauses []Query
+	negativeClauses []Query
+	negativeBoost   *float64
+	boost           *float64
 }
 
 // Creates a new boosting query.
@@ -21,13 +21,13 @@ func NewBoostingQuery() BoostingQuery {
 	return BoostingQuery{}
 }
 
-func (q BoostingQuery) Positive(positive Query) BoostingQuery {
-	q.positiveClause = positive
+func (q BoostingQuery) Positive(queries ...Query) BoostingQuery {
+	q.positiveClauses = append(q.positiveClauses, queries...)
 	return q
 }
 
-func (q BoostingQuery) Negative(negative Query) BoostingQuery {
-	q.negativeClause = negative
+func (q BoostingQuery) Negative(queries ...Query) BoostingQuery {
+	q.negativeClauses = append(q.negativeClauses, queries...)
 	return q
 }
 
@@ -68,13 +68,25 @@ func (q BoostingQuery) Source() interface{} {
 	// are mandatory in the Java client.
 
 	// positive
-	if q.positiveClause != nil {
-		boostingClause["positive"] = q.positiveClause.Source()
+	if len(q.positiveClauses) == 1 {
+		boostingClause["positive"] = q.positiveClauses[0].Source()
+	} else if len(q.positiveClauses) > 1 {
+		clauses := make([]interface{}, 0)
+		for _, subQuery := range q.positiveClauses {
+			clauses = append(clauses, subQuery.Source())
+		}
+		boostingClause["positive"] = clauses
 	}
 
 	// negative
-	if q.negativeClause != nil {
-		boostingClause["negative"] = q.negativeClause.Source()
+	if len(q.negativeClauses) == 1 {
+		boostingClause["negative"] = q.negativeClauses[0].Source()
+	} else if len(q.negativeClauses) > 1 {
+		clauses := make([]interface{}, 0)
+		for _, subQuery := range q.negativeClauses {
+			clauses = append(clauses, subQuery.Source())
+		}
+		boostingClause["negative"] = clauses
 	}
 
 	if q.negativeBoost != nil {
@@ -87,3 +99,4 @@ func (q BoostingQuery) Source() interface{} {
 
 	return query
 }
+
