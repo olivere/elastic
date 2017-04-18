@@ -489,6 +489,9 @@ func (w *bulkWorker) commit() error {
 		w.p.beforeFn(id, reqs)
 	}
 
+	// Store requests for after callback
+	reqs := w.service.requests
+
 	// Commit bulk requests
 	policy := backoff.NewExponentialBackoff(w.p.initialTimeout, w.p.maxTimeout).SendStop(true)
 	err := backoff.RetryNotify(commitFunc, policy, notifyFunc)
