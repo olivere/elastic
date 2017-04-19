@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"gopkg.in/olivere/elastic.v3/backoff"
+	"github.com/olivere/elastic.v3/backoff"
 )
 
 // BulkProcessorService allows to easily process bulk requests. It allows setting
