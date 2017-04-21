@@ -5,14 +5,13 @@
 package elastic_test
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"reflect"
 	"time"
-
-	"golang.org/x/net/context"
 
 	elastic "gopkg.in/olivere/elastic.v5"
 )

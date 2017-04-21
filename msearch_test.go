@@ -5,11 +5,10 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	_ "net/http"
 	"testing"
-
-	"golang.org/x/net/context"
 )
 
 func TestMultiSearch(t *testing.T) {

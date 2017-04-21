@@ -4,7 +4,7 @@
 
 package elastic
 
-import "golang.org/x/net/context"
+import "context"
 
 // HasPlugin indicates whether the cluster has the named plugin.
 func (c *Client) HasPlugin(name string) (bool, error) {

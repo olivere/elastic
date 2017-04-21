@@ -5,10 +5,9 @@
 package elastic
 
 import (
+	"context"
 	"net/http"
 	"testing"
-
-	"golang.org/x/net/context"
 )
 
 func TestPingGet(t *testing.T) {

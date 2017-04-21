@@ -6,11 +6,10 @@ package elastic
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"sync/atomic"
 	"testing"
-
-	"golang.org/x/net/context"
 )
 
 type decoder struct {

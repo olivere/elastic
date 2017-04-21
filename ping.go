@@ -5,11 +5,11 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/url"
 
-	"golang.org/x/net/context"
 	"golang.org/x/net/context/ctxhttp"
 )
 

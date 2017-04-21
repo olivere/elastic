@@ -5,10 +5,9 @@
 package elastic
 
 import (
+	"context"
 	_ "net/http"
 	"testing"
-
-	"golang.org/x/net/context"
 )
 
 func TestClearScroll(t *testing.T) {
