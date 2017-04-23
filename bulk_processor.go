@@ -5,11 +5,10 @@
 package elastic
 
 import (
+	"context"
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"golang.org/x/net/context"
 )
 
 // BulkProcessorService allows to easily process bulk requests. It allows setting

@@ -1,9 +1,8 @@
 package elastic
 
 import (
+	"context"
 	"testing"
-
-	"golang.org/x/net/context"
 )
 
 func TestIndicesAnalyzeURL(t *testing.T) {

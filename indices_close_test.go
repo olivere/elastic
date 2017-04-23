@@ -5,9 +5,8 @@
 package elastic
 
 import (
+	"context"
 	"testing"
-
-	"golang.org/x/net/context"
 )
 
 // TODO(oe): Find out why this test fails on Travis CI.

@@ -5,13 +5,12 @@
 package elastic
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"sync/atomic"
 	"testing"
 	"time"
-
-	"golang.org/x/net/context"
 )
 
 type testRetrier struct {

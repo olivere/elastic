@@ -5,10 +5,9 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	"testing"
-
-	"golang.org/x/net/context"
 )
 
 func TestUpdateByQueryBuildURL(t *testing.T) {

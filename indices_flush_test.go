@@ -5,9 +5,8 @@
 package elastic
 
 import (
+	"context"
 	"testing"
-
-	"golang.org/x/net/context"
 )
 
 func TestFlush(t *testing.T) {

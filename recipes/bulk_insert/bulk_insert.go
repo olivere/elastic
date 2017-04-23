@@ -24,6 +24,7 @@
 package main
 
 import (
+	"context"
 	"encoding/base64"
 	"errors"
 	"flag"
@@ -33,7 +34,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/olivere/elastic.v5"
 )

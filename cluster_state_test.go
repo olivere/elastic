@@ -5,10 +5,9 @@
 package elastic
 
 import (
+	"context"
 	"net/url"
 	"testing"
-
-	"golang.org/x/net/context"
 )
 
 func TestClusterState(t *testing.T) {
