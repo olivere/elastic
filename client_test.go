@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,8 +16,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"golang.org/x/net/context"
 )
 
 func findConn(s string, slice ...*conn) (int, bool) {
