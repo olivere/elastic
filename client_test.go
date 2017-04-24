@@ -784,7 +784,7 @@ func TestPerformRequestCancelContext(t *testing.T) {
 	}
 	_, err = client.PerformRequestC(ctx, "GET", "/", nil, nil)
 	if err != context.Canceled {
-		t.Fatal("expected to return ctx Cancelled error")
+		t.Fatalf("expected to return ctx Cancelled error, got: %v", err.Error())
 	}
 }
 

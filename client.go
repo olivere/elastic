@@ -1105,7 +1105,7 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 		c.dumpRequest((*http.Request)(req))
 
 		// Get response
-		res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
+		res, err := c.c.Do(((*http.Request)(req)).WithContext(ctx))
 		if err != nil {
 			n++
 			wait, ok, rerr := c.retrier.Retry(n, (*http.Request)(req), res, err)
