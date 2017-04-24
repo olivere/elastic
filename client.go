@@ -1107,6 +1107,10 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 		// Get response
 		res, err := c.c.Do(((*http.Request)(req)).WithContext(ctx))
 		if err != nil {
+			// Return ctx error if available, so we can compare it
+			if ctx.Err() != nil {
+				err = ctx.Err()
+			}
 			n++
 			wait, ok, rerr := c.retrier.Retry(n, (*http.Request)(req), res, err)
 			if rerr != nil {
