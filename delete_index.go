@@ -4,7 +4,11 @@
 
 package elastic
 
-import "gopkg.in/olivere/elastic.v2/uritemplates"
+import (
+	"context"
+
+	"gopkg.in/olivere/elastic.v2/uritemplates"
+)
 
 type DeleteIndexService struct {
 	client *Client
@@ -23,7 +27,12 @@ func (b *DeleteIndexService) Index(index string) *DeleteIndexService {
 	return b
 }
 
+// Do runs DoC() with default context.
 func (b *DeleteIndexService) Do() (*DeleteIndexResult, error) {
+	return b.DoC(nil)
+}
+
+func (b *DeleteIndexService) DoC(ctx context.Context) (*DeleteIndexResult, error) {
 	// Build url
 	path, err := uritemplates.Expand("/{index}/", map[string]string{
 		"index": b.index,
@@ -33,7 +42,7 @@ func (b *DeleteIndexService) Do() (*DeleteIndexResult, error) {
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest("DELETE", path, nil, nil)
+	res, err := b.client.PerformRequestC(ctx, "DELETE", path, nil, nil)
 	if err != nil {
 		return nil, err
 	}

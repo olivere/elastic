@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -138,10 +139,15 @@ func (s *BulkService) bodyAsString() (string, error) {
 	return buf.String(), nil
 }
 
-// Do sends the batched requests to Elasticsearch. Note that, when successful,
+// Do runs DoC() with default context.
+func (s *BulkService) Do() (*BulkResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC sends the batched requests to Elasticsearch. Note that, when successful,
 // you can reuse the BulkService for the next batch as the list of bulk
 // requests is cleared on success.
-func (s *BulkService) Do() (*BulkResponse, error) {
+func (s *BulkService) DoC(ctx context.Context) (*BulkResponse, error) {
 	// No actions?
 	if s.NumberOfActions() == 0 {
 		return nil, errors.New("elastic: No bulk actions to commit")
@@ -188,7 +194,7 @@ func (s *BulkService) Do() (*BulkResponse, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

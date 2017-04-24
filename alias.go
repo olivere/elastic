@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -251,6 +252,11 @@ func (s *AliasService) buildURL() (string, url.Values, error) {
 
 // Do executes the command.
 func (s *AliasService) Do() (*AliasResult, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the command, passing the context.
+func (s *AliasService) DoC(ctx context.Context) (*AliasResult, error) {
 	path, params, err := s.buildURL()
 	if err != nil {
 		return nil, err
@@ -269,7 +275,7 @@ func (s *AliasService) Do() (*AliasResult, error) {
 	body["actions"] = actions
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

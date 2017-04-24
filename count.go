@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -275,8 +276,13 @@ func (s *CountService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *CountService) Do() (int64, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *CountService) DoC(ctx context.Context) (int64, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return 0, err
@@ -301,7 +307,7 @@ func (s *CountService) Do() (int64, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return 0, err
 	}

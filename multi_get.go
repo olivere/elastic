@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
@@ -55,7 +56,12 @@ func (b *MultiGetService) Source() interface{} {
 	return source
 }
 
+// Do runs DoC() with default context.
 func (b *MultiGetService) Do() (*MultiGetResult, error) {
+	return b.DoC(nil)
+}
+
+func (b *MultiGetService) DoC(ctx context.Context) (*MultiGetResult, error) {
 	// Build url
 	path := "/_mget"
 
@@ -74,7 +80,7 @@ func (b *MultiGetService) Do() (*MultiGetResult, error) {
 	body := b.Source()
 
 	// Get response
-	res, err := b.client.PerformRequest("GET", path, params, body)
+	res, err := b.client.PerformRequestC(ctx, "GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}

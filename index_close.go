@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 
@@ -111,8 +112,13 @@ func (s *CloseIndexService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *CloseIndexService) Do() (*CloseIndexResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *CloseIndexService) DoC(ctx context.Context) (*CloseIndexResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -125,7 +131,7 @@ func (s *CloseIndexService) Do() (*CloseIndexResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("POST", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

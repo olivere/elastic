@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,9 +17,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"golang.org/x/net/context"
-	"golang.org/x/net/context/ctxhttp"
 )
 
 const (
@@ -1020,7 +1018,7 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 	return c.PerformRequestC(context.Background(), method, path, params, body, ignoreErrors...)
 }
 
-// PerformRequest does a HTTP request to Elasticsearch.
+// PerformRequestC does a HTTP request to Elasticsearch.
 // It can be cancelled via passed Context.
 // It returns a response (which might be nil) and an error on failure.
 //
@@ -1028,6 +1026,9 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 // This is necessary for services that expect e.g. HTTP status 404 as a
 // valid outcome (Exists, IndicesExists, IndicesTypeExists).
 func (c *Client) PerformRequestC(ctx context.Context, method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	start := time.Now().UTC()
 
 	c.mu.RLock()
@@ -1104,7 +1105,7 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 		c.dumpRequest((*http.Request)(req))
 
 		// Get response
-		res, err := ctxhttp.Do(ctx, c.c, (*http.Request)(req))
+		res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
 		if err != nil {
 			n++
 			wait, ok, rerr := c.retrier.Retry(n, (*http.Request)(req), res, err)

@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -71,7 +72,12 @@ func (s *OptimizeService) Pretty(pretty bool) *OptimizeService {
 	return s
 }
 
+// Do runs DoC() with default context.
 func (s *OptimizeService) Do() (*OptimizeResult, error) {
+	return s.DoC(nil)
+}
+
+func (s *OptimizeService) DoC(ctx context.Context) (*OptimizeResult, error) {
 	// Build url
 	path := "/"
 
@@ -114,7 +120,7 @@ func (s *OptimizeService) Do() (*OptimizeResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -237,8 +238,13 @@ func (s *TermvectorService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *TermvectorService) Do() (*TermvectorsResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *TermvectorService) DoC(ctx context.Context) (*TermvectorsResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -270,7 +276,7 @@ func (s *TermvectorService) Do() (*TermvectorsResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("GET", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}

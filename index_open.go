@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 
@@ -112,8 +113,13 @@ func (s *OpenIndexService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *OpenIndexService) Do() (*OpenIndexResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *OpenIndexService) DoC(ctx context.Context) (*OpenIndexResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -126,7 +132,7 @@ func (s *OpenIndexService) Do() (*OpenIndexResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("POST", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

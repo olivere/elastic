@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/url"
@@ -109,8 +110,13 @@ func (s *NodesInfoService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *NodesInfoService) Do() (*NodesInfoResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *NodesInfoService) DoC(ctx context.Context) (*NodesInfoResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -123,7 +129,7 @@ func (s *NodesInfoService) Do() (*NodesInfoResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("GET", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

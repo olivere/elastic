@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -145,8 +146,13 @@ func (s *ExistsService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *ExistsService) Do() (bool, error) {
+	return s.DoC(nil)
+}
+
+// Do executes the operation.
+func (s *ExistsService) DoC(ctx context.Context) (bool, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return false, err
@@ -159,7 +165,7 @@ func (s *ExistsService) Do() (bool, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("HEAD", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "HEAD", path, params, nil)
 	if err != nil {
 		return false, err
 	}
