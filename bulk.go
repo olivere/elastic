@@ -305,6 +305,7 @@ type BulkResponseItem struct {
 	Id      string        `json:"_id,omitempty"`
 	Version int64         `json:"_version,omitempty"`
 	Status  int           `json:"status,omitempty"`
+	Result  string        `json:"result,omitempty"`
 	Found   bool          `json:"found,omitempty"`
 	Error   *ErrorDetails `json:"error,omitempty"`
 }
