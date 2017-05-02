@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 )
 
@@ -48,5 +49,28 @@ func TestNestedQueryWithInnerHit(t *testing.T) {
 	expected := `{"nested":{"_name":"qname","inner_hits":{"name":"comments","query":{"term":{"user":"olivere"}}},"path":"obj1","query":{"bool":{"must":[{"term":{"obj1.name":"blue"}},{"range":{"obj1.count":{"from":5,"include_lower":false,"include_upper":true,"to":null}}}]}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestNestedQueryWithIgnoreUnmapped(t *testing.T) {
+	testData := []struct {
+		bq          *BoolQuery
+		hasUnmapped bool
+	}{
+		{bq: NewBoolQuery().Must(NewNestedQuery("path", NewTermQuery("test", "test"))), hasUnmapped: false},
+		{bq: NewBoolQuery().Must(NewNestedQuery("path", NewTermQuery("test", "test")).IgnoreUnmapped(true)), hasUnmapped: true},
+	}
+	for _, v := range testData {
+		src, err := v.bq.Source()
+		if err != nil {
+			t.Fatal(err)
+		}
+		data, err := json.Marshal(src)
+		if err != nil {
+			t.Fatalf("marshaling to JSON failed: %v", err)
+		}
+		if strings.Contains(string(data), `ignore_unmapped`) != v.hasUnmapped {
+			t.Error("IgnoreUnmapped returned unexpected results")
+		}
 	}
 }
