@@ -465,3 +465,7 @@ by Joshua Tacoma and
 
 MIT-LICENSE. See [LICENSE](http://olivere.mit-license.org/)
 or the LICENSE file provided in the repository for details.
+
+## EXAMPLE 
+
+   [Example] (https://github.com/kamorahul/golang-elastic-api)
