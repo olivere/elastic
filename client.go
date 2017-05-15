@@ -555,6 +555,11 @@ func SetMaxRetries(maxRetries int) ClientOptionFunc {
 func SetGzip(enabled bool) ClientOptionFunc {
 	return func(c *Client) error {
 		c.gzipEnabled = enabled
+		if !enabled{
+			c.c = &http.Client{Transport: &http.Transport{DisableCompression: true}}
+		}else{
+			c.c = http.DefaultClient
+		}
 		return nil
 	}
 }
