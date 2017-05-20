@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/olivere/elastic/uritemplates"
+	"gopkg.in/olivere/elastic.v5/uritemplates"
 )
 
 // SnapshotCreateService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.x/modules-snapshots.html.
@@ -150,6 +150,16 @@ func (s *SnapshotCreateService) Do(ctx context.Context) (*SnapshotCreateResponse
 	return ret, nil
 }
 
+// SnapshotShardFailure stores information about failures that occurred during shard snapshotting process.
+type SnapshotShardFailure struct {
+	Index     string `json:"index"`
+	IndexUUID string `json:"index_uuid"`
+	ShardID   int    `json:"shard_id"`
+	Reason    string `json:"reason"`
+	NodeID    string `json:"node_id"`
+	Status    string `json:"status"`
+}
+
 // SnapshotCreateResponse is the response of SnapshotCreateService.Do.
 type SnapshotCreateResponse struct {
 	// Accepted indicates whether the request was accepted by elasticsearch.
@@ -158,22 +168,19 @@ type SnapshotCreateResponse struct {
 
 	// Snapshot is available when waitForCompletion is true.
 	Snapshot *struct {
-		Snapshot          string        `json:"snapshot"`
-		UUID              string        `json:"uuid"`
-		VersionID         int           `json:"version_id"`
-		Version           string        `json:"version"`
-		Indices           []string      `json:"indices"`
-		State             string        `json:"state"`
-		StartTime         time.Time     `json:"start_time"`
-		StartTimeInMillis int64         `json:"start_time_in_millis"`
-		EndTime           time.Time     `json:"end_time"`
-		EndTimeInMillis   int64         `json:"end_time_in_millis"`
-		DurationInMillis  int           `json:"duration_in_millis"`
-		Failures          []interface{} `json:"failures"`
-		Shards            struct {
-			Total      int `json:"total"`
-			Failed     int `json:"failed"`
-			Successful int `json:"successful"`
-		} `json:"shards"`
+		Snapshot          string                 `json:"snapshot"`
+		UUID              string                 `json:"uuid"`
+		VersionID         int                    `json:"version_id"`
+		Version           string                 `json:"version"`
+		Indices           []string               `json:"indices"`
+		State             string                 `json:"state"`
+		Reason            string                 `json:"reason"`
+		StartTime         time.Time              `json:"start_time"`
+		StartTimeInMillis int64                  `json:"start_time_in_millis"`
+		EndTime           time.Time              `json:"end_time"`
+		EndTimeInMillis   int64                  `json:"end_time_in_millis"`
+		DurationInMillis  int64                  `json:"duration_in_millis"`
+		Failures          []SnapshotShardFailure `json:"failures"`
+		Shards            shardsInfo             `json:"shards"`
 	} `json:"snapshot"`
 }
