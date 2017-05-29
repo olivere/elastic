@@ -185,7 +185,7 @@ type ClusterStatsIndicesFieldData struct {
 	MemorySize        string `json:"memory_size"` // e.g. "61.3kb"
 	MemorySizeInBytes int64  `json:"memory_size_in_bytes"`
 	Evictions         int64  `json:"evictions"`
-	Fields            map[string]struct {
+	Fields map[string]struct {
 		MemorySize        string `json:"memory_size"` // e.g. "61.3kb"
 		MemorySizeInBytes int64  `json:"memory_size_in_bytes"`
 	} `json:"fields"`
@@ -205,7 +205,7 @@ type ClusterStatsIndicesIdCache struct {
 type ClusterStatsIndicesCompletion struct {
 	Size        string `json:"size"` // e.g. "61.3kb"
 	SizeInBytes int64  `json:"size_in_bytes"`
-	Fields      map[string]struct {
+	Fields map[string]struct {
 		Size        string `json:"size"` // e.g. "61.3kb"
 		SizeInBytes int64  `json:"size_in_bytes"`
 	} `json:"fields"`
@@ -249,11 +249,11 @@ type ClusterStatsNodes struct {
 }
 
 type ClusterStatsNodesCount struct {
-	Total      int `json:"total"`
-	MasterOnly int `json:"master_only"`
-	DataOnly   int `json:"data_only"`
-	MasterData int `json:"master_data"`
-	Client     int `json:"client"`
+	Total            int `json:"total"`
+	Data             int `json:"data"`
+	CoordinatingOnly int `json:"coordinating_only"`
+	Master           int `json:"master"`
+	Ingest           int `json:"ingest"`
 }
 
 type ClusterStatsNodesOsStats struct {

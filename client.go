@@ -1629,11 +1629,15 @@ func (c *Client) TasksList() *TasksListService {
 
 // -- Snapshot and Restore --
 
-// TODO Snapshot Create
 // TODO Snapshot Delete
 // TODO Snapshot Get
 // TODO Snapshot Restore
 // TODO Snapshot Status
+
+// SnapshotCreate creates a snapshot.
+func (c *Client) SnapshotCreate(repository string, snapshot string) *SnapshotCreateService {
+	return NewSnapshotCreateService(c).Repository(repository).Snapshot(snapshot)
+}
 
 // SnapshotCreateRepository creates or updates a snapshot repository.
 func (c *Client) SnapshotCreateRepository(repository string) *SnapshotCreateRepositoryService {
