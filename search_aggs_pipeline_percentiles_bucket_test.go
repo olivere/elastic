@@ -25,3 +25,20 @@ func TestPercentilesBucketAggregation(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestPercentilesBucketAggregationWithPercents(t *testing.T) {
+	agg := NewPercentilesBucketAggregation().BucketsPath("the_sum").Percents(0.1, 1.0, 5.0, 25, 50)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"percentiles_bucket":{"buckets_path":"the_sum","percents":[0.1,1,5,25,50]}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}

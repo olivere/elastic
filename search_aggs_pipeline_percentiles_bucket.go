@@ -12,24 +12,31 @@ package elastic
 // For more details, see
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-percentiles-bucket-aggregation.html
 type PercentilesBucketAggregation struct {
-	format    string
-	gapPolicy string
+	format       string
+	gapPolicy    string
+	percents     []float64
+	bucketsPaths []string
 
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
-	bucketsPaths    []string
 }
 
 // NewPercentilesBucketAggregation creates and initializes a new PercentilesBucketAggregation.
 func NewPercentilesBucketAggregation() *PercentilesBucketAggregation {
 	return &PercentilesBucketAggregation{
 		subAggregations: make(map[string]Aggregation),
-		bucketsPaths:    make([]string, 0),
 	}
 }
 
+// Format to apply the output value of this aggregation.
 func (p *PercentilesBucketAggregation) Format(format string) *PercentilesBucketAggregation {
 	p.format = format
+	return p
+}
+
+// Percents to calculate percentiles for in this aggregation.
+func (p *PercentilesBucketAggregation) Percents(percents ...float64) *PercentilesBucketAggregation {
+	p.percents = percents
 	return p
 }
 
@@ -89,6 +96,11 @@ func (p *PercentilesBucketAggregation) Source() (interface{}, error) {
 		params["buckets_path"] = p.bucketsPaths[0]
 	default:
 		params["buckets_path"] = p.bucketsPaths
+	}
+
+	// Add percents
+	if len(p.percents) > 0 {
+		params["percents"] = p.percents
 	}
 
 	// AggregationBuilder (SubAggregations)
