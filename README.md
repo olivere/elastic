@@ -284,7 +284,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Sum Bucket
   - [x] Stats Bucket
   - [ ] Extended Stats Bucket
-  - [ ] Percentiles Bucket
+  - [x] Percentiles Bucket
   - [x] Moving Average
   - [x] Cumulative Sum
   - [x] Bucket Script
