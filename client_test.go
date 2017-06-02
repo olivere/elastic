@@ -327,7 +327,8 @@ func TestClientSniffNode(t *testing.T) {
 	}
 
 	ch := make(chan []*conn)
-	go func() { ch <- client.sniffNode(DefaultURL) }()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	go func() { defer cancel(); ch <- client.sniffNode(ctx, DefaultURL) }()
 
 	select {
 	case nodes := <-ch:
@@ -354,9 +355,11 @@ func TestClientSniffOnDefaultURL(t *testing.T) {
 		t.Fatal("no client returned")
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	ch := make(chan error, 1)
 	go func() {
-		ch <- client.sniff(DefaultSnifferTimeoutStartup)
+		defer cancel()
+		ch <- client.sniff(ctx, DefaultSnifferTimeoutStartup)
 	}()
 
 	select {
