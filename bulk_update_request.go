@@ -28,6 +28,7 @@ type BulkUpdateRequest struct {
 	versionType     string // default is "internal"
 	retryOnConflict *int
 	upsert          interface{}
+	scriptedUpsert  *bool
 	docAsUpsert     *bool
 	detectNoop      *bool
 	doc             interface{}
@@ -155,6 +156,14 @@ func (r *BulkUpdateRequest) Upsert(doc interface{}) *BulkUpdateRequest {
 	return r
 }
 
+// ScriptedUpsert should be set to true if the referenced script
+// (defined in Script or ScriptId) should be called to perform an insert.
+// The default is false.
+func (r *BulkUpdateRequest) ScriptedUpsert(scriptedUpsert bool) *BulkUpdateRequest {
+	r.scriptedUpsert = &scriptedUpsert
+	return r
+}
+
 // String returns the on-wire representation of the update request,
 // concatenated as a single string.
 func (r *BulkUpdateRequest) String() string {
@@ -242,6 +251,9 @@ func (r *BulkUpdateRequest) Source() ([]string, error) {
 	}
 	if r.detectNoop != nil {
 		source["detect_noop"] = *r.detectNoop
+	}
+	if r.scriptedUpsert != nil {
+		source["scripted_upsert"] = *r.scriptedUpsert
 	}
 	if r.upsert != nil {
 		source["upsert"] = r.upsert
