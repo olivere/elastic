@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/url"
@@ -74,12 +73,6 @@ func (s *PingService) Pretty(pretty bool) *PingService {
 // Do returns the PingResult, the HTTP status code of the Elasticsearch
 // server, and an error.
 func (s *PingService) Do() (*PingResult, int, error) {
-	return s.DoC(context.Background())
-}
-
-// DoC returns the PingResult, the HTTP status code of the Elasticsearch
-// server, and an error.
-func (s *PingService) DoC(ctx context.Context) (*PingResult, int, error) {
 	s.client.mu.RLock()
 	basicAuth := s.client.basicAuth
 	basicAuthUsername := s.client.basicAuthUsername
@@ -107,7 +100,7 @@ func (s *PingService) DoC(ctx context.Context) (*PingResult, int, error) {
 	}
 
 	// Notice: This service must NOT use PerformRequest!
-	req, err := NewRequest(ctx, method, url_)
+	req, err := NewRequest(method, url_)
 	if err != nil {
 		return nil, 0, err
 	}

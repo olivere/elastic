@@ -7,7 +7,6 @@ package elastic
 import (
 	"bytes"
 	"compress/gzip"
-	"context"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -20,12 +19,11 @@ import (
 type Request http.Request
 
 // NewRequest is a http.Request and adds features such as encoding the body.
-func NewRequest(ctx context.Context, method, url string) (*Request, error) {
+func NewRequest(method, url string) (*Request, error) {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
 	req.Header.Add("User-Agent", "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 	req.Header.Add("Accept", "application/json")
 	return (*Request)(req), nil

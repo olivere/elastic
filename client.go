@@ -227,9 +227,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 
 	if c.snifferEnabled {
 		// Sniff the cluster initially
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-		defer cancel()
-		if err := c.sniff(ctx, c.snifferTimeoutStartup); err != nil {
+		if err := c.sniff(c.snifferTimeoutStartup); err != nil {
 			return nil, err
 		}
 	} else {
@@ -241,9 +239,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 
 	if c.healthcheckEnabled {
 		// Perform an initial health check
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-		defer cancel()
-		c.healthcheck(ctx, c.healthcheckTimeoutStartup, true)
+		c.healthcheck(c.healthcheckTimeoutStartup, true)
 	}
 	// Ensure that we have at least one connection available
 	if err := c.mustActiveConn(); err != nil {
@@ -688,9 +684,7 @@ func (c *Client) sniffer() {
 			c.snifferStop <- true
 			return
 		case <-ticker.C:
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-			defer cancel()
-			c.sniff(ctx, timeout)
+			c.sniff(timeout)
 		}
 	}
 }
@@ -700,7 +694,7 @@ func (c *Client) sniffer() {
 // by the preceding sniffing process (if sniffing is enabled).
 //
 // If sniffing is disabled, this is a no-op.
-func (c *Client) sniff(ctx context.Context, timeout time.Duration) error {
+func (c *Client) sniff(timeout time.Duration) error {
 	c.mu.RLock()
 	if !c.snifferEnabled {
 		c.mu.RUnlock()
@@ -737,7 +731,7 @@ func (c *Client) sniff(ctx context.Context, timeout time.Duration) error {
 	// Start sniffing on all found URLs
 	ch := make(chan []*conn, len(urls))
 	for _, url := range urls {
-		go func(url string) { ch <- c.sniffNode(ctx, url) }(url)
+		go func(url string) { ch <- c.sniffNode(url) }(url)
 	}
 
 	// Wait for the results to come back, or the process times out.
@@ -763,11 +757,11 @@ var reSniffHostAndPort = regexp.MustCompile(`\/([^:]*):([0-9]+)\]`)
 // in sniff. If successful, it returns the list of node URLs extracted
 // from the result of calling Nodes Info API. Otherwise, an empty array
 // is returned.
-func (c *Client) sniffNode(ctx context.Context, url string) []*conn {
+func (c *Client) sniffNode(url string) []*conn {
 	nodes := make([]*conn, 0)
 
 	// Call the Nodes Info API at /_nodes/http
-	req, err := NewRequest(ctx, "GET", url+"/_nodes/http")
+	req, err := NewRequest("GET", url+"/_nodes/http")
 	if err != nil {
 		return nodes
 	}
@@ -865,9 +859,7 @@ func (c *Client) healthchecker() {
 			c.healthcheckStop <- true
 			return
 		case <-ticker.C:
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-			defer cancel()
-			c.healthcheck(ctx, timeout, false)
+			c.healthcheck(timeout, false)
 		}
 	}
 }
@@ -876,7 +868,7 @@ func (c *Client) healthchecker() {
 // the node state, it marks connections as dead, sets them alive etc.
 // If healthchecks are disabled this is a no-op.
 // The timeout specifies how long to wait for a response from Elasticsearch.
-func (c *Client) healthcheck(ctx context.Context, timeout time.Duration, force bool) {
+func (c *Client) healthcheck(timeout time.Duration, force bool) {
 	c.mu.RLock()
 	if !c.healthcheckEnabled && !force {
 		c.mu.RUnlock()
@@ -896,7 +888,7 @@ func (c *Client) healthcheck(ctx context.Context, timeout time.Duration, force b
 	for _, conn := range conns {
 		params := make(url.Values)
 		params.Set("timeout", fmt.Sprintf("%dms", timeoutInMillis))
-		req, err := NewRequest(ctx, "HEAD", conn.URL()+"/?"+params.Encode())
+		req, err := NewRequest("HEAD", conn.URL()+"/?"+params.Encode())
 		if err == nil {
 			if basicAuth {
 				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
@@ -1072,7 +1064,7 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 			n++
 			if !retried {
 				// Force a healtcheck as all connections seem to be dead.
-				c.healthcheck(ctx, timeout, false)
+				c.healthcheck(timeout, false)
 			}
 			wait, ok, rerr := c.retrier.Retry(n, nil, nil, err)
 			if rerr != nil {
@@ -1090,7 +1082,7 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 			return nil, err
 		}
 
-		req, err = NewRequest(ctx, method, conn.URL()+pathWithParams)
+		req, err = NewRequest(method, conn.URL()+pathWithParams)
 		if err != nil {
 			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(method), conn.URL()+pathWithParams, err)
 			return nil, err
@@ -1113,7 +1105,7 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 		c.dumpRequest((*http.Request)(req))
 
 		// Get response
-		res, err := c.c.Do((*http.Request)(req))
+		res, err := c.c.Do(((*http.Request)(req)).WithContext(ctx))
 		if err != nil {
 			// Return ctx error if available, so we can compare it
 			if ctx.Err() != nil {
