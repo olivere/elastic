@@ -80,8 +80,8 @@ func (r *BulkUpdateRequest) Parent(parent string) *BulkUpdateRequest {
 }
 
 // Script specifies an update script.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/2.x/docs-bulk.html#bulk-update
-// and https://www.elastic.co/guide/en/elasticsearch/reference/2.x/modules-scripting.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html#bulk-update
+// and https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html
 // for details.
 func (r *BulkUpdateRequest) Script(script *Script) *BulkUpdateRequest {
 	r.script = script
@@ -131,7 +131,7 @@ func (r *BulkUpdateRequest) Doc(doc interface{}) *BulkUpdateRequest {
 // DocAsUpsert indicates whether the contents of Doc should be used as
 // the Upsert value.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/2.x/docs-update.html#_literal_doc_as_upsert_literal
+// See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html#_literal_doc_as_upsert_literal
 // for details.
 func (r *BulkUpdateRequest) DocAsUpsert(docAsUpsert bool) *BulkUpdateRequest {
 	r.docAsUpsert = &docAsUpsert
