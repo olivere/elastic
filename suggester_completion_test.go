@@ -45,8 +45,9 @@ func TestCompletionSuggesterSourceWithMultipleContexts(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"song-suggest":{"text":"n","completion":{"context":{"artist":"Sting","label":"BMG"},"field":"suggest"}}}`
-	if got != expected {
-		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	expectedOption1 := `{"song-suggest":{"text":"n","completion":{"contexts":{"artist":[{"context":"Sting"}],"label":[{"context":"BMG"}]},"field":"suggest"}}}`
+	expectedOption2 := `{"song-suggest":{"text":"n","completion":{"contexts":{"label":[{"context":"BMG"}],"artist":[{"context":"Sting"}]},"field":"suggest"}}}`
+	if got != expectedOption1 && got != expectedOption2 {
+		t.Errorf("expected either\n%s\nor\n%s\n,got:\n%s", expectedOption1, expectedOption2, got)
 	}
 }
