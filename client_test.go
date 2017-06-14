@@ -11,11 +11,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"regexp"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/fortytw2/leaktest"
 )
 
 func findConn(s string, slice ...*conn) (int, bool) {
@@ -1104,5 +1107,47 @@ func testPerformRequestWithCompression(t *testing.T, hc *http.Client) {
 	}
 	if ret.ClusterName == "" {
 		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
+	}
+}
+
+func TestRoutineLeaks(t *testing.T) {
+	mux := http.NewServeMux()
+
+	reqCanceled := false
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		select {
+		case <-r.Context().Done():
+			reqCanceled = true
+		case <-time.After(time.Hour):
+		}
+	})
+
+	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("Couldn't setup listener: %v", err)
+	}
+	addr := lis.Addr().String()
+
+	srv := &http.Server{
+		Handler: mux,
+	}
+	go srv.Serve(lis)
+
+	cli := &Client{
+		c: &http.Client{},
+		conns: []*conn{
+			&conn{
+				url: "http://" + addr + "/",
+			},
+		},
+	}
+	defer leaktest.Check(t)()
+	cli.healthcheck(time.Second, true)
+
+	to, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	srv.Shutdown(to)
+	if !reqCanceled {
+		t.Fatal("Request wasn't canceled")
 	}
 }
