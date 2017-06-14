@@ -13,6 +13,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -418,7 +419,7 @@ func TestClientSniffNode(t *testing.T) {
 	}
 
 	ch := make(chan []*conn)
-	go func() { ch <- client.sniffNode(DefaultURL) }()
+	go func() { ch <- client.sniffNode(context.Background(), DefaultURL) }()
 
 	select {
 	case nodes := <-ch:
@@ -1111,15 +1112,24 @@ func testPerformRequestWithCompression(t *testing.T, hc *http.Client) {
 }
 
 func TestRoutineLeaks(t *testing.T) {
+	// This test test checks if healthcheck requests are canceled
+	// after timeout.
+	// It contains couple of hacks which won't be needed once we
+	// stop supporting Go1.7.
+	// On Go1.7 it uses server side effects to monitor if connection
+	// was closed,
+	// and on Go 1.8+ we're additionally honestly monitoring routine
+	// leaks via leaktest.
 	mux := http.NewServeMux()
 
-	reqCanceled := false
+	var reqDone bool
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		select {
-		case <-r.Context().Done():
-			reqCanceled = true
-		case <-time.After(time.Hour):
+		cn, ok := w.(http.CloseNotifier)
+		if !ok {
+			t.Fatalf("Writer is not CloseNotifier, but %v", reflect.TypeOf(w).Name())
 		}
+		<-cn.CloseNotify()
+		reqDone = true
 	})
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
@@ -1141,12 +1151,30 @@ func TestRoutineLeaks(t *testing.T) {
 			},
 		},
 	}
-	defer leaktest.CheckTimeout(t, time.Second*2)()
+
+	type closer interface {
+		Shutdown(context.Context) error
+	}
+
+	// pre-Go1.8 Server can't Shutdown
+	cl, isServerCloseable := (interface{}(srv)).(closer)
+
+	// Since Go1.7 can't Shutdown() - there will be leak from server
+	// Monitor leaks on Go 1.8+
+	if isServerCloseable {
+		defer leaktest.CheckTimeout(t, time.Second*10)()
+	}
+
 	cli.healthcheck(time.Millisecond*500, true)
 
+	if isServerCloseable {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		cl.Shutdown(ctx)
+	}
+
 	<-time.After(time.Second)
-	lis.Close()
-	if !reqCanceled {
-		t.Fatal("Request wasn't canceled")
+	if !reqDone {
+		t.Fatal("Request wasn't canceled or stopped")
 	}
 }
