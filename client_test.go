@@ -1141,11 +1141,11 @@ func TestRoutineLeaks(t *testing.T) {
 			},
 		},
 	}
-	defer leaktest.Check(t)()
-	cli.healthcheck(time.Second, true)
+	defer leaktest.CheckTimeout(t, time.Second*2)()
+	cli.healthcheck(time.Millisecond*500, true)
 
-	<-time.After(time.Second * 2)
-	srv.Close()
+	<-time.After(time.Second)
+	lis.Close()
 	if !reqCanceled {
 		t.Fatal("Request wasn't canceled")
 	}
