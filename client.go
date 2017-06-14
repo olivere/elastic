@@ -995,7 +995,7 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 			if basicAuth {
 				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 			}
-			res, err := c.c.Do((*http.Request)(req))
+			res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
 			if res != nil {
 				status = res.StatusCode
 				if res.Body != nil {
