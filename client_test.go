@@ -283,6 +283,74 @@ func TestClientHealthcheckStartupTimeout(t *testing.T) {
 	}
 }
 
+func TestClientHealthcheckTimeoutLeak(t *testing.T) {
+	// This test test checks if healthcheck requests are canceled
+	// after timeout.
+	// It contains couple of hacks which won't be needed once we
+	// stop supporting Go1.7.
+	// On Go1.7 it uses server side effects to monitor if connection
+	// was closed,
+	// and on Go 1.8+ we're additionally honestly monitoring routine
+	// leaks via leaktest.
+	mux := http.NewServeMux()
+
+	var reqDone bool
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		cn, ok := w.(http.CloseNotifier)
+		if !ok {
+			t.Fatalf("Writer is not CloseNotifier, but %v", reflect.TypeOf(w).Name())
+		}
+		<-cn.CloseNotify()
+		reqDone = true
+	})
+
+	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("Couldn't setup listener: %v", err)
+	}
+	addr := lis.Addr().String()
+
+	srv := &http.Server{
+		Handler: mux,
+	}
+	go srv.Serve(lis)
+
+	cli := &Client{
+		c: &http.Client{},
+		conns: []*conn{
+			&conn{
+				url: "http://" + addr + "/",
+			},
+		},
+	}
+
+	type closer interface {
+		Shutdown(context.Context) error
+	}
+
+	// pre-Go1.8 Server can't Shutdown
+	cl, isServerCloseable := (interface{}(srv)).(closer)
+
+	// Since Go1.7 can't Shutdown() - there will be leak from server
+	// Monitor leaks on Go 1.8+
+	if isServerCloseable {
+		defer leaktest.CheckTimeout(t, time.Second*10)()
+	}
+
+	cli.healthcheck(time.Millisecond*500, true)
+
+	if isServerCloseable {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		cl.Shutdown(ctx)
+	}
+
+	<-time.After(time.Second)
+	if !reqDone {
+		t.Fatal("Request wasn't canceled or stopped")
+	}
+}
+
 // -- NewSimpleClient --
 
 func TestSimpleClientDefaults(t *testing.T) {
@@ -470,6 +538,75 @@ func TestClientSniffOnDefaultURL(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Fatal("expected no timeout in sniff")
 		break
+	}
+}
+
+func TestClientSniffTimeoutLeak(t *testing.T) {
+	// This test test checks if sniff requests are canceled
+	// after timeout.
+	// It contains couple of hacks which won't be needed once we
+	// stop supporting Go1.7.
+	// On Go1.7 it uses server side effects to monitor if connection
+	// was closed,
+	// and on Go 1.8+ we're additionally honestly monitoring routine
+	// leaks via leaktest.
+	mux := http.NewServeMux()
+
+	var reqDone bool
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		cn, ok := w.(http.CloseNotifier)
+		if !ok {
+			t.Fatalf("Writer is not CloseNotifier, but %v", reflect.TypeOf(w).Name())
+		}
+		<-cn.CloseNotify()
+		reqDone = true
+	})
+
+	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("Couldn't setup listener: %v", err)
+	}
+	addr := lis.Addr().String()
+
+	srv := &http.Server{
+		Handler: mux,
+	}
+	go srv.Serve(lis)
+
+	cli := &Client{
+		c: &http.Client{},
+		conns: []*conn{
+			&conn{
+				url: "http://" + addr + "/",
+			},
+		},
+		snifferEnabled: true,
+	}
+
+	type closer interface {
+		Shutdown(context.Context) error
+	}
+
+	// pre-Go1.8 Server can't Shutdown
+	cl, isServerCloseable := (interface{}(srv)).(closer)
+
+	// Since Go1.7 can't Shutdown() - there will be leak from server
+	// Monitor leaks on Go 1.8+
+	if isServerCloseable {
+		defer leaktest.CheckTimeout(t, time.Second*10)()
+	}
+
+	cli.sniff(time.Millisecond * 500)
+
+	if isServerCloseable {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		cl.Shutdown(ctx)
+	}
+
+	<-time.After(time.Second)
+	if !reqDone {
+		t.Fatal("Request wasn't canceled or stopped")
 	}
 }
 
@@ -1108,73 +1245,5 @@ func testPerformRequestWithCompression(t *testing.T, hc *http.Client) {
 	}
 	if ret.ClusterName == "" {
 		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
-	}
-}
-
-func TestRoutineLeaks(t *testing.T) {
-	// This test test checks if healthcheck requests are canceled
-	// after timeout.
-	// It contains couple of hacks which won't be needed once we
-	// stop supporting Go1.7.
-	// On Go1.7 it uses server side effects to monitor if connection
-	// was closed,
-	// and on Go 1.8+ we're additionally honestly monitoring routine
-	// leaks via leaktest.
-	mux := http.NewServeMux()
-
-	var reqDone bool
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		cn, ok := w.(http.CloseNotifier)
-		if !ok {
-			t.Fatalf("Writer is not CloseNotifier, but %v", reflect.TypeOf(w).Name())
-		}
-		<-cn.CloseNotify()
-		reqDone = true
-	})
-
-	lis, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatalf("Couldn't setup listener: %v", err)
-	}
-	addr := lis.Addr().String()
-
-	srv := &http.Server{
-		Handler: mux,
-	}
-	go srv.Serve(lis)
-
-	cli := &Client{
-		c: &http.Client{},
-		conns: []*conn{
-			&conn{
-				url: "http://" + addr + "/",
-			},
-		},
-	}
-
-	type closer interface {
-		Shutdown(context.Context) error
-	}
-
-	// pre-Go1.8 Server can't Shutdown
-	cl, isServerCloseable := (interface{}(srv)).(closer)
-
-	// Since Go1.7 can't Shutdown() - there will be leak from server
-	// Monitor leaks on Go 1.8+
-	if isServerCloseable {
-		defer leaktest.CheckTimeout(t, time.Second*10)()
-	}
-
-	cli.healthcheck(time.Millisecond*500, true)
-
-	if isServerCloseable {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-		cl.Shutdown(ctx)
-	}
-
-	<-time.After(time.Second)
-	if !reqDone {
-		t.Fatal("Request wasn't canceled or stopped")
 	}
 }
