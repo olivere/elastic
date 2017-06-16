@@ -126,8 +126,18 @@ func TestSuggesterCategoryQueryWithoutBoost(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"color":[{"context":"red"},{"context":"yellow"}]}`
-	if got != expected {
-		t.Errorf("expected %s\n,got:\n%s", expected, got)
+	expectedOutcomes := []string{
+		`{"color":[{"context":"red"},{"context":"yellow"}]}`,
+		`{"color":[{"context":"yellow"},{"context":"red"}]}`,
+	}
+	var match bool
+	for _, expected := range expectedOutcomes {
+		if got == expected {
+			match = true
+			break
+		}
+	}
+	if !match {
+		t.Errorf("expected any of %v", expectedOutcomes)
 	}
 }
