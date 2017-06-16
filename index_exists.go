@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 
 	"gopkg.in/olivere/elastic.v2/uritemplates"
@@ -27,7 +28,12 @@ func (b *IndexExistsService) Index(index string) *IndexExistsService {
 	return b
 }
 
+// Do runs DoC() with default context.
 func (b *IndexExistsService) Do() (bool, error) {
+	return b.DoC(nil)
+}
+
+func (b *IndexExistsService) DoC(ctx context.Context) (bool, error) {
 	// Build url
 	path, err := uritemplates.Expand("/{index}", map[string]string{
 		"index": b.index,
@@ -37,7 +43,7 @@ func (b *IndexExistsService) Do() (bool, error) {
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest("HEAD", path, nil, nil)
+	res, err := b.client.PerformRequestC(ctx, "HEAD", path, nil, nil)
 	if err != nil {
 		return false, err
 	}

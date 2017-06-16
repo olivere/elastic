@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -98,14 +99,23 @@ func (s *ScrollService) ScrollId(scrollId string) *ScrollService {
 	return s
 }
 
+// Do runs DoC() with default context.
 func (s *ScrollService) Do() (*SearchResult, error) {
+	return s.DoC(nil)
+}
+
+func (s *ScrollService) DoC(ctx context.Context) (*SearchResult, error) {
 	if s.scrollId == "" {
-		return s.GetFirstPage()
+		return s.GetFirstPageC(ctx)
 	}
-	return s.GetNextPage()
+	return s.GetNextPageC(ctx)
 }
 
 func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
+	return s.GetFirstPageC(nil)
+}
+
+func (s *ScrollService) GetFirstPageC(ctx context.Context) (*SearchResult, error) {
 	// Build url
 	path := "/"
 
@@ -164,7 +174,7 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -179,6 +189,10 @@ func (s *ScrollService) GetFirstPage() (*SearchResult, error) {
 }
 
 func (s *ScrollService) GetNextPage() (*SearchResult, error) {
+	return s.GetNextPageC(nil)
+}
+
+func (s *ScrollService) GetNextPageC(ctx context.Context) (*SearchResult, error) {
 	if s.scrollId == "" {
 		return nil, EOS
 	}
@@ -198,7 +212,7 @@ func (s *ScrollService) GetNextPage() (*SearchResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, s.scrollId)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, s.scrollId)
 	if err != nil {
 		return nil, err
 	}

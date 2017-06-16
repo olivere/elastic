@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/url"
@@ -102,8 +103,13 @@ func (s *DeleteMappingService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *DeleteMappingService) Do() (*DeleteMappingResponse, error) {
+	return s.DoC(nil)
+}
+
+// Do executes the operation.
+func (s *DeleteMappingService) DoC(ctx context.Context) (*DeleteMappingResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -116,7 +122,7 @@ func (s *DeleteMappingService) Do() (*DeleteMappingResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("DELETE", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "DELETE", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

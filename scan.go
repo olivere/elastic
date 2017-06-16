@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -213,8 +214,13 @@ func (s *ScanService) Body(body interface{}) *ScanService {
 	return s
 }
 
-// Do executes the query and returns a "server-side cursor".
+// Do runs DoC() with default context.
 func (s *ScanService) Do() (*ScanCursor, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the query and returns a "server-side cursor".
+func (s *ScanService) DoC(ctx context.Context) (*ScanCursor, error) {
 	// Build url
 	path := "/"
 
@@ -278,7 +284,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 	} else {
 		body = s.searchSource.Source()
 	}
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -289,7 +295,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 		return nil, err
 	}
 
-	cursor := NewScanCursor(s.client, s.keepAlive, s.pretty, searchResult)
+	cursor := NewScanCursorC(ctx, s.client, s.keepAlive, s.pretty, searchResult)
 
 	return cursor, nil
 }
@@ -303,16 +309,23 @@ type ScanCursor struct {
 	keepAlive   string
 	pretty      bool
 	currentPage int
+	ctx         context.Context
 }
 
-// newScanCursor returns a new initialized instance
-// of scanCursor.
+// NewScanCursor returns new scanCursor without context.
 func NewScanCursor(client *Client, keepAlive string, pretty bool, searchResult *SearchResult) *ScanCursor {
+	return NewScanCursorC(nil, client, keepAlive, pretty, searchResult)
+}
+
+// NewScanCursorC returns a new initialized instance
+// of scanCursor.
+func NewScanCursorC(ctx context.Context, client *Client, keepAlive string, pretty bool, searchResult *SearchResult) *ScanCursor {
 	return &ScanCursor{
 		client:    client,
 		keepAlive: keepAlive,
 		pretty:    pretty,
 		Results:   searchResult,
+		ctx:       ctx,
 	}
 }
 
@@ -370,7 +383,7 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 	body := c.Results.ScrollId
 
 	// Get response
-	res, err := c.client.PerformRequest("POST", path, params, body)
+	res, err := c.client.PerformRequestC(c.ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

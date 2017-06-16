@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -142,7 +143,12 @@ func (s *GetService) Validate() error {
 	return nil
 }
 
+// Do runs DoC() with default context.
 func (b *GetService) Do() (*GetResult, error) {
+	return b.DoC(nil)
+}
+
+func (b *GetService) DoC(ctx context.Context) (*GetResult, error) {
 	// Check pre-conditions
 	if err := b.Validate(); err != nil {
 		return nil, err
@@ -196,7 +202,7 @@ func (b *GetService) Do() (*GetResult, error) {
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest("GET", path, params, nil)
+	res, err := b.client.PerformRequestC(ctx, "GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

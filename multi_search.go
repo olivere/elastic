@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -51,7 +52,12 @@ func (s *MultiSearchService) Pretty(pretty bool) *MultiSearchService {
 	return s
 }
 
+// Do runs DoC() with default context.
 func (s *MultiSearchService) Do() (*MultiSearchResult, error) {
+	return s.DoC(nil)
+}
+
+func (s *MultiSearchService) DoC(ctx context.Context) (*MultiSearchResult, error) {
 	// Build url
 	path := "/_msearch"
 
@@ -83,7 +89,7 @@ func (s *MultiSearchService) Do() (*MultiSearchResult, error) {
 	body := strings.Join(lines, "\n") + "\n" // Don't forget trailing \n
 
 	// Get response
-	res, err := s.client.PerformRequest("GET", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}

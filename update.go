@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -314,8 +315,13 @@ func (b *UpdateService) body() (interface{}, error) {
 	return source, nil
 }
 
-// Do executes the update operation.
+// Do runs DoC() with default context.
 func (b *UpdateService) Do() (*UpdateResult, error) {
+	return b.DoC(nil)
+}
+
+// DoC executes the update operation.
+func (b *UpdateService) DoC(ctx context.Context) (*UpdateResult, error) {
 	path, params, err := b.url()
 	if err != nil {
 		return nil, err
@@ -328,7 +334,7 @@ func (b *UpdateService) Do() (*UpdateResult, error) {
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest("POST", path, params, body)
+	res, err := b.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

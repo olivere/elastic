@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -131,8 +132,13 @@ func (s *IndicesExistsTypeService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *IndicesExistsTypeService) Do() (bool, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *IndicesExistsTypeService) DoC(ctx context.Context) (bool, error) {
 	// Get URL for request
 	path, params, err := s.buildURL()
 	if err != nil {
@@ -140,7 +146,7 @@ func (s *IndicesExistsTypeService) Do() (bool, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("HEAD", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "HEAD", path, params, nil)
 	if err != nil {
 		return false, err
 	}

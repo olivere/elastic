@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -90,8 +91,13 @@ func (s *IndicesGetTemplateService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *IndicesGetTemplateService) Do() (map[string]*IndicesGetTemplateResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *IndicesGetTemplateService) DoC(ctx context.Context) (map[string]*IndicesGetTemplateResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -104,7 +110,7 @@ func (s *IndicesGetTemplateService) Do() (map[string]*IndicesGetTemplateResponse
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("GET", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "GET", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

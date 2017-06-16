@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -142,8 +143,13 @@ func (s *IndicesPutSettingsService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *IndicesPutSettingsService) Do() (*IndicesPutSettingsResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *IndicesPutSettingsService) DoC(ctx context.Context) (*IndicesPutSettingsResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -164,7 +170,7 @@ func (s *IndicesPutSettingsService) Do() (*IndicesPutSettingsResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("PUT", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "PUT", path, params, body)
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 
@@ -66,9 +67,14 @@ func (s *DeleteService) Pretty(pretty bool) *DeleteService {
 	return s
 }
 
-// Do deletes the document. It fails if any of index, type, and identifier
-// are missing.
+// Do runs DoC() with default context.
 func (s *DeleteService) Do() (*DeleteResult, error) {
+	return s.DoC(nil)
+}
+
+// DoC deletes the document. It fails if any of index, type, and identifier
+// are missing.
+func (s *DeleteService) DoC(ctx context.Context) (*DeleteResult, error) {
 	if s.index == "" {
 		return nil, ErrMissingIndex
 	}
@@ -105,7 +111,7 @@ func (s *DeleteService) Do() (*DeleteResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("DELETE", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "DELETE", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

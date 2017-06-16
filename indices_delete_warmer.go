@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -97,8 +98,13 @@ func (s *IndicesDeleteWarmerService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *IndicesDeleteWarmerService) Do() (*DeleteWarmerResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *IndicesDeleteWarmerService) DoC(ctx context.Context) (*DeleteWarmerResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -111,7 +117,7 @@ func (s *IndicesDeleteWarmerService) Do() (*DeleteWarmerResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("DELETE", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "DELETE", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

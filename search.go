@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -362,8 +363,13 @@ func (s *SearchService) Validate() error {
 	return nil
 }
 
-// Do executes the search and returns a SearchResult.
+// Do runs DoC() with default context.
 func (s *SearchService) Do() (*SearchResult, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the search and returns a SearchResult.
+func (s *SearchService) DoC(ctx context.Context) (*SearchResult, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -382,7 +388,7 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	} else {
 		body = s.searchSource.Source()
 	}
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -97,8 +98,13 @@ func (s *FlushService) ExpandWildcards(expandWildcards string) *FlushService {
 	return s
 }
 
-// Do executes the service.
+// Do runs DoC() with default context.
 func (s *FlushService) Do() (*FlushResult, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the service.
+func (s *FlushService) DoC(ctx context.Context) (*FlushResult, error) {
 	// Build url
 	path := "/"
 
@@ -140,7 +146,7 @@ func (s *FlushService) Do() (*FlushResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, nil)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, nil)
 	if err != nil {
 		return nil, err
 	}

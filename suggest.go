@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -62,7 +63,12 @@ func (s *SuggestService) Suggester(suggester Suggester) *SuggestService {
 	return s
 }
 
+// Do runs DoC() with default context.
 func (s *SuggestService) Do() (SuggestResult, error) {
+	return s.DoC(nil)
+}
+
+func (s *SuggestService) DoC(ctx context.Context) (SuggestResult, error) {
 	// Build url
 	path := "/"
 
@@ -101,7 +107,7 @@ func (s *SuggestService) Do() (SuggestResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}

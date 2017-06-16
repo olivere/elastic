@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -770,6 +771,20 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 	// Connection should be marked as dead after it failed
 	if numFailedReqs != 5 {
 		t.Errorf("expected %d failed requests; got: %d", 5, numFailedReqs)
+	}
+}
+
+func TestPerformRequestCancelContext(t *testing.T) {
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	cancelFunc()
+
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.PerformRequestC(ctx, "GET", "/", nil, nil)
+	if err != context.Canceled {
+		t.Fatalf("expected to return ctx Cancelled error, got: %v", err.Error())
 	}
 }
 

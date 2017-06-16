@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 
@@ -127,7 +128,12 @@ func (b *IndexService) Pretty(pretty bool) *IndexService {
 	return b
 }
 
+// Do runs DoC() with default context.
 func (b *IndexService) Do() (*IndexResult, error) {
+	return b.DoC(nil)
+}
+
+func (b *IndexService) DoC(ctx context.Context) (*IndexResult, error) {
 	// Build url
 	var path, method string
 	if b.id != "" {
@@ -202,7 +208,7 @@ func (b *IndexService) Do() (*IndexResult, error) {
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest(method, path, params, body)
+	res, err := b.client.PerformRequestC(ctx, method, path, params, body)
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -253,8 +254,13 @@ func (s *MultiTermvectorService) Validate() error {
 	return nil
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (s *MultiTermvectorService) Do() (*MultiTermvectorResponse, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the operation.
+func (s *MultiTermvectorService) DoC(ctx context.Context) (*MultiTermvectorResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -277,7 +283,7 @@ func (s *MultiTermvectorService) Do() (*MultiTermvectorResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest("GET", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "GET", path, params, body)
 	if err != nil {
 		return nil, err
 	}

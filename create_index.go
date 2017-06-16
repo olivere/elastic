@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"errors"
 	"net/url"
 
@@ -71,8 +72,13 @@ func (b *CreateIndexService) Pretty(pretty bool) *CreateIndexService {
 	return b
 }
 
-// Do executes the operation.
+// Do runs DoC() with default context.
 func (b *CreateIndexService) Do() (*CreateIndexResult, error) {
+	return b.DoC(nil)
+}
+
+// DoC executes the operation.
+func (b *CreateIndexService) DoC(ctx context.Context) (*CreateIndexResult, error) {
 	if b.index == "" {
 		return nil, errors.New("missing index name")
 	}
@@ -105,7 +111,7 @@ func (b *CreateIndexService) Do() (*CreateIndexResult, error) {
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest("PUT", path, params, body)
+	res, err := b.client.PerformRequestC(ctx, "PUT", path, params, body)
 	if err != nil {
 		return nil, err
 	}
