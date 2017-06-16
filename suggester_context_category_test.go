@@ -90,9 +90,19 @@ func TestSuggesterCategoryQueryWithTwoValues(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"color":[{"context":"red"},{"context":"yellow"}]}`
-	if got != expected {
-		t.Errorf("expected %s\n,got:\n%s", expected, got)
+	expectedOutcomes := []string{
+		`{"color":[{"context":"red"},{"context":"yellow"}]}`,
+		`{"color":[{"context":"yellow"},{"context":"red"}]}`,
+	}
+	var match bool
+	for _, expected := range expectedOutcomes {
+		if got == expected {
+			match = true
+			break
+		}
+	}
+	if !match {
+		t.Errorf("expected any of %v\n,got:\n%s", expectedOutcomes, got)
 	}
 }
 
@@ -108,9 +118,19 @@ func TestSuggesterCategoryQueryWithBoost(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"color":[{"context":"red"},{"boost":4,"context":"yellow"}]}`
-	if got != expected {
-		t.Errorf("expected %s\n,got:\n%s", expected, got)
+	expectedOutcomes := []string{
+		`{"color":[{"context":"red"},{"boost":4,"context":"yellow"}]}`,
+		`{"color":[{"boost":4,"context":"yellow"},{"context":"red"}]}`,
+	}
+	var match bool
+	for _, expected := range expectedOutcomes {
+		if got == expected {
+			match = true
+			break
+		}
+	}
+	if !match {
+		t.Errorf("expected any of %v\n,got:\n%v", expectedOutcomes, got)
 	}
 }
 
@@ -138,6 +158,6 @@ func TestSuggesterCategoryQueryWithoutBoost(t *testing.T) {
 		}
 	}
 	if !match {
-		t.Errorf("expected any of %v", expectedOutcomes)
+		t.Errorf("expected any of %v\n,got:\n%s", expectedOutcomes, got)
 	}
 }
