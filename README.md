@@ -458,8 +458,9 @@ and
 
 Elastic uses portions of the
 [uritemplates](https://github.com/jtacoma/uritemplates) library
-by Joshua Tacoma and
-[backoff](https://github.com/cenkalti/backoff) by Cenk Altı.
+by Joshua Tacoma,
+[backoff](https://github.com/cenkalti/backoff) by Cenk Altı and
+[leaktest](https://github.com/fortytw2/leaktest) by Ian Chiles.
 
 ## LICENSE
 
