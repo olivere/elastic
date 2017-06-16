@@ -90,10 +90,9 @@ func TestSuggesterCategoryQueryWithTwoValues(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expectedOption1 := `{"color":[{"context":"red"},{"context":"yellow"}]}`
-	expectedOption2 := `{"color":[{"context":"yellow"},{"context":"red"}]}` // order is irrelevant to the results, and we model the query with a map which has no order guarantees
-	if got != expectedOption1 && got != expectedOption2 {
-		t.Errorf("expected either\n%s\nor\n%s\n,got:\n%s", expectedOption1, expectedOption2, got)
+	expected := `{"color":[{"context":"red"},{"context":"yellow"}]}`
+	if got != expected {
+		t.Errorf("expected %s\n,got:\n%s", expected, got)
 	}
 }
 
@@ -109,10 +108,9 @@ func TestSuggesterCategoryQueryWithBoost(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expectedOption1 := `{"color":[{"context":"red"},{"boost":4,"context":"yellow"}]}`
-	expectedOption2 := `{"color":[{"boost":4,"context":"yellow"},{"context":"red"}]}`
-	if got != expectedOption1 && got != expectedOption2 {
-		t.Errorf("expected either\n%s\nor\n%s\n,got:\n%s", expectedOption1, expectedOption2, got)
+	expected := `{"color":[{"context":"red"},{"boost":4,"context":"yellow"}]}`
+	if got != expected {
+		t.Errorf("expected %s\n,got:\n%s", expected, got)
 	}
 }
 
@@ -128,9 +126,8 @@ func TestSuggesterCategoryQueryWithoutBoost(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expectedOption1 := `{"color":[{"context":"red"},{"context":"yellow"}]}`
-	expectedOption2 := `{"color":[{"context":"yellow"},{"context":"red"}]}`
-	if got != expectedOption1 && got != expectedOption2 {
-		t.Errorf("expected either\n%s\nor\n%s\n,got:\n%s", expectedOption1, expectedOption2, got)
+	expected := `{"color":[{"context":"red"},{"context":"yellow"}]}`
+	if got != expected {
+		t.Errorf("expected %s\n,got:\n%s", expected, got)
 	}
 }
