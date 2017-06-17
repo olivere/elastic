@@ -13,7 +13,7 @@ import (
 	"reflect"
 	"time"
 
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "gopkg.in/olivere/elastic.v6"
 )
 
 type Tweet struct {
@@ -71,11 +71,6 @@ func Example() {
 		"number_of_replicas":0
 	},
 	"mappings":{
-		"_default_": {
-			"_all": {
-				"enabled": true
-			}
-		},
 		"tweet":{
 			"properties":{
 				"user":{

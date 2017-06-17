@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // IndicesStatsService provides stats on various metrics of one or more
@@ -135,7 +135,7 @@ func (s *IndicesStatsService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if len(s.groups) > 0 {
 		params.Set("groups", strings.Join(s.groups, ","))

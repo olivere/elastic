@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // IndicesGetTemplateService returns an index template.
@@ -75,7 +75,7 @@ func (s *IndicesGetTemplateService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.flatSettings != nil {
 		params.Set("flat_settings", fmt.Sprintf("%v", *s.flatSettings))

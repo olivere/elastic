@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // IndicesAnalyzeService performs the analysis process on a text and returns
@@ -152,7 +152,7 @@ func (s *IndicesAnalyzeService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.format != "" {
 		params.Set("format", s.format)

@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"log"
 
-	"gopkg.in/olivere/elastic.v5"
+	"gopkg.in/olivere/elastic.v6"
 )
 
 func main() {

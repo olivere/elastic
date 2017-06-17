@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // NodesInfoService allows to retrieve one or more or all of the
@@ -89,7 +89,7 @@ func (s *NodesInfoService) buildURL() (string, url.Values, error) {
 		params.Set("human", fmt.Sprintf("%v", *s.human))
 	}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	return path, params, nil
 }

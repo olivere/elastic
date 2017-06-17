@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // SnapshotDeleteRepositoryService deletes a snapshot repository.
@@ -70,7 +70,7 @@ func (s *SnapshotDeleteRepositoryService) buildURL() (string, url.Values, error)
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)

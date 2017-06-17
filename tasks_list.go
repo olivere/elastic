@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // TasksListService retrieves the list of currently executing tasks
@@ -114,7 +114,7 @@ func (s *TasksListService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if len(s.actions) > 0 {
 		params.Set("actions", strings.Join(s.actions, ","))

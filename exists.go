@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // ExistsService checks for the existence of a document using HEAD.
@@ -107,7 +107,7 @@ func (s *ExistsService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.realtime != nil {
 		params.Set("realtime", fmt.Sprintf("%v", *s.realtime))

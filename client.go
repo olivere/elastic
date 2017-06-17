@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "5.0.41"
+	Version = "6.0.0-alpha2"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1344,11 +1344,6 @@ func (c *Client) MultiTermVectors() *MultiTermvectorService {
 // Search is the entry point for searches.
 func (c *Client) Search(indices ...string) *SearchService {
 	return NewSearchService(c).Index(indices...)
-}
-
-// Suggest returns a service to return suggestions.
-func (c *Client) Suggest(indices ...string) *SuggestService {
-	return NewSuggestService(c).Index(indices...)
 }
 
 // MultiSearch is the entry point for multi searches.

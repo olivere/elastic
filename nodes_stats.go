@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // NodesStatsService returns node statistics.
@@ -165,7 +165,7 @@ func (s *NodesStatsService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if len(s.completionFields) > 0 {
 		params.Set("completion_fields", strings.Join(s.completionFields, ","))

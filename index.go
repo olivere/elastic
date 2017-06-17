@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // IndexService adds or updates a typed JSON document in a specified index,
@@ -186,7 +186,7 @@ func (s *IndexService) buildURL() (string, string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.waitForActiveShards != "" {
 		params.Set("wait_for_active_shards", s.waitForActiveShards)

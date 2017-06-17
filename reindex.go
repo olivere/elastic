@@ -168,7 +168,7 @@ func (s *ReindexService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.refresh != "" {
 		params.Set("refresh", s.refresh)

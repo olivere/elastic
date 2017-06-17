@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // MultiTermvectorService returns information and statistics on terms in the
@@ -198,7 +198,7 @@ func (s *MultiTermvectorService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.fieldStatistics != nil {
 		params.Set("field_statistics", fmt.Sprintf("%v", *s.fieldStatistics))

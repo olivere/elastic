@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // SnapshotGetRepositoryService reads a snapshot repository.
@@ -76,7 +76,7 @@ func (s *SnapshotGetRepositoryService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.local != nil {
 		params.Set("local", fmt.Sprintf("%v", *s.local))

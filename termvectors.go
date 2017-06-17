@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // TermvectorsService returns information and statistics on terms in the
@@ -217,7 +217,7 @@ func (s *TermvectorsService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.dfs != nil {
 		params.Set("dfs", fmt.Sprintf("%v", *s.dfs))
