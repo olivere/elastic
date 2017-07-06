@@ -330,6 +330,15 @@ func TestReindexWithWaitForCompletionFalse(t *testing.T) {
 	if len(res.TaskID) == 0 {
 		t.Errorf("expected a task id, got %v", res)
 	}
+
+	tasksGetTask := client.TasksGetTask()
+	taskStatus, err := tasksGetTask.TaskId(res.TaskID).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if taskStatus == nil {
+		t.Fatal("expected task status result != nil")
+	}
 }
 
 func TestReindexWithWaitForCompletionTrueCannotBeStarted(t *testing.T) {
