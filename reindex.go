@@ -280,6 +280,42 @@ func (s *ReindexService) Do(ctx context.Context) (*BulkIndexByScrollResponse, er
 	return ret, nil
 }
 
+func (s *ReindexService) Start(ctx context.Context) (*StartTaskResult, error) {
+	// Check pre-conditions
+	if err := s.Validate(); err != nil {
+		return nil, err
+	}
+
+	if s.waitForCompletion != nil && *s.waitForCompletion {
+		return nil, fmt.Errorf("cannot start a task with WaitForCompletion set to true")
+	}
+
+	// Get URL for request
+	path, params, err := s.buildURL()
+	if err != nil {
+		return nil, err
+	}
+
+	// Setup HTTP request body
+	body, err := s.getBody()
+	if err != nil {
+		return nil, err
+	}
+
+	// Get HTTP response
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return operation response
+	ret := new(StartTaskResult)
+	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
 // -- Source of Reindex --
 
 // ReindexSource specifies the source of a Reindex process.
