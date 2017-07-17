@@ -123,6 +123,25 @@ func IsTimeout(err interface{}) bool {
 	return false
 }
 
+// IsConflict returns true if the given error indicates that the ElasticSearch
+// operation resulted in a version conflict. This can occur in operations like
+// `update` or `index` with `op_type=create`. The err parameter can be of
+// type *elastic.Error, elastic.Error, *http.Response or int (indicating the
+// HTTP status code).
+func IsConflict(err interface{}) bool {
+	switch e := err.(type) {
+	case *http.Response:
+		return e.StatusCode == http.StatusConflict
+	case *Error:
+		return e.Status == http.StatusConflict
+	case Error:
+		return e.Status == http.StatusConflict
+	case int:
+		return e == http.StatusConflict
+	}
+	return false
+}
+
 // -- General errors --
 
 // shardsInfo represents information from a shard.
