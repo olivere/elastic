@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -34,6 +35,7 @@ type UpdateService struct {
 	scriptedUpsert      *bool
 	docAsUpsert         *bool
 	detectNoop          *bool
+	includeSource       *bool
 	doc                 interface{}
 	timeout             string
 	pretty              bool
@@ -88,6 +90,13 @@ func (b *UpdateService) Script(script *Script) *UpdateService {
 // when a conflict occurs (default: 0).
 func (b *UpdateService) RetryOnConflict(retryOnConflict int) *UpdateService {
 	b.retryOnConflict = &retryOnConflict
+	return b
+}
+
+// IncludeSource specifies whether to include the source of the document in the
+// response, accessible via UpdateResponse.Get() (default: false).
+func (b *UpdateService) IncludeSource(includeSource bool) *UpdateService {
+	b.includeSource = &includeSource
 	return b
 }
 
@@ -217,6 +226,9 @@ func (b *UpdateService) url() (string, url.Values, error) {
 	if b.retryOnConflict != nil {
 		params.Set("retry_on_conflict", fmt.Sprintf("%v", *b.retryOnConflict))
 	}
+	if b.includeSource != nil {
+		params.Set("_source", fmt.Sprintf("%t", *b.includeSource))
+	}
 
 	return path, params, nil
 }
@@ -281,14 +293,21 @@ func (b *UpdateService) Do(ctx context.Context) (*UpdateResponse, error) {
 	return ret, nil
 }
 
+// UpdateGetResult is the document nested inside the UpdateResponse if
+// IncludeSource(true) was called.
+type UpdateGetResult struct {
+	Found  bool             `json:"found"`
+	Source *json.RawMessage `json:"_source"`
+}
+
 // UpdateResponse is the result of updating a document in Elasticsearch.
 type UpdateResponse struct {
-	Index         string      `json:"_index"`
-	Type          string      `json:"_type"`
-	Id            string      `json:"_id"`
-	Version       int         `json:"_version"`
-	Shards        *shardsInfo `json:"_shards"`
-	Result        bool        `json:"string,omitempty"`
-	ForcedRefresh bool        `json:"forced_refresh,omitempty"`
-	GetResult     *GetResult  `json:"get,omitempty"`
+	Index         string           `json:"_index"`
+	Type          string           `json:"_type"`
+	Id            string           `json:"_id"`
+	Version       int              `json:"_version"`
+	Shards        *shardsInfo      `json:"_shards"`
+	Result        bool             `json:"string,omitempty"`
+	ForcedRefresh bool             `json:"forced_refresh,omitempty"`
+	GetResult     *UpdateGetResult `json:"get,omitempty"`
 }
