@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	"net/url"
 	"testing"
@@ -227,6 +228,44 @@ func TestUpdateViaDocAndUpsert(t *testing.T) {
 	}
 	got := string(data)
 	expected := `{"doc":{"name":"new_name"},"doc_as_upsert":true}`
+	if got != expected {
+		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
+	}
+}
+func TestRetrievesSourceSource(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+	update := client.Update().
+		Index("test").Type("type1").Id("1").IncludeSource(true).
+		Doc(struct {
+			Count int `json:"count"`
+		}{42}).
+		DocAsUpsert(true)
+
+	path, params, err := update.url()
+	if err != nil {
+		t.Fatalf("expected to return URL, got: %v", err)
+	}
+	expectedPath := `/test/type1/1/_update`
+	if expectedPath != path {
+		t.Errorf("expected URL path\n%s\ngot:\n%s", expectedPath, path)
+	}
+	expectedParams := url.Values{}
+	expectedParams.Set("_source", "true")
+	if expectedParams.Encode() != params.Encode() {
+		t.Errorf("expected URL parameters\n%s\ngot:\n%s", expectedParams.Encode(), params.Encode())
+	}
+
+	res, err := update.Do(context.TODO())
+	if err != nil {
+		t.Errorf("error updating ES: %s", err)
+	}
+
+	if !res.GetResult.Found {
+		t.Errorf("expected the upsert doc to have been found, but it wasn't")
+	}
+
+	got := string(*res.GetResult.Source)
+	expected := `{"count":42}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
