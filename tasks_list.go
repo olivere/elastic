@@ -212,3 +212,7 @@ type TaskInfo struct {
 	RunningTimeInNanos int64       `json:"running_time_in_nanos"`
 	ParentTaskId       string      `json:"parent_task_id"` // like "YxJnVYjwSBm_AUbzddTajQ:12356"
 }
+
+type StartTaskResult struct {
+	TaskID string `json:"task"`
+}

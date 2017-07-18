@@ -1625,6 +1625,11 @@ func (c *Client) TasksList() *TasksListService {
 	return NewTasksListService(c)
 }
 
+// TasksGetTask retrieves a task running on the cluster.
+func (c *Client) TasksGetTask() *TasksGetTaskService {
+	return NewTasksGetTaskService(c)
+}
+
 // TODO Pending cluster tasks
 // TODO Cluster Reroute
 // TODO Cluster Update Settings
