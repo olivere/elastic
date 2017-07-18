@@ -1233,6 +1233,9 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 			defer res.Body.Close()
 		}
 
+		// Tracing
+		c.dumpResponse(res)
+
 		// Check for errors
 		if err := checkResponse((*http.Request)(req), res, ignoreErrors...); err != nil {
 			// No retry if request succeeded
@@ -1240,9 +1243,6 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 			resp, _ = c.newResponse(res)
 			return resp, err
 		}
-
-		// Tracing
-		c.dumpResponse(res)
 
 		// We successfully made a request with this connection
 		conn.MarkAsHealthy()
