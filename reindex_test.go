@@ -82,6 +82,31 @@ func TestReindexSourceWithSourceAndDestinationAndVersionType(t *testing.T) {
 	}
 }
 
+func TestReindexSourceWithSourceAndRemoteAndDestination(t *testing.T) {
+	client := setupTestClient(t)
+	src := NewReindexSource().Index("twitter").RemoteInfo(
+		NewReindexRemoteInfo().Host("http://otherhost:9200").
+			Username("alice").
+			Password("secret").
+			ConnectTimeout("10s").
+			SocketTimeout("1m"),
+	)
+	dst := NewReindexDestination().Index("new_twitter")
+	out, err := client.Reindex().Source(src).Destination(dst).getBody()
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := json.Marshal(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := string(b)
+	want := `{"dest":{"index":"new_twitter"},"source":{"index":"twitter","remote":{"connect_timeout":"10s","host":"http://otherhost:9200","password":"secret","socket_timeout":"1m","username":"alice"}}}`
+	if got != want {
+		t.Fatalf("\ngot  %s\nwant %s", got, want)
+	}
+}
+
 func TestReindexSourceWithSourceAndDestinationAndOpType(t *testing.T) {
 	client := setupTestClient(t)
 	src := NewReindexSource().Index("twitter")
