@@ -280,15 +280,21 @@ func (s *ReindexService) Do(ctx context.Context) (*BulkIndexByScrollResponse, er
 	return ret, nil
 }
 
-func (s *ReindexService) Start(ctx context.Context) (*StartTaskResult, error) {
+// DoAsync executes the reindexing operation asynchronously by starting a new task.
+// Callers need to use the Task Management API to watch the outcome of the reindexing
+// operation.
+func (s *ReindexService) DoAsync(ctx context.Context) (*StartTaskResult, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
 	}
 
+	// DoAsync only makes sense with WaitForCompletion set to true
 	if s.waitForCompletion != nil && *s.waitForCompletion {
 		return nil, fmt.Errorf("cannot start a task with WaitForCompletion set to true")
 	}
+	f := false
+	s.waitForCompletion = &f
 
 	// Get URL for request
 	path, params, err := s.buildURL()

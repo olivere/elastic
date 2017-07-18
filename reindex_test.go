@@ -315,8 +315,8 @@ func TestReindex(t *testing.T) {
 	}
 }
 
-func TestReindexWithWaitForCompletionFalse(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t)
+func TestReindexAsync(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 	esversion, err := client.ElasticsearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
@@ -344,20 +344,19 @@ func TestReindexWithWaitForCompletionFalse(t *testing.T) {
 	// Simple copying
 	src := NewReindexSource().Index(testIndexName)
 	dst := NewReindexDestination().Index(testIndexName2)
-	res, err := client.Reindex().Source(src).Destination(dst).WaitForCompletion(false).Start(context.TODO())
+	res, err := client.Reindex().Source(src).Destination(dst).DoAsync(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 	if res == nil {
 		t.Fatal("expected result != nil")
 	}
-
-	if len(res.TaskID) == 0 {
-		t.Errorf("expected a task id, got %v", res)
+	if res.TaskId == "" {
+		t.Errorf("expected a task id, got %+v", res)
 	}
 
 	tasksGetTask := client.TasksGetTask()
-	taskStatus, err := tasksGetTask.TaskId(res.TaskID).Do(context.TODO())
+	taskStatus, err := tasksGetTask.TaskId(res.TaskId).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -392,10 +391,10 @@ func TestReindexWithWaitForCompletionTrueCannotBeStarted(t *testing.T) {
 		t.Fatalf("expected %d documents; got: %d", 0, targetCount)
 	}
 
-	// Simple copying
+	// DoAsync should fail when WaitForCompletion is true
 	src := NewReindexSource().Index(testIndexName)
 	dst := NewReindexDestination().Index(testIndexName2)
-	_, err = client.Reindex().Source(src).Destination(dst).WaitForCompletion(true).Start(context.TODO())
+	_, err = client.Reindex().Source(src).Destination(dst).WaitForCompletion(true).DoAsync(context.TODO())
 	if err == nil {
 		t.Fatal("error should have been returned")
 	}

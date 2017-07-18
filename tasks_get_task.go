@@ -16,7 +16,6 @@ type TasksGetTaskService struct {
 	client            *Client
 	pretty            bool
 	taskId            string
-	detailed          *bool
 	waitForCompletion *bool
 }
 
@@ -30,12 +29,6 @@ func NewTasksGetTaskService(client *Client) *TasksGetTaskService {
 // TaskId indicates to return the task with specified id.
 func (s *TasksGetTaskService) TaskId(taskId string) *TasksGetTaskService {
 	s.taskId = taskId
-	return s
-}
-
-// Detailed indicates whether to return detailed task information (default: false).
-func (s *TasksGetTaskService) Detailed(detailed bool) *TasksGetTaskService {
-	s.detailed = &detailed
 	return s
 }
 
@@ -55,23 +48,17 @@ func (s *TasksGetTaskService) Pretty(pretty bool) *TasksGetTaskService {
 // buildURL builds the URL for the operation.
 func (s *TasksGetTaskService) buildURL() (string, url.Values, error) {
 	// Build URL
-	var err error
-	var path string
-	params := url.Values{}
-	path, err = uritemplates.Expand("/_tasks/{task_id}", map[string]string{
+	path, err := uritemplates.Expand("/_tasks/{task_id}", map[string]string{
 		"task_id": s.taskId,
 	})
-
 	if err != nil {
 		return "", url.Values{}, err
 	}
 
 	// Add query string parameters
+	params := url.Values{}
 	if s.pretty {
 		params.Set("pretty", "1")
-	}
-	if s.detailed != nil {
-		params.Set("detailed", fmt.Sprintf("%v", *s.detailed))
 	}
 	if s.waitForCompletion != nil {
 		params.Set("wait_for_completion", fmt.Sprintf("%v", *s.waitForCompletion))
@@ -112,6 +99,6 @@ func (s *TasksGetTaskService) Do(ctx context.Context) (*TasksGetTaskResponse, er
 }
 
 type TasksGetTaskResponse struct {
-	Completed bool     `json:completed`
-	Task      TaskInfo `json:task`
+	Completed bool      `json:"completed"`
+	Task      *TaskInfo `json:"task,omitempty"`
 }
