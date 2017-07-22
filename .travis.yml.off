@@ -1,5 +1,6 @@
 sudo: required
 language: go
+script: go test -race -v . ./config
 go:
   - 1.7
   - 1.8
