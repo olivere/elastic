@@ -24,6 +24,7 @@ type IndicesCreateService struct {
 	masterTimeout string
 	bodyJson      interface{}
 	bodyString    string
+	headers       map[string]string
 }
 
 // NewIndicesCreateService returns a new IndicesCreateService.
@@ -75,6 +76,12 @@ func (b *IndicesCreateService) Pretty(pretty bool) *IndicesCreateService {
 	return b
 }
 
+// Headers adds headers on the http request
+func (s *IndicesCreateService) Headers(headers map[string]string) *IndicesCreateService {
+	s.headers = headers
+	return s
+}
+
 // Do executes the operation.
 func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, error) {
 	if b.index == "" {
@@ -109,7 +116,7 @@ func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := b.client.PerformRequest(ctx, "PUT", path, params, body, b.headers)
 	if err != nil {
 		return nil, err
 	}

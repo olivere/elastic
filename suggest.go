@@ -23,6 +23,7 @@ type SuggestService struct {
 	preference string
 	index      []string
 	suggesters []Suggester
+	headers    map[string]string
 }
 
 // NewSuggestService creates a new instance of SuggestService.
@@ -61,6 +62,12 @@ func (s *SuggestService) Preference(preference string) *SuggestService {
 // Suggester adds a suggester to the request.
 func (s *SuggestService) Suggester(suggester Suggester) *SuggestService {
 	s.suggesters = append(s.suggesters, suggester)
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *SuggestService) Headers(headers map[string]string) *SuggestService {
+	s.headers = headers
 	return s
 }
 
@@ -112,7 +119,7 @@ func (s *SuggestService) Do(ctx context.Context) (SuggestResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

@@ -28,6 +28,7 @@ type ClusterStateService struct {
 	ignoreUnavailable *bool
 	local             *bool
 	masterTimeout     string
+	headers           map[string]string
 }
 
 // NewClusterStateService creates a new ClusterStateService.
@@ -101,6 +102,12 @@ func (s *ClusterStateService) Pretty(pretty bool) *ClusterStateService {
 	return s
 }
 
+// Headers adds headers on the http request
+func (s *ClusterStateService) Headers(headers map[string]string) *ClusterStateService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *ClusterStateService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -165,7 +172,7 @@ func (s *ClusterStateService) Do(ctx context.Context) (*ClusterStateResponse, er
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

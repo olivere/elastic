@@ -25,6 +25,7 @@ type IndicesOpenService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	headers           map[string]string
 }
 
 // NewIndicesOpenService creates and initializes a new IndicesOpenService.
@@ -75,6 +76,12 @@ func (s *IndicesOpenService) ExpandWildcards(expandWildcards string) *IndicesOpe
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesOpenService) Pretty(pretty bool) *IndicesOpenService {
 	s.pretty = pretty
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *IndicesOpenService) Headers(headers map[string]string) *IndicesOpenService {
+	s.headers = headers
 	return s
 }
 
@@ -138,7 +145,7 @@ func (s *IndicesOpenService) Do(ctx context.Context) (*IndicesOpenResponse, erro
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

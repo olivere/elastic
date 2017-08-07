@@ -24,6 +24,7 @@ type PutTemplateService struct {
 	versionType string
 	bodyJson    interface{}
 	bodyString  string
+	headers     map[string]string
 }
 
 // NewPutTemplateService creates a new PutTemplateService.
@@ -66,6 +67,12 @@ func (s *PutTemplateService) BodyJson(body interface{}) *PutTemplateService {
 // BodyString is the document as a string.
 func (s *PutTemplateService) BodyString(body string) *PutTemplateService {
 	s.bodyString = body
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *PutTemplateService) Headers(headers map[string]string) *PutTemplateService {
+	s.headers = headers
 	return s
 }
 
@@ -131,7 +138,7 @@ func (s *PutTemplateService) Do(ctx context.Context) (*AcknowledgedResponse, err
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

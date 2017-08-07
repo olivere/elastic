@@ -1175,7 +1175,7 @@ func (c *Client) mustActiveConn() error {
 // Optionally, a list of HTTP error codes to ignore can be passed.
 // This is necessary for services that expect e.g. HTTP status 404 as a
 // valid outcome (Exists, IndicesExists, IndicesTypeExists).
-func (c *Client) PerformRequest(ctx context.Context, method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
+func (c *Client) PerformRequest(ctx context.Context, method, path string, params url.Values, body interface{}, headers map[string]string, ignoreErrors ...int) (*Response, error) {
 	start := time.Now().UTC()
 
 	c.mu.RLock()
@@ -1237,6 +1237,10 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 
 		if basicAuth {
 			req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+		}
+
+		if headers != nil {
+			req.SetCustomHeaders(headers)
 		}
 
 		// Set body

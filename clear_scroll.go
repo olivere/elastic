@@ -18,6 +18,7 @@ type ClearScrollService struct {
 	client   *Client
 	pretty   bool
 	scrollId []string
+	headers  map[string]string
 }
 
 // NewClearScrollService creates a new ClearScrollService.
@@ -38,6 +39,12 @@ func (s *ClearScrollService) ScrollId(scrollIds ...string) *ClearScrollService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *ClearScrollService) Pretty(pretty bool) *ClearScrollService {
 	s.pretty = pretty
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *ClearScrollService) Headers(headers map[string]string) *ClearScrollService {
+	s.headers = headers
 	return s
 }
 
@@ -85,7 +92,7 @@ func (s *ClearScrollService) Do(ctx context.Context) (*ClearScrollResponse, erro
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

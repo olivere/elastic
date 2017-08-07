@@ -16,9 +16,10 @@ import (
 // AliasesService returns the aliases associated with one or more indices.
 // See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-aliases.html.
 type AliasesService struct {
-	client *Client
-	index  []string
-	pretty bool
+	client  *Client
+	index   []string
+	pretty  bool
+	headers map[string]string
 }
 
 // NewAliasesService instantiates a new AliasesService.
@@ -32,6 +33,12 @@ func NewAliasesService(client *Client) *AliasesService {
 // Pretty asks Elasticsearch to indent the returned JSON.
 func (s *AliasesService) Pretty(pretty bool) *AliasesService {
 	s.pretty = pretty
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *AliasesService) Headers(headers map[string]string) *AliasesService {
+	s.headers = headers
 	return s
 }
 
@@ -72,7 +79,7 @@ func (s *AliasesService) Do(ctx context.Context) (*AliasesResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

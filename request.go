@@ -30,6 +30,13 @@ func NewRequest(method, url string) (*Request, error) {
 	return (*Request)(req), nil
 }
 
+// SetCustomHeaders adds the key, value pairs to the header
+func (r *Request) SetCustomHeaders(headers map[string]string) {
+	for k, v := range headers {
+		r.Header.Add(k, v)
+	}
+}
+
 // SetBasicAuth wraps http.Request's SetBasicAuth.
 func (r *Request) SetBasicAuth(username, password string) {
 	((*http.Request)(r)).SetBasicAuth(username, password)

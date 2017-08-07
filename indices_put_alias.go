@@ -198,6 +198,7 @@ type AliasService struct {
 	client  *Client
 	actions []AliasAction
 	pretty  bool
+	headers map[string]string
 }
 
 // NewAliasService implements a service to manage aliases.
@@ -242,6 +243,12 @@ func (s *AliasService) Action(action ...AliasAction) *AliasService {
 	return s
 }
 
+// Headers adds headers on the http request
+func (s *AliasService) Headers(headers map[string]string) *AliasService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *AliasService) buildURL() (string, url.Values, error) {
 	path := "/_aliases"
@@ -274,7 +281,7 @@ func (s *AliasService) Do(ctx context.Context) (*AliasResult, error) {
 	body["actions"] = actions
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

@@ -27,6 +27,7 @@ type IndicesStatsService struct {
 	fields           []string
 	groups           []string
 	human            *bool
+	headers          map[string]string
 }
 
 // NewIndicesStatsService creates a new IndicesStatsService.
@@ -108,6 +109,12 @@ func (s *IndicesStatsService) Pretty(pretty bool) *IndicesStatsService {
 	return s
 }
 
+// Headers adds headers on the http request
+func (s *IndicesStatsService) Headers(headers map[string]string) *IndicesStatsService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndicesStatsService) buildURL() (string, url.Values, error) {
 	var err error
@@ -180,7 +187,7 @@ func (s *IndicesStatsService) Do(ctx context.Context) (*IndicesStatsResponse, er
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

@@ -27,6 +27,7 @@ type IndicesGetMappingService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	headers           map[string]string
 }
 
 // NewGetMappingService is an alias for NewIndicesGetMappingService.
@@ -88,6 +89,12 @@ func (s *IndicesGetMappingService) IgnoreUnavailable(ignoreUnavailable bool) *In
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesGetMappingService) Pretty(pretty bool) *IndicesGetMappingService {
 	s.pretty = pretty
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *IndicesGetMappingService) Headers(headers map[string]string) *IndicesGetMappingService {
+	s.headers = headers
 	return s
 }
 
@@ -156,7 +163,7 @@ func (s *IndicesGetMappingService) Do(ctx context.Context) (map[string]interface
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

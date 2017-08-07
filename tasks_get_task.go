@@ -17,6 +17,7 @@ type TasksGetTaskService struct {
 	pretty            bool
 	taskId            string
 	waitForCompletion *bool
+	headers           map[string]string
 }
 
 // NewTasksGetTaskService creates a new TasksGetTaskService.
@@ -42,6 +43,12 @@ func (s *TasksGetTaskService) WaitForCompletion(waitForCompletion bool) *TasksGe
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *TasksGetTaskService) Pretty(pretty bool) *TasksGetTaskService {
 	s.pretty = pretty
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *TasksGetTaskService) Headers(headers map[string]string) *TasksGetTaskService {
+	s.headers = headers
 	return s
 }
 
@@ -85,7 +92,7 @@ func (s *TasksGetTaskService) Do(ctx context.Context) (*TasksGetTaskResponse, er
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

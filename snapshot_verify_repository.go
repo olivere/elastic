@@ -22,6 +22,7 @@ type SnapshotVerifyRepositoryService struct {
 	repository    string
 	masterTimeout string
 	timeout       string
+	headers       map[string]string
 }
 
 // NewSnapshotVerifyRepositoryService creates a new SnapshotVerifyRepositoryService.
@@ -52,6 +53,12 @@ func (s *SnapshotVerifyRepositoryService) Timeout(timeout string) *SnapshotVerif
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *SnapshotVerifyRepositoryService) Pretty(pretty bool) *SnapshotVerifyRepositoryService {
 	s.pretty = pretty
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *SnapshotVerifyRepositoryService) Headers(headers map[string]string) *SnapshotVerifyRepositoryService {
+	s.headers = headers
 	return s
 }
 
@@ -105,7 +112,7 @@ func (s *SnapshotVerifyRepositoryService) Do(ctx context.Context) (*SnapshotVeri
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

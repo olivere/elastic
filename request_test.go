@@ -8,6 +8,22 @@ import "testing"
 
 var testReq *Request // used as a temporary variable to avoid compiler optimizations in tests/benchmarks
 
+func BenchmarkRequestSetCustomHeader(b *testing.B) {
+	req, err := NewRequest("GET", "/")
+	if err != nil {
+		b.Fatal(err)
+	}
+	for i := 0; i < b.N; i++ {
+		body := `{"query":{"match_all":{}}}`
+		err = req.SetBody(body, false)
+		req.SetCustomHeaders(map[string]string{"header1": "custom"})
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+	testReq = req
+}
+
 func BenchmarkRequestSetBodyString(b *testing.B) {
 	req, err := NewRequest("GET", "/")
 	if err != nil {

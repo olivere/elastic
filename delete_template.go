@@ -20,6 +20,7 @@ type DeleteTemplateService struct {
 	id          string
 	version     *int
 	versionType string
+	headers     map[string]string
 }
 
 // NewDeleteTemplateService creates a new DeleteTemplateService.
@@ -44,6 +45,12 @@ func (s *DeleteTemplateService) Version(version int) *DeleteTemplateService {
 // VersionType specifies a version type.
 func (s *DeleteTemplateService) VersionType(versionType string) *DeleteTemplateService {
 	s.versionType = versionType
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *DeleteTemplateService) Headers(headers map[string]string) *DeleteTemplateService {
+	s.headers = headers
 	return s
 }
 
@@ -95,7 +102,7 @@ func (s *DeleteTemplateService) Do(ctx context.Context) (*AcknowledgedResponse, 
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

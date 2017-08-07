@@ -65,7 +65,7 @@ func TestRetrier(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil, nil)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -107,7 +107,7 @@ func TestRetrierWithError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil, nil)
 	if err != kaboom {
 		t.Fatalf("expected %v, got %v", kaboom, err)
 	}

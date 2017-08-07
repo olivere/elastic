@@ -21,6 +21,7 @@ type IngestDeletePipelineService struct {
 	id            string
 	masterTimeout string
 	timeout       string
+	headers       map[string]string
 }
 
 // NewIngestDeletePipelineService creates a new IngestDeletePipelineService.
@@ -51,6 +52,12 @@ func (s *IngestDeletePipelineService) Timeout(timeout string) *IngestDeletePipel
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IngestDeletePipelineService) Pretty(pretty bool) *IngestDeletePipelineService {
 	s.pretty = pretty
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *IngestDeletePipelineService) Headers(headers map[string]string) *IngestDeletePipelineService {
+	s.headers = headers
 	return s
 }
 
@@ -104,7 +111,7 @@ func (s *IngestDeletePipelineService) Do(ctx context.Context) (*IngestDeletePipe
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

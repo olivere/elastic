@@ -25,6 +25,7 @@ type IndicesCloseService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	headers           map[string]string
 }
 
 // NewIndicesCloseService creates and initializes a new IndicesCloseService.
@@ -74,6 +75,12 @@ func (s *IndicesCloseService) ExpandWildcards(expandWildcards string) *IndicesCl
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesCloseService) Pretty(pretty bool) *IndicesCloseService {
 	s.pretty = pretty
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *IndicesCloseService) Headers(headers map[string]string) *IndicesCloseService {
+	s.headers = headers
 	return s
 }
 
@@ -134,7 +141,7 @@ func (s *IndicesCloseService) Do(ctx context.Context) (*IndicesCloseResponse, er
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

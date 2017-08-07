@@ -26,6 +26,7 @@ type IndicesAnalyzeService struct {
 	preferLocal *bool
 	bodyJson    interface{}
 	bodyString  string
+	headers     map[string]string
 }
 
 // NewIndicesAnalyzeService creates a new IndicesAnalyzeService.
@@ -132,6 +133,12 @@ func (s *IndicesAnalyzeService) BodyString(body string) *IndicesAnalyzeService {
 	return s
 }
 
+// Headers adds headers on the http request
+func (s *IndicesAnalyzeService) Headers(headers map[string]string) *IndicesAnalyzeService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndicesAnalyzeService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -189,7 +196,7 @@ func (s *IndicesAnalyzeService) Do(ctx context.Context) (*IndicesAnalyzeResponse
 		body = s.request
 	}
 
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

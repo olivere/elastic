@@ -36,6 +36,7 @@ type IndexService struct {
 	pipeline            string
 	bodyJson            interface{}
 	bodyString          string
+	headers             map[string]string
 }
 
 // NewIndexService creates a new IndexService.
@@ -157,6 +158,12 @@ func (s *IndexService) BodyString(body string) *IndexService {
 	return s
 }
 
+// Headers adds headers on the http request
+func (s *IndexService) Headers(headers map[string]string) *IndexService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndexService) buildURL() (string, string, url.Values, error) {
 	var err error
@@ -264,7 +271,7 @@ func (s *IndexService) Do(ctx context.Context) (*IndexResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, method, path, params, body)
+	res, err := s.client.PerformRequest(ctx, method, path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

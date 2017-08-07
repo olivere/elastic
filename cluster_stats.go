@@ -21,6 +21,7 @@ type ClusterStatsService struct {
 	nodeId       []string
 	flatSettings *bool
 	human        *bool
+	headers      map[string]string
 }
 
 // NewClusterStatsService creates a new ClusterStatsService.
@@ -52,6 +53,12 @@ func (s *ClusterStatsService) Human(human bool) *ClusterStatsService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *ClusterStatsService) Pretty(pretty bool) *ClusterStatsService {
 	s.pretty = pretty
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *ClusterStatsService) Headers(headers map[string]string) *ClusterStatsService {
+	s.headers = headers
 	return s
 }
 
@@ -108,7 +115,7 @@ func (s *ClusterStatsService) Do(ctx context.Context) (*ClusterStatsResponse, er
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

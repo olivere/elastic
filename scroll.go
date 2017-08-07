@@ -38,6 +38,8 @@ type ScrollService struct {
 
 	mu       sync.RWMutex
 	scrollId string
+
+	headers map[string]string
 }
 
 // NewScrollService initializes and returns a new ScrollService.
@@ -227,6 +229,12 @@ func (s *ScrollService) ScrollId(scrollId string) *ScrollService {
 	return s
 }
 
+// Headers adds headers on the http request
+func (s *ScrollService) Headers(headers map[string]string) *ScrollService {
+	s.headers = headers
+	return s
+}
+
 // Do returns the next search result. It will return io.EOF as error if there
 // are no more search results.
 func (s *ScrollService) Do(ctx context.Context) (*SearchResult, error) {
@@ -258,7 +266,7 @@ func (s *ScrollService) Clear(ctx context.Context) error {
 		ScrollId: []string{scrollId},
 	}
 
-	_, err := s.client.PerformRequest(ctx, "DELETE", path, params, body)
+	_, err := s.client.PerformRequest(ctx, "DELETE", path, params, body, s.headers)
 	if err != nil {
 		return err
 	}
@@ -283,7 +291,7 @@ func (s *ScrollService) first(ctx context.Context) (*SearchResult, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}
@@ -397,7 +405,7 @@ func (s *ScrollService) next(ctx context.Context) (*SearchResult, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

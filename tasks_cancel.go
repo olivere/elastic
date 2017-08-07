@@ -26,6 +26,7 @@ type TasksCancelService struct {
 	nodeId     []string
 	parentNode string
 	parentTask *int64
+	headers    map[string]string
 }
 
 // NewTasksCancelService creates a new TasksCancelService.
@@ -73,6 +74,12 @@ func (s *TasksCancelService) ParentTask(parentTask int64) *TasksCancelService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *TasksCancelService) Pretty(pretty bool) *TasksCancelService {
 	s.pretty = pretty
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *TasksCancelService) Headers(headers map[string]string) *TasksCancelService {
+	s.headers = headers
 	return s
 }
 
@@ -131,7 +138,7 @@ func (s *TasksCancelService) Do(ctx context.Context) (*TasksListResponse, error)
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

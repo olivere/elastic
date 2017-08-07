@@ -35,6 +35,7 @@ type FieldStatsService struct {
 	ignoreUnavailable *bool
 	bodyJson          interface{}
 	bodyString        string
+	headers           map[string]string
 }
 
 // NewFieldStatsService creates a new FieldStatsService
@@ -118,6 +119,12 @@ func (s *FieldStatsService) BodyString(body string) *FieldStatsService {
 	return s
 }
 
+// Headers adds headers on the http request
+func (s *FieldStatsService) Headers(headers map[string]string) *FieldStatsService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *FieldStatsService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -188,7 +195,7 @@ func (s *FieldStatsService) Do(ctx context.Context) (*FieldStatsResponse, error)
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, http.StatusNotFound)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers, http.StatusNotFound)
 	if err != nil {
 		return nil, err
 	}

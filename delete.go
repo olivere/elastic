@@ -32,6 +32,7 @@ type DeleteService struct {
 	waitForActiveShards string
 	parent              string
 	refresh             string
+	headers             map[string]string
 }
 
 // NewDeleteService creates a new DeleteService.
@@ -111,6 +112,12 @@ func (s *DeleteService) Pretty(pretty bool) *DeleteService {
 	return s
 }
 
+// Headers adds headers on the http request
+func (s *DeleteService) Headers(headers map[string]string) *DeleteService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *DeleteService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -186,7 +193,7 @@ func (s *DeleteService) Do(ctx context.Context) (*DeleteResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil, http.StatusNotFound)
+	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil, s.headers, http.StatusNotFound)
 	if err != nil {
 		return nil, err
 	}

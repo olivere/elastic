@@ -27,6 +27,7 @@ type SnapshotCreateRepositoryService struct {
 	settings      map[string]interface{}
 	bodyJson      interface{}
 	bodyString    string
+	headers       map[string]string
 }
 
 // NewSnapshotCreateRepositoryService creates a new SnapshotCreateRepositoryService.
@@ -96,6 +97,12 @@ func (s *SnapshotCreateRepositoryService) BodyJson(body interface{}) *SnapshotCr
 // BodyString is documented as: The repository definition.
 func (s *SnapshotCreateRepositoryService) BodyString(body string) *SnapshotCreateRepositoryService {
 	s.bodyString = body
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *SnapshotCreateRepositoryService) Headers(headers map[string]string) *SnapshotCreateRepositoryService {
+	s.headers = headers
 	return s
 }
 
@@ -179,7 +186,7 @@ func (s *SnapshotCreateRepositoryService) Do(ctx context.Context) (*SnapshotCrea
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

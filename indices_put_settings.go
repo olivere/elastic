@@ -29,6 +29,7 @@ type IndicesPutSettingsService struct {
 	masterTimeout     string
 	bodyJson          interface{}
 	bodyString        string
+	headers           map[string]string
 }
 
 // NewIndicesPutSettingsService creates a new IndicesPutSettingsService.
@@ -95,6 +96,12 @@ func (s *IndicesPutSettingsService) BodyJson(body interface{}) *IndicesPutSettin
 // BodyString is documented as: The index settings to be updated.
 func (s *IndicesPutSettingsService) BodyString(body string) *IndicesPutSettingsService {
 	s.bodyString = body
+	return s
+}
+
+// Headers adds headers on the http request
+func (s *IndicesPutSettingsService) Headers(headers map[string]string) *IndicesPutSettingsService {
+	s.headers = headers
 	return s
 }
 
@@ -165,7 +172,7 @@ func (s *IndicesPutSettingsService) Do(ctx context.Context) (*IndicesPutSettings
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}
