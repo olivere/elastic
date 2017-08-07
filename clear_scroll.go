@@ -18,7 +18,7 @@ type ClearScrollService struct {
 	client   *Client
 	pretty   bool
 	scrollId []string
-	headers  map[string]string
+	headers  map[string][]string
 }
 
 // NewClearScrollService creates a new ClearScrollService.
@@ -43,8 +43,8 @@ func (s *ClearScrollService) Pretty(pretty bool) *ClearScrollService {
 }
 
 // Headers adds headers on the http request
-func (s *ClearScrollService) Headers(headers map[string]string) *ClearScrollService {
-	s.headers = headers
+func (s *ClearScrollService) Header(key, value string) *ClearScrollService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

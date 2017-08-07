@@ -29,7 +29,7 @@ type IndicesPutSettingsService struct {
 	masterTimeout     string
 	bodyJson          interface{}
 	bodyString        string
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewIndicesPutSettingsService creates a new IndicesPutSettingsService.
@@ -100,8 +100,8 @@ func (s *IndicesPutSettingsService) BodyString(body string) *IndicesPutSettingsS
 }
 
 // Headers adds headers on the http request
-func (s *IndicesPutSettingsService) Headers(headers map[string]string) *IndicesPutSettingsService {
-	s.headers = headers
+func (s *IndicesPutSettingsService) Header(key, value string) *IndicesPutSettingsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

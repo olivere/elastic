@@ -27,7 +27,7 @@ type MgetService struct {
 	routing      string
 	storedFields []string
 	items        []*MultiGetItem
-	headers      map[string]string
+	headers      map[string][]string
 }
 
 // NewMgetService initializes a new Multi GET API request call.
@@ -97,8 +97,8 @@ func (s *MgetService) Source() (interface{}, error) {
 }
 
 // Headers adds headers on the http request
-func (s *MgetService) Headers(headers map[string]string) *MgetService {
-	s.headers = headers
+func (s *MgetService) Header(key, value string) *MgetService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

@@ -35,7 +35,7 @@ type GetService struct {
 	versionType                   string
 	parent                        string
 	ignoreErrorsOnGeneratedFields *bool
-	headers                       map[string]string
+	headers                       map[string][]string
 }
 
 // NewGetService creates a new GetService.
@@ -141,8 +141,8 @@ func (s *GetService) Pretty(pretty bool) *GetService {
 }
 
 // Headers sets headers on the http request
-func (s *GetService) Headers(headers map[string]string) *GetService {
-	s.headers = headers
+func (s *GetService) Header(key, value string) *GetService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

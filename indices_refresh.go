@@ -20,7 +20,7 @@ type RefreshService struct {
 	index   []string
 	force   *bool
 	pretty  bool
-	headers map[string]string
+	headers map[string][]string
 }
 
 // NewRefreshService creates a new instance of RefreshService.
@@ -50,8 +50,8 @@ func (s *RefreshService) Pretty(pretty bool) *RefreshService {
 }
 
 // Headers adds headers on the http request
-func (s *RefreshService) Headers(headers map[string]string) *RefreshService {
-	s.headers = headers
+func (s *RefreshService) Header(key, value string) *RefreshService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

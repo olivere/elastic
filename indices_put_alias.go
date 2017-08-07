@@ -198,7 +198,7 @@ type AliasService struct {
 	client  *Client
 	actions []AliasAction
 	pretty  bool
-	headers map[string]string
+	headers map[string][]string
 }
 
 // NewAliasService implements a service to manage aliases.
@@ -244,8 +244,8 @@ func (s *AliasService) Action(action ...AliasAction) *AliasService {
 }
 
 // Headers adds headers on the http request
-func (s *AliasService) Headers(headers map[string]string) *AliasService {
-	s.headers = headers
+func (s *AliasService) Header(key, value string) *AliasService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

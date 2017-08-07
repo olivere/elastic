@@ -24,7 +24,7 @@ type PutTemplateService struct {
 	versionType string
 	bodyJson    interface{}
 	bodyString  string
-	headers     map[string]string
+	headers     map[string][]string
 }
 
 // NewPutTemplateService creates a new PutTemplateService.
@@ -71,8 +71,8 @@ func (s *PutTemplateService) BodyString(body string) *PutTemplateService {
 }
 
 // Headers adds headers on the http request
-func (s *PutTemplateService) Headers(headers map[string]string) *PutTemplateService {
-	s.headers = headers
+func (s *PutTemplateService) Header(key, value string) *PutTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

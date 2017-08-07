@@ -25,7 +25,7 @@ type IngestPutPipelineService struct {
 	timeout       string
 	bodyJson      interface{}
 	bodyString    string
-	headers       map[string]string
+	headers       map[string][]string
 }
 
 // NewIngestPutPipelineService creates a new IngestPutPipelineService.
@@ -73,8 +73,8 @@ func (s *IngestPutPipelineService) BodyString(body string) *IngestPutPipelineSer
 }
 
 // Headers adds headers on the http request
-func (s *IngestPutPipelineService) Headers(headers map[string]string) *IngestPutPipelineService {
-	s.headers = headers
+func (s *IngestPutPipelineService) Header(key, value string) *IngestPutPipelineService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

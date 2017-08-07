@@ -31,7 +31,7 @@ type NodesStatsService struct {
 	level            string
 	timeout          string
 	types            []string
-	headers          map[string]string
+	headers          map[string][]string
 }
 
 // NewNodesStatsService creates a new NodesStatsService.
@@ -119,8 +119,8 @@ func (s *NodesStatsService) Pretty(pretty bool) *NodesStatsService {
 }
 
 // Headers adds headers on the http request
-func (s *NodesStatsService) Headers(headers map[string]string) *NodesStatsService {
-	s.headers = headers
+func (s *NodesStatsService) Header(key, value string) *NodesStatsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

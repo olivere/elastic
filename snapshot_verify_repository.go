@@ -22,7 +22,7 @@ type SnapshotVerifyRepositoryService struct {
 	repository    string
 	masterTimeout string
 	timeout       string
-	headers       map[string]string
+	headers       map[string][]string
 }
 
 // NewSnapshotVerifyRepositoryService creates a new SnapshotVerifyRepositoryService.
@@ -57,8 +57,8 @@ func (s *SnapshotVerifyRepositoryService) Pretty(pretty bool) *SnapshotVerifyRep
 }
 
 // Headers adds headers on the http request
-func (s *SnapshotVerifyRepositoryService) Headers(headers map[string]string) *SnapshotVerifyRepositoryService {
-	s.headers = headers
+func (s *SnapshotVerifyRepositoryService) Header(key, value string) *SnapshotVerifyRepositoryService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

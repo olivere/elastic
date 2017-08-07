@@ -43,7 +43,7 @@ type TermvectorsService struct {
 	versionType      string
 	bodyJson         interface{}
 	bodyString       string
-	headers          map[string]string
+	headers          map[string][]string
 }
 
 // NewTermvectorsService creates a new TermvectorsService.
@@ -195,8 +195,8 @@ func (s *TermvectorsService) BodyString(body string) *TermvectorsService {
 }
 
 // Headers adds headers on the http request
-func (s *TermvectorsService) Headers(headers map[string]string) *TermvectorsService {
-	s.headers = headers
+func (s *TermvectorsService) Header(key, value string) *TermvectorsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

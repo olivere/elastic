@@ -32,7 +32,7 @@ type DeleteService struct {
 	waitForActiveShards string
 	parent              string
 	refresh             string
-	headers             map[string]string
+	headers             map[string][]string
 }
 
 // NewDeleteService creates a new DeleteService.
@@ -113,8 +113,8 @@ func (s *DeleteService) Pretty(pretty bool) *DeleteService {
 }
 
 // Headers adds headers on the http request
-func (s *DeleteService) Headers(headers map[string]string) *DeleteService {
-	s.headers = headers
+func (s *DeleteService) Header(key, value string) *DeleteService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

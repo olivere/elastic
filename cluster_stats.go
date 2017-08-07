@@ -21,7 +21,7 @@ type ClusterStatsService struct {
 	nodeId       []string
 	flatSettings *bool
 	human        *bool
-	headers      map[string]string
+	headers      map[string][]string
 }
 
 // NewClusterStatsService creates a new ClusterStatsService.
@@ -57,8 +57,8 @@ func (s *ClusterStatsService) Pretty(pretty bool) *ClusterStatsService {
 }
 
 // Headers adds headers on the http request
-func (s *ClusterStatsService) Headers(headers map[string]string) *ClusterStatsService {
-	s.headers = headers
+func (s *ClusterStatsService) Header(key, value string) *ClusterStatsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

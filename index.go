@@ -36,7 +36,7 @@ type IndexService struct {
 	pipeline            string
 	bodyJson            interface{}
 	bodyString          string
-	headers             map[string]string
+	headers             map[string][]string
 }
 
 // NewIndexService creates a new IndexService.
@@ -159,8 +159,8 @@ func (s *IndexService) BodyString(body string) *IndexService {
 }
 
 // Headers adds headers on the http request
-func (s *IndexService) Headers(headers map[string]string) *IndexService {
-	s.headers = headers
+func (s *IndexService) Header(key, value string) *IndexService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

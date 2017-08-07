@@ -21,7 +21,7 @@ type IndicesExistsTemplateService struct {
 	pretty  bool
 	name    string
 	local   *bool
-	headers map[string]string
+	headers map[string][]string
 }
 
 // NewIndicesExistsTemplateService creates a new IndicesExistsTemplateService.
@@ -51,8 +51,8 @@ func (s *IndicesExistsTemplateService) Pretty(pretty bool) *IndicesExistsTemplat
 }
 
 // Headers adds headers on the http request
-func (s *IndicesExistsTemplateService) Headers(headers map[string]string) *IndicesExistsTemplateService {
-	s.headers = headers
+func (s *IndicesExistsTemplateService) Header(key, value string) *IndicesExistsTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

@@ -25,7 +25,7 @@ type IndicesOpenService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewIndicesOpenService creates and initializes a new IndicesOpenService.
@@ -80,8 +80,8 @@ func (s *IndicesOpenService) Pretty(pretty bool) *IndicesOpenService {
 }
 
 // Headers adds headers on the http request
-func (s *IndicesOpenService) Headers(headers map[string]string) *IndicesOpenService {
-	s.headers = headers
+func (s *IndicesOpenService) Header(key, value string) *IndicesOpenService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

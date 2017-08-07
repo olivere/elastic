@@ -23,7 +23,7 @@ type SuggestService struct {
 	preference string
 	index      []string
 	suggesters []Suggester
-	headers    map[string]string
+	headers    map[string][]string
 }
 
 // NewSuggestService creates a new instance of SuggestService.
@@ -66,8 +66,8 @@ func (s *SuggestService) Suggester(suggester Suggester) *SuggestService {
 }
 
 // Headers adds headers on the http request
-func (s *SuggestService) Headers(headers map[string]string) *SuggestService {
-	s.headers = headers
+func (s *SuggestService) Header(key, value string) *SuggestService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

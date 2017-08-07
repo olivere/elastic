@@ -21,7 +21,7 @@ type IngestDeletePipelineService struct {
 	id            string
 	masterTimeout string
 	timeout       string
-	headers       map[string]string
+	headers       map[string][]string
 }
 
 // NewIngestDeletePipelineService creates a new IngestDeletePipelineService.
@@ -56,8 +56,8 @@ func (s *IngestDeletePipelineService) Pretty(pretty bool) *IngestDeletePipelineS
 }
 
 // Headers adds headers on the http request
-func (s *IngestDeletePipelineService) Headers(headers map[string]string) *IngestDeletePipelineService {
-	s.headers = headers
+func (s *IngestDeletePipelineService) Header(key, value string) *IngestDeletePipelineService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

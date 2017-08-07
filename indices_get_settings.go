@@ -28,7 +28,7 @@ type IndicesGetSettingsService struct {
 	expandWildcards   string
 	flatSettings      *bool
 	local             *bool
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewIndicesGetSettingsService creates a new IndicesGetSettingsService.
@@ -96,8 +96,8 @@ func (s *IndicesGetSettingsService) Pretty(pretty bool) *IndicesGetSettingsServi
 }
 
 // Headers adds headers on the http request
-func (s *IndicesGetSettingsService) Headers(headers map[string]string) *IndicesGetSettingsService {
-	s.headers = headers
+func (s *IndicesGetSettingsService) Header(key, value string) *IndicesGetSettingsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

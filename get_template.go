@@ -20,7 +20,7 @@ type GetTemplateService struct {
 	id          string
 	version     interface{}
 	versionType string
-	headers     map[string]string
+	headers     map[string][]string
 }
 
 // NewGetTemplateService creates a new GetTemplateService.
@@ -49,8 +49,8 @@ func (s *GetTemplateService) VersionType(versionType string) *GetTemplateService
 }
 
 // Headers adds headers on the http request
-func (s *GetTemplateService) Headers(headers map[string]string) *GetTemplateService {
-	s.headers = headers
+func (s *GetTemplateService) Header(key, value string) *GetTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

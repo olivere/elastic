@@ -24,7 +24,7 @@ type IndicesCreateService struct {
 	masterTimeout string
 	bodyJson      interface{}
 	bodyString    string
-	headers       map[string]string
+	headers       map[string][]string
 }
 
 // NewIndicesCreateService returns a new IndicesCreateService.
@@ -77,8 +77,8 @@ func (b *IndicesCreateService) Pretty(pretty bool) *IndicesCreateService {
 }
 
 // Headers adds headers on the http request
-func (s *IndicesCreateService) Headers(headers map[string]string) *IndicesCreateService {
-	s.headers = headers
+func (s *IndicesCreateService) Header(key, value string) *IndicesCreateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

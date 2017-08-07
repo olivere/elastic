@@ -62,7 +62,7 @@ type DeleteByQueryService struct {
 	waitForActiveShards    string
 	waitForCompletion      *bool
 	pretty                 bool
-	headers                map[string]string
+	headers                map[string][]string
 }
 
 // NewDeleteByQueryService creates a new DeleteByQueryService.
@@ -413,8 +413,8 @@ func (s *DeleteByQueryService) Body(body string) *DeleteByQueryService {
 }
 
 // Headers adds headers on the http request
-func (s *DeleteByQueryService) Headers(headers map[string]string) *DeleteByQueryService {
-	s.headers = headers
+func (s *DeleteByQueryService) Header(key, value string) *DeleteByQueryService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

@@ -17,7 +17,7 @@ type TasksGetTaskService struct {
 	pretty            bool
 	taskId            string
 	waitForCompletion *bool
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewTasksGetTaskService creates a new TasksGetTaskService.
@@ -47,8 +47,8 @@ func (s *TasksGetTaskService) Pretty(pretty bool) *TasksGetTaskService {
 }
 
 // Headers adds headers on the http request
-func (s *TasksGetTaskService) Headers(headers map[string]string) *TasksGetTaskService {
-	s.headers = headers
+func (s *TasksGetTaskService) Header(key, value string) *TasksGetTaskService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

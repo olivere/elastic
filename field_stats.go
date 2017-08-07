@@ -35,7 +35,7 @@ type FieldStatsService struct {
 	ignoreUnavailable *bool
 	bodyJson          interface{}
 	bodyString        string
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewFieldStatsService creates a new FieldStatsService
@@ -120,8 +120,8 @@ func (s *FieldStatsService) BodyString(body string) *FieldStatsService {
 }
 
 // Headers adds headers on the http request
-func (s *FieldStatsService) Headers(headers map[string]string) *FieldStatsService {
-	s.headers = headers
+func (s *FieldStatsService) Header(key, value string) *FieldStatsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

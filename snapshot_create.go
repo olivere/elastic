@@ -24,7 +24,7 @@ type SnapshotCreateService struct {
 	waitForCompletion *bool
 	bodyJson          interface{}
 	bodyString        string
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewSnapshotCreateService creates a new SnapshotCreateService.
@@ -77,8 +77,8 @@ func (s *SnapshotCreateService) BodyString(body string) *SnapshotCreateService {
 }
 
 // Headers adds headers on the http request
-func (s *SnapshotCreateService) Headers(headers map[string]string) *SnapshotCreateService {
-	s.headers = headers
+func (s *SnapshotCreateService) Header(key, value string) *SnapshotCreateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

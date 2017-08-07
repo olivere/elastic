@@ -25,7 +25,7 @@ type IndicesCloseService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewIndicesCloseService creates and initializes a new IndicesCloseService.
@@ -79,8 +79,8 @@ func (s *IndicesCloseService) Pretty(pretty bool) *IndicesCloseService {
 }
 
 // Headers adds headers on the http request
-func (s *IndicesCloseService) Headers(headers map[string]string) *IndicesCloseService {
-	s.headers = headers
+func (s *IndicesCloseService) Header(key, value string) *IndicesCloseService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

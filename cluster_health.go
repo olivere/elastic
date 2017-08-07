@@ -29,7 +29,7 @@ type ClusterHealthService struct {
 	waitForNodes              string
 	waitForNoRelocatingShards *bool
 	waitForStatus             string
-	headers                   map[string]string
+	headers                   map[string][]string
 }
 
 // NewClusterHealthService creates a new ClusterHealthService.
@@ -114,8 +114,8 @@ func (s *ClusterHealthService) Pretty(pretty bool) *ClusterHealthService {
 }
 
 // Headers adds headers on the http request
-func (s *ClusterHealthService) Headers(headers map[string]string) *ClusterHealthService {
-	s.headers = headers
+func (s *ClusterHealthService) Header(key, value string) *ClusterHealthService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

@@ -26,7 +26,7 @@ type IndicesAnalyzeService struct {
 	preferLocal *bool
 	bodyJson    interface{}
 	bodyString  string
-	headers     map[string]string
+	headers     map[string][]string
 }
 
 // NewIndicesAnalyzeService creates a new IndicesAnalyzeService.
@@ -134,8 +134,8 @@ func (s *IndicesAnalyzeService) BodyString(body string) *IndicesAnalyzeService {
 }
 
 // Headers adds headers on the http request
-func (s *IndicesAnalyzeService) Headers(headers map[string]string) *IndicesAnalyzeService {
-	s.headers = headers
+func (s *IndicesAnalyzeService) Header(key, value string) *IndicesAnalyzeService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

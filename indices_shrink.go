@@ -28,7 +28,7 @@ type IndicesShrinkService struct {
 	waitForActiveShards string
 	bodyJson            interface{}
 	bodyString          string
-	headers             map[string]string
+	headers             map[string][]string
 }
 
 // NewIndicesShrinkService creates a new IndicesShrinkService.
@@ -90,8 +90,8 @@ func (s *IndicesShrinkService) BodyString(body string) *IndicesShrinkService {
 }
 
 // Headers adds headers on the http request
-func (s *IndicesShrinkService) Headers(headers map[string]string) *IndicesShrinkService {
-	s.headers = headers
+func (s *IndicesShrinkService) Header(key, value string) *IndicesShrinkService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

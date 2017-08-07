@@ -32,7 +32,7 @@ type IndicesRolloverService struct {
 	mappings            map[string]interface{}
 	bodyJson            interface{}
 	bodyString          string
-	headers             map[string]string
+	headers             map[string][]string
 }
 
 // NewIndicesRolloverService creates a new IndicesRolloverService.
@@ -153,8 +153,8 @@ func (s *IndicesRolloverService) BodyString(body string) *IndicesRolloverService
 }
 
 // Headers adds headers on the http request
-func (s *IndicesRolloverService) Headers(headers map[string]string) *IndicesRolloverService {
-	s.headers = headers
+func (s *IndicesRolloverService) Header(key, value string) *IndicesRolloverService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

@@ -28,7 +28,7 @@ type TasksListService struct {
 	parentNode        string
 	parentTask        *int64
 	waitForCompletion *bool
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewTasksListService creates a new TasksListService.
@@ -93,8 +93,8 @@ func (s *TasksListService) Pretty(pretty bool) *TasksListService {
 }
 
 // Headers adds headers on the http request
-func (s *TasksListService) Headers(headers map[string]string) *TasksListService {
-	s.headers = headers
+func (s *TasksListService) Header(key, value string) *TasksListService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

@@ -39,7 +39,7 @@ type ExplainService struct {
 	source                 string
 	bodyJson               interface{}
 	bodyString             string
-	headers                map[string]string
+	headers                map[string][]string
 }
 
 // NewExplainService creates a new ExplainService.
@@ -195,8 +195,8 @@ func (s *ExplainService) BodyString(body string) *ExplainService {
 }
 
 // Headers adds headers on the http request
-func (s *ExplainService) Headers(headers map[string]string) *ExplainService {
-	s.headers = headers
+func (s *ExplainService) Header(key, value string) *ExplainService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

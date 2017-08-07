@@ -38,7 +38,7 @@ type UpdateService struct {
 	doc                 interface{}
 	timeout             string
 	pretty              bool
-	headers             map[string]string
+	headers             map[string][]string
 }
 
 // NewUpdateService creates the service to update documents in Elasticsearch.
@@ -175,8 +175,8 @@ func (b *UpdateService) Pretty(pretty bool) *UpdateService {
 }
 
 // Headers adds headers on the http request
-func (s *UpdateService) Headers(headers map[string]string) *UpdateService {
-	s.headers = headers
+func (s *UpdateService) Header(key, value string) *UpdateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

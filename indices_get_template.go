@@ -21,7 +21,7 @@ type IndicesGetTemplateService struct {
 	name         []string
 	flatSettings *bool
 	local        *bool
-	headers      map[string]string
+	headers      map[string][]string
 }
 
 // NewIndicesGetTemplateService creates a new IndicesGetTemplateService.
@@ -58,8 +58,8 @@ func (s *IndicesGetTemplateService) Pretty(pretty bool) *IndicesGetTemplateServi
 }
 
 // Headers adds headers on the http request
-func (s *IndicesGetTemplateService) Headers(headers map[string]string) *IndicesGetTemplateService {
-	s.headers = headers
+func (s *IndicesGetTemplateService) Header(key, value string) *IndicesGetTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

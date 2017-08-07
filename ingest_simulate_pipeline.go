@@ -25,7 +25,7 @@ type IngestSimulatePipelineService struct {
 	verbose    *bool
 	bodyJson   interface{}
 	bodyString string
-	headers    map[string]string
+	headers    map[string][]string
 }
 
 // NewIngestSimulatePipelineService creates a new IngestSimulatePipeline.
@@ -67,8 +67,8 @@ func (s *IngestSimulatePipelineService) BodyString(body string) *IngestSimulateP
 }
 
 // Headers adds headers on the http request
-func (s *IngestSimulatePipelineService) Headers(headers map[string]string) *IngestSimulatePipelineService {
-	s.headers = headers
+func (s *IngestSimulatePipelineService) Header(key, value string) *IngestSimulatePipelineService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

@@ -20,7 +20,7 @@ type DeleteTemplateService struct {
 	id          string
 	version     *int
 	versionType string
-	headers     map[string]string
+	headers     map[string][]string
 }
 
 // NewDeleteTemplateService creates a new DeleteTemplateService.
@@ -49,8 +49,8 @@ func (s *DeleteTemplateService) VersionType(versionType string) *DeleteTemplateS
 }
 
 // Headers adds headers on the http request
-func (s *DeleteTemplateService) Headers(headers map[string]string) *DeleteTemplateService {
-	s.headers = headers
+func (s *DeleteTemplateService) Header(key, value string) *DeleteTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

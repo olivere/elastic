@@ -20,7 +20,7 @@ type IndicesDeleteTemplateService struct {
 	name          string
 	timeout       string
 	masterTimeout string
-	headers       map[string]string
+	headers       map[string][]string
 }
 
 // NewIndicesDeleteTemplateService creates a new IndicesDeleteTemplateService.
@@ -55,8 +55,8 @@ func (s *IndicesDeleteTemplateService) Pretty(pretty bool) *IndicesDeleteTemplat
 }
 
 // Headers adds headers on the http request
-func (s *IndicesDeleteTemplateService) Headers(headers map[string]string) *IndicesDeleteTemplateService {
-	s.headers = headers
+func (s *IndicesDeleteTemplateService) Header(key, value string) *IndicesDeleteTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

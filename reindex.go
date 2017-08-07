@@ -26,7 +26,7 @@ type ReindexService struct {
 	conflicts           string
 	size                *int
 	script              *Script
-	headers             map[string]string
+	headers             map[string][]string
 }
 
 // NewReindexService creates a new ReindexService.
@@ -162,8 +162,8 @@ func (s *ReindexService) Body(body interface{}) *ReindexService {
 }
 
 // Headers adds headers on the http request
-func (s *ReindexService) Headers(headers map[string]string) *ReindexService {
-	s.headers = headers
+func (s *ReindexService) Header(key, value string) *ReindexService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

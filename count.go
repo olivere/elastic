@@ -37,7 +37,7 @@ type CountService struct {
 	routing                string
 	bodyJson               interface{}
 	bodyString             string
-	headers                map[string]string
+	headers                map[string][]string
 }
 
 // NewCountService creates a new CountService.
@@ -181,8 +181,8 @@ func (s *CountService) BodyString(body string) *CountService {
 }
 
 // Headers adds headers on the http request
-func (s *CountService) Headers(headers map[string]string) *CountService {
-	s.headers = headers
+func (s *CountService) Header(key, value string) *CountService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

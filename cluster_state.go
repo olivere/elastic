@@ -28,7 +28,7 @@ type ClusterStateService struct {
 	ignoreUnavailable *bool
 	local             *bool
 	masterTimeout     string
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewClusterStateService creates a new ClusterStateService.
@@ -103,8 +103,8 @@ func (s *ClusterStateService) Pretty(pretty bool) *ClusterStateService {
 }
 
 // Headers adds headers on the http request
-func (s *ClusterStateService) Headers(headers map[string]string) *ClusterStateService {
-	s.headers = headers
+func (s *ClusterStateService) Header(key, value string) *ClusterStateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

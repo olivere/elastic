@@ -31,9 +31,11 @@ func NewRequest(method, url string) (*Request, error) {
 }
 
 // SetCustomHeaders adds the key, value pairs to the header
-func (r *Request) SetCustomHeaders(headers map[string]string) {
+func (r *Request) SetCustomHeaders(headers map[string][]string) {
 	for k, v := range headers {
-		r.Header.Add(k, v)
+		for _, el := range v {
+			r.Header.Add(k, el)
+		}
 	}
 }
 

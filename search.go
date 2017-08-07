@@ -31,7 +31,7 @@ type SearchService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -301,8 +301,8 @@ func (s *SearchService) ExpandWildcards(expandWildcards string) *SearchService {
 }
 
 // Headers adds headers on the http request
-func (s *SearchService) Headers(headers map[string]string) *SearchService {
-	s.headers = headers
+func (s *SearchService) Header(key, value string) *SearchService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

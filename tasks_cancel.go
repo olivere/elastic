@@ -26,7 +26,7 @@ type TasksCancelService struct {
 	nodeId     []string
 	parentNode string
 	parentTask *int64
-	headers    map[string]string
+	headers    map[string][]string
 }
 
 // NewTasksCancelService creates a new TasksCancelService.
@@ -78,8 +78,8 @@ func (s *TasksCancelService) Pretty(pretty bool) *TasksCancelService {
 }
 
 // Headers adds headers on the http request
-func (s *TasksCancelService) Headers(headers map[string]string) *TasksCancelService {
-	s.headers = headers
+func (s *TasksCancelService) Header(key, value string) *TasksCancelService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

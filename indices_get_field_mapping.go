@@ -28,7 +28,7 @@ type IndicesGetFieldMappingService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewGetFieldMappingService is an alias for NewIndicesGetFieldMappingService.
@@ -98,8 +98,8 @@ func (s *IndicesGetFieldMappingService) Pretty(pretty bool) *IndicesGetFieldMapp
 }
 
 // Headers adds headers on the http request
-func (s *IndicesGetFieldMappingService) Headers(headers map[string]string) *IndicesGetFieldMappingService {
-	s.headers = headers
+func (s *IndicesGetFieldMappingService) Header(key, value string) *IndicesGetFieldMappingService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

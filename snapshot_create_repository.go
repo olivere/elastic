@@ -27,7 +27,7 @@ type SnapshotCreateRepositoryService struct {
 	settings      map[string]interface{}
 	bodyJson      interface{}
 	bodyString    string
-	headers       map[string]string
+	headers       map[string][]string
 }
 
 // NewSnapshotCreateRepositoryService creates a new SnapshotCreateRepositoryService.
@@ -101,8 +101,8 @@ func (s *SnapshotCreateRepositoryService) BodyString(body string) *SnapshotCreat
 }
 
 // Headers adds headers on the http request
-func (s *SnapshotCreateRepositoryService) Headers(headers map[string]string) *SnapshotCreateRepositoryService {
-	s.headers = headers
+func (s *SnapshotCreateRepositoryService) Header(key, value string) *SnapshotCreateRepositoryService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

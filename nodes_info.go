@@ -24,7 +24,7 @@ type NodesInfoService struct {
 	metric       []string
 	flatSettings *bool
 	human        *bool
-	headers      map[string]string
+	headers      map[string][]string
 }
 
 // NewNodesInfoService creates a new NodesInfoService.
@@ -71,8 +71,8 @@ func (s *NodesInfoService) Pretty(pretty bool) *NodesInfoService {
 }
 
 // Headers adds headers on the http request
-func (s *NodesInfoService) Headers(headers map[string]string) *NodesInfoService {
-	s.headers = headers
+func (s *NodesInfoService) Header(key, value string) *NodesInfoService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

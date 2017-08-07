@@ -27,7 +27,7 @@ type IndicesExistsTypeService struct {
 	local             *bool
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewIndicesExistsTypeService creates a new IndicesExistsTypeService.
@@ -85,8 +85,8 @@ func (s *IndicesExistsTypeService) Pretty(pretty bool) *IndicesExistsTypeService
 }
 
 // Headers adds headers on the http request
-func (s *IndicesExistsTypeService) Headers(headers map[string]string) *IndicesExistsTypeService {
-	s.headers = headers
+func (s *IndicesExistsTypeService) Header(key, value string) *IndicesExistsTypeService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

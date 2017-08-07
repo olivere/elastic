@@ -21,7 +21,7 @@ type IngestGetPipelineService struct {
 	pretty        bool
 	id            []string
 	masterTimeout string
-	headers       map[string]string
+	headers       map[string][]string
 }
 
 // NewIngestGetPipelineService creates a new IngestGetPipelineService.
@@ -50,8 +50,8 @@ func (s *IngestGetPipelineService) Pretty(pretty bool) *IngestGetPipelineService
 }
 
 // Headers adds headers on the http request
-func (s *IngestGetPipelineService) Headers(headers map[string]string) *IngestGetPipelineService {
-	s.headers = headers
+func (s *IngestGetPipelineService) Header(key, value string) *IngestGetPipelineService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

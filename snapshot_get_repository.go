@@ -23,7 +23,7 @@ type SnapshotGetRepositoryService struct {
 	repository    []string
 	local         *bool
 	masterTimeout string
-	headers       map[string]string
+	headers       map[string][]string
 }
 
 // NewSnapshotGetRepositoryService creates a new SnapshotGetRepositoryService.
@@ -59,8 +59,8 @@ func (s *SnapshotGetRepositoryService) Pretty(pretty bool) *SnapshotGetRepositor
 }
 
 // Headers adds headers on the http request
-func (s *SnapshotGetRepositoryService) Headers(headers map[string]string) *SnapshotGetRepositoryService {
-	s.headers = headers
+func (s *SnapshotGetRepositoryService) Header(key, value string) *SnapshotGetRepositoryService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

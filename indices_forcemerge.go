@@ -31,7 +31,7 @@ type IndicesForcemergeService struct {
 	maxNumSegments     interface{}
 	onlyExpungeDeletes *bool
 	operationThreading interface{}
-	headers            map[string]string
+	headers            map[string][]string
 }
 
 // NewIndicesForcemergeService creates a new IndicesForcemergeService.
@@ -107,8 +107,8 @@ func (s *IndicesForcemergeService) Pretty(pretty bool) *IndicesForcemergeService
 }
 
 // Headers adds headers on the http request
-func (s *IndicesForcemergeService) Headers(headers map[string]string) *IndicesForcemergeService {
-	s.headers = headers
+func (s *IndicesForcemergeService) Header(key, value string) *IndicesForcemergeService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

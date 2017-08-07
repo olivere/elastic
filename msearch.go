@@ -20,7 +20,7 @@ type MultiSearchService struct {
 	pretty     bool
 	routing    string
 	preference string
-	headers    map[string]string
+	headers    map[string][]string
 }
 
 func NewMultiSearchService(client *Client) *MultiSearchService {
@@ -48,8 +48,8 @@ func (s *MultiSearchService) Pretty(pretty bool) *MultiSearchService {
 }
 
 // Headers adds headers on the http request
-func (s *MultiSearchService) Headers(headers map[string]string) *MultiSearchService {
-	s.headers = headers
+func (s *MultiSearchService) Header(key, value string) *MultiSearchService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

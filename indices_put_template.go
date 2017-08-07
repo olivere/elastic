@@ -27,7 +27,7 @@ type IndicesPutTemplateService struct {
 	flatSettings  *bool
 	bodyJson      interface{}
 	bodyString    string
-	headers       map[string]string
+	headers       map[string][]string
 }
 
 // NewIndicesPutTemplateService creates a new IndicesPutTemplateService.
@@ -107,8 +107,8 @@ func (s *IndicesPutTemplateService) BodyString(body string) *IndicesPutTemplateS
 }
 
 // Headers adds headers on the http request
-func (s *IndicesPutTemplateService) Headers(headers map[string]string) *IndicesPutTemplateService {
-	s.headers = headers
+func (s *IndicesPutTemplateService) Header(key, value string) *IndicesPutTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

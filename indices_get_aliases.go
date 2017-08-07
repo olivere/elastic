@@ -19,7 +19,7 @@ type AliasesService struct {
 	client  *Client
 	index   []string
 	pretty  bool
-	headers map[string]string
+	headers map[string][]string
 }
 
 // NewAliasesService instantiates a new AliasesService.
@@ -37,8 +37,8 @@ func (s *AliasesService) Pretty(pretty bool) *AliasesService {
 }
 
 // Headers adds headers on the http request
-func (s *AliasesService) Headers(headers map[string]string) *AliasesService {
-	s.headers = headers
+func (s *AliasesService) Header(key, value string) *AliasesService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

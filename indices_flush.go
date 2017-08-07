@@ -28,7 +28,7 @@ type IndicesFlushService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string]string
+	headers           map[string][]string
 }
 
 // NewIndicesFlushService creates a new IndicesFlushService.
@@ -92,8 +92,8 @@ func (s *IndicesFlushService) Pretty(pretty bool) *IndicesFlushService {
 }
 
 // Headers adds headers on the http request
-func (s *IndicesFlushService) Headers(headers map[string]string) *IndicesFlushService {
-	s.headers = headers
+func (s *IndicesFlushService) Header(key, value string) *IndicesFlushService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

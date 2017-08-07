@@ -41,7 +41,7 @@ type MultiTermvectorService struct {
 	bodyJson        interface{}
 	bodyString      string
 	docs            []*MultiTermvectorItem
-	headers         map[string]string
+	headers         map[string][]string
 }
 
 // NewMultiTermvectorService creates a new MultiTermvectorService.
@@ -176,8 +176,8 @@ func (s *MultiTermvectorService) Source() interface{} {
 }
 
 // Headers adds headers on the http request
-func (s *MultiTermvectorService) Headers(headers map[string]string) *MultiTermvectorService {
-	s.headers = headers
+func (s *MultiTermvectorService) Header(key, value string) *MultiTermvectorService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

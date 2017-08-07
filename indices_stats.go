@@ -27,7 +27,7 @@ type IndicesStatsService struct {
 	fields           []string
 	groups           []string
 	human            *bool
-	headers          map[string]string
+	headers          map[string][]string
 }
 
 // NewIndicesStatsService creates a new IndicesStatsService.
@@ -110,8 +110,8 @@ func (s *IndicesStatsService) Pretty(pretty bool) *IndicesStatsService {
 }
 
 // Headers adds headers on the http request
-func (s *IndicesStatsService) Headers(headers map[string]string) *IndicesStatsService {
-	s.headers = headers
+func (s *IndicesStatsService) Header(key, value string) *IndicesStatsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

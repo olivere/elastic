@@ -42,7 +42,7 @@ type BulkService struct {
 	sizeInBytes       int64
 	sizeInBytesCursor int
 
-	headers map[string]string
+	headers map[string][]string
 }
 
 // NewBulkService initializes a new BulkService.
@@ -120,8 +120,8 @@ func (s *BulkService) Pretty(pretty bool) *BulkService {
 }
 
 // Headers adds headers on the http request
-func (s *BulkService) Headers(headers map[string]string) *BulkService {
-	s.headers = headers
+func (s *BulkService) Header(key, value string) *BulkService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

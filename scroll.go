@@ -39,7 +39,7 @@ type ScrollService struct {
 	mu       sync.RWMutex
 	scrollId string
 
-	headers map[string]string
+	headers map[string][]string
 }
 
 // NewScrollService initializes and returns a new ScrollService.
@@ -230,8 +230,8 @@ func (s *ScrollService) ScrollId(scrollId string) *ScrollService {
 }
 
 // Headers adds headers on the http request
-func (s *ScrollService) Headers(headers map[string]string) *ScrollService {
-	s.headers = headers
+func (s *ScrollService) Header(key, value string) *ScrollService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

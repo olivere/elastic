@@ -28,7 +28,7 @@ type ExistsService struct {
 	refresh    string
 	routing    string
 	parent     string
-	headers    map[string]string
+	headers    map[string][]string
 }
 
 // NewExistsService creates a new ExistsService.
@@ -94,8 +94,8 @@ func (s *ExistsService) Pretty(pretty bool) *ExistsService {
 }
 
 // Headers adds headers on the http request
-func (s *ExistsService) Headers(headers map[string]string) *ExistsService {
-	s.headers = headers
+func (s *ExistsService) Header(key, value string) *ExistsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

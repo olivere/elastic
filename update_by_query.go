@@ -65,7 +65,7 @@ type UpdateByQueryService struct {
 	versionType            *bool
 	waitForActiveShards    string
 	waitForCompletion      *bool
-	headers                map[string]string
+	headers                map[string][]string
 }
 
 // NewUpdateByQueryService creates a new UpdateByQueryService.
@@ -427,8 +427,8 @@ func (s *UpdateByQueryService) WaitForCompletion(waitForCompletion bool) *Update
 }
 
 // Headers adds headers on the http request
-func (s *UpdateByQueryService) Headers(headers map[string]string) *UpdateByQueryService {
-	s.headers = headers
+func (s *UpdateByQueryService) Header(key, value string) *UpdateByQueryService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 

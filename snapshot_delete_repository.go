@@ -23,7 +23,7 @@ type SnapshotDeleteRepositoryService struct {
 	repository    []string
 	masterTimeout string
 	timeout       string
-	headers       map[string]string
+	headers       map[string][]string
 }
 
 // NewSnapshotDeleteRepositoryService creates a new SnapshotDeleteRepositoryService.
@@ -59,8 +59,8 @@ func (s *SnapshotDeleteRepositoryService) Pretty(pretty bool) *SnapshotDeleteRep
 }
 
 // Headers adds headers on the http request
-func (s *SnapshotDeleteRepositoryService) Headers(headers map[string]string) *SnapshotDeleteRepositoryService {
-	s.headers = headers
+func (s *SnapshotDeleteRepositoryService) Header(key, value string) *SnapshotDeleteRepositoryService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
