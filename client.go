@@ -111,32 +111,33 @@ type Client struct {
 	conns   []*conn      // all connections
 	cindex  int          // index into conns
 
-	mu                        sync.RWMutex    // guards the next block
-	urls                      []string        // set of URLs passed initially to the client
-	running                   bool            // true if the client's background processes are running
-	errorlog                  Logger          // error log for critical messages
-	infolog                   Logger          // information log for e.g. response times
-	tracelog                  Logger          // trace log for debugging
-	scheme                    string          // http or https
-	healthcheckEnabled        bool            // healthchecks enabled or disabled
-	healthcheckTimeoutStartup time.Duration   // time the healthcheck waits for a response from Elasticsearch on startup
-	healthcheckTimeout        time.Duration   // time the healthcheck waits for a response from Elasticsearch
-	healthcheckInterval       time.Duration   // interval between healthchecks
-	healthcheckStop           chan bool       // notify healthchecker to stop, and notify back
-	snifferEnabled            bool            // sniffer enabled or disabled
-	snifferTimeoutStartup     time.Duration   // time the sniffer waits for a response from nodes info API on startup
-	snifferTimeout            time.Duration   // time the sniffer waits for a response from nodes info API
-	snifferInterval           time.Duration   // interval between sniffing
-	snifferCallback           SnifferCallback // callback to modify the sniffing decision
-	snifferStop               chan bool       // notify sniffer to stop, and notify back
-	decoder                   Decoder         // used to decode data sent from Elasticsearch
-	basicAuth                 bool            // indicates whether to send HTTP Basic Auth credentials
-	basicAuthUsername         string          // username for HTTP Basic Auth
-	basicAuthPassword         string          // password for HTTP Basic Auth
-	sendGetBodyAs             string          // override for when sending a GET with a body
-	requiredPlugins           []string        // list of required plugins
-	gzipEnabled               bool            // gzip compression enabled or disabled (default)
-	retrier                   Retrier         // strategy for retries
+	mu                        sync.RWMutex        // guards the next block
+	urls                      []string            // set of URLs passed initially to the client
+	running                   bool                // true if the client's background processes are running
+	errorlog                  Logger              // error log for critical messages
+	infolog                   Logger              // information log for e.g. response times
+	tracelog                  Logger              // trace log for debugging
+	scheme                    string              // http or https
+	healthcheckEnabled        bool                // healthchecks enabled or disabled
+	healthcheckTimeoutStartup time.Duration       // time the healthcheck waits for a response from Elasticsearch on startup
+	healthcheckTimeout        time.Duration       // time the healthcheck waits for a response from Elasticsearch
+	healthcheckInterval       time.Duration       // interval between healthchecks
+	healthcheckStop           chan bool           // notify healthchecker to stop, and notify back
+	snifferEnabled            bool                // sniffer enabled or disabled
+	snifferTimeoutStartup     time.Duration       // time the sniffer waits for a response from nodes info API on startup
+	snifferTimeout            time.Duration       // time the sniffer waits for a response from nodes info API
+	snifferInterval           time.Duration       // interval between sniffing
+	snifferCallback           SnifferCallback     // callback to modify the sniffing decision
+	snifferStop               chan bool           // notify sniffer to stop, and notify back
+	decoder                   Decoder             // used to decode data sent from Elasticsearch
+	basicAuth                 bool                // indicates whether to send HTTP Basic Auth credentials
+	basicAuthUsername         string              // username for HTTP Basic Auth
+	basicAuthPassword         string              // password for HTTP Basic Auth
+	sendGetBodyAs             string              // override for when sending a GET with a body
+	requiredPlugins           []string            // list of required plugins
+	gzipEnabled               bool                // gzip compression enabled or disabled (default)
+	retrier                   Retrier             // strategy for retries
+	headers                   map[string][]string // headers populated on each http request to Elasticsearch
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -677,6 +678,15 @@ func SetRetrier(retrier Retrier) ClientOptionFunc {
 	}
 }
 
+
+// SetHeader adds key, value pair to the headers on each HTTP request to Elasticsearch
+func SetHeader(key, value string) ClientOptionFunc {
+	return func(c *Client) error {
+		c.headers = addHeader(c.headers, key, value)
+		return nil
+	}
+}
+
 // String returns a string representation of the client status.
 func (c *Client) String() string {
 	c.connsMu.Lock()
@@ -902,6 +912,9 @@ func (c *Client) sniffNode(ctx context.Context, url string) []*conn {
 	if c.basicAuth {
 		req.SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
 	}
+	if c.headers != nil {
+		req.SetCustomHeaders(c.headers)
+	}
 	c.mu.RUnlock()
 
 	res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
@@ -1021,6 +1034,7 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 	basicAuth := c.basicAuth
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
+	headers := c.headers
 	c.mu.RUnlock()
 
 	c.connsMu.RLock()
@@ -1043,6 +1057,9 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 			}
 			if basicAuth {
 				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+			}
+			if headers != nil {
+				req.SetCustomHeaders(headers)
 			}
 			res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
 			if res != nil {
@@ -1183,6 +1200,7 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 	basicAuth := c.basicAuth
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
+	clientHeaders := c.headers
 	sendGetBodyAs := c.sendGetBodyAs
 	gzipEnabled := c.gzipEnabled
 	c.mu.RUnlock()
@@ -1239,6 +1257,10 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 			req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 		}
 
+		// set custom headers specified on the client, and headers specific per request
+		if clientHeaders != nil {
+			req.SetCustomHeaders(clientHeaders)
+		}
 		if headers != nil {
 			req.SetCustomHeaders(headers)
 		}
