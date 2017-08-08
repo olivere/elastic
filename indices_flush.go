@@ -28,7 +28,7 @@ type IndicesFlushService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewIndicesFlushService creates a new IndicesFlushService.

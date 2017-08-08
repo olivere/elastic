@@ -39,7 +39,7 @@ type ScrollService struct {
 	mu       sync.RWMutex
 	scrollId string
 
-	headers map[string][]string
+	headers headers
 }
 
 // NewScrollService initializes and returns a new ScrollService.

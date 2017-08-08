@@ -21,7 +21,7 @@ type IndicesExistsTemplateService struct {
 	pretty  bool
 	name    string
 	local   *bool
-	headers map[string][]string
+	headers headers
 }
 
 // NewIndicesExistsTemplateService creates a new IndicesExistsTemplateService.

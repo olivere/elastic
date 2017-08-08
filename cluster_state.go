@@ -28,7 +28,7 @@ type ClusterStateService struct {
 	ignoreUnavailable *bool
 	local             *bool
 	masterTimeout     string
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewClusterStateService creates a new ClusterStateService.

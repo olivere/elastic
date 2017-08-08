@@ -42,7 +42,7 @@ type BulkService struct {
 	sizeInBytes       int64
 	sizeInBytesCursor int
 
-	headers map[string][]string
+	headers headers
 }
 
 // NewBulkService initializes a new BulkService.

@@ -31,7 +31,7 @@ type SearchService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.

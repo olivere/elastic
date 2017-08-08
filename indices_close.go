@@ -25,7 +25,7 @@ type IndicesCloseService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewIndicesCloseService creates and initializes a new IndicesCloseService.

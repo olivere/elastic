@@ -23,7 +23,7 @@ type SnapshotGetRepositoryService struct {
 	repository    []string
 	local         *bool
 	masterTimeout string
-	headers       map[string][]string
+	headers       headers
 }
 
 // NewSnapshotGetRepositoryService creates a new SnapshotGetRepositoryService.

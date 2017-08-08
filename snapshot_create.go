@@ -24,7 +24,7 @@ type SnapshotCreateService struct {
 	waitForCompletion *bool
 	bodyJson          interface{}
 	bodyString        string
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewSnapshotCreateService creates a new SnapshotCreateService.

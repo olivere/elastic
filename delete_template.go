@@ -20,7 +20,7 @@ type DeleteTemplateService struct {
 	id          string
 	version     *int
 	versionType string
-	headers     map[string][]string
+	headers     headers
 }
 
 // NewDeleteTemplateService creates a new DeleteTemplateService.

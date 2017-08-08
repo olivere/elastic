@@ -38,7 +38,7 @@ type UpdateService struct {
 	doc                 interface{}
 	timeout             string
 	pretty              bool
-	headers             map[string][]string
+	headers             headers
 }
 
 // NewUpdateService creates the service to update documents in Elasticsearch.

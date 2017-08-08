@@ -28,7 +28,7 @@ type IndicesGetService struct {
 	expandWildcards   string
 	flatSettings      *bool
 	human             *bool
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewIndicesGetService creates a new IndicesGetService.

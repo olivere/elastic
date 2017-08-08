@@ -43,7 +43,7 @@ type TermvectorsService struct {
 	versionType      string
 	bodyJson         interface{}
 	bodyString       string
-	headers          map[string][]string
+	headers          headers
 }
 
 // NewTermvectorsService creates a new TermvectorsService.

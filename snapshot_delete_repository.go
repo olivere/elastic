@@ -23,7 +23,7 @@ type SnapshotDeleteRepositoryService struct {
 	repository    []string
 	masterTimeout string
 	timeout       string
-	headers       map[string][]string
+	headers       headers
 }
 
 // NewSnapshotDeleteRepositoryService creates a new SnapshotDeleteRepositoryService.

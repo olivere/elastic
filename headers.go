@@ -4,8 +4,10 @@
 
 package elastic
 
+type headers map[string][]string
+
 // addHeader adds key, value pair to the existing headers map, or creates a new map with that pair if headers was nil
-func addHeader(headers map[string][]string, key string, value string) map[string][]string {
+func addHeader(headers headers, key string, value string) headers {
 	if headers == nil {
 		headers = make(map[string][]string)
 	}

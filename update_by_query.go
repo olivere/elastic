@@ -65,7 +65,7 @@ type UpdateByQueryService struct {
 	versionType            *bool
 	waitForActiveShards    string
 	waitForCompletion      *bool
-	headers                map[string][]string
+	headers                headers
 }
 
 // NewUpdateByQueryService creates a new UpdateByQueryService.

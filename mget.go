@@ -27,7 +27,7 @@ type MgetService struct {
 	routing      string
 	storedFields []string
 	items        []*MultiGetItem
-	headers      map[string][]string
+	headers      headers
 }
 
 // NewMgetService initializes a new Multi GET API request call.

@@ -24,7 +24,7 @@ type IndicesCreateService struct {
 	masterTimeout string
 	bodyJson      interface{}
 	bodyString    string
-	headers       map[string][]string
+	headers       headers
 }
 
 // NewIndicesCreateService returns a new IndicesCreateService.

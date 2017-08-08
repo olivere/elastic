@@ -21,7 +21,7 @@ type ClusterStatsService struct {
 	nodeId       []string
 	flatSettings *bool
 	human        *bool
-	headers      map[string][]string
+	headers      headers
 }
 
 // NewClusterStatsService creates a new ClusterStatsService.

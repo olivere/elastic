@@ -20,7 +20,7 @@ type MultiSearchService struct {
 	pretty     bool
 	routing    string
 	preference string
-	headers    map[string][]string
+	headers    headers
 }
 
 func NewMultiSearchService(client *Client) *MultiSearchService {

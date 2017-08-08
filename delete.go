@@ -32,7 +32,7 @@ type DeleteService struct {
 	waitForActiveShards string
 	parent              string
 	refresh             string
-	headers             map[string][]string
+	headers             headers
 }
 
 // NewDeleteService creates a new DeleteService.

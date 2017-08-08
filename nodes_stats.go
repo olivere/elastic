@@ -31,7 +31,7 @@ type NodesStatsService struct {
 	level            string
 	timeout          string
 	types            []string
-	headers          map[string][]string
+	headers          headers
 }
 
 // NewNodesStatsService creates a new NodesStatsService.

@@ -25,7 +25,7 @@ type IngestPutPipelineService struct {
 	timeout       string
 	bodyJson      interface{}
 	bodyString    string
-	headers       map[string][]string
+	headers       headers
 }
 
 // NewIngestPutPipelineService creates a new IngestPutPipelineService.

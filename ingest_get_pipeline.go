@@ -21,7 +21,7 @@ type IngestGetPipelineService struct {
 	pretty        bool
 	id            []string
 	masterTimeout string
-	headers       map[string][]string
+	headers       headers
 }
 
 // NewIngestGetPipelineService creates a new IngestGetPipelineService.

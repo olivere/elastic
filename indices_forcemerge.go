@@ -31,7 +31,7 @@ type IndicesForcemergeService struct {
 	maxNumSegments     interface{}
 	onlyExpungeDeletes *bool
 	operationThreading interface{}
-	headers            map[string][]string
+	headers            headers
 }
 
 // NewIndicesForcemergeService creates a new IndicesForcemergeService.

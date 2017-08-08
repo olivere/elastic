@@ -23,7 +23,7 @@ type SuggestService struct {
 	preference string
 	index      []string
 	suggesters []Suggester
-	headers    map[string][]string
+	headers    headers
 }
 
 // NewSuggestService creates a new instance of SuggestService.

@@ -198,7 +198,7 @@ type AliasService struct {
 	client  *Client
 	actions []AliasAction
 	pretty  bool
-	headers map[string][]string
+	headers headers
 }
 
 // NewAliasService implements a service to manage aliases.

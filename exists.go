@@ -28,7 +28,7 @@ type ExistsService struct {
 	refresh    string
 	routing    string
 	parent     string
-	headers    map[string][]string
+	headers    headers
 }
 
 // NewExistsService creates a new ExistsService.

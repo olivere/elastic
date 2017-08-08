@@ -21,7 +21,7 @@ type IngestDeletePipelineService struct {
 	id            string
 	masterTimeout string
 	timeout       string
-	headers       map[string][]string
+	headers       headers
 }
 
 // NewIngestDeletePipelineService creates a new IngestDeletePipelineService.

@@ -29,7 +29,7 @@ type ClusterHealthService struct {
 	waitForNodes              string
 	waitForNoRelocatingShards *bool
 	waitForStatus             string
-	headers                   map[string][]string
+	headers                   headers
 }
 
 // NewClusterHealthService creates a new ClusterHealthService.

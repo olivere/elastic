@@ -24,7 +24,7 @@ type NodesInfoService struct {
 	metric       []string
 	flatSettings *bool
 	human        *bool
-	headers      map[string][]string
+	headers      headers
 }
 
 // NewNodesInfoService creates a new NodesInfoService.

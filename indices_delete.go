@@ -23,7 +23,7 @@ type IndicesDeleteService struct {
 	index         []string
 	timeout       string
 	masterTimeout string
-	headers       map[string][]string
+	headers       headers
 }
 
 // NewIndicesDeleteService creates and initializes a new IndicesDeleteService.

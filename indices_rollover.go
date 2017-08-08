@@ -32,7 +32,7 @@ type IndicesRolloverService struct {
 	mappings            map[string]interface{}
 	bodyJson            interface{}
 	bodyString          string
-	headers             map[string][]string
+	headers             headers
 }
 
 // NewIndicesRolloverService creates a new IndicesRolloverService.

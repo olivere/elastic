@@ -21,7 +21,7 @@ type IndicesGetTemplateService struct {
 	name         []string
 	flatSettings *bool
 	local        *bool
-	headers      map[string][]string
+	headers      headers
 }
 
 // NewIndicesGetTemplateService creates a new IndicesGetTemplateService.

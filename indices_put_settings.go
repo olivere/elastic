@@ -29,7 +29,7 @@ type IndicesPutSettingsService struct {
 	masterTimeout     string
 	bodyJson          interface{}
 	bodyString        string
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewIndicesPutSettingsService creates a new IndicesPutSettingsService.

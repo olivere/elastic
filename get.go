@@ -35,7 +35,7 @@ type GetService struct {
 	versionType                   string
 	parent                        string
 	ignoreErrorsOnGeneratedFields *bool
-	headers                       map[string][]string
+	headers                       headers
 }
 
 // NewGetService creates a new GetService.

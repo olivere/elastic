@@ -26,7 +26,7 @@ type TasksCancelService struct {
 	nodeId     []string
 	parentNode string
 	parentTask *int64
-	headers    map[string][]string
+	headers    headers
 }
 
 // NewTasksCancelService creates a new TasksCancelService.

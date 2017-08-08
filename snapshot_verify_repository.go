@@ -22,7 +22,7 @@ type SnapshotVerifyRepositoryService struct {
 	repository    string
 	masterTimeout string
 	timeout       string
-	headers       map[string][]string
+	headers       headers
 }
 
 // NewSnapshotVerifyRepositoryService creates a new SnapshotVerifyRepositoryService.

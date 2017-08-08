@@ -16,7 +16,7 @@ func BenchmarkRequestSetCustomHeader(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		body := `{"query":{"match_all":{}}}`
 		err = req.SetBody(body, false)
-		req.SetCustomHeaders(map[string][]string{"header1": {"custom"}})
+		req.SetCustomHeaders(headers{"header1": {"custom"}})
 		if err != nil {
 			b.Fatal(err)
 		}

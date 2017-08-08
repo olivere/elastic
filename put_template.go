@@ -24,7 +24,7 @@ type PutTemplateService struct {
 	versionType string
 	bodyJson    interface{}
 	bodyString  string
-	headers     map[string][]string
+	headers     headers
 }
 
 // NewPutTemplateService creates a new PutTemplateService.

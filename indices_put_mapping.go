@@ -31,7 +31,7 @@ type IndicesPutMappingService struct {
 	timeout           string
 	bodyJson          map[string]interface{}
 	bodyString        string
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewPutMappingService is an alias for NewIndicesPutMappingService.

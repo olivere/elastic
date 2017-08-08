@@ -19,7 +19,7 @@ type AliasesService struct {
 	client  *Client
 	index   []string
 	pretty  bool
-	headers map[string][]string
+	headers headers
 }
 
 // NewAliasesService instantiates a new AliasesService.

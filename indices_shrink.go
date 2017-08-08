@@ -28,7 +28,7 @@ type IndicesShrinkService struct {
 	waitForActiveShards string
 	bodyJson            interface{}
 	bodyString          string
-	headers             map[string][]string
+	headers             headers
 }
 
 // NewIndicesShrinkService creates a new IndicesShrinkService.

@@ -28,7 +28,7 @@ type TasksListService struct {
 	parentNode        string
 	parentTask        *int64
 	waitForCompletion *bool
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewTasksListService creates a new TasksListService.

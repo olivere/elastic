@@ -25,7 +25,7 @@ type IndicesOpenService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewIndicesOpenService creates and initializes a new IndicesOpenService.

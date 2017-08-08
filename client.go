@@ -111,33 +111,33 @@ type Client struct {
 	conns   []*conn      // all connections
 	cindex  int          // index into conns
 
-	mu                        sync.RWMutex        // guards the next block
-	urls                      []string            // set of URLs passed initially to the client
-	running                   bool                // true if the client's background processes are running
-	errorlog                  Logger              // error log for critical messages
-	infolog                   Logger              // information log for e.g. response times
-	tracelog                  Logger              // trace log for debugging
-	scheme                    string              // http or https
-	healthcheckEnabled        bool                // healthchecks enabled or disabled
-	healthcheckTimeoutStartup time.Duration       // time the healthcheck waits for a response from Elasticsearch on startup
-	healthcheckTimeout        time.Duration       // time the healthcheck waits for a response from Elasticsearch
-	healthcheckInterval       time.Duration       // interval between healthchecks
-	healthcheckStop           chan bool           // notify healthchecker to stop, and notify back
-	snifferEnabled            bool                // sniffer enabled or disabled
-	snifferTimeoutStartup     time.Duration       // time the sniffer waits for a response from nodes info API on startup
-	snifferTimeout            time.Duration       // time the sniffer waits for a response from nodes info API
-	snifferInterval           time.Duration       // interval between sniffing
-	snifferCallback           SnifferCallback     // callback to modify the sniffing decision
-	snifferStop               chan bool           // notify sniffer to stop, and notify back
-	decoder                   Decoder             // used to decode data sent from Elasticsearch
-	basicAuth                 bool                // indicates whether to send HTTP Basic Auth credentials
-	basicAuthUsername         string              // username for HTTP Basic Auth
-	basicAuthPassword         string              // password for HTTP Basic Auth
-	sendGetBodyAs             string              // override for when sending a GET with a body
-	requiredPlugins           []string            // list of required plugins
-	gzipEnabled               bool                // gzip compression enabled or disabled (default)
-	retrier                   Retrier             // strategy for retries
-	headers                   map[string][]string // headers populated on each http request to Elasticsearch
+	mu                        sync.RWMutex    // guards the next block
+	urls                      []string        // set of URLs passed initially to the client
+	running                   bool            // true if the client's background processes are running
+	errorlog                  Logger          // error log for critical messages
+	infolog                   Logger          // information log for e.g. response times
+	tracelog                  Logger          // trace log for debugging
+	scheme                    string          // http or https
+	healthcheckEnabled        bool            // healthchecks enabled or disabled
+	healthcheckTimeoutStartup time.Duration   // time the healthcheck waits for a response from Elasticsearch on startup
+	healthcheckTimeout        time.Duration   // time the healthcheck waits for a response from Elasticsearch
+	healthcheckInterval       time.Duration   // interval between healthchecks
+	healthcheckStop           chan bool       // notify healthchecker to stop, and notify back
+	snifferEnabled            bool            // sniffer enabled or disabled
+	snifferTimeoutStartup     time.Duration   // time the sniffer waits for a response from nodes info API on startup
+	snifferTimeout            time.Duration   // time the sniffer waits for a response from nodes info API
+	snifferInterval           time.Duration   // interval between sniffing
+	snifferCallback           SnifferCallback // callback to modify the sniffing decision
+	snifferStop               chan bool       // notify sniffer to stop, and notify back
+	decoder                   Decoder         // used to decode data sent from Elasticsearch
+	basicAuth                 bool            // indicates whether to send HTTP Basic Auth credentials
+	basicAuthUsername         string          // username for HTTP Basic Auth
+	basicAuthPassword         string          // password for HTTP Basic Auth
+	sendGetBodyAs             string          // override for when sending a GET with a body
+	requiredPlugins           []string        // list of required plugins
+	gzipEnabled               bool            // gzip compression enabled or disabled (default)
+	retrier                   Retrier         // strategy for retries
+	headers                   headers         // headers populated on each http request to Elasticsearch
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -678,7 +678,6 @@ func SetRetrier(retrier Retrier) ClientOptionFunc {
 	}
 }
 
-
 // SetHeader adds key, value pair to the headers on each HTTP request to Elasticsearch
 func SetHeader(key, value string) ClientOptionFunc {
 	return func(c *Client) error {
@@ -1192,7 +1191,7 @@ func (c *Client) mustActiveConn() error {
 // Optionally, a list of HTTP error codes to ignore can be passed.
 // This is necessary for services that expect e.g. HTTP status 404 as a
 // valid outcome (Exists, IndicesExists, IndicesTypeExists).
-func (c *Client) PerformRequest(ctx context.Context, method, path string, params url.Values, body interface{}, headers map[string][]string, ignoreErrors ...int) (*Response, error) {
+func (c *Client) PerformRequest(ctx context.Context, method, path string, params url.Values, body interface{}, headers headers, ignoreErrors ...int) (*Response, error) {
 	start := time.Now().UTC()
 
 	c.mu.RLock()

@@ -26,7 +26,7 @@ type ReindexService struct {
 	conflicts           string
 	size                *int
 	script              *Script
-	headers             map[string][]string
+	headers             headers
 }
 
 // NewReindexService creates a new ReindexService.

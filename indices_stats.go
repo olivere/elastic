@@ -27,7 +27,7 @@ type IndicesStatsService struct {
 	fields           []string
 	groups           []string
 	human            *bool
-	headers          map[string][]string
+	headers          headers
 }
 
 // NewIndicesStatsService creates a new IndicesStatsService.

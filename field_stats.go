@@ -35,7 +35,7 @@ type FieldStatsService struct {
 	ignoreUnavailable *bool
 	bodyJson          interface{}
 	bodyString        string
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewFieldStatsService creates a new FieldStatsService

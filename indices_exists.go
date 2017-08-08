@@ -26,7 +26,7 @@ type IndicesExistsService struct {
 	allowNoIndices    *bool
 	expandWildcards   string
 	local             *bool
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewIndicesExistsService creates and initializes a new IndicesExistsService.

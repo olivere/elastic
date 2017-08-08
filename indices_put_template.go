@@ -27,7 +27,7 @@ type IndicesPutTemplateService struct {
 	flatSettings  *bool
 	bodyJson      interface{}
 	bodyString    string
-	headers       map[string][]string
+	headers       headers
 }
 
 // NewIndicesPutTemplateService creates a new IndicesPutTemplateService.

@@ -17,7 +17,7 @@ type TasksGetTaskService struct {
 	pretty            bool
 	taskId            string
 	waitForCompletion *bool
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewTasksGetTaskService creates a new TasksGetTaskService.

@@ -18,7 +18,7 @@ type ClearScrollService struct {
 	client   *Client
 	pretty   bool
 	scrollId []string
-	headers  map[string][]string
+	headers  headers
 }
 
 // NewClearScrollService creates a new ClearScrollService.

@@ -62,7 +62,7 @@ type DeleteByQueryService struct {
 	waitForActiveShards    string
 	waitForCompletion      *bool
 	pretty                 bool
-	headers                map[string][]string
+	headers                headers
 }
 
 // NewDeleteByQueryService creates a new DeleteByQueryService.

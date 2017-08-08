@@ -31,7 +31,7 @@ func TestAddHeadersToNil(t *testing.T) {
 }
 
 func TestAddHeadersToExistingMap(t *testing.T) {
-	newHeaders := addHeader(map[string][]string{"existing": {"other"}}, testKey, testValue)
+	newHeaders := addHeader(headers{"existing": {"other"}}, testKey, testValue)
 
 	l := len(newHeaders)
 	if l != 2 {
@@ -48,7 +48,7 @@ func TestAddHeadersToExistingMap(t *testing.T) {
 }
 
 func TestAddHeadersDuplicatedKey(t *testing.T) {
-	newHeaders := addHeader(map[string][]string{testKey: {"other"}}, testKey, testValue)
+	newHeaders := addHeader(headers{testKey: {"other"}}, testKey, testValue)
 
 	l := len(newHeaders)
 	if l != 1 {

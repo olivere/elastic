@@ -25,7 +25,7 @@ type IngestSimulatePipelineService struct {
 	verbose    *bool
 	bodyJson   interface{}
 	bodyString string
-	headers    map[string][]string
+	headers    headers
 }
 
 // NewIngestSimulatePipelineService creates a new IngestSimulatePipeline.

@@ -39,7 +39,7 @@ type ExplainService struct {
 	source                 string
 	bodyJson               interface{}
 	bodyString             string
-	headers                map[string][]string
+	headers                headers
 }
 
 // NewExplainService creates a new ExplainService.

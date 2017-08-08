@@ -27,7 +27,7 @@ type SnapshotCreateRepositoryService struct {
 	settings      map[string]interface{}
 	bodyJson      interface{}
 	bodyString    string
-	headers       map[string][]string
+	headers       headers
 }
 
 // NewSnapshotCreateRepositoryService creates a new SnapshotCreateRepositoryService.

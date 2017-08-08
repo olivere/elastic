@@ -28,7 +28,7 @@ type IndicesGetFieldMappingService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewGetFieldMappingService is an alias for NewIndicesGetFieldMappingService.

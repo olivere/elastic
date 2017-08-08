@@ -36,7 +36,7 @@ type IndexService struct {
 	pipeline            string
 	bodyJson            interface{}
 	bodyString          string
-	headers             map[string][]string
+	headers             headers
 }
 
 // NewIndexService creates a new IndexService.

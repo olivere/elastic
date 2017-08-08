@@ -20,7 +20,7 @@ type GetTemplateService struct {
 	id          string
 	version     interface{}
 	versionType string
-	headers     map[string][]string
+	headers     headers
 }
 
 // NewGetTemplateService creates a new GetTemplateService.

@@ -27,7 +27,7 @@ type IndicesExistsTypeService struct {
 	local             *bool
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
-	headers           map[string][]string
+	headers           headers
 }
 
 // NewIndicesExistsTypeService creates a new IndicesExistsTypeService.

@@ -41,7 +41,7 @@ type MultiTermvectorService struct {
 	bodyJson        interface{}
 	bodyString      string
 	docs            []*MultiTermvectorItem
-	headers         map[string][]string
+	headers         headers
 }
 
 // NewMultiTermvectorService creates a new MultiTermvectorService.

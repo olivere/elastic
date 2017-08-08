@@ -20,7 +20,7 @@ type RefreshService struct {
 	index   []string
 	force   *bool
 	pretty  bool
-	headers map[string][]string
+	headers headers
 }
 
 // NewRefreshService creates a new instance of RefreshService.

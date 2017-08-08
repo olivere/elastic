@@ -26,7 +26,7 @@ type IndicesAnalyzeService struct {
 	preferLocal *bool
 	bodyJson    interface{}
 	bodyString  string
-	headers     map[string][]string
+	headers     headers
 }
 
 // NewIndicesAnalyzeService creates a new IndicesAnalyzeService.

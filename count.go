@@ -37,7 +37,7 @@ type CountService struct {
 	routing                string
 	bodyJson               interface{}
 	bodyString             string
-	headers                map[string][]string
+	headers                headers
 }
 
 // NewCountService creates a new CountService.
