@@ -47,7 +47,7 @@ func (s *MultiSearchService) Pretty(pretty bool) *MultiSearchService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *MultiSearchService) Header(key, value string) *MultiSearchService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

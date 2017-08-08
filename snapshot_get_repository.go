@@ -58,7 +58,7 @@ func (s *SnapshotGetRepositoryService) Pretty(pretty bool) *SnapshotGetRepositor
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *SnapshotGetRepositoryService) Header(key, value string) *SnapshotGetRepositoryService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

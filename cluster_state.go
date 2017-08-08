@@ -102,7 +102,7 @@ func (s *ClusterStateService) Pretty(pretty bool) *ClusterStateService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *ClusterStateService) Header(key, value string) *ClusterStateService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

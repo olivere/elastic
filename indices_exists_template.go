@@ -50,7 +50,7 @@ func (s *IndicesExistsTemplateService) Pretty(pretty bool) *IndicesExistsTemplat
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *IndicesExistsTemplateService) Header(key, value string) *IndicesExistsTemplateService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

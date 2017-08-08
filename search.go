@@ -300,7 +300,7 @@ func (s *SearchService) ExpandWildcards(expandWildcards string) *SearchService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *SearchService) Header(key, value string) *SearchService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

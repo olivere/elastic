@@ -119,7 +119,7 @@ func (s *BulkService) Pretty(pretty bool) *BulkService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *BulkService) Header(key, value string) *BulkService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

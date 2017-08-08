@@ -78,7 +78,7 @@ func (s *IndicesCloseService) Pretty(pretty bool) *IndicesCloseService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *IndicesCloseService) Header(key, value string) *IndicesCloseService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

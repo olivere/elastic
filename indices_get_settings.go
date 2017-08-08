@@ -95,7 +95,7 @@ func (s *IndicesGetSettingsService) Pretty(pretty bool) *IndicesGetSettingsServi
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *IndicesGetSettingsService) Header(key, value string) *IndicesGetSettingsService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

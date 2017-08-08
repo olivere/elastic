@@ -1,3 +1,7 @@
+// Copyright 2012-present Oliver Eilhard. All rights reserved.
+// Use of this source code is governed by a MIT-license.
+// See http://olivere.mit-license.org/license.txt for details.
+
 package elastic
 
 import (
@@ -14,15 +18,15 @@ func TestAddHeadersToNil(t *testing.T) {
 
 	l := len(newHeaders)
 	if l != 1 {
-		t.Errorf("Expected one item in the headers map, found %d", l)
+		t.Errorf("expected one item in the headers map, found %d", l)
 	}
 
 	actualVal, ok := newHeaders["key"]
 	if !ok {
-		t.Errorf("Expected key: %s in the map, but not found", testKey)
+		t.Errorf("expected key: %s in the map, but not found", testKey)
 	}
 	if len(actualVal) != 1 || actualVal[0] != testValue {
-		t.Errorf("Expected value: %s associated with the key: %s, but found: %s", testValue, testKey, actualVal)
+		t.Errorf("expected value: %s associated with the key: %s, but found: %s", testValue, testKey, actualVal)
 	}
 }
 
@@ -31,15 +35,15 @@ func TestAddHeadersToExistingMap(t *testing.T) {
 
 	l := len(newHeaders)
 	if l != 2 {
-		t.Errorf("Expected two items in the headers map, found %d", l)
+		t.Errorf("expected two items in the headers map, found %d", l)
 	}
 
 	actualVal, ok := newHeaders["key"]
 	if !ok {
-		t.Errorf("Expected key: %s in the map, but not found", testKey)
+		t.Errorf("expected key: %s in the map, but not found", testKey)
 	}
 	if len(actualVal) != 1 || actualVal[0] != testValue {
-		t.Errorf("Expected value: %s associated with the key: %s, but found: %s", testValue, testKey, actualVal)
+		t.Errorf("expected value: %s associated with the key: %s, but found: %s", testValue, testKey, actualVal)
 	}
 }
 
@@ -48,14 +52,14 @@ func TestAddHeadersDuplicatedKey(t *testing.T) {
 
 	l := len(newHeaders)
 	if l != 1 {
-		t.Errorf("Expected one item in the headers map, found %d", l)
+		t.Errorf("expected one item in the headers map, found %d", l)
 	}
 
 	actualVal, ok := newHeaders["key"]
 	if !ok {
-		t.Errorf("Expected key: %s in the map, but not found", testKey)
+		t.Errorf("expected key: %s in the map, but not found", testKey)
 	}
 	if len(actualVal) != 2 || actualVal[1] != testValue {
-		t.Errorf("Expected value: %s associated with the key: %s, but found: %s", testValue, testKey, actualVal)
+		t.Errorf("expected value: %s associated with the key: %s, but found: %s", testValue, testKey, actualVal)
 	}
 }

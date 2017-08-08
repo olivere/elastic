@@ -48,7 +48,7 @@ func (s *GetTemplateService) VersionType(versionType string) *GetTemplateService
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *GetTemplateService) Header(key, value string) *GetTemplateService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

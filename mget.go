@@ -96,7 +96,7 @@ func (s *MgetService) Source() (interface{}, error) {
 	return source, nil
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *MgetService) Header(key, value string) *MgetService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

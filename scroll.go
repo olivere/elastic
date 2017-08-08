@@ -229,7 +229,7 @@ func (s *ScrollService) ScrollId(scrollId string) *ScrollService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *ScrollService) Header(key, value string) *ScrollService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

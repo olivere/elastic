@@ -120,7 +120,7 @@ func (s *IndicesPutMappingService) BodyString(mapping string) *IndicesPutMapping
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *IndicesPutMappingService) Header(key, value string) *IndicesPutMappingService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

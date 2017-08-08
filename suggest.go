@@ -65,7 +65,7 @@ func (s *SuggestService) Suggester(suggester Suggester) *SuggestService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *SuggestService) Header(key, value string) *SuggestService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

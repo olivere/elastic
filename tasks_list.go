@@ -92,7 +92,7 @@ func (s *TasksListService) Pretty(pretty bool) *TasksListService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *TasksListService) Header(key, value string) *TasksListService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

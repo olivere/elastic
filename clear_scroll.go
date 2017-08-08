@@ -42,7 +42,7 @@ func (s *ClearScrollService) Pretty(pretty bool) *ClearScrollService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *ClearScrollService) Header(key, value string) *ClearScrollService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

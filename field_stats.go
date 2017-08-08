@@ -119,7 +119,7 @@ func (s *FieldStatsService) BodyString(body string) *FieldStatsService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *FieldStatsService) Header(key, value string) *FieldStatsService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

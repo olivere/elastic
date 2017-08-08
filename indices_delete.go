@@ -59,7 +59,7 @@ func (s *IndicesDeleteService) Pretty(pretty bool) *IndicesDeleteService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *IndicesDeleteService) Header(key, value string) *IndicesDeleteService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

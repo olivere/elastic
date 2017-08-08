@@ -194,7 +194,7 @@ func (s *ExplainService) BodyString(body string) *ExplainService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *ExplainService) Header(key, value string) *ExplainService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

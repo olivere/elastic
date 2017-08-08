@@ -106,7 +106,7 @@ func (s *IndicesPutTemplateService) BodyString(body string) *IndicesPutTemplateS
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *IndicesPutTemplateService) Header(key, value string) *IndicesPutTemplateService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

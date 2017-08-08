@@ -91,7 +91,7 @@ func (s *IndicesFlushService) Pretty(pretty bool) *IndicesFlushService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *IndicesFlushService) Header(key, value string) *IndicesFlushService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

@@ -70,7 +70,7 @@ func (s *PutTemplateService) BodyString(body string) *PutTemplateService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *PutTemplateService) Header(key, value string) *PutTemplateService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

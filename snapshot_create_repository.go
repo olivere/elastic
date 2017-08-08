@@ -100,7 +100,7 @@ func (s *SnapshotCreateRepositoryService) BodyString(body string) *SnapshotCreat
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *SnapshotCreateRepositoryService) Header(key, value string) *SnapshotCreateRepositoryService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

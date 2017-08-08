@@ -93,7 +93,7 @@ func (s *ExistsService) Pretty(pretty bool) *ExistsService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *ExistsService) Header(key, value string) *ExistsService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

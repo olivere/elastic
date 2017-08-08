@@ -180,7 +180,7 @@ func (s *CountService) BodyString(body string) *CountService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *CountService) Header(key, value string) *CountService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

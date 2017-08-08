@@ -243,7 +243,7 @@ func (s *AliasService) Action(action ...AliasAction) *AliasService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *AliasService) Header(key, value string) *AliasService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

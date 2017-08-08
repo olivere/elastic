@@ -133,7 +133,7 @@ func (s *IndicesAnalyzeService) BodyString(body string) *IndicesAnalyzeService {
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *IndicesAnalyzeService) Header(key, value string) *IndicesAnalyzeService {
 	s.headers = addHeader(s.headers, key, value)
 	return s

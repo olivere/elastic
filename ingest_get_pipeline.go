@@ -49,7 +49,7 @@ func (s *IngestGetPipelineService) Pretty(pretty bool) *IngestGetPipelineService
 	return s
 }
 
-// Headers adds headers on the http request
+// Header adds key, value pair to the header on the http request
 func (s *IngestGetPipelineService) Header(key, value string) *IngestGetPipelineService {
 	s.headers = addHeader(s.headers, key, value)
 	return s
