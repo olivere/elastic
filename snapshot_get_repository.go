@@ -23,6 +23,7 @@ type SnapshotGetRepositoryService struct {
 	repository    []string
 	local         *bool
 	masterTimeout string
+	headers       headers
 }
 
 // NewSnapshotGetRepositoryService creates a new SnapshotGetRepositoryService.
@@ -54,6 +55,12 @@ func (s *SnapshotGetRepositoryService) MasterTimeout(masterTimeout string) *Snap
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *SnapshotGetRepositoryService) Pretty(pretty bool) *SnapshotGetRepositoryService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *SnapshotGetRepositoryService) Header(key, value string) *SnapshotGetRepositoryService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -106,7 +113,7 @@ func (s *SnapshotGetRepositoryService) Do(ctx context.Context) (SnapshotGetRepos
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

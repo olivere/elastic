@@ -17,10 +17,11 @@ import (
 // See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-templates.html#indices-templates-exists
 // for documentation.
 type IndicesExistsTemplateService struct {
-	client *Client
-	pretty bool
-	name   string
-	local  *bool
+	client  *Client
+	pretty  bool
+	name    string
+	local   *bool
+	headers headers
 }
 
 // NewIndicesExistsTemplateService creates a new IndicesExistsTemplateService.
@@ -46,6 +47,12 @@ func (s *IndicesExistsTemplateService) Local(local bool) *IndicesExistsTemplateS
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesExistsTemplateService) Pretty(pretty bool) *IndicesExistsTemplateService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *IndicesExistsTemplateService) Header(key, value string) *IndicesExistsTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -96,7 +103,7 @@ func (s *IndicesExistsTemplateService) Do(ctx context.Context) (bool, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "HEAD", path, params, nil, 404)
+	res, err := s.client.PerformRequest(ctx, "HEAD", path, params, nil, s.headers, 404)
 	if err != nil {
 		return false, err
 	}

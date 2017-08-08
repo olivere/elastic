@@ -28,6 +28,7 @@ type TasksListService struct {
 	parentNode        string
 	parentTask        *int64
 	waitForCompletion *bool
+	headers           headers
 }
 
 // NewTasksListService creates a new TasksListService.
@@ -88,6 +89,12 @@ func (s *TasksListService) WaitForCompletion(waitForCompletion bool) *TasksListS
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *TasksListService) Pretty(pretty bool) *TasksListService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *TasksListService) Header(key, value string) *TasksListService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -156,7 +163,7 @@ func (s *TasksListService) Do(ctx context.Context) (*TasksListResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

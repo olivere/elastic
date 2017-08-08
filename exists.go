@@ -28,6 +28,7 @@ type ExistsService struct {
 	refresh    string
 	routing    string
 	parent     string
+	headers    headers
 }
 
 // NewExistsService creates a new ExistsService.
@@ -89,6 +90,12 @@ func (s *ExistsService) Parent(parent string) *ExistsService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *ExistsService) Pretty(pretty bool) *ExistsService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *ExistsService) Header(key, value string) *ExistsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -159,7 +166,7 @@ func (s *ExistsService) Do(ctx context.Context) (bool, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "HEAD", path, params, nil, 404)
+	res, err := s.client.PerformRequest(ctx, "HEAD", path, params, nil, s.headers, 404)
 	if err != nil {
 		return false, err
 	}

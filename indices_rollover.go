@@ -32,6 +32,7 @@ type IndicesRolloverService struct {
 	mappings            map[string]interface{}
 	bodyJson            interface{}
 	bodyString          string
+	headers             headers
 }
 
 // NewIndicesRolloverService creates a new IndicesRolloverService.
@@ -151,6 +152,12 @@ func (s *IndicesRolloverService) BodyString(body string) *IndicesRolloverService
 	return s
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *IndicesRolloverService) Header(key, value string) *IndicesRolloverService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // getBody returns the body of the request, if not explicitly set via
 // BodyJson or BodyString.
 func (s *IndicesRolloverService) getBody() interface{} {
@@ -242,7 +249,7 @@ func (s *IndicesRolloverService) Do(ctx context.Context) (*IndicesRolloverRespon
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

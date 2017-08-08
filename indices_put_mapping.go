@@ -31,6 +31,7 @@ type IndicesPutMappingService struct {
 	timeout           string
 	bodyJson          map[string]interface{}
 	bodyString        string
+	headers           headers
 }
 
 // NewPutMappingService is an alias for NewIndicesPutMappingService.
@@ -119,6 +120,12 @@ func (s *IndicesPutMappingService) BodyString(mapping string) *IndicesPutMapping
 	return s
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *IndicesPutMappingService) Header(key, value string) *IndicesPutMappingService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndicesPutMappingService) buildURL() (string, url.Values, error) {
 	var err error
@@ -202,7 +209,7 @@ func (s *IndicesPutMappingService) Do(ctx context.Context) (*PutMappingResponse,
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

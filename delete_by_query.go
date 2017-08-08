@@ -62,6 +62,7 @@ type DeleteByQueryService struct {
 	waitForActiveShards    string
 	waitForCompletion      *bool
 	pretty                 bool
+	headers                headers
 }
 
 // NewDeleteByQueryService creates a new DeleteByQueryService.
@@ -411,6 +412,12 @@ func (s *DeleteByQueryService) Body(body string) *DeleteByQueryService {
 	return s
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *DeleteByQueryService) Header(key, value string) *DeleteByQueryService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *DeleteByQueryService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -598,7 +605,7 @@ func (s *DeleteByQueryService) Do(ctx context.Context) (*BulkIndexByScrollRespon
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

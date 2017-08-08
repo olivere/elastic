@@ -28,6 +28,7 @@ type IndicesGetSettingsService struct {
 	expandWildcards   string
 	flatSettings      *bool
 	local             *bool
+	headers           headers
 }
 
 // NewIndicesGetSettingsService creates a new IndicesGetSettingsService.
@@ -91,6 +92,12 @@ func (s *IndicesGetSettingsService) Local(local bool) *IndicesGetSettingsService
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesGetSettingsService) Pretty(pretty bool) *IndicesGetSettingsService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *IndicesGetSettingsService) Header(key, value string) *IndicesGetSettingsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -164,7 +171,7 @@ func (s *IndicesGetSettingsService) Do(ctx context.Context) (map[string]*Indices
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

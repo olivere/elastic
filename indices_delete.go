@@ -23,6 +23,7 @@ type IndicesDeleteService struct {
 	index         []string
 	timeout       string
 	masterTimeout string
+	headers       headers
 }
 
 // NewIndicesDeleteService creates and initializes a new IndicesDeleteService.
@@ -55,6 +56,12 @@ func (s *IndicesDeleteService) MasterTimeout(masterTimeout string) *IndicesDelet
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesDeleteService) Pretty(pretty bool) *IndicesDeleteService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *IndicesDeleteService) Header(key, value string) *IndicesDeleteService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -108,7 +115,7 @@ func (s *IndicesDeleteService) Do(ctx context.Context) (*IndicesDeleteResponse, 
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

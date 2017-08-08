@@ -21,6 +21,7 @@ type IndicesGetTemplateService struct {
 	name         []string
 	flatSettings *bool
 	local        *bool
+	headers      headers
 }
 
 // NewIndicesGetTemplateService creates a new IndicesGetTemplateService.
@@ -53,6 +54,12 @@ func (s *IndicesGetTemplateService) Local(local bool) *IndicesGetTemplateService
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesGetTemplateService) Pretty(pretty bool) *IndicesGetTemplateService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *IndicesGetTemplateService) Header(key, value string) *IndicesGetTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -105,7 +112,7 @@ func (s *IndicesGetTemplateService) Do(ctx context.Context) (map[string]*Indices
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

@@ -20,6 +20,7 @@ type GetTemplateService struct {
 	id          string
 	version     interface{}
 	versionType string
+	headers     headers
 }
 
 // NewGetTemplateService creates a new GetTemplateService.
@@ -44,6 +45,12 @@ func (s *GetTemplateService) Version(version interface{}) *GetTemplateService {
 // VersionType is a specific version type.
 func (s *GetTemplateService) VersionType(versionType string) *GetTemplateService {
 	s.versionType = versionType
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *GetTemplateService) Header(key, value string) *GetTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -95,7 +102,7 @@ func (s *GetTemplateService) Do(ctx context.Context) (*GetTemplateResponse, erro
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

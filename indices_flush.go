@@ -28,6 +28,7 @@ type IndicesFlushService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	headers           headers
 }
 
 // NewIndicesFlushService creates a new IndicesFlushService.
@@ -90,6 +91,12 @@ func (s *IndicesFlushService) Pretty(pretty bool) *IndicesFlushService {
 	return s
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *IndicesFlushService) Header(key, value string) *IndicesFlushService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndicesFlushService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -149,7 +156,7 @@ func (s *IndicesFlushService) Do(ctx context.Context) (*IndicesFlushResponse, er
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

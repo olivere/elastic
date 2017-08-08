@@ -38,6 +38,7 @@ type UpdateService struct {
 	doc                 interface{}
 	timeout             string
 	pretty              bool
+	headers             headers
 }
 
 // NewUpdateService creates the service to update documents in Elasticsearch.
@@ -173,6 +174,12 @@ func (b *UpdateService) Pretty(pretty bool) *UpdateService {
 	return b
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *UpdateService) Header(key, value string) *UpdateService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // FetchSource asks Elasticsearch to return the updated _source in the response.
 func (s *UpdateService) FetchSource(fetchSource bool) *UpdateService {
 	if s.fsc == nil {
@@ -293,7 +300,7 @@ func (b *UpdateService) Do(ctx context.Context) (*UpdateResponse, error) {
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := b.client.PerformRequest(ctx, "POST", path, params, body, b.headers)
 	if err != nil {
 		return nil, err
 	}

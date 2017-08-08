@@ -43,6 +43,7 @@ type TermvectorsService struct {
 	versionType      string
 	bodyJson         interface{}
 	bodyString       string
+	headers          headers
 }
 
 // NewTermvectorsService creates a new TermvectorsService.
@@ -193,6 +194,12 @@ func (s *TermvectorsService) BodyString(body string) *TermvectorsService {
 	return s
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *TermvectorsService) Header(key, value string) *TermvectorsService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *TermvectorsService) buildURL() (string, url.Values, error) {
 	var pathParam = map[string]string{
@@ -316,7 +323,7 @@ func (s *TermvectorsService) Do(ctx context.Context) (*TermvectorsResponse, erro
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

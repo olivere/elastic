@@ -20,6 +20,7 @@ type MultiSearchService struct {
 	pretty     bool
 	routing    string
 	preference string
+	headers    headers
 }
 
 func NewMultiSearchService(client *Client) *MultiSearchService {
@@ -43,6 +44,12 @@ func (s *MultiSearchService) Index(indices ...string) *MultiSearchService {
 
 func (s *MultiSearchService) Pretty(pretty bool) *MultiSearchService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *MultiSearchService) Header(key, value string) *MultiSearchService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -78,7 +85,7 @@ func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error)
 	body := strings.Join(lines, "\n") + "\n" // Don't forget trailing \n
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

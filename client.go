@@ -137,6 +137,7 @@ type Client struct {
 	requiredPlugins           []string        // list of required plugins
 	gzipEnabled               bool            // gzip compression enabled or disabled (default)
 	retrier                   Retrier         // strategy for retries
+	headers                   headers         // headers populated on each http request to Elasticsearch
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -677,6 +678,14 @@ func SetRetrier(retrier Retrier) ClientOptionFunc {
 	}
 }
 
+// AddHeader adds key, value pair to the headers on each HTTP request to Elasticsearch
+func AddHeader(key, value string) ClientOptionFunc {
+	return func(c *Client) error {
+		c.headers = addHeader(c.headers, key, value)
+		return nil
+	}
+}
+
 // String returns a string representation of the client status.
 func (c *Client) String() string {
 	c.connsMu.Lock()
@@ -902,6 +911,9 @@ func (c *Client) sniffNode(ctx context.Context, url string) []*conn {
 	if c.basicAuth {
 		req.SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
 	}
+	if c.headers != nil {
+		req.SetCustomHeaders(c.headers)
+	}
 	c.mu.RUnlock()
 
 	res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
@@ -1021,6 +1033,7 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 	basicAuth := c.basicAuth
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
+	headers := c.headers
 	c.mu.RUnlock()
 
 	c.connsMu.RLock()
@@ -1043,6 +1056,9 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 			}
 			if basicAuth {
 				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+			}
+			if headers != nil {
+				req.SetCustomHeaders(headers)
 			}
 			res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
 			if res != nil {
@@ -1175,7 +1191,7 @@ func (c *Client) mustActiveConn() error {
 // Optionally, a list of HTTP error codes to ignore can be passed.
 // This is necessary for services that expect e.g. HTTP status 404 as a
 // valid outcome (Exists, IndicesExists, IndicesTypeExists).
-func (c *Client) PerformRequest(ctx context.Context, method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
+func (c *Client) PerformRequest(ctx context.Context, method, path string, params url.Values, body interface{}, headers headers, ignoreErrors ...int) (*Response, error) {
 	start := time.Now().UTC()
 
 	c.mu.RLock()
@@ -1183,6 +1199,7 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 	basicAuth := c.basicAuth
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
+	clientHeaders := c.headers
 	sendGetBodyAs := c.sendGetBodyAs
 	gzipEnabled := c.gzipEnabled
 	c.mu.RUnlock()
@@ -1237,6 +1254,14 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 
 		if basicAuth {
 			req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+		}
+
+		// set custom headers specified on the client, and headers specific per request
+		if clientHeaders != nil {
+			req.SetCustomHeaders(clientHeaders)
+		}
+		if headers != nil {
+			req.SetCustomHeaders(headers)
 		}
 
 		// Set body

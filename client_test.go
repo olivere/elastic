@@ -873,7 +873,7 @@ func TestPerformRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -895,7 +895,7 @@ func TestPerformRequestWithSimpleClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -921,7 +921,7 @@ func TestPerformRequestWithLogger(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -960,7 +960,7 @@ func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -995,7 +995,7 @@ func TestPerformRequestWithTracerOnError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	client.PerformRequest(context.TODO(), "GET", "/no-such-index", nil, nil)
+	client.PerformRequest(context.TODO(), "GET", "/no-such-index", nil, nil, nil)
 
 	tgot := tw.String()
 	if tgot == "" {
@@ -1019,7 +1019,7 @@ func TestPerformRequestWithCustomLogger(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1082,7 +1082,7 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil, nil)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -1112,7 +1112,7 @@ func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil, nil)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -1141,7 +1141,7 @@ func TestPerformRequestWithSetBodyError(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, failingBody{})
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, failingBody{}, nil)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -1178,7 +1178,7 @@ func TestPerformRequestWithCancel(t *testing.T) {
 
 	resc := make(chan result, 1)
 	go func() {
-		res, err := client.PerformRequest(ctx, "GET", "/", nil, nil)
+		res, err := client.PerformRequest(ctx, "GET", "/", nil, nil, nil)
 		resc <- result{res: res, err: err}
 	}()
 	select {
@@ -1213,7 +1213,7 @@ func TestPerformRequestWithTimeout(t *testing.T) {
 
 	resc := make(chan result, 1)
 	go func() {
-		res, err := client.PerformRequest(ctx, "GET", "/", nil, nil)
+		res, err := client.PerformRequest(ctx, "GET", "/", nil, nil, nil)
 		resc <- result{res: res, err: err}
 	}()
 	select {
@@ -1261,7 +1261,7 @@ func testPerformRequestWithCompression(t *testing.T, hc *http.Client) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

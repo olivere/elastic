@@ -16,10 +16,11 @@ import (
 // RefreshService explicitly refreshes one or more indices.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-refresh.html.
 type RefreshService struct {
-	client *Client
-	index  []string
-	force  *bool
-	pretty bool
+	client  *Client
+	index   []string
+	force   *bool
+	pretty  bool
+	headers headers
 }
 
 // NewRefreshService creates a new instance of RefreshService.
@@ -45,6 +46,12 @@ func (s *RefreshService) Force(force bool) *RefreshService {
 // Pretty asks Elasticsearch to return indented JSON.
 func (s *RefreshService) Pretty(pretty bool) *RefreshService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *RefreshService) Header(key, value string) *RefreshService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -83,7 +90,7 @@ func (s *RefreshService) Do(ctx context.Context) (*RefreshResult, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

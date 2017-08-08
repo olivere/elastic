@@ -28,6 +28,7 @@ type IndicesShrinkService struct {
 	waitForActiveShards string
 	bodyJson            interface{}
 	bodyString          string
+	headers             headers
 }
 
 // NewIndicesShrinkService creates a new IndicesShrinkService.
@@ -85,6 +86,12 @@ func (s *IndicesShrinkService) BodyJson(body interface{}) *IndicesShrinkService 
 // defined as a string to send as the request body.
 func (s *IndicesShrinkService) BodyString(body string) *IndicesShrinkService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *IndicesShrinkService) Header(key, value string) *IndicesShrinkService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -153,7 +160,7 @@ func (s *IndicesShrinkService) Do(ctx context.Context) (*IndicesShrinkResponse, 
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

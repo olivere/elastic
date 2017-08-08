@@ -37,6 +37,7 @@ type CountService struct {
 	routing                string
 	bodyJson               interface{}
 	bodyString             string
+	headers                headers
 }
 
 // NewCountService creates a new CountService.
@@ -179,6 +180,12 @@ func (s *CountService) BodyString(body string) *CountService {
 	return s
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *CountService) Header(key, value string) *CountService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *CountService) buildURL() (string, url.Values, error) {
 	var err error
@@ -286,7 +293,7 @@ func (s *CountService) Do(ctx context.Context) (int64, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return 0, err
 	}

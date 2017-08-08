@@ -26,6 +26,7 @@ type ReindexService struct {
 	conflicts           string
 	size                *int
 	script              *Script
+	headers             headers
 }
 
 // NewReindexService creates a new ReindexService.
@@ -160,6 +161,12 @@ func (s *ReindexService) Body(body interface{}) *ReindexService {
 	return s
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *ReindexService) Header(key, value string) *ReindexService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *ReindexService) buildURL() (string, url.Values, error) {
 	// Build URL path
@@ -267,7 +274,7 @@ func (s *ReindexService) Do(ctx context.Context) (*BulkIndexByScrollResponse, er
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}
@@ -309,7 +316,7 @@ func (s *ReindexService) DoAsync(ctx context.Context) (*StartTaskResult, error) 
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

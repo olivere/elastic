@@ -26,6 +26,7 @@ type IndicesExistsService struct {
 	allowNoIndices    *bool
 	expandWildcards   string
 	local             *bool
+	headers           headers
 }
 
 // NewIndicesExistsService creates and initializes a new IndicesExistsService.
@@ -74,6 +75,12 @@ func (s *IndicesExistsService) IgnoreUnavailable(ignoreUnavailable bool) *Indice
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesExistsService) Pretty(pretty bool) *IndicesExistsService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *IndicesExistsService) Header(key, value string) *IndicesExistsService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -133,7 +140,7 @@ func (s *IndicesExistsService) Do(ctx context.Context) (bool, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "HEAD", path, params, nil, 404)
+	res, err := s.client.PerformRequest(ctx, "HEAD", path, params, nil, s.headers, 404)
 	if err != nil {
 		return false, err
 	}

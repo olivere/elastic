@@ -24,6 +24,7 @@ type NodesInfoService struct {
 	metric       []string
 	flatSettings *bool
 	human        *bool
+	headers      headers
 }
 
 // NewNodesInfoService creates a new NodesInfoService.
@@ -66,6 +67,12 @@ func (s *NodesInfoService) Human(human bool) *NodesInfoService {
 // Pretty indicates whether to indent the returned JSON.
 func (s *NodesInfoService) Pretty(pretty bool) *NodesInfoService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *NodesInfoService) Header(key, value string) *NodesInfoService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -113,7 +120,7 @@ func (s *NodesInfoService) Do(ctx context.Context) (*NodesInfoResponse, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

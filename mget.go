@@ -27,6 +27,7 @@ type MgetService struct {
 	routing      string
 	storedFields []string
 	items        []*MultiGetItem
+	headers      headers
 }
 
 // NewMgetService initializes a new Multi GET API request call.
@@ -95,6 +96,12 @@ func (s *MgetService) Source() (interface{}, error) {
 	return source, nil
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *MgetService) Header(key, value string) *MgetService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // Do executes the request.
 func (s *MgetService) Do(ctx context.Context) (*MgetResponse, error) {
 	// Build url
@@ -124,7 +131,7 @@ func (s *MgetService) Do(ctx context.Context) (*MgetResponse, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

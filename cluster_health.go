@@ -29,6 +29,7 @@ type ClusterHealthService struct {
 	waitForNodes              string
 	waitForNoRelocatingShards *bool
 	waitForStatus             string
+	headers                   headers
 }
 
 // NewClusterHealthService creates a new ClusterHealthService.
@@ -112,6 +113,12 @@ func (s *ClusterHealthService) Pretty(pretty bool) *ClusterHealthService {
 	return s
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *ClusterHealthService) Header(key, value string) *ClusterHealthService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *ClusterHealthService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -179,7 +186,7 @@ func (s *ClusterHealthService) Do(ctx context.Context) (*ClusterHealthResponse, 
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

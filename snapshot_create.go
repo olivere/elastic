@@ -24,6 +24,7 @@ type SnapshotCreateService struct {
 	waitForCompletion *bool
 	bodyJson          interface{}
 	bodyString        string
+	headers           headers
 }
 
 // NewSnapshotCreateService creates a new SnapshotCreateService.
@@ -72,6 +73,12 @@ func (s *SnapshotCreateService) BodyJson(body interface{}) *SnapshotCreateServic
 // BodyString is documented as: The snapshot definition.
 func (s *SnapshotCreateService) BodyString(body string) *SnapshotCreateService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *SnapshotCreateService) Header(key, value string) *SnapshotCreateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -137,7 +144,7 @@ func (s *SnapshotCreateService) Do(ctx context.Context) (*SnapshotCreateResponse
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

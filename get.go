@@ -35,6 +35,7 @@ type GetService struct {
 	versionType                   string
 	parent                        string
 	ignoreErrorsOnGeneratedFields *bool
+	headers                       headers
 }
 
 // NewGetService creates a new GetService.
@@ -139,6 +140,12 @@ func (s *GetService) Pretty(pretty bool) *GetService {
 	return s
 }
 
+// Headers sets headers on the http request
+func (s *GetService) Header(key, value string) *GetService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // Validate checks if the operation is valid.
 func (s *GetService) Validate() error {
 	var invalid []string
@@ -223,7 +230,7 @@ func (s *GetService) Do(ctx context.Context) (*GetResult, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

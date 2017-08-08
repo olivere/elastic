@@ -41,6 +41,7 @@ type MultiTermvectorService struct {
 	bodyJson        interface{}
 	bodyString      string
 	docs            []*MultiTermvectorItem
+	headers         headers
 }
 
 // NewMultiTermvectorService creates a new MultiTermvectorService.
@@ -174,6 +175,12 @@ func (s *MultiTermvectorService) Source() interface{} {
 	return source
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *MultiTermvectorService) Header(key, value string) *MultiTermvectorService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *MultiTermvectorService) buildURL() (string, url.Values, error) {
 	var path string
@@ -278,7 +285,7 @@ func (s *MultiTermvectorService) Do(ctx context.Context) (*MultiTermvectorRespon
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "GET", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

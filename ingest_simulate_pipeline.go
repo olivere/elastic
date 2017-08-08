@@ -25,6 +25,7 @@ type IngestSimulatePipelineService struct {
 	verbose    *bool
 	bodyJson   interface{}
 	bodyString string
+	headers    headers
 }
 
 // NewIngestSimulatePipelineService creates a new IngestSimulatePipeline.
@@ -62,6 +63,12 @@ func (s *IngestSimulatePipelineService) BodyJson(body interface{}) *IngestSimula
 // BodyString is the simulate definition, defined as a string.
 func (s *IngestSimulatePipelineService) BodyString(body string) *IngestSimulatePipelineService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *IngestSimulatePipelineService) Header(key, value string) *IngestSimulatePipelineService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -127,7 +134,7 @@ func (s *IngestSimulatePipelineService) Do(ctx context.Context) (*IngestSimulate
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

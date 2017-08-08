@@ -27,6 +27,7 @@ type IndicesPutTemplateService struct {
 	flatSettings  *bool
 	bodyJson      interface{}
 	bodyString    string
+	headers       headers
 }
 
 // NewIndicesPutTemplateService creates a new IndicesPutTemplateService.
@@ -102,6 +103,12 @@ func (s *IndicesPutTemplateService) BodyJson(body interface{}) *IndicesPutTempla
 // BodyString is documented as: The template definition.
 func (s *IndicesPutTemplateService) BodyString(body string) *IndicesPutTemplateService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *IndicesPutTemplateService) Header(key, value string) *IndicesPutTemplateService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -181,7 +188,7 @@ func (s *IndicesPutTemplateService) Do(ctx context.Context) (*IndicesPutTemplate
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

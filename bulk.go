@@ -41,6 +41,8 @@ type BulkService struct {
 	// estimated bulk size in bytes, up to the request index sizeInBytesCursor
 	sizeInBytes       int64
 	sizeInBytesCursor int
+
+	headers headers
 }
 
 // NewBulkService initializes a new BulkService.
@@ -114,6 +116,12 @@ func (s *BulkService) WaitForActiveShards(waitForActiveShards string) *BulkServi
 // Pretty tells Elasticsearch whether to return a formatted JSON response.
 func (s *BulkService) Pretty(pretty bool) *BulkService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *BulkService) Header(key, value string) *BulkService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -234,7 +242,7 @@ func (s *BulkService) Do(ctx context.Context) (*BulkResponse, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}

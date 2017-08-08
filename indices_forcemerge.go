@@ -31,6 +31,7 @@ type IndicesForcemergeService struct {
 	maxNumSegments     interface{}
 	onlyExpungeDeletes *bool
 	operationThreading interface{}
+	headers            headers
 }
 
 // NewIndicesForcemergeService creates a new IndicesForcemergeService.
@@ -105,6 +106,12 @@ func (s *IndicesForcemergeService) Pretty(pretty bool) *IndicesForcemergeService
 	return s
 }
 
+// Header adds key, value pair to the header on the http request
+func (s *IndicesForcemergeService) Header(key, value string) *IndicesForcemergeService {
+	s.headers = addHeader(s.headers, key, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndicesForcemergeService) buildURL() (string, url.Values, error) {
 	var err error
@@ -170,7 +177,7 @@ func (s *IndicesForcemergeService) Do(ctx context.Context) (*IndicesForcemergeRe
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil, s.headers)
 	if err != nil {
 		return nil, err
 	}

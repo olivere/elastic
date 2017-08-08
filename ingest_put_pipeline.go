@@ -25,6 +25,7 @@ type IngestPutPipelineService struct {
 	timeout       string
 	bodyJson      interface{}
 	bodyString    string
+	headers       headers
 }
 
 // NewIngestPutPipelineService creates a new IngestPutPipelineService.
@@ -68,6 +69,12 @@ func (s *IngestPutPipelineService) BodyJson(body interface{}) *IngestPutPipeline
 // BodyString is the ingest definition, specified as a string.
 func (s *IngestPutPipelineService) BodyString(body string) *IngestPutPipelineService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds key, value pair to the header on the http request
+func (s *IngestPutPipelineService) Header(key, value string) *IngestPutPipelineService {
+	s.headers = addHeader(s.headers, key, value)
 	return s
 }
 
@@ -132,7 +139,7 @@ func (s *IngestPutPipelineService) Do(ctx context.Context) (*IngestPutPipelineRe
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body, s.headers)
 	if err != nil {
 		return nil, err
 	}
