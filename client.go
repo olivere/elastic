@@ -678,8 +678,8 @@ func SetRetrier(retrier Retrier) ClientOptionFunc {
 	}
 }
 
-// SetHeader adds key, value pair to the headers on each HTTP request to Elasticsearch
-func SetHeader(key, value string) ClientOptionFunc {
+// AddHeader adds key, value pair to the headers on each HTTP request to Elasticsearch
+func AddHeader(key, value string) ClientOptionFunc {
 	return func(c *Client) error {
 		c.headers = addHeader(c.headers, key, value)
 		return nil
