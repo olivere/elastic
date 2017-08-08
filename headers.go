@@ -12,11 +12,11 @@ func addHeader(headers map[string][]string, key string, value string) map[string
 
 	var values []string
 	if v, ok := headers[key]; ok {
-		values = v
+		values = append(v, value)
 	} else {
-		values = make([]string, 0)
+		values = []string{value}
 	}
 
-	headers[key] = append(values, value)
+	headers[key] = values
 	return headers
 }
