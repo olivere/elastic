@@ -137,6 +137,7 @@ type Client struct {
 	requiredPlugins           []string        // list of required plugins
 	gzipEnabled               bool            // gzip compression enabled or disabled (default)
 	retrier                   Retrier         // strategy for retries
+	clusterName               string          // cluster name if set
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -540,6 +541,16 @@ func SetHealthcheck(enabled bool) ClientOptionFunc {
 	}
 }
 
+// SetClusterName restricts client to specific cluster name (nodes from different
+// clusters are treated as dead).
+func SetClusterName(name string) ClientOptionFunc {
+	return func(c *Client) error {
+		c.clusterName = name
+		return nil
+	}
+
+}
+
 // SetHealthcheckTimeoutStartup sets the timeout for the initial health check.
 // The default timeout is 5 seconds (see DefaultHealthcheckTimeoutStartup).
 // Notice that timeouts for subsequent health checks can be modified with
@@ -861,13 +872,18 @@ func (c *Client) sniff(timeout time.Duration) error {
 	}
 
 	// Start sniffing on all found URLs
-	ch := make(chan []*conn, len(urls))
+	ch := make(chan []*conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	for _, url := range urls {
-		go func(url string) { ch <- c.sniffNode(ctx, url) }(url)
+		go func(url string) {
+			select {
+			case ch <- c.sniffNode(ctx, url):
+			default:
+			}
+		}(url)
 	}
 
 	// Wait for the results to come back, or the process times out.
@@ -891,6 +907,30 @@ func (c *Client) sniff(timeout time.Duration) error {
 // is returned.
 func (c *Client) sniffNode(ctx context.Context, url string) []*conn {
 	var nodes []*conn
+
+	// First, check that node belongs to our cluster
+	if c.clusterName != "" {
+		req, err := NewRequest("GET", url)
+		if err != nil {
+			return nodes
+		}
+
+		c.mu.RLock()
+		if c.basicAuth {
+			req.SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
+		}
+		c.mu.RUnlock()
+
+		res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
+		if err != nil {
+			return nodes
+		}
+
+		name, err := getClusterName(res)
+		if err != nil || c.clusterName != name {
+			return nodes
+		}
+	}
 
 	// Call the Nodes Info API at /_nodes/http
 	req, err := NewRequest("GET", url+"/_nodes/http")
@@ -1027,6 +1067,11 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 	conns := c.conns
 	c.connsMu.RUnlock()
 
+	method := "HEAD"
+	if c.clusterName != "" {
+		method = "GET"
+	}
+
 	for _, conn := range conns {
 		// Run the HEAD request against ES with a timeout
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -1036,9 +1081,10 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 		var status int
 		errc := make(chan error, 1)
 		go func(url string) {
-			req, err := NewRequest("HEAD", url)
+			var err error
+			defer func() { errc <- err }()
+			req, err := NewRequest(method, url)
 			if err != nil {
-				errc <- err
 				return
 			}
 			if basicAuth {
@@ -1048,10 +1094,16 @@ func (c *Client) healthcheck(timeout time.Duration, force bool) {
 			if res != nil {
 				status = res.StatusCode
 				if res.Body != nil {
-					res.Body.Close()
+					defer res.Body.Close()
 				}
 			}
-			errc <- err
+			if c.clusterName != "" {
+				var name string
+				name, err = getClusterName(res)
+				if name != c.clusterName && err == nil {
+					err = errors.Errorf("bad cluster name: %v", name)
+				}
+			}
 		}(conn.URL())
 
 		// Wait for the Goroutine (or its timeout)
@@ -1096,7 +1148,7 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 		*cl = *c.c
 		cl.Timeout = timeout
 		for _, url := range urls {
-			req, err := http.NewRequest("HEAD", url, nil)
+			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
 				return err
 			}
@@ -1105,6 +1157,16 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 			}
 			res, err := cl.Do(req)
 			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
+				// Skip nodes with bad cluster name
+				if c.clusterName != "" {
+					name, err := getClusterName(res)
+					if err != nil {
+						continue
+					}
+					if name != c.clusterName {
+						continue
+					}
+				}
 				return nil
 			}
 		}
@@ -1114,6 +1176,18 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 		}
 	}
 	return errors.Wrap(ErrNoClient, "health check timeout")
+}
+
+func getClusterName(rsp *http.Response) (string, error) {
+	if rsp == nil {
+		return "", errors.New("http.Response is nil")
+	}
+	type nodeInfo struct {
+		ClusterName string `json:"cluster_name"`
+	}
+	var info nodeInfo
+	err := json.NewDecoder(rsp.Body).Decode(&info)
+	return info.ClusterName, errors.Wrap(err, "couldn't parse nodeInfo")
 }
 
 // next returns the next available connection, or ErrNoClient.
