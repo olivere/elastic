@@ -543,6 +543,9 @@ func SetHealthcheck(enabled bool) ClientOptionFunc {
 
 // SetClusterName restricts client to specific cluster name (nodes from different
 // clusters are treated as dead).
+//
+// This setting works properly in all situations
+// only with healthcheck and sniffing enabled.
 func SetClusterName(name string) ClientOptionFunc {
 	return func(c *Client) error {
 		c.clusterName = name
