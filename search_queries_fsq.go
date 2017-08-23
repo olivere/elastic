@@ -33,12 +33,10 @@ func NewFunctionScoreQuery() FunctionScoreQuery {
 
 func (q FunctionScoreQuery) Query(query Query) FunctionScoreQuery {
 	q.query = query
-	q.filter = nil
 	return q
 }
 
 func (q FunctionScoreQuery) Filter(filter Filter) FunctionScoreQuery {
-	q.query = nil
 	q.filter = filter
 	return q
 }
@@ -88,7 +86,8 @@ func (q FunctionScoreQuery) Source() interface{} {
 
 	if q.query != nil {
 		query["query"] = q.query.Source()
-	} else if q.filter != nil {
+	}
+	if q.filter != nil {
 		query["filter"] = q.filter.Source()
 	}
 
