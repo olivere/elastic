@@ -274,6 +274,7 @@ func (s *SearchService) Do() (*SearchResult, error) {
 
 	// Search
 	path += "/_search"
+	path = "/arius" + path
 
 	// Parameters
 	params := make(url.Values)
