@@ -20,14 +20,10 @@ const (
 {
 	"settings":{
 		"number_of_shards":1,
-		"number_of_replicas":0
+		"number_of_replicas":0,
+		"index.mapping.single_type" : false
 	},
 	"mappings":{
-		"_default_": {
-			"_all": {
-				"enabled": true
-			}
-		},
 		"tweet":{
 			"properties":{
 				"user":{

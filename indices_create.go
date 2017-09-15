@@ -9,7 +9,7 @@ import (
 	"errors"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // IndicesCreateService creates a new index.
@@ -91,7 +91,7 @@ func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 
 	params := make(url.Values)
 	if b.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if b.masterTimeout != "" {
 		params.Set("master_timeout", b.masterTimeout)

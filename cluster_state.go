@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // ClusterStateService allows to get a comprehensive state information of the whole cluster.
@@ -123,7 +123,7 @@ func (s *ClusterStateService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.allowNoIndices != nil {
 		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))

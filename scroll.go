@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 const (
@@ -330,7 +330,7 @@ func (s *ScrollService) buildFirstURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.size != nil && *s.size > 0 {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
@@ -423,7 +423,7 @@ func (s *ScrollService) buildNextURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 
 	return path, params, nil

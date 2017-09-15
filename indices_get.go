@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // IndicesGetService retrieves information about one or more indices.
@@ -131,7 +131,7 @@ func (s *IndicesGetService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)

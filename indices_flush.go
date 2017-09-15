@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // Flush allows to flush one or more indices. The flush process of an index
@@ -110,7 +110,7 @@ func (s *IndicesFlushService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.force != nil {
 		params.Set("force", fmt.Sprintf("%v", *s.force))

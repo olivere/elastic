@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // IngestSimulatePipelineService executes a specific pipeline against the set of
@@ -85,7 +85,7 @@ func (s *IngestSimulatePipelineService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.verbose != nil {
 		params.Set("verbose", fmt.Sprintf("%v", *s.verbose))

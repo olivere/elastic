@@ -7,11 +7,10 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
-	"net/http"
-
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // DeleteService allows to delete a typed JSON document from a specified
@@ -126,7 +125,7 @@ func (s *DeleteService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.refresh != "" {
 		params.Set("refresh", s.refresh)

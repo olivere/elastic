@@ -1,10 +1,12 @@
 # Elastic
 
+**This is a development branch that is actively being worked on. DO NOT USE IN PRODUCTION!**
+
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for the
 [Go](http://www.golang.org/) programming language.
 
-[![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=release-branch.v5)](https://travis-ci.org/olivere/elastic)
-[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](http://godoc.org/gopkg.in/olivere/elastic.v5)
+[![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=release-branch.v6)](https://travis-ci.org/olivere/elastic)
+[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](http://godoc.org/gopkg.in/olivere/elastic.v6)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/olivere/elastic/master/LICENSE)
 
 See the [wiki](https://github.com/olivere/elastic/wiki) for additional information about Elastic.
@@ -12,7 +14,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for additional informati
 
 ## Releases
 
-**The release branches (e.g. [`release-branch.v5`](https://github.com/olivere/elastic/tree/release-branch.v5))
+**The release branches (e.g. [`release-branch.v6`](https://github.com/olivere/elastic/tree/release-branch.v6))
 are actively being worked on and can break at any time.
 If you want to use stable versions of Elastic, please use the packages released via [gopkg.in](https://gopkg.in).**
 
@@ -20,6 +22,7 @@ Here's the version matrix:
 
 Elasticsearch version | Elastic version -| Package URL
 ----------------------|------------------|------------
+6.x                   | 6.0              | [`gopkg.in/olivere/elastic.v6`](https://gopkg.in/olivere/elastic.v6) ([source](https://github.com/olivere/elastic/tree/release-branch.v6) [doc](http://godoc.org/gopkg.in/olivere/elastic.v6))
 5.x                   | 5.0              | [`gopkg.in/olivere/elastic.v5`](https://gopkg.in/olivere/elastic.v5) ([source](https://github.com/olivere/elastic/tree/release-branch.v5) [doc](http://godoc.org/gopkg.in/olivere/elastic.v5))
 2.x                   | 3.0              | [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3) ([source](https://github.com/olivere/elastic/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/olivere/elastic.v3))
 1.x                   | 2.0              | [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2) ([source](https://github.com/olivere/elastic/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/olivere/elastic.v2))
@@ -27,19 +30,30 @@ Elasticsearch version | Elastic version -| Package URL
 
 **Example:**
 
-You have installed Elasticsearch 5.0.0 and want to use Elastic.
-As listed above, you should use Elastic 5.0.
-So you first install the stable release of Elastic 5.0 from gopkg.in.
+You have installed Elasticsearch 6.0.0 and want to use Elastic.
+As listed above, you should use Elastic 6.0.
+So you first install the stable release of Elastic 6.0 from gopkg.in.
 
 ```sh
-$ go get gopkg.in/olivere/elastic.v5
+$ go get gopkg.in/olivere/elastic.v6
 ```
 
 You then import it with this import path:
 
 ```go
-import elastic "gopkg.in/olivere/elastic.v5"
+import elastic "gopkg.in/olivere/elastic.v6"
 ```
+
+### Elastic 6.0
+
+Elastic 6.0 targets Elasticsearch 6.0.0 and later. Elasticsearch 6.0.0 isn't released
+yet, but we have a
+[6.0.0-alpha2](https://www.elastic.co/downloads/elasticsearch#preview-release)
+at the time of writing this ([docs and breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/master/release-notes-6.0.0-alpha2.html)).
+
+Notice that there are will be some [breaking changes in Elasticsearch 6.0](https://www.elastic.co/guide/en/elasticsearch/reference/6.0/breaking-changes-6.0.html)
+and we used this as an opportunity to [clean up and refactor Elastic](https://github.com/olivere/elastic/blob/release-branch.v6/CHANGELOG-6.0.md)
+as we did in the transition from earlier versions of Elastic.
 
 ### Elastic 5.0
 

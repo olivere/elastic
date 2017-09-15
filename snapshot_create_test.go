@@ -37,7 +37,7 @@ func TestSnapshotPutURL(t *testing.T) {
 			WaitForCompletion: true,
 			ExpectedPath:      "/_snapshot/repo/snapshot_of_sunday",
 			ExpectedParams: url.Values{
-				"pretty":              []string{"1"},
+				"pretty":              []string{"true"},
 				"master_timeout":      []string{"60s"},
 				"wait_for_completion": []string{"true"},
 			},
