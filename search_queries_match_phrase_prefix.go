@@ -37,6 +37,12 @@ func (q *MatchPhrasePrefixQuery) Slop(slop int) *MatchPhrasePrefixQuery {
 	return q
 }
 
+// MaxExpansions sets the number of term expansions to use.
+func (q *MatchPhrasePrefixQuery) MaxExpansions(n int) *MatchPhrasePrefixQuery {
+	q.maxExpansions = &n
+	return q
+}
+
 // Boost sets the boost to apply to this query.
 func (q *MatchPhrasePrefixQuery) Boost(boost float64) *MatchPhrasePrefixQuery {
 	q.boost = &boost
