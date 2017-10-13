@@ -5,10 +5,9 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
-
-	"context"
 )
 
 // MgetService allows to get multiple documents based on an index,

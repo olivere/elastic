@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"context"
 	"github.com/fortytw2/leaktest"
 )
 

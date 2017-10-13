@@ -5,11 +5,10 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
-
-	"context"
 )
 
 // -- Actions --

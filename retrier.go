@@ -5,10 +5,9 @@
 package elastic
 
 import (
+	"context"
 	"net/http"
 	"time"
-
-	"context"
 )
 
 // RetrierFunc specifies the signature of a Retry function.

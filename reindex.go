@@ -5,10 +5,9 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
-
-	"context"
 )
 
 // ReindexService is a method to copy documents from one index to another.

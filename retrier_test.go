@@ -5,13 +5,12 @@
 package elastic
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"sync/atomic"
 	"testing"
 	"time"
-
-	"context"
 )
 
 type testRetrier struct {

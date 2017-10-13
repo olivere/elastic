@@ -5,10 +5,9 @@
 package elastic
 
 import (
+	"context"
 	"errors"
 	"net/url"
-
-	"context"
 
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )

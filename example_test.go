@@ -5,6 +5,7 @@
 package elastic_test
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,7 +14,6 @@ import (
 	"reflect"
 	"time"
 
-	"context"
 	"golang.org/x/sync/errgroup"
 
 	elastic "gopkg.in/olivere/elastic.v3"

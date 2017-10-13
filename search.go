@@ -5,13 +5,12 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
 	"reflect"
 	"strings"
-
-	"context"
 
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )

@@ -5,12 +5,11 @@
 package elastic
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	_ "net/http"
 	"testing"
-
-	"context"
 )
 
 func TestScroll(t *testing.T) {

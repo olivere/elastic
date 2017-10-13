@@ -5,11 +5,10 @@
 package elastic
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
-
-	"context"
 )
 
 // ClearScrollService clears one or more scroll contexts by their ids.

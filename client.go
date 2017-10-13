@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,8 +17,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"context"
 )
 
 const (
@@ -1123,9 +1122,6 @@ func (c *Client) PerformRequest(method, path string, params url.Values, body int
 // Optionally, a list of HTTP error codes to ignore can be passed.
 // This is necessary for services that expect e.g. HTTP status 404 as a
 // valid outcome (Exists, IndicesExists, IndicesTypeExists).
-//
-// If ctx is not nil, it uses the ctxhttp to do the request,
-// enabling both request cancelation as well as timeout.
 func (c *Client) PerformRequestC(ctx context.Context, method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
 	start := time.Now().UTC()
 
@@ -1203,12 +1199,7 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 		c.dumpRequest((*http.Request)(req))
 
 		// Get response
-		var res *http.Response
-		if ctx == nil {
-			res, err = c.c.Do((*http.Request)(req))
-		} else {
-			res, err = c.c.Do((*http.Request)(req).WithContext(ctx))
-		}
+		res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
 		if err == context.Canceled || err == context.DeadlineExceeded {
 			// Proceed, but don't mark the node as dead
 			return nil, err
