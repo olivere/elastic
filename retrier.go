@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"golang.org/x/net/context"
+	"context"
 )
 
 // RetrierFunc specifies the signature of a Retry function.

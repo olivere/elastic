@@ -10,7 +10,7 @@ import (
 	_ "net/http"
 	"testing"
 
-	"golang.org/x/net/context"
+	"context"
 )
 
 func TestScroll(t *testing.T) {

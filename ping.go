@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"golang.org/x/net/context"
+	"context"
 	"golang.org/x/net/context/ctxhttp"
 )
 

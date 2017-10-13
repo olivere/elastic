@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"golang.org/x/net/context"
+	"context"
 )
 
 // ReindexService is a method to copy documents from one index to another.

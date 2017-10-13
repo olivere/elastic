@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"golang.org/x/net/context"
+	"context"
 )
 
 // MgetService allows to get multiple documents based on an index,

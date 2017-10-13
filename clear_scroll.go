@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"golang.org/x/net/context"
+	"context"
 )
 
 // ClearScrollService clears one or more scroll contexts by their ids.

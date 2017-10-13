@@ -13,7 +13,7 @@ import (
 	"reflect"
 	"time"
 
-	"golang.org/x/net/context"
+	"context"
 	"golang.org/x/sync/errgroup"
 
 	elastic "gopkg.in/olivere/elastic.v3"

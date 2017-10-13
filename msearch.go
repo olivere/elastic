@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"golang.org/x/net/context"
+	"context"
 )
 
 // MultiSearch executes one or more searches in one roundtrip.

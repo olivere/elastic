@@ -17,8 +17,7 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/net/context"
-	"golang.org/x/net/context/ctxhttp"
+	"context"
 )
 
 const (
@@ -1208,7 +1207,7 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 		if ctx == nil {
 			res, err = c.c.Do((*http.Request)(req))
 		} else {
-			res, err = ctxhttp.Do(ctx, c.c, (*http.Request)(req))
+			res, err = c.c.Do((*http.Request)(req).WithContext(ctx))
 		}
 		if err == context.Canceled || err == context.DeadlineExceeded {
 			// Proceed, but don't mark the node as dead

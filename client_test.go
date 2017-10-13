@@ -18,8 +18,8 @@ import (
 	"testing"
 	"time"
 
+	"context"
 	"github.com/fortytw2/leaktest"
-	"golang.org/x/net/context"
 )
 
 func findConn(s string, slice ...*conn) (int, bool) {

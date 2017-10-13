@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )

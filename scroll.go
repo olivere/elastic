@@ -11,7 +11,7 @@ import (
 	"strings"
 	"sync"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"gopkg.in/olivere/elastic.v3/uritemplates"
 )
