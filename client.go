@@ -1199,6 +1199,9 @@ func (c *Client) PerformRequestC(ctx context.Context, method, path string, param
 		c.dumpRequest((*http.Request)(req))
 
 		// Get response
+		if ctx == nil {
+			ctx = context.Background()
+		}
 		res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
 		if err == context.Canceled || err == context.DeadlineExceeded {
 			// Proceed, but don't mark the node as dead
