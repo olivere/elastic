@@ -47,10 +47,10 @@ const (
 				"suggest_field":{
 					"type":"completion",
 					"contexts":[
-					{
-						"name":"user_name",
-						"type":"category"
-					}
+						{
+							"name": "user_name",
+							"type": "category"
+						}
 					]
 				}
 			}
