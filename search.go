@@ -505,6 +505,7 @@ type SearchSuggestionOption struct {
 	Score        float64          `json:"score"`
 	Highlighted  string           `json:"highlighted"`
 	CollateMatch bool             `json:"collate_match"`
+	Freq         int              `json:"freq"` // from TermSuggestion.Option in Java API
 	Source       *json.RawMessage `json:"_source"`
 }
 
