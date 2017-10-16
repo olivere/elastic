@@ -9,8 +9,8 @@ import (
 	"testing"
 )
 
-func TestMatchAllQuery(t *testing.T) {
-	q := NewMatchAllQuery()
+func TestMatchNoneQuery(t *testing.T) {
+	q := NewMatchNoneQuery()
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -20,14 +20,14 @@ func TestMatchAllQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match_all":{}}`
+	expected := `{"match_none":{}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
-func TestMatchAllQueryWithBoost(t *testing.T) {
-	q := NewMatchAllQuery().Boost(3.14)
+func TestMatchNoneQueryWithQueryName(t *testing.T) {
+	q := NewMatchNoneQuery().QueryName("qname")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,24 +37,7 @@ func TestMatchAllQueryWithBoost(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"match_all":{"boost":3.14}}`
-	if got != expected {
-		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
-	}
-}
-
-func TestMatchAllQueryWithQueryName(t *testing.T) {
-	q := NewMatchAllQuery().QueryName("qname")
-	src, err := q.Source()
-	if err != nil {
-		t.Fatal(err)
-	}
-	data, err := json.Marshal(src)
-	if err != nil {
-		t.Fatalf("marshaling to JSON failed: %v", err)
-	}
-	got := string(data)
-	expected := `{"match_all":{"_name":"qname"}}`
+	expected := `{"match_none":{"_name":"qname"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
