@@ -503,6 +503,7 @@ type SearchSuggestionOption struct {
 	Type         string           `json:"_type"`
 	Id           string           `json:"_id"`
 	Score        float64          `json:"score"`
+	Freq         int              `json:"freq"`
 	Highlighted  string           `json:"highlighted"`
 	CollateMatch bool             `json:"collate_match"`
 	Source       *json.RawMessage `json:"_source"`
