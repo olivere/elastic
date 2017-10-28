@@ -19,18 +19,18 @@ func TestPutMappingURL(t *testing.T) {
 	}{
 		{
 			[]string{},
-			"tweet",
-			"/_mapping/tweet",
+			"doc",
+			"/_mapping/doc",
 		},
 		{
 			[]string{"*"},
-			"tweet",
-			"/%2A/_mapping/tweet",
+			"doc",
+			"/%2A/_mapping/doc",
 		},
 		{
 			[]string{"store-1", "store-2"},
-			"tweet",
-			"/store-1%2Cstore-2/_mapping/tweet",
+			"doc",
+			"/store-1%2Cstore-2/_mapping/doc",
 		},
 	}
 
@@ -49,7 +49,7 @@ func TestMappingLifecycle(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	mapping := `{
-		"tweetdoc":{
+		"doc":{
 			"properties":{
 				"field":{
 					"type":"keyword"
@@ -58,7 +58,7 @@ func TestMappingLifecycle(t *testing.T) {
 		}
 	}`
 
-	putresp, err := client.PutMapping().Index(testIndexName2).Type("tweetdoc").BodyString(mapping).Do(context.TODO())
+	putresp, err := client.PutMapping().Index(testIndexName3).Type("doc").BodyString(mapping).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected put mapping to succeed; got: %v", err)
 	}
@@ -69,14 +69,14 @@ func TestMappingLifecycle(t *testing.T) {
 		t.Fatalf("expected put mapping ack; got: %v", putresp.Acknowledged)
 	}
 
-	getresp, err := client.GetMapping().Index(testIndexName2).Type("tweetdoc").Do(context.TODO())
+	getresp, err := client.GetMapping().Index(testIndexName3).Type("doc").Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected get mapping to succeed; got: %v", err)
 	}
 	if getresp == nil {
 		t.Fatalf("expected get mapping response; got: %v", getresp)
 	}
-	props, ok := getresp[testIndexName2]
+	props, ok := getresp[testIndexName3]
 	if !ok {
 		t.Fatalf("expected JSON root to be of type map[string]interface{}; got: %#v", props)
 	}

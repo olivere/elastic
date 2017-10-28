@@ -15,19 +15,19 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 	}{
 		// #0
 		{
-			Request: NewBulkUpdateRequest().Index("index1").Type("tweet").Id("1").Doc(struct {
+			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("1").Doc(struct {
 				Counter int64 `json:"counter"`
 			}{
 				Counter: 42,
 			}),
 			Expected: []string{
-				`{"update":{"_id":"1","_index":"index1","_type":"tweet"}}`,
+				`{"update":{"_id":"1","_index":"index1","_type":"doc"}}`,
 				`{"doc":{"counter":42}}`,
 			},
 		},
 		// #1
 		{
-			Request: NewBulkUpdateRequest().Index("index1").Type("tweet").Id("1").
+			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("1").
 				RetryOnConflict(3).
 				DocAsUpsert(true).
 				Doc(struct {
@@ -36,13 +36,13 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 					Counter: 42,
 				}),
 			Expected: []string{
-				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
+				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"doc"}}`,
 				`{"doc":{"counter":42},"doc_as_upsert":true}`,
 			},
 		},
 		// #2
 		{
-			Request: NewBulkUpdateRequest().Index("index1").Type("tweet").Id("1").
+			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("1").
 				RetryOnConflict(3).
 				Script(NewScript(`ctx._source.retweets += param1`).Lang("javascript").Param("param1", 42)).
 				Upsert(struct {
@@ -51,25 +51,25 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 					Counter: 42,
 				}),
 			Expected: []string{
-				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
+				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"doc"}}`,
 				`{"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}},"upsert":{"counter":42}}`,
 			},
 		},
 		// #3
 		{
-			Request: NewBulkUpdateRequest().Index("index1").Type("tweet").Id("1").DetectNoop(true).Doc(struct {
+			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("1").DetectNoop(true).Doc(struct {
 				Counter int64 `json:"counter"`
 			}{
 				Counter: 42,
 			}),
 			Expected: []string{
-				`{"update":{"_id":"1","_index":"index1","_type":"tweet"}}`,
+				`{"update":{"_id":"1","_index":"index1","_type":"doc"}}`,
 				`{"detect_noop":true,"doc":{"counter":42}}`,
 			},
 		},
 		// #4
 		{
-			Request: NewBulkUpdateRequest().Index("index1").Type("tweet").Id("1").
+			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("1").
 				RetryOnConflict(3).
 				ScriptedUpsert(true).
 				Script(NewScript(`ctx._source.retweets += param1`).Lang("javascript").Param("param1", 42)).
@@ -79,7 +79,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 					Counter: 42,
 				}),
 			Expected: []string{
-				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
+				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"doc"}}`,
 				`{"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}},"scripted_upsert":true,"upsert":{"counter":42}}`,
 			},
 		},
@@ -107,7 +107,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 var bulkUpdateRequestSerializationResult string
 
 func BenchmarkBulkUpdateRequestSerialization(b *testing.B) {
-	r := NewBulkUpdateRequest().Index("index1").Type("tweet").Id("1").Doc(struct {
+	r := NewBulkUpdateRequest().Index("index1").Type("doc").Id("1").Doc(struct {
 		Counter int64 `json:"counter"`
 	}{
 		Counter: 42,

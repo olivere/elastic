@@ -165,7 +165,12 @@ func (s *IndicesPutSettingsService) Do(ctx context.Context) (*IndicesPutSettings
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "PUT",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}

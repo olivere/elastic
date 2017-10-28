@@ -35,15 +35,15 @@ func TestMultiTermVectorsValidateAndBuildURL(t *testing.T) {
 		// #2: Type without index
 		{
 			"",
-			"tweet",
+			"doc",
 			"",
 			true,
 		},
 		// #3: Both index and type
 		{
 			"twitter",
-			"tweet",
-			"/twitter/tweet/_mtermvectors",
+			"doc",
+			"/twitter/doc/_mtermvectors",
 			false,
 		},
 	}
@@ -82,17 +82,17 @@ func TestMultiTermVectorsWithIds(t *testing.T) {
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,9 +115,9 @@ func TestMultiTermVectorsWithIds(t *testing.T) {
 	field := "Message"
 	res, err := client.MultiTermVectors().
 		Index(testIndexName).
-		Type("tweet").
-		Add(NewMultiTermvectorItem().Index(testIndexName).Type("tweet").Id("1").Fields(field)).
-		Add(NewMultiTermvectorItem().Index(testIndexName).Type("tweet").Id("3").Fields(field)).
+		Type("doc").
+		Add(NewMultiTermvectorItem().Index(testIndexName).Type("doc").Id("1").Fields(field)).
+		Add(NewMultiTermvectorItem().Index(testIndexName).Type("doc").Id("3").Fields(field)).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)

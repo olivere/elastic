@@ -97,7 +97,7 @@ func TestIndicesRolloverBodyComplex(t *testing.T) {
 		AddMaxIndexAgeCondition("2d").
 		AddMaxIndexDocsCondition(1000000).
 		AddSetting("index.number_of_shards", 2).
-		AddMapping("tweet", map[string]interface{}{
+		AddMapping("doc", map[string]interface{}{
 			"properties": map[string]interface{}{
 				"user": map[string]interface{}{
 					"type": "keyword",
@@ -109,7 +109,7 @@ func TestIndicesRolloverBodyComplex(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"conditions":{"max_age":"2d","max_docs":1000000},"mappings":{"tweet":{"properties":{"user":{"type":"keyword"}}}},"settings":{"index.number_of_shards":2}}`
+	expected := `{"conditions":{"max_age":"2d","max_docs":1000000},"mappings":{"doc":{"properties":{"user":{"type":"keyword"}}}},"settings":{"index.number_of_shards":2}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

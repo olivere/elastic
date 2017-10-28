@@ -258,7 +258,12 @@ func (s *ScrollService) Clear(ctx context.Context) error {
 		ScrollId: []string{scrollId},
 	}
 
-	_, err := s.client.PerformRequest(ctx, "DELETE", path, params, body)
+	_, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "DELETE",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return err
 	}
@@ -283,7 +288,12 @@ func (s *ScrollService) first(ctx context.Context) (*SearchResult, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -397,7 +407,12 @@ func (s *ScrollService) next(ctx context.Context) (*SearchResult, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}

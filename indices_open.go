@@ -138,7 +138,11 @@ func (s *IndicesOpenService) Do(ctx context.Context) (*IndicesOpenResponse, erro
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+	})
 	if err != nil {
 		return nil, err
 	}

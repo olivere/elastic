@@ -104,7 +104,11 @@ func (s *IngestDeletePipelineService) Do(ctx context.Context) (*IngestDeletePipe
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "DELETE",
+		Path:   path,
+		Params: params,
+	})
 	if err != nil {
 		return nil, err
 	}

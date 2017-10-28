@@ -143,7 +143,12 @@ func (s *IndicesExistsTypeService) Do(ctx context.Context) (bool, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "HEAD", path, params, nil, 404)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method:       "HEAD",
+		Path:         path,
+		Params:       params,
+		IgnoreErrors: []int{404},
+	})
 	if err != nil {
 		return false, err
 	}

@@ -85,7 +85,12 @@ func (s *ClearScrollService) Do(ctx context.Context) (*ClearScrollResponse, erro
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "DELETE",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}

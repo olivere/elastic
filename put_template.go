@@ -57,6 +57,12 @@ func (s *PutTemplateService) VersionType(versionType string) *PutTemplateService
 	return s
 }
 
+// Pretty indicates whether to indent the returned JSON.
+func (s *PutTemplateService) Pretty(pretty bool) *PutTemplateService {
+	s.pretty = pretty
+	return s
+}
+
 // BodyJson is the document as a JSON serializable object.
 func (s *PutTemplateService) BodyJson(body interface{}) *PutTemplateService {
 	s.bodyJson = body
@@ -89,6 +95,9 @@ func (s *PutTemplateService) buildURL() (string, url.Values, error) {
 	}
 	if s.opType != "" {
 		params.Set("op_type", s.opType)
+	}
+	if s.pretty {
+		params.Set("pretty", "true")
 	}
 
 	return path, params, nil
@@ -131,7 +140,12 @@ func (s *PutTemplateService) Do(ctx context.Context) (*AcknowledgedResponse, err
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "PUT",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}

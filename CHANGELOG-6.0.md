@@ -12,35 +12,7 @@ Only use `true` or `false` for boolean values, not `0` or `1` or `on` or `off`.
 
 ## Single Type Indices
 
-Notice that 6.0 will default to single type indices, i.e. you may not use multiple
-types when e.g. adding an index with a mapping.
+Notice that 6.0 and future versions will default to single type indices, i.e. you may not use multiple types when e.g. adding an index with a mapping.
 
-To enable multiple indices, specify index.mapping.single_type : false. Example:
-
-```
-{
-	"settings":{
-		"number_of_shards":1,
-		"number_of_replicas":0,
-		"index.mapping.single_type" : false
-	},
-	"mappings":{
-		"tweet":{
-			"properties":{
-                ...
-			}
-		},
-		"comment":{
-			"_parent": {
-				"type":	"tweet"
-			}
-		},
-        "order":{
-            "properties":{
-                ...
-            }
-        }
-    }
-}
-```
+See [here for details](https://www.elastic.co/guide/en/elasticsearch/reference/6.x/removal-of-types.html#_what_are_mapping_types).
 

@@ -274,7 +274,12 @@ func (s *AliasService) Do(ctx context.Context) (*AliasResult, error) {
 	body["actions"] = actions
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -26,7 +26,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "6.0.0-beta2"
+	Version = "6.0.0-rc1"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1167,13 +1167,25 @@ func (c *Client) mustActiveConn() error {
 	return errors.Wrap(ErrNoClient, "no active connection found")
 }
 
+// -- PerformRequest --
+
+// PerformRequestOptions must be passed into PerformRequest.
+type PerformRequestOptions struct {
+	Method       string
+	Path         string
+	Params       url.Values
+	Body         interface{}
+	ContentType  string
+	IgnoreErrors []int
+}
+
 // PerformRequest does a HTTP request to Elasticsearch.
 // It returns a response (which might be nil) and an error on failure.
 //
 // Optionally, a list of HTTP error codes to ignore can be passed.
 // This is necessary for services that expect e.g. HTTP status 404 as a
 // valid outcome (Exists, IndicesExists, IndicesTypeExists).
-func (c *Client) PerformRequest(ctx context.Context, method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
+func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) (*Response, error) {
 	start := time.Now().UTC()
 
 	c.mu.RLock()
@@ -1193,14 +1205,14 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 	var n int
 
 	// Change method if sendGetBodyAs is specified.
-	if method == "GET" && body != nil && sendGetBodyAs != "GET" {
-		method = sendGetBodyAs
+	if opt.Method == "GET" && opt.Body != nil && sendGetBodyAs != "GET" {
+		opt.Method = sendGetBodyAs
 	}
 
 	for {
-		pathWithParams := path
-		if len(params) > 0 {
-			pathWithParams += "?" + params.Encode()
+		pathWithParams := opt.Path
+		if len(opt.Params) > 0 {
+			pathWithParams += "?" + opt.Params.Encode()
 		}
 
 		// Get a connection
@@ -1227,21 +1239,24 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 			return nil, err
 		}
 
-		req, err = NewRequest(method, conn.URL()+pathWithParams)
+		req, err = NewRequest(opt.Method, conn.URL()+pathWithParams)
 		if err != nil {
-			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(method), conn.URL()+pathWithParams, err)
+			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(opt.Method), conn.URL()+pathWithParams, err)
 			return nil, err
 		}
 
 		if basicAuth {
 			req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 		}
+		if opt.ContentType != "" {
+			req.Header.Set("Content-Type", opt.ContentType)
+		}
 
 		// Set body
-		if body != nil {
-			err = req.SetBody(body, gzipEnabled)
+		if opt.Body != nil {
+			err = req.SetBody(opt.Body, gzipEnabled)
 			if err != nil {
-				c.errorf("elastic: couldn't set body %+v for request: %v", body, err)
+				c.errorf("elastic: couldn't set body %+v for request: %v", opt.Body, err)
 				return nil, err
 			}
 		}
@@ -1287,7 +1302,7 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 		c.dumpResponse(res)
 
 		// Check for errors
-		if err := checkResponse((*http.Request)(req), res, ignoreErrors...); err != nil {
+		if err := checkResponse((*http.Request)(req), res, opt.IgnoreErrors...); err != nil {
 			// No retry if request succeeded
 			// We still try to return a response.
 			resp, _ = c.newResponse(res)
@@ -1307,7 +1322,7 @@ func (c *Client) PerformRequest(ctx context.Context, method, path string, params
 
 	duration := time.Now().UTC().Sub(start)
 	c.infof("%s %s [status:%d, request:%.3fs]",
-		strings.ToUpper(method),
+		strings.ToUpper(opt.Method),
 		req.URL,
 		resp.StatusCode,
 		float64(int64(duration/time.Millisecond))/1000)

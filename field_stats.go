@@ -188,7 +188,13 @@ func (s *FieldStatsService) Do(ctx context.Context) (*FieldStatsResponse, error)
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, http.StatusNotFound)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method:       "POST",
+		Path:         path,
+		Params:       params,
+		Body:         body,
+		IgnoreErrors: []int{http.StatusNotFound},
+	})
 	if err != nil {
 		return nil, err
 	}

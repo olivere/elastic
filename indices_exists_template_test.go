@@ -19,7 +19,7 @@ func TestIndexExistsTemplate(t *testing.T) {
 		"number_of_replicas":0
 	},
 	"mappings":{
-		"tweet":{
+		"doc":{
 			"properties":{
 				"tags":{
 					"type":"keyword"

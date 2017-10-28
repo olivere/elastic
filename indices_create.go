@@ -109,7 +109,12 @@ func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 	}
 
 	// Get response
-	res, err := b.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := b.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "PUT",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}

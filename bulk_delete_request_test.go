@@ -15,23 +15,23 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 	}{
 		// #0
 		{
-			Request: NewBulkDeleteRequest().Index("index1").Type("tweet").Id("1"),
+			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1"),
 			Expected: []string{
-				`{"delete":{"_id":"1","_index":"index1","_type":"tweet"}}`,
+				`{"delete":{"_id":"1","_index":"index1","_type":"doc"}}`,
 			},
 		},
 		// #1
 		{
-			Request: NewBulkDeleteRequest().Index("index1").Type("tweet").Id("1").Parent("2"),
+			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1").Parent("2"),
 			Expected: []string{
-				`{"delete":{"_id":"1","_index":"index1","_parent":"2","_type":"tweet"}}`,
+				`{"delete":{"_id":"1","_index":"index1","_parent":"2","_type":"doc"}}`,
 			},
 		},
 		// #2
 		{
-			Request: NewBulkDeleteRequest().Index("index1").Type("tweet").Id("1").Routing("3"),
+			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1").Routing("3"),
 			Expected: []string{
-				`{"delete":{"_id":"1","_index":"index1","_routing":"3","_type":"tweet"}}`,
+				`{"delete":{"_id":"1","_index":"index1","_routing":"3","_type":"doc"}}`,
 			},
 		},
 	}
@@ -58,7 +58,7 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 var bulkDeleteRequestSerializationResult string
 
 func BenchmarkBulkDeleteRequestSerialization(b *testing.B) {
-	r := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
+	r := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
 	var s string
 	for n := 0; n < b.N; n++ {
 		s = r.String()

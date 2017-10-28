@@ -234,7 +234,13 @@ func (s *BulkService) Do(ctx context.Context) (*BulkResponse, error) {
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method:      "POST",
+		Path:        path,
+		Params:      params,
+		Body:        body,
+		ContentType: "application/x-ndjson",
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -304,10 +310,12 @@ type BulkResponseItem struct {
 	Type          string        `json:"_type,omitempty"`
 	Id            string        `json:"_id,omitempty"`
 	Version       int64         `json:"_version,omitempty"`
-	Status        int           `json:"status,omitempty"`
 	Result        string        `json:"result,omitempty"`
+	Shards        *shardsInfo   `json:"_shards,omitempty"`
+	SeqNo         int64         `json:"_seq_no,omitempty"`
+	PrimaryTerm   int64         `json:"_primary_term,omitempty"`
+	Status        int           `json:"status,omitempty"`
 	ForcedRefresh bool          `json:"forced_refresh,omitempty"`
-	Found         bool          `json:"found,omitempty"`
 	Error         *ErrorDetails `json:"error,omitempty"`
 }
 

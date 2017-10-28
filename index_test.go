@@ -18,7 +18,7 @@ func TestIndexLifecycle(t *testing.T) {
 	// Add a document
 	indexResult, err := client.Index().
 		Index(testIndexName).
-		Type("tweet").
+		Type("doc").
 		Id("1").
 		BodyJson(&tweet1).
 		Do(context.TODO())
@@ -30,7 +30,7 @@ func TestIndexLifecycle(t *testing.T) {
 	}
 
 	// Exists
-	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
+	exists, err := client.Exists().Index(testIndexName).Type("doc").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +41,7 @@ func TestIndexLifecycle(t *testing.T) {
 	// Get document
 	getResult, err := client.Get().
 		Index(testIndexName).
-		Type("tweet").
+		Type("doc").
 		Id("1").
 		Do(context.TODO())
 	if err != nil {
@@ -50,8 +50,8 @@ func TestIndexLifecycle(t *testing.T) {
 	if getResult.Index != testIndexName {
 		t.Errorf("expected GetResult.Index %q; got %q", testIndexName, getResult.Index)
 	}
-	if getResult.Type != "tweet" {
-		t.Errorf("expected GetResult.Type %q; got %q", "tweet", getResult.Type)
+	if getResult.Type != "doc" {
+		t.Errorf("expected GetResult.Type %q; got %q", "doc", getResult.Type)
 	}
 	if getResult.Id != "1" {
 		t.Errorf("expected GetResult.Id %q; got %q", "1", getResult.Id)
@@ -74,7 +74,7 @@ func TestIndexLifecycle(t *testing.T) {
 	}
 
 	// Delete document again
-	deleteResult, err := client.Delete().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
+	deleteResult, err := client.Delete().Index(testIndexName).Type("doc").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,7 +83,7 @@ func TestIndexLifecycle(t *testing.T) {
 	}
 
 	// Exists
-	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
+	exists, err = client.Exists().Index(testIndexName).Type("doc").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +100,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	// Add a document
 	indexResult, err := client.Index().
 		Index(testIndexName).
-		Type("tweet").
+		Type("doc").
 		BodyJson(&tweet1).
 		Do(context.TODO())
 	if err != nil {
@@ -115,7 +115,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	id := indexResult.Id
 
 	// Exists
-	exists, err := client.Exists().Index(testIndexName).Type("tweet").Id(id).Do(context.TODO())
+	exists, err := client.Exists().Index(testIndexName).Type("doc").Id(id).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,7 +126,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	// Get document
 	getResult, err := client.Get().
 		Index(testIndexName).
-		Type("tweet").
+		Type("doc").
 		Id(id).
 		Do(context.TODO())
 	if err != nil {
@@ -135,8 +135,8 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	if getResult.Index != testIndexName {
 		t.Errorf("expected GetResult.Index %q; got %q", testIndexName, getResult.Index)
 	}
-	if getResult.Type != "tweet" {
-		t.Errorf("expected GetResult.Type %q; got %q", "tweet", getResult.Type)
+	if getResult.Type != "doc" {
+		t.Errorf("expected GetResult.Type %q; got %q", "doc", getResult.Type)
 	}
 	if getResult.Id != id {
 		t.Errorf("expected GetResult.Id %q; got %q", id, getResult.Id)
@@ -159,7 +159,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	}
 
 	// Delete document again
-	deleteResult, err := client.Delete().Index(testIndexName).Type("tweet").Id(id).Do(context.TODO())
+	deleteResult, err := client.Delete().Index(testIndexName).Type("doc").Id(id).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -168,7 +168,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	}
 
 	// Exists
-	exists, err = client.Exists().Index(testIndexName).Type("tweet").Id(id).Do(context.TODO())
+	exists, err = client.Exists().Index(testIndexName).Type("doc").Id(id).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -183,7 +183,7 @@ func TestIndexValidate(t *testing.T) {
 	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 
 	// No index name -> fail with error
-	res, err := NewIndexService(client).Type("tweet").Id("1").BodyJson(&tweet).Do(context.TODO())
+	res, err := NewIndexService(client).Type("doc").Id("1").BodyJson(&tweet).Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected Index to fail without index name")
 	}

@@ -385,7 +385,12 @@ func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 		}
 		body = src
 	}
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -498,12 +503,15 @@ type SearchSuggestion struct {
 // SearchSuggestionOption is an option of a SearchSuggestion.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-suggesters.html.
 type SearchSuggestionOption struct {
-	Text   string           `json:"text"`
-	Index  string           `json:"_index"`
-	Type   string           `json:"_type"`
-	Id     string           `json:"_id"`
-	Score  float64          `json:"_score"`
-	Source *json.RawMessage `json:"_source"`
+	Text         string           `json:"text"`
+	Index        string           `json:"_index"`
+	Type         string           `json:"_type"`
+	Id           string           `json:"_id"`
+	Score        float64          `json:"score"`
+	Highlighted  string           `json:"highlighted"`
+	CollateMatch bool             `json:"collate_match"`
+	Freq         int              `json:"freq"` // from TermSuggestion.Option in Java API
+	Source       *json.RawMessage `json:"_source"`
 }
 
 // SearchProfile is a list of shard profiling data collected during

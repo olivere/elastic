@@ -85,7 +85,11 @@ func (s *TasksGetTaskService) Do(ctx context.Context) (*TasksGetTaskResponse, er
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "GET",
+		Path:   path,
+		Params: params,
+	})
 	if err != nil {
 		return nil, err
 	}

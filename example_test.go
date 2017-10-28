@@ -71,7 +71,7 @@ func Example() {
 		"number_of_replicas":0
 	},
 	"mappings":{
-		"tweet":{
+		"doc":{
 			"properties":{
 				"user":{
 					"type":"keyword"
@@ -112,7 +112,7 @@ func Example() {
 	tweet1 := Tweet{User: "olivere", Message: "Take Five", Retweets: 0}
 	put1, err := client.Index().
 		Index("twitter").
-		Type("tweet").
+		Type("doc").
 		Id("1").
 		BodyJson(tweet1).
 		Do(context.Background())
@@ -126,7 +126,7 @@ func Example() {
 	tweet2 := `{"user" : "olivere", "message" : "It's a Raggy Waltz"}`
 	put2, err := client.Index().
 		Index("twitter").
-		Type("tweet").
+		Type("doc").
 		Id("2").
 		BodyString(tweet2).
 		Do(context.Background())
@@ -139,7 +139,7 @@ func Example() {
 	// Get tweet with specified ID
 	get1, err := client.Get().
 		Index("twitter").
-		Type("tweet").
+		Type("doc").
 		Id("1").
 		Do(context.Background())
 	if err != nil {
@@ -212,7 +212,7 @@ func Example() {
 	// Update a tweet by the update API of Elasticsearch.
 	// We just increment the number of retweets.
 	script := elastic.NewScript("ctx._source.retweets += params.num").Param("num", 1)
-	update, err := client.Update().Index("twitter").Type("tweet").Id("1").
+	update, err := client.Update().Index("twitter").Type("doc").Id("1").
 		Script(script).
 		Upsert(map[string]interface{}{"retweets": 0}).
 		Do(context.Background())

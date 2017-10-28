@@ -179,7 +179,11 @@ func (s *ClusterHealthService) Do(ctx context.Context) (*ClusterHealthResponse, 
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "GET",
+		Path:   path,
+		Params: params,
+	})
 	if err != nil {
 		return nil, err
 	}

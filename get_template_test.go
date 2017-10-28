@@ -10,7 +10,7 @@ import (
 )
 
 func TestGetPutDeleteTemplate(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndexAndLog(t)
 
 	// This is a search template, not an index template!
 	tmpl := `{
@@ -24,7 +24,7 @@ func TestGetPutDeleteTemplate(t *testing.T) {
 		"my_size" : 5
 	}
 }`
-	putres, err := client.PutTemplate().Id("elastic-template").BodyString(tmpl).Do(context.TODO())
+	putres, err := client.PutTemplate().Id("elastic-template").BodyString(tmpl).Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}

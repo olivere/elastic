@@ -17,17 +17,17 @@ func TestDelete(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("tweet").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("tweet").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,12 +47,12 @@ func TestDelete(t *testing.T) {
 	}
 
 	// Delete document 1
-	res, err := client.Delete().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
+	res, err := client.Delete().Index(testIndexName).Type("doc").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Found != true {
-		t.Errorf("expected Found = true; got %v", res.Found)
+	if want, have := "deleted", res.Result; want != have {
+		t.Errorf("expected Result = %q; got %q", want, have)
 	}
 	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
@@ -67,7 +67,7 @@ func TestDelete(t *testing.T) {
 	}
 
 	// Delete non existent document 99
-	res, err = client.Delete().Index(testIndexName).Type("tweet").Id("99").Refresh("true").Do(context.TODO())
+	res, err = client.Delete().Index(testIndexName).Type("doc").Id("99").Refresh("true").Do(context.TODO())
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -80,20 +80,17 @@ func TestDelete(t *testing.T) {
 	if res == nil {
 		t.Fatal("expected response")
 	}
-	if res.Found {
-		t.Errorf("expected Found = false; got %v", res.Found)
-	}
 	if have, want := res.Id, "99"; have != want {
 		t.Errorf("expected _id = %q, got %q", have, want)
 	}
 	if have, want := res.Index, testIndexName; have != want {
 		t.Errorf("expected _index = %q, got %q", have, want)
 	}
-	if have, want := res.Type, "tweet"; have != want {
+	if have, want := res.Type, "doc"; have != want {
 		t.Errorf("expected _type = %q, got %q", have, want)
 	}
 	if have, want := res.Result, "not_found"; have != want {
-		t.Errorf("expected result = %q, got %q", have, want)
+		t.Errorf("expected Result = %q, got %q", have, want)
 	}
 
 	count, err = client.Count(testIndexName).Do(context.TODO())
@@ -109,7 +106,7 @@ func TestDeleteValidate(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
 	// No index name -> fail with error
-	res, err := NewDeleteService(client).Type("tweet").Id("1").Do(context.TODO())
+	res, err := NewDeleteService(client).Type("doc").Id("1").Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected Delete to fail without index name")
 	}
@@ -127,7 +124,7 @@ func TestDeleteValidate(t *testing.T) {
 	}
 
 	// No id -> fail with error
-	res, err = NewDeleteService(client).Index(testIndexName).Type("tweet").Do(context.TODO())
+	res, err = NewDeleteService(client).Index(testIndexName).Type("doc").Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected Delete to fail without id")
 	}
