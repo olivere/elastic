@@ -90,8 +90,31 @@ const (
 }
 `
 
-	testDoctypeIndex   = "elastic-doctypes"
-	testDoctypeMapping = `
+	/*
+	   	testDoctypeIndex   = "elastic-doctypes"
+	   	testDoctypeMapping = `
+	   {
+	   	"settings":{
+	   		"number_of_shards":1,
+	   		"number_of_replicas":0
+	   	},
+	   	"mappings":{
+	   		"doc":{
+	   			"properties":{
+	   				"message":{
+	   					"type":"text",
+	   					"store": true,
+	   					"fielddata": true
+	   				}
+	   			}
+	   		}
+	   	}
+	   }
+	   `
+	*/
+
+	testQueryIndex   = "elastic-queries"
+	testQueryMapping = `
 {
 	"settings":{
 		"number_of_shards":1,
@@ -104,23 +127,7 @@ const (
 					"type":"text",
 					"store": true,
 					"fielddata": true
-				}
-			}
-		}
-	}
-}
-`
-
-	testQueryIndex   = "elastic-queries"
-	testQueryMapping = `
-{
-	"settings":{
-		"number_of_shards":1,
-		"number_of_replicas":0
-	},
-	"mappings":{
-		"doc":{
-			"properties":{
+				},
 				"query": {
 					"type":	"percolator"
 				}
@@ -208,7 +215,7 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 	client.DeleteIndex(testIndexName2).Do(context.TODO())
 	client.DeleteIndex(testIndexName3).Do(context.TODO())
 	client.DeleteIndex(testOrderIndex).Do(context.TODO())
-	client.DeleteIndex(testDoctypeIndex).Do(context.TODO())
+	//client.DeleteIndex(testDoctypeIndex).Do(context.TODO())
 	client.DeleteIndex(testQueryIndex).Do(context.TODO())
 
 	return client

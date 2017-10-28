@@ -1301,6 +1301,11 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		// Tracing
 		c.dumpResponse(res)
 
+		// Log deprecation warnings as errors
+		if s := res.Header.Get("Warning"); s != "" {
+			c.errorf(s)
+		}
+
 		// Check for errors
 		if err := checkResponse((*http.Request)(req), res, opt.IgnoreErrors...); err != nil {
 			// No retry if request succeeded
