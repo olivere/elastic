@@ -13,20 +13,10 @@ func TestAggsIntegrationAvgBucket(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if esversion < "2.0" {
-		t.Skipf("Elasticsearch %s does not have pipeline aggregations.", esversion)
-		return
-	}
-
 	// Match all should return all documents
 	builder := client.Search().
-		Index(testIndexName).
-		Type("order").
+		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -66,20 +56,10 @@ func TestAggsIntegrationDerivative(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if esversion < "2.0" {
-		t.Skipf("Elasticsearch %s does not have pipeline aggregations.", esversion)
-		return
-	}
-
 	// Match all should return all documents
 	builder := client.Search().
-		Index(testIndexName).
-		Type("order").
+		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -207,20 +187,10 @@ func TestAggsIntegrationMaxBucket(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if esversion < "2.0" {
-		t.Skipf("Elasticsearch %s does not have pipeline aggregations.", esversion)
-		return
-	}
-
 	// Match all should return all documents
 	builder := client.Search().
-		Index(testIndexName).
-		Type("order").
+		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -266,20 +236,10 @@ func TestAggsIntegrationMinBucket(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if esversion < "2.0" {
-		t.Skipf("Elasticsearch %s does not have pipeline aggregations.", esversion)
-		return
-	}
-
 	// Match all should return all documents
 	builder := client.Search().
-		Index(testIndexName).
-		Type("order").
+		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -325,20 +285,10 @@ func TestAggsIntegrationSumBucket(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if esversion < "2.0" {
-		t.Skipf("Elasticsearch %s does not have pipeline aggregations.", esversion)
-		return
-	}
-
 	// Match all should return all documents
 	builder := client.Search().
-		Index(testIndexName).
-		Type("order").
+		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -378,20 +328,10 @@ func TestAggsIntegrationMovAvg(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if esversion < "2.0" {
-		t.Skipf("Elasticsearch %s does not have pipeline aggregations.", esversion)
-		return
-	}
-
 	// Match all should return all documents
 	builder := client.Search().
-		Index(testIndexName).
-		Type("order").
+		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -500,20 +440,10 @@ func TestAggsIntegrationCumulativeSum(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if esversion < "2.0" {
-		t.Skipf("Elasticsearch %s does not have pipeline aggregations.", esversion)
-		return
-	}
-
 	// Match all should return all documents
 	builder := client.Search().
-		Index(testIndexName).
-		Type("order").
+		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -650,22 +580,13 @@ func TestAggsIntegrationCumulativeSum(t *testing.T) {
 }
 
 func TestAggsIntegrationBucketScript(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
-
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if esversion < "2.0" {
-		t.Skipf("Elasticsearch %s does not have pipeline aggregations.", esversion)
-		return
-	}
+	// client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
 	// Match all should return all documents
 	builder := client.Search().
-		Index(testIndexName).
-		Type("order").
+		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -810,20 +731,10 @@ func TestAggsIntegrationBucketSelector(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if esversion < "2.0" {
-		t.Skipf("Elasticsearch %s does not have pipeline aggregations.", esversion)
-		return
-	}
-
 	// Match all should return all documents
 	builder := client.Search().
-		Index(testIndexName).
-		Type("order").
+		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -870,20 +781,10 @@ func TestAggsIntegrationSerialDiff(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
 
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if esversion < "2.0" {
-		t.Skipf("Elasticsearch %s does not have pipeline aggregations.", esversion)
-		return
-	}
-
 	// Match all should return all documents
 	builder := client.Search().
-		Index(testIndexName).
-		Type("order").
+		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")

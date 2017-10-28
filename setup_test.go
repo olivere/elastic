@@ -235,6 +235,15 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 		t.Errorf("expected result to be != nil; got: %v", createIndex2)
 	}
 
+	// Create order index
+	createOrderIndex, err := client.CreateIndex(testOrderIndex).Body(testOrderMapping).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if createOrderIndex == nil {
+		t.Errorf("expected result to be != nil; got: %v", createOrderIndex)
+	}
+
 	return client
 }
 
@@ -289,7 +298,7 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	}
 
 	// Flush
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	_, err = client.Flush().Index(testIndexName, testOrderIndex).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
