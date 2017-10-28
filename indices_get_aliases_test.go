@@ -18,15 +18,15 @@ func TestAliasesBuildURL(t *testing.T) {
 	}{
 		{
 			[]string{},
-			"/_aliases",
+			"/_alias",
 		},
 		{
 			[]string{"index1"},
-			"/index1/_aliases",
+			"/index1/_alias",
 		},
 		{
 			[]string{"index1", "index2"},
-			"/index1%2Cindex2/_aliases",
+			"/index1%2Cindex2/_alias",
 		},
 	}
 
@@ -45,6 +45,7 @@ func TestAliasesBuildURL(t *testing.T) {
 func TestAliases(t *testing.T) {
 	var err error
 
+	//client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 	client := setupTestClientAndCreateIndex(t)
 
 	// Some tweets
@@ -80,7 +81,7 @@ func TestAliases(t *testing.T) {
 	// Alias should not yet exist
 	aliasesResult1, err := client.Aliases().
 		Index(testIndexName, testIndexName2).
-		//Pretty(true).
+		Pretty(true).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)

@@ -47,11 +47,11 @@ func (s *AliasesService) buildURL() (string, url.Values, error) {
 	var path string
 
 	if len(s.index) > 0 {
-		path, err = uritemplates.Expand("/{index}/_aliases", map[string]string{
+		path, err = uritemplates.Expand("/{index}/_alias", map[string]string{
 			"index": strings.Join(s.index, ","),
 		})
 	} else {
-		path = "/_aliases"
+		path = "/_alias"
 	}
 	if err != nil {
 		return "", url.Values{}, err
