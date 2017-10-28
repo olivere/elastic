@@ -10,8 +10,8 @@ import (
 )
 
 func TestGetPutDeleteTemplate(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndLog(t)
-	//client := setupTestClientAndCreateIndex(t)
+	//client := setupTestClientAndCreateIndexAndLog(t)
+	client := setupTestClientAndCreateIndex(t)
 
 	// This is a search template, not an index template!
 	tmpl := `{

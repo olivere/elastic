@@ -47,6 +47,16 @@ func TestPutMappingURL(t *testing.T) {
 
 func TestMappingLifecycle(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
+	//client := setupTestClientAndCreateIndexAndLog(t)
+
+	// Create index
+	createIndex, err := client.CreateIndex(testIndexName3).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if createIndex == nil {
+		t.Errorf("expected result to be != nil; got: %v", createIndex)
+	}
 
 	mapping := `{
 		"doc":{
