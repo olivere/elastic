@@ -152,5 +152,7 @@ func (s *IngestPutPipelineService) Do(ctx context.Context) (*IngestPutPipelineRe
 
 // IngestPutPipelineResponse is the response of IngestPutPipelineService.Do.
 type IngestPutPipelineResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

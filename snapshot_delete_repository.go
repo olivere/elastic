@@ -126,5 +126,7 @@ func (s *SnapshotDeleteRepositoryService) Do(ctx context.Context) (*SnapshotDele
 
 // SnapshotDeleteRepositoryResponse is the response of SnapshotDeleteRepositoryService.Do.
 type SnapshotDeleteRepositoryResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

@@ -185,5 +185,7 @@ func (s *IndicesPutSettingsService) Do(ctx context.Context) (*IndicesPutSettings
 
 // IndicesPutSettingsResponse is the response of IndicesPutSettingsService.Do.
 type IndicesPutSettingsResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

@@ -199,5 +199,7 @@ func (s *SnapshotCreateRepositoryService) Do(ctx context.Context) (*SnapshotCrea
 
 // SnapshotCreateRepositoryResponse is the response of SnapshotCreateRepositoryService.Do.
 type SnapshotCreateRepositoryResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

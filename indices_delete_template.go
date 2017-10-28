@@ -122,5 +122,7 @@ func (s *IndicesDeleteTemplateService) Do(ctx context.Context) (*IndicesDeleteTe
 
 // IndicesDeleteTemplateResponse is the response of IndicesDeleteTemplateService.Do.
 type IndicesDeleteTemplateResponse struct {
-	Acknowledged bool `json:"acknowledged,omitempty"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

@@ -153,5 +153,7 @@ func (s *IndicesCloseService) Do(ctx context.Context) (*IndicesCloseResponse, er
 
 // IndicesCloseResponse is the response of IndicesCloseService.Do.
 type IndicesCloseResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

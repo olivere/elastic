@@ -157,5 +157,7 @@ func (s *IndicesOpenService) Do(ctx context.Context) (*IndicesOpenResponse, erro
 
 // IndicesOpenResponse is the response of IndicesOpenService.Do.
 type IndicesOpenResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

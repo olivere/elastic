@@ -123,5 +123,7 @@ func (s *IngestDeletePipelineService) Do(ctx context.Context) (*IngestDeletePipe
 
 // IngestDeletePipelineResponse is the response of IngestDeletePipelineService.Do.
 type IngestDeletePipelineResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

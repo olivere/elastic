@@ -296,5 +296,7 @@ func (s *AliasService) Do(ctx context.Context) (*AliasResult, error) {
 
 // AliasResult is the outcome of calling Do on AliasService.
 type AliasResult struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

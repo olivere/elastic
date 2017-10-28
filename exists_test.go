@@ -12,7 +12,7 @@ import (
 func TestExists(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	exists, err := client.Exists().Index(testIndexName).Type("comment").Id("1").Parent("doc").Do(context.TODO())
+	exists, err := client.Exists().Index(testIndexName).Type("doc").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

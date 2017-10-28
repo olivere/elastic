@@ -201,5 +201,7 @@ func (s *IndicesPutTemplateService) Do(ctx context.Context) (*IndicesPutTemplate
 
 // IndicesPutTemplateResponse is the response of IndicesPutTemplateService.Do.
 type IndicesPutTemplateResponse struct {
-	Acknowledged bool `json:"acknowledged,omitempty"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

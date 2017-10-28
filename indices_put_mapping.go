@@ -222,5 +222,7 @@ func (s *IndicesPutMappingService) Do(ctx context.Context) (*PutMappingResponse,
 
 // PutMappingResponse is the response of IndicesPutMappingService.Do.
 type PutMappingResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

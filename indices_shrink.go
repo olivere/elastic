@@ -173,6 +173,7 @@ func (s *IndicesShrinkService) Do(ctx context.Context) (*IndicesShrinkResponse, 
 
 // IndicesShrinkResponse is the response of IndicesShrinkService.Do.
 type IndicesShrinkResponse struct {
-	Acknowledged       bool `json:"acknowledged"`
-	ShardsAcknowledged bool `json:"shards_acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }
