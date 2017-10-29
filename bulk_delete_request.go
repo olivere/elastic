@@ -81,7 +81,7 @@ func (r *BulkDeleteRequest) Version(version int64) *BulkDeleteRequest {
 }
 
 // VersionType can be "internal" (default), "external", "external_gte",
-// "external_gt", or "force".
+// or "external_gt".
 func (r *BulkDeleteRequest) VersionType(versionType string) *BulkDeleteRequest {
 	r.versionType = versionType
 	r.source = nil

@@ -166,7 +166,7 @@ func TestGeoDistanceSort(t *testing.T) {
 		Order(true).
 		Unit("km").
 		SortMode("min").
-		GeoDistance("sloppy_arc")
+		GeoDistance("plane")
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -176,7 +176,7 @@ func TestGeoDistanceSort(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_geo_distance":{"distance_type":"sloppy_arc","mode":"min","order":"asc","pin.location":[{"lat":-70,"lon":40}],"unit":"km"}}`
+	expected := `{"_geo_distance":{"distance_type":"plane","mode":"min","order":"asc","pin.location":[{"lat":-70,"lon":40}],"unit":"km"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -187,7 +187,7 @@ func TestGeoDistanceSortOrderDesc(t *testing.T) {
 		Point(-70, 40).
 		Unit("km").
 		SortMode("min").
-		GeoDistance("sloppy_arc").
+		GeoDistance("arc").
 		Desc()
 	src, err := builder.Source()
 	if err != nil {
@@ -198,7 +198,7 @@ func TestGeoDistanceSortOrderDesc(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_geo_distance":{"distance_type":"sloppy_arc","mode":"min","order":"desc","pin.location":[{"lat":-70,"lon":40}],"unit":"km"}}`
+	expected := `{"_geo_distance":{"distance_type":"arc","mode":"min","order":"desc","pin.location":[{"lat":-70,"lon":40}],"unit":"km"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

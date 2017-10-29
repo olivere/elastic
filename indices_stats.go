@@ -243,25 +243,20 @@ type IndexStatsDocs struct {
 }
 
 type IndexStatsStore struct {
-	Size                 string `json:"size,omitempty"` // human size, e.g. 119.3mb
-	SizeInBytes          int64  `json:"size_in_bytes,omitempty"`
-	ThrottleTime         string `json:"throttle_time,omitempty"` // human time, e.g. 0s
-	ThrottleTimeInMillis int64  `json:"throttle_time_in_millis,omitempty"`
+	Size        string `json:"size,omitempty"` // human size, e.g. 119.3mb
+	SizeInBytes int64  `json:"size_in_bytes,omitempty"`
 }
 
 type IndexStatsIndexing struct {
-	IndexTotal           int64  `json:"index_total,omitempty"`
-	IndexTime            string `json:"index_time,omitempty"`
-	IndexTimeInMillis    int64  `json:"index_time_in_millis,omitempty"`
-	IndexCurrent         int64  `json:"index_current,omitempty"`
-	DeleteTotal          int64  `json:"delete_total,omitempty"`
-	DeleteTime           string `json:"delete_time,omitempty"`
-	DeleteTimeInMillis   int64  `json:"delete_time_in_millis,omitempty"`
-	DeleteCurrent        int64  `json:"delete_current,omitempty"`
-	NoopUpdateTotal      int64  `json:"noop_update_total,omitempty"`
-	IsThrottled          bool   `json:"is_throttled,omitempty"`
-	ThrottleTime         string `json:"throttle_time,omitempty"`
-	ThrottleTimeInMillis int64  `json:"throttle_time_in_millis,omitempty"`
+	IndexTotal         int64  `json:"index_total,omitempty"`
+	IndexTime          string `json:"index_time,omitempty"`
+	IndexTimeInMillis  int64  `json:"index_time_in_millis,omitempty"`
+	IndexCurrent       int64  `json:"index_current,omitempty"`
+	DeleteTotal        int64  `json:"delete_total,omitempty"`
+	DeleteTime         string `json:"delete_time,omitempty"`
+	DeleteTimeInMillis int64  `json:"delete_time_in_millis,omitempty"`
+	DeleteCurrent      int64  `json:"delete_current,omitempty"`
+	NoopUpdateTotal    int64  `json:"noop_update_total,omitempty"`
 }
 
 type IndexStatsGet struct {

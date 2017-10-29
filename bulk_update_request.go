@@ -113,7 +113,7 @@ func (r *BulkUpdateRequest) Version(version int64) *BulkUpdateRequest {
 }
 
 // VersionType can be "internal" (default), "external", "external_gte",
-// "external_gt", or "force".
+// or "external_gt".
 func (r *BulkUpdateRequest) VersionType(versionType string) *BulkUpdateRequest {
 	r.versionType = versionType
 	r.source = nil

@@ -105,7 +105,7 @@ func (b *UpdateService) Version(version int64) *UpdateService {
 	return b
 }
 
-// VersionType is one of "internal" or "force".
+// VersionType is e.g. "internal".
 func (b *UpdateService) VersionType(versionType string) *UpdateService {
 	b.versionType = versionType
 	return b

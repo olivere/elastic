@@ -13,35 +13,33 @@ import (
 // For more details, see
 // https://www.elastic.co/guide/en/elasticsearch/reference/5.2/query-dsl-query-string-query.html
 type QueryStringQuery struct {
-	queryString               string
-	defaultField              string
-	defaultOperator           string
-	analyzer                  string
-	quoteAnalyzer             string
-	quoteFieldSuffix          string
-	autoGeneratePhraseQueries *bool
-	allowLeadingWildcard      *bool
-	lowercaseExpandedTerms    *bool
-	enablePositionIncrements  *bool
-	analyzeWildcard           *bool
-	locale                    string
-	boost                     *float64
-	fuzziness                 string
-	fuzzyPrefixLength         *int
-	fuzzyMaxExpansions        *int
-	fuzzyRewrite              string
-	phraseSlop                *int
-	fields                    []string
-	fieldBoosts               map[string]*float64
-	useDisMax                 *bool
-	tieBreaker                *float64
-	rewrite                   string
-	minimumShouldMatch        string
-	lenient                   *bool
-	queryName                 string
-	timeZone                  string
-	maxDeterminizedStates     *int
-	escape                    *bool
+	queryString              string
+	defaultField             string
+	defaultOperator          string
+	analyzer                 string
+	quoteAnalyzer            string
+	quoteFieldSuffix         string
+	allowLeadingWildcard     *bool
+	lowercaseExpandedTerms   *bool
+	enablePositionIncrements *bool
+	analyzeWildcard          *bool
+	locale                   string
+	boost                    *float64
+	fuzziness                string
+	fuzzyPrefixLength        *int
+	fuzzyMaxExpansions       *int
+	fuzzyRewrite             string
+	phraseSlop               *int
+	fields                   []string
+	fieldBoosts              map[string]*float64
+	tieBreaker               *float64
+	rewrite                  string
+	minimumShouldMatch       string
+	lenient                  *bool
+	queryName                string
+	timeZone                 string
+	maxDeterminizedStates    *int
+	escape                   *bool
 }
 
 // NewQueryStringQuery creates and initializes a new QueryStringQuery.
@@ -71,14 +69,6 @@ func (q *QueryStringQuery) Field(field string) *QueryStringQuery {
 func (q *QueryStringQuery) FieldWithBoost(field string, boost float64) *QueryStringQuery {
 	q.fields = append(q.fields, field)
 	q.fieldBoosts[field] = &boost
-	return q
-}
-
-// UseDisMax specifies whether to combine queries using dis max or boolean
-// query when more zhan one field is used with the query string. Defaults
-// to dismax (true).
-func (q *QueryStringQuery) UseDisMax(useDisMax bool) *QueryStringQuery {
-	q.useDisMax = &useDisMax
 	return q
 }
 
@@ -116,15 +106,6 @@ func (q *QueryStringQuery) Analyzer(analyzer string) *QueryStringQuery {
 // then it will be used automatically. Defaults to the smart search analyzer.
 func (q *QueryStringQuery) QuoteAnalyzer(quoteAnalyzer string) *QueryStringQuery {
 	q.quoteAnalyzer = quoteAnalyzer
-	return q
-}
-
-// AutoGeneratePhraseQueries indicates whether or not phrase queries will
-// be automatically generated when the analyzer returns more then one term
-// from whitespace delimited text. Set to false if phrase queries should only
-// be generated when surrounded by double quotes.
-func (q *QueryStringQuery) AutoGeneratePhraseQueries(autoGeneratePhraseQueries bool) *QueryStringQuery {
-	q.autoGeneratePhraseQueries = &autoGeneratePhraseQueries
 	return q
 }
 
@@ -282,9 +263,6 @@ func (q *QueryStringQuery) Source() (interface{}, error) {
 	if q.tieBreaker != nil {
 		query["tie_breaker"] = *q.tieBreaker
 	}
-	if q.useDisMax != nil {
-		query["use_dis_max"] = *q.useDisMax
-	}
 	if q.defaultOperator != "" {
 		query["default_operator"] = q.defaultOperator
 	}
@@ -293,9 +271,6 @@ func (q *QueryStringQuery) Source() (interface{}, error) {
 	}
 	if q.quoteAnalyzer != "" {
 		query["quote_analyzer"] = q.quoteAnalyzer
-	}
-	if q.autoGeneratePhraseQueries != nil {
-		query["auto_generate_phrase_queries"] = *q.autoGeneratePhraseQueries
 	}
 	if q.maxDeterminizedStates != nil {
 		query["max_determinized_states"] = *q.maxDeterminizedStates

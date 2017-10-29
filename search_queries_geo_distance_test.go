@@ -15,7 +15,6 @@ func TestGeoDistanceQuery(t *testing.T) {
 	q = q.Lon(-70)
 	q = q.Distance("200km")
 	q = q.DistanceType("plane")
-	q = q.OptimizeBbox("memory")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -25,7 +24,7 @@ func TestGeoDistanceQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"geo_distance":{"distance":"200km","distance_type":"plane","optimize_bbox":"memory","pin.location":{"lat":40,"lon":-70}}}`
+	expected := `{"geo_distance":{"distance":"200km","distance_type":"plane","pin.location":{"lat":40,"lon":-70}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

@@ -25,8 +25,8 @@ type MoreLikeThisQuery struct {
 	stopWords              []string
 	minDocFreq             *int
 	maxDocFreq             *int
-	minWordLen             *int
-	maxWordLen             *int
+	minWordLength          *int
+	maxWordLength          *int
 	boostTerms             *float64
 	boost                  *float64
 	analyzer               string
@@ -147,15 +147,15 @@ func (q *MoreLikeThisQuery) MaxDocFreq(maxDocFreq int) *MoreLikeThisQuery {
 
 // MinWordLength sets the minimum word length below which words will be
 // ignored. It defaults to 0.
-func (q *MoreLikeThisQuery) MinWordLen(minWordLen int) *MoreLikeThisQuery {
-	q.minWordLen = &minWordLen
+func (q *MoreLikeThisQuery) MinWordLength(minWordLength int) *MoreLikeThisQuery {
+	q.minWordLength = &minWordLength
 	return q
 }
 
-// MaxWordLen sets the maximum word length above which words will be ignored.
+// MaxWordLength sets the maximum word length above which words will be ignored.
 // Defaults to unbounded (0).
-func (q *MoreLikeThisQuery) MaxWordLen(maxWordLen int) *MoreLikeThisQuery {
-	q.maxWordLen = &maxWordLen
+func (q *MoreLikeThisQuery) MaxWordLength(maxWordLength int) *MoreLikeThisQuery {
+	q.maxWordLength = &maxWordLength
 	return q
 }
 
@@ -254,11 +254,11 @@ func (q *MoreLikeThisQuery) Source() (interface{}, error) {
 	if q.maxDocFreq != nil {
 		params["max_doc_freq"] = *q.maxDocFreq
 	}
-	if q.minWordLen != nil {
-		params["min_word_len"] = *q.minWordLen
+	if q.minWordLength != nil {
+		params["min_word_length"] = *q.minWordLength
 	}
-	if q.maxWordLen != nil {
-		params["max_word_len"] = *q.maxWordLen
+	if q.maxWordLength != nil {
+		params["max_word_length"] = *q.maxWordLength
 	}
 	if q.boostTerms != nil {
 		params["boost_terms"] = *q.boostTerms

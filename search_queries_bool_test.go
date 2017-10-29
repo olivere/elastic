@@ -16,7 +16,6 @@ func TestBoolQuery(t *testing.T) {
 	q = q.Filter(NewTermQuery("account", "1"))
 	q = q.Should(NewTermQuery("tag", "sometag"), NewTermQuery("tag", "sometagtag"))
 	q = q.Boost(10)
-	q = q.DisableCoord(true)
 	q = q.QueryName("Test")
 	src, err := q.Source()
 	if err != nil {
@@ -27,7 +26,7 @@ func TestBoolQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"bool":{"_name":"Test","boost":10,"disable_coord":true,"filter":{"term":{"account":"1"}},"must":{"term":{"tag":"wow"}},"must_not":{"range":{"age":{"from":10,"include_lower":true,"include_upper":true,"to":20}}},"should":[{"term":{"tag":"sometag"}},{"term":{"tag":"sometagtag"}}]}}`
+	expected := `{"bool":{"_name":"Test","boost":10,"filter":{"term":{"account":"1"}},"must":{"term":{"tag":"wow"}},"must_not":{"range":{"age":{"from":10,"include_lower":true,"include_upper":true,"to":20}}},"should":[{"term":{"tag":"sometag"}},{"term":{"tag":"sometagtag"}}]}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

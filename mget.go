@@ -199,8 +199,8 @@ func (item *MultiGetItem) Version(version int64) *MultiGetItem {
 	return item
 }
 
-// VersionType can be "internal", "external", "external_gt", "external_gte",
-// or "force". See org.elasticsearch.index.VersionType in Elasticsearch source.
+// VersionType can be "internal", "external", "external_gt", or "external_gte".
+// See org.elasticsearch.index.VersionType in Elasticsearch source.
 // It is "internal" by default.
 func (item *MultiGetItem) VersionType(versionType string) *MultiGetItem {
 	item.versionType = versionType

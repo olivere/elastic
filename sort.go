@@ -314,7 +314,7 @@ func (s *GeoDistanceSort) GeoHashes(geohashes ...string) *GeoDistanceSort {
 }
 
 // GeoDistance represents how to compute the distance.
-// It can be sloppy_arc (default), arc, or plane.
+// It can be arc (default) or plane.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-request-sort.html#_geo_distance_sorting.
 func (s *GeoDistanceSort) GeoDistance(geoDistance string) *GeoDistanceSort {
 	s.geoDistance = &geoDistance

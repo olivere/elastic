@@ -179,10 +179,8 @@ type ClusterStatsIndicesDocs struct {
 }
 
 type ClusterStatsIndicesStore struct {
-	Size                 string `json:"size"` // e.g. "5.3gb"
-	SizeInBytes          int64  `json:"size_in_bytes"`
-	ThrottleTime         string `json:"throttle_time"` // e.g. "0s"
-	ThrottleTimeInMillis int64  `json:"throttle_time_in_millis"`
+	Size        string `json:"size"` // e.g. "5.3gb"
+	SizeInBytes int64  `json:"size_in_bytes"`
 }
 
 type ClusterStatsIndicesFieldData struct {

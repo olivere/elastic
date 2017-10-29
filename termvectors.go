@@ -169,7 +169,7 @@ func (s *TermvectorsService) Version(version interface{}) *TermvectorsService {
 	return s
 }
 
-// VersionType specifies a version type ("internal", "external", "external_gte", or "force").
+// VersionType specifies a version type ("internal", "external", or "external_gte").
 func (s *TermvectorsService) VersionType(versionType string) *TermvectorsService {
 	s.versionType = versionType
 	return s

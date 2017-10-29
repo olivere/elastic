@@ -22,7 +22,6 @@ type CommonTermsQuery struct {
 	lowFreqMinimumShouldMatch  string
 	analyzer                   string
 	boost                      *float64
-	disableCoord               *bool
 	queryName                  string
 }
 
@@ -76,11 +75,6 @@ func (q *CommonTermsQuery) Boost(boost float64) *CommonTermsQuery {
 	return q
 }
 
-func (q *CommonTermsQuery) DisableCoord(disableCoord bool) *CommonTermsQuery {
-	q.disableCoord = &disableCoord
-	return q
-}
-
 func (q *CommonTermsQuery) QueryName(queryName string) *CommonTermsQuery {
 	q.queryName = queryName
 	return q
@@ -131,9 +125,6 @@ func (q *CommonTermsQuery) Source() (interface{}, error) {
 	}
 	if q.analyzer != "" {
 		query["analyzer"] = q.analyzer
-	}
-	if q.disableCoord != nil {
-		query["disable_coord"] = *q.disableCoord
 	}
 	if q.boost != nil {
 		query["boost"] = *q.boost

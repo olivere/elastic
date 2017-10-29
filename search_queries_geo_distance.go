@@ -16,7 +16,6 @@ type GeoDistanceQuery struct {
 	lon          float64
 	geohash      string
 	distanceType string
-	optimizeBbox string
 	queryName    string
 }
 
@@ -62,11 +61,6 @@ func (q *GeoDistanceQuery) DistanceType(distanceType string) *GeoDistanceQuery {
 	return q
 }
 
-func (q *GeoDistanceQuery) OptimizeBbox(optimizeBbox string) *GeoDistanceQuery {
-	q.optimizeBbox = optimizeBbox
-	return q
-}
-
 func (q *GeoDistanceQuery) QueryName(queryName string) *GeoDistanceQuery {
 	q.queryName = queryName
 	return q
@@ -102,9 +96,6 @@ func (q *GeoDistanceQuery) Source() (interface{}, error) {
 	}
 	if q.distanceType != "" {
 		params["distance_type"] = q.distanceType
-	}
-	if q.optimizeBbox != "" {
-		params["optimize_bbox"] = q.optimizeBbox
 	}
 	if q.queryName != "" {
 		params["_name"] = q.queryName

@@ -9,10 +9,10 @@ import "errors"
 // PercolatorQuery can be used to match queries stored in an index.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/5.x/query-dsl-percolate-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/query-dsl-percolate-query.html
 type PercolatorQuery struct {
 	field                     string
-	documentType              string
+	documentType              string // deprecated
 	document                  interface{}
 	indexedDocumentIndex      string
 	indexedDocumentType       string
@@ -32,6 +32,7 @@ func (q *PercolatorQuery) Field(field string) *PercolatorQuery {
 	return q
 }
 
+// Deprecated: DocumentType is deprecated as of 6.0.
 func (q *PercolatorQuery) DocumentType(typ string) *PercolatorQuery {
 	q.documentType = typ
 	return q
