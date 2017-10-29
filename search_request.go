@@ -146,7 +146,7 @@ func (r *SearchRequest) Source(source interface{}) *SearchRequest {
 
 // header is used e.g. by MultiSearch to get information about the search header
 // of one SearchRequest.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-multi-search.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-multi-search.html
 func (r *SearchRequest) header() interface{} {
 	h := make(map[string]interface{})
 	if r.searchType != "" {
@@ -199,7 +199,7 @@ func (r *SearchRequest) header() interface{} {
 //
 // Body is used e.g. by MultiSearch to get information about the search body
 // of one SearchRequest.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-multi-search.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-multi-search.html
 func (r *SearchRequest) Body() interface{} {
 	return r.source
 }

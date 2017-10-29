@@ -14,7 +14,7 @@ import (
 	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
-// SnapshotCreateService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.x/modules-snapshots.html.
+// SnapshotCreateService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.0/modules-snapshots.html.
 type SnapshotCreateService struct {
 	client            *Client
 	pretty            bool

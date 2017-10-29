@@ -7,7 +7,7 @@ package elastic
 import "errors"
 
 // CompletionSuggester is a fast suggester for e.g. type-ahead completion.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-suggesters-completion.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-suggesters-completion.html
 // for more details.
 type CompletionSuggester struct {
 	Suggester
