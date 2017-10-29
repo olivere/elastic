@@ -48,17 +48,36 @@ const (
 							"type":"category"
 						}
 					]
-				},
-				"comments_join_field": {
-					"type": "join",
-					"relations": {
-						"tweet": "comment"
-					}
 				}
 			}
 		}
 	}
 }
+`
+
+	testJoinIndex   = "elastic-joins"
+	testJoinMapping = `
+	{
+		"settings":{
+			"number_of_shards":1,
+			"number_of_replicas":0
+		},
+		"mappings":{
+			"doc":{
+				"properties":{
+					"message":{
+						"type":"text"
+					},
+					"my_join_field": {
+						"type": "join",
+						"relations": {
+							"question": "answer"
+						}
+					}
+				}
+			}
+		}
+	}
 `
 
 	testOrderIndex   = "elastic-orders"
@@ -163,6 +182,16 @@ func (c comment) String() string {
 	return fmt.Sprintf("comment{User:%q,Comment:%q}", c.User, c.Comment)
 }
 
+type joinDoc struct {
+	Message   string      `json:"message"`
+	JoinField interface{} `json:"my_join_field,omitempty"`
+}
+
+type joinField struct {
+	Name   string `json:"name"`
+	Parent string `json:"parent,omitempty"`
+}
+
 type order struct {
 	Article      string  `json:"article"`
 	Manufacturer string  `json:"manufacturer"`
@@ -217,6 +246,7 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 	client.DeleteIndex(testOrderIndex).Do(context.TODO())
 	//client.DeleteIndex(testDoctypeIndex).Do(context.TODO())
 	client.DeleteIndex(testQueryIndex).Do(context.TODO())
+	client.DeleteIndex(testJoinIndex).Do(context.TODO())
 
 	return client
 }
