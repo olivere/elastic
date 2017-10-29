@@ -1555,24 +1555,6 @@ func (c *Client) Aliases() *AliasesService {
 	return NewAliasesService(c)
 }
 
-// GetTemplate gets a search template.
-// Use IndexXXXTemplate funcs to manage index templates.
-func (c *Client) GetTemplate() *GetTemplateService {
-	return NewGetTemplateService(c)
-}
-
-// PutTemplate creates or updates a search template.
-// Use IndexXXXTemplate funcs to manage index templates.
-func (c *Client) PutTemplate() *PutTemplateService {
-	return NewPutTemplateService(c)
-}
-
-// DeleteTemplate deletes a search template.
-// Use IndexXXXTemplate funcs to manage index templates.
-func (c *Client) DeleteTemplate() *DeleteTemplateService {
-	return NewDeleteTemplateService(c)
-}
-
 // IndexGetTemplate gets an index template.
 // Use XXXTemplate funcs to manage search templates.
 func (c *Client) IndexGetTemplate(names ...string) *IndicesGetTemplateService {

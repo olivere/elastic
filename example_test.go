@@ -480,58 +480,6 @@ func ExampleSearchResult() {
 	}
 }
 
-func ExamplePutTemplateService() {
-	client, err := elastic.NewClient()
-	if err != nil {
-		panic(err)
-	}
-
-	// Create search template
-	tmpl := `{"template":{"query":{"match":{"title":"{{query_string}}"}}}}`
-
-	// Create template
-	resp, err := client.PutTemplate().
-		Id("my-search-template"). // Name of the template
-		BodyString(tmpl).         // Search template itself
-		Do(context.Background())  // Execute
-	if err != nil {
-		panic(err)
-	}
-	if resp.Acknowledged {
-		fmt.Println("search template creation acknowledged")
-	}
-}
-
-func ExampleGetTemplateService() {
-	client, err := elastic.NewClient()
-	if err != nil {
-		panic(err)
-	}
-
-	// Get template stored under "my-search-template"
-	resp, err := client.GetTemplate().Id("my-search-template").Do(context.Background())
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("search template is: %q\n", resp.Template)
-}
-
-func ExampleDeleteTemplateService() {
-	client, err := elastic.NewClient()
-	if err != nil {
-		panic(err)
-	}
-
-	// Delete template
-	resp, err := client.DeleteTemplate().Id("my-search-template").Do(context.Background())
-	if err != nil {
-		panic(err)
-	}
-	if resp != nil && resp.Acknowledged {
-		fmt.Println("template deleted")
-	}
-}
-
 func ExampleClusterHealthService() {
 	client, err := elastic.NewClient()
 	if err != nil {
