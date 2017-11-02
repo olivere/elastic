@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // IngestSimulatePipelineService executes a specific pipeline against the set of

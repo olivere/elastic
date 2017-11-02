@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // TasksGetTaskService retrieves the state of a task in the cluster. It is part of the Task Management API

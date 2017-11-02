@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // IndicesExistsTypeService checks if one or more types exist in one or more indices.

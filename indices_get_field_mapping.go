@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // IndicesGetFieldMappingService retrieves the mapping definitions for the fields in an index

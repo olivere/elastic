@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // IndicesShrinkService allows you to shrink an existing index into a

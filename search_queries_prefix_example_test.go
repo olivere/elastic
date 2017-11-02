@@ -7,7 +7,7 @@ package elastic_test
 import (
 	"context"
 
-	"gopkg.in/olivere/elastic.v6"
+	"github.com/olivere/elastic"
 )
 
 func ExamplePrefixQuery() {

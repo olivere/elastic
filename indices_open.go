@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // IndicesOpenService opens an index.

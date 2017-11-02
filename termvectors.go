@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // TermvectorsService returns information and statistics on terms in the

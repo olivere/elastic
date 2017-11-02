@@ -21,7 +21,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"gopkg.in/olivere/elastic.v6/config"
+	"github.com/olivere/elastic/config"
 )
 
 const (

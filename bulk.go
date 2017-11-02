@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // BulkService allows for batching bulk requests and sending them to

@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"time"
 
-	"gopkg.in/olivere/elastic.v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // SnapshotCreateService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.0/modules-snapshots.html.
