@@ -38,13 +38,7 @@ advised to use a tool like
 [dep](https://github.com/golang/dep)
 or
 [Glide](https://glide.sh/)
-to manage that dependency. E.g. when using `dep`, run:
-
-```sh
-$ dep ensure -add github.com/olivere/elastic@^6.0.0
-```
-
-This makes sure you always use the latest version of Elastic 6.0 when updating your dependencies with `dep`.
+to manage that dependency. Make sure to use a version such as `^6.0.0`.
 
 To use Elastic, simply import:
 
