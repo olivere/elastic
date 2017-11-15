@@ -51,6 +51,7 @@ type UpdateByQueryService struct {
 	searchTimeout          string
 	searchType             string
 	size                   *int
+	slices                 *int
 	sort                   []string
 	stats                  []string
 	storedFields           []string
@@ -317,6 +318,12 @@ func (s *UpdateByQueryService) Size(size int) *UpdateByQueryService {
 	return s
 }
 
+// AutoSlice sets the number of slices used for Sliced Scroll auto parallelize
+func (s *UpdateByQueryService) AutoSlice(numSlices int) *UpdateByQueryService {
+	s.slices = &numSlices
+	return s
+}
+
 // Sort is a list of <field>:<direction> pairs.
 func (s *UpdateByQueryService) Sort(sort ...string) *UpdateByQueryService {
 	s.sort = append(s.sort, sort...)
@@ -448,6 +455,9 @@ func (s *UpdateByQueryService) buildURL() (string, url.Values, error) {
 	params := url.Values{}
 	if s.pretty {
 		params.Set("pretty", "1")
+	}
+	if s.slices != nil {
+		params.Set("slices", fmt.Sprintf("%v", s.slices))
 	}
 	if len(s.xSource) > 0 {
 		params.Set("_source", strings.Join(s.xSource, ","))
