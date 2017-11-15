@@ -2,13 +2,17 @@ version: '3'
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.0-rc1
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.0
     # container_name: elasticsearch
     hostname: elasticsearch
     environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.monitoring.enabled=false
+      - xpack.ml.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.watcher.enabled=false
     ulimits:
       nproc: 65536
       nofile:
