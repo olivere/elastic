@@ -2420,7 +2420,7 @@ func TestAggsBucketDateRange(t *testing.T) {
 	}
 }
 
-func TestAggsBucketIPv4Range(t *testing.T) {
+func TestAggsBucketIPRange(t *testing.T) {
 	s := `{
 	"ip_ranges": {
 		"buckets" : [
@@ -2444,7 +2444,7 @@ func TestAggsBucketIPv4Range(t *testing.T) {
 		t.Fatalf("expected no error decoding; got: %v", err)
 	}
 
-	agg, found := aggs.IPv4Range("ip_ranges")
+	agg, found := aggs.IPRange("ip_ranges")
 	if !found {
 		t.Fatalf("expected aggregation to be found; got: %v", found)
 	}
