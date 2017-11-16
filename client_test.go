@@ -279,6 +279,9 @@ func TestClientHealthcheckStartupTimeout(t *testing.T) {
 	if !IsConnErr(err) {
 		t.Fatal(err)
 	}
+	if want, have := "health check timeout: Head http://localhost:9299: dial tcp [::1]:9299: getsockopt: connection refused: no Elasticsearch node available", err.Error(); want != have {
+		t.Fatalf("want %q, have %q", want, have)
+	}
 	if duration < 5*time.Second {
 		t.Fatalf("expected a timeout in more than 5 seconds; got: %v", duration)
 	}
