@@ -279,6 +279,9 @@ func TestClientHealthcheckStartupTimeout(t *testing.T) {
 	if !IsConnErr(err) {
 		t.Fatal(err)
 	}
+	if !strings.Contains(err.Error(), "connection refused") {
+		t.Fatalf("expected error to contain %q, have %q", "connection refused", err.Error())
+	}
 	if duration < 5*time.Second {
 		t.Fatalf("expected a timeout in more than 5 seconds; got: %v", duration)
 	}
