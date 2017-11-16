@@ -214,7 +214,7 @@ func TestScriptSort(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_script":{"order":"asc","script":{"inline":"doc['field_name'].value * factor","params":{"factor":1.1}},"type":"number"}}`
+	expected := `{"_script":{"order":"asc","script":{"params":{"factor":1.1},"source":"doc['field_name'].value * factor"},"type":"number"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -231,7 +231,7 @@ func TestScriptSortOrderDesc(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_script":{"order":"desc","script":{"inline":"doc['field_name'].value * factor","params":{"factor":1.1}},"type":"number"}}`
+	expected := `{"_script":{"order":"desc","script":{"params":{"factor":1.1},"source":"doc['field_name'].value * factor"},"type":"number"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

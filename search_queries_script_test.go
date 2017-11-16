@@ -20,7 +20,7 @@ func TestScriptQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"script":{"script":"doc['num1'.value \u003e 1"}}`
+	expected := `{"script":{"script":{"source":"doc['num1'.value \u003e 1"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -38,7 +38,7 @@ func TestScriptQueryWithParams(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"script":{"_name":"MyQueryName","script":"doc['num1'.value \u003e 1"}}`
+	expected := `{"script":{"_name":"MyQueryName","script":{"source":"doc['num1'.value \u003e 1"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

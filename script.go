@@ -22,24 +22,19 @@ type Script struct {
 func NewScript(script string) *Script {
 	return &Script{
 		script: script,
-		typ:    "", // default type is "inline"
+		typ:    "inline",
 		params: make(map[string]interface{}),
 	}
 }
 
-// NewScriptInline creates and initializes a new Script of type "inline".
+// NewScriptInline creates and initializes a new inline script, i.e. code.
 func NewScriptInline(script string) *Script {
 	return NewScript(script).Type("inline")
 }
 
-// NewScriptId creates and initializes a new Script of type "id".
-func NewScriptId(script string) *Script {
+// NewScriptStored creates and initializes a new stored script.
+func NewScriptStored(script string) *Script {
 	return NewScript(script).Type("id")
-}
-
-// NewScriptFile creates and initializes a new Script of type "file".
-func NewScriptFile(script string) *Script {
-	return NewScript(script).Type("file")
 }
 
 // Script is either the cache key of the script to be compiled/executed
@@ -51,7 +46,7 @@ func (s *Script) Script(script string) *Script {
 	return s
 }
 
-// Type sets the type of script: "inline", "id", or "file".
+// Type sets the type of script: "inline" or "id".
 func (s *Script) Type(typ string) *Script {
 	s.typ = typ
 	return s
@@ -88,10 +83,11 @@ func (s *Script) Source() (interface{}, error) {
 		return s.script, nil
 	}
 	source := make(map[string]interface{})
-	if s.typ == "" {
-		source["inline"] = s.script
+	// Beginning with 6.0, the type can only be "source" or "id"
+	if s.typ == "" || s.typ == "inline" {
+		source["source"] = s.script
 	} else {
-		source[s.typ] = s.script
+		source["id"] = s.script
 	}
 	if s.lang != "" {
 		source["lang"] = s.lang

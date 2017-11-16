@@ -110,7 +110,7 @@ func TestUpdateByQueryBodyWithQueryAndScript(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := string(b)
-	want := `{"query":{"term":{"user":"olivere"}},"script":{"inline":"ctx._source.likes++"}}`
+	want := `{"query":{"term":{"user":"olivere"}},"script":{"source":"ctx._source.likes++"}}`
 	if got != want {
 		t.Fatalf("\ngot  %s\nwant %s", got, want)
 	}

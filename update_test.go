@@ -12,7 +12,8 @@ import (
 )
 
 func TestUpdateViaScript(t *testing.T) {
-	client := setupTestClient(t)
+	client := setupTestClient(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+
 	update := client.Update().
 		Index("test").Type("type1").Id("1").
 		Script(NewScript("ctx._source.tags += tag").Params(map[string]interface{}{"tag": "blue"}).Lang("groovy"))
@@ -37,14 +38,14 @@ func TestUpdateViaScript(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"script":{"inline":"ctx._source.tags += tag","lang":"groovy","params":{"tag":"blue"}}}`
+	expected := `{"script":{"lang":"groovy","params":{"tag":"blue"},"source":"ctx._source.tags += tag"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
 }
 
 func TestUpdateViaScriptId(t *testing.T) {
-	client := setupTestClient(t)
+	client := setupTestClient(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	scriptParams := map[string]interface{}{
 		"pageViewEvent": map[string]interface{}{
@@ -53,7 +54,7 @@ func TestUpdateViaScriptId(t *testing.T) {
 			"time":     "2014-01-01 12:32",
 		},
 	}
-	script := NewScriptId("my_web_session_summariser").Params(scriptParams)
+	script := NewScriptStored("my_web_session_summariser").Params(scriptParams)
 
 	update := client.Update().
 		Index("sessions").Type("session").Id("dh3sgudg8gsrgl").
@@ -87,53 +88,9 @@ func TestUpdateViaScriptId(t *testing.T) {
 	}
 }
 
-func TestUpdateViaScriptFile(t *testing.T) {
-	client := setupTestClient(t)
-
-	scriptParams := map[string]interface{}{
-		"pageViewEvent": map[string]interface{}{
-			"url":      "foo.com/bar",
-			"response": 404,
-			"time":     "2014-01-01 12:32",
-		},
-	}
-	script := NewScriptFile("update_script").Params(scriptParams)
-
-	update := client.Update().
-		Index("sessions").Type("session").Id("dh3sgudg8gsrgl").
-		Script(script).
-		ScriptedUpsert(true).
-		Upsert(map[string]interface{}{})
-
-	path, params, err := update.url()
-	if err != nil {
-		t.Fatalf("expected to return URL, got: %v", err)
-	}
-	expectedPath := `/sessions/session/dh3sgudg8gsrgl/_update`
-	if expectedPath != path {
-		t.Errorf("expected URL path\n%s\ngot:\n%s", expectedPath, path)
-	}
-	expectedParams := url.Values{}
-	if expectedParams.Encode() != params.Encode() {
-		t.Errorf("expected URL parameters\n%s\ngot:\n%s", expectedParams.Encode(), params.Encode())
-	}
-	body, err := update.body()
-	if err != nil {
-		t.Fatalf("expected to return body, got: %v", err)
-	}
-	data, err := json.Marshal(body)
-	if err != nil {
-		t.Fatalf("expected to marshal body as JSON, got: %v", err)
-	}
-	got := string(data)
-	expected := `{"script":{"file":"update_script","params":{"pageViewEvent":{"response":404,"time":"2014-01-01 12:32","url":"foo.com/bar"}}},"scripted_upsert":true,"upsert":{}}`
-	if got != expected {
-		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
-	}
-}
-
 func TestUpdateViaScriptAndUpsert(t *testing.T) {
-	client := setupTestClient(t)
+	client := setupTestClient(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+
 	update := client.Update().
 		Index("test").Type("type1").Id("1").
 		Script(NewScript("ctx._source.counter += count").Params(map[string]interface{}{"count": 4})).
@@ -159,14 +116,15 @@ func TestUpdateViaScriptAndUpsert(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"script":{"inline":"ctx._source.counter += count","params":{"count":4}},"upsert":{"counter":1}}`
+	expected := `{"script":{"params":{"count":4},"source":"ctx._source.counter += count"},"upsert":{"counter":1}}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
 }
 
 func TestUpdateViaDoc(t *testing.T) {
-	client := setupTestClient(t)
+	client := setupTestClient(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+
 	update := client.Update().
 		Index("test").Type("type1").Id("1").
 		Doc(map[string]interface{}{"name": "new_name"}).
@@ -199,7 +157,8 @@ func TestUpdateViaDoc(t *testing.T) {
 }
 
 func TestUpdateViaDocAndUpsert(t *testing.T) {
-	client := setupTestClient(t)
+	client := setupTestClient(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+
 	update := client.Update().
 		Index("test").Type("type1").Id("1").
 		Doc(map[string]interface{}{"name": "new_name"}).
@@ -234,7 +193,8 @@ func TestUpdateViaDocAndUpsert(t *testing.T) {
 }
 
 func TestUpdateViaDocAndUpsertAndFetchSource(t *testing.T) {
-	client := setupTestClient(t)
+	client := setupTestClient(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+
 	update := client.Update().
 		Index("test").Type("type1").Id("1").
 		Doc(map[string]interface{}{"name": "new_name"}).
@@ -274,6 +234,7 @@ func TestUpdateViaDocAndUpsertAndFetchSource(t *testing.T) {
 
 func TestUpdateAndFetchSource(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+
 	res, err := client.Update().
 		Index(testIndexName).Type("doc").Id("1").
 		Doc(map[string]interface{}{"user": "sandrae"}).

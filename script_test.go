@@ -20,7 +20,7 @@ func TestScriptingDefault(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `"doc['field'].value * 2"`
+	expected := `{"source":"doc['field'].value * 2"}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -37,14 +37,14 @@ func TestScriptingInline(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"inline":"doc['field'].value * factor","params":{"factor":2}}`
+	expected := `{"params":{"factor":2},"source":"doc['field'].value * factor"}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
-func TestScriptingId(t *testing.T) {
-	builder := NewScriptId("script-with-id").Param("factor", 2.0)
+func TestScriptingStored(t *testing.T) {
+	builder := NewScriptStored("script-with-id").Param("factor", 2.0)
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -55,23 +55,6 @@ func TestScriptingId(t *testing.T) {
 	}
 	got := string(data)
 	expected := `{"id":"script-with-id","params":{"factor":2}}`
-	if got != expected {
-		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
-	}
-}
-
-func TestScriptingFile(t *testing.T) {
-	builder := NewScriptFile("script-file").Param("factor", 2.0).Lang("groovy")
-	src, err := builder.Source()
-	if err != nil {
-		t.Fatal(err)
-	}
-	data, err := json.Marshal(src)
-	if err != nil {
-		t.Fatalf("marshaling to JSON failed: %v", err)
-	}
-	got := string(data)
-	expected := `{"file":"script-file","lang":"groovy","params":{"factor":2}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
