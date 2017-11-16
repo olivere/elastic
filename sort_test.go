@@ -236,3 +236,43 @@ func TestScriptSortOrderDesc(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestNestedSort(t *testing.T) {
+	builder := NewNestedSort("offer").
+		Filter(NewTermQuery("offer.color", "blue"))
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"filter":{"term":{"offer.color":"blue"}},"path":"offer"}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestFieldSortWithNestedSort(t *testing.T) {
+	builder := NewFieldSort("offer.price").
+		Asc().
+		SortMode("avg").
+		NestedSort(
+			NewNestedSort("offer").Filter(NewTermQuery("offer.color", "blue")),
+		)
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"offer.price":{"mode":"avg","nested":{"filter":{"term":{"offer.color":"blue"}},"path":"offer"},"order":"asc"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}

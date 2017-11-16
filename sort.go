@@ -23,9 +23,11 @@ type SortInfo struct {
 	Ascending      bool
 	Missing        interface{}
 	IgnoreUnmapped *bool
+	UnmappedType   string
 	SortMode       string
 	NestedFilter   Query
 	NestedPath     string
+	NestedSort     *NestedSort // available in 6.1 or later
 }
 
 func (info SortInfo) Source() (interface{}, error) {
@@ -41,6 +43,9 @@ func (info SortInfo) Source() (interface{}, error) {
 	if info.IgnoreUnmapped != nil {
 		prop["ignore_unmapped"] = *info.IgnoreUnmapped
 	}
+	if info.UnmappedType != "" {
+		prop["unmapped_type"] = info.UnmappedType
+	}
 	if info.SortMode != "" {
 		prop["mode"] = info.SortMode
 	}
@@ -53,6 +58,13 @@ func (info SortInfo) Source() (interface{}, error) {
 	}
 	if info.NestedPath != "" {
 		prop["nested_path"] = info.NestedPath
+	}
+	if info.NestedSort != nil {
+		src, err := info.NestedSort.Source()
+		if err != nil {
+			return nil, err
+		}
+		prop["nested"] = src
 	}
 	source := make(map[string]interface{})
 	source[info.Field] = prop
@@ -125,14 +137,14 @@ func (s *ScoreSort) Source() (interface{}, error) {
 // FieldSort sorts by a given field.
 type FieldSort struct {
 	Sorter
-	fieldName      string
-	ascending      bool
-	missing        interface{}
-	ignoreUnmapped *bool
-	unmappedType   *string
-	sortMode       *string
-	nestedFilter   Query
-	nestedPath     *string
+	fieldName    string
+	ascending    bool
+	missing      interface{}
+	unmappedType *string
+	sortMode     *string
+	nestedFilter Query
+	nestedPath   *string
+	nestedSort   *NestedSort
 }
 
 // NewFieldSort creates a new FieldSort.
@@ -175,13 +187,6 @@ func (s *FieldSort) Missing(missing interface{}) *FieldSort {
 	return s
 }
 
-// IgnoreUnmapped specifies what happens if the field does not exist in
-// the index. Set it to true to ignore, or set it to false to not ignore (default).
-func (s *FieldSort) IgnoreUnmapped(ignoreUnmapped bool) *FieldSort {
-	s.ignoreUnmapped = &ignoreUnmapped
-	return s
-}
-
 // UnmappedType sets the type to use when the current field is not mapped
 // in an index.
 func (s *FieldSort) UnmappedType(typ string) *FieldSort {
@@ -211,6 +216,13 @@ func (s *FieldSort) NestedPath(nestedPath string) *FieldSort {
 	return s
 }
 
+// NestedSort is available starting with 6.1 and will replace NestedFilter
+// and NestedPath.
+func (s *FieldSort) NestedSort(nestedSort *NestedSort) *FieldSort {
+	s.nestedSort = nestedSort
+	return s
+}
+
 // Source returns the JSON-serializable data.
 func (s *FieldSort) Source() (interface{}, error) {
 	source := make(map[string]interface{})
@@ -223,9 +235,6 @@ func (s *FieldSort) Source() (interface{}, error) {
 	}
 	if s.missing != nil {
 		x["missing"] = s.missing
-	}
-	if s.ignoreUnmapped != nil {
-		x["ignore_unmapped"] = *s.ignoreUnmapped
 	}
 	if s.unmappedType != nil {
 		x["unmapped_type"] = *s.unmappedType
@@ -243,6 +252,13 @@ func (s *FieldSort) Source() (interface{}, error) {
 	if s.nestedPath != nil {
 		x["nested_path"] = *s.nestedPath
 	}
+	if s.nestedSort != nil {
+		src, err := s.nestedSort.Source()
+		if err != nil {
+			return nil, err
+		}
+		x["nested"] = src
+	}
 	return source, nil
 }
 
@@ -255,12 +271,13 @@ type GeoDistanceSort struct {
 	fieldName    string
 	points       []*GeoPoint
 	geohashes    []string
-	geoDistance  *string
+	distanceType *string
 	unit         string
 	ascending    bool
 	sortMode     *string
 	nestedFilter Query
 	nestedPath   *string
+	nestedSort   *NestedSort
 }
 
 // NewGeoDistanceSort creates a new sorter for geo distances.
@@ -313,19 +330,24 @@ func (s *GeoDistanceSort) GeoHashes(geohashes ...string) *GeoDistanceSort {
 	return s
 }
 
-// GeoDistance represents how to compute the distance.
-// It can be arc (default) or plane.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-request-sort.html#_geo_distance_sorting.
-func (s *GeoDistanceSort) GeoDistance(geoDistance string) *GeoDistanceSort {
-	s.geoDistance = &geoDistance
-	return s
-}
-
 // Unit specifies the distance unit to use. It defaults to km.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/common-options.html#distance-units
 // for details.
 func (s *GeoDistanceSort) Unit(unit string) *GeoDistanceSort {
 	s.unit = unit
+	return s
+}
+
+// GeoDistance is an alias for DistanceType.
+func (s *GeoDistanceSort) GeoDistance(geoDistance string) *GeoDistanceSort {
+	return s.DistanceType(geoDistance)
+}
+
+// DistanceType describes how to compute the distance, e.g. "arc" or "plane".
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-request-sort.html#geo-sorting
+// for details.
+func (s *GeoDistanceSort) DistanceType(distanceType string) *GeoDistanceSort {
+	s.distanceType = &distanceType
 	return s
 }
 
@@ -351,6 +373,13 @@ func (s *GeoDistanceSort) NestedPath(nestedPath string) *GeoDistanceSort {
 	return s
 }
 
+// NestedSort is available starting with 6.1 and will replace NestedFilter
+// and NestedPath.
+func (s *GeoDistanceSort) NestedSort(nestedSort *NestedSort) *GeoDistanceSort {
+	s.nestedSort = nestedSort
+	return s
+}
+
 // Source returns the JSON-serializable data.
 func (s *GeoDistanceSort) Source() (interface{}, error) {
 	source := make(map[string]interface{})
@@ -370,8 +399,8 @@ func (s *GeoDistanceSort) Source() (interface{}, error) {
 	if s.unit != "" {
 		x["unit"] = s.unit
 	}
-	if s.geoDistance != nil {
-		x["distance_type"] = *s.geoDistance
+	if s.distanceType != nil {
+		x["distance_type"] = *s.distanceType
 	}
 
 	if s.ascending {
@@ -392,6 +421,13 @@ func (s *GeoDistanceSort) Source() (interface{}, error) {
 	if s.nestedPath != nil {
 		x["nested_path"] = *s.nestedPath
 	}
+	if s.nestedSort != nil {
+		src, err := s.nestedSort.Source()
+		if err != nil {
+			return nil, err
+		}
+		x["nested"] = src
+	}
 	return source, nil
 }
 
@@ -408,6 +444,7 @@ type ScriptSort struct {
 	sortMode     *string
 	nestedFilter Query
 	nestedPath   *string
+	nestedSort   *NestedSort
 }
 
 // NewScriptSort creates and initializes a new ScriptSort.
@@ -466,6 +503,13 @@ func (s *ScriptSort) NestedPath(nestedPath string) *ScriptSort {
 	return s
 }
 
+// NestedSort is available starting with 6.1 and will replace NestedFilter
+// and NestedPath.
+func (s *ScriptSort) NestedSort(nestedSort *NestedSort) *ScriptSort {
+	s.nestedSort = nestedSort
+	return s
+}
+
 // Source returns the JSON-serializable data.
 func (s *ScriptSort) Source() (interface{}, error) {
 	if s.script == nil {
@@ -501,5 +545,70 @@ func (s *ScriptSort) Source() (interface{}, error) {
 	if s.nestedPath != nil {
 		x["nested_path"] = *s.nestedPath
 	}
+	if s.nestedSort != nil {
+		src, err := s.nestedSort.Source()
+		if err != nil {
+			return nil, err
+		}
+		x["nested"] = src
+	}
+	return source, nil
+}
+
+// -- NestedSort --
+
+// NestedSort is used for fields that are inside a nested object.
+// It takes a "path" argument and an optional nested filter that the
+// nested objects should match with in order to be taken into account
+// for sorting.
+//
+// NestedSort is available from 6.1 and replaces nestedFilter and nestedPath
+// in the other sorters.
+type NestedSort struct {
+	Sorter
+	path       string
+	filter     Query
+	nestedSort *NestedSort
+}
+
+// NewNestedSort creates a new NestedSort.
+func NewNestedSort(path string) *NestedSort {
+	return &NestedSort{path: path}
+}
+
+// Filter sets the filter.
+func (s *NestedSort) Filter(filter Query) *NestedSort {
+	s.filter = filter
+	return s
+}
+
+// NestedSort embeds another level of nested sorting.
+func (s *NestedSort) NestedSort(nestedSort *NestedSort) *NestedSort {
+	s.nestedSort = nestedSort
+	return s
+}
+
+// Source returns the JSON-serializable data.
+func (s *NestedSort) Source() (interface{}, error) {
+	source := make(map[string]interface{})
+
+	if s.path != "" {
+		source["path"] = s.path
+	}
+	if s.filter != nil {
+		src, err := s.filter.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["filter"] = src
+	}
+	if s.nestedSort != nil {
+		src, err := s.nestedSort.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["nested"] = src
+	}
+
 	return source, nil
 }
