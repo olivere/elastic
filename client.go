@@ -1104,6 +1104,8 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 			res, err := cl.Do(req)
 			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
 				return nil
+			} else if err != nil {
+				return err
 			}
 		}
 		time.Sleep(1 * time.Second)
