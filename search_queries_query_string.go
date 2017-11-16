@@ -20,10 +20,10 @@ type QueryStringQuery struct {
 	quoteAnalyzer            string
 	quoteFieldSuffix         string
 	allowLeadingWildcard     *bool
-	lowercaseExpandedTerms   *bool
+	lowercaseExpandedTerms   *bool // Deprecated: Decision is now made by the analyzer
 	enablePositionIncrements *bool
 	analyzeWildcard          *bool
-	locale                   string
+	locale                   string // Deprecated: Decision is now made by the analyzer
 	boost                    *float64
 	fuzziness                string
 	fuzzyPrefixLength        *int
@@ -40,6 +40,7 @@ type QueryStringQuery struct {
 	timeZone                 string
 	maxDeterminizedStates    *int
 	escape                   *bool
+	typ                      string
 }
 
 // NewQueryStringQuery creates and initializes a new QueryStringQuery.
@@ -62,6 +63,13 @@ func (q *QueryStringQuery) DefaultField(defaultField string) *QueryStringQuery {
 // Field adds a field to run the query string against.
 func (q *QueryStringQuery) Field(field string) *QueryStringQuery {
 	q.fields = append(q.fields, field)
+	return q
+}
+
+// Type sets how multiple fields should be combined to build textual part queries,
+// e.g. "best_fields".
+func (q *QueryStringQuery) Type(typ string) *QueryStringQuery {
+	q.typ = typ
 	return q
 }
 
@@ -124,6 +132,8 @@ func (q *QueryStringQuery) AllowLeadingWildcard(allowLeadingWildcard bool) *Quer
 
 // LowercaseExpandedTerms indicates whether terms of wildcard, prefix, fuzzy
 // and range queries are automatically lower-cased or not. Default is true.
+//
+// Deprecated: Decision is now made by the analyzer.
 func (q *QueryStringQuery) LowercaseExpandedTerms(lowercaseExpandedTerms bool) *QueryStringQuery {
 	q.lowercaseExpandedTerms = &lowercaseExpandedTerms
 	return q
@@ -214,6 +224,9 @@ func (q *QueryStringQuery) QueryName(queryName string) *QueryStringQuery {
 	return q
 }
 
+// Locale specifies the locale to be used for string conversions.
+//
+// Deprecated: Decision is now made by the analyzer.
 func (q *QueryStringQuery) Locale(locale string) *QueryStringQuery {
 	q.locale = locale
 	return q
@@ -328,6 +341,9 @@ func (q *QueryStringQuery) Source() (interface{}, error) {
 	}
 	if q.escape != nil {
 		query["escape"] = *q.escape
+	}
+	if q.typ != "" {
+		query["type"] = q.typ
 	}
 
 	return source, nil
