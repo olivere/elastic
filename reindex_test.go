@@ -235,7 +235,7 @@ func TestReindexSourceWithScript(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := string(b)
-	want := `{"dest":{"index":"new_twitter","version_type":"external"},"script":{"inline":"if (ctx._source.foo == 'bar') {ctx._version++; ctx._source.remove('foo')}"},"source":{"index":"twitter"}}`
+	want := `{"dest":{"index":"new_twitter","version_type":"external"},"script":{"source":"if (ctx._source.foo == 'bar') {ctx._version++; ctx._source.remove('foo')}"},"source":{"index":"twitter"}}`
 	if got != want {
 		t.Fatalf("\ngot  %s\nwant %s", got, want)
 	}

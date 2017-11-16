@@ -23,7 +23,7 @@ func TestBucketScriptAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"bucket_script":{"buckets_path":{"tShirtSales":"t-shirts\u003esales","totalSales":"total_sales"},"script":"tShirtSales / totalSales * 100"}}`
+	expected := `{"bucket_script":{"buckets_path":{"tShirtSales":"t-shirts\u003esales","totalSales":"total_sales"},"script":{"source":"tShirtSales / totalSales * 100"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

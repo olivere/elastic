@@ -204,7 +204,7 @@ func TestSignificantTermsAggregationWithScript(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"significant_terms":{"field":"crime_type","script_heuristic":{"script":"_subset_freq/(_superset_freq - _subset_freq + 1)"}}}`
+	expected := `{"significant_terms":{"field":"crime_type","script_heuristic":{"script":{"source":"_subset_freq/(_superset_freq - _subset_freq + 1)"}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

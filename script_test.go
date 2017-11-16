@@ -20,7 +20,7 @@ func TestScriptingDefault(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `"doc['field'].value * 2"`
+	expected := `{"source":"doc['field'].value * 2"}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -37,7 +37,7 @@ func TestScriptingInline(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"inline":"doc['field'].value * factor","params":{"factor":2}}`
+	expected := `{"params":{"factor":2},"source":"doc['field'].value * factor"}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
