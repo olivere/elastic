@@ -398,9 +398,9 @@ func (a Aggregations) DateRange(name string) (*AggregationBucketRangeItems, bool
 	return nil, false
 }
 
-// IPv4Range returns IPv4 range aggregation results.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-iprange-aggregation.html
-func (a Aggregations) IPv4Range(name string) (*AggregationBucketRangeItems, bool) {
+// IPRange returns IP range aggregation results.
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-iprange-aggregation.html
+func (a Aggregations) IPRange(name string) (*AggregationBucketRangeItems, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationBucketRangeItems)
 		if raw == nil {
