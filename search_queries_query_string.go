@@ -11,7 +11,7 @@ import (
 // QueryStringQuery uses the query parser in order to parse its content.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/query-dsl-query-string-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-query-string-query.html
 type QueryStringQuery struct {
 	queryString               string
 	defaultField              string
@@ -24,7 +24,7 @@ type QueryStringQuery struct {
 	lowercaseExpandedTerms    *bool
 	enablePositionIncrements  *bool
 	analyzeWildcard           *bool
-	locale                    string
+	locale                    string // Deprecated: Decision is now made by the analyzer.
 	boost                     *float64
 	fuzziness                 string
 	fuzzyPrefixLength         *int
@@ -42,6 +42,8 @@ type QueryStringQuery struct {
 	timeZone                  string
 	maxDeterminizedStates     *int
 	escape                    *bool
+	splitOnWhitespace         *bool
+	useAllFields              *bool
 }
 
 // NewQueryStringQuery creates and initializes a new QueryStringQuery.
@@ -64,6 +66,14 @@ func (q *QueryStringQuery) DefaultField(defaultField string) *QueryStringQuery {
 // Field adds a field to run the query string against.
 func (q *QueryStringQuery) Field(field string) *QueryStringQuery {
 	q.fields = append(q.fields, field)
+	return q
+}
+
+// AllFields tells the query string query to use all fields explicitly,
+// even if _all is enabled. If the "default_field" parameter or "fields"
+// are specified, they will be ignored.
+func (q *QueryStringQuery) AllFields(useAllFields bool) *QueryStringQuery {
+	q.useAllFields = &useAllFields
 	return q
 }
 
@@ -233,6 +243,9 @@ func (q *QueryStringQuery) QueryName(queryName string) *QueryStringQuery {
 	return q
 }
 
+// Locale specifies the locale to be used for string conversions.
+//
+// Deprecated: Decision is now made by the analyzer.
 func (q *QueryStringQuery) Locale(locale string) *QueryStringQuery {
 	q.locale = locale
 	return q
@@ -248,6 +261,13 @@ func (q *QueryStringQuery) TimeZone(timeZone string) *QueryStringQuery {
 // Escape performs escaping of the query string.
 func (q *QueryStringQuery) Escape(escape bool) *QueryStringQuery {
 	q.escape = &escape
+	return q
+}
+
+// SplitOnWhitespace indicates whether query text should be split on whitespace
+// prior to analysis.
+func (q *QueryStringQuery) SplitOnWhitespace(splitOnWhitespace bool) *QueryStringQuery {
+	q.splitOnWhitespace = &splitOnWhitespace
 	return q
 }
 
@@ -353,6 +373,12 @@ func (q *QueryStringQuery) Source() (interface{}, error) {
 	}
 	if q.escape != nil {
 		query["escape"] = *q.escape
+	}
+	if q.splitOnWhitespace != nil {
+		query["split_on_whitespace"] = *q.splitOnWhitespace
+	}
+	if q.useAllFields != nil {
+		query["all_fields"] = *q.useAllFields
 	}
 
 	return source, nil
