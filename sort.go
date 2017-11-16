@@ -9,7 +9,7 @@ import "errors"
 // -- Sorter --
 
 // Sorter is an interface for sorting strategies, e.g. ScoreSort or FieldSort.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-request-sort.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html.
 type Sorter interface {
 	Source() (interface{}, error)
 }
@@ -23,6 +23,7 @@ type SortInfo struct {
 	Ascending      bool
 	Missing        interface{}
 	IgnoreUnmapped *bool
+	UnmappedType   string
 	SortMode       string
 	NestedFilter   Query
 	NestedPath     string
@@ -40,6 +41,9 @@ func (info SortInfo) Source() (interface{}, error) {
 	}
 	if info.IgnoreUnmapped != nil {
 		prop["ignore_unmapped"] = *info.IgnoreUnmapped
+	}
+	if info.UnmappedType != "" {
+		prop["unmapped_type"] = info.UnmappedType
 	}
 	if info.SortMode != "" {
 		prop["mode"] = info.SortMode
@@ -62,7 +66,7 @@ func (info SortInfo) Source() (interface{}, error) {
 // -- SortByDoc --
 
 // SortByDoc sorts by the "_doc" field, as described in
-// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-request-scroll.html.
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-scroll.html.
 //
 // Example:
 //   ss := elastic.NewSearchSource()
@@ -125,14 +129,13 @@ func (s *ScoreSort) Source() (interface{}, error) {
 // FieldSort sorts by a given field.
 type FieldSort struct {
 	Sorter
-	fieldName      string
-	ascending      bool
-	missing        interface{}
-	ignoreUnmapped *bool
-	unmappedType   *string
-	sortMode       *string
-	nestedFilter   Query
-	nestedPath     *string
+	fieldName    string
+	ascending    bool
+	missing      interface{}
+	unmappedType *string
+	sortMode     *string
+	nestedFilter Query
+	nestedPath   *string
 }
 
 // NewFieldSort creates a new FieldSort.
@@ -172,13 +175,6 @@ func (s *FieldSort) Desc() *FieldSort {
 // respectively.
 func (s *FieldSort) Missing(missing interface{}) *FieldSort {
 	s.missing = missing
-	return s
-}
-
-// IgnoreUnmapped specifies what happens if the field does not exist in
-// the index. Set it to true to ignore, or set it to false to not ignore (default).
-func (s *FieldSort) IgnoreUnmapped(ignoreUnmapped bool) *FieldSort {
-	s.ignoreUnmapped = &ignoreUnmapped
 	return s
 }
 
@@ -224,9 +220,6 @@ func (s *FieldSort) Source() (interface{}, error) {
 	if s.missing != nil {
 		x["missing"] = s.missing
 	}
-	if s.ignoreUnmapped != nil {
-		x["ignore_unmapped"] = *s.ignoreUnmapped
-	}
 	if s.unmappedType != nil {
 		x["unmapped_type"] = *s.unmappedType
 	}
@@ -249,13 +242,13 @@ func (s *FieldSort) Source() (interface{}, error) {
 // -- GeoDistanceSort --
 
 // GeoDistanceSort allows for sorting by geographic distance.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-request-sort.html#_geo_distance_sorting.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html#_geo_distance_sorting.
 type GeoDistanceSort struct {
 	Sorter
 	fieldName    string
 	points       []*GeoPoint
 	geohashes    []string
-	geoDistance  *string
+	distanceType *string
 	unit         string
 	ascending    bool
 	sortMode     *string
@@ -313,19 +306,24 @@ func (s *GeoDistanceSort) GeoHashes(geohashes ...string) *GeoDistanceSort {
 	return s
 }
 
-// GeoDistance represents how to compute the distance.
-// It can be sloppy_arc (default), arc, or plane.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-request-sort.html#_geo_distance_sorting.
-func (s *GeoDistanceSort) GeoDistance(geoDistance string) *GeoDistanceSort {
-	s.geoDistance = &geoDistance
-	return s
-}
-
 // Unit specifies the distance unit to use. It defaults to km.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/common-options.html#distance-units
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.6/common-options.html#distance-units
 // for details.
 func (s *GeoDistanceSort) Unit(unit string) *GeoDistanceSort {
 	s.unit = unit
+	return s
+}
+
+// GeoDistance is an alias for DistanceType.
+func (s *GeoDistanceSort) GeoDistance(geoDistance string) *GeoDistanceSort {
+	return s.DistanceType(geoDistance)
+}
+
+// DistanceType describes how to compute the distance, e.g. "arc" or "plane".
+// See https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html#geo-sorting
+// for details.
+func (s *GeoDistanceSort) DistanceType(distanceType string) *GeoDistanceSort {
+	s.distanceType = &distanceType
 	return s
 }
 
@@ -370,8 +368,8 @@ func (s *GeoDistanceSort) Source() (interface{}, error) {
 	if s.unit != "" {
 		x["unit"] = s.unit
 	}
-	if s.geoDistance != nil {
-		x["distance_type"] = *s.geoDistance
+	if s.distanceType != nil {
+		x["distance_type"] = *s.distanceType
 	}
 
 	if s.ascending {
@@ -398,7 +396,7 @@ func (s *GeoDistanceSort) Source() (interface{}, error) {
 // -- ScriptSort --
 
 // ScriptSort sorts by a custom script. See
-// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/modules-scripting.html#modules-scripting
+// https://www.elastic.co/guide/en/elasticsearch/reference/5.6/modules-scripting.html#modules-scripting
 // for details about scripting.
 type ScriptSort struct {
 	Sorter
