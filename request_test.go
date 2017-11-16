@@ -29,22 +29,7 @@ func BenchmarkRequestSetBodyString(b *testing.B) {
 	}
 	for i := 0; i < b.N; i++ {
 		body := `{"query":{"match_all":{}}}`
-		err = req.SetBody(body, false)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-	testReq = req
-}
-
-func BenchmarkRequestSetBodyStringGzip(b *testing.B) {
-	req, err := NewRequest("GET", "/")
-	if err != nil {
-		b.Fatal(err)
-	}
-	for i := 0; i < b.N; i++ {
-		body := `{"query":{"match_all":{}}}`
-		err = req.SetBody(body, true)
+		err = req.SetBody(body)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -59,22 +44,7 @@ func BenchmarkRequestSetBodyBytes(b *testing.B) {
 	}
 	for i := 0; i < b.N; i++ {
 		body := []byte(`{"query":{"match_all":{}}}`)
-		err = req.SetBody(body, false)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-	testReq = req
-}
-
-func BenchmarkRequestSetBodyBytesGzip(b *testing.B) {
-	req, err := NewRequest("GET", "/")
-	if err != nil {
-		b.Fatal(err)
-	}
-	for i := 0; i < b.N; i++ {
-		body := []byte(`{"query":{"match_all":{}}}`)
-		err = req.SetBody(body, true)
+		err = req.SetBody(body)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -93,26 +63,7 @@ func BenchmarkRequestSetBodyMap(b *testing.B) {
 				"match_all": map[string]interface{}{},
 			},
 		}
-		err = req.SetBody(body, false)
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-	testReq = req
-}
-
-func BenchmarkRequestSetBodyMapGzip(b *testing.B) {
-	req, err := NewRequest("GET", "/")
-	if err != nil {
-		b.Fatal(err)
-	}
-	for i := 0; i < b.N; i++ {
-		body := map[string]interface{}{
-			"query": map[string]interface{}{
-				"match_all": map[string]interface{}{},
-			},
-		}
-		err = req.SetBody(body, true)
+		err = req.SetBody(body)
 		if err != nil {
 			b.Fatal(err)
 		}
