@@ -159,11 +159,10 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Context Suggester
 - [x] Multi Search API
 - [x] Count API
-- [ ] Search Exists API
 - [ ] Validate API
 - [x] Explain API
 - [x] Profile API
-- [x] Field Stats API
+- [x] Field Capabilities API
 
 ### Aggregations
 
@@ -183,9 +182,11 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Top Hits
   - [x] Value Count
 - Bucket Aggregations
+  - [ ] Adjacency Matrix
   - [x] Children
   - [x] Date Histogram
   - [x] Date Range
+  - [ ] Diversified Sampler
   - [x] Filter
   - [x] Filters
   - [x] Geo Distance
@@ -199,6 +200,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Reverse Nested
   - [x] Sampler
   - [x] Significant Terms
+  - [x] Significant Text
   - [x] Terms
 - Pipeline Aggregations
   - [x] Avg Bucket

@@ -4,7 +4,7 @@
 
 package elastic
 
-// SignificantSignificantTermsAggregation is an aggregation that returns interesting
+// SignificantTermsAggregation is an aggregation that returns interesting
 // or unusual occurrences of terms in a set.
 // See: https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-bucket-significantterms-aggregation.html
 type SignificantTermsAggregation struct {
