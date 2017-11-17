@@ -354,6 +354,21 @@ func (r *BulkResponse) ByAction(action string) []*BulkResponseItem {
 	return items
 }
 
+func (r *BulkResponse) ByResultAction(resultAction string) []*BulkResponseItem {
+	if r.Items == nil {
+		return nil
+	}
+	var items []*BulkResponseItem
+	for _, item := range r.Items {
+		for _, result := range item {
+			if result.Result == resultAction {
+				items = append(items, result)
+			}
+		}
+	}
+	return items
+}
+
 // ById returns all bulk request results of a given document id,
 // regardless of the action ("index", "delete" etc.).
 func (r *BulkResponse) ById(id string) []*BulkResponseItem {
