@@ -354,6 +354,8 @@ func (r *BulkResponse) ByAction(action string) []*BulkResponseItem {
 	return items
 }
 
+// ByResultAction returns all bulk request results that triggered a certain CRUD operation,
+// e.g. "created", "updated", "noop"
 func (r *BulkResponse) ByResultAction(resultAction string) []*BulkResponseItem {
 	if r.Items == nil {
 		return nil
