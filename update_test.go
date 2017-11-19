@@ -38,7 +38,7 @@ func TestUpdateViaScript(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"script":{"lang":"groovy","params":{"tag":"blue"},"source":"ctx._source.tags += tag"}}`
+	expected := `{"script":{"inline":"ctx._source.tags += tag","lang":"groovy","params":{"tag":"blue"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
@@ -161,7 +161,7 @@ func TestUpdateViaScriptAndUpsert(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"script":{"params":{"count":4},"source":"ctx._source.counter += count"},"upsert":{"counter":1}}`
+	expected := `{"script":{"inline":"ctx._source.counter += count","params":{"count":4}},"upsert":{"counter":1}}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}

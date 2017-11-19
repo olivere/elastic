@@ -52,7 +52,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 				}),
 			Expected: []string{
 				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
-				`{"script":{"lang":"javascript","params":{"param1":42},"source":"ctx._source.retweets += param1"},"upsert":{"counter":42}}`,
+				`{"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}},"upsert":{"counter":42}}`,
 			},
 		},
 		// #3
@@ -80,7 +80,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 				}),
 			Expected: []string{
 				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
-				`{"script":{"lang":"javascript","params":{"param1":42},"source":"ctx._source.retweets += param1"},"scripted_upsert":true,"upsert":{"counter":42}}`,
+				`{"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}},"scripted_upsert":true,"upsert":{"counter":42}}`,
 			},
 		},
 	}

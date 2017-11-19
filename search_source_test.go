@@ -132,7 +132,7 @@ func TestSearchSourceScriptFields(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"query":{"match_all":{}},"script_fields":{"test1":{"script":{"source":"doc['my_field_name'].value * 2"}},"test2":{"script":{"params":{"factor":3.1415927},"source":"doc['my_field_name'].value * factor"}}}}`
+	expected := `{"query":{"match_all":{}},"script_fields":{"test1":{"script":{"inline":"doc['my_field_name'].value * 2"}},"test2":{"script":{"inline":"doc['my_field_name'].value * factor","params":{"factor":3.1415927}}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -232,7 +232,7 @@ func TestSearchSourceMixDifferentSorters(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"query":{"match_all":{}},"sort":[{"a":{"order":"desc"}},{"b":{"order":"asc"}},{"_script":{"order":"asc","script":{"params":{"factor":1.1},"source":"doc['field_name'].value * factor"},"type":"number"}}]}`
+	expected := `{"query":{"match_all":{}},"sort":[{"a":{"order":"desc"}},{"b":{"order":"asc"}},{"_script":{"order":"asc","script":{"inline":"doc['field_name'].value * factor","params":{"factor":1.1}},"type":"number"}}]}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

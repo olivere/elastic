@@ -86,9 +86,12 @@ func (s *Script) Params(params map[string]interface{}) *Script {
 func (s *Script) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
-	// In 5.6, the type can be "inline", "id", or "file".
+	// In 5.5 and earlier, the type can "inline", "id", or "file".
+	// In 5.6+, the type can be "source", "id", or "file".
+	// So we use "inline" here to keep compatibility with 5.5 and earlier.
+	// Notice that this will trigger a deprecation warning in 5.6.
 	if s.typ == "" || s.typ == "inline" {
-		source["source"] = s.script
+		source["inline"] = s.script
 	} else {
 		// "id" or "file"
 		source[s.typ] = s.script
