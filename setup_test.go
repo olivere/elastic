@@ -340,31 +340,6 @@ func setupTestClientAndCreateIndexAndLog(t logger, options ...ClientOptionFunc) 
 	return setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 }
 
-func setupTestClientAndCreateIndexAndAddDocsNoSource(t logger, options ...ClientOptionFunc) *Client {
-	client := setupTestClientAndCreateIndex(t, options...)
-
-	// Add tweets
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
-
-	_, err := client.Index().Index(testNoSourceIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = client.Index().Index(testNoSourceIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-	// Flush
-	_, err = client.Flush().Index(testNoSourceIndexName).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return client
-
-}
-
 func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFunc) *Client {
 	client := setupTestClientAndCreateIndex(t, options...)
 
@@ -416,6 +391,30 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	if err != nil {
 		t.Fatal(err)
 	}
+	return client
+}
+
+func setupTestClientAndCreateIndexAndAddDocsNoSource(t logger, options ...ClientOptionFunc) *Client {
+	client := setupTestClientAndCreateIndex(t, options...)
+
+	// Add tweets
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
+
+	_, err := client.Index().Index(testNoSourceIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Index().Index(testNoSourceIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Flush
+	_, err = client.Flush().Index(testNoSourceIndexName).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	return client
 }
 
