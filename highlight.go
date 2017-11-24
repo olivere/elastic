@@ -20,6 +20,7 @@ type Highlight struct {
 	requireFieldMatch     *bool
 	boundaryMaxScan       *int
 	boundaryChars         *string
+	boundaryScannerType   *string
 	highlighterType       *string
 	fragmenter            *string
 	highlightQuery        Query
@@ -103,6 +104,11 @@ func (hl *Highlight) BoundaryChars(boundaryChars string) *Highlight {
 	return hl
 }
 
+func (hl *Highlight) BoundaryScannerType(boundaryScannerType string) *Highlight {
+	hl.boundaryScannerType = &boundaryScannerType
+	return hl
+}
+
 func (hl *Highlight) HighlighterType(highlighterType string) *Highlight {
 	hl.highlighterType = &highlighterType
 	return hl
@@ -177,6 +183,9 @@ func (hl *Highlight) Source() (interface{}, error) {
 	}
 	if hl.boundaryChars != nil {
 		source["boundary_chars"] = *hl.boundaryChars
+	}
+	if hl.boundaryScannerType != nil {
+		source["boundary_scanner"] = *hl.boundaryScannerType
 	}
 	if hl.highlighterType != nil {
 		source["type"] = *hl.highlighterType
