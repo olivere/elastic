@@ -55,6 +55,48 @@ const (
 }
 `
 
+	testNoSourceIndexName = "elastic-nosource-test"
+	testNoSourceMapping   = `
+{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"doc":{
+			"_source": {
+				"enabled": false
+			},
+			"properties":{
+				"user":{
+					"type":"keyword"
+				},
+				"message":{
+					"type":"text",
+					"store": true,
+					"fielddata": true
+				},
+				"tags":{
+					"type":"keyword"
+				},
+				"location":{
+					"type":"geo_point"
+				},
+				"suggest_field":{
+					"type":"completion",
+					"contexts":[
+						{
+							"name":"user_name",
+							"type":"category"
+						}
+					]
+				}
+			}
+		}
+	}
+}
+`
+
 	testJoinIndex   = "elastic-joins"
 	testJoinMapping = `
 	{
@@ -244,6 +286,7 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 	client.DeleteIndex(testIndexName2).Do(context.TODO())
 	client.DeleteIndex(testIndexName3).Do(context.TODO())
 	client.DeleteIndex(testOrderIndex).Do(context.TODO())
+	client.DeleteIndex(testNoSourceIndexName).Do(context.TODO())
 	//client.DeleteIndex(testDoctypeIndex).Do(context.TODO())
 	client.DeleteIndex(testQueryIndex).Do(context.TODO())
 	client.DeleteIndex(testJoinIndex).Do(context.TODO())
@@ -272,6 +315,15 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 		t.Errorf("expected result to be != nil; got: %v", createIndex2)
 	}
 
+	// Create no source index
+	createNoSourceIndex, err := client.CreateIndex(testNoSourceIndexName).Body(testNoSourceMapping).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if createNoSourceIndex == nil {
+		t.Errorf("expected result to be != nil; got: %v", createNoSourceIndex)
+	}
+
 	// Create order index
 	createOrderIndex, err := client.CreateIndex(testOrderIndex).Body(testOrderMapping).Do(context.TODO())
 	if err != nil {
@@ -286,6 +338,31 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 
 func setupTestClientAndCreateIndexAndLog(t logger, options ...ClientOptionFunc) *Client {
 	return setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+}
+
+func setupTestClientAndCreateIndexAndAddDocsNoSource(t logger, options ...ClientOptionFunc) *Client {
+	client := setupTestClientAndCreateIndex(t, options...)
+
+	// Add tweets
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
+
+	_, err := client.Index().Index(testNoSourceIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Index().Index(testNoSourceIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Flush
+	_, err = client.Flush().Index(testNoSourceIndexName).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return client
+
 }
 
 func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFunc) *Client {

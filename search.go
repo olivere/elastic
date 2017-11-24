@@ -427,7 +427,8 @@ func (r *SearchResult) TotalHits() int64 {
 
 // Each is a utility function to iterate over all hits. It saves you from
 // checking for nil values. Notice that Each will ignore errors in
-// serializing JSON.
+// serializing JSON and hits with empty/nil _source will get an empty
+// value
 func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 	if r.Hits == nil || r.Hits.Hits == nil || len(r.Hits.Hits) == 0 {
 		return nil
@@ -435,6 +436,10 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 	var slice []interface{}
 	for _, hit := range r.Hits.Hits {
 		v := reflect.New(typ).Elem()
+		if hit.Source == nil {
+			slice = append(slice, v.Interface())
+			continue
+		}
 		if err := json.Unmarshal(*hit.Source, v.Addr().Interface()); err == nil {
 			slice = append(slice, v.Interface())
 		}
