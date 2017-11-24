@@ -195,6 +195,51 @@ func TestSearchResultEach(t *testing.T) {
 	}
 }
 
+func TestSearchResultEachNoSource(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocsNoSource(t)
+
+	all := NewMatchAllQuery()
+	searchResult, err := client.Search().Index(testIndexName).Type("tweet-nosource").Query(all).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Iterate over non-ptr type
+	var aTweet tweet
+	count := 0
+	for _, item := range searchResult.Each(reflect.TypeOf(aTweet)) {
+		count++
+		tw, ok := item.(tweet)
+		if !ok {
+			t.Fatalf("expected hit to be serialized as tweet; got: %v", reflect.ValueOf(item))
+		}
+
+		if tw.User != "" {
+			t.Fatalf("expected no _source hit to be empty tweet; got: %v", reflect.ValueOf(item))
+		}
+	}
+	if count != 2 {
+		t.Errorf("expected to find 2 hits; got: %d", count)
+	}
+
+	// Iterate over ptr-type
+	count = 0
+	var aTweetPtr *tweet
+	for _, item := range searchResult.Each(reflect.TypeOf(aTweetPtr)) {
+		count++
+		tw, ok := item.(*tweet)
+		if !ok {
+			t.Fatalf("expected hit to be serialized as tweet; got: %v", reflect.ValueOf(item))
+		}
+		if tw != nil {
+			t.Fatal("expected hit to be nil")
+		}
+	}
+	if count != 2 {
+		t.Errorf("expected to find 2 hits; got: %d", count)
+	}
+}
+
 func TestSearchSorting(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 

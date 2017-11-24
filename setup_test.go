@@ -92,6 +92,36 @@ const (
 					"type":	"percolator"
 				}
 			}
+		},
+		"tweet-nosource":{
+			"_source": {
+				"enabled": false
+			},
+			"properties":{
+				"user":{
+					"type":"keyword"
+				},
+				"message":{
+					"type":"text",
+					"store": true,
+					"fielddata": true
+				},
+				"tags":{
+					"type":"keyword"
+				},
+				"location":{
+					"type":"geo_point"
+				},
+				"suggest_field":{
+					"type":"completion",
+					"contexts":[
+						{
+							"name":"user_name",
+							"type":"category"
+						}
+					]
+				}
+			}
 		}
 	}
 }
@@ -254,6 +284,30 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	if err != nil {
 		t.Fatal(err)
 	}
+	return client
+}
+
+func setupTestClientAndCreateIndexAndAddDocsNoSource(t logger, options ...ClientOptionFunc) *Client {
+	client := setupTestClientAndCreateIndex(t, options...)
+
+	// Add tweets
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
+
+	_, err := client.Index().Index(testIndexName).Type("tweet-nosource").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = client.Index().Index(testIndexName).Type("tweet-nosource").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Flush
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	return client
 }
 

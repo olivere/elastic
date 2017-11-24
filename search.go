@@ -430,6 +430,10 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 	var slice []interface{}
 	for _, hit := range r.Hits.Hits {
 		v := reflect.New(typ).Elem()
+		if hit.Source == nil {
+			slice = append(slice, v.Interface())
+			continue
+		}
 		if err := json.Unmarshal(*hit.Source, v.Addr().Interface()); err == nil {
 			slice = append(slice, v.Interface())
 		}
