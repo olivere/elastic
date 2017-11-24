@@ -117,8 +117,10 @@ func TestHighlighterWithExplicitFieldOrder(t *testing.T) {
 	}
 }
 
-func TestHighlightWithBoundaryChars(t *testing.T) {
-	builder := NewHighlight().BoundaryChars(" \t\r")
+func TestHighlightWithBoundarySettings(t *testing.T) {
+	builder := NewHighlight().
+		BoundaryChars(" \t\r").
+		BoundaryScannerType("word")
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -128,7 +130,7 @@ func TestHighlightWithBoundaryChars(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"boundary_chars":" \t\r"}`
+	expected := `{"boundary_chars":" \t\r","boundary_scanner":"word"}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
