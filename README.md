@@ -48,10 +48,7 @@ import "github.com/olivere/elastic"
 
 ### Elastic 6.0
 
-Elastic 6.0 targets Elasticsearch 6.0.0 and later. Elasticsearch 6.0.0 isn't released
-yet, but we have
-[6.0.0-rc2](https://www.elastic.co/downloads/elasticsearch#preview-release)
-at the time of writing this ([docs and breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/6.0/release-notes-6.0.0-rc2.html)).
+Elastic 6.0 targets Elasticsearch 6.x which was [released on 14th November 2017](https://www.elastic.co/blog/elasticsearch-6-0-0-released).
 
 Notice that there are will be a lot of [breaking changes in Elasticsearch 6.0](https://www.elastic.co/guide/en/elasticsearch/reference/6.0/breaking-changes-6.0.html)
 and we used this as an opportunity to [clean up and refactor Elastic](https://github.com/olivere/elastic/blob/release-branch.v6/CHANGELOG-6.0.md)
