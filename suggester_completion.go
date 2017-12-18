@@ -13,6 +13,7 @@ type CompletionSuggester struct {
 	Suggester
 	name           string
 	text           string
+	regex          string
 	field          string
 	analyzer       string
 	size           *int
@@ -34,6 +35,13 @@ func (q *CompletionSuggester) Name() string {
 
 func (q *CompletionSuggester) Text(text string) *CompletionSuggester {
 	q.text = text
+	q.regex = ""
+	return q
+}
+
+func (q *CompletionSuggester) Regex(regex string) *CompletionSuggester {
+	q.regex = regex
+	q.text = ""
 	return q
 }
 
@@ -72,7 +80,8 @@ func (q *CompletionSuggester) ContextQueries(queries ...SuggesterContextQuery) *
 // We got into trouble when using plain maps because the text element
 // needs to go before the completion element.
 type completionSuggesterRequest struct {
-	Text       string      `json:"text"`
+	Text       string      `json:"text,omitempty"`
+	Regex      string      `json:"regex,omitempty"`
 	Completion interface{} `json:"completion"`
 }
 
@@ -82,6 +91,10 @@ func (q *CompletionSuggester) Source(includeName bool) (interface{}, error) {
 
 	if q.text != "" {
 		cs.Text = q.text
+	}
+
+	if q.regex != "" {
+		cs.Regex = q.regex
 	}
 
 	suggester := make(map[string]interface{})
