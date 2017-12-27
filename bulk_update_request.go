@@ -226,7 +226,7 @@ func (r *BulkUpdateRequest) Source() ([]string, error) {
 		updateCommand["_version_type"] = r.versionType
 	}
 	if r.retryOnConflict != nil {
-		updateCommand["_retry_on_conflict"] = *r.retryOnConflict
+		updateCommand["retry_on_conflict"] = *r.retryOnConflict
 	}
 	command["update"] = updateCommand
 	line, err := json.Marshal(command)

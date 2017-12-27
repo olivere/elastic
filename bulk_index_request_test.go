@@ -46,7 +46,7 @@ func TestBulkIndexRequestSerialization(t *testing.T) {
 			Request: NewBulkIndexRequest().OpType("index").Index("index1").Type("doc").Id("1").RetryOnConflict(42).
 				Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)}),
 			Expected: []string{
-				`{"index":{"_id":"1","_index":"index1","_retry_on_conflict":42,"_type":"doc"}}`,
+				`{"index":{"_id":"1","_index":"index1","retry_on_conflict":42,"_type":"doc"}}`,
 				`{"user":"olivere","message":"","retweets":0,"created":"2014-01-18T23:59:58Z"}`,
 			},
 		},
