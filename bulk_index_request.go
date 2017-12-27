@@ -183,7 +183,8 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 		indexCommand["_version_type"] = r.versionType
 	}
 	if r.retryOnConflict != nil {
-		indexCommand["_retry_on_conflict"] = *r.retryOnConflict
+		// It's _retry_on_conflict for 6.0 and retry_on_conflict for 6.1+
+		indexCommand["retry_on_conflict"] = *r.retryOnConflict
 	}
 	if r.ttl != "" {
 		indexCommand["_ttl"] = r.ttl
