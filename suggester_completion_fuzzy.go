@@ -4,12 +4,14 @@
 
 package elastic
 
-// FuzzyFuzzyCompletionSuggester is a FuzzyCompletionSuggester that allows fuzzy
+// FuzzyCompletionSuggester is a CompletionSuggester that allows fuzzy
 // completion.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-suggesters-completion.html
 // for details, and
 // https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-suggesters-completion.html#fuzzy
 // for details about the fuzzy completion suggester.
+//
+// @Deprecated Use CompletionSuggester with FuzzyOptions instead.
 type FuzzyCompletionSuggester struct {
 	Suggester
 	name           string
