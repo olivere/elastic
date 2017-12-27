@@ -279,10 +279,14 @@ func (s *IndexService) Do(ctx context.Context) (*IndexResponse, error) {
 
 // IndexResponse is the result of indexing a document in Elasticsearch.
 type IndexResponse struct {
-	// TODO _shards { total, failed, successful }
-	Index   string `json:"_index"`
-	Type    string `json:"_type"`
-	Id      string `json:"_id"`
-	Version int    `json:"_version"`
-	Created bool   `json:"created"`
+	Index         string      `json:"_index,omitempty"`
+	Type          string      `json:"_type,omitempty"`
+	Id            string      `json:"_id,omitempty"`
+	Version       int64       `json:"_version,omitempty"`
+	Result        string      `json:"result,omitempty"`
+	Shards        *shardsInfo `json:"_shards,omitempty"`
+	SeqNo         int64       `json:"_seq_no,omitempty"`
+	PrimaryTerm   int64       `json:"_primary_term,omitempty"`
+	Status        int         `json:"status,omitempty"`
+	ForcedRefresh bool        `json:"forced_refresh,omitempty"`
 }
