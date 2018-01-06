@@ -85,7 +85,7 @@ func TestTermSuggester(t *testing.T) {
 }
 
 func TestPhraseSuggester(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndexAndLog(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
@@ -149,6 +149,15 @@ func TestPhraseSuggester(t *testing.T) {
 	}
 	if mySuggestion.Length != 7 {
 		t.Errorf("expected Length = %d; got %d", 7, mySuggestion.Length)
+	}
+	if want, have := 1, len(mySuggestion.Options); want != have {
+		t.Errorf("expected len(options) = %d; got %d", want, have)
+	}
+	if want, have := "golang", mySuggestion.Options[0].Text; want != have {
+		t.Errorf("expected options[0].Text = %q; got %q", want, have)
+	}
+	if score := mySuggestion.Options[0].Score; score <= 0.0 {
+		t.Errorf("expected options[0].Score > 0.0; got %v", score)
 	}
 }
 
