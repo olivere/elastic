@@ -159,7 +159,7 @@ func (s *BulkService) NumberOfActions() int {
 }
 
 func (s *BulkService) bodyAsString() (string, error) {
-	var buf bytes.Buffer
+	buf := bytes.NewBuffer(make([]byte, 0, s.EstimatedSizeInBytes()))
 
 	for _, req := range s.requests {
 		source, err := req.Source()
