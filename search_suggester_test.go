@@ -85,7 +85,7 @@ func TestTermSuggester(t *testing.T) {
 }
 
 func TestPhraseSuggester(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndLog(t)
+	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
