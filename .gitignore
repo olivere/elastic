@@ -22,6 +22,7 @@ _testmain.go
 *.exe
 
 /.vscode/
+/debug.test
 /generator
 /cluster-test/cluster-test
 /cluster-test/*.log
