@@ -535,13 +535,13 @@ func TestBulkContentType(t *testing.T) {
 }
 
 func BenchmarkBulkAllocs(b *testing.B) {
-	b.Run("1000 docs with 64b", func(b *testing.B) { benchmarkBulkAllocs(b, 64, 1000) })
-	b.Run("1000 docs with 1kB", func(b *testing.B) { benchmarkBulkAllocs(b, 1024, 1000) })
-	b.Run("1000 docs with 4kB", func(b *testing.B) { benchmarkBulkAllocs(b, 4096, 1000) })
-	b.Run("1000 docs with 16kB", func(b *testing.B) { benchmarkBulkAllocs(b, 16*1024, 1000) })
-	b.Run("1000 docs with 64kB", func(b *testing.B) { benchmarkBulkAllocs(b, 64*1024, 1000) })
-	b.Run("1000 docs with 256kB", func(b *testing.B) { benchmarkBulkAllocs(b, 256*1024, 1000) })
-	b.Run("1000 docs with 1MB", func(b *testing.B) { benchmarkBulkAllocs(b, 1024*1024, 1000) })
+	b.Run("1000 docs with 64 byte", func(b *testing.B) { benchmarkBulkAllocs(b, 64, 1000) })
+	b.Run("1000 docs with 1 KiB", func(b *testing.B) { benchmarkBulkAllocs(b, 1024, 1000) })
+	b.Run("1000 docs with 4 KiB", func(b *testing.B) { benchmarkBulkAllocs(b, 4096, 1000) })
+	b.Run("1000 docs with 16 KiB", func(b *testing.B) { benchmarkBulkAllocs(b, 16*1024, 1000) })
+	b.Run("1000 docs with 64 KiB", func(b *testing.B) { benchmarkBulkAllocs(b, 64*1024, 1000) })
+	b.Run("1000 docs with 256 KiB", func(b *testing.B) { benchmarkBulkAllocs(b, 256*1024, 1000) })
+	b.Run("1000 docs with 1 MiB", func(b *testing.B) { benchmarkBulkAllocs(b, 1024*1024, 1000) })
 }
 
 const (
