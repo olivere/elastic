@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -537,4 +538,43 @@ func TestBulkContentType(t *testing.T) {
 	if want, have := "application/x-ndjson", header.Get("Content-Type"); want != have {
 		t.Fatalf("Content-Type: want %q, have %q", want, have)
 	}
+}
+
+func BenchmarkBulkAllocs(b *testing.B) {
+	b.Run("1000 docs with 64b", func(b *testing.B) { benchmarkBulkAllocs(b, 64, 1000) })
+	b.Run("1000 docs with 1kB", func(b *testing.B) { benchmarkBulkAllocs(b, 1024, 1000) })
+	b.Run("1000 docs with 4kB", func(b *testing.B) { benchmarkBulkAllocs(b, 4096, 1000) })
+	b.Run("1000 docs with 16kB", func(b *testing.B) { benchmarkBulkAllocs(b, 16*1024, 1000) })
+	b.Run("1000 docs with 64kB", func(b *testing.B) { benchmarkBulkAllocs(b, 64*1024, 1000) })
+	b.Run("1000 docs with 256kB", func(b *testing.B) { benchmarkBulkAllocs(b, 256*1024, 1000) })
+	b.Run("1000 docs with 1MB", func(b *testing.B) { benchmarkBulkAllocs(b, 1024*1024, 1000) })
+}
+
+const (
+	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
+)
+
+func benchmarkBulkAllocs(b *testing.B, size, num int) {
+	buf := make([]byte, size)
+	for i := range buf {
+		buf[i] = charset[rand.Intn(len(charset))]
+	}
+
+	s := &BulkService{}
+	n := 0
+	for {
+		n++
+		s = s.Add(NewBulkIndexRequest().Index("test").Type("doc").Id("1").Doc(struct {
+			S string `json:"s"`
+		}{
+			S: string(buf),
+		}))
+		if n >= num {
+			break
+		}
+	}
+	for i := 0; i < b.N; i++ {
+		s.bodyAsString()
+	}
+	b.ReportAllocs()
 }
