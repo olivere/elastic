@@ -121,3 +121,48 @@ func TestRetrierWithError(t *testing.T) {
 		t.Errorf("expected %d Retrier calls; got: %d", 1, retrier.N)
 	}
 }
+
+func TestRetrierOnPerformRequest(t *testing.T) {
+	var numFailedReqs int
+	fail := func(r *http.Request) (*http.Response, error) {
+		numFailedReqs += 1
+		//return &http.Response{Request: r, StatusCode: 400}, nil
+		return nil, errors.New("request failed")
+	}
+
+	tr := &failingTransport{path: "/fail", fail: fail}
+	httpClient := &http.Client{Transport: tr}
+
+	defaultRetrier := &testRetrier{
+		Retrier: NewStopRetrier(),
+	}
+	requestRetrier := &testRetrier{
+		Retrier: NewStopRetrier(),
+	}
+
+	client, err := NewClient(
+		SetHttpClient(httpClient),
+		SetHealthcheck(false),
+		SetRetrier(defaultRetrier))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := client.PerformRequestWithOptions(context.TODO(), PerformRequestOptions{
+		Method:  "GET",
+		Path:    "/fail",
+		Retrier: requestRetrier,
+	})
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if res != nil {
+		t.Fatal("expected no response")
+	}
+	if want, have := int64(0), defaultRetrier.N; want != have {
+		t.Errorf("defaultRetrier: expected %d calls; got: %d", want, have)
+	}
+	if want, have := int64(1), requestRetrier.N; want != have {
+		t.Errorf("requestRetrier: expected %d calls; got: %d", want, have)
+	}
+}
