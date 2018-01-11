@@ -43,7 +43,7 @@
       for the
       <a href="https://golang.org/">Go programming language</a>.
       We use it in production since 2012.
-      It supports Elasticsearch versions 1.x, 2.x and 5.x.
+      It supports Elasticsearch versions 1.x, 2.x, 5.x and 6.0.
     </p>
     <p>
       The code is MIT licensed and hosted on
@@ -70,6 +70,14 @@
         </tr>
       </thead>
       <tbody>
+        <tr>
+          <td>6.x</td>
+          <td>6.0</td>
+          <td>
+            <a href="https://github.com/olivere/elastic">github.com/olivere/elastic</a>
+             (<a href="https://github.com/olivere/elastic/tree/release-branch.v6">source</a>&nbsp;&bull;&nbsp;<a href="http://godoc.org/gopkg.in/olivere/elastic.v5">docs</a>&nbsp;&bull;&nbsp;<a href="https://github.com/olivere/elastic/blob/release-branch.v6/CHANGELOG-6.0.md">changelog</a>)
+          </td>
+        </tr>
         <tr>
           <td>5.x</td>
           <td>5.0</td>
@@ -116,20 +124,26 @@
     </p>
     <h5>Notice</h5>
     <p>
-      The <a href="https://github.com/olivere/elastic/">master branch</a>
-      always refers to the latest version of Elastic.
-      If you want to use stable versions of Elastic, you should use the
-      packages published via <a href="https://gopkg.in/">gopkg.in</a> as
+      The <a href="https://github.com/olivere/elastic/">github.com/olivere/elastic</a>
+      page always refers to the latest version of Elastic.
+			If you want to use stable versions of Elastic, you should use a tagged
+			version. Starting from Elastic 6.0, we tag released directly on
+			<code>github.com/olivere/elastic</code>. You can use e.g.
+			<a href="https://github.com/golang/dep">dep</a> to target a specific version of Elastic 6.x.
+		</p>
+		<p>
+			Earlier versions of Elastic (5.x and earlier) published
+      packages via <a href="https://gopkg.in/">gopkg.in</a> as
       described above.
     </p>
   </section>
   <section id="getting-started">
     <h4>Getting Started</h4>
     <p>
-      The following code targets Elasticsearch 5.x and uses Elastic 5.0.
-      To use Elastic 5.0 in your Go project, first <code>go get</code> it:
+      The following code targets Elasticsearch 6.x and uses Elastic 6.0.
+      To use Elastic 6.0 in your Go project, first <code>go get</code> it:
     </p>
-    <pre class="code-example"><code class="code-example-body prettyprint">go get gopkg.in/olivere/elastic.v5
+    <pre class="code-example"><code class="code-example-body prettyprint">go get github.com/olivere/elastic
 </code></pre>
     <p>
       Then start using it in your code. Here's a complete example:
@@ -143,7 +157,7 @@ import (
 	"reflect"
 	"time"
 
-	elastic "gopkg.in/olivere/elastic.v5"
+	"github.com/olivere/elastic"
 )
 
 // Tweet is a structure used for serializing/deserializing data in Elasticsearch.
