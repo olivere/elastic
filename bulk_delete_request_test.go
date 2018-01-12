@@ -58,11 +58,22 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 var bulkDeleteRequestSerializationResult string
 
 func BenchmarkBulkDeleteRequestSerialization(b *testing.B) {
-	r := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
+	b.Run("stdlib", func(b *testing.B) {
+		r := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
+		benchmarkBulkDeleteRequestSerialization(b, r.UseEasyJSON(false))
+	})
+	b.Run("easyjson", func(b *testing.B) {
+		r := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
+		benchmarkBulkDeleteRequestSerialization(b, r.UseEasyJSON(true))
+	})
+}
+
+func benchmarkBulkDeleteRequestSerialization(b *testing.B, r *BulkDeleteRequest) {
 	var s string
 	for n := 0; n < b.N; n++ {
 		s = r.String()
 		r.source = nil // Don't let caching spoil the benchmark
 	}
 	bulkDeleteRequestSerializationResult = s // ensure the compiler doesn't optimize
+	b.ReportAllocs()
 }

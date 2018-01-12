@@ -36,7 +36,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 					Counter: 42,
 				}),
 			Expected: []string{
-				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
+				`{"update":{"_id":"1","_index":"index1","_type":"tweet","_retry_on_conflict":3}}`,
 				`{"doc":{"counter":42},"doc_as_upsert":true}`,
 			},
 		},
@@ -51,8 +51,8 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 					Counter: 42,
 				}),
 			Expected: []string{
-				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
-				`{"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}},"upsert":{"counter":42}}`,
+				`{"update":{"_id":"1","_index":"index1","_type":"tweet","_retry_on_conflict":3}}`,
+				`{"upsert":{"counter":42},"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}}}`,
 			},
 		},
 		// #3
@@ -79,8 +79,8 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 					Counter: 42,
 				}),
 			Expected: []string{
-				`{"update":{"_id":"1","_index":"index1","_retry_on_conflict":3,"_type":"tweet"}}`,
-				`{"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}},"scripted_upsert":true,"upsert":{"counter":42}}`,
+				`{"update":{"_id":"1","_index":"index1","_type":"tweet","_retry_on_conflict":3}}`,
+				`{"upsert":{"counter":42},"script":{"inline":"ctx._source.retweets += param1","lang":"javascript","params":{"param1":42}},"scripted_upsert":true}`,
 			},
 		},
 	}
@@ -107,15 +107,30 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 var bulkUpdateRequestSerializationResult string
 
 func BenchmarkBulkUpdateRequestSerialization(b *testing.B) {
-	r := NewBulkUpdateRequest().Index("index1").Type("tweet").Id("1").Doc(struct {
-		Counter int64 `json:"counter"`
-	}{
-		Counter: 42,
+	b.Run("stdlib", func(b *testing.B) {
+		r := NewBulkUpdateRequest().Index("index1").Type("doc").Id("1").Doc(struct {
+			Counter int64 `json:"counter"`
+		}{
+			Counter: 42,
+		})
+		benchmarkBulkUpdateRequestSerialization(b, r.UseEasyJSON(false))
 	})
+	b.Run("easyjson", func(b *testing.B) {
+		r := NewBulkUpdateRequest().Index("index1").Type("doc").Id("1").Doc(struct {
+			Counter int64 `json:"counter"`
+		}{
+			Counter: 42,
+		}).UseEasyJSON(false)
+		benchmarkBulkUpdateRequestSerialization(b, r.UseEasyJSON(true))
+	})
+}
+
+func benchmarkBulkUpdateRequestSerialization(b *testing.B, r *BulkUpdateRequest) {
 	var s string
 	for n := 0; n < b.N; n++ {
 		s = r.String()
 		r.source = nil // Don't let caching spoil the benchmark
 	}
 	bulkUpdateRequestSerializationResult = s // ensure the compiler doesn't optimize
+	b.ReportAllocs()
 }

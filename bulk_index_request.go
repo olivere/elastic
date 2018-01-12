@@ -4,6 +4,8 @@
 
 package elastic
 
+//go:generate easyjson bulk_index_request.go
+
 import (
 	"encoding/json"
 	"fmt"
@@ -30,6 +32,25 @@ type BulkIndexRequest struct {
 	ttl             string
 
 	source []string
+
+	useEasyJSON bool
+}
+
+//easyjson:json
+type bulkIndexRequestCommand map[string]bulkIndexRequestCommandOp
+
+//easyjson:json
+type bulkIndexRequestCommandOp struct {
+	Id              string `json:"_id,omitempty"`
+	Index           string `json:"_index,omitempty"`
+	TTL             string `json:"_ttl,omitempty"`
+	Type            string `json:"_type,omitempty"`
+	Parent          string `json:"_parent,omitempty"`
+	RetryOnConflict *int   `json:"_retry_on_conflict,omitempty"`
+	Routing         string `json:"_routing,omitempty"`
+	Version         int64  `json:"_version,omitempty"`
+	VersionType     string `json:"_version_type,omitempty"`
+	Pipeline        string `json:"pipeline,omitempty"`
 }
 
 // NewBulkIndexRequest returns a new BulkIndexRequest.
@@ -38,6 +59,16 @@ func NewBulkIndexRequest() *BulkIndexRequest {
 	return &BulkIndexRequest{
 		opType: "index",
 	}
+}
+
+// UseEasyJSON is an experimental setting that enables serialization
+// with github.com/mailru/easyjson, which should in faster serialization
+// time and less allocations, but removed compatibility with encoding/json,
+// usage of unsafe etc. See https://github.com/mailru/easyjson#issues-notes-and-limitations
+// for details. This setting is disabled by default.
+func (r *BulkIndexRequest) UseEasyJSON(enable bool) *BulkIndexRequest {
+	r.useEasyJSON = enable
+	return r
 }
 
 // Index specifies the Elasticsearch index to use for this index request.
@@ -159,44 +190,36 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 	lines := make([]string, 2)
 
 	// "index" ...
-	command := make(map[string]interface{})
-	indexCommand := make(map[string]interface{})
-	if r.index != "" {
-		indexCommand["_index"] = r.index
+	indexCommand := bulkIndexRequestCommandOp{
+		Index:           r.index,
+		Type:            r.typ,
+		Id:              r.id,
+		Routing:         r.routing,
+		Parent:          r.parent,
+		Version:         r.version,
+		VersionType:     r.versionType,
+		RetryOnConflict: r.retryOnConflict,
+		TTL:             r.ttl,
+		Pipeline:        r.pipeline,
 	}
-	if r.typ != "" {
-		indexCommand["_type"] = r.typ
+	command := bulkIndexRequestCommand{
+		r.opType: indexCommand,
 	}
-	if r.id != "" {
-		indexCommand["_id"] = r.id
+
+	var err error
+	var body []byte
+	if r.useEasyJSON {
+		// easyjson
+		body, err = command.MarshalJSON()
+	} else {
+		// encoding/json
+		body, err = json.Marshal(command)
 	}
-	if r.routing != "" {
-		indexCommand["_routing"] = r.routing
-	}
-	if r.parent != "" {
-		indexCommand["_parent"] = r.parent
-	}
-	if r.version > 0 {
-		indexCommand["_version"] = r.version
-	}
-	if r.versionType != "" {
-		indexCommand["_version_type"] = r.versionType
-	}
-	if r.retryOnConflict != nil {
-		indexCommand["_retry_on_conflict"] = *r.retryOnConflict
-	}
-	if r.ttl != "" {
-		indexCommand["_ttl"] = r.ttl
-	}
-	if r.pipeline != "" {
-		indexCommand["pipeline"] = r.pipeline
-	}
-	command[r.opType] = indexCommand
-	line, err := json.Marshal(command)
 	if err != nil {
 		return nil, err
 	}
-	lines[0] = string(line)
+
+	lines[0] = string(body)
 
 	// "field1" ...
 	if r.doc != nil {

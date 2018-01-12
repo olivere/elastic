@@ -4,6 +4,8 @@
 
 package elastic
 
+//go:generate easyjson bulk_delete_request.go
+
 import (
 	"encoding/json"
 	"fmt"
@@ -27,11 +29,37 @@ type BulkDeleteRequest struct {
 	versionType string // default is "internal"
 
 	source []string
+
+	useEasyJSON bool
+}
+
+//easyjson:json
+type bulkDeleteRequestCommand map[string]bulkDeleteRequestCommandOp
+
+//easyjson:json
+type bulkDeleteRequestCommandOp struct {
+	Id          string `json:"_id,omitempty"`
+	Index       string `json:"_index,omitempty"`
+	Parent      string `json:"_parent,omitempty"`
+	Routing     string `json:"_routing,omitempty"`
+	Type        string `json:"_type,omitempty"`
+	Version     int64  `json:"_version,omitempty"`
+	VersionType string `json:"_version_type,omitempty"`
 }
 
 // NewBulkDeleteRequest returns a new BulkDeleteRequest.
 func NewBulkDeleteRequest() *BulkDeleteRequest {
 	return &BulkDeleteRequest{}
+}
+
+// UseEasyJSON is an experimental setting that enables serialization
+// with github.com/mailru/easyjson, which should in faster serialization
+// time and less allocations, but removed compatibility with encoding/json,
+// usage of unsafe etc. See https://github.com/mailru/easyjson#issues-notes-and-limitations
+// for details. This setting is disabled by default.
+func (r *BulkDeleteRequest) UseEasyJSON(enable bool) *BulkDeleteRequest {
+	r.useEasyJSON = enable
+	return r
 }
 
 // Index specifies the Elasticsearch index to use for this delete request.
@@ -106,39 +134,32 @@ func (r *BulkDeleteRequest) Source() ([]string, error) {
 	if r.source != nil {
 		return r.source, nil
 	}
-	lines := make([]string, 1)
+	command := bulkDeleteRequestCommand{
+		"delete": bulkDeleteRequestCommandOp{
+			Index:       r.index,
+			Type:        r.typ,
+			Id:          r.id,
+			Routing:     r.routing,
+			Parent:      r.parent,
+			Version:     r.version,
+			VersionType: r.versionType,
+		},
+	}
 
-	source := make(map[string]interface{})
-	deleteCommand := make(map[string]interface{})
-	if r.index != "" {
-		deleteCommand["_index"] = r.index
+	var err error
+	var body []byte
+	if r.useEasyJSON {
+		// easyjson
+		body, err = command.MarshalJSON()
+	} else {
+		// encoding/json
+		body, err = json.Marshal(command)
 	}
-	if r.typ != "" {
-		deleteCommand["_type"] = r.typ
-	}
-	if r.id != "" {
-		deleteCommand["_id"] = r.id
-	}
-	if r.parent != "" {
-		deleteCommand["_parent"] = r.parent
-	}
-	if r.routing != "" {
-		deleteCommand["_routing"] = r.routing
-	}
-	if r.version > 0 {
-		deleteCommand["_version"] = r.version
-	}
-	if r.versionType != "" {
-		deleteCommand["_version_type"] = r.versionType
-	}
-	source["delete"] = deleteCommand
-
-	body, err := json.Marshal(source)
 	if err != nil {
 		return nil, err
 	}
 
-	lines[0] = string(body)
+	lines := []string{string(body)}
 	r.source = lines
 
 	return lines, nil

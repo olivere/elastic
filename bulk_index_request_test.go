@@ -46,7 +46,7 @@ func TestBulkIndexRequestSerialization(t *testing.T) {
 			Request: NewBulkIndexRequest().OpType("index").Index("index1").Type("tweet").Id("1").RetryOnConflict(42).
 				Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)}),
 			Expected: []string{
-				`{"index":{"_id":"1","_index":"index1","_retry_on_conflict":42,"_type":"tweet"}}`,
+				`{"index":{"_id":"1","_index":"index1","_type":"tweet","_retry_on_conflict":42}}`,
 				`{"user":"olivere","message":"","retweets":0,"created":"2014-01-18T23:59:58Z"}`,
 			},
 		},
@@ -92,12 +92,24 @@ func TestBulkIndexRequestSerialization(t *testing.T) {
 var bulkIndexRequestSerializationResult string
 
 func BenchmarkBulkIndexRequestSerialization(b *testing.B) {
-	r := NewBulkIndexRequest().Index(testIndexName).Type("tweet").Id("1").
-		Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)})
+	b.Run("stdlib", func(b *testing.B) {
+		r := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").
+			Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)})
+		benchmarkBulkIndexRequestSerialization(b, r.UseEasyJSON(false))
+	})
+	b.Run("easyjson", func(b *testing.B) {
+		r := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").
+			Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)})
+		benchmarkBulkIndexRequestSerialization(b, r.UseEasyJSON(true))
+	})
+}
+
+func benchmarkBulkIndexRequestSerialization(b *testing.B, r *BulkIndexRequest) {
 	var s string
 	for n := 0; n < b.N; n++ {
 		s = r.String()
 		r.source = nil // Don't let caching spoil the benchmark
 	}
 	bulkIndexRequestSerializationResult = s // ensure the compiler doesn't optimize
+	b.ReportAllocs()
 }
