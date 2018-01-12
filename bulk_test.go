@@ -228,12 +228,12 @@ func TestBulkRequestsSerialization(t *testing.T) {
 		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 4, bulkRequest.NumberOfActions())
 	}
 
-	expected := `{"index":{"_id":"1","_index":"` + testIndexName + `","_type":"doc"}}
+	expected := `{"index":{"_index":"` + testIndexName + `","_id":"1","_type":"doc"}}
 {"user":"olivere","message":"Welcome to Golang and Elasticsearch.","retweets":0,"created":"0001-01-01T00:00:00Z"}
-{"create":{"_id":"2","_index":"` + testIndexName + `","_type":"doc"}}
+{"create":{"_index":"` + testIndexName + `","_id":"2","_type":"doc"}}
 {"user":"sandrae","message":"Dancing all night long. Yeah.","retweets":0,"created":"0001-01-01T00:00:00Z"}
-{"delete":{"_id":"1","_index":"` + testIndexName + `","_type":"doc"}}
-{"update":{"_id":"2","_index":"` + testIndexName + `","_type":"doc"}}
+{"delete":{"_index":"` + testIndexName + `","_type":"doc","_id":"1"}}
+{"update":{"_index":"` + testIndexName + `","_type":"doc","_id":"2"}}
 {"doc":{"retweets":42}}
 `
 	got, err := bulkRequest.bodyAsString()

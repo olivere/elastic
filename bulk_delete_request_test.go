@@ -17,21 +17,21 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 		{
 			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1"),
 			Expected: []string{
-				`{"delete":{"_id":"1","_index":"index1","_type":"doc"}}`,
+				`{"delete":{"_index":"index1","_type":"doc","_id":"1"}}`,
 			},
 		},
 		// #1
 		{
 			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1").Parent("2"),
 			Expected: []string{
-				`{"delete":{"_id":"1","_index":"index1","_parent":"2","_type":"doc"}}`,
+				`{"delete":{"_index":"index1","_type":"doc","_id":"1","_parent":"2"}}`,
 			},
 		},
 		// #2
 		{
 			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1").Routing("3"),
 			Expected: []string{
-				`{"delete":{"_id":"1","_index":"index1","_routing":"3","_type":"doc"}}`,
+				`{"delete":{"_index":"index1","_type":"doc","_id":"1","_routing":"3"}}`,
 			},
 		},
 	}
@@ -58,11 +58,22 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 var bulkDeleteRequestSerializationResult string
 
 func BenchmarkBulkDeleteRequestSerialization(b *testing.B) {
-	r := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
+	b.Run("stdlib", func(b *testing.B) {
+		r := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
+		benchmarkBulkDeleteRequestSerialization(b, r.UseEasyJSON(false))
+	})
+	b.Run("easyjson", func(b *testing.B) {
+		r := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
+		benchmarkBulkDeleteRequestSerialization(b, r.UseEasyJSON(true))
+	})
+}
+
+func benchmarkBulkDeleteRequestSerialization(b *testing.B, r *BulkDeleteRequest) {
 	var s string
 	for n := 0; n < b.N; n++ {
 		s = r.String()
 		r.source = nil // Don't let caching spoil the benchmark
 	}
 	bulkDeleteRequestSerializationResult = s // ensure the compiler doesn't optimize
+	b.ReportAllocs()
 }
