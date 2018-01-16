@@ -1559,6 +1559,11 @@ func (c *Client) IndexPutSettings(indices ...string) *IndicesPutSettingsService 
 	return NewIndicesPutSettingsService(c).Index(indices...)
 }
 
+// IndexSegments retrieves low level segment information for all, one or more indices.
+func (c *Client) IndexSegments(indices ...string) *IndicesSegmentsService {
+	return NewIndicesSegmentsService(c).Index(indices...)
+}
+
 // IndexAnalyze performs the analysis process on a text and returns the
 // token breakdown of the text.
 func (c *Client) IndexAnalyze() *IndicesAnalyzeService {
