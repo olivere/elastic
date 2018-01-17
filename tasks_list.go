@@ -21,7 +21,7 @@ import (
 type TasksListService struct {
 	client            *Client
 	pretty            bool
-	taskId            []int64
+	taskId            []string
 	actions           []string
 	detailed          *bool
 	nodeId            []string
@@ -34,14 +34,14 @@ type TasksListService struct {
 func NewTasksListService(client *Client) *TasksListService {
 	return &TasksListService{
 		client:  client,
-		taskId:  make([]int64, 0),
+		taskId:  make([]string, 0),
 		actions: make([]string, 0),
 		nodeId:  make([]string, 0),
 	}
 }
 
 // TaskId indicates to returns the task(s) with specified id(s).
-func (s *TasksListService) TaskId(taskId ...int64) *TasksListService {
+func (s *TasksListService) TaskId(taskId ...string) *TasksListService {
 	s.taskId = append(s.taskId, taskId...)
 	return s
 }
