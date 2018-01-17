@@ -614,6 +614,9 @@ func (s *DeleteByQueryService) Do(ctx context.Context) (*BulkIndexByScrollRespon
 // BulkIndexByScrollResponse is the outcome of executing Do with
 // DeleteByQueryService and UpdateByQueryService.
 type BulkIndexByScrollResponse struct {
+	// WaitForCompletion == false
+	TaskID           string `json:"task"`
+	// WaitForCompletion == true
 	Took             int64  `json:"took"`
 	SliceId          *int64 `json:"slice_id,omitempty"`
 	TimedOut         bool   `json:"timed_out"`
