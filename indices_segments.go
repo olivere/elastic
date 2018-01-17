@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"gopkg.in/olivere/elastic.v6/uritemplates"
 )
 
 // IndicesSegmentsService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.x/indices-segments.html.
@@ -134,7 +134,11 @@ func (s *IndicesSegmentsService) Do(ctx context.Context) (*IndicesSegmentsRespon
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "GET",
+		Path:   path,
+		Params: params,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -180,13 +184,14 @@ type IndexSegmentsRouting struct {
 }
 
 type IndexSegmentsDetails struct {
-	Generation    int64  `json:"generation,omitempty"`
-	NumDocs       int64  `json:"num_docs,omitempty"`
-	DeletedDocs   int64  `json:"deleted_docs,omitempty"`
-	SizeInBytes   int64  `json:"size_in_bytes,omitempty"`
-	MemoryInBytes int64  `json:"memory_in_bytes,omitempty"`
-	Committed     bool   `json:"committed,omitempty"`
-	Search        bool   `json:"search,omitempty"`
-	Version       string `json:"version,omitempty"`
-	Compound      bool   `json:"compound,omitempty"`
+	Generation    int64             `json:"generation,omitempty"`
+	NumDocs       int64             `json:"num_docs,omitempty"`
+	DeletedDocs   int64             `json:"deleted_docs,omitempty"`
+	SizeInBytes   int64             `json:"size_in_bytes,omitempty"`
+	MemoryInBytes int64             `json:"memory_in_bytes,omitempty"`
+	Committed     bool              `json:"committed,omitempty"`
+	Search        bool              `json:"search,omitempty"`
+	Version       string            `json:"version,omitempty"`
+	Compound      bool              `json:"compound,omitempty"`
+	Attributes    map[string]string `json:"attributes,omitempty"`
 }

@@ -79,4 +79,7 @@ func TestIndexSegments(t *testing.T) {
 	if segmentDetail.NumDocs == 0 {
 		t.Fatal("expected segment to contain >= 1 docs")
 	}
+	if len(segmentDetail.Attributes) == 0 {
+		t.Fatal("expected segment attributes map to contain at least one key, value pair for index %v", testIndexName)
+	}
 }
