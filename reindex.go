@@ -287,6 +287,9 @@ func (s *ReindexService) DoC(ctx context.Context) (*ReindexResponse, error) {
 
 // ReindexResponse is the response of ReindexService.Do.
 type ReindexResponse struct {
+	// WaitForCompletion === false
+	TaskID           string                  `json:"task"`
+	// WaitForCompletion == true
 	Took             interface{}             `json:"took"` // 2.3.0 returns "37.7ms" while 2.2 returns 38 for took
 	TimedOut         bool                    `json:"timed_out"`
 	Total            int64                   `json:"total"`
