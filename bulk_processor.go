@@ -29,29 +29,29 @@ import (
 // Elasticsearch Java API as documented in
 // https://www.elastic.co/guide/en/elasticsearch/client/java-api/current/java-docs-bulk-processor.html.
 type BulkProcessorService struct {
-	c              *Client
-	beforeFn       BulkBeforeFunc
-	afterFn        BulkAfterFunc
-	name           string        // name of processor
-	numWorkers     int           // # of workers (>= 1)
-	bulkActions    int           // # of requests after which to commit
-	bulkSize       int           // # of bytes after which to commit
-	flushInterval  time.Duration // periodic flush interval
-	wantStats      bool          // indicates whether to gather statistics
-	backoff        Backoff       // a custom Backoff to use for errors
+	c             *Client
+	beforeFn      BulkBeforeFunc
+	afterFn       BulkAfterFunc
+	name          string        // name of processor
+	numWorkers    int           // # of workers (>= 1)
+	bulkActions   int           // # of requests after which to commit
+	bulkSize      int           // # of bytes after which to commit
+	flushInterval time.Duration // periodic flush interval
+	wantStats     bool          // indicates whether to gather statistics
+	backoff       Backoff       // a custom Backoff to use for errors
 }
 
 // NewBulkProcessorService creates a new BulkProcessorService.
 func NewBulkProcessorService(client *Client) *BulkProcessorService {
 	return &BulkProcessorService{
-		c:              client,
-		numWorkers:     1,
-		bulkActions:    1000,
-		bulkSize:       5 << 20, // 5 MB
-		backoff:        NewExponentialBackoff(
-			                time.Duration(200) * time.Millisecond,
-					time.Duration(10000) * time.Millisecond,
-				),
+		c:           client,
+		numWorkers:  1,
+		bulkActions: 1000,
+		bulkSize:    5 << 20, // 5 MB
+		backoff: NewExponentialBackoff(
+			time.Duration(200)*time.Millisecond,
+			time.Duration(10000)*time.Millisecond,
+		),
 	}
 }
 
@@ -227,21 +227,21 @@ func (st *BulkProcessorWorkerStats) dup() *BulkProcessorWorkerStats {
 // BulkProcessor is returned by setting up a BulkProcessorService and
 // calling the Do method.
 type BulkProcessor struct {
-	c              *Client
-	beforeFn       BulkBeforeFunc
-	afterFn        BulkAfterFunc
-	name           string
-	bulkActions    int
-	bulkSize       int
-	numWorkers     int
-	executionId    int64
-	requestsC      chan BulkableRequest
-	workerWg       sync.WaitGroup
-	workers        []*bulkWorker
-	flushInterval  time.Duration
-	flusherStopC   chan struct{}
-	wantStats      bool
-	backoff        Backoff
+	c             *Client
+	beforeFn      BulkBeforeFunc
+	afterFn       BulkAfterFunc
+	name          string
+	bulkActions   int
+	bulkSize      int
+	numWorkers    int
+	executionId   int64
+	requestsC     chan BulkableRequest
+	workerWg      sync.WaitGroup
+	workers       []*bulkWorker
+	flushInterval time.Duration
+	flusherStopC  chan struct{}
+	wantStats     bool
+	backoff       Backoff
 
 	startedMu sync.Mutex // guards the following block
 	started   bool
@@ -262,16 +262,16 @@ func newBulkProcessor(
 	wantStats bool,
 	backoff Backoff) *BulkProcessor {
 	return &BulkProcessor{
-		c:              client,
-		beforeFn:       beforeFn,
-		afterFn:        afterFn,
-		name:           name,
-		numWorkers:     numWorkers,
-		bulkActions:    bulkActions,
-		bulkSize:       bulkSize,
-		flushInterval:  flushInterval,
-		wantStats:      wantStats,
-		backoff:        backoff,
+		c:             client,
+		beforeFn:      beforeFn,
+		afterFn:       afterFn,
+		name:          name,
+		numWorkers:    numWorkers,
+		bulkActions:   bulkActions,
+		bulkSize:      bulkSize,
+		flushInterval: flushInterval,
+		wantStats:     wantStats,
+		backoff:       backoff,
 	}
 }
 
