@@ -253,6 +253,16 @@ func easyjson1ed00e60DecodeGithubComOlivereElastic1(in *jlexer.Lexer, out *bulkU
 			} else {
 				out.Upsert = in.Interface()
 			}
+		case "_source":
+			if in.IsNull() {
+				in.Skip()
+				out.Source = nil
+			} else {
+				if out.Source == nil {
+					out.Source = new(bool)
+				}
+				*out.Source = bool(in.Bool())
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -344,6 +354,16 @@ func easyjson1ed00e60EncodeGithubComOlivereElastic1(out *jwriter.Writer, in bulk
 		} else {
 			out.Raw(json.Marshal(in.Upsert))
 		}
+	}
+	if in.Source != nil {
+		const prefix string = ",\"_source\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Bool(bool(*in.Source))
 	}
 	out.RawByte('}')
 }

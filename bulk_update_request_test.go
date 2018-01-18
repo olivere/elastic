@@ -83,6 +83,18 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 				`{"script":{"lang":"javascript","params":{"param1":42},"source":"ctx._source.retweets += param1"},"scripted_upsert":true,"upsert":{"counter":42}}`,
 			},
 		},
+		// #5
+		{
+			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("4").ReturnSource(true).Doc(struct {
+				Counter int64 `json:"counter"`
+			}{
+				Counter: 42,
+			}),
+			Expected: []string{
+				`{"update":{"_index":"index1","_type":"doc","_id":"4"}}`,
+				`{"doc":{"counter":42},"_source":true}`,
+			},
+		},
 	}
 
 	for i, test := range tests {

@@ -202,8 +202,9 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 	}
 }
 
-func TestBulkRequestsSerialization(t *testing.T) {
+func TestBulkIndexDeleteUpdate(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
+	//client := setupTestClientAndCreateIndexAndLog(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
@@ -212,6 +213,7 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	index2Req := NewBulkIndexRequest().OpType("create").Index(testIndexName).Type("doc").Id("2").Doc(tweet2)
 	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
 	update2Req := NewBulkUpdateRequest().Index(testIndexName).Type("doc").Id("2").
+		ReturnSource(true).
 		Doc(struct {
 			Retweets int `json:"retweets"`
 		}{
@@ -234,7 +236,7 @@ func TestBulkRequestsSerialization(t *testing.T) {
 {"user":"sandrae","message":"Dancing all night long. Yeah.","retweets":0,"created":"0001-01-01T00:00:00Z"}
 {"delete":{"_index":"` + testIndexName + `","_type":"doc","_id":"1"}}
 {"update":{"_index":"` + testIndexName + `","_type":"doc","_id":"2"}}
-{"doc":{"retweets":42}}
+{"doc":{"retweets":42},"_source":true}
 `
 	got, err := bulkRequest.bodyAsString()
 	if err != nil {
@@ -332,6 +334,22 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	}
 	if want, have := "updated", updated[0].Result; want != have {
 		t.Errorf("expected updated[0].Result == %q; got %q", want, have)
+	}
+	if updated[0].GetResult == nil {
+		t.Fatalf("expected updated[0].GetResult to be != nil; got nil")
+	}
+	if updated[0].GetResult.Source == nil {
+		t.Fatalf("expected updated[0].GetResult.Source to be != nil; got nil")
+	}
+	if want, have := true, updated[0].GetResult.Found; want != have {
+		t.Fatalf("expected updated[0].GetResult.Found to be != %v; got %v", want, have)
+	}
+	var doc tweet
+	if err := json.Unmarshal(*updated[0].GetResult.Source, &doc); err != nil {
+		t.Fatalf("expected to unmarshal updated[0].GetResult.Source; got %v", err)
+	}
+	if want, have := 42, doc.Retweets; want != have {
+		t.Fatalf("expected updated tweet to have Retweets = %v; got %v", want, have)
 	}
 
 	// Succeeded actions
@@ -505,6 +523,8 @@ func TestBulkContentType(t *testing.T) {
 		t.Fatalf("Content-Type: want %q, have %q", want, have)
 	}
 }
+
+// -- Benchmarks --
 
 var benchmarkBulkEstimatedSizeInBytes int64
 
