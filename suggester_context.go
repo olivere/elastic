@@ -94,7 +94,7 @@ func (q *ContextSuggester) Source(includeName bool) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-		suggester["context"] = src
+		suggester["contexts"] = src
 	default:
 		ctxq := make(map[string]interface{})
 		for _, query := range q.contextQueries {

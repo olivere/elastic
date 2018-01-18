@@ -78,9 +78,6 @@ func (q *PercolatorQuery) Source() (interface{}, error) {
 	if len(q.field) == 0 {
 		return nil, errors.New("elastic: Field is required in PercolatorQuery")
 	}
-	if len(q.documentType) == 0 {
-		return nil, errors.New("elastic: DocumentType is required in PercolatorQuery")
-	}
 	if q.document == nil {
 		return nil, errors.New("elastic: Document is required in PercolatorQuery")
 	}
@@ -92,7 +89,9 @@ func (q *PercolatorQuery) Source() (interface{}, error) {
 	params := make(map[string]interface{})
 	source["percolate"] = params
 	params["field"] = q.field
-	params["document_type"] = q.documentType
+	if q.documentType != "" {
+		params["document_type"] = q.documentType
+	}
 	params["document"] = q.document
 	if len(q.indexedDocumentIndex) > 0 {
 		params["index"] = q.indexedDocumentIndex

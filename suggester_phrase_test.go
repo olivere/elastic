@@ -60,7 +60,7 @@ func TestPhraseSuggesterSourceWithContextQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"name":{"text":"Xor the Got-Jewel","phrase":{"analyzer":"body","context":{"location":{"default":{"lat":0,"lon":0},"neighbors":true,"path":"pin","precision":["1km","5m"],"type":"geo"}},"field":"bigram","gram_size":2,"highlight":{"post_tag":"\u003c/em\u003e","pre_tag":"\u003cem\u003e"},"max_errors":0.5,"real_word_error_likelihood":0.95,"size":1}}}`
+	expected := `{"name":{"text":"Xor the Got-Jewel","phrase":{"analyzer":"body","contexts":{"location":{"default":{"lat":0,"lon":0},"neighbors":true,"path":"pin","precision":["1km","5m"],"type":"geo"}},"field":"bigram","gram_size":2,"highlight":{"post_tag":"\u003c/em\u003e","pre_tag":"\u003cem\u003e"},"max_errors":0.5,"real_word_error_likelihood":0.95,"size":1}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

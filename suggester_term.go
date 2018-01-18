@@ -178,7 +178,7 @@ func (q *TermSuggester) Source(includeName bool) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-		suggester["context"] = src
+		suggester["contexts"] = src
 	default:
 		ctxq := make([]interface{}, len(q.contextQueries))
 		for i, query := range q.contextQueries {
@@ -188,7 +188,7 @@ func (q *TermSuggester) Source(includeName bool) (interface{}, error) {
 			}
 			ctxq[i] = src
 		}
-		suggester["context"] = ctxq
+		suggester["contexts"] = ctxq
 	}
 
 	// Specific to term suggester

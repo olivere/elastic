@@ -13,7 +13,7 @@ func TestIndexExistsTemplate(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tmpl := `{
-	"template":"elastic-test*",
+	"index_patterns":["elastic-test*"],
 	"settings":{
 		"number_of_shards":1,
 		"number_of_replicas":0

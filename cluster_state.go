@@ -239,10 +239,10 @@ type clusterStateRoutingNode struct {
 }
 
 type indexTemplateMetaData struct {
-	Template string                 `json:"template"` // e.g. "store-*"
-	Order    int                    `json:"order"`
-	Settings map[string]interface{} `json:"settings"` // index settings
-	Mappings map[string]interface{} `json:"mappings"` // type name -> mapping
+	IndexPatterns []string               `json:"index_patterns"` // e.g. ["store-*"]
+	Order         int                    `json:"order"`
+	Settings      map[string]interface{} `json:"settings"` // index settings
+	Mappings      map[string]interface{} `json:"mappings"` // type name -> mapping
 }
 
 type indexMetaData struct {

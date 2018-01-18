@@ -12,7 +12,6 @@ import (
 func TestPercolatorQuery(t *testing.T) {
 	q := NewPercolatorQuery().
 		Field("query").
-		DocumentType("doctype").
 		Document(map[string]interface{}{
 			"message": "Some message",
 		})
@@ -25,7 +24,7 @@ func TestPercolatorQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"percolate":{"document":{"message":"Some message"},"document_type":"doctype","field":"query"}}`
+	expected := `{"percolate":{"document":{"message":"Some message"},"field":"query"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -34,12 +33,10 @@ func TestPercolatorQuery(t *testing.T) {
 func TestPercolatorQueryWithDetails(t *testing.T) {
 	q := NewPercolatorQuery().
 		Field("query").
-		DocumentType("doctype").
 		Document(map[string]interface{}{
 			"message": "Some message",
 		}).
 		IndexedDocumentIndex("index").
-		IndexedDocumentType("type").
 		IndexedDocumentId("1").
 		IndexedDocumentRouting("route").
 		IndexedDocumentPreference("one").
@@ -53,7 +50,7 @@ func TestPercolatorQueryWithDetails(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"percolate":{"document":{"message":"Some message"},"document_type":"doctype","field":"query","id":"1","index":"index","preference":"one","routing":"route","type":"type","version":1}}`
+	expected := `{"percolate":{"document":{"message":"Some message"},"field":"query","id":"1","index":"index","preference":"one","routing":"route","version":1}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

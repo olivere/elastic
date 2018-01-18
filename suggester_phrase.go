@@ -213,7 +213,7 @@ func (q *PhraseSuggester) Source(includeName bool) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-		suggester["context"] = src
+		suggester["contexts"] = src
 	default:
 		var ctxq []interface{}
 		for _, query := range q.contextQueries {
@@ -223,7 +223,7 @@ func (q *PhraseSuggester) Source(includeName bool) (interface{}, error) {
 			}
 			ctxq = append(ctxq, src)
 		}
-		suggester["context"] = ctxq
+		suggester["contexts"] = ctxq
 	}
 
 	// Phase-specified parameters

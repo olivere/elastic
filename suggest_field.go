@@ -67,7 +67,7 @@ func (f *SuggestField) MarshalJSON() ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		source["context"] = src
+		source["contexts"] = src
 	default:
 		ctxq := make(map[string]interface{})
 		for _, query := range f.contextQueries {
@@ -83,7 +83,7 @@ func (f *SuggestField) MarshalJSON() ([]byte, error) {
 				ctxq[k] = v
 			}
 		}
-		source["context"] = ctxq
+		source["contexts"] = ctxq
 	}
 
 	return json.Marshal(source)

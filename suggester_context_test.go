@@ -45,9 +45,9 @@ func TestContextSuggesterSourceWithMultipleContexts(t *testing.T) {
 	}
 	got := string(data)
 	// Due to the randomization of dictionary key, we could actually have two different valid expected outcomes
-	expected := `{"place_suggestion":{"prefix":"tim","completion":{"context":{"place_type":[{"context":"cafe"},{"context":"restaurants"}]},"field":"suggest"}}}`
+	expected := `{"place_suggestion":{"prefix":"tim","completion":{"contexts":{"place_type":[{"context":"cafe"},{"context":"restaurants"}]},"field":"suggest"}}}`
 	if got != expected {
-		expected := `{"place_suggestion":{"prefix":"tim","completion":{"context":{"place_type":[{"context":"restaurants"},{"context":"cafe"}]},"field":"suggest"}}}`
+		expected := `{"place_suggestion":{"prefix":"tim","completion":{"contexts":{"place_type":[{"context":"restaurants"},{"context":"cafe"}]},"field":"suggest"}}}`
 		if got != expected {
 			t.Errorf("expected %s\n,got:\n%s", expected, got)
 		}
