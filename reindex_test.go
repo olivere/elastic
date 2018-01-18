@@ -198,8 +198,10 @@ func TestReindexSourceWithRouting(t *testing.T) {
 	}
 }
 
-func TestReindex(t *testing.T) {
+func TestReindexSync(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+
 	esversion, err := client.ElasticsearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
@@ -227,7 +229,12 @@ func TestReindex(t *testing.T) {
 	// Simple copying
 	src := NewReindexSource().Index(testIndexName)
 	dst := NewReindexDestination().Index(testIndexName2)
-	res, err := client.ReindexTask().Source(src).Destination(dst).Refresh(true).Do()
+	res, err := client.ReindexTask().
+		Source(src).
+		Destination(dst).
+		Refresh(true).
+		Pretty(true).
+		Do()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -254,7 +261,9 @@ func TestReindex(t *testing.T) {
 }
 
 func TestReindexAsync(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+	// client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+
 	esversion, err := client.ElasticsearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
@@ -282,7 +291,11 @@ func TestReindexAsync(t *testing.T) {
 	// Simple copying
 	src := NewReindexSource().Index(testIndexName)
 	dst := NewReindexDestination().Index(testIndexName2)
-	res, err := client.ReindexTask().Source(src).Destination(dst).DoAsync()
+	res, err := client.ReindexTask().
+		Source(src).
+		Destination(dst).
+		Pretty(true).
+		DoAsync()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -294,7 +307,7 @@ func TestReindexAsync(t *testing.T) {
 	}
 
 	tasksGetTask := client.TasksGetTask()
-	taskStatus, err := tasksGetTask.TaskId(res.TaskId).Do()
+	taskStatus, err := tasksGetTask.TaskId(res.TaskId).Pretty(true).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
