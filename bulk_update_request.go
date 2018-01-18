@@ -33,6 +33,7 @@ type BulkUpdateRequest struct {
 	docAsUpsert     *bool
 	detectNoop      *bool
 	doc             interface{}
+	returnSource    *bool
 
 	source []string
 
@@ -62,6 +63,7 @@ type bulkUpdateRequestCommandData struct {
 	Upsert         interface{} `json:"upsert,omitempty"`
 	Script         interface{} `json:"script,omitempty"`
 	ScriptedUpsert *bool       `json:"scripted_upsert,omitempty"`
+	Source         *bool       `json:"_source,omitempty"`
 }
 
 // NewBulkUpdateRequest returns a new BulkUpdateRequest.
@@ -194,6 +196,15 @@ func (r *BulkUpdateRequest) Upsert(doc interface{}) *BulkUpdateRequest {
 	return r
 }
 
+// ReturnSource specifies whether Elasticsearch should return the source
+// after the update. In the request, this responds to the `_source` field.
+// It is false by default.
+func (r *BulkUpdateRequest) ReturnSource(source bool) *BulkUpdateRequest {
+	r.returnSource = &source
+	r.source = nil
+	return r
+}
+
 // String returns the on-wire representation of the update request,
 // concatenated as a single string.
 func (r *BulkUpdateRequest) String() string {
@@ -258,6 +269,7 @@ func (r *BulkUpdateRequest) Source() ([]string, error) {
 		Upsert:         r.upsert,
 		ScriptedUpsert: r.scriptedUpsert,
 		Doc:            r.doc,
+		Source:         r.returnSource,
 	}
 	if r.script != nil {
 		script, err := r.script.Source()

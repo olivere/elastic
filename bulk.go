@@ -325,6 +325,7 @@ type BulkResponseItem struct {
 	ForcedRefresh bool          `json:"forced_refresh,omitempty"`
 	Found         bool          `json:"found,omitempty"`
 	Error         *ErrorDetails `json:"error,omitempty"`
+	GetResult     *GetResult    `json:"get,omitempty"`
 }
 
 // Indexed returns all bulk request results of "index" actions.

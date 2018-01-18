@@ -4,7 +4,6 @@ package elastic
 
 import (
 	json "encoding/json"
-
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -254,6 +253,16 @@ func easyjson1ed00e60DecodeGopkgInOlivereElasticV51(in *jlexer.Lexer, out *bulkU
 				}
 				*out.ScriptedUpsert = bool(in.Bool())
 			}
+		case "_source":
+			if in.IsNull() {
+				in.Skip()
+				out.Source = nil
+			} else {
+				if out.Source == nil {
+					out.Source = new(bool)
+				}
+				*out.Source = bool(in.Bool())
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -345,6 +354,16 @@ func easyjson1ed00e60EncodeGopkgInOlivereElasticV51(out *jwriter.Writer, in bulk
 			out.RawString(prefix)
 		}
 		out.Bool(bool(*in.ScriptedUpsert))
+	}
+	if in.Source != nil {
+		const prefix string = ",\"_source\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Bool(bool(*in.Source))
 	}
 	out.RawByte('}')
 }

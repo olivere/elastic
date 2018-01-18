@@ -202,8 +202,9 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 	}
 }
 
-func TestBulkRequestsSerialization(t *testing.T) {
+func TestBulkIndexDeleteUpdate(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
+	//client := setupTestClientAndCreateIndexAndLog(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
@@ -212,6 +213,7 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	index2Req := NewBulkIndexRequest().OpType("create").Index(testIndexName).Type("tweet").Id("2").Doc(tweet2)
 	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1")
 	update2Req := NewBulkUpdateRequest().Index(testIndexName).Type("tweet").Id("2").
+		ReturnSource(true).
 		Doc(struct {
 			Retweets int `json:"retweets"`
 		}{
@@ -234,7 +236,7 @@ func TestBulkRequestsSerialization(t *testing.T) {
 {"user":"sandrae","message":"Dancing all night long. Yeah.","retweets":0,"created":"0001-01-01T00:00:00Z"}
 {"delete":{"_id":"1","_index":"` + testIndexName + `","_type":"tweet"}}
 {"update":{"_id":"2","_index":"` + testIndexName + `","_type":"tweet"}}
-{"doc":{"retweets":42}}
+{"doc":{"retweets":42},"_source":true}
 `
 	got, err := bulkRequest.bodyAsString()
 	if err != nil {
@@ -245,7 +247,7 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	}
 
 	// Run the bulk request
-	bulkResponse, err := bulkRequest.Do(context.TODO())
+	bulkResponse, err := bulkRequest.Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -291,6 +293,9 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	if created[0].Status != 201 {
 		t.Errorf("expected created[0].Status == %d; got %d", 201, created[0].Status)
 	}
+	if want, have := "created", created[0].Result; want != have {
+		t.Errorf("expected created[0].Result == %q; got %q", want, have)
+	}
 
 	// Deleted actions
 	deleted := bulkResponse.Deleted()
@@ -309,6 +314,9 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	if !deleted[0].Found {
 		t.Errorf("expected deleted[0].Found == %v; got %v", true, deleted[0].Found)
 	}
+	if want, have := "deleted", deleted[0].Result; want != have {
+		t.Errorf("expected deleted[0].Result == %q; got %q", want, have)
+	}
 
 	// Updated actions
 	updated := bulkResponse.Updated()
@@ -326,6 +334,25 @@ func TestBulkRequestsSerialization(t *testing.T) {
 	}
 	if updated[0].Version != 2 {
 		t.Errorf("expected updated[0].Version == %d; got %d", 2, updated[0].Version)
+	}
+	if want, have := "updated", updated[0].Result; want != have {
+		t.Errorf("expected updated[0].Result == %q; got %q", want, have)
+	}
+	if updated[0].GetResult == nil {
+		t.Fatalf("expected updated[0].GetResult to be != nil; got nil")
+	}
+	if updated[0].GetResult.Source == nil {
+		t.Fatalf("expected updated[0].GetResult.Source to be != nil; got nil")
+	}
+	if want, have := true, updated[0].GetResult.Found; want != have {
+		t.Fatalf("expected updated[0].GetResult.Found to be != %v; got %v", want, have)
+	}
+	var doc tweet
+	if err := json.Unmarshal(*updated[0].GetResult.Source, &doc); err != nil {
+		t.Fatalf("expected to unmarshal updated[0].GetResult.Source; got %v", err)
+	}
+	if want, have := 42, doc.Retweets; want != have {
+		t.Fatalf("expected updated tweet to have Retweets = %v; got %v", want, have)
 	}
 
 	// Succeeded actions
@@ -533,6 +560,8 @@ func TestBulkContentType(t *testing.T) {
 		t.Fatalf("Content-Type: want %q, have %q", want, have)
 	}
 }
+
+// -- Benchmarks --
 
 func BenchmarkBulkAllocs(b *testing.B) {
 	b.Run("1000 docs with 64 byte", func(b *testing.B) { benchmarkBulkAllocs(b, 64, 1000) })
