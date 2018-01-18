@@ -222,7 +222,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Index Templates
 - [ ] Shadow Replica Indices
 - [x] Indices Stats
-- [ ] Indices Segments
+- [x] Indices Segments
 - [ ] Indices Recovery
 - [ ] Indices Shard Stores
 - [ ] Clear Cache
