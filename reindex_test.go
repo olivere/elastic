@@ -252,3 +252,88 @@ func TestReindex(t *testing.T) {
 		t.Fatalf("expected %d documents; got: %d", sourceCount, targetCount)
 	}
 }
+
+func TestReindexAsync(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if esversion < "2.3.0" {
+		t.Skipf("Elasticsearch %v does not support Reindex API yet", esversion)
+	}
+
+	sourceCount, err := client.Count(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sourceCount <= 0 {
+		t.Fatalf("expected more than %d documents; got: %d", 0, sourceCount)
+	}
+
+	targetCount, err := client.Count(testIndexName2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if targetCount != 0 {
+		t.Fatalf("expected %d documents; got: %d", 0, targetCount)
+	}
+
+	// Simple copying
+	src := NewReindexSource().Index(testIndexName)
+	dst := NewReindexDestination().Index(testIndexName2)
+	res, err := client.ReindexTask().Source(src).Destination(dst).DoAsync()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected result != nil")
+	}
+	if res.TaskId == "" {
+		t.Errorf("expected a task id, got %+v", res)
+	}
+
+	tasksGetTask := client.TasksGetTask()
+	taskStatus, err := tasksGetTask.TaskId(res.TaskId).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if taskStatus == nil {
+		t.Fatal("expected task status result != nil")
+	}
+}
+
+func TestReindexWithWaitForCompletionTrueCannotBeStarted(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if esversion < "2.3.0" {
+		t.Skipf("Elasticsearch %v does not support Reindex API yet", esversion)
+	}
+
+	sourceCount, err := client.Count(testIndexName).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sourceCount <= 0 {
+		t.Fatalf("expected more than %d documents; got: %d", 0, sourceCount)
+	}
+
+	targetCount, err := client.Count(testIndexName2).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if targetCount != 0 {
+		t.Fatalf("expected %d documents; got: %d", 0, targetCount)
+	}
+
+	// DoAsync should fail when WaitForCompletion is true
+	src := NewReindexSource().Index(testIndexName)
+	dst := NewReindexDestination().Index(testIndexName2)
+	_, err = client.ReindexTask().Source(src).Destination(dst).WaitForCompletion(true).DoAsync()
+	if err == nil {
+		t.Fatal("error should have been returned")
+	}
+}
