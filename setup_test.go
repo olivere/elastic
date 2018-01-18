@@ -427,3 +427,19 @@ func randomString(n int) string {
 	}
 	return string(b)
 }
+
+type lexicographically struct {
+	strings []string
+}
+
+func (l lexicographically) Len() int {
+	return len(l.strings)
+}
+
+func (l lexicographically) Less(i, j int) bool {
+	return l.strings[i] < l.strings[j]
+}
+
+func (l lexicographically) Swap(i, j int) {
+	l.strings[i], l.strings[j] = l.strings[j], l.strings[i]
+}
