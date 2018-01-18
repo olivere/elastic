@@ -7,6 +7,7 @@ package elastic
 import (
 	"encoding/json"
 	"testing"
+	"time"
 )
 
 func TestReindexSourceWithSourceIndexAndDestinationIndex(t *testing.T) {
@@ -262,7 +263,7 @@ func TestReindexSync(t *testing.T) {
 
 func TestReindexAsync(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
-	// client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	esversion, err := client.ElasticsearchVersion(DefaultURL)
 	if err != nil {
@@ -306,13 +307,30 @@ func TestReindexAsync(t *testing.T) {
 		t.Errorf("expected a task id, got %+v", res)
 	}
 
-	tasksGetTask := client.TasksGetTask()
-	taskStatus, err := tasksGetTask.TaskId(res.TaskId).Pretty(true).Do()
+	// Task should now be found
+	taskStatus, err := client.TasksList().TaskId(res.TaskId).Pretty(true).Do()
 	if err != nil {
 		t.Fatal(err)
 	}
 	if taskStatus == nil {
 		t.Fatal("expected task status result != nil")
+	}
+	if want, have := 1, len(taskStatus.Nodes); want != have {
+		t.Fatalf("expected task nodes = %d; got %d", want, have)
+	}
+
+	time.Sleep(5 * time.Second)
+
+	// Task should now be gone
+	taskStatus, err = client.TasksList().TaskId(res.TaskId).Pretty(true).Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if taskStatus == nil {
+		t.Fatal("expected task status result != nil")
+	}
+	if want, have := 0, len(taskStatus.Nodes); want != have {
+		t.Fatalf("expected task nodes = %d; got %d", want, have)
 	}
 }
 

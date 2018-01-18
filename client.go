@@ -21,7 +21,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "3.0.72"
+	Version = "3.0.73"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1619,11 +1619,6 @@ func (c *Client) TasksCancel() *TasksCancelService {
 // TasksList retrieves the list of tasks running on the specified nodes.
 func (c *Client) TasksList() *TasksListService {
 	return NewTasksListService(c)
-}
-
-// TasksGetTask retrieves a task running on the cluster.
-func (c *Client) TasksGetTask() *TasksGetTaskService {
-	return NewTasksGetTaskService(c)
 }
 
 // TODO Pending cluster tasks
