@@ -1473,6 +1473,11 @@ func (c *Client) Explain(index, typ, id string) *ExplainService {
 // TODO Search Exists API
 // TODO Validate API
 
+// FieldCaps returns statistical information about fields in indices.
+func (c *Client) FieldCaps(indices ...string) *FieldCapsService {
+	return NewFieldCapsService(c).Index(indices...)
+}
+
 // FieldStats returns statistical information about fields in indices.
 func (c *Client) FieldStats(indices ...string) *FieldStatsService {
 	return NewFieldStatsService(c).Index(indices...)
