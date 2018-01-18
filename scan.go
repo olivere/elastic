@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -198,6 +199,11 @@ func (s *ScanService) Size(size int) *ScanService {
 
 // Do executes the query and returns a "server-side cursor".
 func (s *ScanService) Do() (*ScanCursor, error) {
+	return s.DoC(nil)
+}
+
+// DoC executes the query and returns a "server-side cursor".
+func (s *ScanService) DoC(ctx context.Context) (*ScanCursor, error) {
 	// Build url
 	path := "/"
 
@@ -266,7 +272,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 			return nil, err
 		}
 	}
-	res, err := s.client.PerformRequest("POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +283,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 		return nil, err
 	}
 
-	cursor := NewScanCursor(s.client, s.keepAlive, s.pretty, searchResult)
+	cursor := NewScanCursor(ctx, s.client, s.keepAlive, s.pretty, searchResult)
 
 	return cursor, nil
 }
@@ -287,6 +293,7 @@ func (s *ScanService) Do() (*ScanCursor, error) {
 type ScanCursor struct {
 	Results *SearchResult
 
+	ctx         context.Context
 	client      *Client
 	keepAlive   string
 	pretty      bool
@@ -295,8 +302,9 @@ type ScanCursor struct {
 
 // newScanCursor returns a new initialized instance
 // of scanCursor.
-func NewScanCursor(client *Client, keepAlive string, pretty bool, searchResult *SearchResult) *ScanCursor {
+func NewScanCursor(ctx context.Context, client *Client, keepAlive string, pretty bool, searchResult *SearchResult) *ScanCursor {
 	return &ScanCursor{
+		ctx:       ctx,
 		client:    client,
 		keepAlive: keepAlive,
 		pretty:    pretty,
@@ -358,7 +366,7 @@ func (c *ScanCursor) Next() (*SearchResult, error) {
 	body := c.Results.ScrollId
 
 	// Get response
-	res, err := c.client.PerformRequest("POST", path, params, body)
+	res, err := c.client.PerformRequestC(c.ctx, "POST", path, params, body)
 	if err != nil {
 		return nil, err
 	}
