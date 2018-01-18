@@ -162,7 +162,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
-	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet1)
+	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet1).Routing("1")
 	index2Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("2").Doc(tweet2)
 	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
 

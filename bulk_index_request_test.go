@@ -61,10 +61,11 @@ func TestBulkIndexRequestSerialization(t *testing.T) {
 		},
 		// #5
 		{
-			Request: NewBulkIndexRequest().OpType("index").Index("index1").Type("doc").Id("1").TTL("1m").
+			Request: NewBulkIndexRequest().OpType("index").Index("index1").Type("doc").Id("1").
+				Routing("123").
 				Doc(tweet{User: "olivere", Created: time.Date(2014, 1, 18, 23, 59, 58, 0, time.UTC)}),
 			Expected: []string{
-				`{"index":{"_index":"index1","_id":"1","_type":"doc","_ttl":"1m"}}`,
+				`{"index":{"_index":"index1","_id":"1","_type":"doc","routing":"123"}}`,
 				`{"user":"olivere","message":"","retweets":0,"created":"2014-01-18T23:59:58Z"}`,
 			},
 		},

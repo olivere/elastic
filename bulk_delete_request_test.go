@@ -24,14 +24,14 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 		{
 			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1").Parent("2"),
 			Expected: []string{
-				`{"delete":{"_index":"index1","_type":"doc","_id":"1","_parent":"2"}}`,
+				`{"delete":{"_index":"index1","_type":"doc","_id":"1","parent":"2"}}`,
 			},
 		},
 		// #2
 		{
 			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1").Routing("3"),
 			Expected: []string{
-				`{"delete":{"_index":"index1","_type":"doc","_id":"1","_routing":"3"}}`,
+				`{"delete":{"_index":"index1","_type":"doc","_id":"1","routing":"3"}}`,
 			},
 		},
 	}

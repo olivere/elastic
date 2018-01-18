@@ -48,12 +48,12 @@ type bulkUpdateRequestCommandOp struct {
 	Index  string `json:"_index,omitempty"`
 	Type   string `json:"_type,omitempty"`
 	Id     string `json:"_id,omitempty"`
-	Parent string `json:"_parent,omitempty"`
+	Parent string `json:"parent,omitempty"`
 	// RetryOnConflict is "_retry_on_conflict" for 6.0 and "retry_on_conflict" for 6.1+.
 	RetryOnConflict *int   `json:"retry_on_conflict,omitempty"`
-	Routing         string `json:"_routing,omitempty"`
-	Version         int64  `json:"_version,omitempty"`
-	VersionType     string `json:"_version_type,omitempty"`
+	Routing         string `json:"routing,omitempty"`
+	Version         int64  `json:"version,omitempty"`
+	VersionType     string `json:"version_type,omitempty"`
 }
 
 //easyjson:json

@@ -42,13 +42,13 @@ func easyjson8092efb6DecodeGithubComOlivereElastic(in *jlexer.Lexer, out *bulkDe
 			out.Type = string(in.String())
 		case "_id":
 			out.Id = string(in.String())
-		case "_parent":
+		case "parent":
 			out.Parent = string(in.String())
-		case "_routing":
+		case "routing":
 			out.Routing = string(in.String())
-		case "_version":
+		case "version":
 			out.Version = int64(in.Int64())
-		case "_version_type":
+		case "version_type":
 			out.VersionType = string(in.String())
 		default:
 			in.SkipRecursive()
@@ -95,7 +95,7 @@ func easyjson8092efb6EncodeGithubComOlivereElastic(out *jwriter.Writer, in bulkD
 		out.String(string(in.Id))
 	}
 	if in.Parent != "" {
-		const prefix string = ",\"_parent\":"
+		const prefix string = ",\"parent\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -105,7 +105,7 @@ func easyjson8092efb6EncodeGithubComOlivereElastic(out *jwriter.Writer, in bulkD
 		out.String(string(in.Parent))
 	}
 	if in.Routing != "" {
-		const prefix string = ",\"_routing\":"
+		const prefix string = ",\"routing\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -115,7 +115,7 @@ func easyjson8092efb6EncodeGithubComOlivereElastic(out *jwriter.Writer, in bulkD
 		out.String(string(in.Routing))
 	}
 	if in.Version != 0 {
-		const prefix string = ",\"_version\":"
+		const prefix string = ",\"version\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -125,7 +125,7 @@ func easyjson8092efb6EncodeGithubComOlivereElastic(out *jwriter.Writer, in bulkD
 		out.Int64(int64(in.Version))
 	}
 	if in.VersionType != "" {
-		const prefix string = ",\"_version_type\":"
+		const prefix string = ",\"version_type\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])

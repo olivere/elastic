@@ -28,6 +28,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 		// #1
 		{
 			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("1").
+				Routing("123").
 				RetryOnConflict(3).
 				DocAsUpsert(true).
 				Doc(struct {
@@ -36,7 +37,7 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 					Counter: 42,
 				}),
 			Expected: []string{
-				`{"update":{"_index":"index1","_type":"doc","_id":"1","retry_on_conflict":3}}`,
+				`{"update":{"_index":"index1","_type":"doc","_id":"1","retry_on_conflict":3,"routing":"123"}}`,
 				`{"doc":{"counter":42},"doc_as_upsert":true}`,
 			},
 		},

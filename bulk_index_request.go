@@ -29,7 +29,6 @@ type BulkIndexRequest struct {
 	doc             interface{}
 	pipeline        string
 	retryOnConflict *int
-	ttl             string
 
 	source []string
 
@@ -44,13 +43,12 @@ type bulkIndexRequestCommandOp struct {
 	Index  string `json:"_index,omitempty"`
 	Id     string `json:"_id,omitempty"`
 	Type   string `json:"_type,omitempty"`
-	Parent string `json:"_parent,omitempty"`
+	Parent string `json:"parent,omitempty"`
 	// RetryOnConflict is "_retry_on_conflict" for 6.0 and "retry_on_conflict" for 6.1+.
 	RetryOnConflict *int   `json:"retry_on_conflict,omitempty"`
-	Routing         string `json:"_routing,omitempty"`
-	TTL             string `json:"_ttl,omitempty"`
-	Version         int64  `json:"_version,omitempty"`
-	VersionType     string `json:"_version_type,omitempty"`
+	Routing         string `json:"routing,omitempty"`
+	Version         int64  `json:"version,omitempty"`
+	VersionType     string `json:"version_type,omitempty"`
 	Pipeline        string `json:"pipeline,omitempty"`
 }
 
@@ -152,13 +150,6 @@ func (r *BulkIndexRequest) RetryOnConflict(retryOnConflict int) *BulkIndexReques
 	return r
 }
 
-// TTL is an expiration time for the document.
-func (r *BulkIndexRequest) TTL(ttl string) *BulkIndexRequest {
-	r.ttl = ttl
-	r.source = nil
-	return r
-}
-
 // Pipeline to use while processing the request.
 func (r *BulkIndexRequest) Pipeline(pipeline string) *BulkIndexRequest {
 	r.pipeline = pipeline
@@ -200,7 +191,6 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 		Version:         r.version,
 		VersionType:     r.versionType,
 		RetryOnConflict: r.retryOnConflict,
-		TTL:             r.ttl,
 		Pipeline:        r.pipeline,
 	}
 	command := bulkIndexRequestCommand{

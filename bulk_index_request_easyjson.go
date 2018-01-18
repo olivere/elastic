@@ -42,7 +42,7 @@ func easyjson9de0fcbfDecodeGithubComOlivereElastic(in *jlexer.Lexer, out *bulkIn
 			out.Id = string(in.String())
 		case "_type":
 			out.Type = string(in.String())
-		case "_parent":
+		case "parent":
 			out.Parent = string(in.String())
 		case "retry_on_conflict":
 			if in.IsNull() {
@@ -54,13 +54,11 @@ func easyjson9de0fcbfDecodeGithubComOlivereElastic(in *jlexer.Lexer, out *bulkIn
 				}
 				*out.RetryOnConflict = int(in.Int())
 			}
-		case "_routing":
+		case "routing":
 			out.Routing = string(in.String())
-		case "_ttl":
-			out.TTL = string(in.String())
-		case "_version":
+		case "version":
 			out.Version = int64(in.Int64())
-		case "_version_type":
+		case "version_type":
 			out.VersionType = string(in.String())
 		case "pipeline":
 			out.Pipeline = string(in.String())
@@ -109,7 +107,7 @@ func easyjson9de0fcbfEncodeGithubComOlivereElastic(out *jwriter.Writer, in bulkI
 		out.String(string(in.Type))
 	}
 	if in.Parent != "" {
-		const prefix string = ",\"_parent\":"
+		const prefix string = ",\"parent\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -129,7 +127,7 @@ func easyjson9de0fcbfEncodeGithubComOlivereElastic(out *jwriter.Writer, in bulkI
 		out.Int(int(*in.RetryOnConflict))
 	}
 	if in.Routing != "" {
-		const prefix string = ",\"_routing\":"
+		const prefix string = ",\"routing\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -138,18 +136,8 @@ func easyjson9de0fcbfEncodeGithubComOlivereElastic(out *jwriter.Writer, in bulkI
 		}
 		out.String(string(in.Routing))
 	}
-	if in.TTL != "" {
-		const prefix string = ",\"_ttl\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.String(string(in.TTL))
-	}
 	if in.Version != 0 {
-		const prefix string = ",\"_version\":"
+		const prefix string = ",\"version\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -159,7 +147,7 @@ func easyjson9de0fcbfEncodeGithubComOlivereElastic(out *jwriter.Writer, in bulkI
 		out.Int64(int64(in.Version))
 	}
 	if in.VersionType != "" {
-		const prefix string = ",\"_version_type\":"
+		const prefix string = ",\"version_type\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
