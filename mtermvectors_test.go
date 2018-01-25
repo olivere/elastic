@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"testing"
+	"time"
 )
 
 func TestMultiTermVectorsValidateAndBuildURL(t *testing.T) {
@@ -118,6 +119,38 @@ func TestMultiTermVectorsWithIds(t *testing.T) {
 		Add(NewMultiTermvectorItem().Index(testIndexName).Type("tweet").Id("1").Fields(field)).
 		Add(NewMultiTermvectorItem().Index(testIndexName).Type("tweet").Id("3").Fields(field)).
 		Do()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected to return information and statistics")
+	}
+	if res.Docs == nil {
+		t.Fatal("expected result docs to be != nil; got nil")
+	}
+	if len(res.Docs) != 2 {
+		t.Fatalf("expected to have 2 docs; got %d", len(res.Docs))
+	}
+}
+
+func TestMultiTermVectorsWithFilter(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	// Travis lags sometimes
+	if isTravis() {
+		time.Sleep(2 * time.Second)
+	}
+
+	// MultiTermVectors by specifying ID by 1 and 3
+	field := "Message"
+	res, err := client.MultiTermVectors().
+		Index(testIndexName).
+		Type("tweet").
+		Add(NewMultiTermvectorItem().Index(testIndexName).Type("tweet").Id("1").Fields(field)).
+		Add(NewMultiTermvectorItem().Index(testIndexName).Type("tweet").Id("3").Fields(field)).
+		Filter(NewMultiTermvectorFilterSettings().MinTermFreq(1)).
+		Do()
+
 	if err != nil {
 		t.Fatal(err)
 	}
