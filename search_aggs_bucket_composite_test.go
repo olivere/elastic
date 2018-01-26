@@ -11,9 +11,9 @@ import (
 
 func TestCompositeAggregation(t *testing.T) {
 	agg := NewCompositeAggregation().
-		AddSourceTerms("my_terms", NewTermsAggregation().Field("a_term").Missing("N/A")).
-		AddSourceHistogram("my_histogram", NewHistogramAggregation().Field("price").Interval(5.0)).
-		AddSourceDateHistogram("my_date_histogram", NewDateHistogramAggregation().Field("purchase_date").Interval("1d")).
+		AddSource(NewCompositeAggregationSourceTerms("my_terms", "a_term").Missing("N/A")).
+		AddSource(NewCompositeAggregationSourceHistogram("my_histogram", "price", 5)).
+		AddSource(NewCompositeAggregationSourceDateHistogram("my_date_histogram", "purchase_date", "1d")).
 		Size(10).
 		After(map[string]interface{}{
 			"my_terms":          "1",

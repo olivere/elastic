@@ -7,23 +7,25 @@ package elastic
 // CompositeAggregation is a multi-bucket values source based aggregation
 // that can be used to calculate unique composite values from source documents
 //
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/6.1/search-aggregations-bucket-composite-aggregation.html
+// See: https://www.co/guide/en/elasticsearch/reference/6.1/search-aggregations-bucket-composite-aggregation.html
 type CompositeAggregation struct {
 	size            *int
-	sources         []compositeAggregationSource
+	sources         []CompositeAggregationSource
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 	after           map[string]interface{}
 }
 
-type compositeAggregationSource struct {
-	name string
-	agg  Aggregation
+// The interface describing Composite Aggregation Options
+type CompositeAggregationSource interface {
+	Source() (interface{}, error)
+	OrderAsc(bool) CompositeAggregationSource
+	Missing(string) CompositeAggregationSource
 }
 
 func NewCompositeAggregation() *CompositeAggregation {
 	return &CompositeAggregation{
-		sources:         make([]compositeAggregationSource, 0),
+		sources:         make([]CompositeAggregationSource, 0),
 		subAggregations: make(map[string]Aggregation),
 	}
 }
@@ -38,32 +40,7 @@ func (a *CompositeAggregation) After(after map[string]interface{}) *CompositeAgg
 	return a
 }
 
-func (a *CompositeAggregation) AddSourceTerms(name string, agg *TermsAggregation) *CompositeAggregation {
-	source := compositeAggregationSource{
-		name: name,
-		agg:  agg,
-	}
-
-	a.sources = append(a.sources, source)
-	return a
-}
-
-func (a *CompositeAggregation) AddSourceHistogram(name string, agg *HistogramAggregation) *CompositeAggregation {
-	source := compositeAggregationSource{
-		name: name,
-		agg:  agg,
-	}
-
-	a.sources = append(a.sources, source)
-	return a
-}
-
-func (a *CompositeAggregation) AddSourceDateHistogram(name string, agg *DateHistogramAggregation) *CompositeAggregation {
-	source := compositeAggregationSource{
-		name: name,
-		agg:  agg,
-	}
-
+func (a *CompositeAggregation) AddSource(source CompositeAggregationSource) *CompositeAggregation {
 	a.sources = append(a.sources, source)
 	return a
 }
@@ -105,16 +82,11 @@ func (a *CompositeAggregation) Source() (interface{}, error) {
 
 	sources := make([]interface{}, 0)
 	for _, s := range a.sources {
-
-		// Build the aggregation
-		sourceAgg, err := s.agg.Source()
+		aggSource, err := s.Source()
 		if err != nil {
 			return nil, err
 		}
-		sourceRecord := map[string]interface{}{
-			s.name: sourceAgg,
-		}
-		sources = append(sources, sourceRecord)
+		sources = append(sources, aggSource)
 	}
 	opts["sources"] = sources
 
@@ -145,4 +117,179 @@ func (a *CompositeAggregation) Source() (interface{}, error) {
 	}
 
 	return source, nil
+}
+
+// CompositeAggregationSourceTerms is a source for the CompositeAggregation that handles terms
+// it works very similar to a terms aggregation with slightly different syntax
+type CompositeAggregationSourceTerms struct {
+	name     string
+	field    string
+	orderAsc *bool
+	missing  *string
+}
+
+func NewCompositeAggregationSourceTerms(name string, field string) *CompositeAggregationSourceTerms {
+	return &CompositeAggregationSourceTerms{
+		name:  name,
+		field: field,
+	}
+}
+
+func (a *CompositeAggregationSourceTerms) OrderAsc(orderAsc bool) CompositeAggregationSource {
+	a.orderAsc = &orderAsc
+	return a
+}
+
+func (a *CompositeAggregationSourceTerms) Missing(missing string) CompositeAggregationSource {
+	a.missing = &missing
+	return a
+}
+
+func (a *CompositeAggregationSourceTerms) Source() (interface{}, error) {
+
+	source := make(map[string]interface{})
+	name := make(map[string]interface{})
+	source[a.name] = name
+	terms := make(map[string]interface{})
+	name["terms"] = terms
+
+	// field
+	terms["field"] = a.field
+	// order
+	if a.orderAsc != nil {
+		if *a.orderAsc == true {
+			terms["order"] = "asc"
+		} else {
+			terms["order"] = "desc"
+		}
+	}
+	// missing
+	if a.missing != nil {
+		terms["missing"] = *a.missing
+	}
+
+	return source, nil
+
+}
+
+// CompositeAggregationSourceHistogram is a source for the CompositeAggregation that handles histograms
+// it works very similar to a terms histogram with slightly different syntax
+type CompositeAggregationSourceHistogram struct {
+	name     string
+	field    string
+	interval int
+	orderAsc *bool
+	missing  *string
+}
+
+func NewCompositeAggregationSourceHistogram(name string, field string, interval int) *CompositeAggregationSourceHistogram {
+	return &CompositeAggregationSourceHistogram{
+		name:     name,
+		field:    field,
+		interval: interval,
+	}
+}
+
+func (a *CompositeAggregationSourceHistogram) OrderAsc(orderAsc bool) CompositeAggregationSource {
+	a.orderAsc = &orderAsc
+	return a
+}
+
+func (a *CompositeAggregationSourceHistogram) Missing(missing string) CompositeAggregationSource {
+	a.missing = &missing
+	return a
+}
+
+func (a *CompositeAggregationSourceHistogram) Source() (interface{}, error) {
+
+	source := make(map[string]interface{})
+	name := make(map[string]interface{})
+	source[a.name] = name
+	histogram := make(map[string]interface{})
+	name["histogram"] = histogram
+
+	// base info
+	histogram["field"] = a.field
+	histogram["interval"] = a.interval
+	// order
+	if a.orderAsc != nil {
+		if *a.orderAsc == true {
+			histogram["order"] = "asc"
+		} else {
+			histogram["order"] = "desc"
+		}
+	}
+	// missing
+	if a.missing != nil {
+		histogram["missing"] = *a.missing
+	}
+
+	return source, nil
+
+}
+
+// CompositeAggregationSourceDateHistogram is a source for the CompositeAggregation that handles date histograms
+// it works very similar to a date histogram aggregation with slightly different syntax
+type CompositeAggregationSourceDateHistogram struct {
+	name     string
+	field    string
+	interval string
+	timeZone *string
+	orderAsc *bool
+	missing  *string
+}
+
+func NewCompositeAggregationSourceDateHistogram(name string, field string, interval string) *CompositeAggregationSourceDateHistogram {
+	return &CompositeAggregationSourceDateHistogram{
+		name:     name,
+		field:    field,
+		interval: interval,
+	}
+}
+
+func (a *CompositeAggregationSourceDateHistogram) OrderAsc(orderAsc bool) CompositeAggregationSource {
+	a.orderAsc = &orderAsc
+	return a
+}
+
+func (a *CompositeAggregationSourceDateHistogram) Missing(missing string) CompositeAggregationSource {
+	a.missing = &missing
+	return a
+}
+
+func (a *CompositeAggregationSourceDateHistogram) TimeZone(timeZone string) *CompositeAggregationSourceDateHistogram {
+	a.timeZone = &timeZone
+	return a
+}
+
+func (a *CompositeAggregationSourceDateHistogram) Source() (interface{}, error) {
+
+	source := make(map[string]interface{})
+	name := make(map[string]interface{})
+	source[a.name] = name
+	dateHistogram := make(map[string]interface{})
+	name["date_histogram"] = dateHistogram
+
+	// base info
+	dateHistogram["field"] = a.field
+	dateHistogram["interval"] = a.interval
+	// timeZone
+	if a.timeZone != nil {
+		dateHistogram["time_zone"] = *a.timeZone
+	}
+	// order
+	if a.orderAsc != nil {
+		if *a.orderAsc == true {
+			dateHistogram["order"] = "asc"
+		} else {
+			dateHistogram["order"] = "desc"
+		}
+	}
+	// missing
+	if a.missing != nil {
+		dateHistogram["missing"] = *a.missing
+	}
+
+	return source, nil
+
 }
