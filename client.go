@@ -1612,6 +1612,11 @@ func (c *Client) CatNodesService() *CatNodesService {
 	return NewCatNodesService(c)
 }
 
+// cat shards
+func (c *Client) CatShardsService() *CatShardsService {
+	return NewCatShardsService(c)
+}
+
 // TODO cat aliases
 // TODO cat allocation
 // TODO cat count
