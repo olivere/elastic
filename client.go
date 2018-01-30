@@ -1607,6 +1607,11 @@ func (c *Client) CatMasterService() *CatMasterService {
 	return NewCatMasterService(c)
 }
 
+// cat nodes
+func (c *Client) CatNodesService() *CatNodesService {
+	return NewCatNodesService(c)
+}
+
 // TODO cat aliases
 // TODO cat allocation
 // TODO cat count
