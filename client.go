@@ -1602,6 +1602,11 @@ func (c *Client) CatIndicesService() *CatIndicesService {
 	return NewCatIndicesService(c)
 }
 
+// cat master
+func (c *Client) CatMasterService() *CatMasterService {
+	return NewCatMasterService(c)
+}
+
 // TODO cat aliases
 // TODO cat allocation
 // TODO cat count
