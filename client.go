@@ -1597,6 +1597,11 @@ func (c *Client) GetFieldMapping() *IndicesGetFieldMappingService {
 
 // -- cat APIs --
 
+// cat indices
+func (c *Client) CatIndicesService() *CatIndicesService {
+	return NewCatIndicesService(c)
+}
+
 // TODO cat aliases
 // TODO cat allocation
 // TODO cat count
