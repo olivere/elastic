@@ -248,6 +248,7 @@ type BulkProcessor struct {
 
 	statsMu sync.Mutex // guards the following block
 	stats   *BulkProcessorStats
+	aliveWg sync.WaitGroup // back pressure for dead connections
 }
 
 func newBulkProcessor(
@@ -386,6 +387,7 @@ func (p *BulkProcessor) flusher(interval time.Duration) {
 	defer ticker.Stop()
 
 	for {
+		p.aliveWg.Wait() // make sure we have live connections
 		select {
 		case <-ticker.C: // Periodic flush
 			p.Flush() // TODO swallow errors here?
@@ -436,6 +438,7 @@ func (w *bulkWorker) work(ctx context.Context) {
 
 	var stop bool
 	for !stop {
+		w.p.aliveWg.Wait() // make sure we have live connections
 		select {
 		case req, open := <-w.p.requestsC:
 			if open {
@@ -501,6 +504,15 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 	w.updateStats(res)
 	if err != nil {
 		w.p.c.errorf("elastic: bulk processor %q failed: %v", w.p.name, err)
+
+		// TODO: only do the following for connection type errors?
+		// add to a WaitGroup that puts back pressure on Add calls
+		// into the processor until a live connection is detected
+		// otherwise the request queue will build until resources
+		// are exhausted since only successful commits trigger a
+		// request slice reset
+		w.p.aliveWg.Add(1)
+		go w.waitForActiveConnection()
 	}
 
 	// Invoke after callback
@@ -509,6 +521,33 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 	}
 
 	return err
+}
+
+func (w *bulkWorker) waitForActiveConnection() {
+	defer w.p.aliveWg.Done()
+	deadline := time.NewTimer(time.Duration(5) * time.Minute)
+	client := w.p.c
+	// loop until a health check finds at least 1 active connection
+	// or a deadline is reached
+	for {
+		client.healthcheck(time.Duration(5) * time.Second, true)
+		if client.mustActiveConn() == nil {
+			// found an active connection
+			// exit and signal done to the WaitGroup
+			return
+		}
+		// cannot hold the WaitGroup forever since the processor
+		// might be stopped externally
+		select {
+		case <- deadline.C:
+			// reached the deadline without an active connection
+			// exit and signal done to the WaitGroup
+			return
+		default:
+			// repeat health check after a short wait
+			time.Sleep(time.Duration(5) * time.Second)
+		}
+	}
 }
 
 func (w *bulkWorker) updateStats(res *BulkResponse) {
