@@ -199,6 +199,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Significant Terms
   - [x] Significant Text
   - [x] Terms
+  - [x] Composite
 - Pipeline Aggregations
   - [x] Avg Bucket
   - [x] Derivative
