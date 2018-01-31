@@ -1597,19 +1597,39 @@ func (c *Client) GetFieldMapping() *IndicesGetFieldMappingService {
 
 // -- cat APIs --
 
+// cat indices
+func (c *Client) CatIndicesService() *CatIndicesService {
+	return NewCatIndicesService(c)
+}
+
+// cat master
+func (c *Client) CatMasterService() *CatMasterService {
+	return NewCatMasterService(c)
+}
+
+// cat nodes
+func (c *Client) CatNodesService() *CatNodesService {
+	return NewCatNodesService(c)
+}
+
+// cat shards
+func (c *Client) CatShardsService() *CatShardsService {
+	return NewCatShardsService(c)
+}
+
+// cat health
+func (c *Client) CatHealthService() *CatHealthService {
+	return NewCatHealthService(c)
+}
+
 // TODO cat aliases
 // TODO cat allocation
 // TODO cat count
 // TODO cat fielddata
-// TODO cat health
-// TODO cat indices
-// TODO cat master
-// TODO cat nodes
 // TODO cat pending tasks
 // TODO cat plugins
 // TODO cat recovery
 // TODO cat thread pool
-// TODO cat shards
 // TODO cat segments
 
 // -- Ingest APIs --
