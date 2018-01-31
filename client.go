@@ -1617,19 +1617,19 @@ func (c *Client) CatShardsService() *CatShardsService {
 	return NewCatShardsService(c)
 }
 
+// cat health
+func (c *Client) CatHealthService() *CatHealthService {
+	return NewCatHealthService(c)
+}
+
 // TODO cat aliases
 // TODO cat allocation
 // TODO cat count
 // TODO cat fielddata
-// TODO cat health
-// TODO cat indices
-// TODO cat master
-// TODO cat nodes
 // TODO cat pending tasks
 // TODO cat plugins
 // TODO cat recovery
 // TODO cat thread pool
-// TODO cat shards
 // TODO cat segments
 
 // -- Ingest APIs --
