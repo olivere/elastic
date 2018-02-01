@@ -545,6 +545,7 @@ func (w *bulkWorker) waitForActiveConnection() {
 	deadline := time.NewTimer(w.p.stopRecon)
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT)
+	defer signal.Stop(interrupt)
 	client := w.p.c
 	w.p.c.errorf("elastic: bulk processor %q is waiting for an active connection", w.p.name)
 	// loop until a health check finds at least 1 active connection
