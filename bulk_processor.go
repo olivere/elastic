@@ -6,8 +6,12 @@ package elastic
 
 import (
 	"context"
+	"net"
+	"os"
+	"os/signal"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"time"
 )
 
@@ -39,6 +43,7 @@ type BulkProcessorService struct {
 	flushInterval time.Duration // periodic flush interval
 	wantStats     bool          // indicates whether to gather statistics
 	backoff       Backoff       // a custom Backoff to use for errors
+	stopRecon     time.Duration // reconnection deadline for dropped connections
 }
 
 // NewBulkProcessorService creates a new BulkProcessorService.
@@ -52,6 +57,7 @@ func NewBulkProcessorService(client *Client) *BulkProcessorService {
 			time.Duration(200)*time.Millisecond,
 			time.Duration(10000)*time.Millisecond,
 		),
+		stopRecon: time.Duration(5) * time.Minute,
 	}
 }
 
@@ -127,6 +133,12 @@ func (s *BulkProcessorService) Backoff(backoff Backoff) *BulkProcessorService {
 	return s
 }
 
+// Set the reconnection deadline for dropped connections
+func (s *BulkProcessorService) StopReconnectAfter(stopRecon time.Duration) *BulkProcessorService {
+	s.stopRecon = stopRecon
+	return s
+}
+
 // Do creates a new BulkProcessor and starts it.
 // Consider the BulkProcessor as a running instance that accepts bulk requests
 // and commits them to Elasticsearch, spreading the work across one or more
@@ -153,7 +165,8 @@ func (s *BulkProcessorService) Do(ctx context.Context) (*BulkProcessor, error) {
 		s.bulkSize,
 		s.flushInterval,
 		s.wantStats,
-		s.backoff)
+		s.backoff,
+	        s.stopRecon)
 
 	err := p.Start(ctx)
 	if err != nil {
@@ -242,6 +255,7 @@ type BulkProcessor struct {
 	flusherStopC  chan struct{}
 	wantStats     bool
 	backoff       Backoff
+	stopRecon     time.Duration
 
 	startedMu sync.Mutex // guards the following block
 	started   bool
@@ -261,7 +275,8 @@ func newBulkProcessor(
 	bulkSize int,
 	flushInterval time.Duration,
 	wantStats bool,
-	backoff Backoff) *BulkProcessor {
+	backoff Backoff,
+        stopRecon time.Duration) *BulkProcessor {
 	return &BulkProcessor{
 		c:             client,
 		beforeFn:      beforeFn,
@@ -273,6 +288,7 @@ func newBulkProcessor(
 		flushInterval: flushInterval,
 		wantStats:     wantStats,
 		backoff:       backoff,
+		stopRecon:     stopRecon,
 	}
 }
 
@@ -504,15 +520,16 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 	w.updateStats(res)
 	if err != nil {
 		w.p.c.errorf("elastic: bulk processor %q failed: %v", w.p.name, err)
+		if _, ok := err.(net.Error); ok {
+			// add to a WaitGroup that puts back pressure on Add calls
+			// into the processor until a live connection is detected
+			// otherwise the request queue will build until resources
+			// are exhausted since only successful commits trigger a
+			// request slice reset
+			w.p.aliveWg.Add(1)
+			go w.waitForActiveConnection()
 
-		// TODO: only do the following for connection type errors?
-		// add to a WaitGroup that puts back pressure on Add calls
-		// into the processor until a live connection is detected
-		// otherwise the request queue will build until resources
-		// are exhausted since only successful commits trigger a
-		// request slice reset
-		w.p.aliveWg.Add(1)
-		go w.waitForActiveConnection()
+		}
 	}
 
 	// Invoke after callback
@@ -525,27 +542,38 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 
 func (w *bulkWorker) waitForActiveConnection() {
 	defer w.p.aliveWg.Done()
-	deadline := time.NewTimer(time.Duration(5) * time.Minute)
+	deadline := time.NewTimer(w.p.stopRecon)
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, syscall.SIGINT)
 	client := w.p.c
+	w.p.c.errorf("elastic: bulk processor %q is waiting for an active connection", w.p.name)
 	// loop until a health check finds at least 1 active connection
-	// or a deadline is reached
+	// or the deadline is reached
+	// or we are interrupted
 	for {
-		client.healthcheck(time.Duration(5) * time.Second, true)
-		if client.mustActiveConn() == nil {
-			// found an active connection
-			// exit and signal done to the WaitGroup
-			return
-		}
-		// cannot hold the WaitGroup forever since the processor
-		// might be stopped externally
 		select {
-		case <- deadline.C:
-			// reached the deadline without an active connection
-			// exit and signal done to the WaitGroup
+		case <- interrupt:
+			// yield on external signal
 			return
 		default:
-			// repeat health check after a short wait
-			time.Sleep(time.Duration(5) * time.Second)
+			client.healthcheck(time.Duration(5) * time.Second, true)
+			if client.mustActiveConn() == nil {
+				// found an active connection
+				// exit and signal done to the WaitGroup
+				return
+			}
+			// cannot hold the WaitGroup forever since the processor
+			// might be stopped externally
+			select {
+			case <- deadline.C:
+				// reached the deadline without an active connection
+				// exit and signal done to the WaitGroup
+				w.p.c.errorf("elastic: bulk processor %q failed to find an active connection before the deadline", w.p.name)
+				return
+			default:
+				// repeat health check after a short wait
+				time.Sleep(time.Duration(5) * time.Second)
+			}
 		}
 	}
 }
