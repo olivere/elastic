@@ -38,9 +38,6 @@ func TestBulkProcessorDefaults(t *testing.T) {
 	if got, want := p.wantStats, false; got != want {
 		t.Errorf("expected %v; got: %v", want, got)
 	}
-	if got, want := p.stopRecon, time.Duration(5) * time.Minute; got != want {
-		t.Errorf("expected %v; got: %v", want, got)
-	}
 	if p.backoff == nil {
 		t.Fatalf("expected non-nill backoff; got: %v", p.backoff)
 	}
