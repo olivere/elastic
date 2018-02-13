@@ -6,6 +6,8 @@ package elastic
 
 import (
 	"context"
+	"github.com/pkg/errors"
+	"net"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -248,6 +250,7 @@ type BulkProcessor struct {
 
 	statsMu sync.Mutex // guards the following block
 	stats   *BulkProcessorStats
+	reconnC chan bool // channel to signal stop reconnection attempts
 }
 
 func newBulkProcessor(
@@ -284,6 +287,8 @@ func (p *BulkProcessor) Start(ctx context.Context) error {
 	if p.started {
 		return nil
 	}
+
+	p.reconnC = make(chan bool)
 
 	// We must have at least one worker.
 	if p.numWorkers < 1 {
@@ -330,6 +335,8 @@ func (p *BulkProcessor) Close() error {
 	if !p.started {
 		return nil
 	}
+	// Tell any active connection checkers to stop
+	close(p.reconnC)
 
 	// Stop flusher (if enabled)
 	if p.flusherStopC != nil {
@@ -436,28 +443,47 @@ func (w *bulkWorker) work(ctx context.Context) {
 
 	var stop bool
 	for !stop {
+		var err error
 		select {
 		case req, open := <-w.p.requestsC:
 			if open {
 				// Received a new request
 				w.service.Add(req)
 				if w.commitRequired() {
-					w.commit(ctx) // TODO swallow errors here?
+					err = w.commit(ctx)
 				}
 			} else {
 				// Channel closed: Stop.
 				stop = true
 				if w.service.NumberOfActions() > 0 {
-					w.commit(ctx) // TODO swallow errors here?
+					err = w.commit(ctx)
 				}
 			}
 
 		case <-w.flushC:
 			// Commit outstanding requests
 			if w.service.NumberOfActions() > 0 {
-				w.commit(ctx) // TODO swallow errors here?
+				err = w.commit(ctx)
 			}
 			w.flushAckC <- struct{}{}
+		}
+		if !stop && err != nil {
+			waitForActive := func() {
+				// add to a WaitGroup that puts back pressure on Add calls
+				// into the processor until a live connection is detected
+				// otherwise the request queue will build until resources
+				// are exhausted since only successful commits trigger a
+				// request slice reset
+				var wg sync.WaitGroup
+				wg.Add(1)
+				go w.waitForActiveConnection(&wg)
+				wg.Wait()
+			}
+			if _, ok := err.(net.Error); ok {
+				waitForActive()
+			} else if err == ErrNoClient || errors.Cause(err) == ErrNoClient {
+				waitForActive()
+			}
 		}
 	}
 }
@@ -509,6 +535,31 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 	}
 
 	return err
+}
+
+func (w *bulkWorker) waitForActiveConnection(wg *sync.WaitGroup) {
+	defer wg.Done()
+	client := w.p.c
+	reconnC := w.p.reconnC
+	w.p.c.errorf("elastic: bulk processor %q is waiting for an active connection", w.p.name)
+	// loop until a health check finds at least 1 active connection or the reconnection channel is closed
+	for {
+		select {
+		case _, ok := <-reconnC:
+			if !ok {
+				w.p.c.errorf("elastic: bulk processor %q active connection check interrupted", w.p.name)
+				return
+			}
+		default:
+			client.healthcheck(time.Duration(5)*time.Second, true)
+			if client.mustActiveConn() == nil {
+				// found an active connection
+				// exit and signal done to the WaitGroup
+				return
+			}
+			time.Sleep(time.Duration(5) * time.Second)
+		}
+	}
 }
 
 func (w *bulkWorker) updateStats(res *BulkResponse) {
