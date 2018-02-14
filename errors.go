@@ -94,7 +94,7 @@ func (e *Error) Error() string {
 // IsConnErr returns true if the error indicates that Elastic could not
 // find an Elasticsearch host to connect to.
 func IsConnErr(err error) bool {
-	return errors.Cause(err) == ErrNoClient
+	return err == ErrNoClient || errors.Cause(err) == ErrNoClient
 }
 
 // IsNotFound returns true if the given error indicates that Elasticsearch
