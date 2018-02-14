@@ -27,6 +27,7 @@ type ReindexService struct {
 	conflicts           string
 	size                *int
 	script              *Script
+	slices              *int
 }
 
 // NewReindexService creates a new ReindexService.
@@ -160,6 +161,13 @@ func (s *ReindexService) Script(script *Script) *ReindexService {
 	return s
 }
 
+// Slices automates slicing of scroll queries returned by the reindex operation,
+// which can then be consumed in parallel.
+func (s *ReindexService) Slices(slices int) *ReindexService {
+	s.slices = &slices
+	return s
+}
+
 // Body specifies the body of the request to send to Elasticsearch.
 // It overrides settings specified with other setters, e.g. Query.
 func (s *ReindexService) Body(body interface{}) *ReindexService {
@@ -194,6 +202,9 @@ func (s *ReindexService) buildURL() (string, url.Values, error) {
 	}
 	if s.waitForCompletion != nil {
 		params.Set("wait_for_completion", fmt.Sprintf("%v", *s.waitForCompletion))
+	}
+	if s.slices != nil {
+		params.Set("slices", fmt.Sprintf("%v", *s.slices))
 	}
 	return path, params, nil
 }
