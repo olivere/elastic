@@ -28,6 +28,7 @@ type ScrollService struct {
 	types             []string
 	keepAlive         string
 	body              interface{}
+	nextbody          interface{}      
 	ss                *SearchSource
 	size              *int
 	pretty            bool
@@ -104,6 +105,15 @@ func (s *ScrollService) Size(size int) *ScrollService {
 func (s *ScrollService) Body(body interface{}) *ScrollService {
 	s.body = body
 	return s
+}
+
+// NextBody sets the raw body to send to Elasticsearch Scroll API.
+// This can be e.g. a string, a map[string]interface{} or anything that
+// can be serialized into JSON.
+// This overrides the default Scroll API body
+func (s *ScrollService) NextBody(body interface{}) *ScrollService {
+    s.nextbody = body
+    return s
 }
 
 // SearchSource sets the search source builder to use with this iterator.
@@ -461,8 +471,8 @@ func (s *ScrollService) bodyNext() (interface{}, error) {
 
 	var  body interface{}
 	
-	if s.body != nil {
-		body = s.body
+	if s.nextbody != nil {
+		body = s.nextbody
 	} else {
 		body = struct {
 			Scroll   string `json:"scroll"`
