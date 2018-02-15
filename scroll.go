@@ -458,12 +458,19 @@ func (s *ScrollService) buildNextURL() (string, url.Values, error) {
 // body returns the request to fetch the next batch of results.
 func (s *ScrollService) bodyNext() (interface{}, error) {
 	s.mu.RLock()
-	body := struct {
-		Scroll   string `json:"scroll"`
-		ScrollId string `json:"scroll_id,omitempty"`
-	}{
-		Scroll:   s.keepAlive,
-		ScrollId: s.scrollId,
+
+	var  body interface{}
+	
+	if s.body != nil {
+		body = s.body
+	} else {
+		body = struct {
+			Scroll   string `json:"scroll"`
+			ScrollId string `json:"scroll_id,omitempty"`
+		}{
+			Scroll:   s.keepAlive,
+			ScrollId: s.scrollId,
+		}
 	}
 	s.mu.RUnlock()
 	return body, nil
