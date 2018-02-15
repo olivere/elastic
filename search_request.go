@@ -13,7 +13,7 @@ import (
 // query details (see SearchSource).
 // It is used in combination with MultiSearch.
 type SearchRequest struct {
-	searchType        string // default in ES is "query_then_fetch"
+	searchType        string
 	indices           []string
 	types             []string
 	routing           *string
@@ -31,36 +31,27 @@ func NewSearchRequest() *SearchRequest {
 	return &SearchRequest{}
 }
 
-// SearchRequest must be one of "query_then_fetch", "query_and_fetch",
-// "scan", "count", "dfs_query_then_fetch", or "dfs_query_and_fetch".
-// Use one of the constants defined via SearchType.
+// SearchRequest must be one of dfs_query_then_fetch, query_then_fetch
+// or query_and_fetch (deprecated in 5.3).
 func (r *SearchRequest) SearchType(searchType string) *SearchRequest {
 	r.searchType = searchType
 	return r
 }
 
+// SearchTypeDfsQueryThenFetch sets search type to dfs_query_then_fetch.
 func (r *SearchRequest) SearchTypeDfsQueryThenFetch() *SearchRequest {
 	return r.SearchType("dfs_query_then_fetch")
 }
 
-func (r *SearchRequest) SearchTypeDfsQueryAndFetch() *SearchRequest {
-	return r.SearchType("dfs_query_and_fetch")
-}
-
+// SearchTypeQueryThenFetch sets search type to query_then_fetch.
 func (r *SearchRequest) SearchTypeQueryThenFetch() *SearchRequest {
 	return r.SearchType("query_then_fetch")
 }
 
+// SearchTypeQueryAndFetch sets search type to query_and_fetch which
+// was deprecated in 5.3.
 func (r *SearchRequest) SearchTypeQueryAndFetch() *SearchRequest {
 	return r.SearchType("query_and_fetch")
-}
-
-func (r *SearchRequest) SearchTypeScan() *SearchRequest {
-	return r.SearchType("scan")
-}
-
-func (r *SearchRequest) SearchTypeCount() *SearchRequest {
-	return r.SearchType("count")
 }
 
 func (r *SearchRequest) Index(indices ...string) *SearchRequest {

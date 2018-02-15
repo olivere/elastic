@@ -111,8 +111,7 @@ func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
 }
 
 // SearchType sets the search operation type. Valid values are:
-// "query_then_fetch", "query_and_fetch", "dfs_query_then_fetch",
-// "dfs_query_and_fetch", "count", "scan".
+// "dfs_query_then_fetch" and "query_then_fetch".
 // See https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-search-type.html
 // for details.
 func (s *SearchService) SearchType(searchType string) *SearchService {
@@ -408,7 +407,7 @@ func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 // SearchResult is the result of a search in Elasticsearch.
 type SearchResult struct {
 	TookInMillis int64          `json:"took"`              // search time in milliseconds
-	ScrollId     string         `json:"_scroll_id"`        // only used with Scroll and Scan operations
+	ScrollId     string         `json:"_scroll_id"`        // only used with Scroll operations
 	Hits         *SearchHits    `json:"hits"`              // the actual search hits
 	Suggest      SearchSuggest  `json:"suggest"`           // results from suggesters
 	Aggregations Aggregations   `json:"aggregations"`      // results from aggregations

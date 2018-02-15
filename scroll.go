@@ -100,7 +100,7 @@ func (s *ScrollService) Size(size int) *ScrollService {
 // Body sets the raw body to send to Elasticsearch. This can be e.g. a string,
 // a map[string]interface{} or anything that can be serialized into JSON.
 // Notice that setting the body disables the use of SearchSource and many
-// other properties of the ScanService.
+// other properties of the SearchService.
 func (s *ScrollService) Body(body interface{}) *ScrollService {
 	s.body = body
 	return s
