@@ -110,7 +110,7 @@ func (s *ScrollService) Body(body interface{}) *ScrollService {
 // NextBody sets the raw body to send to Elasticsearch Scroll API.
 // This can be e.g. a string, a map[string]interface{} or anything that
 // can be serialized into JSON.
-// This overrides the default Scroll API body
+// This overrides the default Scroll API body allowing use with ES < 2.x
 func (s *ScrollService) NextBody(body interface{}) *ScrollService {
     s.nextbody = body
     return s
