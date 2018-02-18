@@ -160,7 +160,8 @@ func (s *CountService) Routing(routing string) *CountService {
 	return s
 }
 
-// TerminateAfter specifies the maximum count for each shard
+// TerminateAfter indicates the maximum count for each shard, upon reaching
+// which the query execution will terminate early.
 func (s *CountService) TerminateAfter(terminateAfter int) *CountService {
 	s.terminateAfter = &terminateAfter
 	return s
