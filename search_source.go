@@ -129,8 +129,8 @@ func (s *SearchSource) TimeoutInMillis(timeoutInMillis int) *SearchSource {
 	return s
 }
 
-// TerminateAfter allows the request to stop after the given number
-// of search hits are collected.
+// TerminateAfter specifies the maximum number of documents to collect for
+// each shard, upon reaching which the query execution will terminate early.
 func (s *SearchSource) TerminateAfter(terminateAfter int) *SearchSource {
 	s.terminateAfter = &terminateAfter
 	return s

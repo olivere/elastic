@@ -110,6 +110,13 @@ func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
 	return s
 }
 
+// TerminateAfter specifies the maximum number of documents to collect for
+// each shard, upon reaching which the query execution will terminate early.
+func (s *SearchService) TerminateAfter(terminateAfter int) *SearchService {
+	s.searchSource = s.searchSource.TerminateAfter(terminateAfter)
+	return s
+}
+
 // SearchType sets the search operation type. Valid values are:
 // "dfs_query_then_fetch" and "query_then_fetch".
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-request-search-type.html
