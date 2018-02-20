@@ -461,7 +461,10 @@ func (s *ScrollService) buildNextURL() (string, url.Values, error) {
 	if s.pretty {
 		params.Set("pretty", "1")
 	}
-
+	if len(s.keepAlive) > 0 {
+		params.Set("scroll", s.keepAlive)
+	}
+	
 	return path, params, nil
 }
 
