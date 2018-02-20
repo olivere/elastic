@@ -30,7 +30,7 @@ func NewTermsQuery(name string, values ...interface{}) *TermsQuery {
 }
 // Terms adds terms to the filter.
 func (q *TermsQuery) Terms(values ...interface{}) *TermsQuery {
-	q.values = append(q.values, ...values)
+	q.values = append(q.values, values...)
 	return q
 }
 
