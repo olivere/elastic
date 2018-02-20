@@ -28,6 +28,13 @@ func NewTermsQuery(name string, values ...interface{}) *TermsQuery {
 	}
 	return q
 }
+// Terms adds terms to the filter.
+func (q *TermsQuery) Terms(values ...interface{}) *TermsQuery {
+	q.values = append(q.values, values...)
+	return q
+}
+
+
 
 // TermsLookup adds terms lookup details to the query.
 func (q *TermsQuery) TermsLookup(lookup *TermsLookup) *TermsQuery {
