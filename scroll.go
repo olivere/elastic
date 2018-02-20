@@ -28,6 +28,7 @@ type ScrollService struct {
 	types             []string
 	keepAlive         string
 	body              interface{}
+	nextbody          interface{}      
 	ss                *SearchSource
 	size              *int
 	pretty            bool
@@ -104,6 +105,15 @@ func (s *ScrollService) Size(size int) *ScrollService {
 func (s *ScrollService) Body(body interface{}) *ScrollService {
 	s.body = body
 	return s
+}
+
+// NextBody sets the raw body to send to Elasticsearch Scroll API.
+// This can be e.g. a string, a map[string]interface{} or anything that
+// can be serialized into JSON.
+// This overrides the default Scroll API body allowing use with ES < 2.x
+func (s *ScrollService) NextBody(body interface{}) *ScrollService {
+    s.nextbody = body
+    return s
 }
 
 // SearchSource sets the search source builder to use with this iterator.
@@ -451,19 +461,29 @@ func (s *ScrollService) buildNextURL() (string, url.Values, error) {
 	if s.pretty {
 		params.Set("pretty", "1")
 	}
-
+	if len(s.keepAlive) > 0 {
+		params.Set("scroll", s.keepAlive)
+	}
+	
 	return path, params, nil
 }
 
 // body returns the request to fetch the next batch of results.
 func (s *ScrollService) bodyNext() (interface{}, error) {
 	s.mu.RLock()
-	body := struct {
-		Scroll   string `json:"scroll"`
-		ScrollId string `json:"scroll_id,omitempty"`
-	}{
-		Scroll:   s.keepAlive,
-		ScrollId: s.scrollId,
+
+	var  body interface{}
+	
+	if s.nextbody != nil {
+		body = s.nextbody
+	} else {
+		body = struct {
+			Scroll   string `json:"scroll"`
+			ScrollId string `json:"scroll_id,omitempty"`
+		}{
+			Scroll:   s.keepAlive,
+			ScrollId: s.scrollId,
+		}
 	}
 	s.mu.RUnlock()
 	return body, nil
