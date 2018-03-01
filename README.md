@@ -1,6 +1,6 @@
 # Elastic
 
-**This is a development branch that is actively being worked on. DO NOT USE IN PRODUCTION!**
+**This is a development branch that is actively being worked on. DO NOT USE IN PRODUCTION! If you want to use stable versions of Elastic, please use a dependency manager like [dep](https://github.com/golang/dep).**
 
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for the
 [Go](http://www.golang.org/) programming language.
