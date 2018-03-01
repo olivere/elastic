@@ -126,6 +126,7 @@ Here's a [link to a complete working example for v6](https://gist.github.com/oli
 
 See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 
+There are also [some recipes](https://github.com/olivere/elastic/tree/release-branch.v6/recipes) for bulk indexing, scrolling through documents in indices etc.
 
 ## API Status
 
