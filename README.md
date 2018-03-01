@@ -122,7 +122,7 @@ creating a client, creating an index, adding a document, executing a search etc.
 
 An example is available [here](https://olivere.github.io/elastic/).
 
-Here's a [link to a complete working example for v3](https://gist.github.com/olivere/114347ff9d9cfdca7bdc0ecea8b82263).
+Here's a [link to a complete working example for v6](https://gist.github.com/olivere/e4a376b4783c0914e44ea4f745ce2ebf).
 
 See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 
