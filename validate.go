@@ -234,13 +234,6 @@ func (s *ValidateService) buildURL() (string, url.Values, error) {
 
 // Validate checks if the operation is valid.
 func (s *ValidateService) Validate() error {
-	var invalid []string
-	if len(s.index) < 1 {
-		invalid = append(invalid, "Index")
-	}
-	if len(invalid) > 0 {
-		return fmt.Errorf("missing required fields: %v", invalid)
-	}
 	return nil
 }
 
