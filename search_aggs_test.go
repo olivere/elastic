@@ -923,15 +923,15 @@ func TestAggs(t *testing.T) {
 	if geoHashRes == nil {
 		t.Fatalf("expected != nil; got: nil")
 	}
-	//
-	//// geo_centroid
-	//geoCentroidRes, found := agg.GeoBounds("centroid")
-	//if !found {
-	//	t.Errorf("expected %v; got: %v", true, found)
-	//}
-	//if geoCentroidRes == nil {
-	//	t.Fatalf("expected != nil; got: nil")
-	//}
+
+	// geo_centroid
+	geoCentroidRes, found := agg.GeoBounds("centroid")
+	if !found {
+		t.Errorf("expected %v; got: %v", true, found)
+	}
+	if geoCentroidRes == nil {
+		t.Fatalf("expected != nil; got: nil")
+	}
 
 	// Filters agg "countByUser" (unnamed)
 	countByUserAggRes, found := agg.Filters("countByUser")
