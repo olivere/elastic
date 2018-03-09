@@ -13,8 +13,7 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// SearchShardsService computes a score explanation for a query and
-// a specific document.
+// SearchShardsService returns the indices and shards that a search request would be executed against.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-shards.html
 type SearchShardsService struct {
 	client            *Client
