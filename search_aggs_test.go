@@ -925,7 +925,7 @@ func TestAggs(t *testing.T) {
 	}
 
 	// geo_centroid
-	geoCentroidRes, found := agg.GeoBounds("centroid")
+	geoCentroidRes, found := agg.GeoCentroid("centroid")
 	if !found {
 		t.Errorf("expected %v; got: %v", true, found)
 	}
