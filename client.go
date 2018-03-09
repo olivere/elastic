@@ -1430,7 +1430,11 @@ func (c *Client) Explain(index, typ, id string) *ExplainService {
 // TODO Search Template
 // TODO Search Shards API
 // TODO Search Exists API
-// TODO Validate API
+
+// Validate allows a user to validate a potentially expensive query without executing it.
+func (c *Client) Validate(indices ...string) *ValidateService {
+	return NewValidateService(c).Index(indices...)
+}
 
 // FieldCaps returns statistical information about fields in indices.
 func (c *Client) FieldCaps(indices ...string) *FieldCapsService {

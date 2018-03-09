@@ -159,7 +159,7 @@ There are also [some recipes](https://github.com/olivere/elastic/tree/release-br
   - [x] Context Suggester
 - [x] Multi Search API
 - [x] Count API
-- [ ] Validate API
+- [x] Validate API
 - [x] Explain API
 - [x] Profile API
 - [x] Field Capabilities API
