@@ -109,6 +109,7 @@ func TestAggs(t *testing.T) {
 		NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).Field("retweets"),
 		NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
 	)
+	geoCentroidAgg := NewGeoCentroidAggregation().Field("location")
 
 	// Run query
 	builder := client.Search().Index(testIndexName).Query(all).Pretty(true)
@@ -139,6 +140,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("top-tags", topTagsAgg)
 	builder = builder.Aggregation("viewport", geoBoundsAgg)
 	builder = builder.Aggregation("geohashed", geoHashAgg)
+	builder = builder.Aggregation("centroid", geoCentroidAgg)
 	// Unnamed filters
 	countByUserAgg := NewFiltersAggregation().
 		Filters(NewTermQuery("user", "olivere"), NewTermQuery("user", "sandrae"))
@@ -921,6 +923,15 @@ func TestAggs(t *testing.T) {
 	if geoHashRes == nil {
 		t.Fatalf("expected != nil; got: nil")
 	}
+	//
+	//// geo_centroid
+	//geoCentroidRes, found := agg.GeoBounds("centroid")
+	//if !found {
+	//	t.Errorf("expected %v; got: %v", true, found)
+	//}
+	//if geoCentroidRes == nil {
+	//	t.Fatalf("expected != nil; got: nil")
+	//}
 
 	// Filters agg "countByUser" (unnamed)
 	countByUserAggRes, found := agg.Filters("countByUser")
@@ -2716,6 +2727,41 @@ func TestAggsBucketGeoHash(t *testing.T) {
 	}
 	if agg.Buckets[1].DocCount != 3198 {
 		t.Errorf("expected doc count %d; got: %d", 3198, agg.Buckets[1].DocCount)
+	}
+}
+
+func TestAggsMetricsGeoCentroid(t *testing.T) {
+	s := `{
+  "centroid": {
+    "location": {
+		"lat": 80.45,
+		"lon": -160.22
+    },
+	"count": 6
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.GeoCentroid("centroid")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Location.Latitude != float64(80.45) {
+		t.Fatalf("expected Location.Latitude != %v; got: %v", float64(80.45), agg.Location.Latitude)
+	}
+	if agg.Location.Longitude != float64(-160.22) {
+		t.Fatalf("expected Location.Longitude != %v; got: %v", float64(-160.22), agg.Location.Longitude)
+	}
+	if agg.Count != int(6) {
+		t.Fatalf("expected Count != %v; got: %v", int(6), agg.Count)
 	}
 }
 
