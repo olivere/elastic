@@ -7,21 +7,25 @@ package elastic
 import (
 	"context"
 	"fmt"
-	"github.com/olivere/elastic/uritemplates"
 	"net/url"
 	"strings"
+
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // SearchShardsService computes a score explanation for a query and
 // a specific document.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-shards.html
 type SearchShardsService struct {
-	client     *Client
-	pretty     bool
-	index      []string
-	routing    string
-	local      *bool
-	preference string
+	client            *Client
+	pretty            bool
+	index             []string
+	routing           string
+	local             *bool
+	preference        string
+	ignoreUnavailable *bool
+	allowNoIndices    *bool
+	expandWildcards   string
 }
 
 // NewSearchShardsService creates a new SearchShardsService.
@@ -33,9 +37,6 @@ func NewSearchShardsService(client *Client) *SearchShardsService {
 
 // Index sets the names of the indices to restrict the results.
 func (s *SearchShardsService) Index(index ...string) *SearchShardsService {
-	if s.index == nil {
-		s.index = make([]string, 0)
-	}
 	s.index = append(s.index, index...)
 	return s
 }
@@ -65,6 +66,28 @@ func (s *SearchShardsService) Pretty(pretty bool) *SearchShardsService {
 	return s
 }
 
+// IgnoreUnavailable indicates whether the specified concrete indices
+// should be ignored when unavailable (missing or closed).
+func (s *SearchShardsService) IgnoreUnavailable(ignoreUnavailable bool) *SearchShardsService {
+	s.ignoreUnavailable = &ignoreUnavailable
+	return s
+}
+
+// AllowNoIndices indicates whether to ignore if a wildcard indices
+// expression resolves into no concrete indices. (This includes `_all` string
+// or when no indices have been specified).
+func (s *SearchShardsService) AllowNoIndices(allowNoIndices bool) *SearchShardsService {
+	s.allowNoIndices = &allowNoIndices
+	return s
+}
+
+// ExpandWildcards indicates whether to expand wildcard expression to
+// concrete indices that are open, closed or both.
+func (s *SearchShardsService) ExpandWildcards(expandWildcards string) *SearchShardsService {
+	s.expandWildcards = expandWildcards
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *SearchShardsService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -88,6 +111,15 @@ func (s *SearchShardsService) buildURL() (string, url.Values, error) {
 	}
 	if s.routing != "" {
 		params.Set("routing", s.routing)
+	}
+	if s.allowNoIndices != nil {
+		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+	}
+	if s.expandWildcards != "" {
+		params.Set("expand_wildcards", s.expandWildcards)
+	}
+	if s.ignoreUnavailable != nil {
+		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
 	}
 	return path, params, nil
 }
