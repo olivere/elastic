@@ -182,7 +182,7 @@ There are also [some recipes](https://github.com/olivere/elastic/tree/release-br
   - [x] Top Hits
   - [x] Value Count
 - Bucket Aggregations
-  - [ ] Adjacency Matrix
+  - [x] Adjacency Matrix
   - [x] Children
   - [x] Date Histogram
   - [x] Date Range
