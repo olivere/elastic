@@ -7,8 +7,6 @@ package elastic
 import (
 	"context"
 	"encoding/json"
-	"log"
-	"os"
 	"strings"
 	"testing"
 	"time"
