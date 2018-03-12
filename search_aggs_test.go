@@ -90,6 +90,7 @@ func TestAggs(t *testing.T) {
 	cardinalityAgg := NewCardinalityAggregation().Field("user")
 	significantTermsAgg := NewSignificantTermsAggregation().Field("message")
 	samplerAgg := NewSamplerAggregation().SubAggregation("tagged_with", NewTermsAggregation().Field("tags"))
+	diversifiedSamplerAgg := NewDiversifiedSamplerAggregation().SubAggregation("tagged_with", NewTermsAggregation().Field("tags"))
 	retweetsRangeAgg := NewRangeAggregation().Field("retweets").Lt(10).Between(10, 100).Gt(100)
 	retweetsKeyedRangeAgg := NewRangeAggregation().Field("retweets").Keyed(true).Lt(10).Between(10, 100).Gt(100)
 	dateRangeAgg := NewDateRangeAggregation().Field("created").Lt("2012-01-01").Between("2012-01-01", "2013-01-01").Gt("2013-01-01")
@@ -128,6 +129,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("usersCardinality", cardinalityAgg)
 	builder = builder.Aggregation("significantTerms", significantTermsAgg)
 	builder = builder.Aggregation("sample", samplerAgg)
+	builder = builder.Aggregation("diversified_sampler", diversifiedSamplerAgg)
 	builder = builder.Aggregation("retweetsRange", retweetsRangeAgg)
 	builder = builder.Aggregation("retweetsKeyedRange", retweetsKeyedRangeAgg)
 	builder = builder.Aggregation("dateRange", dateRangeAgg)
@@ -617,6 +619,25 @@ func TestAggs(t *testing.T) {
 	}
 	if sub == nil {
 		t.Fatalf("expected sub aggregation %q; got: %v", "tagged_with", sub)
+	}
+
+	// diversified_sampler
+	diversifiedSamplerAggRes, found := agg.DiversifiedSampler("diversified_sampler")
+	if !found {
+		t.Errorf("expected %v; got: %v", true, found)
+	}
+	if diversifiedSamplerAggRes == nil {
+		t.Fatalf("expected != nil; got: nil")
+	}
+	if diversifiedSamplerAggRes.DocCount != 3 {
+		t.Errorf("expected %v; got: %v", 3, diversifiedSamplerAggRes.DocCount)
+	}
+	subAgg, found := diversifiedSamplerAggRes.Aggregations["tagged_with"]
+	if !found {
+		t.Fatalf("expected sub aggregation %q", "tagged_with")
+	}
+	if subAgg == nil {
+		t.Fatalf("expected sub aggregation %q; got: %v", "tagged_with", subAgg)
 	}
 
 	// retweetsRange
@@ -2259,6 +2280,49 @@ func TestAggsBucketSampler(t *testing.T) {
 	}
 
 	agg, found := aggs.Sampler("sample")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.DocCount != 1000 {
+		t.Fatalf("expected aggregation DocCount != %d; got: %d", 1000, agg.DocCount)
+	}
+	sub, found := agg.Aggregations["keywords"]
+	if !found {
+		t.Fatalf("expected sub aggregation %q", "keywords")
+	}
+	if sub == nil {
+		t.Fatalf("expected sub aggregation %q; got: %v", "keywords", sub)
+	}
+}
+
+func TestAggsBucketDiversifiedSampler(t *testing.T) {
+	s := `{
+	"diversified_sampler" : {
+    "doc_count": 1000,
+    "keywords": {
+    	"doc_count": 1000,
+	    "buckets" : [
+	      {
+	        "key": "bend",
+	        "doc_count": 58,
+	        "score": 37.982536582524276,
+	        "bg_count": 103
+	      }
+	    ]
+    }
+	}
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.DiversifiedSampler("diversified_sampler")
 	if !found {
 		t.Fatalf("expected aggregation to be found; got: %v", found)
 	}

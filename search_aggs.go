@@ -353,6 +353,21 @@ func (a Aggregations) Sampler(name string) (*AggregationSingleBucket, bool) {
 	return nil, false
 }
 
+// DiversifiedSampler returns diversified_sampler aggregation results.
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-bucket-diversified-sampler-aggregation.html
+func (a Aggregations) DiversifiedSampler(name string) (*AggregationSingleBucket, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationSingleBucket)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // Range returns range aggregation results.
 // See: https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-bucket-range-aggregation.html
 func (a Aggregations) Range(name string) (*AggregationBucketRangeItems, bool) {
