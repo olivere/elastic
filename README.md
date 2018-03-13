@@ -172,6 +172,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Children
   - [x] Date Histogram
   - [x] Date Range
+  - [x] Diversified Sampler
   - [x] Filter
   - [x] Filters
   - [x] Geo Distance
