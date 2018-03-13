@@ -144,7 +144,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Multi Search API
 - [x] Count API
 - [ ] Search Exists API
-- [ ] Validate API
+- [x] Validate API
 - [x] Explain API
 - [x] Profile API
 - [x] Field Capabilities API

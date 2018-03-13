@@ -1468,7 +1468,11 @@ func (c *Client) Explain(index, typ, id string) *ExplainService {
 
 // TODO Search Template
 // TODO Search Exists API
-// TODO Validate API
+
+// Validate allows a user to validate a potentially expensive query without executing it.
+func (c *Client) Validate(indices ...string) *ValidateService {
+	return NewValidateService(c).Index(indices...)
+}
 
 // SearchShards returns statistical information about nodes and shards.
 func (c *Client) SearchShards(indices ...string) *SearchShardsService {
