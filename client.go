@@ -1089,11 +1089,6 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 	var lastErr error
 	start := time.Now()
 	for {
-		// Make a copy of the HTTP client provided via options to respect
-		// settings like Basic Auth or a user-specified http.Transport.
-		cl := new(http.Client)
-		*cl = *c.c
-		cl.Timeout = timeout
 		for _, url := range urls {
 			req, err := http.NewRequest("HEAD", url, nil)
 			if err != nil {
@@ -1102,7 +1097,10 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 			if basicAuth {
 				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 			}
-			res, err := cl.Do(req)
+			ctx, cancel := context.WithTimeout(req.Context(), timeout)
+			defer cancel()
+			req = req.WithContext(ctx)
+			res, err := c.c.Do(req)
 			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
 				return nil
 			} else if err != nil {
@@ -1110,7 +1108,7 @@ func (c *Client) startupHealthcheck(timeout time.Duration) error {
 			}
 		}
 		time.Sleep(1 * time.Second)
-		if time.Now().Sub(start) > timeout {
+		if time.Since(start) > timeout {
 			break
 		}
 	}
