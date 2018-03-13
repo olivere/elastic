@@ -157,7 +157,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
   - [x] Cardinality
   - [x] Extended Stats
   - [x] Geo Bounds
-  - [ ] Geo Centroid
+  - [x] Geo Centroid
   - [x] Max
   - [x] Min
   - [x] Percentiles

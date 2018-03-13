@@ -503,6 +503,21 @@ func (a Aggregations) GeoHash(name string) (*AggregationBucketKeyItems, bool) {
 	return nil, false
 }
 
+// GeoCentroid returns geo-centroid aggregation results.
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-metrics-geocentroid-aggregation.html
+func (a Aggregations) GeoCentroid(name string) (*AggregationGeoCentroidMetric, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationGeoCentroidMetric)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // GeoDistance returns geo distance aggregation results.
 // See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-bucket-geodistance-aggregation.html
 func (a Aggregations) GeoDistance(name string) (*AggregationBucketRangeItems, bool) {
@@ -930,6 +945,41 @@ func (a *AggregationGeoBoundsMetric) UnmarshalJSON(data []byte) error {
 	}
 	if v, ok := aggs["meta"]; ok && v != nil {
 		json.Unmarshal(*v, &a.Meta)
+	}
+	a.Aggregations = aggs
+	return nil
+}
+
+// -- Geo Centroid --
+
+// AggregationGeocentroidMetric is a metric as returned by a GeoCentroid aggregation.
+type AggregationGeoCentroidMetric struct {
+	Aggregations
+
+	Location struct {
+		Latitude  float64 `json:"lat"`
+		Longitude float64 `json:"lon"`
+	} `json:"location"`
+
+	Count int // `json:"count,omitempty"`
+
+	Meta map[string]interface{} // `json:"meta,omitempty"`
+}
+
+// UnmarshalJSON decodes JSON data and initializes an AggregationGeoCentroidMetric structure.
+func (a *AggregationGeoCentroidMetric) UnmarshalJSON(data []byte) error {
+	var aggs map[string]*json.RawMessage
+	if err := json.Unmarshal(data, &aggs); err != nil {
+		return err
+	}
+	if v, ok := aggs["location"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Location)
+	}
+	if v, ok := aggs["meta"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Meta)
+	}
+	if v, ok := aggs["count"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Count)
 	}
 	a.Aggregations = aggs
 	return nil
