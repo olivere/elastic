@@ -42,8 +42,14 @@ func TestValidate(t *testing.T) {
 	}
 
 	invalidQuery := NewTermQuery("", false)
-	valid2, err := client.Validate(testIndexName).Type("doc").Query(invalidQuery).Do(context.TODO())
-	if valid2.Valid {
-		t.Errorf("expected valid to be %v; got: %v", false, valid2.Valid)
+	valid, err = client.Validate(testIndexName).Type("doc").Query(invalidQuery).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if valid == nil {
+		t.Fatal("expected to return an validation")
+	}
+	if valid.Valid {
+		t.Errorf("expected valid to be %v; got: %v", false, valid.Valid)
 	}
 }
