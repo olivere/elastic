@@ -148,6 +148,11 @@ func TestAggs(t *testing.T) {
 		FilterWithName("olivere", NewTermQuery("user", "olivere")).
 		FilterWithName("sandrae", NewTermQuery("user", "sandrae"))
 	builder = builder.Aggregation("countByUser2", countByUserAgg2)
+	// AdjacencyMatrix
+	adjacencyMatrixAgg := NewAdjacencyMatrixAggregation().
+		Filters("groupA", NewTermQuery("user", "olivere")).
+		Filters("groupB", NewTermQuery("user", "sandrae"))
+	builder = builder.Aggregation("interactions", adjacencyMatrixAgg)
 	// AvgBucket
 	dateHisto := NewDateHistogramAggregation().Field("created").Interval("year")
 	dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
@@ -976,6 +981,24 @@ func TestAggs(t *testing.T) {
 	}
 	if b.DocCount != 1 {
 		t.Errorf("expected %d; got: %d", 1, b.DocCount)
+	}
+
+	// AdjacencyMatrix agg "adjacencyMatrixAgg" (named)
+	adjacencyMatrixAggRes, found := agg.AdjacencyMatrix("interactions")
+	if !found {
+		t.Errorf("expected %v; got: %v", true, found)
+	}
+	if adjacencyMatrixAggRes == nil {
+		t.Fatalf("expected != nil; got: nil")
+	}
+	if len(adjacencyMatrixAggRes.Buckets) != 2 {
+		t.Fatalf("expected %d; got: %d", 2, len(adjacencyMatrixAggRes.Buckets))
+	}
+	if adjacencyMatrixAggRes.Buckets[0].DocCount != 2 {
+		t.Errorf("expected %d; got: %d", 2, adjacencyMatrixAggRes.Buckets[0].DocCount)
+	}
+	if adjacencyMatrixAggRes.Buckets[1].DocCount != 1 {
+		t.Errorf("expected %d; got: %d", 1, adjacencyMatrixAggRes.Buckets[1].DocCount)
 	}
 
 	compositeAggRes, found := agg.Composite("composite")
@@ -1904,6 +1927,71 @@ func TestAggsBucketFiltersWithNamedBuckets(t *testing.T) {
 		t.Fatalf("expected DocCount = %d; got: %d", 439, agg.NamedBuckets["warnings"].DocCount)
 	}
 	subAgg, found = agg.NamedBuckets["warnings"].Histogram("monthly")
+	if !found {
+		t.Fatalf("expected sub aggregation to be found; got: %v", found)
+	}
+	if subAgg == nil {
+		t.Fatalf("expected sub aggregation != %v; got: %v", nil, subAgg)
+	}
+}
+
+func TestAggsBucketAdjacencyMatrix(t *testing.T) {
+	s := `{
+	"interactions": {
+		"buckets": [
+			{
+				"key": "grpA",
+				"doc_count": 2,
+				"monthly": {
+					"buckets": []
+				}
+			},
+			{
+				"key": "grpA&grpB",
+				"doc_count": 1,
+				"monthly": {
+					"buckets": []
+				}
+			}
+		]
+	}
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.AdjacencyMatrix("interactions")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Buckets == nil {
+		t.Fatalf("expected aggregation buckets != %v; got: %v", nil, agg.Buckets)
+	}
+	if len(agg.Buckets) != 2 {
+		t.Fatalf("expected %d buckets; got: %d", 2, len(agg.Buckets))
+	}
+
+	if agg.Buckets[0].DocCount != 2 {
+		t.Fatalf("expected DocCount = %d; got: %d", 2, agg.Buckets[0].DocCount)
+	}
+	subAgg, found := agg.Buckets[0].Histogram("monthly")
+	if !found {
+		t.Fatalf("expected sub aggregation to be found; got: %v", found)
+	}
+	if subAgg == nil {
+		t.Fatalf("expected sub aggregation != %v; got: %v", nil, subAgg)
+	}
+
+	if agg.Buckets[1].DocCount != 1 {
+		t.Fatalf("expected DocCount = %d; got: %d", 1, agg.Buckets[1].DocCount)
+	}
+	subAgg, found = agg.Buckets[1].Histogram("monthly")
 	if !found {
 		t.Fatalf("expected sub aggregation to be found; got: %v", found)
 	}
