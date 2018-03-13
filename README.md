@@ -186,7 +186,7 @@ There are also [some recipes](https://github.com/olivere/elastic/tree/release-br
   - [x] Children
   - [x] Date Histogram
   - [x] Date Range
-  - [ ] Diversified Sampler
+  - [x] Diversified Sampler
   - [x] Filter
   - [x] Filters
   - [x] Geo Distance
