@@ -151,7 +151,7 @@ There are also [some recipes](https://github.com/olivere/elastic/tree/release-br
 - [x] Search
 - [x] Search Template
 - [ ] Multi Search Template
-- [ ] Search Shards API
+- [x] Search Shards API
 - [x] Suggesters
   - [x] Term Suggester
   - [x] Phrase Suggester
