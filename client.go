@@ -1467,9 +1467,13 @@ func (c *Client) Explain(index, typ, id string) *ExplainService {
 }
 
 // TODO Search Template
-// TODO Search Shards API
 // TODO Search Exists API
 // TODO Validate API
+
+// SearchShards returns statistical information about nodes and shards.
+func (c *Client) SearchShards(indices ...string) *SearchShardsService {
+	return NewSearchShardsService(c).Index(indices...)
+}
 
 // FieldCaps returns statistical information about fields in indices.
 func (c *Client) FieldCaps(indices ...string) *FieldCapsService {

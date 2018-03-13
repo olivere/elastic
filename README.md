@@ -135,7 +135,7 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
 - [x] Search
 - [x] Search Template
 - [ ] Multi Search Template
-- [ ] Search Shards API
+- [x] Search Shards API
 - [x] Suggesters
   - [x] Term Suggester
   - [x] Phrase Suggester
