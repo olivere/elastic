@@ -171,7 +171,7 @@ There are also [some recipes](https://github.com/olivere/elastic/tree/release-br
   - [x] Cardinality
   - [x] Extended Stats
   - [x] Geo Bounds
-  - [ ] Geo Centroid
+  - [x] Geo Centroid
   - [x] Max
   - [x] Min
   - [x] Percentiles
