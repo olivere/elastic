@@ -58,13 +58,13 @@ func (s *XpackWatcherAckWatchService) Pretty(pretty bool) *XpackWatcherAckWatchS
 }
 
 // BodyJson is documented as: Execution control.
-func (s *XpackWatcherActivateWatchService) BodyJson(body interface{}) *XpackWatcherActivateWatchService {
+func (s *XpackWatcherAckWatchService) BodyJson(body interface{}) *XpackWatcherAckWatchService {
 	s.bodyJson = body
 	return s
 }
 
 // BodyString is documented as: Execution control.
-func (s *XpackWatcherActivateWatchService) BodyString(body string) *XpackWatcherActivateWatchService {
+func (s *XpackWatcherAckWatchService) BodyString(body string) *XpackWatcherAckWatchService {
 	s.bodyString = body
 	return s
 }
