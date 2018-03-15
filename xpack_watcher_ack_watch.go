@@ -126,7 +126,7 @@ func (s *XpackWatcherAckWatchService) Do(ctx context.Context) (*XpackWatcherAckW
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "",
+		Method: "PUT",
 		Path:   path,
 		Params: params,
 		Body:   body,

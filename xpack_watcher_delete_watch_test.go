@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestWatcherdeleteWatch(t *testing.T) {
+func TestWatcherDeleteWatch(t *testing.T) {
 	client := setupTestClient(t)
 	watcher := NewXpackWatcherDeleteWatchService(client)
 	data, err := json.Marshal(watcher)
