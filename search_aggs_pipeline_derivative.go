@@ -16,16 +16,14 @@ type DerivativeAggregation struct {
 	gapPolicy string
 	unit      string
 
-	subAggregations map[string]Aggregation
-	meta            map[string]interface{}
-	bucketsPaths    []string
+	meta         map[string]interface{}
+	bucketsPaths []string
 }
 
 // NewDerivativeAggregation creates and initializes a new DerivativeAggregation.
 func NewDerivativeAggregation() *DerivativeAggregation {
 	return &DerivativeAggregation{
-		subAggregations: make(map[string]Aggregation),
-		bucketsPaths:    make([]string, 0),
+		bucketsPaths: make([]string, 0),
 	}
 }
 
@@ -57,12 +55,6 @@ func (a *DerivativeAggregation) GapSkip() *DerivativeAggregation {
 // It is only useful when calculating the derivative using a date_histogram.
 func (a *DerivativeAggregation) Unit(unit string) *DerivativeAggregation {
 	a.unit = unit
-	return a
-}
-
-// SubAggregation adds a sub-aggregation to this aggregation.
-func (a *DerivativeAggregation) SubAggregation(name string, subAggregation Aggregation) *DerivativeAggregation {
-	a.subAggregations[name] = subAggregation
 	return a
 }
 
@@ -100,19 +92,6 @@ func (a *DerivativeAggregation) Source() (interface{}, error) {
 		params["buckets_path"] = a.bucketsPaths[0]
 	default:
 		params["buckets_path"] = a.bucketsPaths
-	}
-
-	// AggregationBuilder (SubAggregations)
-	if len(a.subAggregations) > 0 {
-		aggsMap := make(map[string]interface{})
-		source["aggregations"] = aggsMap
-		for name, aggregate := range a.subAggregations {
-			src, err := aggregate.Source()
-			if err != nil {
-				return nil, err
-			}
-			aggsMap[name] = src
-		}
 	}
 
 	// Add Meta data if available

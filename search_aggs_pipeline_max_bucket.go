@@ -16,16 +16,14 @@ type MaxBucketAggregation struct {
 	format    string
 	gapPolicy string
 
-	subAggregations map[string]Aggregation
-	meta            map[string]interface{}
-	bucketsPaths    []string
+	meta         map[string]interface{}
+	bucketsPaths []string
 }
 
 // NewMaxBucketAggregation creates and initializes a new MaxBucketAggregation.
 func NewMaxBucketAggregation() *MaxBucketAggregation {
 	return &MaxBucketAggregation{
-		subAggregations: make(map[string]Aggregation),
-		bucketsPaths:    make([]string, 0),
+		bucketsPaths: make([]string, 0),
 	}
 }
 
@@ -50,12 +48,6 @@ func (a *MaxBucketAggregation) GapInsertZeros() *MaxBucketAggregation {
 // GapSkip skips gaps in the series.
 func (a *MaxBucketAggregation) GapSkip() *MaxBucketAggregation {
 	a.gapPolicy = "skip"
-	return a
-}
-
-// SubAggregation adds a sub-aggregation to this aggregation.
-func (a *MaxBucketAggregation) SubAggregation(name string, subAggregation Aggregation) *MaxBucketAggregation {
-	a.subAggregations[name] = subAggregation
 	return a
 }
 
@@ -90,19 +82,6 @@ func (a *MaxBucketAggregation) Source() (interface{}, error) {
 		params["buckets_path"] = a.bucketsPaths[0]
 	default:
 		params["buckets_path"] = a.bucketsPaths
-	}
-
-	// AggregationBuilder (SubAggregations)
-	if len(a.subAggregations) > 0 {
-		aggsMap := make(map[string]interface{})
-		source["aggregations"] = aggsMap
-		for name, aggregate := range a.subAggregations {
-			src, err := aggregate.Source()
-			if err != nil {
-				return nil, err
-			}
-			aggsMap[name] = src
-		}
 	}
 
 	// Add Meta data if available

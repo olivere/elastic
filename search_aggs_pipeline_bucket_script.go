@@ -16,7 +16,6 @@ type BucketScriptAggregation struct {
 	gapPolicy string
 	script    *Script
 
-	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 	bucketsPathsMap map[string]string
 }
@@ -24,7 +23,6 @@ type BucketScriptAggregation struct {
 // NewBucketScriptAggregation creates and initializes a new BucketScriptAggregation.
 func NewBucketScriptAggregation() *BucketScriptAggregation {
 	return &BucketScriptAggregation{
-		subAggregations: make(map[string]Aggregation),
 		bucketsPathsMap: make(map[string]string),
 	}
 }
@@ -56,12 +54,6 @@ func (a *BucketScriptAggregation) GapSkip() *BucketScriptAggregation {
 // Script is the script to run.
 func (a *BucketScriptAggregation) Script(script *Script) *BucketScriptAggregation {
 	a.script = script
-	return a
-}
-
-// SubAggregation adds a sub-aggregation to this aggregation.
-func (a *BucketScriptAggregation) SubAggregation(name string, subAggregation Aggregation) *BucketScriptAggregation {
-	a.subAggregations[name] = subAggregation
 	return a
 }
 
@@ -108,19 +100,6 @@ func (a *BucketScriptAggregation) Source() (interface{}, error) {
 	// Add buckets paths
 	if len(a.bucketsPathsMap) > 0 {
 		params["buckets_path"] = a.bucketsPathsMap
-	}
-
-	// AggregationBuilder (SubAggregations)
-	if len(a.subAggregations) > 0 {
-		aggsMap := make(map[string]interface{})
-		source["aggregations"] = aggsMap
-		for name, aggregate := range a.subAggregations {
-			src, err := aggregate.Source()
-			if err != nil {
-				return nil, err
-			}
-			aggsMap[name] = src
-		}
 	}
 
 	// Add Meta data if available

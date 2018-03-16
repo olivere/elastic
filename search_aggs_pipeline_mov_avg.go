@@ -17,16 +17,14 @@ type MovAvgAggregation struct {
 	predict   *int
 	minimize  *bool
 
-	subAggregations map[string]Aggregation
-	meta            map[string]interface{}
-	bucketsPaths    []string
+	meta         map[string]interface{}
+	bucketsPaths []string
 }
 
 // NewMovAvgAggregation creates and initializes a new MovAvgAggregation.
 func NewMovAvgAggregation() *MovAvgAggregation {
 	return &MovAvgAggregation{
-		subAggregations: make(map[string]Aggregation),
-		bucketsPaths:    make([]string, 0),
+		bucketsPaths: make([]string, 0),
 	}
 }
 
@@ -85,12 +83,6 @@ func (a *MovAvgAggregation) Minimize(minimize bool) *MovAvgAggregation {
 	return a
 }
 
-// SubAggregation adds a sub-aggregation to this aggregation.
-func (a *MovAvgAggregation) SubAggregation(name string, subAggregation Aggregation) *MovAvgAggregation {
-	a.subAggregations[name] = subAggregation
-	return a
-}
-
 // Meta sets the meta data to be included in the aggregation response.
 func (a *MovAvgAggregation) Meta(metaData map[string]interface{}) *MovAvgAggregation {
 	a.meta = metaData
@@ -138,19 +130,6 @@ func (a *MovAvgAggregation) Source() (interface{}, error) {
 		params["buckets_path"] = a.bucketsPaths[0]
 	default:
 		params["buckets_path"] = a.bucketsPaths
-	}
-
-	// AggregationBuilder (SubAggregations)
-	if len(a.subAggregations) > 0 {
-		aggsMap := make(map[string]interface{})
-		source["aggregations"] = aggsMap
-		for name, aggregate := range a.subAggregations {
-			src, err := aggregate.Source()
-			if err != nil {
-				return nil, err
-			}
-			aggsMap[name] = src
-		}
 	}
 
 	// Add Meta data if available

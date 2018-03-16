@@ -17,15 +17,12 @@ type PercentilesBucketAggregation struct {
 	percents     []float64
 	bucketsPaths []string
 
-	subAggregations map[string]Aggregation
-	meta            map[string]interface{}
+	meta map[string]interface{}
 }
 
 // NewPercentilesBucketAggregation creates and initializes a new PercentilesBucketAggregation.
 func NewPercentilesBucketAggregation() *PercentilesBucketAggregation {
-	return &PercentilesBucketAggregation{
-		subAggregations: make(map[string]Aggregation),
-	}
+	return &PercentilesBucketAggregation{}
 }
 
 // Format to apply the output value of this aggregation.
@@ -56,12 +53,6 @@ func (p *PercentilesBucketAggregation) GapInsertZeros() *PercentilesBucketAggreg
 // GapSkip skips gaps in the series.
 func (p *PercentilesBucketAggregation) GapSkip() *PercentilesBucketAggregation {
 	p.gapPolicy = "skip"
-	return p
-}
-
-// SubAggregation adds a sub-aggregation to this aggregation.
-func (p *PercentilesBucketAggregation) SubAggregation(name string, subAggregation Aggregation) *PercentilesBucketAggregation {
-	p.subAggregations[name] = subAggregation
 	return p
 }
 
@@ -101,19 +92,6 @@ func (p *PercentilesBucketAggregation) Source() (interface{}, error) {
 	// Add percents
 	if len(p.percents) > 0 {
 		params["percents"] = p.percents
-	}
-
-	// AggregationBuilder (SubAggregations)
-	if len(p.subAggregations) > 0 {
-		aggsMap := make(map[string]interface{})
-		source["aggregations"] = aggsMap
-		for name, aggregate := range p.subAggregations {
-			src, err := aggregate.Source()
-			if err != nil {
-				return nil, err
-			}
-			aggsMap[name] = src
-		}
 	}
 
 	// Add Meta data if available
