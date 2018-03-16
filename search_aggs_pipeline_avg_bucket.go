@@ -15,16 +15,14 @@ type AvgBucketAggregation struct {
 	format    string
 	gapPolicy string
 
-	subAggregations map[string]Aggregation
-	meta            map[string]interface{}
-	bucketsPaths    []string
+	meta         map[string]interface{}
+	bucketsPaths []string
 }
 
 // NewAvgBucketAggregation creates and initializes a new AvgBucketAggregation.
 func NewAvgBucketAggregation() *AvgBucketAggregation {
 	return &AvgBucketAggregation{
-		subAggregations: make(map[string]Aggregation),
-		bucketsPaths:    make([]string, 0),
+		bucketsPaths: make([]string, 0),
 	}
 }
 
@@ -49,12 +47,6 @@ func (a *AvgBucketAggregation) GapInsertZeros() *AvgBucketAggregation {
 // GapSkip skips gaps in the series.
 func (a *AvgBucketAggregation) GapSkip() *AvgBucketAggregation {
 	a.gapPolicy = "skip"
-	return a
-}
-
-// SubAggregation adds a sub-aggregation to this aggregation.
-func (a *AvgBucketAggregation) SubAggregation(name string, subAggregation Aggregation) *AvgBucketAggregation {
-	a.subAggregations[name] = subAggregation
 	return a
 }
 
@@ -89,19 +81,6 @@ func (a *AvgBucketAggregation) Source() (interface{}, error) {
 		params["buckets_path"] = a.bucketsPaths[0]
 	default:
 		params["buckets_path"] = a.bucketsPaths
-	}
-
-	// AggregationBuilder (SubAggregations)
-	if len(a.subAggregations) > 0 {
-		aggsMap := make(map[string]interface{})
-		source["aggregations"] = aggsMap
-		for name, aggregate := range a.subAggregations {
-			src, err := aggregate.Source()
-			if err != nil {
-				return nil, err
-			}
-			aggsMap[name] = src
-		}
 	}
 
 	// Add Meta data if available

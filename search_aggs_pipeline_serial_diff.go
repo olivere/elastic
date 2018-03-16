@@ -15,16 +15,14 @@ type SerialDiffAggregation struct {
 	gapPolicy string
 	lag       *int
 
-	subAggregations map[string]Aggregation
-	meta            map[string]interface{}
-	bucketsPaths    []string
+	meta         map[string]interface{}
+	bucketsPaths []string
 }
 
 // NewSerialDiffAggregation creates and initializes a new SerialDiffAggregation.
 func NewSerialDiffAggregation() *SerialDiffAggregation {
 	return &SerialDiffAggregation{
-		subAggregations: make(map[string]Aggregation),
-		bucketsPaths:    make([]string, 0),
+		bucketsPaths: make([]string, 0),
 	}
 }
 
@@ -57,12 +55,6 @@ func (a *SerialDiffAggregation) GapSkip() *SerialDiffAggregation {
 // ago. Lag must be a positive, non-zero integer.
 func (a *SerialDiffAggregation) Lag(lag int) *SerialDiffAggregation {
 	a.lag = &lag
-	return a
-}
-
-// SubAggregation adds a sub-aggregation to this aggregation.
-func (a *SerialDiffAggregation) SubAggregation(name string, subAggregation Aggregation) *SerialDiffAggregation {
-	a.subAggregations[name] = subAggregation
 	return a
 }
 
@@ -100,19 +92,6 @@ func (a *SerialDiffAggregation) Source() (interface{}, error) {
 		params["buckets_path"] = a.bucketsPaths[0]
 	default:
 		params["buckets_path"] = a.bucketsPaths
-	}
-
-	// AggregationBuilder (SubAggregations)
-	if len(a.subAggregations) > 0 {
-		aggsMap := make(map[string]interface{})
-		source["aggregations"] = aggsMap
-		for name, aggregate := range a.subAggregations {
-			src, err := aggregate.Source()
-			if err != nil {
-				return nil, err
-			}
-			aggsMap[name] = src
-		}
 	}
 
 	// Add Meta data if available

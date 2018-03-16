@@ -16,16 +16,14 @@ type MinBucketAggregation struct {
 	format    string
 	gapPolicy string
 
-	subAggregations map[string]Aggregation
-	meta            map[string]interface{}
-	bucketsPaths    []string
+	meta         map[string]interface{}
+	bucketsPaths []string
 }
 
 // NewMinBucketAggregation creates and initializes a new MinBucketAggregation.
 func NewMinBucketAggregation() *MinBucketAggregation {
 	return &MinBucketAggregation{
-		subAggregations: make(map[string]Aggregation),
-		bucketsPaths:    make([]string, 0),
+		bucketsPaths: make([]string, 0),
 	}
 }
 
@@ -50,12 +48,6 @@ func (a *MinBucketAggregation) GapInsertZeros() *MinBucketAggregation {
 // GapSkip skips gaps in the series.
 func (a *MinBucketAggregation) GapSkip() *MinBucketAggregation {
 	a.gapPolicy = "skip"
-	return a
-}
-
-// SubAggregation adds a sub-aggregation to this aggregation.
-func (a *MinBucketAggregation) SubAggregation(name string, subAggregation Aggregation) *MinBucketAggregation {
-	a.subAggregations[name] = subAggregation
 	return a
 }
 
@@ -90,19 +82,6 @@ func (a *MinBucketAggregation) Source() (interface{}, error) {
 		params["buckets_path"] = a.bucketsPaths[0]
 	default:
 		params["buckets_path"] = a.bucketsPaths
-	}
-
-	// AggregationBuilder (SubAggregations)
-	if len(a.subAggregations) > 0 {
-		aggsMap := make(map[string]interface{})
-		source["aggregations"] = aggsMap
-		for name, aggregate := range a.subAggregations {
-			src, err := aggregate.Source()
-			if err != nil {
-				return nil, err
-			}
-			aggsMap[name] = src
-		}
 	}
 
 	// Add Meta data if available
