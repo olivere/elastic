@@ -216,7 +216,7 @@ There are also [some recipes](https://github.com/olivere/elastic/tree/release-br
   - [x] Cumulative Sum
   - [x] Bucket Script
   - [x] Bucket Selector
-  - [ ] Bucket Sort
+  - [x] Bucket Sort
   - [x] Serial Differencing
 - [x] Matrix Aggregations
   - [x] Matrix Stats
