@@ -9,7 +9,7 @@ package elastic
 // subtracted from itself at different time lags or periods.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-pipeline-serialdiff-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-pipeline-serialdiff-aggregation.html
 type SerialDiffAggregation struct {
 	format    string
 	gapPolicy string
@@ -26,6 +26,7 @@ func NewSerialDiffAggregation() *SerialDiffAggregation {
 	}
 }
 
+// Format to use on the output of this aggregation.
 func (a *SerialDiffAggregation) Format(format string) *SerialDiffAggregation {
 	a.format = format
 	return a
@@ -70,6 +71,7 @@ func (a *SerialDiffAggregation) BucketsPath(bucketsPaths ...string) *SerialDiffA
 	return a
 }
 
+// Source returns the a JSON-serializable interface.
 func (a *SerialDiffAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})

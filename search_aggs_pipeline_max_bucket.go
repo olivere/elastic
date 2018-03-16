@@ -11,7 +11,7 @@ package elastic
 // be a multi-bucket aggregation.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-pipeline-max-bucket-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-pipeline-max-bucket-aggregation.html
 type MaxBucketAggregation struct {
 	format    string
 	gapPolicy string
@@ -27,6 +27,7 @@ func NewMaxBucketAggregation() *MaxBucketAggregation {
 	}
 }
 
+// Format to use on the output of this aggregation.
 func (a *MaxBucketAggregation) Format(format string) *MaxBucketAggregation {
 	a.format = format
 	return a
@@ -63,6 +64,7 @@ func (a *MaxBucketAggregation) BucketsPath(bucketsPaths ...string) *MaxBucketAgg
 	return a
 }
 
+// Source returns the a JSON-serializable interface.
 func (a *MaxBucketAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})

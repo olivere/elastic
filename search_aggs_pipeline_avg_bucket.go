@@ -10,7 +10,7 @@ package elastic
 // be a multi-bucket aggregation.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-pipeline-avg-bucket-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-pipeline-avg-bucket-aggregation.html
 type AvgBucketAggregation struct {
 	format    string
 	gapPolicy string
@@ -26,6 +26,7 @@ func NewAvgBucketAggregation() *AvgBucketAggregation {
 	}
 }
 
+// Format to use on the output of this aggregation.
 func (a *AvgBucketAggregation) Format(format string) *AvgBucketAggregation {
 	a.format = format
 	return a
@@ -62,6 +63,7 @@ func (a *AvgBucketAggregation) BucketsPath(bucketsPaths ...string) *AvgBucketAgg
 	return a
 }
 
+// Source returns the a JSON-serializable interface.
 func (a *AvgBucketAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})

@@ -10,7 +10,7 @@ package elastic
 // be a multi-bucket aggregation.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-pipeline-sum-bucket-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-pipeline-sum-bucket-aggregation.html
 type SumBucketAggregation struct {
 	format    string
 	gapPolicy string
@@ -26,6 +26,7 @@ func NewSumBucketAggregation() *SumBucketAggregation {
 	}
 }
 
+// Format to use on the output of this aggregation.
 func (a *SumBucketAggregation) Format(format string) *SumBucketAggregation {
 	a.format = format
 	return a
@@ -62,6 +63,7 @@ func (a *SumBucketAggregation) BucketsPath(bucketsPaths ...string) *SumBucketAgg
 	return a
 }
 
+// Source returns the a JSON-serializable interface.
 func (a *SumBucketAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})

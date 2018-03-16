@@ -8,7 +8,7 @@ package elastic
 // across the data and emit the average value of that window.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-pipeline-movavg-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-pipeline-movavg-aggregation.html
 type MovAvgAggregation struct {
 	format    string
 	gapPolicy string
@@ -28,6 +28,7 @@ func NewMovAvgAggregation() *MovAvgAggregation {
 	}
 }
 
+// Format to use on the output of this aggregation.
 func (a *MovAvgAggregation) Format(format string) *MovAvgAggregation {
 	a.format = format
 	return a
@@ -95,6 +96,7 @@ func (a *MovAvgAggregation) BucketsPath(bucketsPaths ...string) *MovAvgAggregati
 	return a
 }
 
+// Source returns the a JSON-serializable interface.
 func (a *MovAvgAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})

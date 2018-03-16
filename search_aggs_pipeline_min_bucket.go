@@ -11,7 +11,7 @@ package elastic
 // be a multi-bucket aggregation.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-pipeline-min-bucket-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-pipeline-min-bucket-aggregation.html
 type MinBucketAggregation struct {
 	format    string
 	gapPolicy string
@@ -27,6 +27,7 @@ func NewMinBucketAggregation() *MinBucketAggregation {
 	}
 }
 
+// Format to use on the output of this aggregation.
 func (a *MinBucketAggregation) Format(format string) *MinBucketAggregation {
 	a.format = format
 	return a
@@ -63,6 +64,7 @@ func (a *MinBucketAggregation) BucketsPath(bucketsPaths ...string) *MinBucketAgg
 	return a
 }
 
+// Source returns the a JSON-serializable interface.
 func (a *MinBucketAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})

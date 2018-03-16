@@ -10,7 +10,7 @@ package elastic
 // numeric and the script must return a numeric value.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-pipeline-bucket-script-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-pipeline-bucket-script-aggregation.html
 type BucketScriptAggregation struct {
 	format    string
 	gapPolicy string
@@ -27,6 +27,7 @@ func NewBucketScriptAggregation() *BucketScriptAggregation {
 	}
 }
 
+// Format to use on the output of this aggregation.
 func (a *BucketScriptAggregation) Format(format string) *BucketScriptAggregation {
 	a.format = format
 	return a
@@ -78,6 +79,7 @@ func (a *BucketScriptAggregation) AddBucketsPath(name, path string) *BucketScrip
 	return a
 }
 
+// Source returns the a JSON-serializable interface.
 func (a *BucketScriptAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})

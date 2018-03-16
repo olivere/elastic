@@ -10,7 +10,7 @@ package elastic
 // histogram must have min_doc_count set to 0 (default for histogram aggregations).
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-pipeline-cumulative-sum-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-pipeline-cumulative-sum-aggregation.html
 type CumulativeSumAggregation struct {
 	format string
 
@@ -25,6 +25,7 @@ func NewCumulativeSumAggregation() *CumulativeSumAggregation {
 	}
 }
 
+// Format to use on the output of this aggregation.
 func (a *CumulativeSumAggregation) Format(format string) *CumulativeSumAggregation {
 	a.format = format
 	return a
@@ -42,6 +43,7 @@ func (a *CumulativeSumAggregation) BucketsPath(bucketsPaths ...string) *Cumulati
 	return a
 }
 
+// Source returns the a JSON-serializable interface.
 func (a *CumulativeSumAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})

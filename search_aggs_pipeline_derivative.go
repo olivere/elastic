@@ -10,7 +10,7 @@ package elastic
 // histogram must have min_doc_count set to 0 (default for histogram aggregations).
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-aggregations-pipeline-derivative-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-pipeline-derivative-aggregation.html
 type DerivativeAggregation struct {
 	format    string
 	gapPolicy string
@@ -27,6 +27,7 @@ func NewDerivativeAggregation() *DerivativeAggregation {
 	}
 }
 
+// Format to use on the output of this aggregation.
 func (a *DerivativeAggregation) Format(format string) *DerivativeAggregation {
 	a.format = format
 	return a
@@ -70,6 +71,7 @@ func (a *DerivativeAggregation) BucketsPath(bucketsPaths ...string) *DerivativeA
 	return a
 }
 
+// Source returns the a JSON-serializable interface.
 func (a *DerivativeAggregation) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
