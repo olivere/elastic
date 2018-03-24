@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestWatchWorkFlow(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t, SetBasicAuth("elastic", "elastic"))
+func TestXPackWatchWorkFlow(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
 
 	watchName := "my-watch"
 	watchBody := getWatchBody()
