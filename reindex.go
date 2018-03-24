@@ -60,6 +60,9 @@ func (s *ReindexService) Slices(slices int) *ReindexService {
 
 // Refresh indicates whether Elasticsearch should refresh the effected indexes
 // immediately.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/docs-refresh.html
+// for details.
 func (s *ReindexService) Refresh(refresh string) *ReindexService {
 	s.refresh = refresh
 	return s

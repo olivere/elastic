@@ -240,6 +240,9 @@ func (s *DeleteByQueryService) Query(query Query) *DeleteByQueryService {
 }
 
 // Refresh indicates whether the effected indexes should be refreshed.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/docs-refresh.html
+// for details.
 func (s *DeleteByQueryService) Refresh(refresh string) *DeleteByQueryService {
 	s.refresh = refresh
 	return s

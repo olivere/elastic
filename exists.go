@@ -69,6 +69,9 @@ func (s *ExistsService) Realtime(realtime bool) *ExistsService {
 }
 
 // Refresh the shard containing the document before performing the operation.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/docs-refresh.html
+// for details.
 func (s *ExistsService) Refresh(refresh string) *ExistsService {
 	s.refresh = refresh
 	return s

@@ -99,6 +99,9 @@ func (s *DeleteService) Parent(parent string) *DeleteService {
 }
 
 // Refresh the index after performing the operation.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/docs-refresh.html
+// for details.
 func (s *DeleteService) Refresh(refresh string) *DeleteService {
 	s.refresh = refresh
 	return s

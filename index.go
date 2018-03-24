@@ -80,6 +80,9 @@ func (s *IndexService) Pipeline(pipeline string) *IndexService {
 }
 
 // Refresh the index after performing the operation.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/docs-refresh.html
+// for details.
 func (s *IndexService) Refresh(refresh string) *IndexService {
 	s.refresh = refresh
 	return s

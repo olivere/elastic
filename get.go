@@ -103,6 +103,9 @@ func (s *GetService) FetchSourceContext(fetchSourceContext *FetchSourceContext) 
 }
 
 // Refresh the shard containing the document before performing the operation.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/docs-refresh.html
+// for details.
 func (s *GetService) Refresh(refresh string) *GetService {
 	s.refresh = refresh
 	return s
