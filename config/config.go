@@ -51,9 +51,6 @@ func Parse(elasticURL string) (*Config, error) {
 	if strings.HasSuffix(index, "/") {
 		index = index[:len(index)-1]
 	}
-	if index == "" {
-		return nil, fmt.Errorf("missing index in elastic parameter %q", elasticURL)
-	}
 	if uri.User != nil {
 		cfg.Username = uri.User.Username()
 		cfg.Password, _ = uri.User.Password()
