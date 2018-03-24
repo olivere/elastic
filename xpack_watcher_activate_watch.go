@@ -135,5 +135,5 @@ func (s *XpackWatcherActivateWatchService) Do(ctx context.Context) (*XpackWatche
 
 // XpackWatcherActivateWatchResponse is the response of XpackWatcherActivateWatchService.Do.
 type XpackWatcherActivateWatchResponse struct {
-	Status map[string]interface{} `json:"status"`
+	Status WatchStatus `json:"status"`
 }

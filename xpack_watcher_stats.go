@@ -108,6 +108,10 @@ func (s *XpackWatcherStatsService) Do(ctx context.Context) (*XpackWatcherStatsRe
 
 // XpackWatcherStatsResponse is the response of XpackWatcherStatsService.Do.
 type XpackWatcherStatsResponse struct {
+	Stats []WatcherStats `json:"stats"`
+}
+
+type WatcherStats struct {
 	WatcherState        string                 `json:"watcher_state"`
 	WatchCount          int                    `json:"watch_count"`
 	ExecutionThreadPool map[string]interface{} `json:"execution_thread_pool"`

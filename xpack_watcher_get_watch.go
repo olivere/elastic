@@ -102,8 +102,21 @@ func (s *XpackWatcherGetWatchService) Do(ctx context.Context) (*XpackWatcherGetW
 
 // XpackWatcherGetWatchResponse is the response of XpackWatcherGetWatchService.Do.
 type XpackWatcherGetWatchResponse struct {
-	Found  bool                   `json:"found"`
-	Id     string                 `json:"_id"`
-	Status map[string]interface{} `json:"status"`
-	Watch  map[string]interface{} `json:"watch"`
+	Found  bool        `json:"found"`
+	Id     string      `json:"_id"`
+	Status WatchStatus `json:"status"`
+	Watch  Watch       `json:"watch"`
+}
+
+type WatchStatus struct {
+	State   map[string]interface{}            `json:"state"`
+	Actions map[string]map[string]interface{} `json:"actions"`
+	Version int                               `json:"version"`
+}
+
+type Watch struct {
+	Input     map[string]map[string]interface{} `json:"input"`
+	Condition map[string]map[string]interface{} `json:"condition"`
+	Trigger   map[string]map[string]interface{} `json:"trigger"`
+	Actions   map[string]map[string]interface{} `json:"actions"`
 }

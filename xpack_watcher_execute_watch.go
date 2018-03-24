@@ -128,6 +128,26 @@ func (s *XpackWatcherExecuteWatchService) Do(ctx context.Context) (*XpackWatcher
 
 // XpackWatcherExecuteWatchResponse is the response of XpackWatcherExecuteWatchService.Do.
 type XpackWatcherExecuteWatchResponse struct {
-	Id          string                 `json:"_id"`
-	WatchRecord map[string]interface{} `json:"watch_record"`
+	Id          string      `json:"_id"`
+	WatchRecord WatchRecord `json:"watch_record"`
+}
+
+type WatchRecord struct {
+	WatchId   string                            `json:"watch_id"`
+	Node      string                            `json:"node"`
+	Messages  []string                          `json:"messages"`
+	State     string                            `json:"state"`
+	Status    WatchRecordStatus                 `json:"status"`
+	Input     map[string]map[string]interface{} `json:"input"`
+	Condition map[string]map[string]interface{} `json:"condition"`
+	Result    map[string]interface{}            `json:"Result"`
+}
+
+type WatchRecordStatus struct {
+	Version          int                               `json:"version"`
+	State            map[string]interface{}            `json:"state"`
+	LastChecked      string                            `json:"last_checked"`
+	LastMetCondition string                            `json:"last_met_condition"`
+	Actions          map[string]map[string]interface{} `json:"actions"`
+	ExecutionState   string                            `json:"execution_state"`
 }

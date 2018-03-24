@@ -145,5 +145,14 @@ func (s *XpackWatcherAckWatchService) Do(ctx context.Context) (*XpackWatcherAckW
 
 // XpackWatcherAckWatchResponse is the response of XpackWatcherAckWatchService.Do.
 type XpackWatcherAckWatchResponse struct {
-	Status map[string]interface{} `json:"status"`
+	Status AckWatchStatus `json:"status"`
+}
+
+type AckWatchStatus struct {
+	State            map[string]interface{}            `json:"state"`
+	LastChecked      string                            `json:"last_checked"`
+	LastMetCondition string                            `json:"last_met_condition"`
+	Actions          map[string]map[string]interface{} `json:"actions"`
+	ExecutionState   string                            `json:"execution_state"`
+	Version          int                               `json:"version"`
 }
