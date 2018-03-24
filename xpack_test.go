@@ -40,7 +40,7 @@ func TestWatchWorkFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 	if ack.Status.State == nil {
-		t.Errorf("expected ack.status != %s; got %s", nil, ack.Status.State)
+		t.Errorf("expected ack.status != %s; got %s", "nil", ack.Status.State)
 	}
 
 	client.XPackWatchActivate().WatchId(watchName).Do(context.TODO())
@@ -50,7 +50,7 @@ func TestWatchWorkFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 	if watch.Status.State["active"] != true {
-		t.Errorf("expected watch.Status.State.Active == %s; got %s", true, watch.Status.State["active"])
+		t.Errorf("expected watch.Status.State.Active == %t; got %t", true, watch.Status.State["active"])
 	}
 
 	client.XPackWatchDeactivate().WatchId(watchName).Do(context.TODO())
@@ -60,7 +60,7 @@ func TestWatchWorkFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 	if watch.Status.State["active"] != false {
-		t.Errorf("expected watch.Status.State.Active == %s; got %s", false, watch.Status.State["active"])
+		t.Errorf("expected watch.Status.State.Active == %t; got %t", false, watch.Status.State["active"])
 	}
 
 	client.XPackWatchStop().Do(context.TODO())
@@ -82,7 +82,7 @@ func TestWatchWorkFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 	if start.Acknowledged != true {
-		t.Errorf("expected start.Acknowledged == %s; got %s", true, start.Acknowledged)
+		t.Errorf("expected start.Acknowledged == %t; got %t", true, start.Acknowledged)
 	}
 
 	restart, err := client.XPackWatchStart().Do(context.TODO())
@@ -91,7 +91,7 @@ func TestWatchWorkFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 	if restart.Acknowledged != true {
-		t.Errorf("expected stats.WatcherState == %s; got %s", true, restart.Acknowledged)
+		t.Errorf("expected stats.WatcherState == %t; got %t", true, restart.Acknowledged)
 	}
 
 }
