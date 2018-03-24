@@ -17,7 +17,7 @@ import (
 // GetService allows to get a typed JSON document from the index based
 // on its id.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/docs-get.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/docs-get.html
 // for details.
 type GetService struct {
 	client                        *Client
