@@ -520,6 +520,7 @@ func (fn *WeightFactorFunction) Source() (interface{}, error) {
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/query-dsl-function-score-query.html#_random
 // for details.
 type RandomFunction struct {
+	field  string
 	seed   interface{}
 	weight *float64
 }
@@ -535,15 +536,26 @@ func (fn *RandomFunction) Name() string {
 	return "random_score"
 }
 
-// Seed is documented in 1.6 as a numeric value. However, in the source code
-// of the Java client, it also accepts strings. So we accept both here, too.
+// Field is the field to be used for random number generation.
+// This parameter is compulsory when a Seed is set and ignored
+// otherwise. Note that documents that have the same value for a
+// field will get the same score.
+func (fn *RandomFunction) Field(field string) *RandomFunction {
+	fn.field = field
+	return fn
+}
+
+// Seed sets the seed based on which the random number will be generated.
+// Using the same seed is guaranteed to generate the same random number for a specific doc.
+// Seed must be an integer, e.g. int or int64. It is specified as an interface{}
+// here for compatibility with older versions (which also accepted strings).
 func (fn *RandomFunction) Seed(seed interface{}) *RandomFunction {
 	fn.seed = seed
 	return fn
 }
 
 // Weight adjusts the score of the score function.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/query-dsl-function-score-query.html#_using_function_score
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/query-dsl-function-score-query.html#_using_function_score
 // for details.
 func (fn *RandomFunction) Weight(weight float64) *RandomFunction {
 	fn.weight = &weight
@@ -559,6 +571,9 @@ func (fn *RandomFunction) GetWeight() *float64 {
 // Source returns the serializable JSON data of this score function.
 func (fn *RandomFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
+	if fn.field != "" {
+		source["field"] = fn.field
+	}
 	if fn.seed != nil {
 		source["seed"] = fn.seed
 	}
