@@ -44,13 +44,7 @@ func Parse(elasticURL string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error parsing elastic parameter %q: %v", elasticURL, err)
 	}
-	index := uri.Path
-	if strings.HasPrefix(index, "/") {
-		index = index[1:]
-	}
-	if strings.HasSuffix(index, "/") {
-		index = index[:len(index)-1]
-	}
+	index := strings.TrimSuffix(strings.TrimPrefix(uri.Path, "/"), "/")
 	if uri.User != nil {
 		cfg.Username = uri.User.Username()
 		cfg.Password, _ = uri.User.Password()

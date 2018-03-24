@@ -57,3 +57,17 @@ func TestParseDoesNotFailWithoutIndexName(t *testing.T) {
 		t.Fatalf("expected Index = %q, got %q", want, got)
 	}
 }
+
+func TestParseTrimsIndexName(t *testing.T) {
+	urls := "http://user:pwd@elastic:19220/store-blobs/?sniff=true"
+	cfg, err := Parse(urls)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want, got := "http://elastic:19220", cfg.URL; want != got {
+		t.Fatalf("expected URL = %q, got %q", want, got)
+	}
+	if want, got := "store-blobs", cfg.Index; want != got {
+		t.Fatalf("expected Index = %q, got %q", want, got)
+	}
+}
