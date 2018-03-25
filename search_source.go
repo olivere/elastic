@@ -77,7 +77,7 @@ func (s *SearchSource) PostFilter(postFilter Query) *SearchSource {
 // Slice allows partitioning the documents in multiple slices.
 // It is e.g. used to slice a scroll operation, supported in
 // Elasticsearch 5.0 or later.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-request-scroll.html#sliced-scroll
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-request-scroll.html#sliced-scroll
 // for details.
 func (s *SearchSource) Slice(sliceQuery Query) *SearchSource {
 	s.sliceQuery = sliceQuery
@@ -168,7 +168,7 @@ func (s *SearchSource) TrackScores(trackScores bool) *SearchSource {
 // SearchAfter allows a different form of pagination by using a live cursor,
 // using the results of the previous page to help the retrieval of the next.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-request-search-after.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-request-search-after.html
 func (s *SearchSource) SearchAfter(sortValues ...interface{}) *SearchSource {
 	s.searchAfterSortValues = append(s.searchAfterSortValues, sortValues...)
 	return s

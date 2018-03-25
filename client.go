@@ -26,7 +26,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "6.1.9"
+	Version = "6.1.13"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -154,7 +154,7 @@ type Client struct {
 //
 // If the sniffer is enabled (the default), the new client then sniffes
 // the cluster via the Nodes Info API
-// (see https://www.elastic.co/guide/en/elasticsearch/reference/6.0/cluster-nodes-info.html#cluster-nodes-info).
+// (see https://www.elastic.co/guide/en/elasticsearch/reference/6.2/cluster-nodes-info.html#cluster-nodes-info).
 // It uses the URLs specified by the caller. The caller is responsible
 // to only pass a list of URLs of nodes that belong to the same cluster.
 // This sniffing process is run on startup and periodically.
@@ -1383,7 +1383,7 @@ func (c *Client) BulkProcessor() *BulkProcessorService {
 
 // Reindex copies data from a source index into a destination index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/docs-reindex.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/docs-reindex.html
 // for details on the Reindex API.
 func (c *Client) Reindex() *ReindexService {
 	return NewReindexService(c)
