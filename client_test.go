@@ -161,9 +161,9 @@ func TestClientWithBasicAuthInUserInfo(t *testing.T) {
 	}
 }
 
-func TestClientWithBasicAuthPlatinum(t *testing.T) {
-	// Connect to Platinum
-	client, err := NewClient(SetURL("http://elastic:elastic@127.0.0.1:9210"), SetSniff(false))
+func TestClientWithXpackSecurity(t *testing.T) {
+	// Connect to ES Platinum with X-Pack Security enabled and L: elastic, P: elastic
+	client, err := NewClient(SetURL("http://elastic:elastic@127.0.0.1:9210"))
 	if err != nil {
 		t.Fatal(err)
 	}
