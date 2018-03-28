@@ -276,7 +276,6 @@ type logger interface {
 
 func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 	var err error
-	options = append(options, SetBasicAuth("elastic", "elastic"))
 
 	client, err = NewClient(options...)
 	if err != nil {

@@ -6,7 +6,7 @@ import (
 )
 
 func TestXPackWatchWorkFlow(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t, SetURL("http://localhost:9210"))
+	client := setupTestClientAndCreateIndex(t, SetURL("http://elastic:elastic@localhost:9210"))
 
 	watchName := "my-watch"
 	watchBody := getWatchBody()
