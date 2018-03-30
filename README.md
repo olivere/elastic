@@ -100,8 +100,8 @@ Having said that, there have been no big API changes that required you
 to rewrite your application big time. More often than not it's renaming APIs
 and adding/removing features so that Elastic is in sync with Elasticsearch.
 
-Elastic has been used in production with the following Elasticsearch versions:
-0.90, 1.0-1.7, and 2.0-2.4.1. Furthermore, we use [Travis CI](https://travis-ci.org/)
+Elastic has been used in production starting with Elasticsearch 0.90 up to recent 6.x
+versions. Furthermore, we use [Travis CI](https://travis-ci.org/)
 to test Elastic with the most recent versions of Elasticsearch and Go.
 See the [.travis.yml](https://github.com/olivere/elastic/blob/master/.travis.yml)
 file for the exact matrix and [Travis](https://travis-ci.org/olivere/elastic)
@@ -126,9 +126,16 @@ An example is available [here](https://olivere.github.io/elastic/).
 
 Here's a [link to a complete working example for v6](https://gist.github.com/olivere/e4a376b4783c0914e44ea4f745ce2ebf).
 
-See the [wiki](https://github.com/olivere/elastic/wiki) for more details.
+Here are a few tips on how to get used to Elastic:
 
-There are also [some recipes](https://github.com/olivere/elastic/tree/release-branch.v6/recipes) for bulk indexing, scrolling through documents in indices etc.
+1. Head over to the [Wiki](/olivere/elastic/wiki) for detailed information and
+   topics like e.g. [how to add a middleware](/olivere/elastic/wiki/HttpTransport)
+   or how to [connect to AWS](/olivere/elastic/wiki/Using-with-AWS-Elasticsearch-Service).
+2. If you are unsure how to implement something, read the tests (all `_test.go` files).
+   They not only serve as a guard against changes, but also as a reference.
+3. The [recipes](https://github.com/olivere/elastic/tree/release-branch.v6/recipes)
+   contains small examples on how to implement something, e.g. bulk indexing, scrolling etc.
+
 
 ## API Status
 
