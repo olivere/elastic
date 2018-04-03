@@ -189,6 +189,39 @@ func (a *AliasRemoveAction) Source() (interface{}, error) {
 	return src, nil
 }
 
+// AliasRemoveIndexAction is an action to remove an index during an alias
+// operation.
+type AliasRemoveIndexAction struct {
+	index string // index name
+}
+
+// NewAliasRemoveIndexAction returns an action to remove an index.
+func NewAliasRemoveIndexAction(index string) *AliasRemoveIndexAction {
+	return &AliasRemoveIndexAction{
+		index: index,
+	}
+}
+
+// Validate checks if the operation is valid.
+func (a *AliasRemoveIndexAction) Validate() error {
+	if a.index == "" {
+		return fmt.Errorf("missing required field: index")
+	}
+	return nil
+}
+
+// Source returns the JSON-serializable data.
+func (a *AliasRemoveIndexAction) Source() (interface{}, error) {
+	if err := a.Validate(); err != nil {
+		return nil, err
+	}
+	src := make(map[string]interface{})
+	act := make(map[string]interface{})
+	src["remove_index"] = act
+	act["index"] = a.index
+	return src, nil
+}
+
 // -- Service --
 
 // AliasService enables users to add or remove an alias.
