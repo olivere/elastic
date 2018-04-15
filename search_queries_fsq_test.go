@@ -164,3 +164,24 @@ func TestFunctionScoreQueryWithGaussScoreFuncAndMultiValueMode(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestFunctionScoreQueryWithFilters(t *testing.T) {
+	q := NewFunctionScoreQuery().
+		Add(NewTermQuery("features", "wifi"), NewWeightFactorFunction(1)).
+		Add(NewTermQuery("features", "garden"), NewWeightFactorFunction(1)).
+		Add(NewTermQuery("features", "pool"), NewWeightFactorFunction(2)).
+		ScoreMode("sum")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"function_score":{"functions":[{"filter":{"term":{"features":"wifi"}},"weight":1},{"filter":{"term":{"features":"garden"}},"weight":1},{"filter":{"term":{"features":"pool"}},"weight":2}],"score_mode":"sum"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
