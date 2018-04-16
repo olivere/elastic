@@ -25,10 +25,8 @@ type SimpleQueryStringQuery struct {
 	minimumShouldMatch     string
 	flags                  string
 	boost                  *float64
-	lowercaseExpandedTerms *bool
 	lenient                *bool
 	analyzeWildcard        *bool
-	locale                 string
 	queryName              string
 }
 
@@ -82,18 +80,6 @@ func (q *SimpleQueryStringQuery) DefaultOperator(defaultOperator string) *Simple
 // Flags sets the flags for the query.
 func (q *SimpleQueryStringQuery) Flags(flags string) *SimpleQueryStringQuery {
 	q.flags = flags
-	return q
-}
-
-// LowercaseExpandedTerms indicates whether terms of wildcard, prefix, fuzzy
-// and range queries are automatically lower-cased or not. Default is true.
-func (q *SimpleQueryStringQuery) LowercaseExpandedTerms(lowercaseExpandedTerms bool) *SimpleQueryStringQuery {
-	q.lowercaseExpandedTerms = &lowercaseExpandedTerms
-	return q
-}
-
-func (q *SimpleQueryStringQuery) Locale(locale string) *SimpleQueryStringQuery {
-	q.locale = locale
 	return q
 }
 
@@ -159,17 +145,11 @@ func (q *SimpleQueryStringQuery) Source() (interface{}, error) {
 	if q.operator != "" {
 		query["default_operator"] = strings.ToLower(q.operator)
 	}
-	if q.lowercaseExpandedTerms != nil {
-		query["lowercase_expanded_terms"] = *q.lowercaseExpandedTerms
-	}
 	if q.lenient != nil {
 		query["lenient"] = *q.lenient
 	}
 	if q.analyzeWildcard != nil {
 		query["analyze_wildcard"] = *q.analyzeWildcard
-	}
-	if q.locale != "" {
-		query["locale"] = q.locale
 	}
 	if q.queryName != "" {
 		query["_name"] = q.queryName
