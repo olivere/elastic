@@ -15,9 +15,11 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/cat.html
 // for details.
 type CatService struct {
-	client *Client
-	pretty bool
-	model  string
+	client  *Client
+	pretty  bool
+	help    bool
+	verbose bool
+	model   string
 }
 
 const (
@@ -170,6 +172,18 @@ func (s *CatService) ThreadPool() *CatService {
 	return s
 }
 
+// Verbose turns on verbose output.
+func (s *CatService) Verbose(v bool) *CatService {
+	s.verbose = v
+	return s
+}
+
+// Help sets the service to show information about the available fields for a certain model
+func (s *CatService) Help(h bool) *CatService {
+	s.help = h
+	return s
+}
+
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *CatService) Pretty(pretty bool) *CatService {
 	s.pretty = pretty
@@ -184,6 +198,14 @@ func (s *CatService) buildURL() (string, url.Values, error) {
 	params := url.Values{}
 	if s.pretty {
 		params.Set("pretty", "true")
+	}
+
+	if s.help {
+		params.Set("help", "true")
+	}
+
+	if s.verbose {
+		params.Set("verbose", "true")
 	}
 
 	return path, params, nil

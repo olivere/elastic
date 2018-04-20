@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"fmt"
 	"testing"
 )
 
@@ -34,9 +33,9 @@ func TestCatModels(t *testing.T) {
 		{f: c.Repositories, name: "repositories"},
 		{f: c.Shards, name: "shards"},
 		{f: c.Segments, name: "segments"},
-// TODO - it is not possible to cat snapshots where no repo exists.
-// Creating one for the purpose of this test fails without setting the path.repo or repositories.url.allowed_url setting .
-// Putting this off to a later issue.
+		// TODO - it is not possible to cat snapshots where no repo exists.
+		// Creating one for the purpose of this test fails without setting the path.repo or repositories.url.allowed_url setting .
+		// Putting this off to a later issue.
 		{f: c.Templates, name: "templates"},
 		{f: c.ThreadPool, name: "threadpool"},
 	}
@@ -64,7 +63,7 @@ func TestCatUnknownModel(t *testing.T) {
 	_, err := c.Do(context.TODO())
 
 	if err == nil {
-		t.Fatalf("expected to get an error, but did not", err)
+		t.Fatalf("expected to get an error, but did not")
 	}
 }
 
@@ -74,6 +73,20 @@ func TestCatNoModel(t *testing.T) {
 	_, err := client.Cat().Do(context.TODO())
 
 	if err == nil {
-		t.Fatalf("expected to get an error, but did not", err)
+		t.Fatalf("expected to get an error, but did not")
+	}
+}
+
+func TestCatHelpCommand(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	res, err := client.Cat().Health().Help(true).Do(context.TODO())
+
+	if err != nil {
+		t.Errorf("expected to not get an error with help command, got %v", err)
+	}
+
+	if res == "" {
+		t.Errorf("expected response from help command to not be an empty string")
 	}
 }
