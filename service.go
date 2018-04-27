@@ -18,7 +18,7 @@ func newService(client *Client, request func(context.Context) (*Response, error)
 	}
 }
 
-func (s *service) doAsync(ctx context.Context) (*StartTaskResult, error) {
+func (s *service) DoAsync(ctx context.Context) (*StartTaskResult, error) {
 	// DoAsync only makes sense with WaitForCompletion set to true
 	if s.waitForCompletion != nil && *s.waitForCompletion {
 		return nil, fmt.Errorf("cannot start a task with WaitForCompletion set to true")
