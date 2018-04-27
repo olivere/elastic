@@ -16,7 +16,7 @@ import (
 // DeleteByQueryService deletes documents that match a query.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-delete-by-query.html.
 type DeleteByQueryService struct {
-	client                 *Client
+	*service
 	index                  []string
 	typ                    []string
 	query                  Query
@@ -60,7 +60,6 @@ type DeleteByQueryService struct {
 	trackScores            *bool
 	version                *bool
 	waitForActiveShards    string
-	waitForCompletion      *bool
 	pretty                 bool
 }
 
@@ -68,10 +67,9 @@ type DeleteByQueryService struct {
 // You typically use the client's DeleteByQuery to get a reference to
 // the service.
 func NewDeleteByQueryService(client *Client) *DeleteByQueryService {
-	builder := &DeleteByQueryService{
-		client: client,
-	}
-	return builder
+	service := &DeleteByQueryService{}
+	service.service = newService(client, service.performInternalRequest)
+	return service
 }
 
 // Index sets the indices on which to perform the delete operation.
@@ -570,13 +568,11 @@ func (s *DeleteByQueryService) Validate() error {
 	return nil
 }
 
-// Do executes the delete-by-query operation.
-func (s *DeleteByQueryService) Do(ctx context.Context) (*BulkIndexByScrollResponse, error) {
+func (s *DeleteByQueryService) performInternalRequest(ctx context.Context) (*Response, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
 	}
-
 	// Get URL for request
 	path, params, err := s.buildURL()
 	if err != nil {
@@ -597,18 +593,7 @@ func (s *DeleteByQueryService) Do(ctx context.Context) (*BulkIndexByScrollRespon
 		}
 	}
 
-	// Get response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
-	if err != nil {
-		return nil, err
-	}
-
-	// Return result
-	ret := new(BulkIndexByScrollResponse)
-	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return s.client.PerformRequest(ctx, "POST", path, params, body)
 }
 
 // BulkIndexByScrollResponse is the outcome of executing Do with
