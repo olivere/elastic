@@ -6,15 +6,15 @@ import (
 )
 
 type service struct {
-	client                 *Client
-	waitForCompletion      *bool
-	performInternalRequest func(context.Context) (*Response, error)
+	client            *Client
+	waitForCompletion *bool
+	httpRequest       func(context.Context) (*Response, error)
 }
 
 func newService(client *Client, request func(context.Context) (*Response, error)) *service {
 	return &service{
-		client:                 client,
-		performInternalRequest: request,
+		client:      client,
+		httpRequest: request,
 	}
 }
 
@@ -26,7 +26,7 @@ func (s *service) doAsync(ctx context.Context) (*StartTaskResult, error) {
 	f := false
 	s.waitForCompletion = &f
 
-	res, err := s.performInternalRequest(ctx)
+	res, err := s.httpRequest(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (s *service) doAsync(ctx context.Context) (*StartTaskResult, error) {
 
 func (s *service) Do(ctx context.Context) (*BulkIndexByScrollResponse, error) {
 	// Check pre-conditions
-	res, err := s.performInternalRequest(ctx)
+	res, err := s.httpRequest(ctx)
 	if err != nil {
 		return nil, err
 	}

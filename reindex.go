@@ -13,12 +13,11 @@ import (
 // ReindexService is a method to copy documents from one index to another.
 // It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.0/docs-reindex.html.
 type ReindexService struct {
-	client              *Client
+	*service
 	pretty              bool
 	refresh             string
 	timeout             string
 	waitForActiveShards string
-	waitForCompletion   *bool
 	requestsPerSecond   *int
 	slices              *int
 	body                interface{}
@@ -31,9 +30,9 @@ type ReindexService struct {
 
 // NewReindexService creates a new ReindexService.
 func NewReindexService(client *Client) *ReindexService {
-	return &ReindexService{
-		client: client,
-	}
+	service := &ReindexService{}
+	service.service = newService(client, service.performInternalRequest)
+	return service
 }
 
 // WaitForActiveShards sets the number of shard copies that must be active before
@@ -293,18 +292,11 @@ func (s *ReindexService) Do(ctx context.Context) (*BulkIndexByScrollResponse, er
 // DoAsync executes the reindexing operation asynchronously by starting a new task.
 // Callers need to use the Task Management API to watch the outcome of the reindexing
 // operation.
-func (s *ReindexService) DoAsync(ctx context.Context) (*StartTaskResult, error) {
+func (s *ReindexService) performInternalRequest(ctx context.Context) (*Response, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
 	}
-
-	// DoAsync only makes sense with WaitForCompletion set to true
-	if s.waitForCompletion != nil && *s.waitForCompletion {
-		return nil, fmt.Errorf("cannot start a task with WaitForCompletion set to true")
-	}
-	f := false
-	s.waitForCompletion = &f
 
 	// Get URL for request
 	path, params, err := s.buildURL()
@@ -319,17 +311,7 @@ func (s *ReindexService) DoAsync(ctx context.Context) (*StartTaskResult, error) 
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
-	if err != nil {
-		return nil, err
-	}
-
-	// Return operation response
-	ret := new(StartTaskResult)
-	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return s.client.PerformRequest(ctx, "POST", path, params, body)
 }
 
 // -- Source of Reindex --
