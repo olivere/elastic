@@ -220,3 +220,41 @@ func TestAliasRemoveAction(t *testing.T) {
 		}
 	}
 }
+
+func TestAliasRemoveIndexAction(t *testing.T) {
+	var tests = []struct {
+		Action   *AliasRemoveIndexAction
+		Expected string
+		Invalid  bool
+	}{
+		{
+			Action:  NewAliasRemoveIndexAction(""),
+			Invalid: true,
+		},
+		{
+			Action:   NewAliasRemoveIndexAction("index1"),
+			Expected: `{"remove_index":{"index":"index1"}}`,
+		},
+	}
+
+	for i, tt := range tests {
+		src, err := tt.Action.Source()
+		if err != nil {
+			if !tt.Invalid {
+				t.Errorf("#%d: expected to succeed", i)
+			}
+		} else {
+			if tt.Invalid {
+				t.Errorf("#%d: expected to fail", i)
+			} else {
+				dst, err := json.Marshal(src)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if want, have := tt.Expected, string(dst); want != have {
+					t.Errorf("#%d: expected %s, got %s", i, want, have)
+				}
+			}
+		}
+	}
+}
