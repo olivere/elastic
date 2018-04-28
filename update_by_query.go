@@ -15,7 +15,7 @@ import (
 
 // UpdateByQueryService is documented at https://www.elastic.co/guide/en/elasticsearch/plugins/master/plugins-reindex.html.
 type UpdateByQueryService struct {
-	client                 *Client
+	*service
 	pretty                 bool
 	index                  []string
 	typ                    []string
@@ -64,14 +64,13 @@ type UpdateByQueryService struct {
 	version                *bool
 	versionType            *bool
 	waitForActiveShards    string
-	waitForCompletion      *bool
 }
 
 // NewUpdateByQueryService creates a new UpdateByQueryService.
 func NewUpdateByQueryService(client *Client) *UpdateByQueryService {
-	return &UpdateByQueryService{
-		client: client,
-	}
+	service := &UpdateByQueryService{}
+	service.service = newService(client, service.performInternalRequest)
+	return service
 }
 
 // Index is a list of index names to search; use `_all` or empty string to
@@ -617,7 +616,7 @@ func (s *UpdateByQueryService) getBody() (interface{}, error) {
 }
 
 // Do executes the operation.
-func (s *UpdateByQueryService) Do(ctx context.Context) (*BulkIndexByScrollResponse, error) {
+func (s *UpdateByQueryService) performInternalRequest(ctx context.Context) (*Response, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -636,15 +635,5 @@ func (s *UpdateByQueryService) Do(ctx context.Context) (*BulkIndexByScrollRespon
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
-	if err != nil {
-		return nil, err
-	}
-
-	// Return operation response (BulkIndexByScrollResponse is defined in DeleteByQuery)
-	ret := new(BulkIndexByScrollResponse)
-	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
-	}
-	return ret, nil
+	return s.client.PerformRequest(ctx, "POST", path, params, body)
 }
