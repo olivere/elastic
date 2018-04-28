@@ -17,28 +17,34 @@ import (
 // For more details, see
 // https://www.elastic.co/guide/en/elasticsearch/reference/6.2/query-dsl-simple-query-string-query.html
 type SimpleQueryStringQuery struct {
-	queryText              string
-	analyzer               string
-	quoteFieldSuffix       string
-	operator               string
-	fields                 []string
-	fieldBoosts            map[string]*float64
-	minimumShouldMatch     string
-	flags                  string
-	boost                  *float64
-	lowercaseExpandedTerms *bool
-	lenient                *bool
-	analyzeWildcard        *bool
-	locale                 string
-	queryName              string
+	queryText                       string
+	analyzer                        string
+	quoteFieldSuffix                string
+	defaultOperator                 string
+	fields                          []string
+	fieldBoosts                     map[string]*float64
+	minimumShouldMatch              string
+	flags                           string
+	boost                           *float64
+	lowercaseExpandedTerms          *bool // deprecated
+	lenient                         *bool
+	analyzeWildcard                 *bool
+	locale                          string // deprecated
+	queryName                       string
+	autoGenerateSynonymsPhraseQuery *bool
+	fuzzyPrefixLength               int
+	fuzzyMaxExpansions              int
+	fuzzyTranspositions             *bool
 }
 
 // NewSimpleQueryStringQuery creates and initializes a new SimpleQueryStringQuery.
 func NewSimpleQueryStringQuery(text string) *SimpleQueryStringQuery {
 	return &SimpleQueryStringQuery{
-		queryText:   text,
-		fields:      make([]string, 0),
-		fieldBoosts: make(map[string]*float64),
+		queryText:          text,
+		fields:             make([]string, 0),
+		fieldBoosts:        make(map[string]*float64),
+		fuzzyPrefixLength:  -1,
+		fuzzyMaxExpansions: -1,
 	}
 }
 
@@ -83,7 +89,7 @@ func (q *SimpleQueryStringQuery) Analyzer(analyzer string) *SimpleQueryStringQue
 
 // DefaultOperator specifies the default operator for the query.
 func (q *SimpleQueryStringQuery) DefaultOperator(defaultOperator string) *SimpleQueryStringQuery {
-	q.operator = defaultOperator
+	q.defaultOperator = defaultOperator
 	return q
 }
 
@@ -95,11 +101,16 @@ func (q *SimpleQueryStringQuery) Flags(flags string) *SimpleQueryStringQuery {
 
 // LowercaseExpandedTerms indicates whether terms of wildcard, prefix, fuzzy
 // and range queries are automatically lower-cased or not. Default is true.
+//
+// Deprecated: Decision is now made by the analyzer.
 func (q *SimpleQueryStringQuery) LowercaseExpandedTerms(lowercaseExpandedTerms bool) *SimpleQueryStringQuery {
 	q.lowercaseExpandedTerms = &lowercaseExpandedTerms
 	return q
 }
 
+// Locale to be used in the query.
+//
+// Deprecated: Decision is now made by the analyzer.
 func (q *SimpleQueryStringQuery) Locale(locale string) *SimpleQueryStringQuery {
 	q.locale = locale
 	return q
@@ -119,8 +130,35 @@ func (q *SimpleQueryStringQuery) AnalyzeWildcard(analyzeWildcard bool) *SimpleQu
 	return q
 }
 
+// MinimumShouldMatch specifies the minimumShouldMatch to apply to the
+// resulting query should that be a Boolean query.
 func (q *SimpleQueryStringQuery) MinimumShouldMatch(minimumShouldMatch string) *SimpleQueryStringQuery {
 	q.minimumShouldMatch = minimumShouldMatch
+	return q
+}
+
+// AutoGenerateSynonymsPhraseQuery indicates whether phrase queries should be
+// automatically generated for multi terms synonyms. Defaults to true.
+func (q *SimpleQueryStringQuery) AutoGenerateSynonymsPhraseQuery(enable bool) *SimpleQueryStringQuery {
+	q.autoGenerateSynonymsPhraseQuery = &enable
+	return q
+}
+
+// FuzzyPrefixLength defines the prefix length in fuzzy queries.
+func (q *SimpleQueryStringQuery) FuzzyPrefixLength(fuzzyPrefixLength int) *SimpleQueryStringQuery {
+	q.fuzzyPrefixLength = fuzzyPrefixLength
+	return q
+}
+
+// FuzzyMaxExpansions defines the number of terms fuzzy queries will expand to.
+func (q *SimpleQueryStringQuery) FuzzyMaxExpansions(fuzzyMaxExpansions int) *SimpleQueryStringQuery {
+	q.fuzzyMaxExpansions = fuzzyMaxExpansions
+	return q
+}
+
+// FuzzyTranspositions defines whether to use transpositions in fuzzy queries.
+func (q *SimpleQueryStringQuery) FuzzyTranspositions(fuzzyTranspositions bool) *SimpleQueryStringQuery {
+	q.fuzzyTranspositions = &fuzzyTranspositions
 	return q
 }
 
@@ -164,8 +202,8 @@ func (q *SimpleQueryStringQuery) Source() (interface{}, error) {
 	if q.analyzer != "" {
 		query["analyzer"] = q.analyzer
 	}
-	if q.operator != "" {
-		query["default_operator"] = strings.ToLower(q.operator)
+	if q.defaultOperator != "" {
+		query["default_operator"] = strings.ToLower(q.defaultOperator)
 	}
 	if q.lowercaseExpandedTerms != nil {
 		query["lowercase_expanded_terms"] = *q.lowercaseExpandedTerms
@@ -190,6 +228,18 @@ func (q *SimpleQueryStringQuery) Source() (interface{}, error) {
 	}
 	if q.boost != nil {
 		query["boost"] = *q.boost
+	}
+	if v := q.autoGenerateSynonymsPhraseQuery; v != nil {
+		query["auto_generate_synonyms_phrase_query"] = *v
+	}
+	if v := q.fuzzyPrefixLength; v != -1 {
+		query["fuzzy_prefix_length"] = v
+	}
+	if v := q.fuzzyMaxExpansions; v != -1 {
+		query["fuzzy_max_expansions"] = v
+	}
+	if v := q.fuzzyTranspositions; v != nil {
+		query["fuzzy_transpositions"] = *v
 	}
 
 	return source, nil
