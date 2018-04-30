@@ -50,7 +50,7 @@ func TestFunctionScoreQueryWithNilFilter(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"function_score":{"boost":2,"boost_mode":"multiply","max_boost":12,"query":{"term":{"tag":"wow"}},"random_score":{},"score_mode":"max"}}`
+	expected := `{"function_score":{"boost":2,"boost_mode":"multiply","functions":[{"random_score":{}}],"max_boost":12,"query":{"term":{"tag":"wow"}},"score_mode":"max"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -73,7 +73,7 @@ func TestFieldValueFactor(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"function_score":{"boost":2,"boost_mode":"multiply","field_value_factor":{"factor":2,"field":"income","modifier":"sqrt"},"max_boost":12,"query":{"term":{"name.last":"banon"}},"score_mode":"max"}}`
+	expected := `{"function_score":{"boost":2,"boost_mode":"multiply","functions":[{"field_value_factor":{"factor":2,"field":"income","modifier":"sqrt"}}],"max_boost":12,"query":{"term":{"name.last":"banon"}},"score_mode":"max"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -96,7 +96,7 @@ func TestFieldValueFactorWithWeight(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"function_score":{"boost":2,"boost_mode":"multiply","field_value_factor":{"factor":2,"field":"income","modifier":"sqrt"},"max_boost":12,"query":{"term":{"name.last":"banon"}},"score_mode":"max","weight":2.5}}`
+	expected := `{"function_score":{"boost":2,"boost_mode":"multiply","functions":[{"field_value_factor":{"factor":2,"field":"income","modifier":"sqrt"},"weight":2.5}],"max_boost":12,"query":{"term":{"name.last":"banon"}},"score_mode":"max"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -140,7 +140,7 @@ func TestFunctionScoreQueryWithGaussScoreFunc(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"function_score":{"gauss":{"pin.location":{"decay":0.33,"offset":"0km","origin":"11, 12","scale":"2km"}},"query":{"term":{"name.last":"banon"}}}}`
+	expected := `{"function_score":{"functions":[{"gauss":{"pin.location":{"decay":0.33,"offset":"0km","origin":"11, 12","scale":"2km"}}}],"query":{"term":{"name.last":"banon"}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -159,7 +159,36 @@ func TestFunctionScoreQueryWithGaussScoreFuncAndMultiValueMode(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"function_score":{"gauss":{"multi_value_mode":"avg","pin.location":{"decay":0.33,"offset":"0km","origin":"11, 12","scale":"2km"}},"query":{"term":{"name.last":"banon"}}}}`
+	expected := `{"function_score":{"functions":[{"gauss":{"multi_value_mode":"avg","pin.location":{"decay":0.33,"offset":"0km","origin":"11, 12","scale":"2km"}}}],"query":{"term":{"name.last":"banon"}}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestFunctionScoreQueryBug660(t *testing.T) {
+	q := NewFunctionScoreQuery().
+		Query(NewBoolQuery().Filter(NewTermsQuery("prod", 8199))).
+		AddScoreFunc(
+			NewGaussDecayFunction().
+				FieldName("update").
+				Origin(1501747403).
+				Scale(1209600).
+				Offset("259200").
+				Decay(0.6).
+				Weight(1),
+		).
+		BoostMode("sum").
+		ScoreMode("sum")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"function_score":{"boost_mode":"sum","functions":[{"gauss":{"update":{"decay":0.6,"offset":"259200","origin":1501747403,"scale":1209600}},"weight":1}],"query":{"bool":{"filter":{"terms":{"prod":[8199]}}}},"score_mode":"sum"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
