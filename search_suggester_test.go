@@ -10,7 +10,7 @@ import (
 )
 
 func TestTermSuggester(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) // AndLog(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
@@ -47,6 +47,7 @@ func TestTermSuggester(t *testing.T) {
 		Index(testIndexName).
 		Query(NewMatchAllQuery()).
 		Suggester(ts).
+		Pretty(true).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -82,10 +83,13 @@ func TestTermSuggester(t *testing.T) {
 	if myOption.Text != "golang" {
 		t.Errorf("expected Text = 'golang'; got %s", myOption.Text)
 	}
+	if score := mySuggestion.Options[0].Score; score <= 0.0 {
+		t.Errorf("expected options[0].Score > 0.0; got %v", score)
+	}
 }
 
 func TestPhraseSuggester(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) // AndLog(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
@@ -122,6 +126,7 @@ func TestPhraseSuggester(t *testing.T) {
 		Index(testIndexName).
 		Query(NewMatchAllQuery()).
 		Suggester(ps).
+		Pretty(true).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -162,7 +167,7 @@ func TestPhraseSuggester(t *testing.T) {
 }
 
 func TestCompletionSuggester(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndex(t) // AndLog(t)
 
 	tweet1 := tweet{
 		User:    "olivere",
@@ -211,6 +216,7 @@ func TestCompletionSuggester(t *testing.T) {
 		Index(testIndexName).
 		Query(NewMatchAllQuery()).
 		Suggester(cs).
+		Pretty(true).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -246,10 +252,13 @@ func TestCompletionSuggester(t *testing.T) {
 	if myOption.Text != "Golang" {
 		t.Errorf("expected Text = 'Golang'; got %s", myOption.Text)
 	}
+	if score := mySuggestion.Options[0].ScoreUnderscore; score <= 0.0 {
+		t.Errorf("expected options[0].ScoreUnderscore > 0.0; got %v", score)
+	}
 }
 
 func TestContextSuggester(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndex(t) // AndLog(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	// TODO make a nice way of creating tweets, as currently the context fields are unsupported as part of the suggestion fields
 	tweet1 := `
@@ -313,6 +322,7 @@ func TestContextSuggester(t *testing.T) {
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Suggester(cs).
+		Pretty(true).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -351,5 +361,8 @@ func TestContextSuggester(t *testing.T) {
 	}
 	if myOption.Id != "1" {
 		t.Errorf("expected Id = '1'; got %s", myOption.Id)
+	}
+	if score := mySuggestion.Options[0].ScoreUnderscore; score <= 0.0 {
+		t.Errorf("expected options[0].ScoreUnderscore > 0.0; got %v", score)
 	}
 }
