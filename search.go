@@ -467,6 +467,12 @@ type SearchHits struct {
 	Hits      []*SearchHit `json:"hits"`      // the actual hits returned
 }
 
+// NestedHit is a nested innerhit
+type NestedHit struct {
+	Field  string `json:"field"`
+	Offset int    `json:"offset"`
+}
+
 // SearchHit is a single hit.
 type SearchHit struct {
 	Score          *float64                       `json:"_score"`          // computed score
@@ -484,6 +490,7 @@ type SearchHit struct {
 	Explanation    *SearchExplanation             `json:"_explanation"`    // explains how the score was computed
 	MatchedQueries []string                       `json:"matched_queries"` // matched queries
 	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits"`      // inner hits with ES >= 1.5.0
+	Nested         *NestedHit                     `json:"_nested"`
 
 	// Shard
 	// HighlightFields
