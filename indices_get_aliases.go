@@ -13,11 +13,13 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// AliasesService returns the aliases associated with one or more indices.
-// See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-aliases.html.
+// AliasesService returns the aliases associated with one or more indices, or the
+// indices associated with one or more aliases, or a combination of those filters.
+// See http://www.elastic.co/guide/en/elasticsearch/reference/6.2/indices-aliases.html.
 type AliasesService struct {
 	client *Client
 	index  []string
+	alias  []string
 	pretty bool
 }
 
@@ -41,21 +43,31 @@ func (s *AliasesService) Index(index ...string) *AliasesService {
 	return s
 }
 
+// Alias adds one or more aliases.
+func (s *AliasesService) Alias(alias ...string) *AliasesService {
+	s.alias = append(s.alias, alias...)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *AliasesService) buildURL() (string, url.Values, error) {
 	var err error
 	var path string
 
 	if len(s.index) > 0 {
-		path, err = uritemplates.Expand("/{index}/_alias", map[string]string{
+		path, err = uritemplates.Expand("/{index}/_alias/{alias}", map[string]string{
 			"index": strings.Join(s.index, ","),
+			"alias": strings.Join(s.alias, ","),
 		})
 	} else {
-		path = "/_alias"
+		path, err = uritemplates.Expand("/_alias/{alias}", map[string]string{
+			"alias": strings.Join(s.alias, ","),
+		})
 	}
 	if err != nil {
 		return "", url.Values{}, err
 	}
+	path = strings.TrimSuffix(path, "/")
 
 	// Add query string parameters
 	params := url.Values{}

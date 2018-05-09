@@ -14,24 +14,58 @@ func TestAliasesBuildURL(t *testing.T) {
 
 	tests := []struct {
 		Indices  []string
+		Aliases  []string
 		Expected string
 	}{
 		{
+			[]string{},
 			[]string{},
 			"/_alias",
 		},
 		{
 			[]string{"index1"},
+			[]string{},
 			"/index1/_alias",
 		},
 		{
 			[]string{"index1", "index2"},
+			[]string{},
 			"/index1%2Cindex2/_alias",
+		},
+		{
+			[]string{"index1", "index2"},
+			[]string{"alias1"},
+			"/index1%2Cindex2/_alias/alias1",
+		},
+		{
+			[]string{},
+			[]string{"alias1"},
+			"/_alias/alias1",
+		},
+		{
+			[]string{"index1"},
+			[]string{"alias1"},
+			"/index1/_alias/alias1",
+		},
+		{
+			[]string{"index1"},
+			[]string{"alias1", "alias2"},
+			"/index1/_alias/alias1%2Calias2",
+		},
+		{
+			[]string{},
+			[]string{"alias1", "alias2"},
+			"/_alias/alias1%2Calias2",
+		},
+		{
+			[]string{"index1", "index2"},
+			[]string{"alias1", "alias2"},
+			"/index1%2Cindex2/_alias/alias1%2Calias2",
 		},
 	}
 
 	for i, test := range tests {
-		path, _, err := client.Aliases().Index(test.Indices...).buildURL()
+		path, _, err := client.Aliases().Index(test.Indices...).Alias(test.Aliases...).buildURL()
 		if err != nil {
 			t.Errorf("case #%d: %v", i+1, err)
 			continue
@@ -122,6 +156,20 @@ func TestAliases(t *testing.T) {
 	for indexName, indexDetails := range aliasesResult2.Indices {
 		if len(indexDetails.Aliases) != 1 {
 			t.Errorf("expected len(AliasesResult.Indices[%s].Aliases) = %d; got %d", indexName, 1, len(indexDetails.Aliases))
+		}
+	}
+	indicesResult, err := client.Aliases().
+		Alias(testAliasName).
+		Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(indicesResult.Indices) != 2 {
+		t.Errorf("expected len(indicesResult.Indices) = %d; got %d", 2, len(indicesResult.Indices))
+	}
+	for indexName, indexDetails := range indicesResult.Indices {
+		if len(indexDetails.Aliases) != 1 {
+			t.Errorf("expected len(indicesResult.Indices[%s].Aliases) = %d; got %d", indexName, 1, len(indexDetails.Aliases))
 		}
 	}
 
