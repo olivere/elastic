@@ -163,6 +163,11 @@ func (s *BulkService) estimateSizeInBytes(r BulkableRequest) int64 {
 	return int64(size)
 }
 
+// GetRequests returns the bulkable requests from the queue
+func (s *BulkService) GetRequests() []BulkableRequest {
+	return s.requests
+}
+
 // NumberOfActions returns the number of bulkable requests that need to
 // be sent to Elasticsearch on the next batch.
 func (s *BulkService) NumberOfActions() int {
