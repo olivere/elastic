@@ -455,7 +455,7 @@ func TestBulkEstimatedSizeInBytes(t *testing.T) {
 	}
 
 	// Reset should also reset the calculated estimated byte size
-	bulkRequest.reset()
+	bulkRequest.Reset()
 
 	if got, want := bulkRequest.EstimatedSizeInBytes(), int64(0); got != want {
 		t.Errorf("expected an EstimatedSizeInBytes = %d; got: %v", want, got)
@@ -483,7 +483,7 @@ func BenchmarkBulkEstimatedSizeInBytesWith1Request(b *testing.B) {
 		s = s.Add(NewBulkUpdateRequest().Index(testIndexName).Type("tweet").Id("1").Doc(struct{ A string }{"2"}))
 		s = s.Add(NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1"))
 		result = s.EstimatedSizeInBytes()
-		s.reset()
+		s.Reset()
 	}
 	b.ReportAllocs()
 	benchmarkBulkEstimatedSizeInBytes = result // ensure the compiler doesn't optimize
@@ -500,7 +500,7 @@ func BenchmarkBulkEstimatedSizeInBytesWith100Requests(b *testing.B) {
 			s = s.Add(NewBulkDeleteRequest().Index(testIndexName).Type("tweet").Id("1"))
 		}
 		result = s.EstimatedSizeInBytes()
-		s.reset()
+		s.Reset()
 	}
 	b.ReportAllocs()
 	benchmarkBulkEstimatedSizeInBytes = result // ensure the compiler doesn't optimize
