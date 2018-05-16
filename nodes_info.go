@@ -156,7 +156,7 @@ type NodesInfoNode struct {
 	TotalIndexingBuffer int64 `json:"total_indexing_buffer"` // e.g. 16gb
 	// TotalIndexingBufferInBytes is the same as TotalIndexingBuffer, but
 	// expressed in bytes.
-	TotalIndexingBufferInBytes int64 `json:"total_indexing_buffer_in_bytes"`
+	TotalIndexingBufferInBytes string `json:"total_indexing_buffer_in_bytes"`
 
 	// Roles of the node, e.g. [master, ingest, data]
 	Roles []string `json:"roles"`
