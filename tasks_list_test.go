@@ -44,15 +44,7 @@ func TestTasksListBuildURL(t *testing.T) {
 
 func TestTasksList(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if esversion < "2.3.0" {
-		t.Skipf("Elasticsearch %v does not support Tasks Management API yet", esversion)
-	}
-
-	res, err := client.TasksList().Pretty(true).Do(context.TODO())
+	res, err := client.TasksList().Pretty(true).Human(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

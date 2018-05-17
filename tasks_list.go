@@ -24,6 +24,7 @@ type TasksListService struct {
 	taskId            []string
 	actions           []string
 	detailed          *bool
+	human             *bool
 	nodeId            []string
 	parentNode        string
 	parentTaskId      *string
@@ -53,6 +54,12 @@ func (s *TasksListService) Actions(actions ...string) *TasksListService {
 // Detailed indicates whether to return detailed task information (default: false).
 func (s *TasksListService) Detailed(detailed bool) *TasksListService {
 	s.detailed = &detailed
+	return s
+}
+
+// Human indicates whether to return time and byte values in human-readable format.
+func (s *TasksListService) Human(human bool) *TasksListService {
+	s.human = &human
 	return s
 }
 
@@ -122,6 +129,9 @@ func (s *TasksListService) buildURL() (string, url.Values, error) {
 	}
 	if s.detailed != nil {
 		params.Set("detailed", fmt.Sprintf("%v", *s.detailed))
+	}
+	if s.human != nil {
+		params.Set("human", fmt.Sprintf("%v", *s.human))
 	}
 	if len(s.nodeId) > 0 {
 		params.Set("node_id", strings.Join(s.nodeId, ","))
