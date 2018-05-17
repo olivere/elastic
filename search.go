@@ -15,13 +15,14 @@ import (
 	"gopkg.in/olivere/elastic.v2/uritemplates"
 )
 
-// Search for documents in Elasticsearch.
+// SearchService for documents in Elasticsearch.
 type SearchService struct {
 	client            *Client
 	searchSource      *SearchSource
 	source            interface{}
 	pretty            bool
 	searchType        string
+	sendBodyAs        string // HTTP verb to send (default: POST)
 	indices           []string
 	queryHint         string
 	routing           string
@@ -39,6 +40,7 @@ func NewSearchService(client *Client) *SearchService {
 	builder := &SearchService{
 		client:       client,
 		searchSource: NewSearchSource(),
+		sendBodyAs:   "POST",
 	}
 	return builder
 }
@@ -99,6 +101,13 @@ func (s *SearchService) Types(types ...string) *SearchService {
 // Pretty enables the caller to indent the JSON output.
 func (s *SearchService) Pretty(pretty bool) *SearchService {
 	s.pretty = pretty
+	return s
+}
+
+// SendBodyAs allows to specify the HTTP verb under which the search
+// is executed (default: POST).
+func (s *SearchService) SendBodyAs(httpVerb string) *SearchService {
+	s.sendBodyAs = httpVerb
 	return s
 }
 
@@ -388,7 +397,7 @@ func (s *SearchService) DoC(ctx context.Context) (*SearchResult, error) {
 	} else {
 		body = s.searchSource.Source()
 	}
-	res, err := s.client.PerformRequestC(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequestC(ctx, s.sendBodyAs, path, params, body)
 	if err != nil {
 		return nil, err
 	}

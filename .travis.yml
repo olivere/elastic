@@ -1,22 +1,19 @@
-sudo: false
+sudo: required
 language: go
+script: go test -race -v . ./config
 go:
-  - 1.8
-  - 1.9
-  - tip
+- 1.x
+- tip
 matrix:
   allow_failures:
-    - go: tip
+  - go: tip
 env:
-  global:
-    - GO15VENDOREXPERIMENT=1
-  matrix:
-    - ES_VERSION=1.7.6
-  allow_failures:
-    - go: tip
-before_script:
-  - mkdir ${HOME}/elasticsearch
-  - wget http://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
-  - tar -xzf elasticsearch-${ES_VERSION}.tar.gz -C ${HOME}/elasticsearch
-  - ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/bin/elasticsearch >& /dev/null &
-  - sleep 15
+- ES_VERSION=1.7.6
+services:
+- docker
+before_install:
+- mkdir ${HOME}/elasticsearch
+- wget http://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+- tar -xzf elasticsearch-${ES_VERSION}.tar.gz -C ${HOME}/elasticsearch
+- ${HOME}/elasticsearch/elasticsearch-${ES_VERSION}/bin/elasticsearch >& /dev/null &
+- sleep 15
