@@ -1,6 +1,6 @@
 sudo: required
 language: go
-script: go test -race -v . ./config
+script: go test -race -v
 go:
 - 1.x
 - tip
