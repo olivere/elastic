@@ -1,15 +1,11 @@
 sudo: false
 language: go
-go:
-  - 1.8.x
-  - 1.9.x
-  # - tip
-matrix:
-  allow_failures:
-    - go: tip
 env:
-  matrix:
-    - ES_VERSION=2.4.6
+  - ES_VERSION=2.4.6
+go:
+  - 1.x
+  - tip
+matrix:
   allow_failures:
     - go: tip
 before_script:

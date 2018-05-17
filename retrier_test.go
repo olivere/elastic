@@ -109,7 +109,7 @@ func TestRetrierWithError(t *testing.T) {
 
 	res, err := client.PerformRequestC(context.TODO(), "GET", "/fail", nil, nil)
 	if err != kaboom {
-		t.Fatal("expected %v, got %v", kaboom, err)
+		t.Fatalf("expected %v, got %v", kaboom, err)
 	}
 	if res != nil {
 		t.Fatal("expected no response")
