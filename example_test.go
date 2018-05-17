@@ -428,7 +428,11 @@ func ExampleAggregations() {
 		histogram, found := userBucket.DateHistogram("history")
 		if found {
 			for _, year := range histogram.Buckets {
-				fmt.Printf("user %q has %d tweets in %q\n", user, year.DocCount, year.KeyAsString)
+				var key string
+				if v := year.KeyAsString; v != nil {
+					key = *v
+				}
+				fmt.Printf("user %q has %d tweets in %q\n", user, year.DocCount, key)
 			}
 		}
 	}

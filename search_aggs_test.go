@@ -781,7 +781,7 @@ func TestAggs(t *testing.T) {
 		t.Errorf("expected %v; got: %v", 1.29384e+12, dateHistoRes.Buckets[0].Key)
 	}
 	if dateHistoRes.Buckets[0].KeyAsString == nil {
-		t.Fatalf("expected != nil; got: %q", dateHistoRes.Buckets[0].KeyAsString)
+		t.Fatalf("expected != nil; got: %v", dateHistoRes.Buckets[0].KeyAsString)
 	}
 	if *dateHistoRes.Buckets[0].KeyAsString != "2011-01-01T00:00:00.000Z" {
 		t.Errorf("expected %q; got: %q", "2011-01-01T00:00:00.000Z", *dateHistoRes.Buckets[0].KeyAsString)
@@ -793,7 +793,7 @@ func TestAggs(t *testing.T) {
 		t.Errorf("expected %v; got: %v", 1.325376e+12, dateHistoRes.Buckets[1].Key)
 	}
 	if dateHistoRes.Buckets[1].KeyAsString == nil {
-		t.Fatalf("expected != nil; got: %q", dateHistoRes.Buckets[1].KeyAsString)
+		t.Fatalf("expected != nil; got: %v", dateHistoRes.Buckets[1].KeyAsString)
 	}
 	if *dateHistoRes.Buckets[1].KeyAsString != "2012-01-01T00:00:00.000Z" {
 		t.Errorf("expected %q; got: %q", "2012-01-01T00:00:00.000Z", *dateHistoRes.Buckets[1].KeyAsString)
