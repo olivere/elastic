@@ -440,7 +440,7 @@ func TestSearchSpecificFields(t *testing.T) {
 			t.Errorf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
 		}
 		if hit.Source != nil {
-			t.Fatalf("expected SearchResult.Hits.Hit.Source to be nil; got: %q", hit.Source)
+			t.Fatalf("expected SearchResult.Hits.Hit.Source to be nil; got: %v", hit.Source)
 		}
 		if hit.Fields == nil {
 			t.Fatal("expected SearchResult.Hits.Hit.Fields to be != nil")
