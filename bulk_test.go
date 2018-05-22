@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -497,6 +498,25 @@ func TestBulkEstimateSizeInBytesLength(t *testing.T) {
 	s = s.Add(r)
 	if got, want := s.estimateSizeInBytes(r), int64(1+len(r.String())); got != want {
 		t.Fatalf("expected %d; got: %d", want, got)
+	}
+}
+
+func TestBulkGetRequests(t *testing.T) {
+
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
+
+	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet1)
+	index2Req := NewBulkIndexRequest().OpType("create").Index(testIndexName).Type("doc").Id("2").Doc(tweet2)
+
+	bulkRequest := client.Bulk()
+	bulkRequest = bulkRequest.Add(index1Req, index2Req)
+
+	want := make([]BulkableRequest, 0)
+	if got, want := bulkRequest.GetRequests(), append(want, index1Req, index2Req); !reflect.DeepEqual(got, want) {
+		t.Fatalf("expected %#v; got: %#v", want, got)
 	}
 }
 
