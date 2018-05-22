@@ -89,7 +89,10 @@ func (s *Script) Source() (interface{}, error) {
 	} else {
 		source["id"] = s.script
 	}
-	if s.lang != "" {
+	if s.lang == "null" || s.lang == "nil" {
+		// HACK(oe) Hotfix for https://github.com/elastic/elasticsearch/issues/28002; remove when 6.3 and/or 7.x are out.
+		source["lang"] = nil
+	} else if s.lang != "" {
 		source["lang"] = s.lang
 	}
 	if len(s.params) > 0 {
