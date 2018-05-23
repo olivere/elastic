@@ -59,23 +59,3 @@ func TestScriptingStored(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
-
-// TestScriptingBug28002 is a workaround for
-// https://github.com/elastic/elasticsearch/issues/28002
-// in that it allows to use a Script with ID but a language of "null".
-func TestScriptingBug28002(t *testing.T) {
-	builder := NewScriptStored("script-with-id").Lang("null").Param("factor", 2.0)
-	src, err := builder.Source()
-	if err != nil {
-		t.Fatal(err)
-	}
-	data, err := json.Marshal(src)
-	if err != nil {
-		t.Fatalf("marshaling to JSON failed: %v", err)
-	}
-	got := string(data)
-	expected := `{"id":"script-with-id","lang":null,"params":{"factor":2}}`
-	if got != expected {
-		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
-	}
-}

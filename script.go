@@ -18,7 +18,8 @@ type Script struct {
 	params map[string]interface{}
 }
 
-// NewScript creates and initializes a new Script.
+// NewScript creates and initializes a new Script. By default, it is of
+// type "inline". Use NewScriptStored for a stored script (where type is "id").
 func NewScript(script string) *Script {
 	return &Script{
 		script: script,
@@ -89,10 +90,7 @@ func (s *Script) Source() (interface{}, error) {
 	} else {
 		source["id"] = s.script
 	}
-	if s.lang == "null" || s.lang == "nil" {
-		// HACK(oe) Hotfix for https://github.com/elastic/elasticsearch/issues/28002; remove when 6.3 and/or 7.x are out.
-		source["lang"] = nil
-	} else if s.lang != "" {
+	if s.lang != "" {
 		source["lang"] = s.lang
 	}
 	if len(s.params) > 0 {
