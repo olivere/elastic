@@ -72,27 +72,19 @@ func TestUpdateWithScriptID(t *testing.T) {
 
 	// Set script with ID
 	scriptID := "example-script-id"
-	_, err = client.PerformRequest(
-		context.Background(),
-		PerformRequestOptions{
-			Method: "DELETE",
-			Path:   "/_scripts/" + scriptID,
-		})
+	_, err = client.DeleteScript().Id(scriptID).Do(context.Background())
 	if err != nil && !IsNotFound(err) {
 		t.Fatal(err)
 	}
-	_, err = client.PerformRequest(
-		context.Background(),
-		PerformRequestOptions{
-			Method: "POST",
-			Path:   "/_scripts/" + scriptID,
-			Body: `{
-				"script": {
-					"lang": "painless",
-					"source": "ctx._source.message = params.new_message"
-				}
-			}`,
-		})
+	_, err = client.PutScript().
+		Id(scriptID).
+		BodyString(`{
+			"script": {
+				"lang": "painless",
+				"source": "ctx._source.message = params.new_message"
+			}
+		}`).
+		Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}

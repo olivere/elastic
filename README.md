@@ -363,6 +363,10 @@ The cat APIs are not implemented as of now. We think they are better suited for 
   - [ ] Snapshot status
   - [ ] Monitoring snapshot/restore status
   - [ ] Stopping currently running snapshot and restore
+- Scripting
+  - [x] GetScript
+  - [x] PutScript
+  - [x] DeleteScript
 
 ### Sorting
 

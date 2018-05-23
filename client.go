@@ -1737,6 +1737,24 @@ func (c *Client) SnapshotVerifyRepository(repository string) *SnapshotVerifyRepo
 	return NewSnapshotVerifyRepositoryService(c).Repository(repository)
 }
 
+// -- Scripting APIs --
+
+// GetScript reads a stored script in Elasticsearch.
+// Use PutScript for storing a script.
+func (c *Client) GetScript() *GetScriptService {
+	return NewGetScriptService(c)
+}
+
+// PutScript allows saving a stored script in Elasticsearch.
+func (c *Client) PutScript() *PutScriptService {
+	return NewPutScriptService(c)
+}
+
+// DeleteScript allows removing a stored script from Elasticsearch.
+func (c *Client) DeleteScript() *DeleteScriptService {
+	return NewDeleteScriptService(c)
+}
+
 // -- Helpers and shortcuts --
 
 // ElasticsearchVersion returns the version number of Elasticsearch
