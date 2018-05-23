@@ -1699,6 +1699,13 @@ func (c *Client) TasksGetTask() *TasksGetTaskService {
 	return NewTasksGetTaskService(c)
 }
 
+// -- Cat APIs --
+
+// Cat retrieves data about the cluster in human readable formats
+func (c *Client) Cat() *CatService {
+	return NewCatService(c)
+}
+
 // TODO Pending cluster tasks
 // TODO Cluster Reroute
 // TODO Cluster Update Settings
