@@ -15,6 +15,7 @@ type Script struct {
 	script string
 	typ    string
 	lang   string
+	inline string
 	params map[string]interface{}
 }
 
@@ -53,6 +54,12 @@ func (s *Script) Type(typ string) *Script {
 	return s
 }
 
+// Inline sets inline for lang painlelss in script.
+func (s *Script) Inline(inline string) *Script {
+	s.inline = inline
+	return s
+}
+
 // Lang sets the language of the script. Permitted values are "groovy",
 // "expression", "mustache", "mvel" (default), "javascript", "python".
 // To use certain languages, you need to configure your server and/or
@@ -85,10 +92,8 @@ func (s *Script) Source() (interface{}, error) {
 	}
 	source := make(map[string]interface{})
 	// Beginning with 6.0, the type can only be "source" or "id"
-	if s.typ == "" {
+	if s.typ == "" || s.typ == "inline" {
 		source["source"] = s.script
-	} else if s.typ == "inline" {
-		source["inline"] = s.script
 	} else {
 		source["id"] = s.script
 	}
@@ -97,6 +102,9 @@ func (s *Script) Source() (interface{}, error) {
 	}
 	if len(s.params) > 0 {
 		source["params"] = s.params
+	}
+	if s.inline != "" {
+		source["inline"] = s.script
 	}
 	return source, nil
 }
