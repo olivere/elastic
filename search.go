@@ -411,6 +411,12 @@ func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 	return ret, nil
 }
 
+// NestedHit is a nested innerhit
+type NestedHit struct {
+	Field  string `json:"field"`
+	Offset int    `json:"offset"`
+}
+
 // SearchResult is the result of a search in Elasticsearch.
 type SearchResult struct {
 	TookInMillis int64          `json:"took"`              // search time in milliseconds
@@ -422,6 +428,7 @@ type SearchResult struct {
 	Error        *ErrorDetails  `json:"error,omitempty"`   // only used in MultiGet
 	Profile      *SearchProfile `json:"profile,omitempty"` // profiling results, if optional Profile API was active for this search
 	Shards       *shardsInfo    `json:"_shards,omitempty"` // shard information
+	Nested       *NestedHit     `json:"_nested"`           //nested response from innerHit
 }
 
 // TotalHits is a convenience function to return the number of hits for
