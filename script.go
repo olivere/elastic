@@ -85,7 +85,9 @@ func (s *Script) Source() (interface{}, error) {
 	}
 	source := make(map[string]interface{})
 	// Beginning with 6.0, the type can only be "source" or "id"
-	if s.typ == "" || s.typ == "inline" {
+	if s.typ == "" {
+		source["source"] = s.script
+	} else if s.typ == "inline" {
 		source["inline"] = s.script
 	} else {
 		source["id"] = s.script
