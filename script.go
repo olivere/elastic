@@ -15,6 +15,7 @@ type Script struct {
 	script string
 	typ    string
 	lang   string
+	inline string
 	params map[string]interface{}
 }
 
@@ -50,6 +51,12 @@ func (s *Script) Script(script string) *Script {
 // Type sets the type of script: "inline" or "id".
 func (s *Script) Type(typ string) *Script {
 	s.typ = typ
+	return s
+}
+
+// Inline sets inline for lang painlelss in script.
+func (s *Script) Inline(inline string) *Script {
+	s.inline = inline
 	return s
 }
 
@@ -95,6 +102,9 @@ func (s *Script) Source() (interface{}, error) {
 	}
 	if len(s.params) > 0 {
 		source["params"] = s.params
+	}
+	if s.inline != "" {
+		source["inline"] = s.script
 	}
 	return source, nil
 }
