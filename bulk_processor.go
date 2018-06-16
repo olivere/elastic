@@ -451,9 +451,11 @@ func (w *bulkWorker) work(ctx context.Context) {
 		case req, open := <-w.p.requestsC:
 			if open {
 				// Received a new request
-				w.service.Add(req)
-				if w.commitRequired() {
-					err = w.commit(ctx)
+				if _, err = req.Source(); err == nil {
+					w.service.Add(req)
+					if w.commitRequired() {
+						err = w.commit(ctx)
+					}
 				}
 			} else {
 				// Channel closed: Stop.
@@ -470,17 +472,20 @@ func (w *bulkWorker) work(ctx context.Context) {
 			}
 			w.flushAckC <- struct{}{}
 		}
-		if !stop && err != nil {
-			waitForActive := func() {
-				// Add back pressure to prevent Add calls from filling up the request queue
-				ready := make(chan struct{})
-				go w.waitForActiveConnection(ready)
-				<-ready
-			}
-			if _, ok := err.(net.Error); ok {
-				waitForActive()
-			} else if IsConnErr(err) {
-				waitForActive()
+		if err != nil {
+			w.p.c.errorf("elastic: bulk processor %q was unable to perform work: %v", w.p.name, err)
+			if !stop {
+				waitForActive := func() {
+					// Add back pressure to prevent Add calls from filling up the request queue
+					ready := make(chan struct{})
+					go w.waitForActiveConnection(ready)
+					<-ready
+				}
+				if _, ok := err.(net.Error); ok {
+					waitForActive()
+				} else if IsConnErr(err) {
+					waitForActive()
+				}
 			}
 		}
 	}
