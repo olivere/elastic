@@ -495,7 +495,22 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 	// via exponential backoff
 	commitFunc := func() error {
 		var err error
+		// Save requests because they will be reset in service.Do
+		reqs := w.service.requests
 		res, err = w.service.Do(ctx)
+		if err == nil {
+			// Check res.Items since some might be soft failures
+			if res.Items != nil && res.Errors {
+				// res.Items will be 1 to 1 with reqs in same order
+				for i, item := range res.Items {
+					for _, result := range item {
+						if result.Status == 429 { // too many requests
+							w.service.Add(reqs[i])
+						}
+					}
+				}
+			}
+		}
 		return err
 	}
 	// notifyFunc will be called if retry fails
