@@ -105,11 +105,6 @@ func TestAggs(t *testing.T) {
 	topTagsAgg := NewTermsAggregation().Field("tags").Size(3).SubAggregation("top_tag_hits", topTagsHitsAgg)
 	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
 	geoHashAgg := NewGeoHashGridAggregation().Field("location").Precision(5)
-	composite := NewCompositeAggregation().Sources(
-		NewCompositeAggregationTermsValuesSource("composite_users").Field("user"),
-		NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).Field("retweets"),
-		NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
-	)
 	geoCentroidAgg := NewGeoCentroidAggregation().Field("location")
 
 	// Run query
@@ -182,7 +177,14 @@ func TestAggs(t *testing.T) {
 	dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
 	dateHisto = dateHisto.SubAggregation("movingAvg", NewMovAvgAggregation().BucketsPath("sumOfRetweets"))
 	builder = builder.Aggregation("movingAvgDateHisto", dateHisto)
-	builder = builder.Aggregation("composite", composite)
+	/*
+		composite := NewCompositeAggregation().Sources(
+			NewCompositeAggregationTermsValuesSource("composite_users").Field("user"),
+			NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).Field("retweets"),
+			NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
+		)
+		builder = builder.Aggregation("composite", composite)
+	*/
 	searchResult, err := builder.Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -506,14 +508,26 @@ func TestAggs(t *testing.T) {
 	if _, found := percentilesAggRes.Values["0.0"]; found {
 		t.Errorf("expected %v; got: %v", false, found)
 	}
-	if percentilesAggRes.Values["1.0"] != 0.24 {
-		t.Errorf("expected %v; got: %v", 0.24, percentilesAggRes.Values["1.0"])
+	if percentilesAggRes.Values["1.0"] != 0.0 {
+		t.Errorf("expected %v; got: %v", 0.0, percentilesAggRes.Values["1.0"])
 	}
-	if percentilesAggRes.Values["25.0"] != 6.0 {
-		t.Errorf("expected %v; got: %v", 6.0, percentilesAggRes.Values["25.0"])
+	if percentilesAggRes.Values["5.0"] != 0.0 {
+		t.Errorf("expected %v; got: %v", 0.0, percentilesAggRes.Values["1.0"])
 	}
-	if percentilesAggRes.Values["99.0"] != 106.08 {
-		t.Errorf("expected %v; got: %v", 106.08, percentilesAggRes.Values["99.0"])
+	if percentilesAggRes.Values["25.0"] != 3.0 {
+		t.Errorf("expected %v; got: %v", 3.0, percentilesAggRes.Values["25.0"])
+	}
+	if percentilesAggRes.Values["50.0"] != 12.0 {
+		t.Errorf("expected %v; got: %v", 12.0, percentilesAggRes.Values["50.0"])
+	}
+	if percentilesAggRes.Values["75.0"] != 84.0 {
+		t.Errorf("expected %v; got: %v", 84.0, percentilesAggRes.Values["75.0"])
+	}
+	if percentilesAggRes.Values["95.0"] != 108.0 {
+		t.Errorf("expected %v; got: %v", 108.0, percentilesAggRes.Values["95.0"])
+	}
+	if percentilesAggRes.Values["99.0"] != 108.0 {
+		t.Errorf("expected %v; got: %v", 108.0, percentilesAggRes.Values["99.0"])
 	}
 
 	// percentileRanksRetweets
@@ -530,14 +544,14 @@ func TestAggs(t *testing.T) {
 	if _, found := percentileRanksAggRes.Values["0.0"]; found {
 		t.Errorf("expected %v; got: %v", true, found)
 	}
-	if percentileRanksAggRes.Values["25.0"] != 21.180555555555557 {
-		t.Errorf("expected %v; got: %v", 21.180555555555557, percentileRanksAggRes.Values["25.0"])
+	if percentileRanksAggRes.Values["25.0"] != 45.06172839506173 {
+		t.Errorf("expected %v; got: %v", 45.06172839506173, percentileRanksAggRes.Values["25.0"])
 	}
-	if percentileRanksAggRes.Values["50.0"] != 29.86111111111111 {
-		t.Errorf("expected %v; got: %v", 29.86111111111111, percentileRanksAggRes.Values["50.0"])
+	if percentileRanksAggRes.Values["50.0"] != 60.49382716049383 {
+		t.Errorf("expected %v; got: %v", 60.49382716049383, percentileRanksAggRes.Values["50.0"])
 	}
-	if percentileRanksAggRes.Values["75.0"] != 38.54166666666667 {
-		t.Errorf("expected %v; got: %v", 38.54166666666667, percentileRanksAggRes.Values["75.0"])
+	if percentileRanksAggRes.Values["75.0"] != 100.0 {
+		t.Errorf("expected %v; got: %v", 100.0, percentileRanksAggRes.Values["75.0"])
 	}
 
 	// usersCardinality
@@ -1033,16 +1047,18 @@ func TestAggs(t *testing.T) {
 		t.Errorf("expected %d; got: %d", 1, adjacencyMatrixAggRes.Buckets[1].DocCount)
 	}
 
-	compositeAggRes, found := agg.Composite("composite")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if compositeAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if want, have := 3, len(compositeAggRes.Buckets); want != have {
-		t.Fatalf("expected %d; got: %d", want, have)
-	}
+	/*
+		compositeAggRes, found := agg.Composite("composite")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if compositeAggRes == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if want, have := 3, len(compositeAggRes.Buckets); want != have {
+			t.Fatalf("expected %d; got: %d", want, have)
+		}
+	*/
 }
 
 // TestAggsMarshal ensures that marshaling aggregations back into a string
