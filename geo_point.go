@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -22,6 +23,11 @@ func (pt *GeoPoint) Source() map[string]float64 {
 		"lat": pt.Lat,
 		"lon": pt.Lon,
 	}
+}
+
+// MarshalJSON encodes the GeoPoint to JSON.
+func (pt *GeoPoint) MarshalJSON() ([]byte, error) {
+	return json.Marshal(pt.Source())
 }
 
 // GeoPointFromLatLon initializes a new GeoPoint by latitude and longitude.
