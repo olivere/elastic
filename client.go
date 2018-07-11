@@ -1281,7 +1281,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		}
 		if ue, ok := err.(*url.Error); ok {
 			// This happens e.g. on redirect errors, see https://golang.org/src/net/http/client_test.go#L329
-			if ue.Err == context.Canceled || ue.Err == context.DeadlineExceeded {
+			if ue.Err == context.Canceled || ue.Err == context.DeadlineExceeded || ue.Temporary() {
 				// Proceed, but don't mark the node as dead
 				return nil, err
 			}
