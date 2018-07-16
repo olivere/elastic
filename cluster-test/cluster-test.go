@@ -292,7 +292,7 @@ func (t *TestCase) search() {
 	// Loop forever to check for connection issues
 	for {
 		// Get tweet with specified ID
-		get1, err := t.client.Get().
+		_, err := t.client.Get().
 			Index(t.index).
 			Type("tweet").
 			Id("1").
@@ -302,7 +302,7 @@ func (t *TestCase) search() {
 			t.runCh <- RunInfo{Success: false}
 			continue
 		}
-		if !get1.Found {
+		if elastic.IsNotFound(err) {
 			//log.Printf("Document %s not found\n", "1")
 			//fmt.Printf("Got document %s in version %d from index %s, type %s\n", get1.Id, get1.Version, get1.Index, get1.Type)
 			t.runCh <- RunInfo{Success: false}
