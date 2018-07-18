@@ -10,8 +10,15 @@ import (
 	"time"
 )
 
-// RetrierFunc specifies the signature of a Retry function.
+// RetrierFunc specifies the signature of a Retry function, and is an adapter
+// to allow the use of ordinary Retry functions. If f is a function with the
+// appropriate signature, RetrierFunc(f) is a Retrier that calls f.
 type RetrierFunc func(context.Context, int, *http.Request, *http.Response, error) (time.Duration, bool, error)
+
+// Retry calls f.
+func (f RetrierFunc) Retry(ctx context.Context, retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error) {
+	return f(ctx, retry, req, resp, err)
+}
 
 // Retrier decides whether to retry a failed HTTP request with Elasticsearch.
 type Retrier interface {
