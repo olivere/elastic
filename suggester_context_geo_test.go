@@ -41,7 +41,7 @@ func TestSuggesterGeoQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"location":{"precision":"1km","lat":11.5,"lon":62.71}}`
+	expected := `{"location":{"lat":11.5,"lon":62.71,"precision":"1km"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
