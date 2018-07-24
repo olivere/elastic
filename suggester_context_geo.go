@@ -84,20 +84,19 @@ func (q *SuggesterGeoMapping) Source() (interface{}, error) {
 type SuggesterGeoQuery struct {
 	name      string
 	location  *GeoPoint
-	precision []string
+	precision string
 }
 
 // NewSuggesterGeoQuery creates a new SuggesterGeoQuery.
 func NewSuggesterGeoQuery(name string, location *GeoPoint) *SuggesterGeoQuery {
 	return &SuggesterGeoQuery{
-		name:      name,
-		location:  location,
-		precision: make([]string, 0),
+		name:     name,
+		location: location,
 	}
 }
 
-func (q *SuggesterGeoQuery) Precision(precision ...string) *SuggesterGeoQuery {
-	q.precision = append(q.precision, precision...)
+func (q *SuggesterGeoQuery) Precision(precision string) *SuggesterGeoQuery {
+	q.precision = precision
 	return q
 }
 
@@ -105,25 +104,15 @@ func (q *SuggesterGeoQuery) Precision(precision ...string) *SuggesterGeoQuery {
 func (q *SuggesterGeoQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
-	if len(q.precision) == 0 {
-		if q.location != nil {
-			source[q.name] = q.location.Source()
+	if q.location != nil {
+		val := make(map[string]interface{})
+		for k, v := range q.location.Source() {
+			val[k] = v
 		}
-	} else {
-		x := make(map[string]interface{})
-		source[q.name] = x
-
-		if q.location != nil {
-			x["value"] = q.location.Source()
+		if q.precision != "" {
+			val["precision"] = q.precision
 		}
-
-		switch len(q.precision) {
-		case 0:
-		case 1:
-			x["precision"] = q.precision[0]
-		default:
-			x["precision"] = q.precision
-		}
+		source[q.name] = val
 	}
 
 	return source, nil

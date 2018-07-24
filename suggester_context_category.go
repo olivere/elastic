@@ -117,3 +117,32 @@ func (q *SuggesterCategoryQuery) Source() (interface{}, error) {
 
 	return source, nil
 }
+
+type SuggesterCategoryIndex struct {
+	name   string
+	values []string
+}
+
+// NewSuggesterCategoryIndex creates a new SuggesterCategoryIndex.
+func NewSuggesterCategoryIndex(name string, values ...string) *SuggesterCategoryIndex {
+	q := &SuggesterCategoryIndex{
+		name:   name,
+		values: values,
+	}
+
+	return q
+}
+
+// Source returns a map that will be used to serialize the context query as JSON.
+func (q *SuggesterCategoryIndex) Source() (interface{}, error) {
+	source := make(map[string]interface{})
+
+	switch len(q.values) {
+	case 0:
+		source[q.name] = make([]string, 0)
+	default:
+		source[q.name] = q.values
+	}
+
+	return source, nil
+}
