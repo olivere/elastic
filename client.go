@@ -1275,7 +1275,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 
 		// Get response
 		res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
-		if isContextErr(err) {
+		if IsContextErr(err) {
 			// Proceed, but don't mark the node as dead
 			return nil, err
 		}
@@ -1335,22 +1335,6 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		float64(int64(duration/time.Millisecond))/1000)
 
 	return resp, nil
-}
-
-// isContextErr returns true if the error is from a context that was canceled or deadline exceeded
-func isContextErr(err error) bool {
-	if err == context.Canceled || err == context.DeadlineExceeded {
-		return true
-	}
-	// This happens e.g. on redirect errors, see https://golang.org/src/net/http/client_test.go#L329
-	if ue, ok := err.(*url.Error); ok {
-		if ue.Temporary() {
-			return true
-		}
-		// Use of an AWS Signing Transport can result in a wrapped url.Error
-		return isContextErr(ue.Err)
-	}
-	return false
 }
 
 // -- Document APIs --
