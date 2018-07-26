@@ -15,9 +15,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/olivere/elastic/aws"
 	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/aws"
 	"github.com/olivere/env"
+	"github.com/smartystreets/go-aws-auth"
 )
 
 func main() {
