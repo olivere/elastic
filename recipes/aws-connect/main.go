@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/olivere/aws"
+	"github.com/olivere/elastic/aws"
 	"github.com/olivere/elastic"
 	"github.com/olivere/env"
 )
