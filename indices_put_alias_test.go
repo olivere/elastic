@@ -12,6 +12,7 @@ import (
 
 const (
 	testAliasName = "elastic-test-alias"
+	testAliasName2 = "elastic-test-alias2"
 )
 
 func TestAliasLifecycle(t *testing.T) {

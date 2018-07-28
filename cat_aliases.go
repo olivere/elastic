@@ -89,7 +89,7 @@ func (s *CatAliasesService) buildURL() (string, url.Values, error) {
 	)
 
 	if len(s.aliases) > 0 {
-		path, err = uritemplates.Expand("/_cat/indices/{name}", map[string]string{
+		path, err = uritemplates.Expand("/_cat/aliases/{name}", map[string]string{
 			"name": strings.Join(s.aliases, ","),
 		})
 	} else {
