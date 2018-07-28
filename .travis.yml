@@ -2,11 +2,14 @@ sudo: required
 language: go
 script: go test -race -v . ./config
 go:
+- "1.10.x"
 - 1.x
 - tip
 matrix:
   allow_failures:
   - go: tip
+env:
+  - GO111MODULE=on
 services:
 - docker
 before_install:
