@@ -88,9 +88,8 @@ type ErrorDetails struct {
 func (e *Error) Error() string {
 	if e.Details != nil && e.Details.Reason != "" {
 		return fmt.Sprintf("elastic: Error %d (%s): %s [type=%s]", e.Status, http.StatusText(e.Status), e.Details.Reason, e.Details.Type)
-	} else {
-		return fmt.Sprintf("elastic: Error %d (%s)", e.Status, http.StatusText(e.Status))
 	}
+	return fmt.Sprintf("elastic: Error %d (%s)", e.Status, http.StatusText(e.Status))
 }
 
 // IsContextErr returns true if the error is from a context that was canceled or deadline exceeded
