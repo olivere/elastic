@@ -14,23 +14,12 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
-
-	"github.com/olivere/env"
-	"github.com/smartystreets/go-aws-auth"
 
 	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/aws"
+	"github.com/olivere/env"
+	"github.com/smartystreets/go-aws-auth"
 )
-
-type AWSSigningTransport struct {
-	HTTPClient  *http.Client
-	Credentials awsauth.Credentials
-}
-
-// RoundTrip implementation
-func (a AWSSigningTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	return a.HTTPClient.Do(awsauth.Sign4(req, a.Credentials))
-}
 
 func main() {
 	var (
@@ -52,14 +41,10 @@ func main() {
 		log.Fatal("missing -secret-key or AWS_SECRET_KEY environment variable")
 	}
 
-	signingTransport := AWSSigningTransport{
-		Credentials: awsauth.Credentials{
-			AccessKeyID:     *accessKey,
-			SecretAccessKey: *secretKey,
-		},
-		HTTPClient: http.DefaultClient,
-	}
-	signingClient := &http.Client{Transport: http.RoundTripper(signingTransport)}
+	signingClient := aws.NewV4SigningClient(awsauth.Credentials{
+		AccessKeyID:     *accessKey,
+		SecretAccessKey: *secretKey,
+	})
 
 	// Create an Elasticsearch client
 	client, err := elastic.NewClient(
