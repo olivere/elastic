@@ -18,7 +18,8 @@ import (
 	"github.com/olivere/env"
 	"github.com/smartystreets/go-aws-auth"
 	elastic "gopkg.in/olivere/elastic.v5"
-	"gopkg.in/olivere/elastic.v5/aws"
+	// "gopkg.in/olivere/elastic.v5/aws"
+	"github.com/olivere/elastic/aws"
 )
 
 func main() {
