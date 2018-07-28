@@ -48,6 +48,7 @@ type DeleteByQueryService struct {
 	searchTimeout          string
 	searchType             string
 	size                   *int
+	slices                 interface{}
 	sort                   []string
 	stats                  []string
 	storedFields           []string
@@ -301,6 +302,16 @@ func (s *DeleteByQueryService) Size(size int) *DeleteByQueryService {
 	return s
 }
 
+// Slices represents the number of slices (default: 1).
+// It used to  be a number, but can be set to "auto" as of 6.3.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.3/docs-delete-by-query.html#docs-delete-by-query-automatic-slice
+// for details.
+func (s *DeleteByQueryService) Slices(slices interface{}) *DeleteByQueryService {
+	s.slices = slices
+	return s
+}
+
 // Sort is a list of <field>:<direction> pairs.
 func (s *DeleteByQueryService) Sort(sort ...string) *DeleteByQueryService {
 	s.sort = append(s.sort, sort...)
@@ -506,6 +517,9 @@ func (s *DeleteByQueryService) buildURL() (string, url.Values, error) {
 	}
 	if s.size != nil {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
+	}
+	if s.slices != nil {
+		params.Set("slices", fmt.Sprintf("%v", s.slices))
 	}
 	if len(s.sort) > 0 {
 		params.Set("sort", strings.Join(s.sort, ","))

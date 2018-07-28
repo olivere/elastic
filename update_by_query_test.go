@@ -164,7 +164,10 @@ func TestUpdateByQueryAsync(t *testing.T) {
 		t.Fatalf("expected more than %d documents; got: %d", 0, sourceCount)
 	}
 
-	res, err := client.UpdateByQuery(testIndexName).ProceedOnVersionConflict().DoAsync(context.TODO())
+	res, err := client.UpdateByQuery(testIndexName).
+		ProceedOnVersionConflict().
+		Slices("auto").
+		DoAsync(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

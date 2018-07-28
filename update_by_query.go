@@ -51,6 +51,7 @@ type UpdateByQueryService struct {
 	searchTimeout          string
 	searchType             string
 	size                   *int
+	slices                 interface{}
 	sort                   []string
 	stats                  []string
 	storedFields           []string
@@ -320,6 +321,16 @@ func (s *UpdateByQueryService) Size(size int) *UpdateByQueryService {
 	return s
 }
 
+// Slices represents the number of slices (default: 1).
+// It used to  be a number, but can be set to "auto" as of 6.3.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.3/docs-update-by-query.html#docs-update-by-query-slice
+// for details.
+func (s *UpdateByQueryService) Slices(slices interface{}) *UpdateByQueryService {
+	s.slices = slices
+	return s
+}
+
 // Sort is a list of <field>:<direction> pairs.
 func (s *UpdateByQueryService) Sort(sort ...string) *UpdateByQueryService {
 	s.sort = append(s.sort, sort...)
@@ -538,6 +549,9 @@ func (s *UpdateByQueryService) buildURL() (string, url.Values, error) {
 	}
 	if s.size != nil {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
+	}
+	if s.slices != nil {
+		params.Set("slices", fmt.Sprintf("%v", s.slices))
 	}
 	if len(s.sort) > 0 {
 		params.Set("sort", strings.Join(s.sort, ","))

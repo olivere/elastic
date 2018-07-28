@@ -189,6 +189,7 @@ func TestDeleteByQueryAsync(t *testing.T) {
 		Index(testIndexName).
 		Type("doc").
 		Query(q).
+		Slices("auto").
 		Pretty(true).
 		DoAsync(context.TODO())
 	if err != nil {

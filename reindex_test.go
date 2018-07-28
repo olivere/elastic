@@ -344,7 +344,11 @@ func TestReindexAsync(t *testing.T) {
 	// Simple copying
 	src := NewReindexSource().Index(testIndexName)
 	dst := NewReindexDestination().Index(testIndexName2)
-	res, err := client.Reindex().Source(src).Destination(dst).DoAsync(context.TODO())
+	res, err := client.Reindex().
+		Source(src).
+		Destination(dst).
+		Slices("auto").
+		DoAsync(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

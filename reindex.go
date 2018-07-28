@@ -20,7 +20,7 @@ type ReindexService struct {
 	waitForActiveShards string
 	waitForCompletion   *bool
 	requestsPerSecond   *int
-	slices              *int
+	slices              interface{}
 	body                interface{}
 	source              *ReindexSource
 	destination         *ReindexDestination
@@ -53,8 +53,12 @@ func (s *ReindexService) RequestsPerSecond(requestsPerSecond int) *ReindexServic
 }
 
 // Slices specifies the number of slices this task should be divided into. Defaults to 1.
-func (s *ReindexService) Slices(slices int) *ReindexService {
-	s.slices = &slices
+// It used to  be a number, but can be set to "auto" as of 6.3.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.3/docs-reindex.html#docs-reindex-slice
+// for details.
+func (s *ReindexService) Slices(slices interface{}) *ReindexService {
+	s.slices = slices
 	return s
 }
 
@@ -190,7 +194,7 @@ func (s *ReindexService) buildURL() (string, url.Values, error) {
 		params.Set("requests_per_second", fmt.Sprintf("%v", *s.requestsPerSecond))
 	}
 	if s.slices != nil {
-		params.Set("slices", fmt.Sprintf("%v", *s.slices))
+		params.Set("slices", fmt.Sprintf("%v", s.slices))
 	}
 	if s.waitForActiveShards != "" {
 		params.Set("wait_for_active_shards", s.waitForActiveShards)
