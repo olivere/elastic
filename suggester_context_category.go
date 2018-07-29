@@ -129,7 +129,11 @@ func NewSuggesterCategoryIndex(name string, values ...string) *SuggesterCategory
 		name:   name,
 		values: values,
 	}
+	return q
+}
 
+func (q *SuggesterCategoryIndex) Values(values ...string) *SuggesterCategoryIndex {
+	q.values = append(q.values, values...)
 	return q
 }
 
@@ -140,6 +144,8 @@ func (q *SuggesterCategoryIndex) Source() (interface{}, error) {
 	switch len(q.values) {
 	case 0:
 		source[q.name] = make([]string, 0)
+	case 1:
+		source[q.name] = q.values[0]
 	default:
 		source[q.name] = q.values
 	}

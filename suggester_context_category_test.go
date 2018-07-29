@@ -161,3 +161,37 @@ func TestSuggesterCategoryQueryWithoutBoost(t *testing.T) {
 		t.Errorf("expected any of %v\n,got:\n%s", expectedOutcomes, got)
 	}
 }
+
+func TestSuggesterCategoryIndex(t *testing.T) {
+	in := NewSuggesterCategoryIndex("color", "red")
+	src, err := in.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"color":"red"}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSuggesterCategoryIndexWithTwoValues(t *testing.T) {
+	in := NewSuggesterCategoryIndex("color", "red", "yellow")
+	src, err := in.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"color":["red","yellow"]}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
