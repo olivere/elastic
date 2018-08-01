@@ -13,16 +13,17 @@ import (
 
 // Config represents an Elasticsearch configuration.
 type Config struct {
-	URL      string
-	Index    string
-	Username string
-	Password string
-	Shards   int
-	Replicas int
-	Sniff    *bool
-	Infolog  string
-	Errorlog string
-	Tracelog string
+	URL         string
+	Index       string
+	Username    string
+	Password    string
+	Shards      int
+	Replicas    int
+	Sniff       *bool
+	Healthcheck *bool
+	Infolog     string
+	Errorlog    string
+	Tracelog    string
 }
 
 // Parse returns the Elasticsearch configuration by extracting it
@@ -60,6 +61,11 @@ func Parse(elasticURL string) (*Config, error) {
 	if s := uri.Query().Get("sniff"); s != "" {
 		if b, err := strconv.ParseBool(s); err == nil {
 			cfg.Sniff = &b
+		}
+	}
+	if s := uri.Query().Get("healthcheck"); s != "" {
+		if b, err := strconv.ParseBool(s); err == nil {
+			cfg.Healthcheck = &b
 		}
 	}
 	if s := uri.Query().Get("infolog"); s != "" {
