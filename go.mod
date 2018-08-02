@@ -1,9 +1,10 @@
-module github.com/olivere/elastic
+module github.com/olivere/elastic/v6
 
 require (
 	github.com/fortytw2/leaktest v1.2.0
 	github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c
 	github.com/mailru/easyjson v0.0.0-20180723221831-d5012789d665
+	github.com/olivere/elastic v6.1.25+incompatible
 	github.com/olivere/env v1.0.0
 	github.com/pkg/errors v0.8.0
 	github.com/smartystreets/go-aws-auth v0.0.0-20170504205021-8ef1316913ee
