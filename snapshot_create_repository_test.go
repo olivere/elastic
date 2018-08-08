@@ -33,7 +33,7 @@ func TestSnapshotPutRepositoryURL(t *testing.T) {
 	}
 }
 
-func TestSnapshotPutRepositoryBody(t *testing.T) {
+func TestSnapshotPutRepositoryBodyWithSettings(t *testing.T) {
 	client := setupTestClient(t)
 
 	service := client.SnapshotCreateRepository("my_backup")
@@ -45,6 +45,9 @@ func TestSnapshotPutRepositoryBody(t *testing.T) {
 		Setting("compress", true).
 		Setting("chunk_size", 16*1024*1024)
 
+	if err := service.Validate(); err != nil {
+		t.Fatal(err)
+	}
 	src, err := service.buildBody()
 	if err != nil {
 		t.Fatal(err)
