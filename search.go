@@ -374,6 +374,30 @@ func (s *SearchService) Validate() error {
 	return nil
 }
 
+// Render compiles the constructed request and returns a string representation
+// of the body that will be sent to ElasticSearch.
+func (s *SearchService) Render() (string, error) {
+	// Check pre-conditions
+	if err := s.Validate(); err != nil {
+		return "", err
+	}
+
+	// Perform request
+	var body interface{}
+	if s.source != nil {
+		body = s.source
+	} else {
+		src, err := s.searchSource.Source()
+		if err != nil {
+			return "", err
+		}
+		body = src
+	}
+
+	data, err := json.Marshal(body)
+	return string(data), err
+}
+
 // Do executes the search and returns a SearchResult.
 func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 	// Check pre-conditions
