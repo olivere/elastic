@@ -36,6 +36,7 @@ type ScrollService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	headers           map[string]string
 
 	mu       sync.RWMutex
 	scrollId string
@@ -49,6 +50,15 @@ func NewScrollService(client *Client) *ScrollService {
 		keepAlive: DefaultScrollKeepAlive,
 	}
 	return builder
+}
+
+// AddHeader sets headers on the request
+func (s *ScrollService) AddHeader(headerName string, headerValue string) *ScrollService {
+	if s.headers == nil {
+		s.headers = map[string]string{}
+	}
+	s.headers[headerName] = headerValue
+	return s
 }
 
 // Retrier allows to set specific retry logic for this ScrollService.
@@ -303,6 +313,7 @@ func (s *ScrollService) first(ctx context.Context) (*SearchResult, error) {
 		Params:  params,
 		Body:    body,
 		Retrier: s.retrier,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err
@@ -423,6 +434,7 @@ func (s *ScrollService) next(ctx context.Context) (*SearchResult, error) {
 		Params:  params,
 		Body:    body,
 		Retrier: s.retrier,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

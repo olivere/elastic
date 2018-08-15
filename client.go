@@ -1182,6 +1182,7 @@ type PerformRequestOptions struct {
 	ContentType  string
 	IgnoreErrors []int
 	Retrier      Retrier
+	Headers      map[string]string
 }
 
 // PerformRequest does a HTTP request to Elasticsearch.
@@ -1259,6 +1260,12 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		}
 		if opt.ContentType != "" {
 			req.Header.Set("Content-Type", opt.ContentType)
+		}
+
+		if len(opt.Headers) > 0 {
+			for headerName, headerValue := range opt.Headers {
+				req.Header.Set(headerName, headerValue)
+			}
 		}
 
 		// Set body
