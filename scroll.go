@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"strings"
 	"sync"
@@ -36,7 +37,7 @@ type ScrollService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	headers           map[string]string
+	headers           http.Header
 
 	mu       sync.RWMutex
 	scrollId string
@@ -52,12 +53,12 @@ func NewScrollService(client *Client) *ScrollService {
 	return builder
 }
 
-// AddHeader sets headers on the request
-func (s *ScrollService) AddHeader(headerName string, headerValue string) *ScrollService {
+// Header sets headers on the request
+func (s *ScrollService) Header(name string, value string) *ScrollService {
 	if s.headers == nil {
-		s.headers = map[string]string{}
+		s.headers = http.Header{}
 	}
-	s.headers[headerName] = headerValue
+	s.headers.Add(name, value)
 	return s
 }
 
