@@ -17,14 +17,15 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/indices-open-close.html
 // for details.
 type IndicesOpenService struct {
-	client            *Client
-	pretty            bool
-	index             string
-	timeout           string
-	masterTimeout     string
-	ignoreUnavailable *bool
-	allowNoIndices    *bool
-	expandWildcards   string
+	client              *Client
+	pretty              bool
+	index               string
+	timeout             string
+	masterTimeout       string
+	ignoreUnavailable   *bool
+	allowNoIndices      *bool
+	expandWildcards     string
+	waitForActiveShards string
 }
 
 // NewIndicesOpenService creates and initializes a new IndicesOpenService.
@@ -72,6 +73,14 @@ func (s *IndicesOpenService) ExpandWildcards(expandWildcards string) *IndicesOpe
 	return s
 }
 
+// WaitForActiveShards specifies the number of shards that must be allocated
+// before the Open operation returns. Valid values are "all" or an integer
+// between 0 and number_of_replicas+1 (default: 0)
+func (s *IndicesOpenService) WaitForActiveShards(waitForActiveShards string) *IndicesOpenService {
+	s.waitForActiveShards = waitForActiveShards
+	return s
+}
+
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesOpenService) Pretty(pretty bool) *IndicesOpenService {
 	s.pretty = pretty
@@ -107,6 +116,9 @@ func (s *IndicesOpenService) buildURL() (string, url.Values, error) {
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
+	}
+	if s.waitForActiveShards != "" {
+		params.Set("wait_for_active_shards", s.waitForActiveShards)
 	}
 
 	return path, params, nil
