@@ -30,7 +30,6 @@ type IndicesForcemergeService struct {
 	ignoreUnavailable  *bool
 	maxNumSegments     interface{}
 	onlyExpungeDeletes *bool
-	operationThreading interface{}
 }
 
 // NewIndicesForcemergeService creates a new IndicesForcemergeService.
@@ -94,11 +93,6 @@ func (s *IndicesForcemergeService) OnlyExpungeDeletes(onlyExpungeDeletes bool) *
 	return s
 }
 
-func (s *IndicesForcemergeService) OperationThreading(operationThreading interface{}) *IndicesForcemergeService {
-	s.operationThreading = operationThreading
-	return s
-}
-
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesForcemergeService) Pretty(pretty bool) *IndicesForcemergeService {
 	s.pretty = pretty
@@ -144,9 +138,6 @@ func (s *IndicesForcemergeService) buildURL() (string, url.Values, error) {
 	}
 	if s.onlyExpungeDeletes != nil {
 		params.Set("only_expunge_deletes", fmt.Sprintf("%v", *s.onlyExpungeDeletes))
-	}
-	if s.operationThreading != nil {
-		params.Set("operation_threading", fmt.Sprintf("%v", s.operationThreading))
 	}
 	return path, params, nil
 }
