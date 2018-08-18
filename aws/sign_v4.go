@@ -12,9 +12,14 @@ import (
 
 // NewV4SigningClient returns an *http.Client that will sign all requests with AWS V4 Signing.
 func NewV4SigningClient(credentials awsauth.Credentials) *http.Client {
+	return NewV4SigningClientWithHTTPClient(credentials, http.DefaultClient)
+}
+
+// NewV4SigningClientWithHTTPClient returns an *http.Client that will sign all requests with AWS V4 Signing.
+func NewV4SigningClientWithHTTPClient(credentials awsauth.Credentials, httpClient *http.Client) *http.Client {
 	return &http.Client{
 		Transport: V4Transport{
-			HTTPClient:  http.DefaultClient,
+			HTTPClient:  httpClient,
 			Credentials: credentials,
 		},
 	}
