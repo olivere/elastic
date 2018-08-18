@@ -17,27 +17,29 @@ func TestTasksListBuildURL(t *testing.T) {
 		Expected string
 	}{
 		{
-			[]string{},
-			"/_tasks",
+			TaskId:   []string{},
+			Expected: "/_tasks",
 		},
 		{
-			[]string{"42"},
-			"/_tasks/42",
+			TaskId:   []string{"node1:42"},
+			Expected: "/_tasks/node1%3A42",
 		},
 		{
-			[]string{"42", "37"},
-			"/_tasks/42%2C37",
+			TaskId:   []string{"node1:42", "node2:37"},
+			Expected: "/_tasks/node1%3A42%2Cnode2%3A37",
 		},
 	}
 
-	for i, test := range tests {
-		path, _, err := client.TasksList().TaskId(test.TaskId...).buildURL()
+	for i, tt := range tests {
+		path, _, err := client.TasksList().
+			TaskId(tt.TaskId...).
+			buildURL()
 		if err != nil {
 			t.Errorf("case #%d: %v", i+1, err)
 			continue
 		}
-		if path != test.Expected {
-			t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+		if path != tt.Expected {
+			t.Errorf("case #%d: expected %q; got: %q", i+1, tt.Expected, path)
 		}
 	}
 }

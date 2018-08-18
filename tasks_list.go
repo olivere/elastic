@@ -27,8 +27,7 @@ type TasksListService struct {
 	detailed          *bool
 	human             *bool
 	nodeId            []string
-	parentNode        string
-	parentTaskId      *string
+	parentTaskId      string
 	waitForCompletion *bool
 	groupBy           string
 	headers           http.Header
@@ -42,6 +41,8 @@ func NewTasksListService(client *Client) *TasksListService {
 }
 
 // TaskId indicates to returns the task(s) with specified id(s).
+// Notice that the caller is responsible for using the correct format,
+// i.e. node_id:task_number, as specified in the REST API.
 func (s *TasksListService) TaskId(taskId ...string) *TasksListService {
 	s.taskId = append(s.taskId, taskId...)
 	return s
@@ -73,15 +74,11 @@ func (s *TasksListService) NodeId(nodeId ...string) *TasksListService {
 	return s
 }
 
-// ParentNode returns tasks with specified parent node.
-func (s *TasksListService) ParentNode(parentNode string) *TasksListService {
-	s.parentNode = parentNode
-	return s
-}
-
-// ParentTaskId returns tasks with specified parent task id (node_id:task_number). Set to -1 to return all.
+// ParentTaskId returns tasks with specified parent task id.
+// Notice that the caller is responsible for using the correct format,
+// i.e. node_id:task_number, as specified in the REST API.
 func (s *TasksListService) ParentTaskId(parentTaskId string) *TasksListService {
-	s.parentTaskId = &parentTaskId
+	s.parentTaskId = parentTaskId
 	return s
 }
 
@@ -93,7 +90,7 @@ func (s *TasksListService) WaitForCompletion(waitForCompletion bool) *TasksListS
 }
 
 // GroupBy groups tasks by nodes or parent/child relationships.
-// As of now, it can either be "nodes" (default) or "parents".
+// As of now, it can either be "nodes" (default) or "parents" or "none".
 func (s *TasksListService) GroupBy(groupBy string) *TasksListService {
 	s.groupBy = groupBy
 	return s
@@ -147,11 +144,8 @@ func (s *TasksListService) buildURL() (string, url.Values, error) {
 	if len(s.nodeId) > 0 {
 		params.Set("node_id", strings.Join(s.nodeId, ","))
 	}
-	if s.parentNode != "" {
-		params.Set("parent_node", s.parentNode)
-	}
-	if s.parentTaskId != nil {
-		params.Set("parent_task_id", *s.parentTaskId)
+	if s.parentTaskId != "" {
+		params.Set("parent_task_id", s.parentTaskId)
 	}
 	if s.waitForCompletion != nil {
 		params.Set("wait_for_completion", fmt.Sprintf("%v", *s.waitForCompletion))

@@ -19,54 +19,66 @@ import (
 // See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/tasks-cancel.html
 // for details.
 type TasksCancelService struct {
-	client     *Client
-	pretty     bool
-	taskId     *int64
-	actions    []string
-	nodeId     []string
-	parentNode string
-	parentTask *int64
+	client       *Client
+	pretty       bool
+	taskId       string
+	actions      []string
+	nodeId       []string
+	parentTaskId string
 }
 
 // NewTasksCancelService creates a new TasksCancelService.
 func NewTasksCancelService(client *Client) *TasksCancelService {
 	return &TasksCancelService{
-		client:  client,
-		actions: make([]string, 0),
-		nodeId:  make([]string, 0),
+		client: client,
 	}
 }
 
-// TaskId specifies the task to cancel. Set to -1 to cancel all tasks.
-func (s *TasksCancelService) TaskId(taskId int64) *TasksCancelService {
-	s.taskId = &taskId
+// TaskId specifies the task to cancel. Notice that the caller is responsible
+// for using the correct format, i.e. node_id:task_number, as specified in
+// the REST API.
+func (s *TasksCancelService) TaskId(taskId string) *TasksCancelService {
+	s.taskId = taskId
+	return s
+}
+
+// TaskIdFromNodeAndId specifies the task to cancel. Set id to -1 for all tasks.
+func (s *TasksCancelService) TaskIdFromNodeAndId(nodeId string, id int64) *TasksCancelService {
+	// See https://github.com/elastic/elasticsearch/blob/6.x/server/src/main/java/org/elasticsearch/tasks/TaskId.java#L107-L118
+	if id != -1 {
+		s.taskId = fmt.Sprintf("%s:%d", nodeId, id)
+	}
 	return s
 }
 
 // Actions is a list of actions that should be cancelled. Leave empty to cancel all.
-func (s *TasksCancelService) Actions(actions []string) *TasksCancelService {
-	s.actions = actions
+func (s *TasksCancelService) Actions(actions ...string) *TasksCancelService {
+	s.actions = append(s.actions, actions...)
 	return s
 }
 
 // NodeId is a list of node IDs or names to limit the returned information;
 // use `_local` to return information from the node you're connecting to,
 // leave empty to get information from all nodes.
-func (s *TasksCancelService) NodeId(nodeId []string) *TasksCancelService {
-	s.nodeId = nodeId
+func (s *TasksCancelService) NodeId(nodeId ...string) *TasksCancelService {
+	s.nodeId = append(s.nodeId, nodeId...)
 	return s
 }
 
-// ParentNode specifies to cancel tasks with specified parent node.
-func (s *TasksCancelService) ParentNode(parentNode string) *TasksCancelService {
-	s.parentNode = parentNode
+// ParentTaskId specifies to cancel tasks with specified parent task id.
+// Notice that the caller is responsible for using the correct format,
+// i.e. node_id:task_number, as specified in the REST API.
+func (s *TasksCancelService) ParentTaskId(parentTaskId string) *TasksCancelService {
+	s.parentTaskId = parentTaskId
 	return s
 }
 
-// ParentTask specifies to cancel tasks with specified parent task id.
-// Set to -1 to cancel all.
-func (s *TasksCancelService) ParentTask(parentTask int64) *TasksCancelService {
-	s.parentTask = &parentTask
+// ParentTaskIdFromNodeAndId specifies to cancel tasks with specified parent task id.
+func (s *TasksCancelService) ParentTaskIdFromNodeAndId(nodeId string, id int64) *TasksCancelService {
+	// See https://github.com/elastic/elasticsearch/blob/6.x/server/src/main/java/org/elasticsearch/tasks/TaskId.java#L107-L118
+	if id != -1 {
+		s.parentTaskId = fmt.Sprintf("%s:%d", nodeId, id)
+	}
 	return s
 }
 
@@ -81,9 +93,9 @@ func (s *TasksCancelService) buildURL() (string, url.Values, error) {
 	// Build URL
 	var err error
 	var path string
-	if s.taskId != nil {
+	if s.taskId != "" {
 		path, err = uritemplates.Expand("/_tasks/{task_id}/_cancel", map[string]string{
-			"task_id": fmt.Sprintf("%d", *s.taskId),
+			"task_id": s.taskId,
 		})
 	} else {
 		path = "/_tasks/_cancel"
@@ -103,11 +115,8 @@ func (s *TasksCancelService) buildURL() (string, url.Values, error) {
 	if len(s.nodeId) > 0 {
 		params.Set("node_id", strings.Join(s.nodeId, ","))
 	}
-	if s.parentNode != "" {
-		params.Set("parent_node", s.parentNode)
-	}
-	if s.parentTask != nil {
-		params.Set("parent_task", fmt.Sprintf("%v", *s.parentTask))
+	if s.parentTaskId != "" {
+		params.Set("parent_task_id", s.parentTaskId)
 	}
 	return path, params, nil
 }

@@ -12,11 +12,21 @@ func TestTasksGetTaskBuildURL(t *testing.T) {
 	client := setupTestClient(t)
 
 	// Get specific task
-	got, _, err := client.TasksGetTask().TaskId("123").buildURL()
+	got, _, err := client.TasksGetTask().TaskId("node1:123").buildURL()
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "/_tasks/123"
+	want := "/_tasks/node1%3A123"
+	if got != want {
+		t.Errorf("want %q; got %q", want, got)
+	}
+
+	// Get specific task
+	got, _, err = client.TasksGetTask().TaskIdFromNodeAndId("node2", 678).buildURL()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want = "/_tasks/node2%3A678"
 	if got != want {
 		t.Errorf("want %q; got %q", want, got)
 	}

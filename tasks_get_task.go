@@ -26,9 +26,17 @@ func NewTasksGetTaskService(client *Client) *TasksGetTaskService {
 	}
 }
 
-// TaskId indicates to return the task with specified id.
+// TaskId specifies the task to return. Notice that the caller is responsible
+// for using the correct format, i.e. node_id:task_number, as specified in
+// the REST API.
 func (s *TasksGetTaskService) TaskId(taskId string) *TasksGetTaskService {
 	s.taskId = taskId
+	return s
+}
+
+// TaskIdFromNodeAndId indicates to return the task on the given node with specified id.
+func (s *TasksGetTaskService) TaskIdFromNodeAndId(nodeId string, id int64) *TasksGetTaskService {
+	s.taskId = fmt.Sprintf("%s:%d", nodeId, id)
 	return s
 }
 
