@@ -9,8 +9,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-
-	"github.com/olivere/elastic/uritemplates"
+	"strconv"
 )
 
 // TasksCancelService can cancel long-running tasks.
@@ -21,7 +20,7 @@ import (
 type TasksCancelService struct {
 	client     *Client
 	pretty     bool
-	taskId     *int64
+	taskId     string
 	actions    []string
 	nodeId     []string
 	parentNode string
@@ -38,8 +37,8 @@ func NewTasksCancelService(client *Client) *TasksCancelService {
 }
 
 // TaskId specifies the task to cancel. Set to -1 to cancel all tasks.
-func (s *TasksCancelService) TaskId(taskId int64) *TasksCancelService {
-	s.taskId = &taskId
+func (s *TasksCancelService) TaskId(taskId int64, nodeId string) *TasksCancelService {
+	s.taskId = nodeId + ":" + strconv.FormatInt(taskId, 10)
 	return s
 }
 
@@ -81,10 +80,8 @@ func (s *TasksCancelService) buildURL() (string, url.Values, error) {
 	// Build URL
 	var err error
 	var path string
-	if s.taskId != nil {
-		path, err = uritemplates.Expand("/_tasks/{task_id}/_cancel", map[string]string{
-			"task_id": fmt.Sprintf("%d", *s.taskId),
-		})
+	if s.taskId != "" {
+		path = "/_tasks/" + s.taskId + "/_cancel"
 	} else {
 		path = "/_tasks/_cancel"
 	}
