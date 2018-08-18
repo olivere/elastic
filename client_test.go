@@ -13,6 +13,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"reflect"
 	"regexp"
 	"strings"
@@ -1261,6 +1262,32 @@ func TestPerformRequestWithTimeout(t *testing.T) {
 		if err != context.DeadlineExceeded {
 			t.Fatalf("expected error context.DeadlineExceeded, got: %v", err)
 		}
+	}
+}
+
+func TestPerformRequestWithCustomHeader(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/_tasks",
+		Params: url.Values{
+			"pretty": []string{"true"},
+		},
+		Headers: http.Header{
+			"X-Opaque-Id": []string{"123456"},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+	if want, have := "123456", res.Header.Get("X-Opaque-Id"); want != have {
+		t.Fatalf("want response header X-Opaque-Id=%q, have %q", want, have)
 	}
 }
 
