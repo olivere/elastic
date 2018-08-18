@@ -137,6 +137,14 @@ func IsConflict(err interface{}) bool {
 	return IsStatusCode(err, http.StatusConflict)
 }
 
+// IsForbidden returns true if the given error indicates that Elasticsearch
+// returned HTTP status 403. This happens e.g. due to a missing license.
+// The err parameter can be of type *elastic.Error, elastic.Error,
+// *http.Response or int (indicating the HTTP status code).
+func IsForbidden(err interface{}) bool {
+	return IsStatusCode(err, http.StatusForbidden)
+}
+
 // IsStatusCode returns true if the given error indicates that the Elasticsearch
 // operation returned the specified HTTP status code. The err parameter can be of
 // type *http.Response, *Error, Error, or int (indicating the HTTP status code).

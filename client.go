@@ -1777,6 +1777,63 @@ func (c *Client) DeleteScript() *DeleteScriptService {
 	return NewDeleteScriptService(c)
 }
 
+// -- X-Pack --
+
+// XPackWatchPut adds a watch.
+func (c *Client) XPackWatchPut() *XpackWatcherPutWatchService {
+	return NewXpackWatcherPutWatchService(c)
+}
+
+// XPackWatchGet gets a watch.
+func (c *Client) XPackWatchGet() *XpackWatcherGetWatchService {
+	return NewXpackWatcherGetWatchService(c)
+}
+
+// XPackWatchDelete deletes a watch.
+func (c *Client) XPackWatchDelete() *XpackWatcherDeleteWatchService {
+	return NewXpackWatcherDeleteWatchService(c)
+}
+
+// XPackWatchExecute executes a watch.
+func (c *Client) XPackWatchExecute() *XpackWatcherExecuteWatchService {
+	return NewXpackWatcherExecuteWatchService(c)
+}
+
+// XPackWatchAck acknowledging a watch.
+func (c *Client) XPackWatchAck() *XpackWatcherAckWatchService {
+	return NewXpackWatcherAckWatchService(c)
+}
+
+// XPackWatchActivate activates a watch.
+func (c *Client) XPackWatchActivate() *XpackWatcherActivateWatchService {
+	return NewXpackWatcherActivateWatchService(c)
+}
+
+// XPackWatchDeactivate deactivates a watch.
+func (c *Client) XPackWatchDeactivate() *XpackWatcherDeactivateWatchService {
+	return NewXpackWatcherDeactivateWatchService(c)
+}
+
+// XPackWatchStats returns the current Watcher metrics.
+func (c *Client) XPackWatchStats() *XpackWatcherStatsService {
+	return NewXpackWatcherStatsService(c)
+}
+
+// XPackWatchStart starts a watch.
+func (c *Client) XPackWatchStart() *XpackWatcherStartService {
+	return NewXpackWatcherStartService(c)
+}
+
+// XPackWatchStop stops a watch.
+func (c *Client) XPackWatchStop() *XpackWatcherStopService {
+	return NewXpackWatcherStopService(c)
+}
+
+// XPackWatchRestart restarts a watch.
+func (c *Client) XPackWatchRestart() *XpackWatcherRestartService {
+	return NewXpackWatcherRestartService(c)
+}
+
 // -- Helpers and shortcuts --
 
 // ElasticsearchVersion returns the version number of Elasticsearch
