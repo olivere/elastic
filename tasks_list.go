@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -30,6 +31,7 @@ type TasksListService struct {
 	parentTaskId      *string
 	waitForCompletion *bool
 	groupBy           string
+	headers           http.Header
 }
 
 // NewTasksListService creates a new TasksListService.
@@ -94,6 +96,15 @@ func (s *TasksListService) WaitForCompletion(waitForCompletion bool) *TasksListS
 // As of now, it can either be "nodes" (default) or "parents".
 func (s *TasksListService) GroupBy(groupBy string) *TasksListService {
 	s.groupBy = groupBy
+	return s
+}
+
+// Header sets headers on the request
+func (s *TasksListService) Header(name string, value string) *TasksListService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -171,9 +182,10 @@ func (s *TasksListService) Do(ctx context.Context) (*TasksListResponse, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err
@@ -220,18 +232,19 @@ type DiscoveryNode struct {
 
 // TaskInfo represents information about a currently running task.
 type TaskInfo struct {
-	Node               string      `json:"node"`
-	Id                 int64       `json:"id"` // the task id (yes, this is a long in the Java source)
-	Type               string      `json:"type"`
-	Action             string      `json:"action"`
-	Status             interface{} `json:"status"`      // has separate implementations of Task.Status in Java for reindexing, replication, and "RawTaskStatus"
-	Description        interface{} `json:"description"` // same as Status
-	StartTime          string      `json:"start_time"`
-	StartTimeInMillis  int64       `json:"start_time_in_millis"`
-	RunningTime        string      `json:"running_time"`
-	RunningTimeInNanos int64       `json:"running_time_in_nanos"`
-	Cancellable        bool        `json:"cancellable"`
-	ParentTaskId       string      `json:"parent_task_id"` // like "YxJnVYjwSBm_AUbzddTajQ:12356"
+	Node               string                 `json:"node"`
+	Id                 int64                  `json:"id"` // the task id (yes, this is a long in the Java source)
+	Type               string                 `json:"type"`
+	Action             string                 `json:"action"`
+	Status             interface{}            `json:"status"`      // has separate implementations of Task.Status in Java for reindexing, replication, and "RawTaskStatus"
+	Description        interface{}            `json:"description"` // same as Status
+	StartTime          string                 `json:"start_time"`
+	StartTimeInMillis  int64                  `json:"start_time_in_millis"`
+	RunningTime        string                 `json:"running_time"`
+	RunningTimeInNanos int64                  `json:"running_time_in_nanos"`
+	Cancellable        bool                   `json:"cancellable"`
+	ParentTaskId       string                 `json:"parent_task_id"` // like "YxJnVYjwSBm_AUbzddTajQ:12356"
+	Headers            map[string]interface{} `json:"headers"`
 }
 
 // StartTaskResult is used in cases where a task gets started asynchronously and
