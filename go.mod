@@ -1,4 +1,4 @@
-module gopkg.in/olivere/elastic.v5/v5
+module gopkg.in/olivere/elastic.v5
 
 require (
 	github.com/Sirupsen/logrus v1.0.6
