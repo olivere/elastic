@@ -2,7 +2,7 @@ sudo: required
 language: go
 go:
 - "1.10.x"
-- "1.11rc1"
+- "1.11rc2"
 # - tip
 matrix:
   allow_failures:
