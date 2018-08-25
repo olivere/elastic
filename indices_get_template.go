@@ -124,10 +124,10 @@ func (s *IndicesGetTemplateService) Do(ctx context.Context) (map[string]*Indices
 
 // IndicesGetTemplateResponse is the response of IndicesGetTemplateService.Do.
 type IndicesGetTemplateResponse struct {
-	Order    int                    `json:"order,omitempty"`
-	Version  int                    `json:"version,omitempty"`
-	Template string                 `json:"template,omitempty"`
-	Settings map[string]interface{} `json:"settings,omitempty"`
-	Mappings map[string]interface{} `json:"mappings,omitempty"`
-	Aliases  map[string]interface{} `json:"aliases,omitempty"`
+	Order         int                    `json:"order,omitempty"`
+	Version       int                    `json:"version,omitempty"`
+	IndexPatterns []string               `json:"index_patterns,omitempty"`
+	Settings      map[string]interface{} `json:"settings,omitempty"`
+	Mappings      map[string]interface{} `json:"mappings,omitempty"`
+	Aliases       map[string]interface{} `json:"aliases,omitempty"`
 }
