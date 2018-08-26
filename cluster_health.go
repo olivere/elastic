@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+	"github.com/olivere/elastic/v6/uritemplates"
 )
 
 // ClusterHealthService allows to get a very simple status on the health of the cluster.

@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+	"github.com/olivere/elastic/v6/uritemplates"
 )
 
 // BulkService allows for batching bulk requests and sending them to

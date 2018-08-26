@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+	"github.com/olivere/elastic/v6/uritemplates"
 )
 
 // Flush allows to flush one or more indices. The flush process of an index

@@ -11,8 +11,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/olivere/elastic"
 	"github.com/smartystreets/go-aws-auth"
+
+	"github.com/olivere/elastic/v6"
 )
 
 func TestSigningClient(t *testing.T) {

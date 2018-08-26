@@ -7,7 +7,7 @@
 // Example
 //
 //
-//     connect -url=http://127.0.0.1:9200 -sniff=false
+//     connect "http://127.0.0.1:9200/test-index?sniff=false&healthcheck=false"
 //
 package main
 
@@ -17,22 +17,26 @@ import (
 	"log"
 
 	"github.com/olivere/elastic/v6"
+	"github.com/olivere/elastic/v6/config"
 )
 
 func main() {
-	var (
-		url   = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
-		sniff = flag.Bool("sniff", true, "Enable or disable sniffing")
-	)
 	flag.Parse()
 	log.SetFlags(0)
 
-	if *url == "" {
-		*url = "http://127.0.0.1:9200"
+	url := flag.Arg(0)
+	if url == "" {
+		url = "http://127.0.0.1:9200"
+	}
+
+	// Parse the URL with the config package
+	cfg, err := config.Parse(url)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// Create an Elasticsearch client
-	client, err := elastic.NewClient(elastic.SetURL(*url), elastic.SetSniff(*sniff))
+	client, err := elastic.NewClientFromConfig(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"github.com/fortytw2/leaktest"
+
+	"github.com/olivere/elastic/v6/config"
 )
 
 func findConn(s string, slice ...*conn) (int, bool) {
@@ -176,6 +178,92 @@ func TestClientWithXpackSecurity(t *testing.T) {
 	}
 	if got, want := client.basicAuthPassword, "elastic"; got != want {
 		t.Errorf("expected basic auth password %q; got: %q", want, got)
+	}
+}
+
+func TestClientFromConfig(t *testing.T) {
+	cfg, err := config.Parse("http://127.0.0.1:9200")
+	if err != nil {
+		t.Fatal(err)
+	}
+	client, err := NewClientFromConfig(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Two things should happen here:
+	// 1. The client starts sniffing the cluster on DefaultURL
+	// 2. The sniffing process should find (at least) one node in the cluster, i.e. the DefaultURL
+	if len(client.conns) == 0 {
+		t.Fatalf("expected at least 1 node in the cluster, got: %d (%v)", len(client.conns), client.conns)
+	}
+	if !isTravis() {
+		if _, found := findConn(DefaultURL, client.conns...); !found {
+			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
+		}
+	}
+}
+
+func TestClientDialFromConfig(t *testing.T) {
+	cfg, err := config.Parse("http://127.0.0.1:9200")
+	if err != nil {
+		t.Fatal(err)
+	}
+	client, err := DialWithConfig(context.Background(), cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Two things should happen here:
+	// 1. The client starts sniffing the cluster on DefaultURL
+	// 2. The sniffing process should find (at least) one node in the cluster, i.e. the DefaultURL
+	if len(client.conns) == 0 {
+		t.Fatalf("expected at least 1 node in the cluster, got: %d (%v)", len(client.conns), client.conns)
+	}
+	if !isTravis() {
+		if _, found := findConn(DefaultURL, client.conns...); !found {
+			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
+		}
+	}
+}
+
+func TestClientDialContext(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	client, err := DialContext(ctx, SetURL("http://localhost:9200"))
+	if err != nil {
+		t.Fatalf("expected successful connection, got %v", err)
+	}
+	client.Stop()
+}
+
+func TestClientDialContextTimeoutFromHealthcheck(t *testing.T) {
+	start := time.Now().UTC()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	_, err := DialContext(ctx, SetURL("http://localhost:9299"), SetHealthcheckTimeoutStartup(5*time.Second))
+	if !IsContextErr(err) {
+		t.Fatal(err)
+	}
+	if time.Since(start) < 3*time.Second {
+		t.Fatalf("early timeout")
+	}
+	if time.Since(start) >= 5*time.Second {
+		t.Fatalf("timeout probably due to healthcheck, not context cancellation")
+	}
+}
+
+func TestClientDialContextTimeoutFromSniffer(t *testing.T) {
+	start := time.Now().UTC()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	_, err := DialContext(ctx, SetURL("http://localhost:9299"), SetHealthcheck(false))
+	if !IsContextErr(err) {
+		t.Fatal(err)
+	}
+	if time.Since(start) < 3*time.Second {
+		t.Fatalf("early timeout")
+	}
+	if time.Since(start) >= 5*time.Second {
+		t.Fatalf("timeout probably not caused by context cancellation")
 	}
 }
 
@@ -362,7 +450,7 @@ func TestClientHealthcheckTimeoutLeak(t *testing.T) {
 		defer leaktest.CheckTimeout(t, time.Second*10)()
 	}
 
-	cli.healthcheck(time.Millisecond*500, true)
+	cli.healthcheck(context.Background(), time.Millisecond*500, true)
 
 	if isServerCloseable {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -544,7 +632,7 @@ func TestClientSniffOnDefaultURL(t *testing.T) {
 
 	ch := make(chan error, 1)
 	go func() {
-		ch <- client.sniff(DefaultSnifferTimeoutStartup)
+		ch <- client.sniff(context.Background(), DefaultSnifferTimeoutStartup)
 	}()
 
 	select {
@@ -627,7 +715,7 @@ func TestClientSniffTimeoutLeak(t *testing.T) {
 		defer leaktest.CheckTimeout(t, time.Second*10)()
 	}
 
-	cli.sniff(time.Millisecond * 500)
+	cli.sniff(context.Background(), time.Millisecond*500)
 
 	if isServerCloseable {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)

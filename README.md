@@ -24,7 +24,7 @@ Here's the version matrix:
 
 Elasticsearch version | Elastic version  | Package URL | Remarks |
 ----------------------|------------------|-------------|---------|
-6.x                   | 6.0              | [`github.com/olivere/elastic`](https://github.com/olivere/elastic) ([source](https://github.com/olivere/elastic/tree/release-branch.v6) [doc](http://godoc.org/github.com/olivere/elastic)) | Use a dependency manager (see below).
+6.x                   | 6.0              | [`github.com/olivere/elastic/v6`](https://github.com/olivere/elastic) ([source](https://github.com/olivere/elastic/tree/release-branch.v6) [doc](http://godoc.org/github.com/olivere/elastic)) | Use a dependency manager (see below).
 5.x                   | 5.0              | [`gopkg.in/olivere/elastic.v5`](https://gopkg.in/olivere/elastic.v5) ([source](https://github.com/olivere/elastic/tree/release-branch.v5) [doc](http://godoc.org/gopkg.in/olivere/elastic.v5)) | Actively maintained.
 2.x                   | 3.0              | [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3) ([source](https://github.com/olivere/elastic/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/olivere/elastic.v3)) | Deprecated. Please update.
 1.x                   | 2.0              | [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2) ([source](https://github.com/olivere/elastic/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/olivere/elastic.v2)) | Deprecated. Please update.
@@ -39,13 +39,20 @@ To use the required version of Elastic in your application, it is strongly
 advised to use a tool like
 [dep](https://github.com/golang/dep)
 or
-[Glide](https://glide.sh/)
-to manage that dependency. Make sure to use a version such as `^6.0.0`.
+[Go modules](https://github.com/golang/go/wiki/Modules)
+to manage dependencies. Make sure to use a version such as `^6.0.0`.
 
-To use Elastic, simply import:
+To use Elastic with Go 1.10.2 or earlier, import:
 
 ```go
 import "github.com/olivere/elastic"
+```
+
+If you're using Go 1.11 (or Go 1.10.3+) with modules support, make sure
+to import Elastic like this:
+
+```go
+import "github.com/olivere/elastic/v6"
 ```
 
 ### Elastic 6.0

@@ -574,7 +574,7 @@ func (w *bulkWorker) waitForActiveConnection(ready chan<- struct{}) {
 				return
 			}
 		case <-t.C:
-			client.healthcheck(time.Duration(3)*time.Second, true)
+			client.healthcheck(context.Background(), time.Duration(3)*time.Second, true)
 			if client.mustActiveConn() == nil {
 				// found an active connection
 				// exit and signal done to the WaitGroup
