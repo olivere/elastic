@@ -74,7 +74,7 @@
           <td>6.x</td>
           <td>6.0</td>
           <td>
-            <a href="https://github.com/olivere/elastic">github.com/olivere/elastic</a>
+            <a href="https://github.com/olivere/elastic/v6">github.com/olivere/elastic/v6</a>
              (<a href="https://github.com/olivere/elastic/tree/release-branch.v6">source</a>&nbsp;&bull;&nbsp;<a href="http://godoc.org/github.com/olivere/elastic">docs</a>&nbsp;&bull;&nbsp;<a href="https://github.com/olivere/elastic/blob/release-branch.v6/CHANGELOG-6.0.md">changelog</a>)
           </td>
         </tr>
@@ -125,12 +125,18 @@
     <h5>Notice</h5>
     <p>
 			The GitHub repository at
-			<a href="https://github.com/olivere/elastic/">github.com/olivere/elastic</a>
+			<a href="https://github.com/olivere/elastic/">https://github.com/olivere/elastic</a>
       always refers to the latest version of Elastic.
 			If you want to use stable versions of Elastic, you should use a tagged
 			version. Starting from Elastic 6.0, we tag released directly on
 			<code>github.com/olivere/elastic</code>. You can use e.g.
 			<a href="https://github.com/golang/dep">dep</a> to target a specific version of Elastic 6.x.
+		</p>
+		<p>
+			We also support <a href="https://github.com/golang/go/wiki/Modules"">Go modules</a>
+			as released in Go 1.11 (Go 1.10.4 works fine as well). Notice that you should
+			use an import path of <c>github.com/olivere/elastic/v6</c> for Go 1.11 and later,
+			directly telling Go to use version 6 of the library.
 		</p>
 		<p>
 			Earlier versions of Elastic (5.x and earlier) published
@@ -139,12 +145,12 @@
     </p>
   </section>
   <section id="getting-started">
-    <h4>Getting Started</h4>
+		<h4>Getting Started</h4>
     <p>
       The following code targets Elasticsearch 6.x and uses Elastic 6.0.
-      To use Elastic 6.0 in your Go project, first <code>go get</code> it:
+      To use Elastic 6.0 in your Go 1.11 project, first <code>go get</code> it:
     </p>
-    <pre class="code-example"><code class="code-example-body prettyprint">go get github.com/olivere/elastic
+    <pre class="code-example"><code class="code-example-body prettyprint">go get github.com/olivere/elastic/v6
 </code></pre>
     <p>
       Then start using it in your code. Here's a complete example:
@@ -158,7 +164,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v6"
 )
 
 // Tweet is a structure used for serializing/deserializing data in Elasticsearch.
@@ -383,6 +389,16 @@ func main() {
 		// Not acknowledged
 	}
 }</code></pre>
+		<h5>Notice</h5>
+		<p>
+			The code above works with Go 1.10.4 or Go 1.11+. Those versions handle
+			<a href="https://github.com/golang/go/wiki/Modules">Go modules</a> correctly.
+			If you're still on an earlier version of Go, change the import path from
+			<c>github.com/olivere/elastic/v6</c> to
+			<c>github.com/olivere/elastic</c>.
+			For an introduction to Go modules, read e.g. 
+			<a href="https://roberto.selbach.ca/intro-to-go-modules/">read this blog post</a>.
+		</p>
   </section>
 </div>
 
@@ -403,13 +419,5 @@ func main() {
 
 <a href="https://github.com/olivere/elastic/"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  ga('create', 'UA-168321-19', 'auto');
-  ga('send', 'pageview');
-</script>
 </body>
 </html>
