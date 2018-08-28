@@ -15,9 +15,10 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"runtime"
 
-	"github.com/olivere/elastic/v6"
-	"github.com/olivere/elastic/v6/config"
+	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/config"
 )
 
 func main() {
@@ -40,8 +41,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_ = client
+
+	// Get ES version
+	esversion, err := client.ElasticsearchVersion(cfg.URL)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Just a status message
-	fmt.Println("Connection succeeded")
+	fmt.Printf("Connection succeeded with %v, Elastic %v and Elasticsearch %s\n",
+		runtime.Version(),
+		elastic.Version,
+		esversion,
+	)
 }

@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // ExplainService computes a score explanation for a query and

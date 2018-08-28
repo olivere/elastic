@@ -14,7 +14,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/mocktracer"
 
-	"github.com/olivere/elastic/v6"
+	"github.com/olivere/elastic"
 )
 
 func TestTransport(t *testing.T) {

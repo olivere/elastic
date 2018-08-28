@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // ClusterStateService allows to get a comprehensive state information of the whole cluster.

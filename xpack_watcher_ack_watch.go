@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // XpackWatcherAckWatchService is documented at http://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-ack-watch.html.

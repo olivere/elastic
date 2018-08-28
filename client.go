@@ -21,12 +21,12 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/olivere/elastic/v6/config"
+	"github.com/olivere/elastic/config"
 )
 
 const (
 	// Version is the current version of Elastic.
-	Version = "6.2.0"
+	Version = "6.2.1"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.

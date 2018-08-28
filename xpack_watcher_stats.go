@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // XpackWatcherStatsService is documented at http://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-stats.html.

@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/v6/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // XpackWatcherActivateWatchService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-activate-watch.html.

@@ -24,7 +24,7 @@ Here's the version matrix:
 
 Elasticsearch version | Elastic version  | Package URL | Remarks |
 ----------------------|------------------|-------------|---------|
-6.x                   | 6.0              | [`github.com/olivere/elastic/v6`](https://github.com/olivere/elastic) ([source](https://github.com/olivere/elastic/tree/release-branch.v6) [doc](http://godoc.org/github.com/olivere/elastic)) | Use a dependency manager (see below).
+6.x                   | 6.0              | [`github.com/olivere/elastic`](https://github.com/olivere/elastic) ([source](https://github.com/olivere/elastic/tree/release-branch.v6) [doc](http://godoc.org/github.com/olivere/elastic)) | Use a dependency manager (see below).
 5.x                   | 5.0              | [`gopkg.in/olivere/elastic.v5`](https://gopkg.in/olivere/elastic.v5) ([source](https://github.com/olivere/elastic/tree/release-branch.v5) [doc](http://godoc.org/gopkg.in/olivere/elastic.v5)) | Actively maintained.
 2.x                   | 3.0              | [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3) ([source](https://github.com/olivere/elastic/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/olivere/elastic.v3)) | Deprecated. Please update.
 1.x                   | 2.0              | [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2) ([source](https://github.com/olivere/elastic/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/olivere/elastic.v2)) | Deprecated. Please update.
@@ -48,8 +48,7 @@ To use Elastic with Go 1.10.2 or earlier, import:
 import "github.com/olivere/elastic"
 ```
 
-If you're using Go 1.11 (or Go 1.10.3+) with modules support, make sure
-to import Elastic like this:
+If you're using Go 1.11 (or Go 1.10.3+) with modules support, import Elastic like this:
 
 ```go
 import "github.com/olivere/elastic/v6"
