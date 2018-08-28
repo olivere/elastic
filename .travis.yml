@@ -9,7 +9,7 @@ matrix:
   - go: tip
 env:
 - GO111MODULE=on
-- GO111MODULE=auto
+- GO111MODULE=off
 addons:
   ssh_known_hosts: github.com
   apt:

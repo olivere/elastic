@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/olivere/elastic"
-	// "github.com/olivere/elastic/v6" // <- with Go modules
 )
 
 type Tweet struct {

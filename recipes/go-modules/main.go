@@ -8,7 +8,7 @@
 // Example
 //
 //
-//     go run main.go -url=http://127.0.0.1:9200 -sniff=false
+//     GO111MODULE=on go run main.go -url=http://127.0.0.1:9200 -sniff=false
 //
 package main
 
@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/olivere/elastic/v6"
+	"github.com/olivere/elastic" // <- should end with /v6, but missing due to compatibility reasons
 )
 
 func main() {
