@@ -42,16 +42,10 @@ or
 [Go modules](https://github.com/golang/go/wiki/Modules)
 to manage dependencies. Make sure to use a version such as `^6.0.0`.
 
-To use Elastic with Go 1.10.2 or earlier, import:
+To use Elastic, import:
 
 ```go
 import "github.com/olivere/elastic"
-```
-
-If you're using Go 1.11 (or Go 1.10.3+) with modules support, import Elastic like this:
-
-```go
-import "github.com/olivere/elastic/v6"
 ```
 
 ### Elastic 6.0
