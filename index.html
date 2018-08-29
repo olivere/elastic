@@ -133,12 +133,6 @@
 			<a href="https://github.com/golang/dep">dep</a> to target a specific version of Elastic 6.x.
 		</p>
 		<p>
-			We also support <a href="https://github.com/golang/go/wiki/Modules"">Go modules</a>
-			as released in Go 1.11 (Go 1.10.4 works fine as well). Notice that you should
-			use an import path of <code>github.com/olivere/elastic/v6</code> for Go 1.11 and later,
-			directly telling Go to use version 6 of the library.
-		</p>
-		<p>
 			Earlier versions of Elastic (5.x and earlier) published
       packages via <a href="https://gopkg.in/">gopkg.in</a> as
       described above.
@@ -148,12 +142,7 @@
 		<h4>Getting Started</h4>
     <p>
       The following code targets Elasticsearch 6.x and uses Elastic 6.0.
-      To use Elastic 6.0 in your Go 1.11 project, first <code>go get</code> it:
-    </p>
-    <pre class="code-example"><code class="code-example-body prettyprint">go get github.com/olivere/elastic/v6
-</code></pre>
-    <p>
-			If you're using Go 1.10.2 or earlier, do this instead:
+      To use Elastic 6.0 in your project, first <code>go get</code> it:
     </p>
     <pre class="code-example"><code class="code-example-body prettyprint">go get github.com/olivere/elastic
 </code></pre>
@@ -169,7 +158,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/olivere/elastic/v6" // <- change to "github.com/olivere/elastic" for Go 1.10.2 or earlier
+	"github.com/olivere/elastic"
 )
 
 // Tweet is a structure used for serializing/deserializing data in Elasticsearch.
@@ -394,16 +383,6 @@ func main() {
 		// Not acknowledged
 	}
 }</code></pre>
-		<h5>Notice</h5>
-		<p>
-			The code above works with Go 1.10.4 or Go 1.11+. Those versions handle
-			<a href="https://github.com/golang/go/wiki/Modules">Go modules</a> correctly.
-			If you're still on an earlier version of Go, change the import path from
-			<code>github.com/olivere/elastic/v6</code> to
-			<code>github.com/olivere/elastic</code>.
-			For an introduction to Go modules, read e.g. 
-			<a href="https://roberto.selbach.ca/intro-to-go-modules/">read this blog post</a>.
-		</p>
   </section>
 </div>
 
