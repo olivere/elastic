@@ -473,6 +473,21 @@ func (a Aggregations) DateHistogram(name string) (*AggregationBucketHistogramIte
 	return nil, false
 }
 
+// KeyedDateHistogram returns date histogram aggregation results.
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-aggregations-bucket-datehistogram-aggregation.html
+func (a Aggregations) KeyedDateHistogram(name string) (*AggregationBucketKeyedHistogramItems, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationBucketKeyedHistogramItems)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // GeoBounds returns geo-bounds aggregation results.
 // See: https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations-metrics-geobounds-aggregation.html
 func (a Aggregations) GeoBounds(name string) (*AggregationGeoBoundsMetric, bool) {
@@ -1318,6 +1333,31 @@ type AggregationBucketHistogramItems struct {
 
 // UnmarshalJSON decodes JSON data and initializes an AggregationBucketHistogramItems structure.
 func (a *AggregationBucketHistogramItems) UnmarshalJSON(data []byte) error {
+	var aggs map[string]*json.RawMessage
+	if err := json.Unmarshal(data, &aggs); err != nil {
+		return err
+	}
+	if v, ok := aggs["buckets"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Buckets)
+	}
+	if v, ok := aggs["meta"]; ok && v != nil {
+		json.Unmarshal(*v, &a.Meta)
+	}
+	a.Aggregations = aggs
+	return nil
+}
+
+// AggregationBucketKeyedHistogramItems is a bucket aggregation that is returned
+// with a keyed date histogram aggregation.
+type AggregationBucketKeyedHistogramItems struct {
+	Aggregations
+
+	Buckets map[string]*AggregationBucketHistogramItem //`json:"buckets"`
+	Meta    map[string]interface{}                     // `json:"meta,omitempty"`
+}
+
+// UnmarshalJSON decodes JSON data and initializes an AggregationBucketHistogramItems structure.
+func (a *AggregationBucketKeyedHistogramItems) UnmarshalJSON(data []byte) error {
 	var aggs map[string]*json.RawMessage
 	if err := json.Unmarshal(data, &aggs); err != nil {
 		return err
