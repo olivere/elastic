@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -108,7 +109,7 @@ func (s *IndicesSyncedFlushService) Validate() error {
 }
 
 // Do executes the service.
-func (s *IndicesSyncedFlushService) Do(ctx context.Context) (*IndicesSynedFlushResponse, error) {
+func (s *IndicesSyncedFlushService) Do(ctx context.Context) (*IndicesSyncedFlushResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -131,7 +132,7 @@ func (s *IndicesSyncedFlushService) Do(ctx context.Context) (*IndicesSynedFlushR
 	}
 
 	// Return operation response
-	ret := new(IndicesSynedFlushResponse)
+	ret := new(IndicesSyncedFlushResponse)
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
@@ -140,9 +141,10 @@ func (s *IndicesSyncedFlushService) Do(ctx context.Context) (*IndicesSynedFlushR
 
 // -- Result of a flush request.
 
-// IndicesSynedFlushResponse is the outcome of a synched flush call.
-type IndicesSynedFlushResponse struct {
-	Shards shardsInfo `json:"_shards"`
+// IndicesSyncedFlushResponse is the outcome of a synched flush call.
+type IndicesSyncedFlushResponse struct {
+	Shards shardsInfo                                 `json:"_shards"`
+	Index  map[string]*IndicesShardsSyncedFlushResult `json:"-"`
 
 	// TODO Add information about the indices here from the root level
 	// It looks like this:
@@ -173,4 +175,56 @@ type IndicesSynedFlushResponse struct {
 	// 	  "failed" : 0
 	// 	}
 	// }
+}
+
+// IndicesShardsSyncedFlushResult represents synced flush information about
+// a specific index.
+type IndicesShardsSyncedFlushResult struct {
+	Total      int                                     `json:"total"`
+	Successful int                                     `json:"successful"`
+	Failed     int                                     `json:"failed"`
+	Failures   []IndicesShardsSyncedFlushResultFailure `json:"failures,omitempty"`
+}
+
+// IndicesShardsSyncedFlushResultFailure represents a failure of a synced
+// flush operation.
+type IndicesShardsSyncedFlushResultFailure struct {
+	Shard   int    `json:"shard"`
+	Reason  string `json:"reason"`
+	Routing struct {
+		State                    string  `json:"state"`
+		Primary                  bool    `json:"primary"`
+		Node                     string  `json:"node"`
+		RelocatingNode           *string `json:"relocating_node"`
+		Shard                    int     `json:"shard"`
+		Index                    string  `json:"index"`
+		ExpectedShardSizeInBytes int64   `json:"expected_shard_size_in_bytes,omitempty"`
+		// recoverySource
+		// allocationId
+		// unassignedInfo
+	} `json:"routing"`
+}
+
+// UnmarshalJSON parses the output from Synced Flush API.
+func (resp *IndicesSyncedFlushResponse) UnmarshalJSON(data []byte) error {
+	m := make(map[string]json.RawMessage)
+	err := json.Unmarshal(data, &m)
+	if err != nil {
+		return err
+	}
+	resp.Index = make(map[string]*IndicesShardsSyncedFlushResult)
+	for k, v := range m {
+		if k == "_shards" {
+			if err := json.Unmarshal(v, &resp.Shards); err != nil {
+				return err
+			}
+		} else {
+			ix := new(IndicesShardsSyncedFlushResult)
+			if err := json.Unmarshal(v, &ix); err != nil {
+				return err
+			}
+			resp.Index[k] = ix
+		}
+	}
+	return nil
 }
