@@ -12,8 +12,9 @@ import "errors"
 // https://www.elastic.co/guide/en/elasticsearch/reference/6.2/query-dsl-percolate-query.html
 type PercolatorQuery struct {
 	field                     string
+	name                      string
 	documentType              string // deprecated
-	document                  interface{}
+	documents                 []interface{}
 	indexedDocumentIndex      string
 	indexedDocumentType       string
 	indexedDocumentId         string
@@ -32,14 +33,21 @@ func (q *PercolatorQuery) Field(field string) *PercolatorQuery {
 	return q
 }
 
+// Name used for identification purposes in "_percolator_document_slot" response
+// field when multiple percolate queries have been specified in the main query.
+func (q *PercolatorQuery) Name(name string) *PercolatorQuery {
+	q.name = name
+	return q
+}
+
 // Deprecated: DocumentType is deprecated as of 6.0.
 func (q *PercolatorQuery) DocumentType(typ string) *PercolatorQuery {
 	q.documentType = typ
 	return q
 }
 
-func (q *PercolatorQuery) Document(doc interface{}) *PercolatorQuery {
-	q.document = doc
+func (q *PercolatorQuery) Document(docs ...interface{}) *PercolatorQuery {
+	q.documents = append(q.documents, docs...)
 	return q
 }
 
@@ -78,9 +86,6 @@ func (q *PercolatorQuery) Source() (interface{}, error) {
 	if len(q.field) == 0 {
 		return nil, errors.New("elastic: Field is required in PercolatorQuery")
 	}
-	if q.document == nil {
-		return nil, errors.New("elastic: Document is required in PercolatorQuery")
-	}
 
 	// {
 	//   "percolate" : { ... }
@@ -92,24 +97,35 @@ func (q *PercolatorQuery) Source() (interface{}, error) {
 	if q.documentType != "" {
 		params["document_type"] = q.documentType
 	}
-	params["document"] = q.document
-	if len(q.indexedDocumentIndex) > 0 {
-		params["index"] = q.indexedDocumentIndex
+	if q.name != "" {
+		params["name"] = q.name
 	}
-	if len(q.indexedDocumentType) > 0 {
-		params["type"] = q.indexedDocumentType
+
+	switch len(q.documents) {
+	case 0:
+	case 1:
+		params["document"] = q.documents[0]
+	default:
+		params["documents"] = q.documents
 	}
-	if len(q.indexedDocumentId) > 0 {
-		params["id"] = q.indexedDocumentId
+
+	if s := q.indexedDocumentIndex; s != "" {
+		params["index"] = s
 	}
-	if len(q.indexedDocumentRouting) > 0 {
-		params["routing"] = q.indexedDocumentRouting
+	if s := q.indexedDocumentType; s != "" {
+		params["type"] = s
 	}
-	if len(q.indexedDocumentPreference) > 0 {
-		params["preference"] = q.indexedDocumentPreference
+	if s := q.indexedDocumentId; s != "" {
+		params["id"] = s
 	}
-	if q.indexedDocumentVersion != nil {
-		params["version"] = *q.indexedDocumentVersion
+	if s := q.indexedDocumentRouting; s != "" {
+		params["routing"] = s
+	}
+	if s := q.indexedDocumentPreference; s != "" {
+		params["preference"] = s
+	}
+	if v := q.indexedDocumentVersion; v != nil {
+		params["version"] = *v
 	}
 	return source, nil
 }
