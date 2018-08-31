@@ -12,16 +12,10 @@ import (
 	"time"
 )
 
+// TestAggs is an integration test for most aggregation types.
 func TestAggs(t *testing.T) {
-	//client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndex(t)
-
-	/*
-		esversion, err := client.ElasticsearchVersion(DefaultURL)
-		if err != nil {
-			t.Fatal(err)
-		}
-	*/
 
 	tweet1 := tweet{
 		User:     "olivere",
@@ -68,6 +62,14 @@ func TestAggs(t *testing.T) {
 	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	count, err := client.Count(testIndexName).Type("doc").Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want, have := int64(3), count; want != have {
+		t.Fatalf("expected %d documents, got %d", want, have)
 	}
 
 	// Match all should return all documents
@@ -176,16 +178,9 @@ func TestAggs(t *testing.T) {
 	dateHisto = NewDateHistogramAggregation().Field("created").Interval("year")
 	dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
 	dateHisto = dateHisto.SubAggregation("movingAvg", NewMovAvgAggregation().BucketsPath("sumOfRetweets"))
+	dateHisto = dateHisto.SubAggregation("movingFn", NewMovFnAggregation("sumOfRetweets", NewScript("MovingFunctions.sum(values)"), 10))
 	builder = builder.Aggregation("movingAvgDateHisto", dateHisto)
-	/*
-		composite := NewCompositeAggregation().Sources(
-			NewCompositeAggregationTermsValuesSource("composite_users").Field("user"),
-			NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).Field("retweets"),
-			NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
-		)
-		builder = builder.Aggregation("composite", composite)
-	*/
-	searchResult, err := builder.Do(context.TODO())
+	searchResult, err := builder.Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -821,7 +816,7 @@ func TestAggs(t *testing.T) {
 		t.Errorf("expected %v; got: %v", true, found)
 	}
 	if dateHistoRes == nil {
-		t.Fatalf("expected != nil; got: nil")
+		t.Fatal("expected != nil; got: nil")
 	}
 	if len(dateHistoRes.Buckets) != 2 {
 		t.Fatalf("expected %d; got: %d", 2, len(dateHistoRes.Buckets))
@@ -1047,7 +1042,198 @@ func TestAggs(t *testing.T) {
 		t.Errorf("expected %d; got: %d", 1, adjacencyMatrixAggRes.Buckets[1].DocCount)
 	}
 
-	/*
+	// movingAvgDateHisto
+	{
+		movingAvgDateHistoRes, found := agg.DateHistogram("movingAvgDateHisto")
+		if !found {
+			t.Fatalf("expected %v; got: %v", true, false)
+		}
+		if movingAvgDateHistoRes == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if want, have := 2, len(movingAvgDateHistoRes.Buckets); want != have {
+			t.Fatalf("expected %d buckets, have %d", want, have)
+		}
+		// movingAvgDateHisto.Buckets[0]
+		if want, have := int64(1), movingAvgDateHistoRes.Buckets[0].DocCount; want != have {
+			t.Fatalf("expected %d docs in bucket 0, have %d", want, have)
+		}
+		if want, have := 1293840000000.0, movingAvgDateHistoRes.Buckets[0].Key; want != have {
+			t.Fatalf("expected key of %v in bucket 0, have %v", want, have)
+		}
+		if have := movingAvgDateHistoRes.Buckets[0].KeyAsString; have == nil {
+			t.Fatalf("expected key_as_string != nil in bucket 0, have %v", have)
+		}
+		if want, have := "2011-01-01T00:00:00.000Z", *movingAvgDateHistoRes.Buckets[0].KeyAsString; want != have {
+			t.Fatalf("expected key_as_string of %q in bucket 0, have %q", want, have)
+		}
+		sumOfRetweetsAgg, found := movingAvgDateHistoRes.Buckets[0].SumBucket("sumOfRetweets")
+		if !found {
+			t.Fatalf("expected sub-aggregation %q", "sumOfRetweets")
+		}
+		if have := sumOfRetweetsAgg.Value; have == nil {
+			t.Fatalf("expected sumOfRetweets != nil, have %v", have)
+		}
+		if want, have := 12.0, *sumOfRetweetsAgg.Value; want != have {
+			t.Fatalf("expected sumOfRetweets = %v, have %v", want, have)
+		}
+		movingAvgAgg, found := movingAvgDateHistoRes.Buckets[0].MovAvg("movingAvg")
+		if found {
+			t.Fatalf("expected no sub-aggregation %q", "movingAvg")
+		}
+		if movingAvgAgg != nil {
+			t.Fatalf("expected no sub-aggregation %q", "movingAvg")
+		}
+		movingFnAgg, found := movingAvgDateHistoRes.Buckets[0].MovFn("movingFn")
+		if !found {
+			t.Fatalf("expected sub-aggregation %q", "movingFn")
+		}
+		if have := movingFnAgg.Value; have == nil {
+			t.Fatalf("expected movingFn != nil, have %v", have)
+		}
+		if want, have := 0.0, *movingFnAgg.Value; want != have {
+			t.Fatalf("expected movingFn = %v, have %v", want, have)
+		}
+		// movingAvgDateHisto.Buckets[1]
+		if want, have := int64(2), movingAvgDateHistoRes.Buckets[1].DocCount; want != have {
+			t.Fatalf("expected %d docs in bucket 1, have %d", want, have)
+		}
+		if want, have := 1325376000000.0, movingAvgDateHistoRes.Buckets[1].Key; want != have {
+			t.Fatalf("expected key of %v in bucket 1, have %v", want, have)
+		}
+		if have := movingAvgDateHistoRes.Buckets[1].KeyAsString; have == nil {
+			t.Fatalf("expected key_as_string != nil in bucket 1, have %v", have)
+		}
+		if want, have := "2012-01-01T00:00:00.000Z", *movingAvgDateHistoRes.Buckets[1].KeyAsString; want != have {
+			t.Fatalf("expected key_as_string of %q in bucket 1, have %q", want, have)
+		}
+		sumOfRetweetsAgg, found = movingAvgDateHistoRes.Buckets[1].SumBucket("sumOfRetweets")
+		if !found {
+			t.Fatalf("expected sub-aggregation %q", "sumOfRetweets")
+		}
+		if have := sumOfRetweetsAgg.Value; have == nil {
+			t.Fatalf("expected sumOfRetweets != nil, have %v", have)
+		}
+		if want, have := 108.0, *sumOfRetweetsAgg.Value; want != have {
+			t.Fatalf("expected sumOfRetweets = %v, have %v", want, have)
+		}
+		movingAvgAgg, found = movingAvgDateHistoRes.Buckets[1].MovAvg("movingAvg")
+		if !found {
+			t.Fatalf("expected sub-aggregation %q", "movingAvg")
+		}
+		if have := movingAvgAgg.Value; have == nil {
+			t.Fatalf("expected movingAgg != nil, have %v", have)
+		}
+		if want, have := 12.0, *movingAvgAgg.Value; want != have {
+			t.Fatalf("expected movingAvg = %v, have %v", want, have)
+		}
+		movingFnAgg, found = movingAvgDateHistoRes.Buckets[1].MovFn("movingFn")
+		if !found {
+			t.Fatalf("expected sub-aggregation %q", "movingFn")
+		}
+		if have := movingFnAgg.Value; have == nil {
+			t.Fatalf("expected movingFn != nil, have %v", have)
+		}
+		if want, have := 12.0, *movingFnAgg.Value; want != have {
+			t.Fatalf("expected movingFn = %v, have %v", want, have)
+		}
+	}
+}
+
+// TestAggsCompositeIntegration is an integration test for the Composite aggregation.
+func TestAggsCompositeIntegration(t *testing.T) {
+	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{
+		User:     "olivere",
+		Retweets: 108,
+		Message:  "Welcome to Golang and Elasticsearch.",
+		Image:    "http://golang.org/doc/gopher/gophercolor.png",
+		Tags:     []string{"golang", "elasticsearch"},
+		Location: "48.1333,11.5667", // lat,lon
+		Created:  time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
+	}
+	tweet2 := tweet{
+		User:     "olivere",
+		Retweets: 0,
+		Message:  "Another unrelated topic.",
+		Tags:     []string{"golang"},
+		Location: "48.1189,11.4289", // lat,lon
+		Created:  time.Date(2012, 10, 10, 8, 12, 03, 0, time.UTC),
+	}
+	tweet3 := tweet{
+		User:     "sandrae",
+		Retweets: 12,
+		Message:  "Cycling is fun.",
+		Tags:     []string{"sports", "cycling"},
+		Location: "47.7167,11.7167", // lat,lon
+		Created:  time.Date(2011, 11, 11, 10, 58, 12, 0, time.UTC),
+	}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err := client.Count(testIndexName).Type("doc").Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want, have := int64(3), count; want != have {
+		t.Fatalf("expected %d documents, got %d", want, have)
+	}
+
+	// Match all should return all documents
+	all := NewMatchAllQuery()
+
+	// Terms Aggregate by user name
+	builder := client.Search().Index(testIndexName).Query(all).Pretty(true)
+	composite := NewCompositeAggregation().Sources(
+		NewCompositeAggregationTermsValuesSource("composite_users").Field("user"),
+		NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).Field("retweets"),
+		NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
+	).Size(2)
+	builder = builder.Aggregation("composite", composite)
+
+	// Run the query
+	searchResult, err := builder.Pretty(true).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult.Hits == nil {
+		t.Errorf("expected Hits != nil; got: nil")
+	}
+	if searchResult.Hits.TotalHits != 3 {
+		t.Errorf("expected Hits.TotalHits = %d; got: %d", 3, searchResult.Hits.TotalHits)
+	}
+	if len(searchResult.Hits.Hits) != 3 {
+		t.Errorf("expected len(Hits.Hits) = %d; got: %d", 3, len(searchResult.Hits.Hits))
+	}
+	agg := searchResult.Aggregations
+	if agg == nil {
+		t.Fatalf("expected Aggregations != nil; got: nil")
+	}
+
+	// Check outcome of 1st call (without "after_key" settings)
+	var afterKey map[string]interface{}
+	{
 		compositeAggRes, found := agg.Composite("composite")
 		if !found {
 			t.Errorf("expected %v; got: %v", true, found)
@@ -1055,10 +1241,120 @@ func TestAggs(t *testing.T) {
 		if compositeAggRes == nil {
 			t.Fatalf("expected != nil; got: nil")
 		}
-		if want, have := 3, len(compositeAggRes.Buckets); want != have {
+		if want, have := 2, len(compositeAggRes.Buckets); want != have {
 			t.Fatalf("expected %d; got: %d", want, have)
 		}
-	*/
+		afterKey = compositeAggRes.AfterKey
+		if afterKey == nil || len(afterKey) == 0 {
+			t.Fatalf("expected after_key; got: %v", afterKey)
+		}
+		if v, found := afterKey["composite_users"]; !found {
+			t.Fatalf("expected after_key.composite_users; got: %v", afterKey)
+		} else if want, have := "olivere", v; want != have {
+			t.Fatalf("expected after_key.composite_users = %q; got: %q", want, have)
+		}
+		if v, found := afterKey["composite_retweets"]; !found {
+			t.Fatalf("expected after_key.composite_retweets; got: %v", afterKey)
+		} else if want, have := 108.0, v; want != have {
+			t.Fatalf("expected after_key.composite_retweets = %v; got: %v", want, have)
+		}
+		if v, found := afterKey["composite_created"]; !found {
+			t.Fatalf("expected after_key.composite_created; got: %v", afterKey)
+		} else if want, have := 1355333880000.0, v; want != have {
+			t.Fatalf("expected after_key.composite_created = %v; got: %v", want, have)
+		}
+	}
+
+	// Now paginate to the 2nd call via "after_key"
+	builder = client.Search().Index(testIndexName).Query(all).Pretty(true)
+	composite = NewCompositeAggregation().Sources(
+		NewCompositeAggregationTermsValuesSource("composite_users").Field("user"),
+		NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).Field("retweets"),
+		NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
+	).Size(2).AggregateAfter(afterKey)
+	builder = builder.Aggregation("composite", composite)
+	searchResult, err = builder.Pretty(true).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult.Hits == nil {
+		t.Errorf("expected Hits != nil; got: nil")
+	}
+	agg = searchResult.Aggregations
+	if agg == nil {
+		t.Fatalf("expected Aggregations != nil; got: nil")
+	}
+
+	// Check outcome of 2nd call (with "after_key" settings)
+	{
+		compositeAggRes, found := agg.Composite("composite")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if compositeAggRes == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if want, have := 1, len(compositeAggRes.Buckets); want != have {
+			t.Fatalf("expected %d; got: %d", want, have)
+		}
+		afterKey = compositeAggRes.AfterKey
+		if afterKey == nil || len(afterKey) == 0 {
+			t.Fatalf("expected after_key; got: %v", afterKey)
+		}
+		if v, found := afterKey["composite_users"]; !found {
+			t.Fatalf("expected after_key.composite_users; got: %v", afterKey)
+		} else if want, have := "sandrae", v; want != have {
+			t.Fatalf("expected after_key.composite_users = %q; got: %q", want, have)
+		}
+		if v, found := afterKey["composite_retweets"]; !found {
+			t.Fatalf("expected after_key.composite_retweets; got: %v", afterKey)
+		} else if want, have := 12.0, v; want != have {
+			t.Fatalf("expected after_key.composite_retweets = %v; got: %v", want, have)
+		}
+		if v, found := afterKey["composite_created"]; !found {
+			t.Fatalf("expected after_key.composite_created; got: %v", afterKey)
+		} else if want, have := 1321009080000.0, v; want != have {
+			t.Fatalf("expected after_key.composite_created = %v; got: %v", want, have)
+		}
+	}
+
+	// Now paginate to the 3rd call via "after_key"
+	builder = client.Search().Index(testIndexName).Query(all).Pretty(true)
+	composite = NewCompositeAggregation().Sources(
+		NewCompositeAggregationTermsValuesSource("composite_users").Field("user"),
+		NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).Field("retweets"),
+		NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
+	).Size(2).AggregateAfter(afterKey)
+	builder = builder.Aggregation("composite", composite)
+	searchResult, err = builder.Pretty(true).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult.Hits == nil {
+		t.Errorf("expected Hits != nil; got: nil")
+	}
+	agg = searchResult.Aggregations
+	if agg == nil {
+		t.Fatalf("expected Aggregations != nil; got: nil")
+	}
+
+	// Check outcome of 3rd call (with "after_key" settings)
+	{
+		compositeAggRes, found := agg.Composite("composite")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if compositeAggRes == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if want, have := 0, len(compositeAggRes.Buckets); want != have {
+			t.Fatalf("expected %d; got: %d", want, have)
+		}
+		afterKey = compositeAggRes.AfterKey
+		if afterKey != nil {
+			t.Fatalf("expected no after_key; got: %v", afterKey)
+		}
+	}
 }
 
 // TestAggsMarshal ensures that marshaling aggregations back into a string

@@ -624,8 +624,25 @@ func (a Aggregations) MinBucket(name string) (*AggregationPipelineBucketMetricVa
 }
 
 // MovAvg returns moving average pipeline aggregation results.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-pipeline-movavg-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-pipeline-movavg-aggregation.html
+//
+// Deprecated: The MovAvgAggregation has been deprecated in 6.4.0. Use the more generate MovFnAggregation instead.
 func (a Aggregations) MovAvg(name string) (*AggregationPipelineSimpleValue, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationPipelineSimpleValue)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
+// MovFn returns moving function pipeline aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-pipeline-movfn-aggregation.html
+func (a Aggregations) MovFn(name string) (*AggregationPipelineSimpleValue, bool) {
 	if raw, found := a[name]; found {
 		agg := new(AggregationPipelineSimpleValue)
 		if raw == nil {
@@ -1578,8 +1595,9 @@ func (a *AggregationPipelinePercentilesMetric) UnmarshalJSON(data []byte) error 
 type AggregationBucketCompositeItems struct {
 	Aggregations
 
-	Buckets []*AggregationBucketCompositeItem //`json:"buckets"`
-	Meta    map[string]interface{}            // `json:"meta,omitempty"`
+	Buckets  []*AggregationBucketCompositeItem //`json:"buckets"`
+	Meta     map[string]interface{}            // `json:"meta,omitempty"`
+	AfterKey map[string]interface{}            // `json:"after_key,omitempty"`
 }
 
 // UnmarshalJSON decodes JSON data and initializes an AggregationBucketCompositeItems structure.
@@ -1593,6 +1611,9 @@ func (a *AggregationBucketCompositeItems) UnmarshalJSON(data []byte) error {
 	}
 	if v, ok := aggs["meta"]; ok && v != nil {
 		json.Unmarshal(*v, &a.Meta)
+	}
+	if v, ok := aggs["after_key"]; ok && v != nil {
+		json.Unmarshal(*v, &a.AfterKey)
 	}
 	a.Aggregations = aggs
 	return nil
