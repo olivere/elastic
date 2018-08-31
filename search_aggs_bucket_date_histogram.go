@@ -23,6 +23,7 @@ type DateHistogramAggregation struct {
 	timeZone          string
 	format            string
 	offset            string
+	keyed             *bool
 }
 
 // NewDateHistogramAggregation creates a new DateHistogramAggregation.
@@ -175,6 +176,14 @@ func (a *DateHistogramAggregation) Offset(offset string) *DateHistogramAggregati
 	return a
 }
 
+// Keyed sets the keyed flag.
+// Setting the keyed flag to true will associate a unique string key with each bucket
+// and return the ranges as a hash rather than an array.
+func (a *DateHistogramAggregation) Keyed(keyed bool) *DateHistogramAggregation {
+	a.keyed = &keyed
+	return a
+}
+
 // ExtendedBounds accepts int, int64, string, or time.Time values.
 // In case the lower value in the histogram would be greater than min or the
 // upper value would be less than max, empty buckets will be generated.
@@ -248,6 +257,9 @@ func (a *DateHistogramAggregation) Source() (interface{}, error) {
 	}
 	if a.offset != "" {
 		opts["offset"] = a.offset
+	}
+	if a.keyed != nil {
+		opts["keyed"] = *a.keyed
 	}
 	if a.format != "" {
 		opts["format"] = a.format
