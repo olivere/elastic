@@ -10,8 +10,8 @@ import (
 )
 
 func TestSyncedFlush(t *testing.T) {
-	//client := setupTestClientAndCreateIndex(t)
-	client := setupTestClientAndCreateIndexAndLog(t)
+	client := setupTestClientAndCreateIndex(t)
+	//client := setupTestClientAndCreateIndexAndLog(t)
 
 	// Sync Flush all indices
 	res, err := client.SyncedFlush().Pretty(true).Do(context.TODO())
