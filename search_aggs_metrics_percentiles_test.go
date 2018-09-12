@@ -76,3 +76,20 @@ func TestPercentilesAggregationWithMetaData(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestPercentilesAggregationWithMissing(t *testing.T) {
+	agg := NewPercentilesAggregation().Field("price").Missing(95)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"percentiles":{"field":"price","missing":95}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
