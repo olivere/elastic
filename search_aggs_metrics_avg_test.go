@@ -59,3 +59,20 @@ func TestAvgAggregationWithMetaData(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestAvgAggregationWithMissing(t *testing.T) {
+	agg := NewAvgAggregation().Field("grade").Missing(95)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"avg":{"field":"grade","missing":95}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}

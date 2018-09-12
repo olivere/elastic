@@ -14,6 +14,7 @@ package elastic
 type AvgAggregation struct {
 	field           string
 	script          *Script
+	missing         interface{}
 	format          string
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
@@ -32,6 +33,12 @@ func (a *AvgAggregation) Field(field string) *AvgAggregation {
 
 func (a *AvgAggregation) Script(script *Script) *AvgAggregation {
 	a.script = script
+	return a
+}
+
+// Missing configures the value to use when documents miss a value.
+func (a *AvgAggregation) Missing(missing interface{}) *AvgAggregation {
+	a.missing = missing
 	return a
 }
 
@@ -74,6 +81,9 @@ func (a *AvgAggregation) Source() (interface{}, error) {
 			return nil, err
 		}
 		opts["script"] = src
+	}
+	if a.missing != nil {
+		opts["missing"] = a.missing
 	}
 
 	if a.format != "" {
