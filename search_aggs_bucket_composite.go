@@ -372,6 +372,8 @@ func (a *CompositeAggregationHistogramValuesSource) Source() (interface{}, error
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-bucket-composite-aggregation.html#_date_histogram
 // for details.
+//
+//"format" was only added in elasticsearch 6.3 (https://www.elastic.co/guide/en/elasticsearch/reference/6.3/search-aggregations-bucket-composite-aggregation.html#_date_histogram)
 type CompositeAggregationDateHistogramValuesSource struct {
 	name      string
 	field     string
@@ -380,6 +382,7 @@ type CompositeAggregationDateHistogramValuesSource struct {
 	missing   interface{}
 	order     string
 	interval  interface{}
+	format    string
 	timeZone  string
 }
 
@@ -443,6 +446,12 @@ func (a *CompositeAggregationDateHistogramValuesSource) Interval(interval interf
 	return a
 }
 
+// Format to use for the date histogram, e.g. "strict_date_optional_time"
+func (a *CompositeAggregationDateHistogramValuesSource) Format(format string) *CompositeAggregationDateHistogramValuesSource {
+	a.format = format
+	return a
+}
+
 // TimeZone to use for the dates.
 func (a *CompositeAggregationDateHistogramValuesSource) TimeZone(timeZone string) *CompositeAggregationDateHistogramValuesSource {
 	a.timeZone = timeZone
@@ -488,6 +497,9 @@ func (a *CompositeAggregationDateHistogramValuesSource) Source() (interface{}, e
 
 	// DateHistogram-related properties
 	values["interval"] = a.interval
+	if a.format != "" {
+		values["format"] = a.format
+	}
 
 	// timeZone
 	if a.timeZone != "" {
