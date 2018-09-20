@@ -83,6 +83,21 @@ func (a Aggregations) Avg(name string) (*AggregationValueMetric, bool) {
 	return nil, false
 }
 
+// WeightedAvg computes the weighted average of numeric values that are extracted from the aggregated documents.
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-weight-avg-aggregation.html
+func (a Aggregations) WeightedAvg(name string) (*AggregationValueMetric, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationValueMetric)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(*raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // ValueCount returns value-count aggregation results.
 // See: https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-metrics-valuecount-aggregation.html
 func (a Aggregations) ValueCount(name string) (*AggregationValueMetric, bool) {

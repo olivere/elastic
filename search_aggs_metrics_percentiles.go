@@ -15,6 +15,7 @@ type PercentilesAggregation struct {
 	field           string
 	script          *Script
 	format          string
+	missing         interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 	percentiles     []float64
@@ -41,6 +42,11 @@ func (a *PercentilesAggregation) Script(script *Script) *PercentilesAggregation 
 
 func (a *PercentilesAggregation) Format(format string) *PercentilesAggregation {
 	a.format = format
+	return a
+}
+
+func (a *PercentilesAggregation) Missing(missing interface{}) *PercentilesAggregation {
+	a.missing = missing
 	return a
 }
 
@@ -102,6 +108,9 @@ func (a *PercentilesAggregation) Source() (interface{}, error) {
 	}
 	if a.format != "" {
 		opts["format"] = a.format
+	}
+	if a.missing != nil {
+		opts["missing"] = a.missing
 	}
 	if len(a.percentiles) > 0 {
 		opts["percents"] = a.percentiles

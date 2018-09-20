@@ -26,8 +26,11 @@ func TestExtendedStatsAggregation(t *testing.T) {
 	}
 }
 
-func TestExtendedStatsAggregationWithFormat(t *testing.T) {
-	agg := NewExtendedStatsAggregation().Field("grade").Format("000.0")
+func TestExtendedStatsAggregationWithOptions(t *testing.T) {
+	agg := NewExtendedStatsAggregation().
+		Field("grade").
+		Format("000.0").
+		Missing(1.2)
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +40,7 @@ func TestExtendedStatsAggregationWithFormat(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"extended_stats":{"field":"grade","format":"000.0"}}`
+	expected := `{"extended_stats":{"field":"grade","format":"000.0","missing":1.2}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

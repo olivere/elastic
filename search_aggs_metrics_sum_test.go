@@ -26,8 +26,11 @@ func TestSumAggregation(t *testing.T) {
 	}
 }
 
-func TestSumAggregationWithFormat(t *testing.T) {
-	agg := NewSumAggregation().Field("price").Format("00000.00")
+func TestSumAggregationWithOptions(t *testing.T) {
+	agg := NewSumAggregation().
+		Field("price").
+		Format("00000.00").
+		Missing(1.2)
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +40,7 @@ func TestSumAggregationWithFormat(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"sum":{"field":"price","format":"00000.00"}}`
+	expected := `{"sum":{"field":"price","format":"00000.00","missing":1.2}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

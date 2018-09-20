@@ -13,6 +13,7 @@ type ExtendedStatsAggregation struct {
 	field           string
 	script          *Script
 	format          string
+	missing         interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 }
@@ -35,6 +36,11 @@ func (a *ExtendedStatsAggregation) Script(script *Script) *ExtendedStatsAggregat
 
 func (a *ExtendedStatsAggregation) Format(format string) *ExtendedStatsAggregation {
 	a.format = format
+	return a
+}
+
+func (a *ExtendedStatsAggregation) Missing(missing interface{}) *ExtendedStatsAggregation {
+	a.missing = missing
 	return a
 }
 
@@ -75,6 +81,9 @@ func (a *ExtendedStatsAggregation) Source() (interface{}, error) {
 	}
 	if a.format != "" {
 		opts["format"] = a.format
+	}
+	if a.missing != nil {
+		opts["missing"] = a.missing
 	}
 
 	// AggregationBuilder (SubAggregations)

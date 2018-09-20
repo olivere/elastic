@@ -43,8 +43,11 @@ func TestPercentileRanksAggregationWithCustomValues(t *testing.T) {
 	}
 }
 
-func TestPercentileRanksAggregationWithFormat(t *testing.T) {
-	agg := NewPercentileRanksAggregation().Field("load_time").Format("000.0")
+func TestPercentileRanksAggregationWithOptions(t *testing.T) {
+	agg := NewPercentileRanksAggregation().
+		Field("load_time").
+		Format("000.0").
+		Missing(1.2)
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -54,7 +57,7 @@ func TestPercentileRanksAggregationWithFormat(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"percentile_ranks":{"field":"load_time","format":"000.0"}}`
+	expected := `{"percentile_ranks":{"field":"load_time","format":"000.0","missing":1.2}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

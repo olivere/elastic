@@ -26,8 +26,11 @@ func TestMaxAggregation(t *testing.T) {
 	}
 }
 
-func TestMaxAggregationWithFormat(t *testing.T) {
-	agg := NewMaxAggregation().Field("price").Format("00000.00")
+func TestMaxAggregationWithOptions(t *testing.T) {
+	agg := NewMaxAggregation().
+		Field("price").
+		Format("00000.00").
+		Missing(1.2)
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +40,7 @@ func TestMaxAggregationWithFormat(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"max":{"field":"price","format":"00000.00"}}`
+	expected := `{"max":{"field":"price","format":"00000.00","missing":1.2}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

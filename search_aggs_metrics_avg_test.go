@@ -26,8 +26,8 @@ func TestAvgAggregation(t *testing.T) {
 	}
 }
 
-func TestAvgAggregationWithFormat(t *testing.T) {
-	agg := NewAvgAggregation().Field("grade").Format("000.0")
+func TestAvgAggregationWithOptions(t *testing.T) {
+	agg := NewAvgAggregation().Field("grade").Format("000.0").Missing(1.2)
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +37,7 @@ func TestAvgAggregationWithFormat(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"avg":{"field":"grade","format":"000.0"}}`
+	expected := `{"avg":{"field":"grade","format":"000.0","missing":1.2}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

@@ -27,7 +27,11 @@ func TestCardinalityAggregation(t *testing.T) {
 }
 
 func TestCardinalityAggregationWithOptions(t *testing.T) {
-	agg := NewCardinalityAggregation().Field("author.hash").PrecisionThreshold(100).Rehash(true)
+	agg := NewCardinalityAggregation().
+		Field("author.hash").
+		PrecisionThreshold(100).
+		Rehash(true).
+		Missing(1.2)
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +41,7 @@ func TestCardinalityAggregationWithOptions(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"cardinality":{"field":"author.hash","precision_threshold":100,"rehash":true}}`
+	expected := `{"cardinality":{"field":"author.hash","missing":1.2,"precision_threshold":100,"rehash":true}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

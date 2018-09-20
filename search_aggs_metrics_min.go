@@ -14,6 +14,7 @@ type MinAggregation struct {
 	field           string
 	script          *Script
 	format          string
+	missing         interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 }
@@ -36,6 +37,11 @@ func (a *MinAggregation) Script(script *Script) *MinAggregation {
 
 func (a *MinAggregation) Format(format string) *MinAggregation {
 	a.format = format
+	return a
+}
+
+func (a *MinAggregation) Missing(missing interface{}) *MinAggregation {
+	a.missing = missing
 	return a
 }
 
@@ -76,6 +82,9 @@ func (a *MinAggregation) Source() (interface{}, error) {
 	}
 	if a.format != "" {
 		opts["format"] = a.format
+	}
+	if a.missing != nil {
+		opts["missing"] = a.missing
 	}
 
 	// AggregationBuilder (SubAggregations)

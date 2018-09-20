@@ -10,6 +10,7 @@ type PercentileRanksAggregation struct {
 	field           string
 	script          *Script
 	format          string
+	missing         interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 	values          []float64
@@ -36,6 +37,11 @@ func (a *PercentileRanksAggregation) Script(script *Script) *PercentileRanksAggr
 
 func (a *PercentileRanksAggregation) Format(format string) *PercentileRanksAggregation {
 	a.format = format
+	return a
+}
+
+func (a *PercentileRanksAggregation) Missing(missing interface{}) *PercentileRanksAggregation {
+	a.missing = missing
 	return a
 }
 
@@ -98,6 +104,9 @@ func (a *PercentileRanksAggregation) Source() (interface{}, error) {
 	}
 	if a.format != "" {
 		opts["format"] = a.format
+	}
+	if a.missing != nil {
+		opts["missing"] = a.missing
 	}
 	if len(a.values) > 0 {
 		opts["values"] = a.values

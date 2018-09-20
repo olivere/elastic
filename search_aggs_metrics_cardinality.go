@@ -13,6 +13,7 @@ type CardinalityAggregation struct {
 	field              string
 	script             *Script
 	format             string
+	missing            interface{}
 	subAggregations    map[string]Aggregation
 	meta               map[string]interface{}
 	precisionThreshold *int64
@@ -40,6 +41,10 @@ func (a *CardinalityAggregation) Format(format string) *CardinalityAggregation {
 	return a
 }
 
+func (a *CardinalityAggregation) Missing(missing interface{}) *CardinalityAggregation {
+	a.missing = missing
+	return a
+}
 func (a *CardinalityAggregation) SubAggregation(name string, subAggregation Aggregation) *CardinalityAggregation {
 	a.subAggregations[name] = subAggregation
 	return a
@@ -87,7 +92,9 @@ func (a *CardinalityAggregation) Source() (interface{}, error) {
 		}
 		opts["script"] = src
 	}
-
+	if a.missing != nil {
+		opts["missing"] = a.missing
+	}
 	if a.format != "" {
 		opts["format"] = a.format
 	}

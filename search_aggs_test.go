@@ -14,7 +14,7 @@ import (
 
 // TestAggs is an integration test for most aggregation types.
 func TestAggs(t *testing.T) {
-	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	//client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{
@@ -81,6 +81,9 @@ func TestAggs(t *testing.T) {
 	retweetsAgg := NewTermsAggregation().Field("retweets").Size(10)
 	avgRetweetsAgg := NewAvgAggregation().Field("retweets")
 	avgRetweetsWithMetaAgg := NewAvgAggregation().Field("retweetsMeta").Meta(map[string]interface{}{"meta": true})
+	weightedAvgRetweetsAgg := NewWeightedAvgAggregation().
+		Value(&MultiValuesSourceFieldConfig{FieldName: "retweets"}).
+		Weight(&MultiValuesSourceFieldConfig{FieldName: "weight", Missing: 1.0})
 	minRetweetsAgg := NewMinAggregation().Field("retweets")
 	maxRetweetsAgg := NewMaxAggregation().Field("retweets")
 	sumRetweetsAgg := NewSumAggregation().Field("retweets")
@@ -117,6 +120,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("retweets", retweetsAgg)
 	builder = builder.Aggregation("avgRetweets", avgRetweetsAgg)
 	builder = builder.Aggregation("avgRetweetsWithMeta", avgRetweetsWithMetaAgg)
+	builder = builder.Aggregation("weightedAvgRetweets", weightedAvgRetweetsAgg)
 	builder = builder.Aggregation("minRetweets", minRetweetsAgg)
 	builder = builder.Aggregation("maxRetweets", maxRetweetsAgg)
 	builder = builder.Aggregation("sumRetweets", sumRetweetsAgg)
@@ -336,6 +340,21 @@ func TestAggs(t *testing.T) {
 		t.Fatalf("expected to return meta data key type %T; got: %T", true, metaDataValue)
 	} else if flag != true {
 		t.Fatalf("expected to return meta data key value %v; got: %v", true, flag)
+	}
+
+	// weightedAvgRetweets
+	weightedAvgRes, found := agg.Avg("weightedAvgRetweets")
+	if !found {
+		t.Errorf("expected %v; got: %v", true, found)
+	}
+	if weightedAvgRes == nil {
+		t.Fatalf("expected != nil; got: nil")
+	}
+	if weightedAvgRes.Value == nil {
+		t.Fatalf("expected != nil; got: %v", *weightedAvgRes.Value)
+	}
+	if *weightedAvgRes.Value != 40.0 {
+		t.Errorf("expected %v; got: %v", 40.0, *weightedAvgRes.Value)
 	}
 
 	// minRetweets

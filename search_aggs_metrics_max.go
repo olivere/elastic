@@ -14,6 +14,7 @@ type MaxAggregation struct {
 	field           string
 	script          *Script
 	format          string
+	missing         interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 }
@@ -36,6 +37,11 @@ func (a *MaxAggregation) Script(script *Script) *MaxAggregation {
 
 func (a *MaxAggregation) Format(format string) *MaxAggregation {
 	a.format = format
+	return a
+}
+
+func (a *MaxAggregation) Missing(missing interface{}) *MaxAggregation {
+	a.missing = missing
 	return a
 }
 
@@ -75,6 +81,9 @@ func (a *MaxAggregation) Source() (interface{}, error) {
 	}
 	if a.format != "" {
 		opts["format"] = a.format
+	}
+	if a.missing != nil {
+		opts["missing"] = a.missing
 	}
 
 	// AggregationBuilder (SubAggregations)

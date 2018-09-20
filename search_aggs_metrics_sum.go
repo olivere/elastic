@@ -13,6 +13,7 @@ type SumAggregation struct {
 	field           string
 	script          *Script
 	format          string
+	missing         interface{}
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 }
@@ -35,6 +36,11 @@ func (a *SumAggregation) Script(script *Script) *SumAggregation {
 
 func (a *SumAggregation) Format(format string) *SumAggregation {
 	a.format = format
+	return a
+}
+
+func (a *SumAggregation) Missing(missing interface{}) *SumAggregation {
+	a.missing = missing
 	return a
 }
 
@@ -75,6 +81,9 @@ func (a *SumAggregation) Source() (interface{}, error) {
 	}
 	if a.format != "" {
 		opts["format"] = a.format
+	}
+	if a.missing != nil {
+		opts["missing"] = a.missing
 	}
 
 	// AggregationBuilder (SubAggregations)

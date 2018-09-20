@@ -43,8 +43,11 @@ func TestPercentilesAggregationWithCustomPercents(t *testing.T) {
 	}
 }
 
-func TestPercentilesAggregationWithFormat(t *testing.T) {
-	agg := NewPercentilesAggregation().Field("price").Format("00000.00")
+func TestPercentilesAggregationWithOptions(t *testing.T) {
+	agg := NewPercentilesAggregation().
+		Field("price").
+		Format("00000.00").
+		Missing(1.2)
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -54,7 +57,7 @@ func TestPercentilesAggregationWithFormat(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"percentiles":{"field":"price","format":"00000.00"}}`
+	expected := `{"percentiles":{"field":"price","format":"00000.00","missing":1.2}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
