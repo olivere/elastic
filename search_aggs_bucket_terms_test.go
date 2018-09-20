@@ -10,7 +10,7 @@ import (
 )
 
 func TestTermsAggregation(t *testing.T) {
-	agg := NewTermsAggregation().Field("gender").Size(10).OrderByTermDesc()
+	agg := NewTermsAggregation().Field("gender").Size(10).OrderByKeyDesc()
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -20,7 +20,7 @@ func TestTermsAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"terms":{"field":"gender","order":[{"_term":"desc"}],"size":10}}`
+	expected := `{"terms":{"field":"gender","order":[{"_key":"desc"}],"size":10}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -69,7 +69,7 @@ func TestTermsAggregationWithMultipleSubAggregation(t *testing.T) {
 }
 
 func TestTermsAggregationWithMetaData(t *testing.T) {
-	agg := NewTermsAggregation().Field("gender").Size(10).OrderByTermDesc()
+	agg := NewTermsAggregation().Field("gender").Size(10).OrderByKeyDesc()
 	agg = agg.Meta(map[string]interface{}{"name": "Oliver"})
 	src, err := agg.Source()
 	if err != nil {
@@ -80,7 +80,7 @@ func TestTermsAggregationWithMetaData(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"meta":{"name":"Oliver"},"terms":{"field":"gender","order":[{"_term":"desc"}],"size":10}}`
+	expected := `{"meta":{"name":"Oliver"},"terms":{"field":"gender","order":[{"_key":"desc"}],"size":10}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

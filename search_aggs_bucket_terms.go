@@ -159,18 +159,35 @@ func (a *TermsAggregation) OrderByCountDesc() *TermsAggregation {
 	return a.OrderByCount(false)
 }
 
+// Deprecated: Use OrderByKey instead.
 func (a *TermsAggregation) OrderByTerm(asc bool) *TermsAggregation {
 	// "order" : { "_term" : "asc" }
 	a.order = append(a.order, TermsOrder{Field: "_term", Ascending: asc})
 	return a
 }
 
+// Deprecated: Use OrderByKeyAsc instead.
 func (a *TermsAggregation) OrderByTermAsc() *TermsAggregation {
 	return a.OrderByTerm(true)
 }
 
+// Deprecated: Use OrderByKeyDesc instead.
 func (a *TermsAggregation) OrderByTermDesc() *TermsAggregation {
 	return a.OrderByTerm(false)
+}
+
+func (a *TermsAggregation) OrderByKey(asc bool) *TermsAggregation {
+	// "order" : { "_term" : "asc" }
+	a.order = append(a.order, TermsOrder{Field: "_key", Ascending: asc})
+	return a
+}
+
+func (a *TermsAggregation) OrderByKeyAsc() *TermsAggregation {
+	return a.OrderByKey(true)
+}
+
+func (a *TermsAggregation) OrderByKeyDesc() *TermsAggregation {
+	return a.OrderByKey(false)
 }
 
 // OrderByAggregation creates a bucket ordering strategy which sorts buckets
