@@ -3,6 +3,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -17,6 +18,7 @@ type TasksGetTaskService struct {
 	pretty            bool
 	taskId            string
 	waitForCompletion *bool
+	headers           http.Header
 }
 
 // NewTasksGetTaskService creates a new TasksGetTaskService.
@@ -44,6 +46,15 @@ func (s *TasksGetTaskService) TaskIdFromNodeAndId(nodeId string, id int64) *Task
 // to complete (default: false).
 func (s *TasksGetTaskService) WaitForCompletion(waitForCompletion bool) *TasksGetTaskService {
 	s.waitForCompletion = &waitForCompletion
+	return s
+}
+
+// Header sets headers on the request
+func (s *TasksGetTaskService) Header(name string, value string) *TasksGetTaskService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -94,9 +105,10 @@ func (s *TasksGetTaskService) Do(ctx context.Context) (*TasksGetTaskResponse, er
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err
@@ -107,10 +119,12 @@ func (s *TasksGetTaskService) Do(ctx context.Context) (*TasksGetTaskResponse, er
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
+	ret.Header = res.Header
 	return ret, nil
 }
 
 type TasksGetTaskResponse struct {
-	Completed bool      `json:"completed"`
-	Task      *TaskInfo `json:"task,omitempty"`
+	Header    http.Header `json:"-"`
+	Completed bool        `json:"completed"`
+	Task      *TaskInfo   `json:"task,omitempty"`
 }

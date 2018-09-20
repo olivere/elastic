@@ -46,7 +46,11 @@ func TestTasksListBuildURL(t *testing.T) {
 
 func TestTasksList(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
-	res, err := client.TasksList().Pretty(true).Human(true).Do(context.TODO())
+	res, err := client.TasksList().
+		Pretty(true).
+		Human(true).
+		Header("X-Opaque-Id", "123456").
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,5 +59,22 @@ func TestTasksList(t *testing.T) {
 	}
 	if len(res.Nodes) == 0 {
 		t.Fatalf("expected at least 1 node; got: %d", len(res.Nodes))
+	}
+	if want, have := "123456", res.Header.Get("X-Opaque-Id"); want != have {
+		t.Fatalf("expected HTTP header %#v; got: %#v", want, have)
+	}
+	for _, node := range res.Nodes {
+		if len(node.Tasks) == 0 {
+			t.Fatalf("expected at least 1 task; got: %d", len(node.Tasks))
+		}
+		for _, task := range node.Tasks {
+			have, found := task.Headers["X-Opaque-Id"]
+			if !found {
+				t.Fatalf("expected to find headers[%q]", "X-Opaque-Id")
+			}
+			if want := "123456"; want != have {
+				t.Fatalf("expected headers[%q]=%q; got: %q", "X-Opaque-Id", want, have)
+			}
+		}
 	}
 }

@@ -17,6 +17,7 @@ const (
 	testIndexName  = "elastic-test"
 	testIndexName2 = "elastic-test2"
 	testIndexName3 = "elastic-test3"
+	testIndexName4 = "elastic-test4"
 	testMapping    = `
 {
 	"settings":{
