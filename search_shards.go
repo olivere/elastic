@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -174,11 +175,33 @@ type SearchShardsResponse struct {
 }
 
 type ShardsInfo struct {
-	Index          string      `json:"index"`
-	Node           string      `json:"node"`
-	Primary        bool        `json:"primary"`
-	Shard          uint        `json:"shard"`
-	State          string      `json:"state"`
-	AllocationId   interface{} `json:"allocation_id"`
-	RelocatingNode bool        `json:"relocating_node"`
+	Index                    string          `json:"index"`
+	Node                     string          `json:"node"`
+	Primary                  bool            `json:"primary"`
+	Shard                    uint            `json:"shard"`
+	State                    string          `json:"state"`
+	AllocationId             *AllocationId   `json:"allocation_id,omitempty"`
+	RelocatingNode           string          `json:"relocating_node"`
+	ExpectedShardSizeInBytes int64           `json:"expected_shard_size_in_bytes,omitempty"`
+	RecoverySource           *RecoverySource `json:"recovery_source,omitempty"`
+	UnassignedInfo           *UnassignedInfo `json:"unassigned_info,omitempty"`
+}
+
+type RecoverySource struct {
+	Type string `json:"type"`
+	// TODO add missing fields here based on the Type
+}
+
+type AllocationId struct {
+	Id           string `json:"id"`
+	RelocationId string `json:"relocation_id,omitempty"`
+}
+
+type UnassignedInfo struct {
+	Reason           string     `json:"reason"`
+	At               *time.Time `json:"at,omitempty"`
+	FailedAttempts   int        `json:"failed_attempts,omitempty"`
+	Delayed          bool       `json:"delayed"`
+	Details          string     `json:"details,omitempty"`
+	AllocationStatus string     `json:"allocation_status"`
 }
