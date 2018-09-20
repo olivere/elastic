@@ -75,7 +75,8 @@ func TestCompositeAggregationHistogramValuesSource(t *testing.T) {
 
 func TestCompositeAggregationDateHistogramValuesSource(t *testing.T) {
 	in := NewCompositeAggregationDateHistogramValuesSource("date", "1d").
-		Field("timestamp")
+		Field("timestamp").
+		Format("strict_date_optional_time")
 	src, err := in.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -85,7 +86,7 @@ func TestCompositeAggregationDateHistogramValuesSource(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"date":{"date_histogram":{"field":"timestamp","interval":"1d"}}}`
+	expected := `{"date":{"date_histogram":{"field":"timestamp","format":"strict_date_optional_time","interval":"1d"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

@@ -380,6 +380,7 @@ type CompositeAggregationDateHistogramValuesSource struct {
 	missing   interface{}
 	order     string
 	interval  interface{}
+	format    string
 	timeZone  string
 }
 
@@ -443,6 +444,12 @@ func (a *CompositeAggregationDateHistogramValuesSource) Interval(interval interf
 	return a
 }
 
+// Format to use for the date histogram, e.g. "strict_date_optional_time"
+func (a *CompositeAggregationDateHistogramValuesSource) Format(format string) *CompositeAggregationDateHistogramValuesSource {
+	a.format = format
+	return a
+}
+
 // TimeZone to use for the dates.
 func (a *CompositeAggregationDateHistogramValuesSource) TimeZone(timeZone string) *CompositeAggregationDateHistogramValuesSource {
 	a.timeZone = timeZone
@@ -484,6 +491,10 @@ func (a *CompositeAggregationDateHistogramValuesSource) Source() (interface{}, e
 	// order
 	if a.order != "" {
 		values["order"] = a.order
+	}
+
+	if a.format != "" {
+		values["format"] = a.format
 	}
 
 	// DateHistogram-related properties
