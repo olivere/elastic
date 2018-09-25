@@ -6,7 +6,7 @@
 //
 // Example
 //
-//     aws-connect -url=https://search-xxxxx-yyyyy.eu-central-1.es.amazonaws.com
+//     aws-connect-v4 -url=https://search-xxxxx-yyyyy.eu-central-1.es.amazonaws.com
 //
 package main
 
@@ -15,11 +15,11 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/olivere/env"
-	"github.com/smartystreets/go-aws-auth"
 
 	"github.com/olivere/elastic"
-	"github.com/olivere/elastic/aws"
+	aws "github.com/olivere/elastic/aws/v4"
 )
 
 func main() {
@@ -42,10 +42,11 @@ func main() {
 		log.Fatal("missing -secret-key or AWS_SECRET_KEY environment variable")
 	}
 
-	signingClient := aws.NewV4SigningClient(awsauth.Credentials{
-		AccessKeyID:     *accessKey,
-		SecretAccessKey: *secretKey,
-	})
+	signingClient := aws.NewV4SigningClient(credentials.NewStaticCredentials(
+		*accessKey,
+		*secretKey,
+		"",
+	), "eu-central-1")
 
 	// Create an Elasticsearch client
 	client, err := elastic.NewClient(
