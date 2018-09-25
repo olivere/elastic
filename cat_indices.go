@@ -138,6 +138,9 @@ func (s *CatIndicesService) buildURL() (string, url.Values, error) {
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
 	}
+	if len(s.columns) > 0 {
+		params.Set("h", strings.Join(s.columns, ","))
+	}
 	if s.health != "" {
 		params.Set("health", s.health)
 	}
