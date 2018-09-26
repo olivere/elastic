@@ -40,6 +40,7 @@ type BulkProcessorService struct {
 	flushInterval time.Duration // periodic flush interval
 	wantStats     bool          // indicates whether to gather statistics
 	backoff       Backoff       // a custom Backoff to use for errors
+	sc            StatusChecker // determines soft errors that may be retried
 }
 
 // NewBulkProcessorService creates a new BulkProcessorService.
@@ -49,6 +50,7 @@ func NewBulkProcessorService(client *Client) *BulkProcessorService {
 		numWorkers:  1,
 		bulkActions: 1000,
 		bulkSize:    5 << 20, // 5 MB
+		sc:      NewStatusChecker(),
 		backoff: NewExponentialBackoff(
 			time.Duration(200)*time.Millisecond,
 			time.Duration(10000)*time.Millisecond,
@@ -63,6 +65,12 @@ type BulkBeforeFunc func(executionId int64, requests []BulkableRequest)
 // BulkAfterFunc defines the signature of callbacks that are executed
 // after a commit to Elasticsearch. The err parameter signals an error.
 type BulkAfterFunc func(executionId int64, requests []BulkableRequest, response *BulkResponse, err error)
+
+// StatusChecker specifies an interface used to determine soft (retriable) errors
+func (s *BulkProcessorService) StatusChecker(sc StatusChecker) *BulkProcessorService {
+	s.sc = sc
+	return s
+}
 
 // Before specifies a function to be executed before bulk requests get comitted
 // to Elasticsearch.
@@ -154,6 +162,7 @@ func (s *BulkProcessorService) Do(ctx context.Context) (*BulkProcessor, error) {
 		s.bulkSize,
 		s.flushInterval,
 		s.wantStats,
+		s.sc,
 		s.backoff)
 
 	err := p.Start(ctx)
@@ -242,6 +251,7 @@ type BulkProcessor struct {
 	flushInterval time.Duration
 	flusherStopC  chan struct{}
 	wantStats     bool
+	sc            StatusChecker
 	backoff       Backoff
 
 	startedMu sync.Mutex // guards the following block
@@ -263,6 +273,7 @@ func newBulkProcessor(
 	bulkSize int,
 	flushInterval time.Duration,
 	wantStats bool,
+	sc StatusChecker,
 	backoff Backoff) *BulkProcessor {
 	return &BulkProcessor{
 		c:             client,
@@ -274,6 +285,7 @@ func newBulkProcessor(
 		bulkSize:      bulkSize,
 		flushInterval: flushInterval,
 		wantStats:     wantStats,
+		sc:            sc,
 		backoff:       backoff,
 	}
 }
@@ -503,14 +515,19 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 		// Save requests because they will be reset in service.Do
 		reqs := w.service.requests
 		res, err = w.service.Do(ctx)
-		if err == nil {
+		if err == nil && w.p.sc != nil {
 			// Check res.Items since some might be soft failures
 			if res.Items != nil && res.Errors {
 				// res.Items will be 1 to 1 with reqs in same order
 				for i, item := range res.Items {
 					for _, result := range item {
-						if result.Status == 429 { // too many requests
+						if w.p.sc.Retryable(result.Status) {
 							w.service.Add(reqs[i])
+							if err == nil {
+								// return error to trigger retry
+								// in RetryNotify
+								err = UncommittedBulkItemsErr
+							}
 						}
 					}
 				}

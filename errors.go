@@ -15,6 +15,26 @@ import (
 	"github.com/pkg/errors"
 )
 
+// an interface to determine if an error code represents
+// a soft error that may be retried
+type StatusChecker interface {
+	Retryable(statusCode int) bool
+}
+
+type DefaultStatusChecker struct {}
+
+func NewStatusChecker() StatusChecker {
+	return &DefaultStatusChecker{}
+}
+
+func (dse *DefaultStatusChecker) Retryable(statusCode int) bool {
+	// 408 request timeout
+	// 429 too many requests
+	// 503 service unavailable
+	// 507 insufficient storage
+	return statusCode == 408 || statusCode == 429 || statusCode == 503 || statusCode == 507
+}
+
 // checkResponse will return an error if the request/response indicates
 // an error returned from Elasticsearch.
 //

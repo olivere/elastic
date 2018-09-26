@@ -41,6 +41,9 @@ func TestBulkProcessorDefaults(t *testing.T) {
 	if p.backoff == nil {
 		t.Fatalf("expected non-nill backoff; got: %v", p.backoff)
 	}
+	if p.sc == nil {
+		t.Fatalf("expected non-nill sc; got: %v", p.sc)
+	}
 }
 
 func TestBulkProcessorCommitOnBulkActions(t *testing.T) {
