@@ -14,6 +14,8 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
+var UncommittedBulkItemsErr = errors.New("Bulk request was partially committed")
+
 // BulkService allows for batching bulk requests and sending them to
 // Elasticsearch in one roundtrip. Use the Add method with BulkIndexRequest,
 // BulkUpdateRequest, and BulkDeleteRequest to add bulk requests to a batch,
