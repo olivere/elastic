@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+var ErrBulkItemRetry = errors.New("Uncommitted bulk response items")
+
 // BulkProcessorService allows to easily process bulk requests. It allows setting
 // policies when to flush new bulk requests, e.g. based on a number of actions,
 // on the size of the actions, and/or to flush periodically. It also allows
@@ -133,7 +135,7 @@ func (s *BulkProcessorService) Backoff(backoff Backoff) *BulkProcessorService {
 
 // RetryItemStatusCodes sets an array of status codes that indicate that a bulk
 // response line item may be retried
-func (s *BulkProcessorService) RetryItemStatusCodes(retryItemStatusCodes []int) *BulkProcessorService {
+func (s *BulkProcessorService) RetryItemStatusCodes(retryItemStatusCodes ...int) *BulkProcessorService {
 	s.retryItemStatusCodes = retryItemStatusCodes
 	return s
 }
@@ -154,6 +156,12 @@ func (s *BulkProcessorService) RetryItemStatusCodes(retryItemStatusCodes []int) 
 // Calling Do several times returns new BulkProcessors. You probably don't
 // want to do this. BulkProcessorService implements just a builder pattern.
 func (s *BulkProcessorService) Do(ctx context.Context) (*BulkProcessor, error) {
+
+	retryItemStatusCodes := make(map[int]struct{})
+	for _, code := range s.retryItemStatusCodes {
+		retryItemStatusCodes[code] = struct{}{}
+	}
+
 	p := newBulkProcessor(
 		s.c,
 		s.beforeFn,
@@ -164,8 +172,8 @@ func (s *BulkProcessorService) Do(ctx context.Context) (*BulkProcessor, error) {
 		s.bulkSize,
 		s.flushInterval,
 		s.wantStats,
-		s.retryItemStatusCodes,
-		s.backoff)
+		s.backoff,
+		retryItemStatusCodes)
 
 	err := p.Start(ctx)
 	if err != nil {
@@ -253,7 +261,7 @@ type BulkProcessor struct {
 	flushInterval        time.Duration
 	flusherStopC         chan struct{}
 	wantStats            bool
-	retryItemStatusCodes []int
+	retryItemStatusCodes map[int]struct{}
 	backoff              Backoff
 
 	startedMu sync.Mutex // guards the following block
@@ -275,8 +283,8 @@ func newBulkProcessor(
 	bulkSize int,
 	flushInterval time.Duration,
 	wantStats bool,
-	retryItemStatusCodes []int,
-	backoff Backoff) *BulkProcessor {
+	backoff Backoff,
+	retryItemStatusCodes map[int]struct{}) *BulkProcessor {
 	return &BulkProcessor{
 		c:                    client,
 		beforeFn:             beforeFn,
@@ -517,19 +525,19 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 		// Save requests because they will be reset in service.Do
 		reqs := w.service.requests
 		res, err = w.service.Do(ctx)
-		if err == nil && len(w.p.retryItemStatusCodes) > 0 {
-			// Check res.Items since some might be soft failures
-			if res.Items != nil && res.Errors {
-				// res.Items will be 1 to 1 with reqs in same order
-				for i, item := range res.Items {
-					for _, result := range item {
-						for _, code := range w.p.retryItemStatusCodes {
-							if result.Status == code {
+		if err == nil {
+			// Overall bulk request was OK.  But each bulk response item also has a status
+			if w.p.retryItemStatusCodes != nil && len(w.p.retryItemStatusCodes) > 0 {
+				// Check res.Items since some might be soft failures
+				if res.Items != nil && res.Errors {
+					// res.Items will be 1 to 1 with reqs in same order
+					for i, item := range res.Items {
+						for _, result := range item {
+							if _, exists := w.p.retryItemStatusCodes[result.Status]; exists {
 								w.service.Add(reqs[i])
 								if err == nil {
-									err = errors.New("Uncommitted bulk response items")
+									err = ErrBulkItemRetry
 								}
-								break
 							}
 						}
 					}
