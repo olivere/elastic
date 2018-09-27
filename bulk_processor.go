@@ -6,6 +6,7 @@ package elastic
 
 import (
 	"context"
+	"errors"
 	"net"
 	"sync"
 	"sync/atomic"
@@ -40,6 +41,7 @@ type BulkProcessorService struct {
 	flushInterval time.Duration // periodic flush interval
 	wantStats     bool          // indicates whether to gather statistics
 	backoff       Backoff       // a custom Backoff to use for errors
+	retryItemStatusCodes []int  // array of status codes for bulk response line items that may be retried
 }
 
 // NewBulkProcessorService creates a new BulkProcessorService.
@@ -53,6 +55,7 @@ func NewBulkProcessorService(client *Client) *BulkProcessorService {
 			time.Duration(200)*time.Millisecond,
 			time.Duration(10000)*time.Millisecond,
 		),
+		retryItemStatusCodes: []int{408, 429, 503, 507},
 	}
 }
 
@@ -128,6 +131,13 @@ func (s *BulkProcessorService) Backoff(backoff Backoff) *BulkProcessorService {
 	return s
 }
 
+// RetryItemStatusCodes sets an array of status codes that indicate that a bulk
+// response line item may be retried
+func (s *BulkProcessorService) RetryItemStatusCodes(retryItemStatusCodes []int) *BulkProcessorService {
+	s.retryItemStatusCodes = retryItemStatusCodes
+	return s
+}
+
 // Do creates a new BulkProcessor and starts it.
 // Consider the BulkProcessor as a running instance that accepts bulk requests
 // and commits them to Elasticsearch, spreading the work across one or more
@@ -154,6 +164,7 @@ func (s *BulkProcessorService) Do(ctx context.Context) (*BulkProcessor, error) {
 		s.bulkSize,
 		s.flushInterval,
 		s.wantStats,
+		s.retryItemStatusCodes,
 		s.backoff)
 
 	err := p.Start(ctx)
@@ -242,6 +253,7 @@ type BulkProcessor struct {
 	flushInterval time.Duration
 	flusherStopC  chan struct{}
 	wantStats     bool
+	retryItemStatusCodes []int
 	backoff       Backoff
 
 	startedMu sync.Mutex // guards the following block
@@ -263,6 +275,7 @@ func newBulkProcessor(
 	bulkSize int,
 	flushInterval time.Duration,
 	wantStats bool,
+	retryItemStatusCodes []int,
 	backoff Backoff) *BulkProcessor {
 	return &BulkProcessor{
 		c:             client,
@@ -274,6 +287,7 @@ func newBulkProcessor(
 		bulkSize:      bulkSize,
 		flushInterval: flushInterval,
 		wantStats:     wantStats,
+		retryItemStatusCodes: retryItemStatusCodes,
 		backoff:       backoff,
 	}
 }
@@ -503,14 +517,20 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 		// Save requests because they will be reset in service.Do
 		reqs := w.service.requests
 		res, err = w.service.Do(ctx)
-		if err == nil {
+		if err == nil && len(w.p.retryItemStatusCodes) > 0 {
 			// Check res.Items since some might be soft failures
 			if res.Items != nil && res.Errors {
 				// res.Items will be 1 to 1 with reqs in same order
 				for i, item := range res.Items {
 					for _, result := range item {
-						if result.Status == 429 { // too many requests
-							w.service.Add(reqs[i])
+						for _, code := range w.p.retryItemStatusCodes {
+							if result.Status == code {
+								w.service.Add(reqs[i])
+								if err == nil {
+									err = errors.New("Uncommitted bulk response items")
+								}
+								break
+							}
 						}
 					}
 				}
