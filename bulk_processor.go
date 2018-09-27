@@ -31,17 +31,17 @@ import (
 // Elasticsearch Java API as documented in
 // https://www.elastic.co/guide/en/elasticsearch/client/java-api/current/java-docs-bulk-processor.html.
 type BulkProcessorService struct {
-	c             *Client
-	beforeFn      BulkBeforeFunc
-	afterFn       BulkAfterFunc
-	name          string        // name of processor
-	numWorkers    int           // # of workers (>= 1)
-	bulkActions   int           // # of requests after which to commit
-	bulkSize      int           // # of bytes after which to commit
-	flushInterval time.Duration // periodic flush interval
-	wantStats     bool          // indicates whether to gather statistics
-	backoff       Backoff       // a custom Backoff to use for errors
-	retryItemStatusCodes []int  // array of status codes for bulk response line items that may be retried
+	c                    *Client
+	beforeFn             BulkBeforeFunc
+	afterFn              BulkAfterFunc
+	name                 string        // name of processor
+	numWorkers           int           // # of workers (>= 1)
+	bulkActions          int           // # of requests after which to commit
+	bulkSize             int           // # of bytes after which to commit
+	flushInterval        time.Duration // periodic flush interval
+	wantStats            bool          // indicates whether to gather statistics
+	backoff              Backoff       // a custom Backoff to use for errors
+	retryItemStatusCodes []int         // array of status codes for bulk response line items that may be retried
 }
 
 // NewBulkProcessorService creates a new BulkProcessorService.
@@ -239,22 +239,22 @@ func (st *BulkProcessorWorkerStats) dup() *BulkProcessorWorkerStats {
 // BulkProcessor is returned by setting up a BulkProcessorService and
 // calling the Do method.
 type BulkProcessor struct {
-	c             *Client
-	beforeFn      BulkBeforeFunc
-	afterFn       BulkAfterFunc
-	name          string
-	bulkActions   int
-	bulkSize      int
-	numWorkers    int
-	executionId   int64
-	requestsC     chan BulkableRequest
-	workerWg      sync.WaitGroup
-	workers       []*bulkWorker
-	flushInterval time.Duration
-	flusherStopC  chan struct{}
-	wantStats     bool
+	c                    *Client
+	beforeFn             BulkBeforeFunc
+	afterFn              BulkAfterFunc
+	name                 string
+	bulkActions          int
+	bulkSize             int
+	numWorkers           int
+	executionId          int64
+	requestsC            chan BulkableRequest
+	workerWg             sync.WaitGroup
+	workers              []*bulkWorker
+	flushInterval        time.Duration
+	flusherStopC         chan struct{}
+	wantStats            bool
 	retryItemStatusCodes []int
-	backoff       Backoff
+	backoff              Backoff
 
 	startedMu sync.Mutex // guards the following block
 	started   bool
@@ -278,17 +278,17 @@ func newBulkProcessor(
 	retryItemStatusCodes []int,
 	backoff Backoff) *BulkProcessor {
 	return &BulkProcessor{
-		c:             client,
-		beforeFn:      beforeFn,
-		afterFn:       afterFn,
-		name:          name,
-		numWorkers:    numWorkers,
-		bulkActions:   bulkActions,
-		bulkSize:      bulkSize,
-		flushInterval: flushInterval,
-		wantStats:     wantStats,
+		c:                    client,
+		beforeFn:             beforeFn,
+		afterFn:              afterFn,
+		name:                 name,
+		numWorkers:           numWorkers,
+		bulkActions:          bulkActions,
+		bulkSize:             bulkSize,
+		flushInterval:        flushInterval,
+		wantStats:            wantStats,
 		retryItemStatusCodes: retryItemStatusCodes,
-		backoff:       backoff,
+		backoff:              backoff,
 	}
 }
 
