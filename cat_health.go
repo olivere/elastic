@@ -102,6 +102,9 @@ func (s *CatHealthService) buildURL() (string, url.Values, error) {
 	if v := s.disableTimestamping; v != nil {
 		params.Set("ts", fmt.Sprint(*v))
 	}
+	if len(s.columns) > 0 {
+		params.Set("h", strings.Join(s.columns, ","))
+	}
 	return path, params, nil
 }
 

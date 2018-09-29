@@ -116,6 +116,9 @@ func (s *CatCountService) buildURL() (string, url.Values, error) {
 	if len(s.sort) > 0 {
 		params.Set("s", strings.Join(s.sort, ","))
 	}
+	if len(s.columns) > 0 {
+		params.Set("h", strings.Join(s.columns, ","))
+	}
 	return path, params, nil
 }
 
