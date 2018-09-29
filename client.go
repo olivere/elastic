@@ -26,7 +26,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "6.2.7"
+	Version = "6.2.8"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1748,6 +1748,12 @@ func (c *Client) IngestSimulatePipeline() *IngestSimulatePipelineService {
 // ClusterHealth retrieves the health of the cluster.
 func (c *Client) ClusterHealth() *ClusterHealthService {
 	return NewClusterHealthService(c)
+}
+
+// ClusterReroute allows for manual changes to the allocation of
+// individual shards in the cluster.
+func (c *Client) ClusterReroute() *ClusterRerouteService {
+	return NewClusterRerouteService(c)
 }
 
 // ClusterState retrieves the state of the cluster.
