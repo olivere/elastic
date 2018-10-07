@@ -418,15 +418,15 @@ func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 
 // SearchResult is the result of a search in Elasticsearch.
 type SearchResult struct {
-	TookInMillis int64          `json:"took"`              // search time in milliseconds
-	ScrollId     string         `json:"_scroll_id"`        // only used with Scroll and Scan operations
-	Hits         *SearchHits    `json:"hits"`              // the actual search hits
-	Suggest      SearchSuggest  `json:"suggest"`           // results from suggesters
-	Aggregations Aggregations   `json:"aggregations"`      // results from aggregations
-	TimedOut     bool           `json:"timed_out"`         // true if the search timed out
-	Error        *ErrorDetails  `json:"error,omitempty"`   // only used in MultiGet
-	Profile      *SearchProfile `json:"profile,omitempty"` // profiling results, if optional Profile API was active for this search
-	Shards       *shardsInfo    `json:"_shards,omitempty"` // shard information
+	TookInMillis int64          `json:"took,omitempty"`         // search time in milliseconds
+	ScrollId     string         `json:"_scroll_id,omitempty"`   // only used with Scroll and Scan operations
+	Hits         *SearchHits    `json:"hits,omitempty"`         // the actual search hits
+	Suggest      SearchSuggest  `json:"suggest,omitempty"`      // results from suggesters
+	Aggregations Aggregations   `json:"aggregations,omitempty"` // results from aggregations
+	TimedOut     bool           `json:"timed_out,omitempty"`    // true if the search timed out
+	Error        *ErrorDetails  `json:"error,omitempty"`        // only used in MultiGet
+	Profile      *SearchProfile `json:"profile,omitempty"`      // profiling results, if optional Profile API was active for this search
+	Shards       *shardsInfo    `json:"_shards,omitempty"`      // shard information
 }
 
 // TotalHits is a convenience function to return the number of hits for
@@ -462,9 +462,9 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 
 // SearchHits specifies the list of search hits.
 type SearchHits struct {
-	TotalHits int64        `json:"total"`     // total number of hits found
-	MaxScore  *float64     `json:"max_score"` // maximum score of all hits
-	Hits      []*SearchHit `json:"hits"`      // the actual hits returned
+	TotalHits int64        `json:"total"`               // total number of hits found
+	MaxScore  *float64     `json:"max_score,omitempty"` // maximum score of all hits
+	Hits      []*SearchHit `json:"hits,omitempty"`      // the actual hits returned
 }
 
 // NestedHit is a nested innerhit
@@ -476,22 +476,22 @@ type NestedHit struct {
 
 // SearchHit is a single hit.
 type SearchHit struct {
-	Score          *float64                       `json:"_score"`          // computed score
-	Index          string                         `json:"_index"`          // index name
-	Type           string                         `json:"_type"`           // type meta field
-	Id             string                         `json:"_id"`             // external or internal
-	Uid            string                         `json:"_uid"`            // uid meta field (see MapperService.java for all meta fields)
-	Routing        string                         `json:"_routing"`        // routing meta field
-	Parent         string                         `json:"_parent"`         // parent meta field
-	Version        *int64                         `json:"_version"`        // version number, when Version is set to true in SearchService
-	Sort           []interface{}                  `json:"sort"`            // sort information
-	Highlight      SearchHitHighlight             `json:"highlight"`       // highlighter information
-	Source         *json.RawMessage               `json:"_source"`         // stored document source
-	Fields         map[string]interface{}         `json:"fields"`          // returned (stored) fields
-	Explanation    *SearchExplanation             `json:"_explanation"`    // explains how the score was computed
-	MatchedQueries []string                       `json:"matched_queries"` // matched queries
-	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits"`      // inner hits with ES >= 1.5.0
-	Nested         *NestedHit                     `json:"_nested"`         // for nested inner hits
+	Score          *float64                       `json:"_score,omitempty"`          // computed score
+	Index          string                         `json:"_index,omitempty"`          // index name
+	Type           string                         `json:"_type,omitempty"`           // type meta field
+	Id             string                         `json:"_id,omitempty"`             // external or internal
+	Uid            string                         `json:"_uid,omitempty"`            // uid meta field (see MapperService.java for all meta fields)
+	Routing        string                         `json:"_routing,omitempty"`        // routing meta field
+	Parent         string                         `json:"_parent,omitempty"`         // parent meta field
+	Version        *int64                         `json:"_version,omitempty"`        // version number, when Version is set to true in SearchService
+	Sort           []interface{}                  `json:"sort,omitempty"`            // sort information
+	Highlight      SearchHitHighlight             `json:"highlight,omitempty"`       // highlighter information
+	Source         *json.RawMessage               `json:"_source,omitempty"`         // stored document source
+	Fields         map[string]interface{}         `json:"fields,omitempty"`          // returned (stored) fields
+	Explanation    *SearchExplanation             `json:"_explanation,omitempty"`    // explains how the score was computed
+	MatchedQueries []string                       `json:"matched_queries,omitempty"` // matched queries
+	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits,omitempty"`      // inner hits with ES >= 1.5.0
+	Nested         *NestedHit                     `json:"_nested,omitempty"`         // for nested inner hits
 
 	// Shard
 	// HighlightFields
@@ -501,7 +501,7 @@ type SearchHit struct {
 
 // SearchHitInnerHits is used for inner hits.
 type SearchHitInnerHits struct {
-	Hits *SearchHits `json:"hits"`
+	Hits *SearchHits `json:"hits,omitempty"`
 }
 
 // SearchExplanation explains how the score for a hit was computed.
