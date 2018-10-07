@@ -264,12 +264,28 @@ func (r *BulkUpdateRequest) Source() ([]string, error) {
 	lines[0] = string(body)
 
 	// 2nd line: {"doc" : { ... }} or {"script": {...}}
+	var doc interface{}
+	if r.doc != nil {
+		// Automatically serialize strings as raw JSON
+		switch t := r.doc.(type) {
+		default:
+			doc = r.doc
+		case string:
+			if len(t) > 0 {
+				doc = json.RawMessage(t)
+			}
+		case *string:
+			if t != nil && len(*t) > 0 {
+				doc = json.RawMessage(*t)
+			}
+		}
+	}
 	data := bulkUpdateRequestCommandData{
 		DocAsUpsert:    r.docAsUpsert,
 		DetectNoop:     r.detectNoop,
 		Upsert:         r.upsert,
 		ScriptedUpsert: r.scriptedUpsert,
-		Doc:            r.doc,
+		Doc:            doc,
 		Source:         r.returnSource,
 	}
 	if r.script != nil {

@@ -5,10 +5,13 @@
 package elastic
 
 import (
+	"encoding/json"
 	"testing"
 )
 
 func TestBulkUpdateRequestSerialization(t *testing.T) {
+	rawJson := json.RawMessage(`{"counter":42}`)
+	rawString := `{"counter":42}`
 	tests := []struct {
 		Request  BulkableRequest
 		Expected []string
@@ -91,6 +94,46 @@ func TestBulkUpdateRequestSerialization(t *testing.T) {
 			}{
 				Counter: 42,
 			}),
+			Expected: []string{
+				`{"update":{"_index":"index1","_type":"doc","_id":"4"}}`,
+				`{"doc":{"counter":42},"_source":true}`,
+			},
+		},
+		// #6
+		{
+			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("4").
+				ReturnSource(true).
+				Doc(`{"counter":42}`),
+			Expected: []string{
+				`{"update":{"_index":"index1","_type":"doc","_id":"4"}}`,
+				`{"doc":{"counter":42},"_source":true}`,
+			},
+		},
+		// #7
+		{
+			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("4").
+				ReturnSource(true).
+				Doc(json.RawMessage(`{"counter":42}`)),
+			Expected: []string{
+				`{"update":{"_index":"index1","_type":"doc","_id":"4"}}`,
+				`{"doc":{"counter":42},"_source":true}`,
+			},
+		},
+		// #8
+		{
+			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("4").
+				ReturnSource(true).
+				Doc(&rawJson),
+			Expected: []string{
+				`{"update":{"_index":"index1","_type":"doc","_id":"4"}}`,
+				`{"doc":{"counter":42},"_source":true}`,
+			},
+		},
+		// #9
+		{
+			Request: NewBulkUpdateRequest().Index("index1").Type("doc").Id("4").
+				ReturnSource(true).
+				Doc(&rawString),
 			Expected: []string{
 				`{"update":{"_index":"index1","_type":"doc","_id":"4"}}`,
 				`{"doc":{"counter":42},"_source":true}`,
