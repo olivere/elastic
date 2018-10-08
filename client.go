@@ -1230,14 +1230,15 @@ func (c *Client) mustActiveConn() error {
 
 // PerformRequestOptions must be passed into PerformRequest.
 type PerformRequestOptions struct {
-	Method       string
-	Path         string
-	Params       url.Values
-	Body         interface{}
-	ContentType  string
-	IgnoreErrors []int
-	Retrier      Retrier
-	Headers      http.Header
+	Method          string
+	Path            string
+	Params          url.Values
+	Body            interface{}
+	ContentType     string
+	IgnoreErrors    []int
+	Retrier         Retrier
+	Headers         http.Header
+	MaxResponseSize int64
 }
 
 // PerformRequest does a HTTP request to Elasticsearch.
@@ -1376,14 +1377,14 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		if err := checkResponse((*http.Request)(req), res, opt.IgnoreErrors...); err != nil {
 			// No retry if request succeeded
 			// We still try to return a response.
-			resp, _ = c.newResponse(res)
+			resp, _ = c.newResponse(res, opt.MaxResponseSize)
 			return resp, err
 		}
 
 		// We successfully made a request with this connection
 		conn.MarkAsHealthy()
 
-		resp, err = c.newResponse(res)
+		resp, err = c.newResponse(res, opt.MaxResponseSize)
 		if err != nil {
 			return nil, err
 		}

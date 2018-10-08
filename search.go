@@ -31,6 +31,7 @@ type SearchService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	maxResponseSize   int64
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -312,6 +313,13 @@ func (s *SearchService) ExpandWildcards(expandWildcards string) *SearchService {
 	return s
 }
 
+// MaxResponseSize sets an upper limit on the response body size that we accept,
+// to guard against OOM situations.
+func (s *SearchService) MaxResponseSize(maxResponseSize int64) *SearchService {
+	s.maxResponseSize = maxResponseSize
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *SearchService) buildURL() (string, url.Values, error) {
 	var err error
@@ -399,10 +407,11 @@ func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 		body = src
 	}
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:          "POST",
+		Path:            path,
+		Params:          params,
+		Body:            body,
+		MaxResponseSize: s.maxResponseSize,
 	})
 	if err != nil {
 		return nil, err

@@ -1173,6 +1173,33 @@ func TestPerformRequestWithCustomLogger(t *testing.T) {
 	}
 }
 
+func TestPerformRequestWithMaxResponseSize(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method:          "GET",
+		Path:            "/",
+		MaxResponseSize: 1000,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+
+	res, err = client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method:          "GET",
+		Path:            "/",
+		MaxResponseSize: 100,
+	})
+	if err != ErrResponseSize {
+		t.Fatal("expected response size error")
+	}
+}
+
 // failingTransport will run a fail callback if it sees a given URL path prefix.
 type failingTransport struct {
 	path string                                      // path prefix to look for
