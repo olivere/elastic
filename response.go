@@ -14,7 +14,7 @@ import (
 
 var (
 	// ErrResponseSize is raised if a response body exceeds the given max body size.
-	ErrResponseSize = errors.New("response size too large")
+	ErrResponseSize = errors.New("elastic: response size too large")
 )
 
 // Response represents a response from Elasticsearch.
