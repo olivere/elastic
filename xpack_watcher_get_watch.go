@@ -13,34 +13,35 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// XpackWatcherGetWatchService is documented at http://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-get-watch.html.
-type XpackWatcherGetWatchService struct {
+// XPackWatcherGetWatchService retrieves a watch by its ID.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-get-watch.html.
+type XPackWatcherGetWatchService struct {
 	client *Client
 	pretty bool
 	id     string
 }
 
-// NewXpackWatcherGetWatchService creates a new XpackWatcherGetWatchService.
-func NewXpackWatcherGetWatchService(client *Client) *XpackWatcherGetWatchService {
-	return &XpackWatcherGetWatchService{
+// NewXPackWatcherGetWatchService creates a new XPackWatcherGetWatchService.
+func NewXPackWatcherGetWatchService(client *Client) *XPackWatcherGetWatchService {
+	return &XPackWatcherGetWatchService{
 		client: client,
 	}
 }
 
-// Id is documented as: Watch ID.
-func (s *XpackWatcherGetWatchService) Id(id string) *XpackWatcherGetWatchService {
+// Id is ID of the watch to retrieve.
+func (s *XPackWatcherGetWatchService) Id(id string) *XPackWatcherGetWatchService {
 	s.id = id
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *XpackWatcherGetWatchService) Pretty(pretty bool) *XpackWatcherGetWatchService {
+func (s *XPackWatcherGetWatchService) Pretty(pretty bool) *XPackWatcherGetWatchService {
 	s.pretty = pretty
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *XpackWatcherGetWatchService) buildURL() (string, url.Values, error) {
+func (s *XPackWatcherGetWatchService) buildURL() (string, url.Values, error) {
 	// Build URL
 	path, err := uritemplates.Expand("/_xpack/watcher/watch/{id}", map[string]string{
 		"id": s.id,
@@ -52,13 +53,13 @@ func (s *XpackWatcherGetWatchService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
-func (s *XpackWatcherGetWatchService) Validate() error {
+func (s *XPackWatcherGetWatchService) Validate() error {
 	var invalid []string
 	if s.id == "" {
 		invalid = append(invalid, "Id")
@@ -70,7 +71,7 @@ func (s *XpackWatcherGetWatchService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *XpackWatcherGetWatchService) Do(ctx context.Context) (*XpackWatcherGetWatchResponse, error) {
+func (s *XPackWatcherGetWatchService) Do(ctx context.Context) (*XPackWatcherGetWatchResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -93,28 +94,28 @@ func (s *XpackWatcherGetWatchService) Do(ctx context.Context) (*XpackWatcherGetW
 	}
 
 	// Return operation response
-	ret := new(XpackWatcherGetWatchResponse)
+	ret := new(XPackWatcherGetWatchResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// XpackWatcherGetWatchResponse is the response of XpackWatcherGetWatchService.Do.
-type XpackWatcherGetWatchResponse struct {
-	Found  bool        `json:"found"`
-	Id     string      `json:"_id"`
-	Status WatchStatus `json:"status"`
-	Watch  Watch       `json:"watch"`
+// XPackWatcherGetWatchResponse is the response of XPackWatcherGetWatchService.Do.
+type XPackWatcherGetWatchResponse struct {
+	Found  bool              `json:"found"`
+	Id     string            `json:"_id"`
+	Status *XPackWatchStatus `json:"status"`
+	Watch  *XPackWatch       `json:"watch"`
 }
 
-type WatchStatus struct {
+type XPackWatchStatus struct {
 	State   map[string]interface{}            `json:"state"`
 	Actions map[string]map[string]interface{} `json:"actions"`
 	Version int                               `json:"version"`
 }
 
-type Watch struct {
+type XPackWatch struct {
 	Input     map[string]map[string]interface{} `json:"input"`
 	Condition map[string]map[string]interface{} `json:"condition"`
 	Trigger   map[string]map[string]interface{} `json:"trigger"`

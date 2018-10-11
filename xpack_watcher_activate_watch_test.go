@@ -5,20 +5,47 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
-func TestWatcherActivateWatch(t *testing.T) {
-	client := setupTestClient(t)
-	watcher := NewXpackWatcherActivateWatchService(client)
-	data, err := json.Marshal(watcher)
-	if err != nil {
-		t.Fatalf("marshaling to JSON failed: %v", err)
+func TestXPackWatcherActivateWatchBuildURL(t *testing.T) {
+	client := setupTestClient(t) // , SetURL("http://elastic:elastic@localhost:9210"))
+
+	tests := []struct {
+		WatchId   string
+		Expected  string
+		ExpectErr bool
+	}{
+		{
+			"",
+			"",
+			true,
+		},
+		{
+			"my-watch",
+			"/_xpack/watcher/watch/my-watch/_activate",
+			false,
+		},
 	}
-	got := string(data)
-	expected := `{}`
-	if got != expected {
-		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+
+	for i, test := range tests {
+		builder := client.XPackWatchActivate(test.WatchId)
+		err := builder.Validate()
+		if err != nil {
+			if !test.ExpectErr {
+				t.Errorf("case #%d: %v", i+1, err)
+				continue
+			}
+		} else {
+			// err == nil
+			if test.ExpectErr {
+				t.Errorf("case #%d: expected error", i+1)
+				continue
+			}
+			path, _, _ := builder.buildURL()
+			if path != test.Expected {
+				t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+			}
+		}
 	}
 }

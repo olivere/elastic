@@ -13,8 +13,9 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// XpackWatcherExecuteWatchService is documented at http://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-execute-watch.html.
-type XpackWatcherExecuteWatchService struct {
+// XPackWatcherExecuteWatchService forces the execution of a stored watch.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-execute-watch.html.
+type XPackWatcherExecuteWatchService struct {
 	client     *Client
 	pretty     bool
 	id         string
@@ -23,49 +24,57 @@ type XpackWatcherExecuteWatchService struct {
 	bodyString string
 }
 
-// NewXpackWatcherExecuteWatchService creates a new XpackWatcherExecuteWatchService.
-func NewXpackWatcherExecuteWatchService(client *Client) *XpackWatcherExecuteWatchService {
-	return &XpackWatcherExecuteWatchService{
+// NewXPackWatcherExecuteWatchService creates a new XPackWatcherExecuteWatchService.
+func NewXPackWatcherExecuteWatchService(client *Client) *XPackWatcherExecuteWatchService {
+	return &XPackWatcherExecuteWatchService{
 		client: client,
 	}
 }
 
-// Id is documented as: Watch ID.
-func (s *XpackWatcherExecuteWatchService) Id(id string) *XpackWatcherExecuteWatchService {
+// Id of the watch to execute on.
+func (s *XPackWatcherExecuteWatchService) Id(id string) *XPackWatcherExecuteWatchService {
 	s.id = id
 	return s
 }
 
-// Debug is documented as: indicates whether the watch should execute in debug mode.
-func (s *XpackWatcherExecuteWatchService) Debug(debug bool) *XpackWatcherExecuteWatchService {
+// Debug indicates whether the watch should execute in debug mode.
+func (s *XPackWatcherExecuteWatchService) Debug(debug bool) *XPackWatcherExecuteWatchService {
 	s.debug = &debug
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *XpackWatcherExecuteWatchService) Pretty(pretty bool) *XpackWatcherExecuteWatchService {
+func (s *XPackWatcherExecuteWatchService) Pretty(pretty bool) *XPackWatcherExecuteWatchService {
 	s.pretty = pretty
 	return s
 }
 
 // BodyJson is documented as: Execution control.
-func (s *XpackWatcherExecuteWatchService) BodyJson(body interface{}) *XpackWatcherExecuteWatchService {
+func (s *XPackWatcherExecuteWatchService) BodyJson(body interface{}) *XPackWatcherExecuteWatchService {
 	s.bodyJson = body
 	return s
 }
 
 // BodyString is documented as: Execution control.
-func (s *XpackWatcherExecuteWatchService) BodyString(body string) *XpackWatcherExecuteWatchService {
+func (s *XPackWatcherExecuteWatchService) BodyString(body string) *XPackWatcherExecuteWatchService {
 	s.bodyString = body
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *XpackWatcherExecuteWatchService) buildURL() (string, url.Values, error) {
+func (s *XPackWatcherExecuteWatchService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_xpack/watcher/watch/{id}/_execute", map[string]string{
-		"id": s.id,
-	})
+	var (
+		path string
+		err  error
+	)
+	if s.id != "" {
+		path, err = uritemplates.Expand("/_xpack/watcher/watch/{id}/_execute", map[string]string{
+			"id": s.id,
+		})
+	} else {
+		path = "/_xpack/watcher/watch/_execute"
+	}
 	if err != nil {
 		return "", url.Values{}, err
 	}
@@ -73,7 +82,7 @@ func (s *XpackWatcherExecuteWatchService) buildURL() (string, url.Values, error)
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.debug != nil {
 		params.Set("debug", fmt.Sprintf("%v", *s.debug))
@@ -82,12 +91,12 @@ func (s *XpackWatcherExecuteWatchService) buildURL() (string, url.Values, error)
 }
 
 // Validate checks if the operation is valid.
-func (s *XpackWatcherExecuteWatchService) Validate() error {
+func (s *XPackWatcherExecuteWatchService) Validate() error {
 	return nil
 }
 
 // Do executes the operation.
-func (s *XpackWatcherExecuteWatchService) Do(ctx context.Context) (*XpackWatcherExecuteWatchResponse, error) {
+func (s *XPackWatcherExecuteWatchService) Do(ctx context.Context) (*XPackWatcherExecuteWatchResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -109,7 +118,7 @@ func (s *XpackWatcherExecuteWatchService) Do(ctx context.Context) (*XpackWatcher
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
+		Method: "PUT",
 		Path:   path,
 		Params: params,
 		Body:   body,
@@ -119,31 +128,31 @@ func (s *XpackWatcherExecuteWatchService) Do(ctx context.Context) (*XpackWatcher
 	}
 
 	// Return operation response
-	ret := new(XpackWatcherExecuteWatchResponse)
+	ret := new(XPackWatcherExecuteWatchResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// XpackWatcherExecuteWatchResponse is the response of XpackWatcherExecuteWatchService.Do.
-type XpackWatcherExecuteWatchResponse struct {
-	Id          string      `json:"_id"`
-	WatchRecord WatchRecord `json:"watch_record"`
+// XPackWatcherExecuteWatchResponse is the response of XPackWatcherExecuteWatchService.Do.
+type XPackWatcherExecuteWatchResponse struct {
+	Id          string            `json:"_id"`
+	WatchRecord *XPackWatchRecord `json:"watch_record"`
 }
 
-type WatchRecord struct {
+type XPackWatchRecord struct {
 	WatchId   string                            `json:"watch_id"`
 	Node      string                            `json:"node"`
 	Messages  []string                          `json:"messages"`
 	State     string                            `json:"state"`
-	Status    WatchRecordStatus                 `json:"status"`
+	Status    *XPackWatchRecordStatus           `json:"status"`
 	Input     map[string]map[string]interface{} `json:"input"`
 	Condition map[string]map[string]interface{} `json:"condition"`
 	Result    map[string]interface{}            `json:"Result"`
 }
 
-type WatchRecordStatus struct {
+type XPackWatchRecordStatus struct {
 	Version          int                               `json:"version"`
 	State            map[string]interface{}            `json:"state"`
 	LastChecked      string                            `json:"last_checked"`

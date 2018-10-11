@@ -5,20 +5,62 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
-func TestWatcherAckWatch(t *testing.T) {
-	client := setupTestClient(t)
-	watcher := NewXpackWatcherAckWatchService(client)
-	data, err := json.Marshal(watcher)
-	if err != nil {
-		t.Fatalf("marshaling to JSON failed: %v", err)
+func TestXPackWatcherAckWatchBuildURL(t *testing.T) {
+	client := setupTestClient(t) // , SetURL("http://elastic:elastic@localhost:9210"))
+
+	tests := []struct {
+		WatchId   string
+		ActionId  []string
+		Expected  string
+		ExpectErr bool
+	}{
+		{
+			"",
+			[]string{},
+			"",
+			true,
+		},
+		{
+			"my-watch",
+			[]string{},
+			"/_xpack/watcher/watch/my-watch/_ack",
+			false,
+		},
+		{
+			"my-watch",
+			[]string{"action1"},
+			"/_xpack/watcher/watch/my-watch/_ack/action1",
+			false,
+		},
+		{
+			"my-watch",
+			[]string{"action1", "action2"},
+			"/_xpack/watcher/watch/my-watch/_ack/action1%2Caction2",
+			false,
+		},
 	}
-	got := string(data)
-	expected := `{}`
-	if got != expected {
-		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+
+	for i, test := range tests {
+		builder := client.XPackWatchAck(test.WatchId).ActionId(test.ActionId...)
+		err := builder.Validate()
+		if err != nil {
+			if !test.ExpectErr {
+				t.Errorf("case #%d: %v", i+1, err)
+				continue
+			}
+		} else {
+			// err == nil
+			if test.ExpectErr {
+				t.Errorf("case #%d: expected error", i+1)
+				continue
+			}
+			path, _, _ := builder.buildURL()
+			if path != test.Expected {
+				t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+			}
+		}
 	}
 }

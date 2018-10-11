@@ -14,68 +14,65 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// XpackWatcherAckWatchService is documented at http://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-ack-watch.html.
-type XpackWatcherAckWatchService struct {
+// XPackWatcherAckWatchService enables you to manually throttle execution of the watch’s actions.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-ack-watch.html.
+type XPackWatcherAckWatchService struct {
 	client        *Client
 	pretty        bool
 	watchId       string
 	actionId      []string
 	masterTimeout string
-	bodyJson      interface{}
-	bodyString    string
 }
 
-// NewXpackWatcherAckWatchService creates a new XpackWatcherAckWatchService.
-func NewXpackWatcherAckWatchService(client *Client) *XpackWatcherAckWatchService {
-	return &XpackWatcherAckWatchService{
-		client:   client,
-		actionId: make([]string, 0),
+// NewXPackWatcherAckWatchService creates a new XPackWatcherAckWatchService.
+func NewXPackWatcherAckWatchService(client *Client) *XPackWatcherAckWatchService {
+	return &XPackWatcherAckWatchService{
+		client: client,
 	}
 }
 
-// WatchId is documented as: Watch ID.
-func (s *XpackWatcherAckWatchService) WatchId(watchId string) *XpackWatcherAckWatchService {
+// WatchId is the unique ID of the watch.
+func (s *XPackWatcherAckWatchService) WatchId(watchId string) *XPackWatcherAckWatchService {
 	s.watchId = watchId
 	return s
 }
 
-// ActionId is documented as: A comma-separated list of the action ids to be acked.
-func (s *XpackWatcherAckWatchService) ActionId(actionId []string) *XpackWatcherAckWatchService {
-	s.actionId = actionId
+// ActionId is a slice of action ids to be acked.
+func (s *XPackWatcherAckWatchService) ActionId(actionId ...string) *XPackWatcherAckWatchService {
+	s.actionId = append(s.actionId, actionId...)
 	return s
 }
 
-// MasterTimeout is documented as: Explicit operation timeout for connection to master node.
-func (s *XpackWatcherAckWatchService) MasterTimeout(masterTimeout string) *XpackWatcherAckWatchService {
+// MasterTimeout indicates an explicit operation timeout for
+// connection to master node.
+func (s *XPackWatcherAckWatchService) MasterTimeout(masterTimeout string) *XPackWatcherAckWatchService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *XpackWatcherAckWatchService) Pretty(pretty bool) *XpackWatcherAckWatchService {
+func (s *XPackWatcherAckWatchService) Pretty(pretty bool) *XPackWatcherAckWatchService {
 	s.pretty = pretty
 	return s
 }
 
-// BodyJson is documented as: Execution control.
-func (s *XpackWatcherAckWatchService) BodyJson(body interface{}) *XpackWatcherAckWatchService {
-	s.bodyJson = body
-	return s
-}
-
-// BodyString is documented as: Execution control.
-func (s *XpackWatcherAckWatchService) BodyString(body string) *XpackWatcherAckWatchService {
-	s.bodyString = body
-	return s
-}
-
 // buildURL builds the URL for the operation.
-func (s *XpackWatcherAckWatchService) buildURL() (string, url.Values, error) {
+func (s *XPackWatcherAckWatchService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_xpack/watcher/watch/{watch_id}/_ack", map[string]string{
-		"action_id": strings.Join(s.actionId, ","),
-		"watch_id":  s.watchId,
-	})
+	var (
+		path string
+		err  error
+	)
+	if len(s.actionId) > 0 {
+		path, err = uritemplates.Expand("/_xpack/watcher/watch/{watch_id}/_ack/{action_id}", map[string]string{
+			"watch_id":  s.watchId,
+			"action_id": strings.Join(s.actionId, ","),
+		})
+	} else {
+		path, err = uritemplates.Expand("/_xpack/watcher/watch/{watch_id}/_ack", map[string]string{
+			"watch_id": s.watchId,
+		})
+	}
 	if err != nil {
 		return "", url.Values{}, err
 	}
@@ -83,7 +80,7 @@ func (s *XpackWatcherAckWatchService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
@@ -92,7 +89,7 @@ func (s *XpackWatcherAckWatchService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *XpackWatcherAckWatchService) Validate() error {
+func (s *XPackWatcherAckWatchService) Validate() error {
 	var invalid []string
 	if s.watchId == "" {
 		invalid = append(invalid, "WatchId")
@@ -104,7 +101,7 @@ func (s *XpackWatcherAckWatchService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *XpackWatcherAckWatchService) Do(ctx context.Context) (*XpackWatcherAckWatchResponse, error) {
+func (s *XPackWatcherAckWatchService) Do(ctx context.Context) (*XPackWatcherAckWatchResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -116,39 +113,31 @@ func (s *XpackWatcherAckWatchService) Do(ctx context.Context) (*XpackWatcherAckW
 		return nil, err
 	}
 
-	// Setup HTTP request body
-	var body interface{}
-	if s.bodyJson != nil {
-		body = s.bodyJson
-	} else {
-		body = s.bodyString
-	}
-
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
 		Method: "PUT",
 		Path:   path,
 		Params: params,
-		Body:   body,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	// Return operation response
-	ret := new(XpackWatcherAckWatchResponse)
+	ret := new(XPackWatcherAckWatchResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// XpackWatcherAckWatchResponse is the response of XpackWatcherAckWatchService.Do.
-type XpackWatcherAckWatchResponse struct {
-	Status AckWatchStatus `json:"status"`
+// XPackWatcherAckWatchResponse is the response of XPackWatcherAckWatchService.Do.
+type XPackWatcherAckWatchResponse struct {
+	Status *XPackWatcherAckWatchStatus `json:"status"`
 }
 
-type AckWatchStatus struct {
+// XPackWatcherAckWatchStatus is the status of a XPackWatcherAckWatchResponse.
+type XPackWatcherAckWatchStatus struct {
 	State            map[string]interface{}            `json:"state"`
 	LastChecked      string                            `json:"last_checked"`
 	LastMetCondition string                            `json:"last_met_condition"`

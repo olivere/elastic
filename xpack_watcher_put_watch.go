@@ -13,62 +13,57 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// XpackWatcherPutWatchService is documented at http://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-put-watch.html.
-type XpackWatcherPutWatchService struct {
+// XPackWatcherPutWatchService either registers a new watch in Watcher
+// or update an existing one.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-put-watch.html.
+type XPackWatcherPutWatchService struct {
 	client        *Client
 	pretty        bool
 	id            string
 	active        *bool
 	masterTimeout string
-	bodyJson      interface{}
-	bodyString    string
+	body          interface{}
 }
 
-// NewXpackWatcherPutWatchService creates a new XpackWatcherPutWatchService.
-func NewXpackWatcherPutWatchService(client *Client) *XpackWatcherPutWatchService {
-	return &XpackWatcherPutWatchService{
+// NewXPackWatcherPutWatchService creates a new XPackWatcherPutWatchService.
+func NewXPackWatcherPutWatchService(client *Client) *XPackWatcherPutWatchService {
+	return &XPackWatcherPutWatchService{
 		client: client,
 	}
 }
 
-// Id is documented as: Watch ID.
-func (s *XpackWatcherPutWatchService) Id(id string) *XpackWatcherPutWatchService {
+// Id of the watch to upsert.
+func (s *XPackWatcherPutWatchService) Id(id string) *XPackWatcherPutWatchService {
 	s.id = id
 	return s
 }
 
-// Active is documented as: Specify whether the watch is in/active by default.
-func (s *XpackWatcherPutWatchService) Active(active bool) *XpackWatcherPutWatchService {
+// Active specifies whether the watch is in/active by default.
+func (s *XPackWatcherPutWatchService) Active(active bool) *XPackWatcherPutWatchService {
 	s.active = &active
 	return s
 }
 
-// MasterTimeout is documented as: Explicit operation timeout for connection to master node.
-func (s *XpackWatcherPutWatchService) MasterTimeout(masterTimeout string) *XpackWatcherPutWatchService {
+// MasterTimeout is an explicit operation timeout for connection to master node.
+func (s *XPackWatcherPutWatchService) MasterTimeout(masterTimeout string) *XPackWatcherPutWatchService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *XpackWatcherPutWatchService) Pretty(pretty bool) *XpackWatcherPutWatchService {
+func (s *XPackWatcherPutWatchService) Pretty(pretty bool) *XPackWatcherPutWatchService {
 	s.pretty = pretty
 	return s
 }
 
-// BodyJson is documented as: The watch.
-func (s *XpackWatcherPutWatchService) BodyJson(body interface{}) *XpackWatcherPutWatchService {
-	s.bodyJson = body
-	return s
-}
-
-// BodyString is documented as: The watch.
-func (s *XpackWatcherPutWatchService) BodyString(body string) *XpackWatcherPutWatchService {
-	s.bodyString = body
+// Body specifies the watch. Use a string or a type that will get serialized as JSON.
+func (s *XPackWatcherPutWatchService) Body(body interface{}) *XPackWatcherPutWatchService {
+	s.body = body
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *XpackWatcherPutWatchService) buildURL() (string, url.Values, error) {
+func (s *XPackWatcherPutWatchService) buildURL() (string, url.Values, error) {
 	// Build URL
 	path, err := uritemplates.Expand("/_xpack/watcher/watch/{id}", map[string]string{
 		"id": s.id,
@@ -80,7 +75,7 @@ func (s *XpackWatcherPutWatchService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.active != nil {
 		params.Set("active", fmt.Sprintf("%v", *s.active))
@@ -92,13 +87,13 @@ func (s *XpackWatcherPutWatchService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *XpackWatcherPutWatchService) Validate() error {
+func (s *XPackWatcherPutWatchService) Validate() error {
 	var invalid []string
 	if s.id == "" {
 		invalid = append(invalid, "Id")
 	}
-	if s.bodyString == "" && s.bodyJson == nil {
-		invalid = append(invalid, "BodyJson")
+	if s.body == nil {
+		invalid = append(invalid, "Body")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
@@ -107,7 +102,7 @@ func (s *XpackWatcherPutWatchService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *XpackWatcherPutWatchService) Do(ctx context.Context) (*XpackWatcherPutWatchResponse, error) {
+func (s *XPackWatcherPutWatchService) Do(ctx context.Context) (*XPackWatcherPutWatchResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -119,33 +114,25 @@ func (s *XpackWatcherPutWatchService) Do(ctx context.Context) (*XpackWatcherPutW
 		return nil, err
 	}
 
-	// Setup HTTP request body
-	var body interface{}
-	if s.bodyJson != nil {
-		body = s.bodyJson
-	} else {
-		body = s.bodyString
-	}
-
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
 		Method: "PUT",
 		Path:   path,
 		Params: params,
-		Body:   body,
+		Body:   s.body,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	// Return operation response
-	ret := new(XpackWatcherPutWatchResponse)
+	ret := new(XPackWatcherPutWatchResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// XpackWatcherPutWatchResponse is the response of XpackWatcherPutWatchService.Do.
-type XpackWatcherPutWatchResponse struct {
+// XPackWatcherPutWatchResponse is the response of XPackWatcherPutWatchService.Do.
+type XPackWatcherPutWatchResponse struct {
 }

@@ -30,7 +30,9 @@ services:
     environment:
       - cluster.name=platinum
       - bootstrap.memory_lock=true
-      # - xpack.security.enabled=false
+      - xpack.license.self_generated.type=trial
+      - xpack.security.enabled=true
+      - xpack.watcher.enabled=true
       # - http.host=0.0.0.0
       # - transport.host=127.0.0.1
       # - network.host=_local_

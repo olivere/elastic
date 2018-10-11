@@ -10,45 +10,46 @@ import (
 	"net/url"
 )
 
-// XpackWatcherStopService is documented at http://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-stop.html.
-type XpackWatcherStopService struct {
+// XPackWatcherStopService stops the watcher service if it is running.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-stop.html.
+type XPackWatcherStopService struct {
 	client *Client
 	pretty bool
 }
 
-// NewXpackWatcherStopService creates a new XpackWatcherStopService.
-func NewXpackWatcherStopService(client *Client) *XpackWatcherStopService {
-	return &XpackWatcherStopService{
+// NewXPackWatcherStopService creates a new XPackWatcherStopService.
+func NewXPackWatcherStopService(client *Client) *XPackWatcherStopService {
+	return &XPackWatcherStopService{
 		client: client,
 	}
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *XpackWatcherStopService) Pretty(pretty bool) *XpackWatcherStopService {
+func (s *XPackWatcherStopService) Pretty(pretty bool) *XPackWatcherStopService {
 	s.pretty = pretty
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *XpackWatcherStopService) buildURL() (string, url.Values, error) {
+func (s *XPackWatcherStopService) buildURL() (string, url.Values, error) {
 	// Build URL path
 	path := "/_xpack/watcher/_stop"
 
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
-func (s *XpackWatcherStopService) Validate() error {
+func (s *XPackWatcherStopService) Validate() error {
 	return nil
 }
 
 // Do executes the operation.
-func (s *XpackWatcherStopService) Do(ctx context.Context) (*XpackWatcherStopResponse, error) {
+func (s *XPackWatcherStopService) Do(ctx context.Context) (*XPackWatcherStopResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -71,14 +72,14 @@ func (s *XpackWatcherStopService) Do(ctx context.Context) (*XpackWatcherStopResp
 	}
 
 	// Return operation response
-	ret := new(XpackWatcherStopResponse)
+	ret := new(XPackWatcherStopResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// XpackWatcherStopResponse is the response of XpackWatcherStopService.Do.
-type XpackWatcherStopResponse struct {
+// XPackWatcherStopResponse is the response of XPackWatcherStopService.Do.
+type XPackWatcherStopResponse struct {
 	Acknowledged bool `json:"acknowledged"`
 }

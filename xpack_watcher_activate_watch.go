@@ -13,55 +13,42 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// XpackWatcherActivateWatchService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-activate-watch.html.
-type XpackWatcherActivateWatchService struct {
+// XPackWatcherActivateWatchService enables you to activate a currently inactive watch.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-activate-watch.html.
+type XPackWatcherActivateWatchService struct {
 	client        *Client
 	pretty        bool
 	watchId       string
 	masterTimeout string
-	bodyJson      interface{}
-	bodyString    string
 }
 
-// NewXpackWatcherActivateWatchService creates a new XpackWatcherActivateWatchService.
-func NewXpackWatcherActivateWatchService(client *Client) *XpackWatcherActivateWatchService {
-	return &XpackWatcherActivateWatchService{
+// NewXPackWatcherActivateWatchService creates a new XPackWatcherActivateWatchService.
+func NewXPackWatcherActivateWatchService(client *Client) *XPackWatcherActivateWatchService {
+	return &XPackWatcherActivateWatchService{
 		client: client,
 	}
 }
 
-// WatchId is documented as: Watch ID.
-func (s *XpackWatcherActivateWatchService) WatchId(watchId string) *XpackWatcherActivateWatchService {
+// WatchId is the ID of the watch to activate.
+func (s *XPackWatcherActivateWatchService) WatchId(watchId string) *XPackWatcherActivateWatchService {
 	s.watchId = watchId
 	return s
 }
 
-// MasterTimeout is documented as: Explicit operation timeout for connection to master node.
-func (s *XpackWatcherActivateWatchService) MasterTimeout(masterTimeout string) *XpackWatcherActivateWatchService {
+// MasterTimeout specifies an explicit operation timeout for connection to master node.
+func (s *XPackWatcherActivateWatchService) MasterTimeout(masterTimeout string) *XPackWatcherActivateWatchService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *XpackWatcherActivateWatchService) Pretty(pretty bool) *XpackWatcherActivateWatchService {
+func (s *XPackWatcherActivateWatchService) Pretty(pretty bool) *XPackWatcherActivateWatchService {
 	s.pretty = pretty
 	return s
 }
 
-// BodyJson is documented as: Execution control.
-func (s *XpackWatcherActivateWatchService) BodyJson(body interface{}) *XpackWatcherActivateWatchService {
-	s.bodyJson = body
-	return s
-}
-
-// BodyString is documented as: Execution control.
-func (s *XpackWatcherActivateWatchService) BodyString(body string) *XpackWatcherActivateWatchService {
-	s.bodyString = body
-	return s
-}
-
 // buildURL builds the URL for the operation.
-func (s *XpackWatcherActivateWatchService) buildURL() (string, url.Values, error) {
+func (s *XPackWatcherActivateWatchService) buildURL() (string, url.Values, error) {
 	// Build URL
 	path, err := uritemplates.Expand("/_xpack/watcher/watch/{watch_id}/_activate", map[string]string{
 		"watch_id": s.watchId,
@@ -73,7 +60,7 @@ func (s *XpackWatcherActivateWatchService) buildURL() (string, url.Values, error
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
@@ -82,7 +69,7 @@ func (s *XpackWatcherActivateWatchService) buildURL() (string, url.Values, error
 }
 
 // Validate checks if the operation is valid.
-func (s *XpackWatcherActivateWatchService) Validate() error {
+func (s *XPackWatcherActivateWatchService) Validate() error {
 	var invalid []string
 	if s.watchId == "" {
 		invalid = append(invalid, "WatchId")
@@ -94,7 +81,7 @@ func (s *XpackWatcherActivateWatchService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *XpackWatcherActivateWatchService) Do(ctx context.Context) (*XpackWatcherActivateWatchResponse, error) {
+func (s *XPackWatcherActivateWatchService) Do(ctx context.Context) (*XPackWatcherActivateWatchResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -106,34 +93,25 @@ func (s *XpackWatcherActivateWatchService) Do(ctx context.Context) (*XpackWatche
 		return nil, err
 	}
 
-	// Setup HTTP request body
-	var body interface{}
-	if s.bodyJson != nil {
-		body = s.bodyJson
-	} else {
-		body = s.bodyString
-	}
-
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
 		Method: "PUT",
 		Path:   path,
 		Params: params,
-		Body:   body,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	// Return operation response
-	ret := new(XpackWatcherActivateWatchResponse)
+	ret := new(XPackWatcherActivateWatchResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// XpackWatcherActivateWatchResponse is the response of XpackWatcherActivateWatchService.Do.
-type XpackWatcherActivateWatchResponse struct {
-	Status WatchStatus `json:"status"`
+// XPackWatcherActivateWatchResponse is the response of XPackWatcherActivateWatchService.Do.
+type XPackWatcherActivateWatchResponse struct {
+	Status *XPackWatchStatus `json:"status"`
 }

@@ -13,41 +13,42 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// XpackWatcherDeleteWatchService is documented at http://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-delete-watch.html.
-type XpackWatcherDeleteWatchService struct {
+// XPackWatcherDeleteWatchService removes a watch.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-delete-watch.html.
+type XPackWatcherDeleteWatchService struct {
 	client        *Client
 	pretty        bool
 	id            string
 	masterTimeout string
 }
 
-// NewXpackWatcherDeleteWatchService creates a new XpackWatcherDeleteWatchService.
-func NewXpackWatcherDeleteWatchService(client *Client) *XpackWatcherDeleteWatchService {
-	return &XpackWatcherDeleteWatchService{
+// NewXPackWatcherDeleteWatchService creates a new XPackWatcherDeleteWatchService.
+func NewXPackWatcherDeleteWatchService(client *Client) *XPackWatcherDeleteWatchService {
+	return &XPackWatcherDeleteWatchService{
 		client: client,
 	}
 }
 
-// Id is documented as: Watch ID.
-func (s *XpackWatcherDeleteWatchService) Id(id string) *XpackWatcherDeleteWatchService {
+// Id of the watch to delete.
+func (s *XPackWatcherDeleteWatchService) Id(id string) *XPackWatcherDeleteWatchService {
 	s.id = id
 	return s
 }
 
-// MasterTimeout is documented as: Explicit operation timeout for connection to master node.
-func (s *XpackWatcherDeleteWatchService) MasterTimeout(masterTimeout string) *XpackWatcherDeleteWatchService {
+// MasterTimeout specifies an explicit operation timeout for connection to master node.
+func (s *XPackWatcherDeleteWatchService) MasterTimeout(masterTimeout string) *XPackWatcherDeleteWatchService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *XpackWatcherDeleteWatchService) Pretty(pretty bool) *XpackWatcherDeleteWatchService {
+func (s *XPackWatcherDeleteWatchService) Pretty(pretty bool) *XPackWatcherDeleteWatchService {
 	s.pretty = pretty
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *XpackWatcherDeleteWatchService) buildURL() (string, url.Values, error) {
+func (s *XPackWatcherDeleteWatchService) buildURL() (string, url.Values, error) {
 	// Build URL
 	path, err := uritemplates.Expand("/_xpack/watcher/watch/{id}", map[string]string{
 		"id": s.id,
@@ -59,7 +60,7 @@ func (s *XpackWatcherDeleteWatchService) buildURL() (string, url.Values, error) 
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
@@ -68,7 +69,7 @@ func (s *XpackWatcherDeleteWatchService) buildURL() (string, url.Values, error) 
 }
 
 // Validate checks if the operation is valid.
-func (s *XpackWatcherDeleteWatchService) Validate() error {
+func (s *XPackWatcherDeleteWatchService) Validate() error {
 	var invalid []string
 	if s.id == "" {
 		invalid = append(invalid, "Id")
@@ -80,7 +81,7 @@ func (s *XpackWatcherDeleteWatchService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *XpackWatcherDeleteWatchService) Do(ctx context.Context) (*XpackWatcherDeleteWatchResponse, error) {
+func (s *XPackWatcherDeleteWatchService) Do(ctx context.Context) (*XPackWatcherDeleteWatchResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -103,15 +104,15 @@ func (s *XpackWatcherDeleteWatchService) Do(ctx context.Context) (*XpackWatcherD
 	}
 
 	// Return operation response
-	ret := new(XpackWatcherDeleteWatchResponse)
+	ret := new(XPackWatcherDeleteWatchResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// XpackWatcherDeleteWatchResponse is the response of XpackWatcherDeleteWatchService.Do.
-type XpackWatcherDeleteWatchResponse struct {
+// XPackWatcherDeleteWatchResponse is the response of XPackWatcherDeleteWatchService.Do.
+type XPackWatcherDeleteWatchResponse struct {
 	Found   bool   `json:"found"`
 	Id      string `json:"_id"`
 	Version int    `json:"_version"`

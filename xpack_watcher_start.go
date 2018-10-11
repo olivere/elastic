@@ -10,45 +10,46 @@ import (
 	"net/url"
 )
 
-// XpackWatcherStartService is documented at http://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-start.html.
-type XpackWatcherStartService struct {
+// XPackWatcherStartService starts the watcher service if it is not already running.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-start.html.
+type XPackWatcherStartService struct {
 	client *Client
 	pretty bool
 }
 
-// NewXpackWatcherStartService creates a new XpackWatcherStartService.
-func NewXpackWatcherStartService(client *Client) *XpackWatcherStartService {
-	return &XpackWatcherStartService{
+// NewXPackWatcherStartService creates a new XPackWatcherStartService.
+func NewXPackWatcherStartService(client *Client) *XPackWatcherStartService {
+	return &XPackWatcherStartService{
 		client: client,
 	}
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *XpackWatcherStartService) Pretty(pretty bool) *XpackWatcherStartService {
+func (s *XPackWatcherStartService) Pretty(pretty bool) *XPackWatcherStartService {
 	s.pretty = pretty
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *XpackWatcherStartService) buildURL() (string, url.Values, error) {
+func (s *XPackWatcherStartService) buildURL() (string, url.Values, error) {
 	// Build URL path
 	path := "/_xpack/watcher/_start"
 
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
-func (s *XpackWatcherStartService) Validate() error {
+func (s *XPackWatcherStartService) Validate() error {
 	return nil
 }
 
 // Do executes the operation.
-func (s *XpackWatcherStartService) Do(ctx context.Context) (*XpackWatcherStartResponse, error) {
+func (s *XPackWatcherStartService) Do(ctx context.Context) (*XPackWatcherStartResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -71,14 +72,14 @@ func (s *XpackWatcherStartService) Do(ctx context.Context) (*XpackWatcherStartRe
 	}
 
 	// Return operation response
-	ret := new(XpackWatcherStartResponse)
+	ret := new(XPackWatcherStartResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// XpackWatcherStartResponse is the response of XpackWatcherStartService.Do.
-type XpackWatcherStartResponse struct {
+// XPackWatcherStartResponse is the response of XPackWatcherStartService.Do.
+type XPackWatcherStartResponse struct {
 	Acknowledged bool `json:"acknowledged"`
 }

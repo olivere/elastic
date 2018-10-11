@@ -9,57 +9,51 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-
-	"github.com/olivere/elastic/uritemplates"
 )
 
-// XpackWatcherStatsService is documented at http://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-stats.html.
-type XpackWatcherStatsService struct {
+// XPackWatcherStatsService returns the current watcher metrics.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-stats.html.
+type XPackWatcherStatsService struct {
 	client          *Client
 	pretty          bool
 	metric          string
 	emitStacktraces *bool
 }
 
-// NewXpackWatcherStatsService creates a new XpackWatcherStatsService.
-func NewXpackWatcherStatsService(client *Client) *XpackWatcherStatsService {
-	return &XpackWatcherStatsService{
+// NewXPackWatcherStatsService creates a new XPackWatcherStatsService.
+func NewXPackWatcherStatsService(client *Client) *XPackWatcherStatsService {
+	return &XPackWatcherStatsService{
 		client: client,
 	}
 }
 
-// Metric is documented as: Controls what additional stat metrics should be include in the response.
-func (s *XpackWatcherStatsService) Metric(metric string) *XpackWatcherStatsService {
+// Metric controls what additional stat metrics should be include in the response.
+func (s *XPackWatcherStatsService) Metric(metric string) *XPackWatcherStatsService {
 	s.metric = metric
 	return s
 }
 
-// EmitStacktraces is documented as: Emits stack traces of currently running watches.
-func (s *XpackWatcherStatsService) EmitStacktraces(emitStacktraces bool) *XpackWatcherStatsService {
+// EmitStacktraces, if enabled, emits stack traces of currently running watches.
+func (s *XPackWatcherStatsService) EmitStacktraces(emitStacktraces bool) *XPackWatcherStatsService {
 	s.emitStacktraces = &emitStacktraces
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *XpackWatcherStatsService) Pretty(pretty bool) *XpackWatcherStatsService {
+func (s *XPackWatcherStatsService) Pretty(pretty bool) *XPackWatcherStatsService {
 	s.pretty = pretty
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *XpackWatcherStatsService) buildURL() (string, url.Values, error) {
+func (s *XPackWatcherStatsService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_xpack/watcher/stats", map[string]string{
-		"metric": s.metric,
-	})
-	if err != nil {
-		return "", url.Values{}, err
-	}
+	path := "/_xpack/watcher/stats"
 
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.emitStacktraces != nil {
 		params.Set("emit_stacktraces", fmt.Sprintf("%v", *s.emitStacktraces))
@@ -71,12 +65,12 @@ func (s *XpackWatcherStatsService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *XpackWatcherStatsService) Validate() error {
+func (s *XPackWatcherStatsService) Validate() error {
 	return nil
 }
 
 // Do executes the operation.
-func (s *XpackWatcherStatsService) Do(ctx context.Context) (*XpackWatcherStatsResponse, error) {
+func (s *XPackWatcherStatsService) Do(ctx context.Context) (*XPackWatcherStatsResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -99,19 +93,20 @@ func (s *XpackWatcherStatsService) Do(ctx context.Context) (*XpackWatcherStatsRe
 	}
 
 	// Return operation response
-	ret := new(XpackWatcherStatsResponse)
+	ret := new(XPackWatcherStatsResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// XpackWatcherStatsResponse is the response of XpackWatcherStatsService.Do.
-type XpackWatcherStatsResponse struct {
-	Stats []WatcherStats `json:"stats"`
+// XPackWatcherStatsResponse is the response of XPackWatcherStatsService.Do.
+type XPackWatcherStatsResponse struct {
+	Stats []XPackWatcherStats `json:"stats"`
 }
 
-type WatcherStats struct {
+// XPackWatcherStats represents the stats used in XPackWatcherStatsResponse.
+type XPackWatcherStats struct {
 	WatcherState        string                 `json:"watcher_state"`
 	WatchCount          int                    `json:"watch_count"`
 	ExecutionThreadPool map[string]interface{} `json:"execution_thread_pool"`
