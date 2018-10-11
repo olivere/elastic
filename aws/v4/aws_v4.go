@@ -5,6 +5,9 @@
 package v4
 
 import (
+	"bytes"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -20,7 +23,7 @@ func NewV4SigningClient(creds *credentials.Credentials, region string) *http.Cli
 // NewV4SigningClientWithHTTPClient returns an *http.Client that will sign all requests with AWS V4 Signing.
 func NewV4SigningClientWithHTTPClient(creds *credentials.Credentials, region string, httpClient *http.Client) *http.Client {
 	return &http.Client{
-		Transport: V4Transport{
+		Transport: Transport{
 			client: httpClient,
 			creds:  creds,
 			signer: v4.NewSigner(creds),
@@ -29,8 +32,8 @@ func NewV4SigningClientWithHTTPClient(creds *credentials.Credentials, region str
 	}
 }
 
-// V4Transport is a RoundTripper that will sign requests with AWS V4 Signing
-type V4Transport struct {
+// Transport is a RoundTripper that will sign requests with AWS V4 Signing
+type Transport struct {
 	client *http.Client
 	creds  *credentials.Credentials
 	signer *v4.Signer
@@ -38,8 +41,18 @@ type V4Transport struct {
 }
 
 // RoundTrip uses the underlying RoundTripper transport, but signs request first with AWS V4 Signing
-func (st V4Transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	_, err := st.signer.Sign(req, nil, "es", st.region, time.Unix(0, 0))
+func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
+	// AWS signer needs an io.ReadSeeker; however, req.Body is an io.ReadCloser.
+	// TODO Maybe there's a more efficient way to get an io.ReadSeeker than to read the whole thing.
+	var body io.ReadSeeker
+	if req.Body != nil {
+		d, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			return nil, err
+		}
+		body = bytes.NewReader(d)
+	}
+	_, err := st.signer.Sign(req, body, "es", st.region, time.Unix(0, 0))
 	if err != nil {
 		return nil, err
 	}
