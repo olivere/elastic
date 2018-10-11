@@ -6,8 +6,15 @@ package elastic
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
+)
+
+var (
+	// ErrResponseSize is raised if a response body exceeds the given max body size.
+	ErrResponseSize = errors.New("response size too large")
 )
 
 // Response represents a response from Elasticsearch.
@@ -22,15 +29,25 @@ type Response struct {
 }
 
 // newResponse creates a new response from the HTTP response.
-func (c *Client) newResponse(res *http.Response) (*Response, error) {
+func (c *Client) newResponse(res *http.Response, maxBodySize int64) (*Response, error) {
 	r := &Response{
 		StatusCode: res.StatusCode,
 		Header:     res.Header,
 	}
 	if res.Body != nil {
-		slurp, err := ioutil.ReadAll(res.Body)
+		body := io.Reader(res.Body)
+		if maxBodySize > 0 {
+			if res.ContentLength > maxBodySize {
+				return nil, ErrResponseSize
+			}
+			body = io.LimitReader(body, maxBodySize+1)
+		}
+		slurp, err := ioutil.ReadAll(body)
 		if err != nil {
 			return nil, err
+		}
+		if maxBodySize > 0 && int64(len(slurp)) > maxBodySize {
+			return nil, ErrResponseSize
 		}
 		// HEAD requests return a body but no content
 		if len(slurp) > 0 {
