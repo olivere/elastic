@@ -18,7 +18,7 @@ that we missed some features or changes. Feel free to change that.
 To make it easy to review and understand your changes, please keep the
 following things in mind before submitting your pull request:
 
-* You compared the existing implemenation with the Java API, did you?
+* You compared the existing implementation with the Java API, did you?
 * Please work on the latest possible state of `olivere/elastic`.
   Use `release-branch.v2` for targeting Elasticsearch 1.x and
   `release-branch.v3` for targeting 2.x.
