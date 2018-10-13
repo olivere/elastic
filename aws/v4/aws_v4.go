@@ -52,7 +52,7 @@ func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		}
 		body = bytes.NewReader(d)
 	}
-	_, err := st.signer.Sign(req, body, "es", st.region, time.Unix(0, 0))
+	_, err := st.signer.Sign(req, body, "es", st.region, time.Now())
 	if err != nil {
 		return nil, err
 	}
