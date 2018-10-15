@@ -385,3 +385,45 @@ func TestScrollWithSlice(t *testing.T) {
 		t.Fatal("expected to fail")
 	}
 }
+
+func TestScrollWithMaxResponseSize(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "sandrae", Message: "Cycling is fun.", Retweets: 3}
+	tweet2 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch.", Retweets: 4}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Test response size error on first scroll request (first response is 391 bytes)
+	svc := client.Scroll(testIndexName).Size(1).MaxResponseSize(300)
+	_, err = svc.Do(context.TODO())
+	if err != ErrResponseSize {
+		t.Fatalf("expected response size error")
+	}
+
+	// Test response size error on second scroll request (first response is 391 bytes, second is 401 bytes)
+	svc = client.Scroll(testIndexName).Size(1).MaxResponseSize(400)
+	_, err = svc.Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = svc.Do(context.TODO())
+	if err != ErrResponseSize {
+		t.Fatalf("expected response size error")
+	}
+}

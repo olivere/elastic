@@ -38,6 +38,7 @@ type ScrollService struct {
 	allowNoIndices    *bool
 	expandWildcards   string
 	headers           http.Header
+	maxResponseSize   int64
 
 	mu       sync.RWMutex
 	scrollId string
@@ -238,6 +239,13 @@ func (s *ScrollService) ExpandWildcards(expandWildcards string) *ScrollService {
 	return s
 }
 
+// MaxResponseSize sets an upper limit on the response body size that we accept,
+// to guard against OOM situations.
+func (s *ScrollService) MaxResponseSize(maxResponseSize int64) *ScrollService {
+	s.maxResponseSize = maxResponseSize
+	return s
+}
+
 // ScrollId specifies the identifier of a scroll in action.
 func (s *ScrollService) ScrollId(scrollId string) *ScrollService {
 	s.mu.Lock()
@@ -309,12 +317,13 @@ func (s *ScrollService) first(ctx context.Context) (*SearchResult, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method:  "POST",
-		Path:    path,
-		Params:  params,
-		Body:    body,
-		Retrier: s.retrier,
-		Headers: s.headers,
+		Method:          "POST",
+		Path:            path,
+		Params:          params,
+		Body:            body,
+		Retrier:         s.retrier,
+		Headers:         s.headers,
+		MaxResponseSize: s.maxResponseSize,
 	})
 	if err != nil {
 		return nil, err
@@ -430,12 +439,13 @@ func (s *ScrollService) next(ctx context.Context) (*SearchResult, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method:  "POST",
-		Path:    path,
-		Params:  params,
-		Body:    body,
-		Retrier: s.retrier,
-		Headers: s.headers,
+		Method:          "POST",
+		Path:            path,
+		Params:          params,
+		Body:            body,
+		Retrier:         s.retrier,
+		Headers:         s.headers,
+		MaxResponseSize: s.maxResponseSize,
 	})
 	if err != nil {
 		return nil, err
