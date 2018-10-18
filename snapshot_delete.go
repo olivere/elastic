@@ -12,14 +12,11 @@ import (
 
 // SnapshotDeleteService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.2/modules-snapshots.html.
 type SnapshotDeleteService struct {
-	client            *Client
-	pretty            bool
-	repository        string
-	snapshot          string
-	masterTimeout     string
-	waitForCompletion *bool
-	bodyJson          interface{}
-	bodyString        string
+	client     *Client
+	repository string
+	snapshot   string
+	bodyJson   interface{}
+	bodyString string
 }
 
 func (c *Client) SnapshotDelete(repository string, snapshot string) *SnapshotDeleteService {
