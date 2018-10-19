@@ -78,10 +78,10 @@ func (s *SnapshotDeleteService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *SnapshotDeleteService) Do(ctx context.Context) (*SnapshotDeleteResponse, error) {
+func (s *SnapshotDeleteService) Do(ctx context.Context) (*SnapshotDeleteResponse, int, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	// Get URL for request
@@ -102,15 +102,15 @@ func (s *SnapshotDeleteService) Do(ctx context.Context) (*SnapshotDeleteResponse
 		Body:   body,
 	})
 	if err != nil {
-		return nil, err
+		return nil, res.StatusCode, err
 	}
 
 	// Return operation response
 	ret := new(SnapshotDeleteResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
-		return nil, err
+		return nil, res.StatusCode, err
 	}
-	return ret, nil
+	return ret, res.StatusCode, nil
 }
 
 // SnapshotDeleteResponse is the response of SnapshotDeleteService.Do.
