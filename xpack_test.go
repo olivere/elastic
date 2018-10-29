@@ -6,6 +6,51 @@ import (
 )
 
 const (
+	testRoleBody = `{
+		"cluster" : [ "all" ],
+		"indices" : [
+			{
+				"names" : [ "index1", "index2" ],
+				"privileges" : [ "all" ],
+				"field_security" : {
+					"grant" : [ "title", "body" ]
+				}
+			}
+		],
+		"applications" : [ ],
+		"run_as" : [ "other_user" ],
+		"metadata" : {
+			"version" : 1
+		},
+		"transient_metadata": {
+			"enabled": true
+		}
+	  }`
+
+	testRoleMappingBody = `{
+		"enabled": false,
+		"roles": [
+			"user"
+		],
+		"rules": {
+			"all": [
+				{
+					"field": {
+					"username": "esadmin"
+					}
+				},
+				{
+					"field": {
+					"groups": "cn=admins,dc=example,dc=com"
+					}
+				}
+			]
+		},
+		"metadata": {
+			"version": 1
+		}
+	  }`
+
 	testWatchBody = `{
 		"trigger" : {
 			"schedule" : { "cron" : "0 0/1 * * * ?" }
@@ -52,12 +97,130 @@ const (
 	}`
 )
 
+func TestXpackInfo(t *testing.T) {
+	client := setupTestClientForXpackSecurity(t)
+	tagline := "You know, for X"
+
+	// Get xpack info
+	info, err := client.XPackInfo().Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info == &(XPackInfoServiceResponse{}) {
+		t.Errorf("expected data from response; got empty response")
+	}
+	if info.Tagline != tagline {
+		t.Errorf("expected %s as a tagline; received %s", tagline, info.Tagline)
+	}
+}
+
+func TestXPackSecurityRole(t *testing.T) {
+	client := setupTestClientForXpackSecurity(t)
+
+	xpack_info, err := client.XPackInfo().Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !xpack_info.Features.Security.Enabled {
+		t.Skip("skip due to deactivated xpack security")
+	}
+
+	roleName := "my-role"
+
+	// Add a role
+	_, err = client.XPackSecurityPutRole(roleName).Body(testRoleBody).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		client.XPackSecurityDeleteRole(roleName).Do(context.Background())
+	}()
+
+	// Get a role
+	role, err := client.XPackSecurityGetRole(roleName).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(*role) == 0 {
+		t.Errorf("expected len(Mappings) > 0; got empty")
+	}
+	if _, ok := (*role)[roleName]; !ok {
+		t.Errorf("expected role mapping %s; key did not exist", roleName)
+	}
+	if role == &(XPackSecurityGetRoleResponse{}) {
+		t.Errorf("expected data from response; got empty response")
+	}
+
+	// Delete a role
+	deletedRole, err := client.XPackSecurityDeleteRole(roleName).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !deletedRole.Found {
+		t.Error("expected test role to be found; was not found")
+	}
+
+}
+
+func TestXPackSecurityRoleMapping(t *testing.T) {
+	client := setupTestClientForXpackSecurity(t)
+
+	xpack_info, err := client.XPackInfo().Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !xpack_info.Features.Security.Enabled {
+		t.Skip("skip due to deactivated xpack security")
+	}
+
+	roleMappingName := "my-role-mapping"
+
+	// Add a role mapping
+	_, err = client.XPackSecurityPutRoleMapping(roleMappingName).Body(testRoleMappingBody).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		client.XPackSecurityDeleteRoleMapping(roleMappingName).Do(context.Background())
+	}()
+
+	// Get a role mapping
+	roleMappings, err := client.XPackSecurityGetRoleMapping(roleMappingName).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(*roleMappings) == 0 {
+		t.Errorf("expected len(Mappings) > 0; got empty")
+	}
+	if _, ok := (*roleMappings)[roleMappingName]; !ok {
+		t.Errorf("expected role mapping %s; key did not exist", roleMappingName)
+	}
+	if roleMappings == &(XPackSecurityGetRoleMappingResponse{}) {
+		t.Errorf("expected data from response; got empty response")
+	}
+
+	// Delete a role mapping
+	_, err = client.XPackSecurityDeleteRoleMapping(roleMappingName).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+}
+
 func TestXPackWatcher(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t, SetURL("http://elastic:elastic@localhost:9210"))
 
+	xpack_info, err := client.XPackInfo().Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !xpack_info.Features.Watcher.Enabled {
+		t.Skip("skip due to deactivated xpack watcher")
+	}
+
 	// Add a watch
 	watchName := "my-watch"
-	_, err := client.XPackWatchPut(watchName).Body(testWatchBody).Do(context.Background())
+	_, err = client.XPackWatchPut(watchName).Body(testWatchBody).Do(context.Background())
 	if err != nil {
 		if IsForbidden(err) {
 			t.Skipf("skip due to missing license: %v", err)

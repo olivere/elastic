@@ -1,4 +1,4 @@
-// Copyright 2012-2018 Oliver Eilhard. All rights reserved.
+// Copyright 2005-2018 Coveo Solution. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -8,13 +8,13 @@ import (
 	"testing"
 )
 
-func TestXPackWatcherDeleteWatchBuildURL(t *testing.T) {
-	client := setupTestClient(t) // , SetURL("http://elastic:elastic@localhost:9210"))
+func TestXPackSecurityDeleteRoleBuildURL(t *testing.T) {
+	client := setupTestClientForXpackSecurity(t)
 
 	tests := []struct {
-		Id        string
-		Expected  string
-		ExpectErr bool
+		Name         string
+		ExpectedPath string
+		ExpectErr    bool
 	}{
 		{
 			"",
@@ -22,14 +22,14 @@ func TestXPackWatcherDeleteWatchBuildURL(t *testing.T) {
 			true,
 		},
 		{
-			"my-watch",
-			"/_xpack/watcher/watch/my-watch",
+			"my-role",
+			"/_xpack/security/role/my-role",
 			false,
 		},
 	}
 
 	for i, test := range tests {
-		builder := client.XPackWatchDelete(test.Id)
+		builder := client.XPackSecurityDeleteRole(test.Name)
 		err := builder.Validate()
 		if err != nil {
 			if !test.ExpectErr {
@@ -43,8 +43,8 @@ func TestXPackWatcherDeleteWatchBuildURL(t *testing.T) {
 				continue
 			}
 			path, _, _ := builder.buildURL()
-			if path != test.Expected {
-				t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+			if path != test.ExpectedPath {
+				t.Errorf("case #%d: expected %q; got: %q", i+1, test.ExpectedPath, path)
 			}
 		}
 	}
