@@ -447,6 +447,7 @@ type SearchHit struct {
 	Explanation    *SearchExplanation             `json:"_explanation"`    // explains how the score was computed
 	MatchedQueries []string                       `json:"matched_queries"` // matched queries
 	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits"`      // inner hits with ES >= 1.5.0
+	Nested         *SearchHitNested               `json:"_nested"`
 
 	// Shard
 	// HighlightFields
@@ -456,6 +457,11 @@ type SearchHit struct {
 
 type SearchHitInnerHits struct {
 	Hits *SearchHits `json:"hits"`
+}
+
+type SearchHitNested struct {
+	Field  string `json:"field"`  //which field the inner hit in
+	Offset int64  `json:"offset"` //array index
 }
 
 // SearchExplanation explains how the score for a hit was computed.
