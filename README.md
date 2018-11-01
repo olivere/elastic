@@ -333,7 +333,7 @@ The cat APIs are not implemented as of now. We think they are better suited for 
   - [x] Has Parent Query
   - [x] Parent Id Query
 - Geo queries
-  - [ ] GeoShape Query
+  - [x] GeoShape Query
   - [x] Geo Bounding Box Query
   - [x] Geo Distance Query
   - [x] Geo Polygon Query
