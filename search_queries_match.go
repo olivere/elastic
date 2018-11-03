@@ -176,7 +176,7 @@ func (q *MatchQuery) Source() (interface{}, error) {
 		query["zero_terms_query"] = q.zeroTermsQuery
 	}
 	if q.cutoffFrequency != nil {
-		query["cutoff_frequency"] = q.cutoffFrequency
+		query["cutoff_frequency"] = *q.cutoffFrequency
 	}
 	if q.boost != nil {
 		query["boost"] = *q.boost
