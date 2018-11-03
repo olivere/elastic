@@ -1815,6 +1815,11 @@ func (c *Client) SnapshotCreateRepository(repository string) *SnapshotCreateRepo
 	return NewSnapshotCreateRepositoryService(c).Repository(repository)
 }
 
+// SnapshotDelete deletes a snapshot in a snapshot repository.
+func (c *Client) SnapshotDelete(repository string, snapshot string) *SnapshotDeleteService {
+	return NewSnapshotDeleteService(c).Repository(repository).Snapshot(snapshot)
+}
+
 // SnapshotDeleteRepository deletes a snapshot repository.
 func (c *Client) SnapshotDeleteRepository(repositories ...string) *SnapshotDeleteRepositoryService {
 	return NewSnapshotDeleteRepositoryService(c).Repository(repositories...)
