@@ -254,6 +254,17 @@ func (s *SearchSource) FetchSourceContext(fetchSourceContext *FetchSourceContext
 	return s
 }
 
+// FetchSourceIncludeExclude specifies that _source should be returned
+// with each hit, where "include" and "exclude" serve as a simple wildcard
+// matcher that gets applied to its fields
+// (e.g. include := []string{"obj1.*","obj2.*"}, exclude := []string{"description.*"}).
+func (s *SearchSource) FetchSourceIncludeExclude(include, exclude []string) *SearchSource {
+	s.fetchSourceContext = NewFetchSourceContext(true).
+		Include(include...).
+		Exclude(exclude...)
+	return s
+}
+
 // NoStoredFields indicates that no fields should be loaded, resulting in only
 // id and type to be returned per field.
 func (s *SearchSource) NoStoredFields() *SearchSource {
@@ -357,13 +368,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 		}
 		source["post_filter"] = src
 	}
-	if s.sliceQuery != nil {
-		src, err := s.sliceQuery.Source()
-		if err != nil {
-			return nil, err
-		}
-		source["slice"] = src
-	}
 	if s.minScore != nil {
 		source["min_score"] = *s.minScore
 	}
@@ -376,13 +380,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 	if s.profile {
 		source["profile"] = s.profile
 	}
-	if s.collapse != nil {
-		src, err := s.collapse.Source()
-		if err != nil {
-			return nil, err
-		}
-		source["collapse"] = src
-	}
 	if s.fetchSourceContext != nil {
 		src, err := s.fetchSourceContext.Source()
 		if err != nil {
@@ -390,7 +387,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 		}
 		source["_source"] = src
 	}
-
 	if s.storedFieldNames != nil {
 		switch len(s.storedFieldNames) {
 		case 1:
@@ -399,11 +395,9 @@ func (s *SearchSource) Source() (interface{}, error) {
 			source["stored_fields"] = s.storedFieldNames
 		}
 	}
-
 	if len(s.docvalueFields) > 0 {
 		source["docvalue_fields"] = s.docvalueFields
 	}
-
 	if len(s.scriptFields) > 0 {
 		sfmap := make(map[string]interface{})
 		for _, scriptField := range s.scriptFields {
@@ -415,7 +409,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 		}
 		source["script_fields"] = sfmap
 	}
-
 	if len(s.sorters) > 0 {
 		var sortarr []interface{}
 		for _, sorter := range s.sorters {
@@ -427,7 +420,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 		}
 		source["sort"] = sortarr
 	}
-
 	if v := s.trackScores; v != nil {
 		source["track_scores"] = *v
 	}
@@ -437,10 +429,16 @@ func (s *SearchSource) Source() (interface{}, error) {
 	if len(s.searchAfterSortValues) > 0 {
 		source["search_after"] = s.searchAfterSortValues
 	}
+	if s.sliceQuery != nil {
+		src, err := s.sliceQuery.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["slice"] = src
+	}
 	if len(s.indexBoosts) > 0 {
 		source["indices_boost"] = s.indexBoosts
 	}
-
 	if len(s.aggregations) > 0 {
 		aggsMap := make(map[string]interface{})
 		for name, aggregate := range s.aggregations {
@@ -452,7 +450,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 		}
 		source["aggregations"] = aggsMap
 	}
-
 	if s.highlight != nil {
 		src, err := s.highlight.Source()
 		if err != nil {
@@ -460,7 +457,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 		}
 		source["highlight"] = src
 	}
-
 	if len(s.suggesters) > 0 {
 		suggesters := make(map[string]interface{})
 		for _, s := range s.suggesters {
@@ -475,7 +471,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 		}
 		source["suggest"] = suggesters
 	}
-
 	if len(s.rescores) > 0 {
 		// Strip empty rescores from request
 		var rescores []*Rescore
@@ -484,7 +479,6 @@ func (s *SearchSource) Source() (interface{}, error) {
 				rescores = append(rescores, r)
 			}
 		}
-
 		if len(rescores) == 1 {
 			rescores[0].defaultRescoreWindowSize = s.defaultRescoreWindowSize
 			src, err := rescores[0].Source()
@@ -505,9 +499,17 @@ func (s *SearchSource) Source() (interface{}, error) {
 			source["rescore"] = slice
 		}
 	}
-
 	if len(s.stats) > 0 {
 		source["stats"] = s.stats
+	}
+	// TODO ext builders
+
+	if s.collapse != nil {
+		src, err := s.collapse.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["collapse"] = src
 	}
 
 	if len(s.innerHits) > 0 {

@@ -260,15 +260,28 @@ func TestReindexSourceWithRouting(t *testing.T) {
 	}
 }
 
-func TestReindex(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
+func TestReindexSourceWithSourceFilter(t *testing.T) {
+	client := setupTestClient(t)
+	src := NewReindexSource().Index("twitter").
+		FetchSourceIncludeExclude([]string{"obj1.*", "obj2.*"}, []string{"*.description"})
+	dst := NewReindexDestination().Index("new_twitter")
+	out, err := client.Reindex().Source(src).Destination(dst).getBody()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if esversion < "2.3.0" {
-		t.Skipf("Elasticsearch %v does not support Reindex API yet", esversion)
+	b, err := json.Marshal(out)
+	if err != nil {
+		t.Fatal(err)
 	}
+	got := string(b)
+	want := `{"dest":{"index":"new_twitter"},"source":{"_source":{"excludes":["*.description"],"includes":["obj1.*","obj2.*"]},"index":"twitter"}}`
+	if got != want {
+		t.Fatalf("\ngot  %s\nwant %s", got, want)
+	}
+}
+
+func TestReindex(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	sourceCount, err := client.Count(testIndexName).Do(context.TODO())
 	if err != nil {
