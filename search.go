@@ -428,25 +428,33 @@ type SearchHits struct {
 	Hits      []*SearchHit `json:"hits"`      // the actual hits returned
 }
 
+// NestedHit is a nested innerhit
+type NestedHit struct {
+	Field  string     `json:"field"`
+	Offset int        `json:"offset,omitempty"`
+	Child  *NestedHit `json:"_nested,omitempty"`
+}
+
 // SearchHit is a single hit.
 type SearchHit struct {
-	Score          *float64                       `json:"_score"`          // computed score
-	Index          string                         `json:"_index"`          // index name
-	Type           string                         `json:"_type"`           // type meta field
-	Id             string                         `json:"_id"`             // external or internal
-	Uid            string                         `json:"_uid"`            // uid meta field (see MapperService.java for all meta fields)
-	Timestamp      int64                          `json:"_timestamp"`      // timestamp meta field
-	TTL            int64                          `json:"_ttl"`            // ttl meta field
-	Routing        string                         `json:"_routing"`        // routing meta field
-	Parent         string                         `json:"_parent"`         // parent meta field
-	Version        *int64                         `json:"_version"`        // version number, when Version is set to true in SearchService
-	Sort           []interface{}                  `json:"sort"`            // sort information
-	Highlight      SearchHitHighlight             `json:"highlight"`       // highlighter information
-	Source         *json.RawMessage               `json:"_source"`         // stored document source
-	Fields         map[string]interface{}         `json:"fields"`          // returned fields
-	Explanation    *SearchExplanation             `json:"_explanation"`    // explains how the score was computed
-	MatchedQueries []string                       `json:"matched_queries"` // matched queries
-	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits"`      // inner hits with ES >= 1.5.0
+	Score          *float64                       `json:"_score"`            // computed score
+	Index          string                         `json:"_index"`            // index name
+	Type           string                         `json:"_type"`             // type meta field
+	Id             string                         `json:"_id"`               // external or internal
+	Uid            string                         `json:"_uid"`              // uid meta field (see MapperService.java for all meta fields)
+	Timestamp      int64                          `json:"_timestamp"`        // timestamp meta field
+	TTL            int64                          `json:"_ttl"`              // ttl meta field
+	Routing        string                         `json:"_routing"`          // routing meta field
+	Parent         string                         `json:"_parent"`           // parent meta field
+	Version        *int64                         `json:"_version"`          // version number, when Version is set to true in SearchService
+	Sort           []interface{}                  `json:"sort"`              // sort information
+	Highlight      SearchHitHighlight             `json:"highlight"`         // highlighter information
+	Source         *json.RawMessage               `json:"_source"`           // stored document source
+	Fields         map[string]interface{}         `json:"fields"`            // returned fields
+	Explanation    *SearchExplanation             `json:"_explanation"`      // explains how the score was computed
+	MatchedQueries []string                       `json:"matched_queries"`   // matched queries
+	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits"`        // inner hits with ES >= 1.5.0
+	Nested         *NestedHit                     `json:"_nested,omitempty"` // for nested inner hits
 
 	// Shard
 	// HighlightFields
