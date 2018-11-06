@@ -1,4 +1,4 @@
-// Copyright 2005-2018 Coveo Solution. All rights reserved.
+// Copyright 2012-2018 Oliver Eilhard. All rights reserved.
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
@@ -14,7 +14,7 @@ import (
 )
 
 // XPackInfoService retrieves xpack info.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/info-api.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/info-api.html.
 type XPackInfoService struct {
 	client *Client
 	pretty bool
