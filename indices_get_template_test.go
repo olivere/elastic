@@ -70,21 +70,22 @@ func TestIndexGetTemplateService(t *testing.T) {
   }
 }
 `
-	_, err := client.IndexPutTemplate(testIndexName).BodyString(body).Create(create).Do(context.TODO())
+	_, err := client.IndexPutTemplate("template_1").BodyString(body).Create(create).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer client.IndexDeleteTemplate("template_1").Do(context.TODO())
 
-	res, err := client.IndexGetTemplate(testIndexName).Do(context.TODO())
+	res, err := client.IndexGetTemplate("template_1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 	if res == nil {
 		t.Fatalf("expected result; got: %v", res)
 	}
-	template := res[testIndexName]
+	template := res["template_1"]
 	if template == nil {
-		t.Fatalf("expected template %q to be != nil; got: %v", testIndexName, template)
+		t.Fatalf("expected template %q to be != nil; got: %v", "template_1", template)
 	}
 	if len(template.IndexPatterns) != 1 || template.IndexPatterns[0] != "te*" {
 		t.Fatalf("expected index settings of %q to be [\"index1\"]; got: %v", testIndexName, template.IndexPatterns)
