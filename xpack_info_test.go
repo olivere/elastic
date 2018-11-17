@@ -8,28 +8,21 @@ import (
 	"testing"
 )
 
-func TestXPackWatcherDeleteWatchBuildURL(t *testing.T) {
-	client := setupTestClient(t) // , SetURL("http://elastic:elastic@localhost:9210"))
+func TestXPackInfoBuildURL(t *testing.T) {
+	client := setupTestClientForXpackSecurity(t)
 
 	tests := []struct {
-		Id        string
 		Expected  string
 		ExpectErr bool
 	}{
 		{
-			"",
-			"",
-			true,
-		},
-		{
-			"my-watch",
-			"/_xpack/watcher/watch/my-watch",
+			"/_xpack",
 			false,
 		},
 	}
 
 	for i, test := range tests {
-		builder := client.XPackWatchDelete(test.Id)
+		builder := client.XPackInfo()
 		err := builder.Validate()
 		if err != nil {
 			if !test.ExpectErr {

@@ -12,7 +12,7 @@ func TestXPackWatcherGetWatchBuildURL(t *testing.T) {
 	client := setupTestClient(t) // , SetURL("http://elastic:elastic@localhost:9210"))
 
 	tests := []struct {
-		Id   string
+		Id        string
 		Expected  string
 		ExpectErr bool
 	}{

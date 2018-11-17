@@ -420,6 +420,19 @@ func setupTestClientAndCreateIndexAndAddDocsNoSource(t logger, options ...Client
 	return client
 }
 
+func setupTestClientForXpackSecurity(t logger) (client *Client) {
+	var err error
+	// Set URL and Auth to use the platinum ES cluster
+	options := []ClientOptionFunc{SetURL("http://127.0.0.1:9210"), SetBasicAuth("elastic", "elastic")}
+
+	client, err = NewClient(options...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return client
+}
+
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func randomString(n int) string {

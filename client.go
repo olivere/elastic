@@ -1853,7 +1853,50 @@ func (c *Client) DeleteScript() *DeleteScriptService {
 	return NewDeleteScriptService(c)
 }
 
-// -- X-Pack --
+// -- X-Pack General --
+
+// XPackInfo gets information on the xpack plugins enabled on the cluster
+
+func (c *Client) XPackInfo() *XPackInfoService {
+	return NewXPackInfoService(c)
+}
+
+// -- X-Pack Security --
+
+// XPackSecurityGetRoleMapping gets a role mapping.
+func (c *Client) XPackSecurityGetRoleMapping(roleMappingName string) *XPackSecurityGetRoleMappingService {
+	return NewXPackSecurityGetRoleMappingService(c).Name(roleMappingName)
+}
+
+// XPackSecurityPutRoleMapping adds a role mapping.
+func (c *Client) XPackSecurityPutRoleMapping(roleMappingName string) *XPackSecurityPutRoleMappingService {
+	return NewXPackSecurityPutRoleMappingService(c).Name(roleMappingName)
+}
+
+// XPackSecurityDeleteRoleMapping deletes a role mapping.
+func (c *Client) XPackSecurityDeleteRoleMapping(roleMappingName string) *XPackSecurityDeleteRoleMappingService {
+	return NewXPackSecurityDeleteRoleMappingService(c).Name(roleMappingName)
+}
+
+// XPackSecurityGetRole gets a role.
+func (c *Client) XPackSecurityGetRole(roleName string) *XPackSecurityGetRoleService {
+	return NewXPackSecurityGetRoleService(c).Name(roleName)
+}
+
+// XPackSecurityPutRole adds a role.
+func (c *Client) XPackSecurityPutRole(roleName string) *XPackSecurityPutRoleService {
+	return NewXPackSecurityPutRoleService(c).Name(roleName)
+}
+
+// XPackSecurityDeleteRole deletes a role.
+func (c *Client) XPackSecurityDeleteRole(roleName string) *XPackSecurityDeleteRoleService {
+	return NewXPackSecurityDeleteRoleService(c).Name(roleName)
+}
+
+// TODO: Clear role cache API
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-clear-role-cache.html
+
+// -- X-Pack Watcher --
 
 // XPackWatchPut adds a watch.
 func (c *Client) XPackWatchPut(watchId string) *XPackWatcherPutWatchService {

@@ -8,13 +8,13 @@ import (
 	"testing"
 )
 
-func TestXPackWatcherDeleteWatchBuildURL(t *testing.T) {
-	client := setupTestClient(t) // , SetURL("http://elastic:elastic@localhost:9210"))
+func TestXPackSecurityDeleteRoleMappingBuildURL(t *testing.T) {
+	client := setupTestClientForXpackSecurity(t)
 
 	tests := []struct {
-		Id        string
-		Expected  string
-		ExpectErr bool
+		Name         string
+		ExpectedPath string
+		ExpectErr    bool
 	}{
 		{
 			"",
@@ -22,14 +22,14 @@ func TestXPackWatcherDeleteWatchBuildURL(t *testing.T) {
 			true,
 		},
 		{
-			"my-watch",
-			"/_xpack/watcher/watch/my-watch",
+			"my-role-mapping",
+			"/_xpack/security/role_mapping/my-role-mapping",
 			false,
 		},
 	}
 
 	for i, test := range tests {
-		builder := client.XPackWatchDelete(test.Id)
+		builder := client.XPackSecurityDeleteRoleMapping(test.Name)
 		err := builder.Validate()
 		if err != nil {
 			if !test.ExpectErr {
@@ -43,8 +43,8 @@ func TestXPackWatcherDeleteWatchBuildURL(t *testing.T) {
 				continue
 			}
 			path, _, _ := builder.buildURL()
-			if path != test.Expected {
-				t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+			if path != test.ExpectedPath {
+				t.Errorf("case #%d: expected %q; got: %q", i+1, test.ExpectedPath, path)
 			}
 		}
 	}
