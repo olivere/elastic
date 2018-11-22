@@ -26,7 +26,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "6.2.11"
+	Version = "6.2.13"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1813,6 +1813,11 @@ func (c *Client) SnapshotCreate(repository string, snapshot string) *SnapshotCre
 // SnapshotCreateRepository creates or updates a snapshot repository.
 func (c *Client) SnapshotCreateRepository(repository string) *SnapshotCreateRepositoryService {
 	return NewSnapshotCreateRepositoryService(c).Repository(repository)
+}
+
+// SnapshotDelete deletes a snapshot in a snapshot repository.
+func (c *Client) SnapshotDelete(repository string, snapshot string) *SnapshotDeleteService {
+	return NewSnapshotDeleteService(c).Repository(repository).Snapshot(snapshot)
 }
 
 // SnapshotDeleteRepository deletes a snapshot repository.

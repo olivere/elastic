@@ -28,12 +28,12 @@ func TestSortInfo(t *testing.T) {
 
 func TestSortInfoComplex(t *testing.T) {
 	builder := SortInfo{
-		Field:        "price",
-		Ascending:    false,
-		Missing:      "_last",
-		SortMode:     "avg",
-		NestedFilter: NewTermQuery("product.color", "blue"),
-		NestedPath:   "variant",
+		Field:     "price",
+		Ascending: false,
+		Missing:   "_last",
+		SortMode:  "avg",
+		Filter:    NewTermQuery("product.color", "blue"),
+		Path:      "variant",
 	}
 	src, err := builder.Source()
 	if err != nil {
@@ -44,7 +44,7 @@ func TestSortInfoComplex(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"price":{"missing":"_last","mode":"avg","nested_filter":{"term":{"product.color":"blue"}},"nested_path":"variant","order":"desc"}}`
+	expected := `{"price":{"filter":{"term":{"product.color":"blue"}},"missing":"_last","mode":"avg","order":"desc","path":"variant"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -143,8 +143,8 @@ func TestFieldSortComplex(t *testing.T) {
 		SortMode("avg").
 		Missing("_last").
 		UnmappedType("product").
-		NestedFilter(NewTermQuery("product.color", "blue")).
-		NestedPath("variant")
+		Filter(NewTermQuery("product.color", "blue")).
+		Path("variant")
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -154,7 +154,7 @@ func TestFieldSortComplex(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"price":{"missing":"_last","mode":"avg","nested_filter":{"term":{"product.color":"blue"}},"nested_path":"variant","order":"desc","unmapped_type":"product"}}`
+	expected := `{"price":{"filter":{"term":{"product.color":"blue"}},"missing":"_last","mode":"avg","order":"desc","path":"variant","unmapped_type":"product"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
