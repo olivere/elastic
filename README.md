@@ -124,6 +124,8 @@ creating a client, creating an index, adding a document, executing a search etc.
 
 An example is available [here](https://olivere.github.io/elastic/).
 
+An example for v5 with Elascticsearch, Kibana in docker-compose: [here](https://github.com/pcherednichenko/goek/).
+
 Here's a [link to a complete working example for v6](https://gist.github.com/olivere/e4a376b4783c0914e44ea4f745ce2ebf).
 
 Here are a few tips on how to get used to Elastic:
