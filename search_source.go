@@ -40,6 +40,8 @@ type SearchSource struct {
 	innerHits                map[string]*InnerHit
 	collapse                 *CollapseBuilder
 	profile                  bool
+	storedTemplateId         string
+	params                   map[string]interface{}
 	// TODO extBuilders []SearchExtBuilder
 }
 
@@ -51,6 +53,7 @@ func NewSearchSource() *SearchSource {
 		aggregations: make(map[string]Aggregation),
 		indexBoosts:  make(map[string]float64),
 		innerHits:    make(map[string]*InnerHit),
+		params:       make(map[string]interface{}),
 	}
 }
 
@@ -338,6 +341,18 @@ func (s *SearchSource) Collapse(collapse *CollapseBuilder) *SearchSource {
 	return s
 }
 
+// StoredTemplateId allows to specify Name of a stored template script.
+func (s *SearchSource) StoredTemplateId(id string) *SearchSource {
+	s.storedTemplateId = id
+	return s
+}
+
+// Param allows to specify a parameter to use when searching with StoredTemplates.
+func (s *SearchSource) Param(name string, value interface{}) *SearchSource {
+	s.params[name] = value
+	return s
+}
+
 // Source returns the serializable JSON for the source builder.
 func (s *SearchSource) Source() (interface{}, error) {
 	source := make(map[string]interface{})
@@ -510,6 +525,14 @@ func (s *SearchSource) Source() (interface{}, error) {
 			return nil, err
 		}
 		source["collapse"] = src
+	}
+
+	if s.storedTemplateId != "" {
+		source["id"] = s.storedTemplateId
+	}
+
+	if len(s.params) > 0 {
+		source["params"] = s.params
 	}
 
 	if len(s.innerHits) > 0 {

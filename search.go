@@ -320,6 +320,18 @@ func (s *SearchService) MaxResponseSize(maxResponseSize int64) *SearchService {
 	return s
 }
 
+// StoredTemplateId allows to specify Name of a stored template script.
+func (s *SearchService) StoredTemplateId(id string) *SearchService {
+	s.searchSource.StoredTemplateId(id)
+	return s
+}
+
+// Param allows to specify a parameter to use when searching with StoredTemplates.
+func (s *SearchService) Param(name string, value interface{}) *SearchService {
+	s.searchSource.Param(name, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *SearchService) buildURL() (string, url.Values, error) {
 	var err error
@@ -343,6 +355,10 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	}
 	if err != nil {
 		return "", url.Values{}, err
+	}
+
+	if s.searchSource.storedTemplateId != "" {
+		path = path + "/template"
 	}
 
 	// Add query string parameters
