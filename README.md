@@ -129,8 +129,8 @@ Here's a [link to a complete working example for v6](https://gist.github.com/oli
 Here are a few tips on how to get used to Elastic:
 
 1. Head over to the [Wiki](https://github.com/olivere/elastic/wiki) for detailed information and
-   topics like e.g. [how to add a middleware](/olivere/elastic/wiki/HttpTransport)
-   or how to [connect to AWS](/olivere/elastic/wiki/Using-with-AWS-Elasticsearch-Service).
+   topics like e.g. [how to add a middleware](https://github.com/olivere/elastic/wiki/HttpTransport)
+   or how to [connect to AWS](https://github.com/olivere/elastic/wiki/Using-with-AWS-Elasticsearch-Service).
 2. If you are unsure how to implement something, read the tests (all `_test.go` files).
    They not only serve as a guard against changes, but also as a reference.
 3. The [recipes](https://github.com/olivere/elastic/tree/release-branch.v6/recipes)
