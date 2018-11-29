@@ -6,6 +6,7 @@ package v4
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +19,7 @@ import (
 
 func TestSigningClient(t *testing.T) {
 	var req *http.Request
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/":
 			req = r // capture the HTTP request
@@ -49,7 +50,15 @@ func TestSigningClient(t *testing.T) {
 	defer ts.Close()
 
 	cred := credentials.NewStaticCredentials("dev", "secret", "")
-	signingClient := NewV4SigningClient(cred, "us-east-1")
+	// Don't do this in production!
+	insecureHttpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+	signingClient := NewV4SigningClientWithHTTPClient(cred, "us-east-1", insecureHttpClient)
 
 	// Create a simple Ping request via Elastic
 	client, err := elastic.NewClient(

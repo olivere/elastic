@@ -6,9 +6,10 @@ package v4
 
 import (
 	"bytes"
-	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -42,19 +43,45 @@ type Transport struct {
 
 // RoundTrip uses the underlying RoundTripper transport, but signs request first with AWS V4 Signing
 func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	// AWS signer needs an io.ReadSeeker; however, req.Body is an io.ReadCloser.
-	// TODO Maybe there's a more efficient way to get an io.ReadSeeker than to read the whole thing.
-	var body io.ReadSeeker
-	if req.Body != nil {
-		d, err := ioutil.ReadAll(req.Body)
+	if h, ok := req.Header["Authorization"]; ok && len(h) > 0 && strings.HasPrefix(h[0], "AWS4") {
+		// Received a signed request, just pass it on.
+		return st.client.Do(req)
+	}
+
+	req.URL.Scheme = "https"
+	if strings.Contains(req.URL.RawPath, "%2C") {
+		// Escaping path
+		req.URL.RawPath = url.PathEscape(req.URL.RawPath)
+	}
+	now := time.Now().UTC()
+	req.Header.Set("Date", now.Format(time.RFC3339))
+	var err error
+	switch req.Body {
+	case nil:
+		_, err = st.signer.Sign(req, nil, "es", st.region, now)
+	default:
+		buf, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			return nil, err
 		}
-		body = bytes.NewReader(d)
+		req.Body = ioutil.NopCloser(bytes.NewReader(buf))
+		_, err = st.signer.Sign(req, bytes.NewReader(buf), "es", st.region, time.Now().UTC())
 	}
-	_, err := st.signer.Sign(req, body, "es", st.region, time.Now())
 	if err != nil {
 		return nil, err
 	}
-	return st.client.Do(req)
+	resp, err := st.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Body != nil {
+		defer resp.Body.Close()
+		buf := new(bytes.Buffer)
+		_, err = buf.ReadFrom(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		resp.Body = ioutil.NopCloser(bytes.NewReader(buf.Bytes()))
+	}
+	return resp, nil
 }

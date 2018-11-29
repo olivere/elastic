@@ -24,16 +24,17 @@ import (
 
 func main() {
 	var (
-		accessKey = flag.String("access-key", env.String("", "AWS_ACCESS_KEY"), "Access Key ID")
-		secretKey = flag.String("secret-key", env.String("", "AWS_SECRET_KEY"), "Secret access key")
-		url       = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
+		accessKey = flag.String("access-key", env.String("", "AWS_ACCESS_KEY", "AWS_ACCESS_KEY_ID"), "Access Key ID")
+		secretKey = flag.String("secret-key", env.String("", "AWS_SECRET_KEY", "AWS_SECRET_ACCESS_KEY"), "Secret access key")
+		url       = flag.String("url", "", "Elasticsearch URL")
 		sniff     = flag.Bool("sniff", false, "Enable or disable sniffing")
+		region    = flag.String("region", "eu-west-1", "AWS Region name")
 	)
 	flag.Parse()
 	log.SetFlags(0)
 
 	if *url == "" {
-		*url = "http://127.0.0.1:9200"
+		log.Fatal("please specify a URL with -url")
 	}
 	if *accessKey == "" {
 		log.Fatal("missing -access-key or AWS_ACCESS_KEY environment variable")
@@ -41,12 +42,15 @@ func main() {
 	if *secretKey == "" {
 		log.Fatal("missing -secret-key or AWS_SECRET_KEY environment variable")
 	}
+	if *region == "" {
+		log.Fatal("please specify an AWS region with -regiom")
+	}
 
 	signingClient := aws.NewV4SigningClient(credentials.NewStaticCredentials(
 		*accessKey,
 		*secretKey,
 		"",
-	), "eu-central-1")
+	), *region)
 
 	// Create an Elasticsearch client
 	client, err := elastic.NewClient(
