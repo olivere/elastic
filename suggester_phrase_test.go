@@ -86,7 +86,9 @@ func TestPhraseSuggesterComplexSource(t *testing.T) {
 		Confidence(2.0).
 		GramSize(2).
 		CandidateGenerators(g1, g2).
-		CollateQuery(`"match":{"{{field_name}}" : "{{suggestion}}"}`).
+		CollateQuery(
+			NewScriptInline(`{"match":{"{{field_name}}" : "{{suggestion}}"}}`),
+		).
 		CollateParams(map[string]interface{}{"field_name": "title"}).
 		CollatePreference("_primary").
 		CollatePrune(true)
@@ -99,7 +101,7 @@ func TestPhraseSuggesterComplexSource(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"simple_phrase":{"text":"Xor the Got-Jewel","phrase":{"analyzer":"body","collate":{"params":{"field_name":"title"},"preference":"_primary","prune":true,"query":"\"match\":{\"{{field_name}}\" : \"{{suggestion}}\"}"},"confidence":2,"direct_generator":[{"field":"body","min_word_length":1,"suggest_mode":"always"},{"field":"reverse","min_word_length":1,"post_filter":"reverse","pre_filter":"reverse","suggest_mode":"always"}],"field":"bigram","gram_size":2,"real_word_error_likelihood":0.95,"size":4}}}`
+	expected := `{"simple_phrase":{"text":"Xor the Got-Jewel","phrase":{"analyzer":"body","collate":{"params":{"field_name":"title"},"preference":"_primary","prune":true,"query":{"source":{"match":{"{{field_name}}":"{{suggestion}}"}}}},"confidence":2,"direct_generator":[{"field":"body","min_word_length":1,"suggest_mode":"always"},{"field":"reverse","min_word_length":1,"post_filter":"reverse","pre_filter":"reverse","suggest_mode":"always"}],"field":"bigram","gram_size":2,"real_word_error_likelihood":0.95,"size":4}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -165,5 +167,35 @@ func TestLinearInterpolationSmoothingModel(t *testing.T) {
 	}
 	if s.Type() != "linear_interpolation" {
 		t.Errorf("expected %q, got: %q", "linear_interpolation", s.Type())
+	}
+}
+
+func TestPhraseSuggesterSourceWithCollateQueryString(t *testing.T) {
+	s := NewPhraseSuggester("simple_phrase").
+		Text("noble price").
+		Field("title.trigram").
+		Size(1).
+		CandidateGenerator(
+			NewDirectCandidateGenerator("title.trigram").
+				SuggestMode("always").
+				MinWordLength(1),
+		).
+		CollateQuery(
+			NewScriptInline(`{"match":{"{{field_name}}":"{{suggestion}}"}}`),
+		).
+		CollateParams(map[string]interface{}{"field_name": "title"}).
+		CollatePrune(true)
+	src, err := s.Source(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"simple_phrase":{"text":"noble price","phrase":{"collate":{"params":{"field_name":"title"},"prune":true,"query":{"source":{"match":{"{{field_name}}":"{{suggestion}}"}}}},"direct_generator":[{"field":"title.trigram","min_word_length":1,"suggest_mode":"always"}],"field":"title.trigram","size":1}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }

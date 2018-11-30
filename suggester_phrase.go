@@ -29,7 +29,7 @@ type PhraseSuggester struct {
 	forceUnigrams           *bool
 	tokenLimit              *int
 	preTag, postTag         *string
-	collateQuery            *string
+	collateQuery            *Script
 	collatePreference       *string
 	collateParams           map[string]interface{}
 	collatePrune            *bool
@@ -154,8 +154,8 @@ func (q *PhraseSuggester) Highlight(preTag, postTag string) *PhraseSuggester {
 	return q
 }
 
-func (q *PhraseSuggester) CollateQuery(collateQuery string) *PhraseSuggester {
-	q.collateQuery = &collateQuery
+func (q *PhraseSuggester) CollateQuery(collateQuery *Script) *PhraseSuggester {
+	q.collateQuery = collateQuery
 	return q
 }
 
@@ -282,7 +282,11 @@ func (q *PhraseSuggester) Source(includeName bool) (interface{}, error) {
 		collate := make(map[string]interface{})
 		suggester["collate"] = collate
 		if q.collateQuery != nil {
-			collate["query"] = *q.collateQuery
+			src, err := q.collateQuery.Source()
+			if err != nil {
+				return nil, err
+			}
+			collate["query"] = src
 		}
 		if q.collatePreference != nil {
 			collate["preference"] = *q.collatePreference

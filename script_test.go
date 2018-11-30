@@ -59,3 +59,41 @@ func TestScriptingStored(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestScriptingSource(t *testing.T) {
+	tests := []struct {
+		Input  string
+		Source string
+	}{
+		{
+			Input:  ``,
+			Source: `{"source":""}`,
+		},
+		{
+			Input:  `doc['field'].value * factor`,
+			Source: `{"source":"doc['field'].value * factor"}`,
+		},
+		{
+			Input:  `"doc['field'].value * factor"`,
+			Source: `{"source":"doc['field'].value * factor"}`,
+		},
+		{
+			Input:  `{"bool":{"filter":{"term":{"field1":"f"}}}}`,
+			Source: `{"source":{"bool":{"filter":{"term":{"field1":"f"}}}}}`,
+		},
+	}
+	for _, tt := range tests {
+		b := NewScriptInline(tt.Input)
+		src, err := b.Source()
+		if err != nil {
+			t.Fatalf("unable to generate source for %s: %v", tt.Input, err)
+		}
+		out, err := json.Marshal(src)
+		if err != nil {
+			t.Fatalf("unable to generate JSON for %s: %v", tt.Input, err)
+		}
+		if want, have := tt.Source, string(out); want != have {
+			t.Fatalf("Input=%q: want %s, have %s", tt.Input, want, have)
+		}
+	}
+}

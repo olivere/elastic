@@ -4,7 +4,12 @@
 
 package elastic
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"strings"
+)
 
 // Script holds all the paramaters necessary to compile or find in cache
 // and then execute a script.
@@ -86,7 +91,11 @@ func (s *Script) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	// Beginning with 6.0, the type can only be "source" or "id"
 	if s.typ == "" || s.typ == "inline" {
-		source["source"] = s.script
+		src, err := s.rawScriptSource(s.script)
+		if err != nil {
+			return nil, err
+		}
+		source["source"] = src
 	} else {
 		source["id"] = s.script
 	}
@@ -97,6 +106,19 @@ func (s *Script) Source() (interface{}, error) {
 		source["params"] = s.params
 	}
 	return source, nil
+}
+
+// rawScriptSource returns an embeddable script. If it uses a short
+// script form, e.g. "ctx._source.likes++" (without the quotes), it
+// is quoted. Otherwise it returns the raw script that will be directly
+// embedded into the JSON data.
+func (s *Script) rawScriptSource(script string) (interface{}, error) {
+	v := strings.TrimSpace(script)
+	if !strings.HasPrefix(v, "{") && !strings.HasPrefix(v, `"`) {
+		v = fmt.Sprintf("%q", v)
+	}
+	raw := json.RawMessage(v)
+	return &raw, nil
 }
 
 // -- Script Field --
