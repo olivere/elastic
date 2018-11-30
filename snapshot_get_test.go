@@ -22,6 +22,7 @@ func TestSnapshotGetURL(t *testing.T) {
 
 	tests := []struct {
 		Repository        string
+		Snapshot          []string
 		MasterTimeout     string
 		IgnoreUnavailable bool
 		Verbose           bool
@@ -30,10 +31,24 @@ func TestSnapshotGetURL(t *testing.T) {
 	}{
 		{
 			Repository:        "repo",
+			Snapshot:          []string{},
 			MasterTimeout:     "60s",
 			IgnoreUnavailable: true,
 			Verbose:           true,
 			ExpectedPath:      "/_snapshot/repo/_all",
+			ExpectedParams: url.Values{
+				"master_timeout":     []string{"60s"},
+				"ignore_unavailable": []string{"true"},
+				"verbose":            []string{"true"},
+			},
+		},
+		{
+			Repository:        "repo",
+			Snapshot:          []string{"snapA", "snapB"},
+			MasterTimeout:     "60s",
+			IgnoreUnavailable: true,
+			Verbose:           true,
+			ExpectedPath:      "/_snapshot/repo/snapA%2CsnapB",
 			ExpectedParams: url.Values{
 				"master_timeout":     []string{"60s"},
 				"ignore_unavailable": []string{"true"},
@@ -45,6 +60,7 @@ func TestSnapshotGetURL(t *testing.T) {
 	for _, test := range tests {
 		path, params, err := client.SnapshotGet(test.Repository).
 			MasterTimeout(test.MasterTimeout).
+			Snapshot(test.Snapshot...).
 			IgnoreUnavailable(true).
 			Verbose(true).
 			buildURL()
