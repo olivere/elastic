@@ -5,32 +5,9 @@
 package elastic
 
 import (
-	"context"
 	"net/url"
 	"testing"
 )
-
-func TestClusterStats(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
-
-	// Get cluster stats
-	res, err := client.ClusterStats().Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if res == nil {
-		t.Fatalf("expected res to be != nil; got: %v", res)
-	}
-	if res.ClusterName == "" {
-		t.Fatalf("expected a cluster name; got: %q", res.ClusterName)
-	}
-	if res.Nodes == nil {
-		t.Fatalf("expected nodes; got: %v", res.Nodes)
-	}
-	if res.Nodes.Count == nil {
-		t.Fatalf("expected nodes count; got: %v", res.Nodes.Count)
-	}
-}
 
 func TestClusterStatsURLs(t *testing.T) {
 	fFlag := false

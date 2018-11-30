@@ -129,23 +129,21 @@ func (s *ClusterStatsService) Do(ctx context.Context) (*ClusterStatsResponse, er
 type ClusterStatsResponse struct {
 	Timestamp   int64                `json:"timestamp"`
 	ClusterName string               `json:"cluster_name"`
-	ClusterUUID string               `json:"uuid"`
-	Status      string               `json:"status"`
+	ClusterUUID string               `json:"cluster_uuid"`
+	Status      string               `json:"status,omitempty"` // e.g. green
 	Indices     *ClusterStatsIndices `json:"indices"`
 	Nodes       *ClusterStatsNodes   `json:"nodes"`
 }
 
 type ClusterStatsIndices struct {
-	Count       int                             `json:"count"`
-	Shards      *ClusterStatsIndicesShards      `json:"shards"`
-	Docs        *ClusterStatsIndicesDocs        `json:"docs"`
-	Store       *ClusterStatsIndicesStore       `json:"store"`
-	FieldData   *ClusterStatsIndicesFieldData   `json:"fielddata"`
-	FilterCache *ClusterStatsIndicesFilterCache `json:"filter_cache"`
-	IdCache     *ClusterStatsIndicesIdCache     `json:"id_cache"`
-	Completion  *ClusterStatsIndicesCompletion  `json:"completion"`
-	Segments    *ClusterStatsIndicesSegments    `json:"segments"`
-	Percolate   *ClusterStatsIndicesPercolate   `json:"percolate"`
+	Count      int                            `json:"count"` // number of indices
+	Shards     *ClusterStatsIndicesShards     `json:"shards"`
+	Docs       *ClusterStatsIndicesDocs       `json:"docs"`
+	Store      *ClusterStatsIndicesStore      `json:"store"`
+	FieldData  *ClusterStatsIndicesFieldData  `json:"fielddata"`
+	QueryCache *ClusterStatsIndicesQueryCache `json:"query_cache"`
+	Completion *ClusterStatsIndicesCompletion `json:"completion"`
+	Segments   *ClusterStatsIndicesSegments   `json:"segments"`
 }
 
 type ClusterStatsIndicesShards struct {
@@ -190,18 +188,18 @@ type ClusterStatsIndicesFieldData struct {
 	Fields            map[string]struct {
 		MemorySize        string `json:"memory_size"` // e.g. "61.3kb"
 		MemorySizeInBytes int64  `json:"memory_size_in_bytes"`
-	} `json:"fields"`
+	} `json:"fields,omitempty"`
 }
 
-type ClusterStatsIndicesFilterCache struct {
+type ClusterStatsIndicesQueryCache struct {
 	MemorySize        string `json:"memory_size"` // e.g. "61.3kb"
 	MemorySizeInBytes int64  `json:"memory_size_in_bytes"`
+	TotalCount        int64  `json:"total_count"`
+	HitCount          int64  `json:"hit_count"`
+	MissCount         int64  `json:"miss_count"`
+	CacheSize         int64  `json:"cache_size"`
+	CacheCount        int64  `json:"cache_count"`
 	Evictions         int64  `json:"evictions"`
-}
-
-type ClusterStatsIndicesIdCache struct {
-	MemorySize        string `json:"memory_size"` // e.g. "61.3kb"
-	MemorySizeInBytes int64  `json:"memory_size_in_bytes"`
 }
 
 type ClusterStatsIndicesCompletion struct {
@@ -210,32 +208,36 @@ type ClusterStatsIndicesCompletion struct {
 	Fields      map[string]struct {
 		Size        string `json:"size"` // e.g. "61.3kb"
 		SizeInBytes int64  `json:"size_in_bytes"`
-	} `json:"fields"`
+	} `json:"fields,omitempty"`
 }
 
 type ClusterStatsIndicesSegments struct {
-	Count                       int64  `json:"count"`
-	Memory                      string `json:"memory"` // e.g. "61.3kb"
-	MemoryInBytes               int64  `json:"memory_in_bytes"`
-	IndexWriterMemory           string `json:"index_writer_memory"` // e.g. "61.3kb"
-	IndexWriterMemoryInBytes    int64  `json:"index_writer_memory_in_bytes"`
-	IndexWriterMaxMemory        string `json:"index_writer_max_memory"` // e.g. "61.3kb"
-	IndexWriterMaxMemoryInBytes int64  `json:"index_writer_max_memory_in_bytes"`
-	VersionMapMemory            string `json:"version_map_memory"` // e.g. "61.3kb"
-	VersionMapMemoryInBytes     int64  `json:"version_map_memory_in_bytes"`
-	FixedBitSet                 string `json:"fixed_bit_set"` // e.g. "61.3kb"
-	FixedBitSetInBytes          int64  `json:"fixed_bit_set_memory_in_bytes"`
+	Count                     int64                                       `json:"count"`
+	Memory                    string                                      `json:"memory"` // e.g. "61.3kb"
+	MemoryInBytes             int64                                       `json:"memory_in_bytes"`
+	TermsMemory               string                                      `json:"terms_memory"` // e.g. "61.3kb"
+	TermsMemoryInBytes        int64                                       `json:"terms_memory_in_bytes"`
+	StoredFieldsMemory        string                                      `json:"stored_fields_memory"` // e.g. "61.3kb"
+	StoredFieldsMemoryInBytes int64                                       `json:"stored_fields_memory_in_bytes"`
+	NormsMemory               string                                      `json:"norms_memory"` // e.g. "61.3kb"
+	NormsMemoryInBytes        int64                                       `json:"norms_memory_in_bytes"`
+	PointsMemory              string                                      `json:"points_memory"` // e.g. "61.3kb"
+	PointsMemoryInBytes       int64                                       `json:"points_memory_in_bytes"`
+	DocValuesMemory           string                                      `json:"doc_values_memory"` // e.g. "61.3kb"
+	DocValuesMemoryInBytes    int64                                       `json:"doc_values_memory_in_bytes"`
+	IndexWriterMemory         string                                      `json:"index_writer_memory"` // e.g. "61.3kb"
+	IndexWriterMemoryInBytes  int64                                       `json:"index_writer_memory_in_bytes"`
+	VersionMapMemory          string                                      `json:"version_map_memory"` // e.g. "61.3kb"
+	VersionMapMemoryInBytes   int64                                       `json:"version_map_memory_in_bytes"`
+	FixedBitSet               string                                      `json:"fixed_bit_set"` // e.g. "61.3kb"
+	FixedBitSetInBytes        int64                                       `json:"fixed_bit_set_memory_in_bytes"`
+	FileSizes                 map[string]*ClusterStatsIndicesSegmentsFile `json:"file_sizes"`
 }
 
-type ClusterStatsIndicesPercolate struct {
-	Total int64 `json:"total"`
-	// TODO(oe) The JSON tag here is wrong as of ES 1.5.2 it seems
-	Time              string `json:"get_time"` // e.g. "1s"
-	TimeInBytes       int64  `json:"time_in_millis"`
-	Current           int64  `json:"current"`
-	MemorySize        string `json:"memory_size"` // e.g. "61.3kb"
-	MemorySizeInBytes int64  `json:"memory_sitze_in_bytes"`
-	Queries           int64  `json:"queries"`
+type ClusterStatsIndicesSegmentsFile struct {
+	Size        string `json:"size"` // e.g. "61.3kb"
+	SizeInBytes int64  `json:"size_in_bytes"`
+	Description string `json:"description,omitempty"`
 }
 
 // ---
