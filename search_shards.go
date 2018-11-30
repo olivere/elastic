@@ -169,12 +169,12 @@ func (s *SearchShardsService) Do(ctx context.Context) (*SearchShardsResponse, er
 
 // SearchShardsResponse is the response of SearchShardsService.Do.
 type SearchShardsResponse struct {
-	Nodes   map[string]interface{} `json:"nodes"`
-	Indices map[string]interface{} `json:"indices"`
-	Shards  [][]ShardsInfo         `json:"shards"`
+	Nodes   map[string]interface{}              `json:"nodes"`
+	Indices map[string]interface{}              `json:"indices"`
+	Shards  [][]*SearchShardsResponseShardsInfo `json:"shards"`
 }
 
-type ShardsInfo struct {
+type SearchShardsResponseShardsInfo struct {
 	Index                    string          `json:"index"`
 	Node                     string          `json:"node"`
 	Primary                  bool            `json:"primary"`

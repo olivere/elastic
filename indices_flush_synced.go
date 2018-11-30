@@ -143,7 +143,7 @@ func (s *IndicesSyncedFlushService) Do(ctx context.Context) (*IndicesSyncedFlush
 
 // IndicesSyncedFlushResponse is the outcome of a synched flush call.
 type IndicesSyncedFlushResponse struct {
-	Shards shardsInfo                                 `json:"_shards"`
+	Shards *ShardsInfo                                `json:"_shards"`
 	Index  map[string]*IndicesShardsSyncedFlushResult `json:"-"`
 
 	// TODO Add information about the indices here from the root level
