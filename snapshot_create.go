@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"time"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -172,20 +171,5 @@ type SnapshotCreateResponse struct {
 	Accepted *bool `json:"accepted"`
 
 	// Snapshot is available when waitForCompletion is true.
-	Snapshot *struct {
-		Snapshot          string                 `json:"snapshot"`
-		UUID              string                 `json:"uuid"`
-		VersionID         int                    `json:"version_id"`
-		Version           string                 `json:"version"`
-		Indices           []string               `json:"indices"`
-		State             string                 `json:"state"`
-		Reason            string                 `json:"reason"`
-		StartTime         time.Time              `json:"start_time"`
-		StartTimeInMillis int64                  `json:"start_time_in_millis"`
-		EndTime           time.Time              `json:"end_time"`
-		EndTimeInMillis   int64                  `json:"end_time_in_millis"`
-		DurationInMillis  int64                  `json:"duration_in_millis"`
-		Failures          []SnapshotShardFailure `json:"failures"`
-		Shards            *ShardsInfo            `json:"shards"`
-	} `json:"snapshot"`
+	Snapshot *Snapshot `json:"snapshot"`
 }
