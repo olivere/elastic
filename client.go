@@ -1142,7 +1142,7 @@ func (c *Client) startupHealthcheck(parentCtx context.Context, timeout time.Dura
 			if basicAuth {
 				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 			}
-			ctx, cancel := context.WithTimeout(context.Background(), timeout)
+			ctx, cancel := context.WithTimeout(parentCtx, timeout)
 			defer cancel()
 			req = req.WithContext(ctx)
 			res, err := c.c.Do(req)
