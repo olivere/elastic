@@ -104,14 +104,18 @@ func (s *XPackSecurityGetRoleService) Do(ctx context.Context) (*XPackSecurityGet
 // XPackSecurityGetRoleResponse is the response of XPackSecurityGetRoleService.Do.
 type XPackSecurityGetRoleResponse map[string]XPackSecurityRole
 
-// XPackSecurityRole is the role object
+// XPackSecurityRole is the role object.
+//
+// The Java source for this struct is defined here:
+// https://github.com/elastic/elasticsearch/blob/6.x/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/security/authz/RoleDescriptor.java
 type XPackSecurityRole struct {
-	Cluster      []string                             `json:"cluster"`
-	Indices      []XPackSecurityIndicesPermissions    `json:"indices"`
-	Applications []XPackSecurityApplicationPrivileges `json:"applications"`
-	RunAs        []string                             `json:"run_as"`
-	Global       interface{}                          `json:"global"`
-	Metadata     map[string]interface{}               `json:"metadata"`
+	Cluster           []string                             `json:"cluster"`
+	Indices           []XPackSecurityIndicesPermissions    `json:"indices"`
+	Applications      []XPackSecurityApplicationPrivileges `json:"applications"`
+	RunAs             []string                             `json:"run_as"`
+	Global            map[string]interface{}               `json:"global"`
+	Metadata          map[string]interface{}               `json:"metadata"`
+	TransientMetadata map[string]interface{}               `json:"transient_metadata"`
 }
 
 // XPackSecurityApplicationPrivileges is the application privileges object
