@@ -358,6 +358,7 @@ The cat APIs are not implemented as of now. We think they are better suited for 
 
 - Snapshot and Restore
   - [x] Repositories
+  - [x] Snapshot get
   - [x] Snapshot create
   - [x] Snapshot delete
   - [ ] Restore

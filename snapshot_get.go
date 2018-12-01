@@ -23,15 +23,14 @@ type SnapshotGetService struct {
 	repository        string
 	snapshot          []string
 	masterTimeout     string
-	ignoreUnavailable bool
-	verbose           bool
+	ignoreUnavailable *bool
+	verbose           *bool
 }
 
 // NewSnapshotGetService creates a new SnapshotGetService.
 func NewSnapshotGetService(client *Client) *SnapshotGetService {
 	return &SnapshotGetService{
-		client:   client,
-		snapshot: make([]string, 0),
+		client: client,
 	}
 }
 
@@ -55,13 +54,13 @@ func (s *SnapshotGetService) MasterTimeout(masterTimeout string) *SnapshotGetSer
 
 // IgnoreUnavailable specifies whether to ignore unavailable snapshots, defaults to false
 func (s *SnapshotGetService) IgnoreUnavailable(ignoreUnavailable bool) *SnapshotGetService {
-	s.ignoreUnavailable = ignoreUnavailable
+	s.ignoreUnavailable = &ignoreUnavailable
 	return s
 }
 
 // Verbose specifies whether to show verbose snapshot info or only show the basic info found in the repository index blob
 func (s *SnapshotGetService) Verbose(verbose bool) *SnapshotGetService {
-	s.verbose = verbose
+	s.verbose = &verbose
 	return s
 }
 
@@ -89,11 +88,11 @@ func (s *SnapshotGetService) buildURL() (string, url.Values, error) {
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
 	}
-	if s.ignoreUnavailable {
-		params.Set("ignore_unavailable", "true")
+	if s.ignoreUnavailable != nil {
+		params.Set("ignore_unavailable", fmt.Sprint(*s.ignoreUnavailable))
 	}
-	if s.verbose {
-		params.Set("verbose", "true")
+	if s.verbose != nil {
+		params.Set("verbose", fmt.Sprint(*s.verbose))
 	}
 	return path, params, nil
 }
