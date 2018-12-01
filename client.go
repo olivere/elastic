@@ -1830,6 +1830,11 @@ func (c *Client) SnapshotGetRepository(repositories ...string) *SnapshotGetRepos
 	return NewSnapshotGetRepositoryService(c).Repository(repositories...)
 }
 
+// SnapshotGet lists snapshot for a repository.
+func (c *Client) SnapshotGet(repository string) *SnapshotGetService {
+	return NewSnapshotGetService(c).Repository(repository)
+}
+
 // SnapshotVerifyRepository verifies a snapshot repository.
 func (c *Client) SnapshotVerifyRepository(repository string) *SnapshotVerifyRepositoryService {
 	return NewSnapshotVerifyRepositoryService(c).Repository(repository)
