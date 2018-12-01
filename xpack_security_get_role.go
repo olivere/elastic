@@ -110,7 +110,8 @@ type XPackSecurityRole struct {
 	Indices      []XPackSecurityIndicesPermissions    `json:"indices"`
 	Applications []XPackSecurityApplicationPrivileges `json:"applications"`
 	RunAs        []string                             `json:"run_as"`
-	Metadata     interface{}                          `json:"metadata"`
+	Global       interface{}                          `json:"global"`
+	Metadata     map[string]interface{}               `json:"metadata"`
 }
 
 // XPackSecurityApplicationPrivileges is the application privileges object

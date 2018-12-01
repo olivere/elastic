@@ -19,6 +19,13 @@ const (
 		],
 		"applications" : [ ],
 		"run_as" : [ "other_user" ],
+		"global" : {
+			"application": {
+			  "manage": {    
+				  "applications": [ "my-test-app" ] 
+			  }
+			}
+		  },
 		"metadata" : {
 			"version" : 1
 		},
