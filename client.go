@@ -1382,7 +1382,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		}
 
 		// We successfully made a request with this connection
-		conn.MarkAsHealthy()
+		defer conn.MarkAsHealthy()
 
 		resp, err = c.newResponse(res, opt.MaxResponseSize)
 		if err != nil {
