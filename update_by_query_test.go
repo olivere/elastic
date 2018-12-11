@@ -145,3 +145,44 @@ func TestUpdateByQuery(t *testing.T) {
 		t.Fatalf("expected %d; got: %d", sourceCount, res.Updated)
 	}
 }
+
+func TestUpdateByQueryAsync(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if esversion < "2.3.0" {
+		t.Skipf("Elasticsearch %v does not support update-by-query yet", esversion)
+	}
+
+	sourceCount, err := client.Count(testIndexName).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sourceCount <= 0 {
+		t.Fatalf("expected more than %d documents; got: %d", 0, sourceCount)
+	}
+
+	res, err := client.UpdateByQuery(testIndexName).
+		ProceedOnVersionConflict().
+		DoAsync(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected result != nil")
+	}
+	if res.TaskId == "" {
+		t.Errorf("expected a task id, got %+v", res)
+	}
+
+	tasksGetTask := client.TasksGetTask()
+	taskStatus, err := tasksGetTask.TaskId(res.TaskId).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if taskStatus == nil {
+		t.Fatal("expected task status result != nil")
+	}
+}
