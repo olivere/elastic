@@ -7,16 +7,14 @@ package elastic
 import (
 	"context"
 	"encoding/json"
-	"log"
-	"os"
 	"strings"
 	"testing"
 	"time"
 )
 
 func TestAggs(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
-	// client := setupTestClientAndCreateIndex(t)
+	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{
 		User:     "olivere",
