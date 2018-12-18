@@ -100,6 +100,53 @@ func TestAliasLifecycle(t *testing.T) {
 	if searchResult2.Hits.TotalHits != 1 {
 		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 1, searchResult2.Hits.TotalHits)
 	}
+
+	// Add second index back to alias as write index
+	aliasCreate, err = client.Alias().
+		Action(NewAliasAddAction(testAliasName).Index(testIndexName).IsWriteIndex(false)).
+		Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !aliasCreate.Acknowledged {
+		t.Errorf("expected AliasResult.Acknowledged %v; got %v", true, aliasCreate.Acknowledged)
+	}
+	aliasCreate, err = client.Alias().
+		Action(NewAliasAddAction(testAliasName).Index(testIndexName2).IsWriteIndex(true)).
+		Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !aliasCreate.Acknowledged {
+		t.Errorf("expected AliasResult.Acknowledged %v; got %v", true, aliasCreate.Acknowledged)
+	}
+
+	_, err = client.Aliases().Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tweet4 := tweet{User: "chris", Message: "Foo bar baz."}
+	_, err = client.Index().Index(testAliasName).Type("doc").Id("4").BodyJson(&tweet4).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName, testIndexName2).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	searchResult3, err := client.Search().Index(testIndexName2).Query(NewIdsQuery("doc").Ids("4")).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult3.Hits == nil {
+		t.Errorf("expected SearchResult.Hits != nil; got nil")
+	}
+	if searchResult3.Hits.TotalHits != 1 {
+		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 1, searchResult3.Hits.TotalHits)
+	}
 }
 
 func TestAliasAddAction(t *testing.T) {

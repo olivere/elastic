@@ -26,6 +26,7 @@ type AliasAddAction struct {
 	routing       string
 	searchRouting string
 	indexRouting  string
+	isWriteIndex  *bool
 }
 
 // NewAliasAddAction returns an action to add an alias.
@@ -76,6 +77,12 @@ func (a *AliasAddAction) SearchRouting(routing ...string) *AliasAddAction {
 	return a
 }
 
+// IsWriteIndex associates an is_write_index flag to the alias.
+func (a *AliasAddAction) IsWriteIndex(flag bool) *AliasAddAction {
+	a.isWriteIndex = &flag
+	return a
+}
+
 // Validate checks if the operation is valid.
 func (a *AliasAddAction) Validate() error {
 	var invalid []string
@@ -87,6 +94,9 @@ func (a *AliasAddAction) Validate() error {
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
+	}
+	if a.isWriteIndex != nil && len(a.index) > 1 {
+		return fmt.Errorf("more than 1 target index specified in operation with 'is_write_index' flag present")
 	}
 	return nil
 }
@@ -122,6 +132,9 @@ func (a *AliasAddAction) Source() (interface{}, error) {
 	}
 	if len(a.searchRouting) > 0 {
 		act["search_routing"] = a.searchRouting
+	}
+	if a.isWriteIndex != nil {
+		act["is_write_index"] = *a.isWriteIndex
 	}
 	return src, nil
 }
