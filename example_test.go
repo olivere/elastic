@@ -32,13 +32,12 @@ func Example() {
 
 	// Obtain a client. You can also provide your own HTTP client here.
 	client, err := elastic.NewClient(elastic.SetErrorLog(errorlog))
+	// Trace request and response details like this
+	// client, err := elastic.NewClient(elastic.SetTraceLog(log.New(os.Stdout, "", 0)))
 	if err != nil {
 		// Handle error
 		panic(err)
 	}
-
-	// Trace request and response details like this
-	//client.SetTracer(log.New(os.Stdout, "", 0))
 
 	// Ping the Elasticsearch server to get e.g. the version number
 	info, code, err := client.Ping("http://127.0.0.1:9200").Do(context.Background())
