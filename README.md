@@ -8,6 +8,7 @@ Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for the
 [![Build Status](https://travis-ci.org/olivere/elastic.svg?branch=release-branch.v6)](https://travis-ci.org/olivere/elastic)
 [![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](http://godoc.org/github.com/olivere/elastic)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/olivere/elastic/master/LICENSE)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Folivere%2Felastic.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Folivere%2Felastic?ref=badge_shield)
 
 See the [wiki](https://github.com/olivere/elastic/wiki) for additional information about Elastic.
 
@@ -407,3 +408,6 @@ by Joshua Tacoma,
 
 MIT-LICENSE. See [LICENSE](http://olivere.mit-license.org/)
 or the LICENSE file provided in the repository for details.
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Folivere%2Felastic.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Folivere%2Felastic?ref=badge_large)
