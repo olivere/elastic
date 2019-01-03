@@ -132,7 +132,11 @@ func TestAliases(t *testing.T) {
 	// Add both indices to a new alias
 	aliasCreate, err := client.Alias().
 		Add(testIndexName, testAliasName).
-		Add(testIndexName2, testAliasName).
+		Action(
+			NewAliasAddAction(testAliasName).
+				Index(testIndexName2).
+				IsWriteIndex(true),
+		).
 		//Pretty(true).
 		Do(context.TODO())
 	if err != nil {
@@ -170,6 +174,16 @@ func TestAliases(t *testing.T) {
 	for indexName, indexDetails := range indicesResult.Indices {
 		if len(indexDetails.Aliases) != 1 {
 			t.Errorf("expected len(indicesResult.Indices[%s].Aliases) = %d; got %d", indexName, 1, len(indexDetails.Aliases))
+		}
+		if indexName == testIndexName2 {
+			if !indexDetails.Aliases[0].IsWriteIndex {
+				t.Errorf("expected alias on %s to be a write index", testIndexName2)
+			}
+		}
+		if indexName == testIndexName {
+			if indexDetails.Aliases[0].IsWriteIndex {
+				t.Errorf("expected alias on %s not to be a write index", testIndexName2)
+			}
 		}
 	}
 

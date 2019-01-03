@@ -104,7 +104,11 @@ func (s *AliasesService) Do(ctx context.Context) (*AliasesResult, error) {
 	//     ...
 	//   },
 	// }
-	indexMap := make(map[string]interface{})
+	indexMap := make(map[string]struct {
+		Aliases map[string]struct {
+			IsWriteIndex bool `json:"is_write_index"`
+		} `json:"aliases"`
+	})
 	if err := s.client.decoder.Decode(res.Body, &indexMap); err != nil {
 		return nil, err
 	}
@@ -114,21 +118,19 @@ func (s *AliasesService) Do(ctx context.Context) (*AliasesResult, error) {
 		Indices: make(map[string]indexResult),
 	}
 	for indexName, indexData := range indexMap {
+		if indexData.Aliases == nil {
+			continue
+		}
+
 		indexOut, found := ret.Indices[indexName]
 		if !found {
 			indexOut = indexResult{Aliases: make([]aliasResult, 0)}
 		}
 
 		// { "aliases" : { ... } }
-		indexDataMap, ok := indexData.(map[string]interface{})
-		if ok {
-			aliasesData, ok := indexDataMap["aliases"].(map[string]interface{})
-			if ok {
-				for aliasName, _ := range aliasesData {
-					aliasRes := aliasResult{AliasName: aliasName}
-					indexOut.Aliases = append(indexOut.Aliases, aliasRes)
-				}
-			}
+		for aliasName, aliasData := range indexData.Aliases {
+			aliasRes := aliasResult{AliasName: aliasName, IsWriteIndex: aliasData.IsWriteIndex}
+			indexOut.Aliases = append(indexOut.Aliases, aliasRes)
 		}
 
 		ret.Indices[indexName] = indexOut
@@ -148,7 +150,8 @@ type indexResult struct {
 }
 
 type aliasResult struct {
-	AliasName string
+	AliasName    string
+	IsWriteIndex bool
 }
 
 func (ar AliasesResult) IndicesByAlias(aliasName string) []string {
