@@ -102,7 +102,12 @@ func TestSearchSourceFetchSourceByWildcards(t *testing.T) {
 
 func TestSearchSourceDocvalueFields(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
-	builder := NewSearchSource().Query(matchAllQ).DocvalueFields("test1", "test2")
+	builder := NewSearchSource().Query(matchAllQ).
+		DocvalueFields("test1", "test2").
+		DocvalueFieldsWithFormat(
+			DocvalueField{Field: "test3", Format: "date"},
+			DocvalueField{Field: "test4", Format: "epoch_millis"},
+		)
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -112,7 +117,7 @@ func TestSearchSourceDocvalueFields(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"docvalue_fields":["test1","test2"],"query":{"match_all":{}}}`
+	expected := `{"docvalue_fields":["test1","test2",{"field":"test3","format":"date"},{"field":"test4","format":"epoch_millis"}],"query":{"match_all":{}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

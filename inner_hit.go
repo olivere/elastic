@@ -96,8 +96,18 @@ func (hit *InnerHit) DocvalueFields(docvalueFields ...string) *InnerHit {
 	return hit
 }
 
+func (hit *InnerHit) DocvalueFieldsWithFormat(docvalueFields ...DocvalueField) *InnerHit {
+	hit.source.DocvalueFieldsWithFormat(docvalueFields...)
+	return hit
+}
+
 func (hit *InnerHit) DocvalueField(docvalueField string) *InnerHit {
 	hit.source.DocvalueField(docvalueField)
+	return hit
+}
+
+func (hit *InnerHit) DocvalueFieldWithFormat(docvalueField DocvalueField) *InnerHit {
+	hit.source.DocvalueFieldWithFormat(docvalueField)
 	return hit
 }
 

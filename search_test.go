@@ -1351,3 +1351,44 @@ func TestSearchScriptQuery(t *testing.T) {
 		t.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", want, have)
 	}
 }
+
+func TestSearchWithDocvalueFields(t *testing.T) {
+	// client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+
+	// Match all should return all documents
+	searchResult, err := client.Search().
+		Index(testIndexName).
+		Query(NewMatchAllQuery()).
+		DocvalueFields("user", "retweets").
+		DocvalueFieldsWithFormat(
+			// DocvalueField{Field: "user"},
+			// DocvalueField{Field: "retweets", Format: "long"},
+			DocvalueField{Field: "created", Format: "epoch_millis"},
+		).
+		Pretty(true).
+		Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult.Hits == nil {
+		t.Errorf("expected SearchResult.Hits != nil; got nil")
+	}
+	if got, want := searchResult.Hits.TotalHits, int64(3); got != want {
+		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", want, got)
+	}
+	if got, want := len(searchResult.Hits.Hits), 3; got != want {
+		t.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", want, got)
+	}
+
+	for _, hit := range searchResult.Hits.Hits {
+		if hit.Index != testIndexName {
+			t.Errorf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
+		}
+		item := make(map[string]interface{})
+		err := json.Unmarshal(*hit.Source, &item)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}

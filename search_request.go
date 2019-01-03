@@ -254,11 +254,27 @@ func (r *SearchRequest) DocValueField(field string) *SearchRequest {
 	return r
 }
 
+// DocValueFieldWithFormat adds a docvalue based field to load and return.
+// The field does not have to be stored, but it's recommended to use
+// non analyzed or numeric fields.
+func (r *SearchRequest) DocValueFieldWithFormat(field DocvalueField) *SearchRequest {
+	r.searchSource = r.searchSource.DocvalueFieldWithFormat(field)
+	return r
+}
+
 // DocValueFields adds one or more docvalue based field to load and return.
 // The fields do not have to be stored, but it's recommended to use
 // non analyzed or numeric fields.
 func (r *SearchRequest) DocValueFields(fields ...string) *SearchRequest {
 	r.searchSource = r.searchSource.DocvalueFields(fields...)
+	return r
+}
+
+// DocValueFieldsWithFormat adds one or more docvalue based field to load and return.
+// The fields do not have to be stored, but it's recommended to use
+// non analyzed or numeric fields.
+func (r *SearchRequest) DocValueFieldsWithFormat(fields ...DocvalueField) *SearchRequest {
+	r.searchSource = r.searchSource.DocvalueFieldsWithFormat(fields...)
 	return r
 }
 

@@ -26,7 +26,7 @@ type SearchSource struct {
 	timeout                  string
 	terminateAfter           *int
 	storedFieldNames         []string
-	docvalueFields           []string
+	docvalueFields           DocvalueFields
 	scriptFields             []*ScriptField
 	fetchSourceContext       *FetchSourceContext
 	aggregations             map[string]Aggregation
@@ -290,13 +290,29 @@ func (s *SearchSource) StoredFields(storedFieldNames ...string) *SearchSource {
 // DocvalueField adds a single field to load from the field data cache
 // and return as part of the search request.
 func (s *SearchSource) DocvalueField(fieldDataField string) *SearchSource {
-	s.docvalueFields = append(s.docvalueFields, fieldDataField)
+	s.docvalueFields = append(s.docvalueFields, DocvalueField{Field: fieldDataField})
+	return s
+}
+
+// DocvalueField adds a single docvalue field to load from the field data cache
+// and return as part of the search request.
+func (s *SearchSource) DocvalueFieldWithFormat(fieldDataFieldWithFormat DocvalueField) *SearchSource {
+	s.docvalueFields = append(s.docvalueFields, fieldDataFieldWithFormat)
 	return s
 }
 
 // DocvalueFields adds one or more fields to load from the field data cache
 // and return as part of the search request.
 func (s *SearchSource) DocvalueFields(docvalueFields ...string) *SearchSource {
+	for _, f := range docvalueFields {
+		s.docvalueFields = append(s.docvalueFields, DocvalueField{Field: f})
+	}
+	return s
+}
+
+// DocvalueFields adds one or more docvalue fields to load from the field data cache
+// and return as part of the search request.
+func (s *SearchSource) DocvalueFieldsWithFormat(docvalueFields ...DocvalueField) *SearchSource {
 	s.docvalueFields = append(s.docvalueFields, docvalueFields...)
 	return s
 }
@@ -396,7 +412,11 @@ func (s *SearchSource) Source() (interface{}, error) {
 		}
 	}
 	if len(s.docvalueFields) > 0 {
-		source["docvalue_fields"] = s.docvalueFields
+		src, err := s.docvalueFields.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["docvalue_fields"] = src
 	}
 	if len(s.scriptFields) > 0 {
 		sfmap := make(map[string]interface{})

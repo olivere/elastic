@@ -69,8 +69,18 @@ func (a *TopHitsAggregation) DocvalueFields(docvalueFields ...string) *TopHitsAg
 	return a
 }
 
+func (a *TopHitsAggregation) DocvalueFieldsWithFormat(docvalueFields ...DocvalueField) *TopHitsAggregation {
+	a.searchSource = a.searchSource.DocvalueFieldsWithFormat(docvalueFields...)
+	return a
+}
+
 func (a *TopHitsAggregation) DocvalueField(docvalueField string) *TopHitsAggregation {
 	a.searchSource = a.searchSource.DocvalueField(docvalueField)
+	return a
+}
+
+func (a *TopHitsAggregation) DocvalueFieldWithFormat(docvalueField DocvalueField) *TopHitsAggregation {
+	a.searchSource = a.searchSource.DocvalueFieldWithFormat(docvalueField)
 	return a
 }
 
