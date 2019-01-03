@@ -1276,7 +1276,7 @@ func TestAggsCompositeIntegration(t *testing.T) {
 	builder := client.Search().Index(testIndexName).Query(all).Pretty(true)
 	composite := NewCompositeAggregation().Sources(
 		NewCompositeAggregationTermsValuesSource("composite_users").Field("user"),
-		NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).Field("retweets"),
+		NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).MissingBucket(true).Field("retweets"),
 		NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
 	).Size(2)
 	builder = builder.Aggregation("composite", composite)
