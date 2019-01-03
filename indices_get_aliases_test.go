@@ -79,7 +79,7 @@ func TestAliasesBuildURL(t *testing.T) {
 func TestAliases(t *testing.T) {
 	var err error
 
-	//client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 	client := setupTestClientAndCreateIndex(t)
 
 	// Some tweets
