@@ -13,6 +13,7 @@ import (
 )
 
 func TestScroll(t *testing.T) {
+	// client := setupTestClientAndCreateIndexAndLog(t)
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
@@ -382,6 +383,102 @@ func TestScrollWithSlice(t *testing.T) {
 	}
 
 	if _, err := svc.Do(context.TODO()); err == nil {
+		t.Fatal("expected to fail")
+	}
+}
+
+func TestScrollWithFilterPath(t *testing.T) {
+	// client := setupTestClientAndCreateIndexAndLog(t)
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
+	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
+
+	// Add all documents
+	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Should return all documents. Just don't call Do yet!
+	// Notice that we don't have to add "_scroll_id" to the FilterPath here:
+	// It's been added automatically by the ScrollService.
+	svc := client.Scroll(testIndexName).Size(1).
+		FilterPath("hits.total", "hits.hits._index", "hits.hits._id", "hits.hits._source")
+
+	pages := 0
+	docs := 0
+
+	for {
+		res, err := svc.Do(context.TODO())
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res == nil {
+			t.Fatal("expected results != nil; got nil")
+		}
+		if res.Hits == nil {
+			t.Fatal("expected results.Hits != nil; got nil")
+		}
+		if want, have := int64(3), res.Hits.TotalHits; want != have {
+			t.Fatalf("expected results.Hits.TotalHits = %d; got %d", want, have)
+		}
+		if want, have := 1, len(res.Hits.Hits); want != have {
+			t.Fatalf("expected len(results.Hits.Hits) = %d; got %d", want, have)
+		}
+
+		pages++
+
+		for _, hit := range res.Hits.Hits {
+			if hit.Index != testIndexName {
+				t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
+			}
+			item := make(map[string]interface{})
+			err := json.Unmarshal(*hit.Source, &item)
+			if err != nil {
+				t.Fatal(err)
+			}
+			docs++
+		}
+
+		if len(res.ScrollId) == 0 {
+			t.Fatalf("expected scrollId in results; got %q", res.ScrollId)
+		}
+	}
+
+	if want, have := 3, pages; want != have {
+		t.Fatalf("expected to retrieve %d pages; got %d", want, have)
+	}
+	if want, have := 3, docs; want != have {
+		t.Fatalf("expected to retrieve %d hits; got %d", want, have)
+	}
+
+	err = svc.Clear(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = svc.Do(context.TODO())
+	if err == nil {
 		t.Fatal("expected to fail")
 	}
 }
