@@ -235,14 +235,14 @@ type clusterStateRoutingTable struct {
 type Shards map[string][]Shard
 
 type Shard struct {
-	State          string         `json:"state"`
-	Primary        bool           `json:"primary"`
-	Node           string         `json:"node"`
-	RelocatingNode string         `json:"relocating_node"`
-	Shard          int            `json:"shard"`
-	Index          string         `json:"index"`
-	RecoverySource recoverySource `json:"recovery_source"`
-	UnassignedInfo unassignedInfo `json:"unassigned_info"`
+	State          string          `json:"state"`
+	Primary        bool            `json:"primary"`
+	Node           string          `json:"node"`
+	RelocatingNode string          `json:"relocating_node"`
+	Shard          int             `json:"shard"`
+	Index          string          `json:"index"`
+	RecoverySource *recoverySource `json:"recovery_source"`
+	UnassignedInfo *unassignedInfo `json:"unassigned_info"`
 }
 type recoverySource struct {
 	Type string `json:"type"`
