@@ -229,12 +229,12 @@ type discoveryNode struct {
 }
 
 type clusterStateRoutingTable struct {
-	Indices map[string]index `json:"indices"`
+	Indices map[string]Index `json:"indices"`
 }
 
-type shards map[string][]shard
+type Shards map[string][]Shard
 
-type shard struct {
+type Shard struct {
 	State          string         `json:"state"`
 	Primary        bool           `json:"primary"`
 	Node           string         `json:"node"`
@@ -248,8 +248,8 @@ type recoverySource struct {
 	Type string `json:"type"`
 }
 
-type index struct {
-	Shards shards `json:"shards"`
+type Index struct {
+	Shards Shards `json:"shards"`
 }
 
 type clusterStateRoutingNode struct {
