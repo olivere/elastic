@@ -91,3 +91,15 @@ func TestClusterStateURLs(t *testing.T) {
 		}
 	}
 }
+
+func TestClusterStateRoutingTable(t *testing.T) {
+	client, err := NewClient(SetURL("http://127.0.0.1:9200"), SetSniff(false))
+	if err != nil {
+		t.Fatalf("create client error,%v", err)
+	}
+	response, err := client.ClusterState().Do(context.TODO())
+	if err != nil {
+		t.Fatalf("cluster state error,%v", err)
+	}
+	t.Logf("%v", response)
+}

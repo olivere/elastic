@@ -184,16 +184,16 @@ func (s *ClusterStateService) Do(ctx context.Context) (*ClusterStateResponse, er
 
 // ClusterStateResponse is the response of ClusterStateService.Do.
 type ClusterStateResponse struct {
-	ClusterName  string                               `json:"cluster_name"`
-	Version      int64                                `json:"version"`
-	StateUUID    string                               `json:"state_uuid"`
-	MasterNode   string                               `json:"master_node"`
-	Blocks       map[string]*clusterBlocks            `json:"blocks"`
-	Nodes        map[string]*discoveryNode            `json:"nodes"`
-	Metadata     *clusterStateMetadata                `json:"metadata"`
-	RoutingTable map[string]*clusterStateRoutingTable `json:"routing_table"`
-	RoutingNodes *clusterStateRoutingNode             `json:"routing_nodes"`
-	Customs      map[string]interface{}               `json:"customs"`
+	ClusterName  string                    `json:"cluster_name"`
+	Version      int64                     `json:"version"`
+	StateUUID    string                    `json:"state_uuid"`
+	MasterNode   string                    `json:"master_node"`
+	Blocks       map[string]*clusterBlocks `json:"blocks"`
+	Nodes        map[string]*discoveryNode `json:"nodes"`
+	Metadata     *clusterStateMetadata     `json:"metadata"`
+	RoutingTable *clusterStateRoutingTable `json:"routing_table"`
+	RoutingNodes *clusterStateRoutingNode  `json:"routing_nodes"`
+	Customs      map[string]interface{}    `json:"customs"`
 }
 
 type clusterBlocks struct {
@@ -229,7 +229,27 @@ type discoveryNode struct {
 }
 
 type clusterStateRoutingTable struct {
-	Indices map[string]interface{} `json:"indices"`
+	Indices map[string]index `json:"indices"`
+}
+
+type shards map[string][]shard
+
+type shard struct {
+	State          string         `json:"state"`
+	Primary        bool           `json:"primary"`
+	Node           string         `json:"node"`
+	RelocatingNode string         `json:"relocating_node"`
+	Shard          int            `json:"shard"`
+	Index          string         `json:"index"`
+	RecoverySource recoverySource `json:"recovery_source"`
+	UnassignedInfo unassignedInfo `json:"unassigned_info"`
+}
+type recoverySource struct {
+	Type string `json:"type"`
+}
+
+type index struct {
+	Shards shards `json:"shards"`
 }
 
 type clusterStateRoutingNode struct {
