@@ -14,7 +14,7 @@ type ExistsQuery struct {
 	queryName string
 }
 
-// NewExistsQuery creates and initializes a new dis max query.
+// NewExistsQuery creates and initializes a new exists query.
 func NewExistsQuery(name string) *ExistsQuery {
 	return &ExistsQuery{
 		name: name,
