@@ -280,7 +280,7 @@ func TestXPackWatcher(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want, have := true, watch.Status.State["active"]; want != have {
+	if want, have := true, watch.Status.State.Active; want != have {
 		t.Errorf("expected watch.Status.State.Active == %v; got %v", want, have)
 	}
 
@@ -293,7 +293,7 @@ func TestXPackWatcher(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want, have := false, watch.Status.State["active"]; want != have {
+	if want, have := false, watch.Status.State.Active; want != have {
 		t.Errorf("expected watch.Status.State.Active == %v; got %v", want, have)
 	}
 

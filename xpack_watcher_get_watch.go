@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -103,21 +104,59 @@ func (s *XPackWatcherGetWatchService) Do(ctx context.Context) (*XPackWatcherGetW
 
 // XPackWatcherGetWatchResponse is the response of XPackWatcherGetWatchService.Do.
 type XPackWatcherGetWatchResponse struct {
-	Found  bool              `json:"found"`
-	Id     string            `json:"_id"`
-	Status *XPackWatchStatus `json:"status"`
-	Watch  *XPackWatch       `json:"watch"`
+	Found   bool              `json:"found"`
+	Id      string            `json:"_id"`
+	Version int64             `json:"_version,omitempty"`
+	Status  *XPackWatchStatus `json:"status,omitempty"`
+	Watch   *XPackWatch       `json:"watch,omitempty"`
 }
 
 type XPackWatchStatus struct {
-	State   map[string]interface{}            `json:"state"`
-	Actions map[string]map[string]interface{} `json:"actions"`
-	Version int                               `json:"version"`
+	State            *XPackWatchExecutionState          `json:"state,omitempty"`
+	LastChecked      *time.Time                         `json:"last_checked,omitempty"`
+	LastMetCondition *time.Time                         `json:"last_met_condition,omitempty"`
+	Actions          map[string]*XPackWatchActionStatus `json:"actions,omitempty"`
+	ExecutionState   *XPackWatchActionExecutionState    `json:"execution_state,omitempty"`
+	Headers          map[string]string                  `json:"headers,omitempty"`
+	Version          int64                              `json:"version"`
+}
+
+type XPackWatchExecutionState struct {
+	Active    bool      `json:"active"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
+type XPackWatchActionStatus struct {
+	AckStatus               *XPackWatchActionAckStatus `json:"ack"`
+	LastExecution           *time.Time                 `json:"last_execution,omitempty"`
+	LastSuccessfulExecution *time.Time                 `json:"last_successful_execution,omitempty"`
+	LastThrottle            *XPackWatchActionThrottle  `json:"last_throttle,omitempty"`
+}
+
+type XPackWatchActionAckStatus struct {
+	Timestamp      time.Time `json:"timestamp"`
+	AckStatusState string    `json:"ack_status_state"`
+}
+
+type XPackWatchActionExecutionState struct {
+	Timestamp  time.Time `json:"timestamp"`
+	Successful bool      `json:"successful"`
+	Reason     string    `json:"reason,omitempty"`
+}
+
+type XPackWatchActionThrottle struct {
+	Timestamp time.Time `json:"timestamp"`
+	Reason    string    `json:"reason,omitempty"`
 }
 
 type XPackWatch struct {
-	Input     map[string]map[string]interface{} `json:"input"`
-	Condition map[string]map[string]interface{} `json:"condition"`
-	Trigger   map[string]map[string]interface{} `json:"trigger"`
-	Actions   map[string]map[string]interface{} `json:"actions"`
+	Trigger                map[string]map[string]interface{}  `json:"trigger"`
+	Input                  map[string]map[string]interface{}  `json:"input"`
+	Condition              map[string]map[string]interface{}  `json:"condition"`
+	Transform              map[string]interface{}             `json:"transform,omitempty"`
+	ThrottlePeriod         string                             `json:"throttle_period,omitempty"`
+	ThrottlePeriodInMillis int64                              `json:"throttle_period_in_millis,omitempty"`
+	Actions                map[string]*XPackWatchActionStatus `json:"actions"`
+	Metadata               map[string]interface{}             `json:"metadata,omitempty"`
+	Status                 *XPackWatchStatus                  `json:"status,omitempty"`
 }
