@@ -137,7 +137,7 @@ func TestHighlightWithBoundarySettings(t *testing.T) {
 }
 
 func TestHighlightWithTermQuery(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
@@ -175,6 +175,7 @@ func TestHighlightWithTermQuery(t *testing.T) {
 		Index(testIndexName).
 		Highlight(hl).
 		Query(query).
+		Pretty(true).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
