@@ -184,16 +184,16 @@ func (s *ClusterStateService) Do(ctx context.Context) (*ClusterStateResponse, er
 
 // ClusterStateResponse is the response of ClusterStateService.Do.
 type ClusterStateResponse struct {
-	ClusterName  string                               `json:"cluster_name"`
-	Version      int64                                `json:"version"`
-	StateUUID    string                               `json:"state_uuid"`
-	MasterNode   string                               `json:"master_node"`
-	Blocks       map[string]*clusterBlocks            `json:"blocks"`
-	Nodes        map[string]*discoveryNode            `json:"nodes"`
-	Metadata     *clusterStateMetadata                `json:"metadata"`
-	RoutingTable map[string]*clusterStateRoutingTable `json:"routing_table"`
-	RoutingNodes *clusterStateRoutingNode             `json:"routing_nodes"`
-	Customs      map[string]interface{}               `json:"customs"`
+	ClusterName  string                    `json:"cluster_name"`
+	Version      int64                     `json:"version"`
+	StateUUID    string                    `json:"state_uuid"`
+	MasterNode   string                    `json:"master_node"`
+	Blocks       map[string]*clusterBlocks `json:"blocks"`
+	Nodes        map[string]*discoveryNode `json:"nodes"`
+	Metadata     *clusterStateMetadata     `json:"metadata"`
+	RoutingTable *clusterStateRoutingTable `json:"routing_table"`
+	RoutingNodes *clusterStateRoutingNode  `json:"routing_nodes"`
+	Customs      map[string]interface{}    `json:"customs"`
 }
 
 type clusterBlocks struct {
