@@ -126,29 +126,29 @@ const (
 	testOrderIndex   = "elastic-orders"
 	testOrderMapping = `
 {
-	"settings":{
-		"number_of_shards":1,
-		"number_of_replicas":0
-	},
-	"mappings":{
-		"doc":{
-			"properties":{
-				"article":{
-					"type":"text"
-				},
-				"manufacturer":{
-					"type":"keyword"
-				},
-				"price":{
-					"type":"float"
-				},
-				"time":{
-					"type":"date",
-					"format": "YYYY-MM-dd"
-				}
+"settings":{
+	"number_of_shards":1,
+	"number_of_replicas":0
+},
+"mappings":{
+	"doc":{
+		"properties":{
+			"article":{
+				"type":"text"
+			},
+			"manufacturer":{
+				"type":"keyword"
+			},
+			"price":{
+				"type":"float"
+			},
+			"time":{
+				"type":"date",
+				"format": "YYYY-MM-dd"
 			}
 		}
 	}
+}
 }
 `
 

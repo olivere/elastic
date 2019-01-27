@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -1390,5 +1391,70 @@ func TestSearchWithDocvalueFields(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+}
+
+func TestSearchWithDateMathIndices(t *testing.T) {
+	client := setupTestClient(t) //, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+
+	ctx := context.Background()
+	now := time.Now().UTC()
+	indexNameToday := fmt.Sprintf("elastic-trail-%s", now.Format("2006.01.02"))
+	indexNameYesterday := fmt.Sprintf("elastic-trail-%s", now.AddDate(0, 0, -1).Format("2006.01.02"))
+	indexNameTomorrow := fmt.Sprintf("elastic-trail-%s", now.AddDate(0, 0, +1).Format("2006.01.02"))
+
+	const mapping = `{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	}
+}`
+
+	// Create indices
+	for i, indexName := range []string{indexNameToday, indexNameTomorrow, indexNameYesterday} {
+		_, err := client.CreateIndex(indexName).Body(mapping).Do(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer client.DeleteIndex(indexName).Do(ctx)
+
+		// Add a document
+		id := fmt.Sprintf("%d", i+1)
+		_, err = client.Index().Index(indexName).Type("doc").Id(id).BodyJson(map[string]interface{}{
+			"index": indexName,
+		}).Refresh("wait_for").Do(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Count total
+	cnt, err := client.
+		Count(indexNameYesterday, indexNameToday, indexNameTomorrow).
+		Do(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cnt != 3 {
+		t.Fatalf("expected Count=%d; got %d", 3, cnt)
+	}
+
+	// Match all should return all documents
+	res, err := client.Search().
+		Index("<elastic-trail-{now/d}>", "<elastic-trail-{now-1d/d}>").
+		Query(NewMatchAllQuery()).
+		Pretty(true).
+		Do(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Hits == nil {
+		t.Errorf("expected SearchResult.Hits != nil; got nil")
+	}
+	if got, want := res.Hits.TotalHits, int64(2); got != want {
+		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", want, got)
+	}
+	if got, want := len(res.Hits.Hits), 2; got != want {
+		t.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", want, got)
 	}
 }
