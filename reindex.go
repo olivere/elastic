@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 )
 
@@ -28,6 +29,7 @@ type ReindexService struct {
 	conflicts           string
 	size                *int
 	script              *Script
+	headers             http.Header
 }
 
 // NewReindexService creates a new ReindexService.
@@ -84,6 +86,15 @@ func (s *ReindexService) Timeout(timeout string) *ReindexService {
 // reindex is complete.
 func (s *ReindexService) WaitForCompletion(waitForCompletion bool) *ReindexService {
 	s.waitForCompletion = &waitForCompletion
+	return s
+}
+
+// Header sets headers on the request
+func (s *ReindexService) Header(name string, value string) *ReindexService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -286,10 +297,11 @@ func (s *ReindexService) Do(ctx context.Context) (*BulkIndexByScrollResponse, er
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err
@@ -300,6 +312,7 @@ func (s *ReindexService) Do(ctx context.Context) (*BulkIndexByScrollResponse, er
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
+	ret.Header = res.Header
 	return ret, nil
 }
 
@@ -333,10 +346,11 @@ func (s *ReindexService) DoAsync(ctx context.Context) (*StartTaskResult, error) 
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err
@@ -347,6 +361,7 @@ func (s *ReindexService) DoAsync(ctx context.Context) (*StartTaskResult, error) 
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
+	ret.Header = res.Header
 	return ret, nil
 }
 

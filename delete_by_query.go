@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -691,16 +692,17 @@ func (s *DeleteByQueryService) DoAsync(ctx context.Context) (*StartTaskResult, e
 // BulkIndexByScrollResponse is the outcome of executing Do with
 // DeleteByQueryService and UpdateByQueryService.
 type BulkIndexByScrollResponse struct {
-	Took             int64  `json:"took"`
-	SliceId          *int64 `json:"slice_id,omitempty"`
-	TimedOut         bool   `json:"timed_out"`
-	Total            int64  `json:"total"`
-	Updated          int64  `json:"updated,omitempty"`
-	Created          int64  `json:"created,omitempty"`
-	Deleted          int64  `json:"deleted"`
-	Batches          int64  `json:"batches"`
-	VersionConflicts int64  `json:"version_conflicts"`
-	Noops            int64  `json:"noops"`
+	Header           http.Header `json:"-"`
+	Took             int64       `json:"took"`
+	SliceId          *int64      `json:"slice_id,omitempty"`
+	TimedOut         bool        `json:"timed_out"`
+	Total            int64       `json:"total"`
+	Updated          int64       `json:"updated,omitempty"`
+	Created          int64       `json:"created,omitempty"`
+	Deleted          int64       `json:"deleted"`
+	Batches          int64       `json:"batches"`
+	VersionConflicts int64       `json:"version_conflicts"`
+	Noops            int64       `json:"noops"`
 	Retries          struct {
 		Bulk   int64 `json:"bulk"`
 		Search int64 `json:"search"`

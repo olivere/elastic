@@ -246,5 +246,6 @@ type TaskInfo struct {
 // StartTaskResult is used in cases where a task gets started asynchronously and
 // the operation simply returnes a TaskID to watch for via the Task Management API.
 type StartTaskResult struct {
-	TaskId string `json:"task"`
+	Header http.Header `json:"-"`
+	TaskId string      `json:"task"`
 }

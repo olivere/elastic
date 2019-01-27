@@ -302,7 +302,12 @@ func TestReindex(t *testing.T) {
 	// Simple copying
 	src := NewReindexSource().Index(testIndexName)
 	dst := NewReindexDestination().Index(testIndexName2)
-	res, err := client.Reindex().Source(src).Destination(dst).Refresh("true").Do(context.TODO())
+	res, err := client.Reindex().
+		Source(src).
+		Destination(dst).
+		Refresh("true").
+		Header("X-Opaque-Id", "987654").
+		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -318,6 +323,9 @@ func TestReindex(t *testing.T) {
 	if res.Created != sourceCount {
 		t.Errorf("expected %d, got %d", sourceCount, res.Created)
 	}
+	if want, have := "987654", res.Header.Get("X-Opaque-Id"); want != have {
+		t.Fatalf("expected HTTP header %#v; got: %#v", want, have)
+	}
 
 	targetCount, err = client.Count(testIndexName2).Do(context.TODO())
 	if err != nil {
@@ -330,13 +338,6 @@ func TestReindex(t *testing.T) {
 
 func TestReindexAsync(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if esversion < "2.3.0" {
-		t.Skipf("Elasticsearch %v does not support Reindex API yet", esversion)
-	}
 
 	sourceCount, err := client.Count(testIndexName).Do(context.TODO())
 	if err != nil {
@@ -361,6 +362,7 @@ func TestReindexAsync(t *testing.T) {
 		Source(src).
 		Destination(dst).
 		Slices("auto").
+		Header("X-Opaque-Id", "987654").
 		DoAsync(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -370,6 +372,9 @@ func TestReindexAsync(t *testing.T) {
 	}
 	if res.TaskId == "" {
 		t.Errorf("expected a task id, got %+v", res)
+	}
+	if want, have := "987654", res.Header.Get("X-Opaque-Id"); want != have {
+		t.Fatalf("expected HTTP header %#v; got: %#v", want, have)
 	}
 
 	tasksGetTask := client.TasksGetTask()
