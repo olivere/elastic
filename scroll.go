@@ -347,7 +347,7 @@ func (s *ScrollService) first(ctx context.Context) (*SearchResult, error) {
 	s.scrollId = ret.ScrollId
 	s.mu.Unlock()
 	if ret.Hits == nil || len(ret.Hits.Hits) == 0 {
-		return nil, io.EOF
+		return ret, io.EOF
 	}
 	return ret, nil
 }
@@ -474,7 +474,7 @@ func (s *ScrollService) next(ctx context.Context) (*SearchResult, error) {
 	s.scrollId = ret.ScrollId
 	s.mu.Unlock()
 	if ret.Hits == nil || len(ret.Hits.Hits) == 0 {
-		return nil, io.EOF
+		return ret, io.EOF
 	}
 	return ret, nil
 }
