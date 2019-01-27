@@ -91,3 +91,15 @@ func TestClusterStateURLs(t *testing.T) {
 		}
 	}
 }
+
+func TestClusterStateGet(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+
+	state, err := client.ClusterState().Pretty(true).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want, have := "elasticsearch", state.ClusterName; want != have {
+		t.Fatalf("ClusterName: want %q, have %q", want, have)
+	}
+}
