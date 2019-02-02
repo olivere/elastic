@@ -200,7 +200,7 @@ func Example() {
 	}
 }
 
-func ExampleClient_NewClient_default() {
+func ExampleNewClient_default() {
 	// Obtain a client to the Elasticsearch instance on http://localhost:9200.
 	client, err := elastic.NewClient()
 	if err != nil {
@@ -214,7 +214,7 @@ func ExampleClient_NewClient_default() {
 	// connected
 }
 
-func ExampleClient_NewClient_cluster() {
+func ExampleNewClient_cluster() {
 	// Obtain a client for an Elasticsearch cluster of two nodes,
 	// running on 10.0.1.1 and 10.0.1.2.
 	client, err := elastic.NewClient(elastic.SetURL("http://10.0.1.1:9200", "http://10.0.1.2:9200"))
@@ -225,7 +225,7 @@ func ExampleClient_NewClient_cluster() {
 	_ = client
 }
 
-func ExampleClient_NewClient_manyOptions() {
+func ExampleNewClient_manyOptions() {
 	// Obtain a client for an Elasticsearch cluster of two nodes,
 	// running on 10.0.1.1 and 10.0.1.2. Do not run the sniffer.
 	// Set the healthcheck interval to 10s. When requests fail,
@@ -388,7 +388,7 @@ func ExampleAggregations() {
 		histogram, found := userBucket.DateHistogram("history")
 		if found {
 			for _, year := range histogram.Buckets {
-				fmt.Printf("user %q has %d tweets in %q\n", user, year.DocCount, year.KeyAsString)
+				fmt.Printf("user %q has %d tweets in %v\n", user, year.DocCount, year.KeyAsString)
 			}
 		}
 	}
@@ -514,7 +514,7 @@ func ExampleClusterHealthService() {
 	fmt.Printf("Cluster status is %q\n", res.Status)
 }
 
-func ExampleClusterHealthService_WaitForGreen() {
+func ExampleClusterHealthService_WaitForStatus() {
 	client, err := elastic.NewClient()
 	if err != nil {
 		panic(err)
