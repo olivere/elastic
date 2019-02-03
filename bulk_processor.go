@@ -77,7 +77,7 @@ type BulkBeforeFunc func(executionId int64, requests []BulkableRequest)
 // after a commit to Elasticsearch. The err parameter signals an error.
 type BulkAfterFunc func(executionId int64, requests []BulkableRequest, response *BulkResponse, err error)
 
-// Before specifies a function to be executed before bulk requests get comitted
+// Before specifies a function to be executed before bulk requests get committed
 // to Elasticsearch.
 func (s *BulkProcessorService) Before(fn BulkBeforeFunc) *BulkProcessorService {
 	s.beforeFn = fn
@@ -85,7 +85,7 @@ func (s *BulkProcessorService) Before(fn BulkBeforeFunc) *BulkProcessorService {
 }
 
 // After specifies a function to be executed when bulk requests have been
-// comitted to Elasticsearch. The After callback executes both when the
+// committed to Elasticsearch. The After callback executes both when the
 // commit was successful as well as on failures.
 func (s *BulkProcessorService) After(fn BulkAfterFunc) *BulkProcessorService {
 	s.afterFn = fn
