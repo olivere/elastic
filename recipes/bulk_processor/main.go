@@ -132,7 +132,7 @@ func main() {
 			for _, w := range stats.Workers {
 				queued += w.Queued
 			}
-			fmt.Printf("Queued=%5d Written=%8d Succeeded=%8d Failed=%8d Comitted=%6d Flushed=%6d\n",
+			fmt.Printf("Queued=%5d Written=%8d Succeeded=%8d Failed=%8d Committed=%6d Flushed=%6d\n",
 				queued,
 				written,
 				stats.Succeeded,

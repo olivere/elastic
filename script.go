@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// Script holds all the paramaters necessary to compile or find in cache
+// Script holds all the parameters necessary to compile or find in cache
 // and then execute a script.
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/modules-scripting.html
