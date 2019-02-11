@@ -334,9 +334,19 @@ type BulkResponseItem struct {
 	GetResult     *GetResult    `json:"get,omitempty"`
 }
 
+// IndexedLen returns num results of "index" actions.
+func (r *BulkResponse) IndexedLen() int {
+	return r.CountByAction("index")
+}
+
 // Indexed returns all bulk request results of "index" actions.
 func (r *BulkResponse) Indexed() []*BulkResponseItem {
 	return r.ByAction("index")
+}
+
+// CreatedLen returns num results of "create" actions.
+func (r *BulkResponse) CreatedLen() int {
+	return r.CountByAction("create")
 }
 
 // Created returns all bulk request results of "create" actions.
@@ -344,9 +354,19 @@ func (r *BulkResponse) Created() []*BulkResponseItem {
 	return r.ByAction("create")
 }
 
+// UpdatedLen returns num results of "update" actions.
+func (r *BulkResponse) UpdatedLen() int {
+	return r.CountByAction("update")
+}
+
 // Updated returns all bulk request results of "update" actions.
 func (r *BulkResponse) Updated() []*BulkResponseItem {
 	return r.ByAction("update")
+}
+
+// DeletedLen returns num results of "delete" actions.
+func (r *BulkResponse) DeletedLen() int {
+	return r.CountByAction("delete")
 }
 
 // Deleted returns all bulk request results of "delete" actions.
@@ -369,6 +389,21 @@ func (r *BulkResponse) ByAction(action string) []*BulkResponseItem {
 	return items
 }
 
+// ByAction returns all bulk request results of a certain action,
+// e.g. "index" or "delete".
+func (r *BulkResponse) CountByAction(action string) int {
+	if r.Items == nil {
+		return 0
+	}
+	count := 0
+	for _, item := range r.Items {
+		if _, found := item[action]; found {
+			count++
+		}
+	}
+	return count
+}
+
 // ById returns all bulk request results of a given document id,
 // regardless of the action ("index", "delete" etc.).
 func (r *BulkResponse) ById(id string) []*BulkResponseItem {
@@ -386,6 +421,23 @@ func (r *BulkResponse) ById(id string) []*BulkResponseItem {
 	return items
 }
 
+// Failed returns number of items of a bulk response that have errors,
+// i.e. those that don't have a status code between 200 and 299.
+func (r *BulkResponse) FailedLen() int {
+	if r.Items == nil {
+		return 0
+	}
+	count := 0
+	for _, item := range r.Items {
+		for _, result := range item {
+			if !(result.Status >= 200 && result.Status <= 299) {
+				count++
+			}
+		}
+	}
+	return count
+}
+
 // Failed returns those items of a bulk response that have errors,
 // i.e. those that don't have a status code between 200 and 299.
 func (r *BulkResponse) Failed() []*BulkResponseItem {
@@ -401,6 +453,23 @@ func (r *BulkResponse) Failed() []*BulkResponseItem {
 		}
 	}
 	return errors
+}
+
+// SucceededLen returns number of items of a bulk response that have no errors,
+// i.e. those have a status code between 200 and 299.
+func (r *BulkResponse) SucceededLen() int {
+	if r.Items == nil {
+		return 0
+	}
+	count := 0
+	for _, item := range r.Items {
+		for _, result := range item {
+			if result.Status >= 200 && result.Status <= 299 {
+				count++
+			}
+		}
+	}
+	return count
 }
 
 // Succeeded returns those items of a bulk response that have no errors,
