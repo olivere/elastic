@@ -21,22 +21,22 @@ func TestScroll(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,8 +61,8 @@ func TestScroll(t *testing.T) {
 		if res.Hits == nil {
 			t.Fatal("expected results.Hits != nil; got nil")
 		}
-		if want, have := int64(3), res.Hits.TotalHits; want != have {
-			t.Fatalf("expected results.Hits.TotalHits = %d; got %d", want, have)
+		if want, have := int64(3), res.TotalHits(); want != have {
+			t.Fatalf("expected results.TotalHits() = %d; got %d", want, have)
 		}
 		if want, have := 1, len(res.Hits.Hits); want != have {
 			t.Fatalf("expected len(results.Hits.Hits) = %d; got %d", want, have)
@@ -114,22 +114,22 @@ func TestScrollWithQueryAndSort(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -162,8 +162,8 @@ func TestScrollWithQueryAndSort(t *testing.T) {
 		if res.Hits == nil {
 			t.Fatal("expected results.Hits != nil; got nil")
 		}
-		if want, have := int64(2), res.Hits.TotalHits; want != have {
-			t.Fatalf("expected results.Hits.TotalHits = %d; got %d", want, have)
+		if want, have := int64(2), res.TotalHits(); want != have {
+			t.Fatalf("expected results.TotalHits() = %d; got %d", want, have)
 		}
 		if want, have := 1, len(res.Hits.Hits); want != have {
 			t.Fatalf("expected len(results.Hits.Hits) = %d; got %d", want, have)
@@ -201,22 +201,22 @@ func TestScrollWithBody(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun.", Retweets: 3}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -282,8 +282,8 @@ func TestScrollWithBody(t *testing.T) {
 			if res.Hits == nil {
 				t.Fatalf("#%d: expected results.Hits != nil; got nil", i)
 			}
-			if want, have := tt.ExpectedTotalHits, res.Hits.TotalHits; want != have {
-				t.Fatalf("#%d: expected results.Hits.TotalHits = %d; got %d", i, want, have)
+			if want, have := tt.ExpectedTotalHits, res.TotalHits(); want != have {
+				t.Fatalf("#%d: expected results.TotalHits() = %d; got %d", i, want, have)
 			}
 			if want, have := 1, len(res.Hits.Hits); want != have {
 				t.Fatalf("#%d: expected len(results.Hits.Hits) = %d; got %d", i, want, have)
@@ -394,30 +394,30 @@ func TestScrollWithMaxResponseSize(t *testing.T) {
 	tweet2 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch.", Retweets: 4}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Test response size error on first scroll request (first response is 391 bytes)
-	svc := client.Scroll(testIndexName).Size(1).MaxResponseSize(300)
+	// Test response size error on first scroll request (first response is 418 bytes)
+	svc := client.Scroll(testIndexName).Size(1).MaxResponseSize(400)
 	_, err = svc.Do(context.TODO())
 	if err != ErrResponseSize {
 		t.Fatalf("expected response size error")
 	}
 
-	// Test response size error on second scroll request (first response is 391 bytes, second is 401 bytes)
-	svc = client.Scroll(testIndexName).Size(1).MaxResponseSize(400)
+	// Test response size error on second scroll request (first response is 418 bytes, second is 439 bytes)
+	svc = client.Scroll(testIndexName).Size(1).MaxResponseSize(420)
 	_, err = svc.Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -438,22 +438,22 @@ func TestScrollWithFilterPath(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -481,8 +481,8 @@ func TestScrollWithFilterPath(t *testing.T) {
 		if res.Hits == nil {
 			t.Fatal("expected results.Hits != nil; got nil")
 		}
-		if want, have := int64(3), res.Hits.TotalHits; want != have {
-			t.Fatalf("expected results.Hits.TotalHits = %d; got %d", want, have)
+		if want, have := int64(3), res.TotalHits(); want != have {
+			t.Fatalf("expected results.TotalHits() = %d; got %d", want, have)
 		}
 		if want, have := 1, len(res.Hits.Hits); want != have {
 			t.Fatalf("expected len(results.Hits.Hits) = %d; got %d", want, have)

@@ -49,14 +49,12 @@ func TestGeoPointIndexAndSearch(t *testing.T) {
 			"number_of_replicas":0
 		},
 		"mappings":{
-			"doc":{
-				"properties":{
-					"name":{
-						"type":"keyword"
-					},
-					"location":{
-						"type":"geo_point"
-					}
+			"properties":{
+				"name":{
+					"type":"keyword"
+				},
+				"location":{
+					"type":"geo_point"
 				}
 			}
 		}
@@ -79,13 +77,13 @@ func TestGeoPointIndexAndSearch(t *testing.T) {
 		Name:     "München",
 		Location: GeoPointFromLatLon(48.137154, 11.576124),
 	}
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&munich).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("1").BodyJson(&munich).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Flush
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	// Refresh
+	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +94,6 @@ func TestGeoPointIndexAndSearch(t *testing.T) {
 	q = q.Distance("50km")
 	res, err := client.
 		Search(testIndexName).
-		Type("doc").
 		Query(q).
 		Do(context.TODO())
 	if err != nil {

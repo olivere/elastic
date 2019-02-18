@@ -17,7 +17,6 @@ func TestExplain(t *testing.T) {
 	// Add a document
 	indexResult, err := client.Index().
 		Index(testIndexName).
-		Type("doc").
 		Id("1").
 		BodyJson(&tweet1).
 		Refresh("true").
@@ -31,7 +30,7 @@ func TestExplain(t *testing.T) {
 
 	// Explain
 	query := NewTermQuery("user", "olivere")
-	expl, err := client.Explain(testIndexName, "doc", "1").Query(query).Do(context.TODO())
+	expl, err := client.Explain(testIndexName, "_doc", "1").Query(query).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

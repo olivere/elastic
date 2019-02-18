@@ -144,22 +144,22 @@ func TestHighlightWithTermQuery(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun to do."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -183,8 +183,8 @@ func TestHighlightWithTermQuery(t *testing.T) {
 	if searchResult.Hits == nil {
 		t.Fatalf("expected SearchResult.Hits != nil; got nil")
 	}
-	if searchResult.Hits.TotalHits != 1 {
-		t.Fatalf("expected SearchResult.Hits.TotalHits = %d; got %d", 1, searchResult.Hits.TotalHits)
+	if searchResult.TotalHits() != 1 {
+		t.Fatalf("expected SearchResult.TotalHits() = %d; got %d", 1, searchResult.TotalHits())
 	}
 	if len(searchResult.Hits.Hits) != 1 {
 		t.Fatalf("expected len(SearchResult.Hits.Hits) = %d; got %d", 1, len(searchResult.Hits.Hits))

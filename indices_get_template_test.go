@@ -53,18 +53,16 @@ func TestIndexGetTemplateService(t *testing.T) {
     }
   },
   "mappings": {
-    "type1": {
-      "_source": {
-        "enabled": false
+    "_source": {
+      "enabled": false
+    },
+    "properties": {
+      "host_name": {
+        "type": "keyword"
       },
-      "properties": {
-        "host_name": {
-          "type": "keyword"
-        },
-        "created_at": {
-          "type": "date",
-          "format": "EEE MMM dd HH:mm:ss Z YYYY"
-        }
+      "created_at": {
+        "type": "date",
+        "format": "EEE MMM dd HH:mm:ss Z YYYY"
       }
     }
   }

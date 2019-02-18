@@ -133,7 +133,7 @@ func TestBulkProcessorBasedOnFlushInterval(t *testing.T) {
 
 	for i := 1; i <= numDocs; i++ {
 		tweet := tweet{User: "olivere", Message: fmt.Sprintf("%d. %s", i, randomString(rand.Intn(64)))}
-		request := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id(fmt.Sprintf("%d", i)).Doc(tweet)
+		request := NewBulkIndexRequest().Index(testIndexName).Id(fmt.Sprintf("%d", i)).Doc(tweet)
 		p.Add(request)
 	}
 
@@ -165,7 +165,7 @@ func TestBulkProcessorBasedOnFlushInterval(t *testing.T) {
 	}
 
 	// Check number of documents that were bulk indexed
-	_, err = p.c.Flush(testIndexName).Do(context.TODO())
+	_, err = p.c.Refresh(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -216,7 +216,7 @@ func TestBulkProcessorClose(t *testing.T) {
 
 	for i := 1; i <= numDocs; i++ {
 		tweet := tweet{User: "olivere", Message: fmt.Sprintf("%d. %s", i, randomString(rand.Intn(64)))}
-		request := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id(fmt.Sprintf("%d", i)).Doc(tweet)
+		request := NewBulkIndexRequest().Index(testIndexName).Id(fmt.Sprintf("%d", i)).Doc(tweet)
 		p.Add(request)
 	}
 
@@ -249,7 +249,7 @@ func TestBulkProcessorClose(t *testing.T) {
 	}
 
 	// Check number of documents that were bulk indexed
-	_, err = p.c.Flush(testIndexName).Do(context.TODO())
+	_, err = p.c.Refresh(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -282,7 +282,7 @@ func TestBulkProcessorFlush(t *testing.T) {
 
 	for i := 1; i <= numDocs; i++ {
 		tweet := tweet{User: "olivere", Message: fmt.Sprintf("%d. %s", i, randomString(rand.Intn(64)))}
-		request := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id(fmt.Sprintf("%d", i)).Doc(tweet)
+		request := NewBulkIndexRequest().Index(testIndexName).Id(fmt.Sprintf("%d", i)).Doc(tweet)
 		p.Add(request)
 	}
 
@@ -322,7 +322,7 @@ func TestBulkProcessorFlush(t *testing.T) {
 	}
 
 	// Check number of documents that were bulk indexed
-	_, err = p.c.Flush(testIndexName).Do(context.TODO())
+	_, err = p.c.Refresh(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -363,7 +363,7 @@ func testBulkProcessor(t *testing.T, numDocs int, svc *BulkProcessorService) {
 
 	for i := 1; i <= numDocs; i++ {
 		tweet := tweet{User: "olivere", Message: fmt.Sprintf("%07d. %s", i, randomString(1+rand.Intn(63)))}
-		request := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id(fmt.Sprintf("%d", i)).Doc(tweet)
+		request := NewBulkIndexRequest().Index(testIndexName).Id(fmt.Sprintf("%d", i)).Doc(tweet)
 		p.Add(request)
 	}
 
@@ -415,7 +415,7 @@ func testBulkProcessor(t *testing.T, numDocs int, svc *BulkProcessorService) {
 	}
 
 	// Check number of documents that were bulk indexed
-	_, err = p.c.Flush(testIndexName).Do(context.TODO())
+	_, err = p.c.Refresh(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

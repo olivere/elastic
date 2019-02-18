@@ -15,7 +15,7 @@ import (
 
 // ExplainService computes a score explanation for a query and
 // a specific document.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-explain.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-explain.html.
 type ExplainService struct {
 	client                 *Client
 	pretty                 bool
@@ -226,7 +226,7 @@ func (s *ExplainService) buildURL() (string, url.Values, error) {
 		params.Set("source", s.source)
 	}
 	if len(s.xSourceExclude) > 0 {
-		params.Set("_source_exclude", strings.Join(s.xSourceExclude, ","))
+		params.Set("_source_excludes", strings.Join(s.xSourceExclude, ","))
 	}
 	if s.lenient != nil {
 		params.Set("lenient", fmt.Sprintf("%v", *s.lenient))
@@ -244,7 +244,7 @@ func (s *ExplainService) buildURL() (string, url.Values, error) {
 		params.Set("lowercase_expanded_terms", fmt.Sprintf("%v", *s.lowercaseExpandedTerms))
 	}
 	if len(s.xSourceInclude) > 0 {
-		params.Set("_source_include", strings.Join(s.xSourceInclude, ","))
+		params.Set("_source_includes", strings.Join(s.xSourceInclude, ","))
 	}
 	if s.analyzeWildcard != nil {
 		params.Set("analyze_wildcard", fmt.Sprintf("%v", *s.analyzeWildcard))

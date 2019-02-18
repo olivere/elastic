@@ -362,7 +362,7 @@ func (r *SearchRequest) TrackScores(trackScores bool) *SearchRequest {
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/index-modules-index-sorting.html#early-terminate
 // for details.
-func (r *SearchRequest) TrackTotalHits(trackTotalHits bool) *SearchRequest {
+func (r *SearchRequest) TrackTotalHits(trackTotalHits interface{}) *SearchRequest {
 	r.searchSource = r.searchSource.TrackTotalHits(trackTotalHits)
 	return r
 }

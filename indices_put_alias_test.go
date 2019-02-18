@@ -26,28 +26,24 @@ func TestAliasLifecycle(t *testing.T) {
 	tweet3 := tweet{User: "olivere", Message: "Another unrelated topic."}
 
 	// Add tweets to first index
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Add tweets to second index
-	_, err = client.Index().Index(testIndexName2).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName2).Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Flush
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = client.Flush().Index(testIndexName2).Do(context.TODO())
+	// Refresh
+	_, err = client.Refresh().Index(testIndexName, testIndexName2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,8 +70,8 @@ func TestAliasLifecycle(t *testing.T) {
 	if searchResult1.Hits == nil {
 		t.Errorf("expected SearchResult.Hits != nil; got nil")
 	}
-	if searchResult1.Hits.TotalHits != 3 {
-		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 3, searchResult1.Hits.TotalHits)
+	if searchResult1.TotalHits() != 3 {
+		t.Errorf("expected SearchResult.TotalHits() = %d; got %d", 3, searchResult1.TotalHits())
 	}
 
 	// Remove first index should remove two tweets, so should only yield 1
@@ -97,8 +93,8 @@ func TestAliasLifecycle(t *testing.T) {
 	if searchResult2.Hits == nil {
 		t.Errorf("expected SearchResult.Hits != nil; got nil")
 	}
-	if searchResult2.Hits.TotalHits != 1 {
-		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 1, searchResult2.Hits.TotalHits)
+	if searchResult2.TotalHits() != 1 {
+		t.Errorf("expected SearchResult.TotalHits() = %d; got %d", 1, searchResult2.TotalHits())
 	}
 
 	// Add second index back to alias as write index
@@ -127,25 +123,25 @@ func TestAliasLifecycle(t *testing.T) {
 	}
 
 	tweet4 := tweet{User: "chris", Message: "Foo bar baz."}
-	_, err = client.Index().Index(testAliasName).Type("doc").Id("4").BodyJson(&tweet4).Do(context.TODO())
+	_, err = client.Index().Index(testAliasName).Id("4").BodyJson(&tweet4).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName, testIndexName2).Do(context.TODO())
+	_, err = client.Refresh().Index(testIndexName, testIndexName2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	searchResult3, err := client.Search().Index(testIndexName2).Query(NewIdsQuery("doc").Ids("4")).Do(context.TODO())
+	searchResult3, err := client.Search().Index(testIndexName2).Query(NewIdsQuery().Ids("4")).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 	if searchResult3.Hits == nil {
 		t.Errorf("expected SearchResult.Hits != nil; got nil")
 	}
-	if searchResult3.Hits.TotalHits != 1 {
-		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 1, searchResult3.Hits.TotalHits)
+	if searchResult3.TotalHits() != 1 {
+		t.Errorf("expected SearchResult.TotalHits() = %d; got %d", 1, searchResult3.TotalHits())
 	}
 }
 

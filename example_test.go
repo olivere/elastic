@@ -111,7 +111,6 @@ func Example() {
 	tweet1 := Tweet{User: "olivere", Message: "Take Five", Retweets: 0}
 	put1, err := client.Index().
 		Index("twitter").
-		Type("doc").
 		Id("1").
 		BodyJson(tweet1).
 		Do(context.Background())
@@ -125,7 +124,6 @@ func Example() {
 	tweet2 := `{"user" : "olivere", "message" : "It's a Raggy Waltz"}`
 	put2, err := client.Index().
 		Index("twitter").
-		Type("doc").
 		Id("2").
 		BodyString(tweet2).
 		Do(context.Background())
@@ -138,7 +136,6 @@ func Example() {
 	// Get tweet with specified ID
 	get1, err := client.Get().
 		Index("twitter").
-		Type("doc").
 		Id("1").
 		Do(context.Background())
 	if err != nil {
@@ -156,8 +153,8 @@ func Example() {
 	}
 	fmt.Printf("Got document %s in version %d from index %s, type %s\n", get1.Id, get1.Version, get1.Index, get1.Type)
 
-	// Flush to make sure the documents got written.
-	_, err = client.Flush().Index("twitter").Do(context.Background())
+	// Refresh to make sure the documents are searchable.
+	_, err = client.Refresh().Index("twitter").Do(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -193,8 +190,8 @@ func Example() {
 	fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
 
 	// Here's how you iterate through results with full control over each step.
-	if searchResult.Hits.TotalHits > 0 {
-		fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
+	if searchResult.TotalHits() > 0 {
+		fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
 
 		// Iterate through results
 		for _, hit := range searchResult.Hits.Hits {
@@ -218,7 +215,7 @@ func Example() {
 	// Update a tweet by the update API of Elasticsearch.
 	// We just increment the number of retweets.
 	script := elastic.NewScript("ctx._source.retweets += params.num").Param("num", 1)
-	update, err := client.Update().Index("twitter").Type("doc").Id("1").
+	update, err := client.Update().Index("twitter").Id("1").
 		Script(script).
 		Upsert(map[string]interface{}{"retweets": 0}).
 		Do(context.Background())
@@ -367,8 +364,8 @@ func ExampleSearchService() {
 	fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
 	// Number of hits
-	if searchResult.Hits.TotalHits > 0 {
-		fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
+	if searchResult.TotalHits() > 0 {
+		fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
 
 		// Iterate through results
 		for _, hit := range searchResult.Hits.Hits {
@@ -467,8 +464,8 @@ func ExampleSearchResult() {
 	fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
 
 	// Here's how you iterate hits with full control.
-	if searchResult.Hits.TotalHits > 0 {
-		fmt.Printf("Found a total of %d tweets\n", searchResult.Hits.TotalHits)
+	if searchResult.TotalHits() > 0 {
+		fmt.Printf("Found a total of %d tweets\n", searchResult.TotalHits())
 
 		// Iterate through results
 		for _, hit := range searchResult.Hits.Hits {

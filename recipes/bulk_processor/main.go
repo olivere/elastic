@@ -113,7 +113,6 @@ func main() {
 			}
 			r := elastic.NewBulkIndexRequest().
 				Index(cfg.Index).
-				Type("doc").
 				Id(uuid.New().String()).
 				Doc(Doc{Timestamp: time.Now()})
 			p.Add(r)

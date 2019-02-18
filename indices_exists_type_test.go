@@ -94,12 +94,12 @@ func TestIndicesExistsType(t *testing.T) {
 	}
 
 	// Check if type exists
-	exists, err := client.TypeExists().Index(testIndexName).Type("doc").Do(context.TODO())
+	exists, err := client.TypeExists().Index(testIndexName).Type("_doc").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !exists {
-		t.Fatalf("type %s should exist in index %s, but doesn't\n", "doc", testIndexName)
+		t.Fatalf("type %s should exist in index %s, but doesn't\n", "_doc", testIndexName)
 	}
 
 	// Delete index
@@ -117,7 +117,7 @@ func TestIndicesExistsType(t *testing.T) {
 		t.Fatal(err)
 	}
 	if exists {
-		t.Fatalf("type %s should not exist in index %s, but it does\n", "doc", testIndexName)
+		t.Fatalf("type %s should not exist in index %s, but it does\n", "_doc", testIndexName)
 	}
 }
 

@@ -166,7 +166,7 @@ func TestReindexSourceWithProceedOnVersionConflict(t *testing.T) {
 
 func TestReindexSourceWithQuery(t *testing.T) {
 	client := setupTestClient(t)
-	src := NewReindexSource().Index("twitter").Type("doc").Query(NewTermQuery("user", "olivere"))
+	src := NewReindexSource().Index("twitter").Query(NewTermQuery("user", "olivere"))
 	dst := NewReindexDestination().Index("new_twitter")
 	out, err := client.Reindex().Source(src).Destination(dst).getBody()
 	if err != nil {
@@ -177,7 +177,7 @@ func TestReindexSourceWithQuery(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := string(b)
-	want := `{"dest":{"index":"new_twitter"},"source":{"index":"twitter","query":{"term":{"user":"olivere"}},"type":"doc"}}`
+	want := `{"dest":{"index":"new_twitter"},"source":{"index":"twitter","query":{"term":{"user":"olivere"}}}}`
 	if got != want {
 		t.Fatalf("\ngot  %s\nwant %s", got, want)
 	}

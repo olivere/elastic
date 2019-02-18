@@ -322,13 +322,4 @@ func TestXPackWatcher(t *testing.T) {
 	if want, have := true, start.Acknowledged; want != have {
 		t.Errorf("expected start.Acknowledged == %v; got %v", want, have)
 	}
-
-	// Restart
-	restart, err := client.XPackWatchRestart().Do(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if want, have := true, restart.Acknowledged; want != have {
-		t.Errorf("expected stats.WatcherState == %v; got %v", want, have)
-	}
 }

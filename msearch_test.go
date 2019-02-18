@@ -32,22 +32,22 @@ func TestMultiSearch(t *testing.T) {
 	}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func TestMultiSearch(t *testing.T) {
 
 	sreq1 := NewSearchRequest().Index(testIndexName, testIndexName2).
 		Source(NewSearchSource().Query(q1).Size(10))
-	sreq2 := NewSearchRequest().Index(testIndexName).Type("doc").
+	sreq2 := NewSearchRequest().Index(testIndexName).
 		Source(NewSearchSource().Query(q2))
 
 	searchResult, err := client.MultiSearch().
@@ -79,8 +79,8 @@ func TestMultiSearch(t *testing.T) {
 	if sres.Hits == nil {
 		t.Errorf("expected Hits != nil; got nil")
 	}
-	if sres.Hits.TotalHits != 3 {
-		t.Errorf("expected Hits.TotalHits = %d; got %d", 3, sres.Hits.TotalHits)
+	if sres.TotalHits() != 3 {
+		t.Errorf("expected TotalHits() = %d; got %d", 3, sres.TotalHits())
 	}
 	if len(sres.Hits.Hits) != 3 {
 		t.Errorf("expected len(Hits.Hits) = %d; got %d", 3, len(sres.Hits.Hits))
@@ -100,8 +100,8 @@ func TestMultiSearch(t *testing.T) {
 	if sres.Hits == nil {
 		t.Errorf("expected Hits != nil; got nil")
 	}
-	if sres.Hits.TotalHits != 2 {
-		t.Errorf("expected Hits.TotalHits = %d; got %d", 2, sres.Hits.TotalHits)
+	if sres.TotalHits() != 2 {
+		t.Errorf("expected TotalHits() = %d; got %d", 2, sres.TotalHits())
 	}
 	if len(sres.Hits.Hits) != 2 {
 		t.Errorf("expected len(Hits.Hits) = %d; got %d", 2, len(sres.Hits.Hits))
@@ -139,22 +139,22 @@ func TestMultiSearchWithStrings(t *testing.T) {
 	}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -162,7 +162,7 @@ func TestMultiSearchWithStrings(t *testing.T) {
 	// Spawn two search queries with one roundtrip
 	sreq1 := NewSearchRequest().Index(testIndexName, testIndexName2).
 		Source(`{"query":{"match_all":{}}}`)
-	sreq2 := NewSearchRequest().Index(testIndexName).Type("doc").
+	sreq2 := NewSearchRequest().Index(testIndexName).
 		Source(`{"query":{"term":{"tags":"golang"}}}`)
 
 	searchResult, err := client.MultiSearch().
@@ -182,8 +182,8 @@ func TestMultiSearchWithStrings(t *testing.T) {
 	if sres.Hits == nil {
 		t.Errorf("expected Hits != nil; got nil")
 	}
-	if sres.Hits.TotalHits != 3 {
-		t.Errorf("expected Hits.TotalHits = %d; got %d", 3, sres.Hits.TotalHits)
+	if sres.TotalHits() != 3 {
+		t.Errorf("expected TotalHits() = %d; got %d", 3, sres.TotalHits())
 	}
 	if len(sres.Hits.Hits) != 3 {
 		t.Errorf("expected len(Hits.Hits) = %d; got %d", 3, len(sres.Hits.Hits))
@@ -203,8 +203,8 @@ func TestMultiSearchWithStrings(t *testing.T) {
 	if sres.Hits == nil {
 		t.Errorf("expected Hits != nil; got nil")
 	}
-	if sres.Hits.TotalHits != 2 {
-		t.Errorf("expected Hits.TotalHits = %d; got %d", 2, sres.Hits.TotalHits)
+	if sres.TotalHits() != 2 {
+		t.Errorf("expected TotalHits() = %d; got %d", 2, sres.TotalHits())
 	}
 	if len(sres.Hits.Hits) != 2 {
 		t.Errorf("expected len(Hits.Hits) = %d; got %d", 2, len(sres.Hits.Hits))
@@ -241,22 +241,22 @@ func TestMultiSearchWithOneRequest(t *testing.T) {
 	}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
+	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -284,8 +284,8 @@ func TestMultiSearchWithOneRequest(t *testing.T) {
 	if sres.Hits == nil {
 		t.Errorf("expected Hits != nil; got nil")
 	}
-	if sres.Hits.TotalHits != 3 {
-		t.Errorf("expected Hits.TotalHits = %d; got %d", 3, sres.Hits.TotalHits)
+	if sres.TotalHits() != 3 {
+		t.Errorf("expected TotalHits() = %d; got %d", 3, sres.TotalHits())
 	}
 	if len(sres.Hits.Hits) != 3 {
 		t.Errorf("expected len(Hits.Hits) = %d; got %d", 3, len(sres.Hits.Hits))

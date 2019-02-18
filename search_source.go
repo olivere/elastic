@@ -20,7 +20,7 @@ type SearchSource struct {
 	version                  *bool
 	sorters                  []Sorter
 	trackScores              *bool
-	trackTotalHits           *bool
+	trackTotalHits           interface{}
 	searchAfterSortValues    []interface{}
 	minScore                 *float64
 	timeout                  string
@@ -78,7 +78,7 @@ func (s *SearchSource) PostFilter(postFilter Query) *SearchSource {
 // Slice allows partitioning the documents in multiple slices.
 // It is e.g. used to slice a scroll operation, supported in
 // Elasticsearch 5.0 or later.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-request-scroll.html#sliced-scroll
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-request-scroll.html#sliced-scroll
 // for details.
 func (s *SearchSource) Slice(sliceQuery Query) *SearchSource {
 	s.sliceQuery = sliceQuery
@@ -166,20 +166,20 @@ func (s *SearchSource) TrackScores(trackScores bool) *SearchSource {
 	return s
 }
 
-// TrackTotalHits indicates if the total hit count for the query should be tracked.
-// Defaults to true.
+// TrackTotalHits controls how the total number of hits should be tracked.
+// Defaults to 10000 which will count the total hit accurately up to 10,000 hits.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/index-modules-index-sorting.html#early-terminate
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/index-modules-index-sorting.html#early-terminate
 // for details.
-func (s *SearchSource) TrackTotalHits(trackTotalHits bool) *SearchSource {
-	s.trackTotalHits = &trackTotalHits
+func (s *SearchSource) TrackTotalHits(trackTotalHits interface{}) *SearchSource {
+	s.trackTotalHits = trackTotalHits
 	return s
 }
 
 // SearchAfter allows a different form of pagination by using a live cursor,
 // using the results of the previous page to help the retrieval of the next.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-request-search-after.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-request-search-after.html
 func (s *SearchSource) SearchAfter(sortValues ...interface{}) *SearchSource {
 	s.searchAfterSortValues = append(s.searchAfterSortValues, sortValues...)
 	return s
@@ -444,7 +444,7 @@ func (s *SearchSource) Source() (interface{}, error) {
 		source["track_scores"] = *v
 	}
 	if v := s.trackTotalHits; v != nil {
-		source["track_total_hits"] = *v
+		source["track_total_hits"] = v
 	}
 	if len(s.searchAfterSortValues) > 0 {
 		source["search_after"] = s.searchAfterSortValues

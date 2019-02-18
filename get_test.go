@@ -14,13 +14,13 @@ func TestGet(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Get document 1
-	res, err := client.Get().Index(testIndexName).Type("doc").Id("1").Do(context.TODO())
+	res, err := client.Get().Index(testIndexName).Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func TestGet(t *testing.T) {
 	}
 
 	// Get non existent document 99
-	res, err = client.Get().Index(testIndexName).Type("doc").Id("99").Do(context.TODO())
+	res, err = client.Get().Index(testIndexName).Id("99").Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected error; got: %v", err)
 	}
@@ -48,13 +48,13 @@ func TestGetWithSourceFiltering(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Get document 1, without source
-	res, err := client.Get().Index(testIndexName).Type("doc").Id("1").FetchSource(false).Do(context.TODO())
+	res, err := client.Get().Index(testIndexName).Id("1").FetchSource(false).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestGetWithSourceFiltering(t *testing.T) {
 
 	// Get document 1, exclude Message field
 	fsc := NewFetchSourceContext(true).Exclude("message")
-	res, err = client.Get().Index(testIndexName).Type("doc").Id("1").FetchSourceContext(fsc).Do(context.TODO())
+	res, err = client.Get().Index(testIndexName).Id("1").FetchSourceContext(fsc).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,13 +94,13 @@ func TestGetWithFields(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Get document 1, specifying fields
-	res, err := client.Get().Index(testIndexName).Type("doc").Id("1").StoredFields("message").Do(context.TODO())
+	res, err := client.Get().Index(testIndexName).Id("1").StoredFields("message").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -151,16 +151,16 @@ func TestGetValidate(t *testing.T) {
 	if _, err := client.Get().Index(testIndexName).Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
-	if _, err := client.Get().Type("doc").Do(context.TODO()); err == nil {
+	if _, err := client.Get().Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
 	if _, err := client.Get().Id("1").Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
-	if _, err := client.Get().Index(testIndexName).Type("doc").Do(context.TODO()); err == nil {
+	if _, err := client.Get().Index(testIndexName).Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
-	if _, err := client.Get().Type("doc").Id("1").Do(context.TODO()); err == nil {
+	if _, err := client.Get().Id("1").Do(context.TODO()); err == nil {
 		t.Fatal("expected Get to fail")
 	}
 }

@@ -15,23 +15,23 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 	}{
 		// #0
 		{
-			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1"),
+			Request: NewBulkDeleteRequest().Index("index1").Id("1"),
 			Expected: []string{
-				`{"delete":{"_index":"index1","_type":"doc","_id":"1"}}`,
+				`{"delete":{"_index":"index1","_id":"1"}}`,
 			},
 		},
 		// #1
 		{
-			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1").Parent("2"),
+			Request: NewBulkDeleteRequest().Index("index1").Id("1").Parent("2"),
 			Expected: []string{
-				`{"delete":{"_index":"index1","_type":"doc","_id":"1","parent":"2"}}`,
+				`{"delete":{"_index":"index1","_id":"1","parent":"2"}}`,
 			},
 		},
 		// #2
 		{
-			Request: NewBulkDeleteRequest().Index("index1").Type("doc").Id("1").Routing("3"),
+			Request: NewBulkDeleteRequest().Index("index1").Id("1").Routing("3"),
 			Expected: []string{
-				`{"delete":{"_index":"index1","_type":"doc","_id":"1","routing":"3"}}`,
+				`{"delete":{"_index":"index1","_id":"1","routing":"3"}}`,
 			},
 		},
 	}
@@ -59,11 +59,11 @@ var bulkDeleteRequestSerializationResult string
 
 func BenchmarkBulkDeleteRequestSerialization(b *testing.B) {
 	b.Run("stdlib", func(b *testing.B) {
-		r := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
+		r := NewBulkDeleteRequest().Index(testIndexName).Id("1")
 		benchmarkBulkDeleteRequestSerialization(b, r.UseEasyJSON(false))
 	})
 	b.Run("easyjson", func(b *testing.B) {
-		r := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
+		r := NewBulkDeleteRequest().Index(testIndexName).Id("1")
 		benchmarkBulkDeleteRequestSerialization(b, r.UseEasyJSON(true))
 	})
 }

@@ -25,31 +25,58 @@ const (
 		"number_of_replicas":0
 	},
 	"mappings":{
-		"doc":{
-			"properties":{
-				"user":{
-					"type":"keyword"
-				},
-				"message":{
-					"type":"text",
-					"store": true,
-					"fielddata": true
-				},
-				"tags":{
-					"type":"keyword"
-				},
-				"location":{
-					"type":"geo_point"
-				},
-				"suggest_field":{
-					"type":"completion",
-					"contexts":[
-						{
-							"name":"user_name",
-							"type":"category"
-						}
-					]
-				}
+		"properties":{
+			"user":{
+				"type":"keyword"
+			},
+			"message":{
+				"type":"text",
+				"store": true,
+				"fielddata": true
+			},
+			"tags":{
+				"type":"keyword"
+			},
+			"location":{
+				"type":"geo_point"
+			},
+			"suggest_field":{
+				"type":"completion"
+			}
+		}
+	}
+}
+`
+	testMappingWithContext = `
+{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"properties":{
+			"user":{
+				"type":"keyword"
+			},
+			"message":{
+				"type":"text",
+				"store": true,
+				"fielddata": true
+			},
+			"tags":{
+				"type":"keyword"
+			},
+			"location":{
+				"type":"geo_point"
+			},
+			"suggest_field":{
+				"type":"completion",
+				"contexts":[
+					{
+						"name":"user_name",
+						"type":"category"
+					}
+				]
 			}
 		}
 	}
@@ -64,34 +91,32 @@ const (
 		"number_of_replicas":0
 	},
 	"mappings":{
-		"doc":{
-			"_source": {
-				"enabled": false
+		"_source": {
+			"enabled": false
+		},
+		"properties":{
+			"user":{
+				"type":"keyword"
 			},
-			"properties":{
-				"user":{
-					"type":"keyword"
-				},
-				"message":{
-					"type":"text",
-					"store": true,
-					"fielddata": true
-				},
-				"tags":{
-					"type":"keyword"
-				},
-				"location":{
-					"type":"geo_point"
-				},
-				"suggest_field":{
-					"type":"completion",
-					"contexts":[
-						{
-							"name":"user_name",
-							"type":"category"
-						}
-					]
-				}
+			"message":{
+				"type":"text",
+				"store": true,
+				"fielddata": true
+			},
+			"tags":{
+				"type":"keyword"
+			},
+			"location":{
+				"type":"geo_point"
+			},
+			"suggest_field":{
+				"type":"completion",
+				"contexts":[
+					{
+						"name":"user_name",
+						"type":"category"
+					}
+				]
 			}
 		}
 	}
@@ -106,16 +131,14 @@ const (
 			"number_of_replicas":0
 		},
 		"mappings":{
-			"doc":{
-				"properties":{
-					"message":{
-						"type":"text"
-					},
-					"my_join_field": {
-						"type": "join",
-						"relations": {
-							"question": "answer"
-						}
+			"properties":{
+				"message":{
+					"type":"text"
+				},
+				"my_join_field": {
+					"type": "join",
+					"relations": {
+						"question": "answer"
 					}
 				}
 			}
@@ -126,12 +149,11 @@ const (
 	testOrderIndex   = "elastic-orders"
 	testOrderMapping = `
 {
-"settings":{
-	"number_of_shards":1,
-	"number_of_replicas":0
-},
-"mappings":{
-	"doc":{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
 		"properties":{
 			"article":{
 				"type":"text"
@@ -144,35 +166,32 @@ const (
 			},
 			"time":{
 				"type":"date",
-				"format": "YYYY-MM-dd"
+				"format": "yyyy-MM-dd"
 			}
 		}
 	}
 }
-}
 `
 
 	/*
-	   	testDoctypeIndex   = "elastic-doctypes"
-	   	testDoctypeMapping = `
-	   {
-	   	"settings":{
-	   		"number_of_shards":1,
-	   		"number_of_replicas":0
-	   	},
-	   	"mappings":{
-	   		"doc":{
-	   			"properties":{
-	   				"message":{
-	   					"type":"text",
-	   					"store": true,
-	   					"fielddata": true
-	   				}
-	   			}
-	   		}
-	   	}
-	   }
-	   `
+		   	testDoctypeIndex   = "elastic-doctypes"
+		   	testDoctypeMapping = `
+		   {
+		   	"settings":{
+		   		"number_of_shards":1,
+		   		"number_of_replicas":0
+		   	},
+		   	"mappings":{
+				"properties":{
+					"message":{
+						"type":"text",
+						"store": true,
+						"fielddata": true
+					}
+				}
+		   	}
+		   }
+		   `
 	*/
 
 	testQueryIndex   = "elastic-queries"
@@ -183,16 +202,14 @@ const (
 		"number_of_replicas":0
 	},
 	"mappings":{
-		"doc":{
-			"properties":{
-				"message":{
-					"type":"text",
-					"store": true,
-					"fielddata": true
-				},
-				"query": {
-					"type":	"percolator"
-				}
+		"properties":{
+			"message":{
+				"type":"text",
+				"store": true,
+				"fielddata": true
+			},
+			"query": {
+				"type":	"percolator"
 			}
 		}
 	}
@@ -309,7 +326,7 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 	}
 
 	// Create second index
-	createIndex2, err := client.CreateIndex(testIndexName2).Body(testMapping).Do(context.TODO())
+	createIndex2, err := client.CreateIndex(testIndexName2).Body(testMappingWithContext).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -351,20 +368,20 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 	//comment1 := comment{User: "nico", Comment: "You bet."}
 
-	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").Routing("someroutingkey").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("3").Routing("someroutingkey").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 	/*
-		_, err = client.Index().Index(testIndexName).Type("comment").Id("1").Parent("3").BodyJson(&comment1).Do(context.TODO())
+		_, err = client.Index().Index(testIndexName).Id("1").Parent("3").BodyJson(&comment1).Do(context.TODO())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -382,14 +399,14 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	orders = append(orders, order{Article: "T-Shirt", Manufacturer: "h&m", Price: 19, Time: "2015-06-18"})
 	for i, o := range orders {
 		id := fmt.Sprintf("%d", i)
-		_, err = client.Index().Index(testOrderIndex).Type("doc").Id(id).BodyJson(&o).Do(context.TODO())
+		_, err = client.Index().Index(testOrderIndex).Id(id).BodyJson(&o).Do(context.TODO())
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
 
-	// Flush
-	_, err = client.Flush().Index(testIndexName, testOrderIndex).Do(context.TODO())
+	// Refresh
+	_, err = client.Refresh().Index(testIndexName, testOrderIndex).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -403,16 +420,16 @@ func setupTestClientAndCreateIndexAndAddDocsNoSource(t logger, options ...Client
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 
-	_, err := client.Index().Index(testNoSourceIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testNoSourceIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Index().Index(testNoSourceIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testNoSourceIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Flush
-	_, err = client.Flush().Index(testNoSourceIndexName).Do(context.TODO())
+	// Refresh
+	_, err = client.Refresh().Index(testNoSourceIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

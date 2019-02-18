@@ -17,7 +17,6 @@ func TestValidate(t *testing.T) {
 	// Add a document
 	indexResult, err := client.Index().
 		Index(testIndexName).
-		Type("doc").
 		BodyJson(&tweet1).
 		Refresh("true").
 		Do(context.TODO())
@@ -30,7 +29,7 @@ func TestValidate(t *testing.T) {
 
 	query := NewTermQuery("user", "olivere")
 	explain := true
-	valid, err := client.Validate(testIndexName).Type("doc").Explain(&explain).Query(query).Do(context.TODO())
+	valid, err := client.Validate(testIndexName).Explain(&explain).Query(query).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +41,7 @@ func TestValidate(t *testing.T) {
 	}
 
 	invalidQuery := NewTermQuery("", false)
-	valid, err = client.Validate(testIndexName).Type("doc").Query(invalidQuery).Do(context.TODO())
+	valid, err = client.Validate(testIndexName).Query(invalidQuery).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -236,7 +236,7 @@ func TestUpdateAndFetchSource(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	res, err := client.Update().
-		Index(testIndexName).Type("doc").Id("1").
+		Index(testIndexName).Id("1").
 		Doc(map[string]interface{}{"user": "sandrae"}).
 		DetectNoop(true).
 		FetchSource(true).
