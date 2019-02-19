@@ -10,9 +10,7 @@ import (
 )
 
 // TasksGetTaskService retrieves the state of a task in the cluster. It is part of the Task Management API
-// documented at http://www.elastic.co/guide/en/elasticsearch/reference/5.2/tasks-list.html.
-//
-// It is supported as of Elasticsearch 2.3.0.
+// documented at https://www.elastic.co/guide/en/elasticsearch/reference/7.x/tasks.html#_current_tasks_information.
 type TasksGetTaskService struct {
 	client            *Client
 	pretty            bool

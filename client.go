@@ -1899,7 +1899,7 @@ func (c *Client) XPackSecurityDeleteRole(roleName string) *XPackSecurityDeleteRo
 }
 
 // TODO: Clear role cache API
-// https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-clear-role-cache.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/7.x/security-api-clear-role-cache.html
 
 // -- X-Pack Watcher --
 

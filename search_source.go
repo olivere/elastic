@@ -169,7 +169,7 @@ func (s *SearchSource) TrackScores(trackScores bool) *SearchSource {
 // TrackTotalHits controls how the total number of hits should be tracked.
 // Defaults to 10000 which will count the total hit accurately up to 10,000 hits.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/index-modules-index-sorting.html#early-terminate
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-request-track-total-hits.html
 // for details.
 func (s *SearchSource) TrackTotalHits(trackTotalHits interface{}) *SearchSource {
 	s.trackTotalHits = trackTotalHits

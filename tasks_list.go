@@ -142,7 +142,7 @@ func (s *TasksListService) buildURL() (string, url.Values, error) {
 		params.Set("human", fmt.Sprintf("%v", *s.human))
 	}
 	if len(s.nodeId) > 0 {
-		params.Set("node_id", strings.Join(s.nodeId, ","))
+		params.Set("nodes", strings.Join(s.nodeId, ","))
 	}
 	if s.parentTaskId != "" {
 		params.Set("parent_task_id", s.parentTaskId)

@@ -16,7 +16,7 @@ import (
 // TasksCancelService can cancel long-running tasks.
 // It is supported as of Elasticsearch 2.3.0.
 //
-// See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/tasks-cancel.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/tasks.html#task-cancellation
 // for details.
 type TasksCancelService struct {
 	client       *Client
@@ -44,7 +44,6 @@ func (s *TasksCancelService) TaskId(taskId string) *TasksCancelService {
 
 // TaskIdFromNodeAndId specifies the task to cancel. Set id to -1 for all tasks.
 func (s *TasksCancelService) TaskIdFromNodeAndId(nodeId string, id int64) *TasksCancelService {
-	// See https://github.com/elastic/elasticsearch/blob/6.7/server/src/main/java/org/elasticsearch/tasks/TaskId.java#L107-L118
 	if id != -1 {
 		s.taskId = fmt.Sprintf("%s:%d", nodeId, id)
 	}
@@ -75,7 +74,6 @@ func (s *TasksCancelService) ParentTaskId(parentTaskId string) *TasksCancelServi
 
 // ParentTaskIdFromNodeAndId specifies to cancel tasks with specified parent task id.
 func (s *TasksCancelService) ParentTaskIdFromNodeAndId(nodeId string, id int64) *TasksCancelService {
-	// See https://github.com/elastic/elasticsearch/blob/6.7/server/src/main/java/org/elasticsearch/tasks/TaskId.java#L107-L118
 	if id != -1 {
 		s.parentTaskId = fmt.Sprintf("%s:%d", nodeId, id)
 	}
@@ -113,7 +111,7 @@ func (s *TasksCancelService) buildURL() (string, url.Values, error) {
 		params.Set("actions", strings.Join(s.actions, ","))
 	}
 	if len(s.nodeId) > 0 {
-		params.Set("node_id", strings.Join(s.nodeId, ","))
+		params.Set("nodes", strings.Join(s.nodeId, ","))
 	}
 	if s.parentTaskId != "" {
 		params.Set("parent_task_id", s.parentTaskId)

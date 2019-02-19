@@ -5,7 +5,7 @@ package elastic
 
 // ScriptedMetricAggregation is a a metric aggregation that executes using scripts to provide a metric output.
 //
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-aggregations-metrics-scripted-metric-aggregation.html
 type ScriptedMetricAggregation struct {
 	initScript    *Script
 	mapScript     *Script
