@@ -62,7 +62,7 @@ func TestIndexGetTemplateService(t *testing.T) {
       },
       "created_at": {
         "type": "date",
-        "format": "EEE MMM dd HH:mm:ss Z YYYY"
+        "format": "yyyy MM dd HH:mm:ss Z"
       }
     }
   }
