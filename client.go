@@ -1901,6 +1901,36 @@ func (c *Client) XPackSecurityDeleteRole(roleName string) *XPackSecurityDeleteRo
 // TODO: Clear role cache API
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-clear-role-cache.html
 
+// XPackSecurityGetUser gets a native user.
+func (c *Client) XPackSecurityGetUser(userName string) *XPackSecurityGetUserService {
+	return NewXPackSecurityGetUserService(c).Name(userName)
+}
+
+// XPackSecurityPutUser adds or updates a native user.
+func (c *Client) XPackSecurityPutUser(userName string) *XPackSecurityPutUserService {
+	return NewXPackSecurityPutUserService(c).Name(userName)
+}
+
+// XPackSecurityEnableUser enables a native user.
+func (c *Client) XPackSecurityEnableUser(userName string) *XPackSecurityEnableUserService {
+	return NewXPackSecurityEnableUserService(c).Name(userName)
+}
+
+// XPackSecurityEnableUser disables a native user.
+func (c *Client) XPackSecurityDisableUser(userName string) *XPackSecurityDisableUserService {
+	return NewXPackSecurityDisableUserService(c).Name(userName)
+}
+
+// XPackSecurityChangeUserPassword changes a native user's password.
+func (c *Client) XPackSecurityChangeUserPassword(userName string) *XPackSecurityChangeUserPasswordService {
+	return NewXPackSecurityChangeUserPasswordService(c).Name(userName)
+}
+
+// XPackSecurityDeleteUser deletes a native user.
+func (c *Client) XPackSecurityDeleteUser(userName string) *XPackSecurityDeleteUserService {
+	return NewXPackSecurityDeleteUserService(c).Name(userName)
+}
+
 // -- X-Pack Watcher --
 
 // XPackWatchPut adds a watch.
