@@ -36,5 +36,5 @@ following things in mind before submitting your pull request:
 
 ## Additional Resources
 
-* [GitHub documentation](http://help.github.com/)
-* [GitHub pull request documentation](http://help.github.com/send-pull-requests/)
+* [GitHub documentation](https://help.github.com/)
+* [GitHub pull request documentation](https://help.github.com/en/articles/creating-a-pull-request)
