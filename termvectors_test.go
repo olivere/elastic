@@ -27,9 +27,21 @@ func TestTermVectorsBuildURL(t *testing.T) {
 		},
 		{
 			"twitter",
+			"",
+			"",
+			"/twitter/_termvectors",
+		},
+		{
+			"twitter",
 			"_doc",
 			"1",
 			"/twitter/_doc/1/_termvectors",
+		},
+		{
+			"twitter",
+			"",
+			"1",
+			"/twitter/_termvectors/1",
 		},
 	}
 

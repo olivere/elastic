@@ -45,6 +45,7 @@ type ExplainService struct {
 func NewExplainService(client *Client) *ExplainService {
 	return &ExplainService{
 		client:         client,
+		typ:            "_doc",
 		xSource:        make([]string, 0),
 		xSourceExclude: make([]string, 0),
 		fields:         make([]string, 0),
@@ -65,6 +66,8 @@ func (s *ExplainService) Index(index string) *ExplainService {
 }
 
 // Type is the type of the document.
+//
+// Deprecated: Types are in the process of being removed.
 func (s *ExplainService) Type(typ string) *ExplainService {
 	s.typ = typ
 	return s
@@ -196,11 +199,21 @@ func (s *ExplainService) BodyString(body string) *ExplainService {
 // buildURL builds the URL for the operation.
 func (s *ExplainService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/{index}/{type}/{id}/_explain", map[string]string{
-		"id":    s.id,
-		"index": s.index,
-		"type":  s.typ,
-	})
+	var path string
+	var err error
+
+	if s.typ == "_doc" {
+		path, err = uritemplates.Expand("/{index}/_explain/{id}", map[string]string{
+			"id":    s.id,
+			"index": s.index,
+		})
+	} else {
+		path, err = uritemplates.Expand("/{index}/{type}/{id}/_explain", map[string]string{
+			"id":    s.id,
+			"index": s.index,
+			"type":  s.typ,
+		})
+	}
 	if err != nil {
 		return "", url.Values{}, err
 	}

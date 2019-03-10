@@ -59,6 +59,8 @@ func (s *TermvectorsService) Index(index string) *TermvectorsService {
 }
 
 // Type of the document.
+//
+// Deprecated: Types are in the process of being removed.
 func (s *TermvectorsService) Type(typ string) *TermvectorsService {
 	s.typ = typ
 	return s
@@ -197,19 +199,25 @@ func (s *TermvectorsService) BodyString(body string) *TermvectorsService {
 func (s *TermvectorsService) buildURL() (string, url.Values, error) {
 	var pathParam = map[string]string{
 		"index": s.index,
-		"type":  s.typ,
 	}
-	var path string
+	path := "/{index}"
 	var err error
 
-	// Build URL
+	if s.typ != "" {
+		pathParam["type"] = s.typ
+		path += "/{type}"
+	} else {
+		path += "/_termvectors"
+	}
 	if s.id != "" {
 		pathParam["id"] = s.id
-		path, err = uritemplates.Expand("/{index}/{type}/{id}/_termvectors", pathParam)
-	} else {
-		path, err = uritemplates.Expand("/{index}/{type}/_termvectors", pathParam)
+		path += "/{id}"
+	}
+	if s.typ != "" {
+		path += "/_termvectors"
 	}
 
+	path, err = uritemplates.Expand(path, pathParam)
 	if err != nil {
 		return "", url.Values{}, err
 	}

@@ -57,6 +57,9 @@ func (s *CountService) Index(index ...string) *CountService {
 }
 
 // Type sets the types to use to restrict the results.
+//
+// Deprecated: Types are in the process of being removed. Instead of using a type, prefer to
+// filter on a field on the document.
 func (s *CountService) Type(typ ...string) *CountService {
 	if s.typ == nil {
 		s.typ = make([]string, 0)

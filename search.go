@@ -73,7 +73,10 @@ func (s *SearchService) Index(index ...string) *SearchService {
 	return s
 }
 
-// Types adds search restrictions for a list of types.
+// Type adds search restrictions for a list of types.
+//
+// Deprecated: Types are in the process of being removed. Instead of using a type, prefer to
+// filter on a field on the document.
 func (s *SearchService) Type(typ ...string) *SearchService {
 	s.typ = append(s.typ, typ...)
 	return s

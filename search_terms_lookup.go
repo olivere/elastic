@@ -29,6 +29,8 @@ func (t *TermsLookup) Index(index string) *TermsLookup {
 }
 
 // Type name.
+//
+// Deprecated: Types are in the process of being removed.
 func (t *TermsLookup) Type(typ string) *TermsLookup {
 	t.typ = typ
 	return t

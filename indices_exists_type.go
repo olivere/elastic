@@ -18,6 +18,7 @@ import (
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/indices-types-exists.html
 // for details.
+// @Deprecated: Types are deprecated and are in the process of being removed.
 type IndicesExistsTypeService struct {
 	client            *Client
 	pretty            bool

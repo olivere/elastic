@@ -52,6 +52,8 @@ func (s *GetService) Index(index string) *GetService {
 }
 
 // Type is the type of the document
+//
+// Deprecated: Types are in the process of being removed.
 func (s *GetService) Type(typ string) *GetService {
 	s.typ = typ
 	return s

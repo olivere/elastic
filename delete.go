@@ -42,6 +42,8 @@ func NewDeleteService(client *Client) *DeleteService {
 }
 
 // Type is the type of the document.
+//
+// Deprecated: Types are in the process of being removed.
 func (s *DeleteService) Type(typ string) *DeleteService {
 	s.typ = typ
 	return s

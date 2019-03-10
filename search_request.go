@@ -67,6 +67,9 @@ func (r *SearchRequest) HasIndices() bool {
 }
 
 // Type specifies one or more types to be used.
+//
+// Deprecated: Types are in the process of being removed. Instead of using a type, prefer to
+// filter on a field on the document.
 func (r *SearchRequest) Type(types ...string) *SearchRequest {
 	r.types = append(r.types, types...)
 	return r

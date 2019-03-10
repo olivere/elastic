@@ -83,6 +83,9 @@ func (s *DeleteByQueryService) Index(index ...string) *DeleteByQueryService {
 }
 
 // Type limits the delete operation to the given types.
+//
+// Deprecated: Types are in the process of being removed. Instead of
+// using a type, prefer to filter on a field of the document.
 func (s *DeleteByQueryService) Type(typ ...string) *DeleteByQueryService {
 	s.typ = append(s.typ, typ...)
 	return s

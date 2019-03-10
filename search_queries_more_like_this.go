@@ -320,6 +320,8 @@ func (item *MoreLikeThisQueryItem) Index(index string) *MoreLikeThisQueryItem {
 }
 
 // Type represents the document type of the item.
+//
+// Deprecated: Types are in the process of being removed.
 func (item *MoreLikeThisQueryItem) Type(typ string) *MoreLikeThisQueryItem {
 	item.typ = typ
 	return item

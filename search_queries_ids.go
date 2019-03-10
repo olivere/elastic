@@ -17,6 +17,8 @@ type IdsQuery struct {
 }
 
 // NewIdsQuery creates and initializes a new ids query.
+//
+// Deprecated: Types are in the process of being removed, prefer to filter on a field instead.
 func NewIdsQuery(types ...string) *IdsQuery {
 	return &IdsQuery{
 		types:  types,

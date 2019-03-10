@@ -50,7 +50,10 @@ func (s *ValidateService) Index(index ...string) *ValidateService {
 	return s
 }
 
-// Types adds search restrictions for a list of types.
+// Type adds search restrictions for a list of types.
+//
+// Deprecated: Types are in the process of being removed. Instead of using a type, prefer to
+// filter on a field on the document.
 func (s *ValidateService) Type(typ ...string) *ValidateService {
 	s.typ = append(s.typ, typ...)
 	return s
