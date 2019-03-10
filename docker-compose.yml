@@ -12,6 +12,7 @@ services:
       # - transport.host=127.0.0.1
       # - network.host=_local_
       - network.publish_host=127.0.0.1
+      - logger.org.elasticsearch=warn
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
     ulimits:
       nproc: 65536
@@ -40,6 +41,7 @@ services:
       # - network.host=_local_
       - http.port=9210
       - network.publish_host=127.0.0.1
+      - logger.org.elasticsearch=warn
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - ELASTIC_PASSWORD=elastic
     ulimits:
