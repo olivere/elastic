@@ -69,11 +69,11 @@ func (s *XPackWatcherExecuteWatchService) buildURL() (string, url.Values, error)
 		err  error
 	)
 	if s.id != "" {
-		path, err = uritemplates.Expand("/_xpack/watcher/watch/{id}/_execute", map[string]string{
+		path, err = uritemplates.Expand("/_watcher/watch/{id}/_execute", map[string]string{
 			"id": s.id,
 		})
 	} else {
-		path = "/_xpack/watcher/watch/_execute"
+		path = "/_watcher/watch/_execute"
 	}
 	if err != nil {
 		return "", url.Values{}, err

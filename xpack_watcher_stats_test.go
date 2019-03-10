@@ -18,12 +18,12 @@ func TestXPackWatcherStatsBuildURL(t *testing.T) {
 	}{
 		{
 			"",
-			"/_xpack/watcher/stats",
+			"/_watcher/stats",
 			false,
 		},
 		{
 			"_all",
-			"/_xpack/watcher/stats",
+			"/_watcher/stats",
 			false,
 		},
 	}

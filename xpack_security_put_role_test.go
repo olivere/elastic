@@ -38,7 +38,7 @@ func TestXPackSecurityPutRoleBuildURL(t *testing.T) {
 		{
 			"my-role",
 			`{}`,
-			"/_xpack/security/role/my-role",
+			"/_security/role/my-role",
 			false,
 		},
 	}

@@ -50,7 +50,7 @@ func (s *XPackWatcherActivateWatchService) Pretty(pretty bool) *XPackWatcherActi
 // buildURL builds the URL for the operation.
 func (s *XPackWatcherActivateWatchService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_xpack/watcher/watch/{watch_id}/_activate", map[string]string{
+	path, err := uritemplates.Expand("/_watcher/watch/{watch_id}/_activate", map[string]string{
 		"watch_id": s.watchId,
 	})
 	if err != nil {

@@ -43,7 +43,7 @@ func (s *XPackSecurityGetRoleService) Pretty(pretty bool) *XPackSecurityGetRoleS
 // buildURL builds the URL for the operation.
 func (s *XPackSecurityGetRoleService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_xpack/security/role/{name}", map[string]string{
+	path, err := uritemplates.Expand("/_security/role/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {

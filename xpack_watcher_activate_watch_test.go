@@ -23,7 +23,7 @@ func TestXPackWatcherActivateWatchBuildURL(t *testing.T) {
 		},
 		{
 			"my-watch",
-			"/_xpack/watcher/watch/my-watch/_activate",
+			"/_watcher/watch/my-watch/_activate",
 			false,
 		},
 	}

@@ -23,7 +23,7 @@ func TestXPackSecurityDeleteRoleBuildURL(t *testing.T) {
 		},
 		{
 			"my-role",
-			"/_xpack/security/role/my-role",
+			"/_security/role/my-role",
 			false,
 		},
 	}

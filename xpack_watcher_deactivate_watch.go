@@ -52,7 +52,7 @@ func (s *XPackWatcherDeactivateWatchService) Pretty(pretty bool) *XPackWatcherDe
 // buildURL builds the URL for the operation.
 func (s *XPackWatcherDeactivateWatchService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_xpack/watcher/watch/{watch_id}/_deactivate", map[string]string{
+	path, err := uritemplates.Expand("/_watcher/watch/{watch_id}/_deactivate", map[string]string{
 		"watch_id": s.watchId,
 	})
 	if err != nil {

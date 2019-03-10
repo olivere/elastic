@@ -43,7 +43,7 @@ func (s *XPackSecurityDeleteRoleService) Pretty(pretty bool) *XPackSecurityDelet
 // buildURL builds the URL for the operation.
 func (s *XPackSecurityDeleteRoleService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_xpack/security/role/{name}", map[string]string{
+	path, err := uritemplates.Expand("/_security/role/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {

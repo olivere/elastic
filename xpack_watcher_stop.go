@@ -33,7 +33,7 @@ func (s *XPackWatcherStopService) Pretty(pretty bool) *XPackWatcherStopService {
 // buildURL builds the URL for the operation.
 func (s *XPackWatcherStopService) buildURL() (string, url.Values, error) {
 	// Build URL path
-	path := "/_xpack/watcher/_stop"
+	path := "/_watcher/_stop"
 
 	// Add query string parameters
 	params := url.Values{}

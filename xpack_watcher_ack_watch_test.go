@@ -26,19 +26,19 @@ func TestXPackWatcherAckWatchBuildURL(t *testing.T) {
 		{
 			"my-watch",
 			[]string{},
-			"/_xpack/watcher/watch/my-watch/_ack",
+			"/_watcher/watch/my-watch/_ack",
 			false,
 		},
 		{
 			"my-watch",
 			[]string{"action1"},
-			"/_xpack/watcher/watch/my-watch/_ack/action1",
+			"/_watcher/watch/my-watch/_ack/action1",
 			false,
 		},
 		{
 			"my-watch",
 			[]string{"action1", "action2"},
-			"/_xpack/watcher/watch/my-watch/_ack/action1%2Caction2",
+			"/_watcher/watch/my-watch/_ack/action1%2Caction2",
 			false,
 		},
 	}

@@ -38,7 +38,7 @@ func TestXPackWatcherPutWatchBuildURL(t *testing.T) {
 		{
 			"my-watch",
 			`{}`,
-			"/_xpack/watcher/watch/my-watch",
+			"/_watcher/watch/my-watch",
 			false,
 		},
 	}

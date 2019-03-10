@@ -48,7 +48,7 @@ func (s *XPackWatcherStatsService) Pretty(pretty bool) *XPackWatcherStatsService
 // buildURL builds the URL for the operation.
 func (s *XPackWatcherStatsService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path := "/_xpack/watcher/stats"
+	path := "/_watcher/stats"
 
 	// Add query string parameters
 	params := url.Values{}
