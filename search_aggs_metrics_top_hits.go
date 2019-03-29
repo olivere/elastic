@@ -24,6 +24,14 @@ func NewTopHitsAggregation() *TopHitsAggregation {
 	}
 }
 
+func (a *TopHitsAggregation) SearchSource(searchSource *SearchSource) *TopHitsAggregation {
+	a.searchSource = searchSource
+	if a.searchSource == nil {
+		a.searchSource = NewSearchSource()
+	}
+	return a
+}
+
 func (a *TopHitsAggregation) From(from int) *TopHitsAggregation {
 	a.searchSource = a.searchSource.From(from)
 	return a
