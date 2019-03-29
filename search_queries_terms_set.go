@@ -25,7 +25,8 @@ type TermsSetQuery struct {
 // NewTermsSetQuery creates and initializes a new TermsSetQuery.
 func NewTermsSetQuery(name string, values ...interface{}) *TermsSetQuery {
 	q := &TermsSetQuery{
-		name: name,
+		name:   name,
+		values: make([]interface{}, 0),
 	}
 	if len(values) > 0 {
 		q.values = append(q.values, values...)
