@@ -13,7 +13,7 @@ import (
 	"github.com/olivere/elastic/uritemplates"
 )
 
-// SnapshotCreateService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.2/modules-snapshots.html.
+// SnapshotCreateService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.7/modules-snapshots.html.
 type SnapshotCreateService struct {
 	client            *Client
 	pretty            bool

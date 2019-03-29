@@ -14,7 +14,7 @@ import (
 )
 
 // XPackWatcherActivateWatchService enables you to activate a currently inactive watch.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-activate-watch.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-activate-watch.html.
 type XPackWatcherActivateWatchService struct {
 	client        *Client
 	pretty        bool

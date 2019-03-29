@@ -14,7 +14,7 @@ import (
 )
 
 // XPackSecurityDeleteRoleMappingService delete a role mapping by its name.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/security-api-delete-role-mapping.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/security-api-delete-role-mapping.html.
 type XPackSecurityDeleteRoleMappingService struct {
 	client *Client
 	pretty bool

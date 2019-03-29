@@ -15,7 +15,7 @@ import (
 )
 
 // SearchShardsService returns the indices and shards that a search request would be executed against.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-shards.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-shards.html
 type SearchShardsService struct {
 	client            *Client
 	pretty            bool

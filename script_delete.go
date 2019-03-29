@@ -14,7 +14,7 @@ import (
 
 // DeleteScriptService removes a stored script in Elasticsearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/modules-scripting.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/modules-scripting.html
 // for details.
 type DeleteScriptService struct {
 	client        *Client

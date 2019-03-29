@@ -23,7 +23,7 @@ import (
 // reuse BulkService to send many batches. You do not have to create a new
 // BulkService for each batch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/docs-bulk.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/docs-bulk.html
 // for more details.
 type BulkService struct {
 	client  *Client
@@ -94,7 +94,7 @@ func (s *BulkService) Timeout(timeout string) *BulkService {
 // changes to be made visible by a refresh before reying), or "false"
 // (no refresh related actions). The default value is "false".
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/docs-refresh.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/docs-refresh.html
 // for details.
 func (s *BulkService) Refresh(refresh string) *BulkService {
 	s.refresh = refresh

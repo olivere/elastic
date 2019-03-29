@@ -14,7 +14,7 @@ import (
 )
 
 // XPackWatcherExecuteWatchService forces the execution of a stored watch.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-execute-watch.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-execute-watch.html.
 type XPackWatcherExecuteWatchService struct {
 	client     *Client
 	pretty     bool

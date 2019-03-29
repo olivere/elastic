@@ -14,7 +14,7 @@ import (
 )
 
 // XPackWatcherDeactivateWatchService enables you to deactivate a currently active watch.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-deactivate-watch.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-deactivate-watch.html.
 type XPackWatcherDeactivateWatchService struct {
 	client        *Client
 	pretty        bool

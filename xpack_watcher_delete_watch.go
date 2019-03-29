@@ -14,7 +14,7 @@ import (
 )
 
 // XPackWatcherDeleteWatchService removes a watch.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-delete-watch.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-delete-watch.html.
 type XPackWatcherDeleteWatchService struct {
 	client        *Client
 	pretty        bool

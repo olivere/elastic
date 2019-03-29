@@ -14,7 +14,7 @@ import (
 )
 
 // XPackSecurityPutRoleService retrieves a role by its name.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/security-api-put-role.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/security-api-put-role.html.
 type XPackSecurityPutRoleService struct {
 	client *Client
 	pretty bool

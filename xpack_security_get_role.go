@@ -14,7 +14,7 @@ import (
 )
 
 // XPackSecurityGetRoleService retrieves a role by its name.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/security-api-get-role.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/security-api-get-role.html.
 type XPackSecurityGetRoleService struct {
 	client *Client
 	pretty bool
@@ -107,7 +107,7 @@ type XPackSecurityGetRoleResponse map[string]XPackSecurityRole
 // XPackSecurityRole is the role object.
 //
 // The Java source for this struct is defined here:
-// https://github.com/elastic/elasticsearch/blob/6.x/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/security/authz/RoleDescriptor.java
+// https://github.com/elastic/elasticsearch/blob/6.7/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/security/authz/RoleDescriptor.java
 type XPackSecurityRole struct {
 	Cluster           []string                             `json:"cluster"`
 	Indices           []XPackSecurityIndicesPermissions    `json:"indices"`

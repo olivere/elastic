@@ -14,7 +14,7 @@ import (
 )
 
 // XPackSecurityPutRoleMappingService create or update a role mapping by its name.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/security-api-put-role-mapping.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/security-api-put-role-mapping.html.
 type XPackSecurityPutRoleMappingService struct {
 	client *Client
 	pretty bool

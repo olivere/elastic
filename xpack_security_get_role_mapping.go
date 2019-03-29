@@ -14,7 +14,7 @@ import (
 )
 
 // XPackSecurityGetRoleMappingService retrieves a role mapping by its name.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/security-api-get-role-mapping.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/security-api-get-role-mapping.html.
 type XPackSecurityGetRoleMappingService struct {
 	client *Client
 	pretty bool

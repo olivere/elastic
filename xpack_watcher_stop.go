@@ -11,7 +11,7 @@ import (
 )
 
 // XPackWatcherStopService stops the watcher service if it is running.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-stop.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-stop.html.
 type XPackWatcherStopService struct {
 	client *Client
 	pretty bool

@@ -15,7 +15,7 @@ import (
 )
 
 // XPackWatcherGetWatchService retrieves a watch by its ID.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-get-watch.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-get-watch.html.
 type XPackWatcherGetWatchService struct {
 	client *Client
 	pretty bool

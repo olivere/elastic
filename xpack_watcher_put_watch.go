@@ -15,7 +15,7 @@ import (
 
 // XPackWatcherPutWatchService either registers a new watch in Watcher
 // or update an existing one.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-put-watch.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-put-watch.html.
 type XPackWatcherPutWatchService struct {
 	client        *Client
 	pretty        bool

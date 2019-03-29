@@ -15,7 +15,7 @@ import (
 
 // SnapshotDeleteService deletes a snapshot from a snapshot repository.
 // It is documented at
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.4/modules-snapshots.html.
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/modules-snapshots.html.
 type SnapshotDeleteService struct {
 	client     *Client
 	repository string

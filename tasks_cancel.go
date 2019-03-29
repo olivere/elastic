@@ -44,7 +44,7 @@ func (s *TasksCancelService) TaskId(taskId string) *TasksCancelService {
 
 // TaskIdFromNodeAndId specifies the task to cancel. Set id to -1 for all tasks.
 func (s *TasksCancelService) TaskIdFromNodeAndId(nodeId string, id int64) *TasksCancelService {
-	// See https://github.com/elastic/elasticsearch/blob/6.x/server/src/main/java/org/elasticsearch/tasks/TaskId.java#L107-L118
+	// See https://github.com/elastic/elasticsearch/blob/6.7/server/src/main/java/org/elasticsearch/tasks/TaskId.java#L107-L118
 	if id != -1 {
 		s.taskId = fmt.Sprintf("%s:%d", nodeId, id)
 	}
@@ -75,7 +75,7 @@ func (s *TasksCancelService) ParentTaskId(parentTaskId string) *TasksCancelServi
 
 // ParentTaskIdFromNodeAndId specifies to cancel tasks with specified parent task id.
 func (s *TasksCancelService) ParentTaskIdFromNodeAndId(nodeId string, id int64) *TasksCancelService {
-	// See https://github.com/elastic/elasticsearch/blob/6.x/server/src/main/java/org/elasticsearch/tasks/TaskId.java#L107-L118
+	// See https://github.com/elastic/elasticsearch/blob/6.7/server/src/main/java/org/elasticsearch/tasks/TaskId.java#L107-L118
 	if id != -1 {
 		s.parentTaskId = fmt.Sprintf("%s:%d", nodeId, id)
 	}

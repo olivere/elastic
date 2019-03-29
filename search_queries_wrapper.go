@@ -7,7 +7,7 @@ package elastic
 // WrapperQuery accepts any other query as base64 encoded string.
 //
 // For details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.3/query-dsl-wrapper-query.html.
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/query-dsl-wrapper-query.html.
 type WrapperQuery struct {
 	source string
 }

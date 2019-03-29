@@ -15,7 +15,7 @@ import (
 
 // ValidateService allows a user to validate a potentially
 // expensive query without executing it.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-validate.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-validate.html.
 type ValidateService struct {
 	client            *Client
 	pretty            bool

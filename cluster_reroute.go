@@ -17,7 +17,7 @@ import (
 // one node to another explicitly, an allocation can be cancelled, and
 // an unassigned shard can be explicitly allocated to a specific node.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/cluster-reroute.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/cluster-reroute.html
 // for details.
 type ClusterRerouteService struct {
 	client        *Client

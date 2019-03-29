@@ -14,7 +14,7 @@ import (
 )
 
 // XPackSecurityDeleteRoleService delete a role by its name.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/security-api-delete-role.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/security-api-delete-role.html.
 type XPackSecurityDeleteRoleService struct {
 	client *Client
 	pretty bool

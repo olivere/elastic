@@ -12,7 +12,7 @@ import (
 )
 
 // XPackWatcherStatsService returns the current watcher metrics.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-stats.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-stats.html.
 type XPackWatcherStatsService struct {
 	client          *Client
 	pretty          bool

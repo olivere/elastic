@@ -16,7 +16,7 @@ import (
 // CatIndicesService returns the list of indices plus some additional
 // information about them.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/cat-indices.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/cat-indices.html
 // for details.
 type CatIndicesService struct {
 	client        *Client

@@ -11,7 +11,7 @@ import (
 )
 
 // XPackWatcherStartService starts the watcher service if it is not already running.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-start.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-start.html.
 type XPackWatcherStartService struct {
 	client *Client
 	pretty bool

@@ -11,7 +11,7 @@ import (
 )
 
 // XPackWatcherRestartService stops the starts the watcher service.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-restart.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-restart.html.
 type XPackWatcherRestartService struct {
 	client *Client
 	pretty bool

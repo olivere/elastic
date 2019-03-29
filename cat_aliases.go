@@ -16,7 +16,7 @@ import (
 // CatAliasesService shows information about currently configured aliases
 // to indices including filter and routing infos.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/cat-aliases.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/cat-aliases.html
 // for details.
 type CatAliasesService struct {
 	client        *Client

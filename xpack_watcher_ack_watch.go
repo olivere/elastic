@@ -15,7 +15,7 @@ import (
 )
 
 // XPackWatcherAckWatchService enables you to manually throttle execution of the watch’s actions.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/watcher-api-ack-watch.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/watcher-api-ack-watch.html.
 type XPackWatcherAckWatchService struct {
 	client        *Client
 	pretty        bool

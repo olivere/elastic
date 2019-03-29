@@ -800,7 +800,7 @@ func TestSearchInnerHitsOnHasChild(t *testing.T) {
 	}
 
 	// Add documents
-	// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/parent-join.html for example code.
+	// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/parent-join.html for example code.
 	doc1 := joinDoc{
 		Message:   "This is a question",
 		JoinField: &joinField{Name: "question"},
@@ -913,7 +913,7 @@ func TestSearchInnerHitsOnHasParent(t *testing.T) {
 	}
 
 	// Add documents
-	// See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/parent-join.html for example code.
+	// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/parent-join.html for example code.
 	doc1 := joinDoc{
 		Message:   "This is a question",
 		JoinField: &joinField{Name: "question"},
@@ -1330,7 +1330,7 @@ func TestSearchScriptQuery(t *testing.T) {
 	//	String username = doc['user'].value;
 	//	return username == 'olivere'
 	//`)
-	// See https://www.elastic.co/guide/en/elasticsearch/painless/6.3/painless-examples.html
+	// See https://www.elastic.co/guide/en/elasticsearch/painless/6.7/painless-examples.html
 	script := NewScript("doc['user'].value == 'olivere'")
 	query := NewScriptQuery(script)
 
