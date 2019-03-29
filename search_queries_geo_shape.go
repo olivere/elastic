@@ -10,14 +10,19 @@ package elastic
 // For more details, see:
 // https://www.elastic.co/guide/en/elasticsearch/reference/6.2/query-dsl-geo-shape-query.html
 type GeoShapeQuery struct {
-	name      string
-	index     string
-	typ       string
-	path      string
-	id        interface{}
-	coord     interface{}
-	relation  string
-	queryName string
+	name         string
+	shape        Shape
+	strategy     string
+	relation     string
+	indexedShape struct {
+		index   string
+		typ     string
+		path    string
+		id      string
+		routing string
+	}
+	ignoreUnmapped bool
+	queryName      string
 }
 
 // NewGeoShapeQuery creates and initializes a new GeoShapeQuery.
@@ -27,32 +32,57 @@ func NewGeoShapeQuery(name string) *GeoShapeQuery {
 	}
 }
 
-func (q *GeoShapeQuery) IndexedShape(index, typ, path string, id interface{}) *GeoShapeQuery {
-	q.index = index
-	q.typ = typ
-	q.path = path
-	q.id = id
+func (q *GeoShapeQuery) Shape(s Shape) *GeoShapeQuery {
+	q.shape = s
 	return q
 }
 
-// Type sets the type of coordinates that you will provide, it can be
-// point, polygon, envelope, etc.
-func (q *GeoShapeQuery) Type(typ string) *GeoShapeQuery {
-	q.typ = typ
+func (q *GeoShapeQuery) Strategy(strategy string) *GeoShapeQuery {
+	q.strategy = strategy
 	return q
 }
 
-// Coordinates depends of your type, can be a point ([]float64), can be
-// a linestring ([][]float64) a polygon ([][][]float64), etc.
-func (q *GeoShapeQuery) Coordinates(coord interface{}) *GeoShapeQuery {
-	q.coord = coord
-	return q
-}
-
-// Relation sets which spatial relation operators may be used at search time.
-// Operators available are intersects, disjoint, within and contains.
 func (q *GeoShapeQuery) Relation(relation string) *GeoShapeQuery {
 	q.relation = relation
+	return q
+}
+
+func (q *GeoShapeQuery) IndexedShape(index, typ, path, id, routing string) *GeoShapeQuery {
+	q.indexedShape.index = index
+	q.indexedShape.typ = typ
+	q.indexedShape.path = path
+	q.indexedShape.id = id
+	q.indexedShape.routing = routing
+	return q
+}
+
+func (q *GeoShapeQuery) IndexedShapeIndex(index string) *GeoShapeQuery {
+	q.indexedShape.index = index
+	return q
+}
+
+func (q *GeoShapeQuery) IndexedShapeType(typ string) *GeoShapeQuery {
+	q.indexedShape.typ = typ
+	return q
+}
+
+func (q *GeoShapeQuery) IndexedShapePath(path string) *GeoShapeQuery {
+	q.indexedShape.path = path
+	return q
+}
+
+func (q *GeoShapeQuery) IndexedShapeID(id string) *GeoShapeQuery {
+	q.indexedShape.id = id
+	return q
+}
+
+func (q *GeoShapeQuery) IndexedShapeRouting(routing string) *GeoShapeQuery {
+	q.indexedShape.routing = routing
+	return q
+}
+
+func (q *GeoShapeQuery) IgnoreUnmapped(ignoreUnmapped bool) *GeoShapeQuery {
+	q.ignoreUnmapped = ignoreUnmapped
 	return q
 }
 
@@ -65,56 +95,53 @@ func (q *GeoShapeQuery) QueryName(queryName string) *GeoShapeQuery {
 func (q *GeoShapeQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
-	shape := make(map[string]interface{})
 	source["geo_shape"] = params
 
-	if q.index != "" {
-		// Pre-Indexed Shape
-		// {
-		// 	 "geo_shape" : {
-		//     "location": {
-		//       "indexed_shape": {
-		//         "index": "shapes",
-		//         "type": "_doc",
-		//         "id": "deu",
-		//         "path": "location"
-		//       }
-		//     }
-		//   }
-		// }
-		indexedShape := make(map[string]interface{})
-		indexedShape["index"] = q.index
-		indexedShape["type"] = q.typ
-		indexedShape["path"] = q.path
-		indexedShape["id"] = q.id
-		shape["indexed_shape"] = indexedShape
-	} else {
-		// Inline Shape
-		// {
-		// 	 "geo_shape" : {
-		//     "location": {
-		//       "shape": {
-		//         "type": "envelope",
-		//         "coordinates": [[13.0, 53.0], [14.0, 52.0]]
-		//       },
-		//       "relation": "within"
-		//     }
-		//   }
-		// }
-		inlineShape := make(map[string]interface{})
-		inlineShape["type"] = q.typ
-		inlineShape["coordinates"] = q.coord
-		shape["shape"] = inlineShape
-	}
-
+	shape := make(map[string]interface{})
 	params[q.name] = shape
+	params["ignore_unmapped"] = q.ignoreUnmapped
+
+	if q.strategy != "" {
+		shape["strategy"] = q.strategy
+	}
 
 	if q.relation != "" {
-		params["relation"] = q.relation
+		shape["relation"] = q.relation
 	}
+
+	if q.indexedShape.id == "" {
+		var err error
+
+		shape["shape"], err = q.shape.Source()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		indexedShape := make(map[string]interface{})
+		shape["indexed_shape"] = indexedShape
+		indexedShape["id"] = q.indexedShape.id
+		indexedShape["type"] = q.indexedShape.typ
+		if q.indexedShape.index != "" {
+			indexedShape["index"] = q.indexedShape.index
+		}
+		if q.indexedShape.path != "" {
+			indexedShape["path"] = q.indexedShape.path
+		}
+		if q.indexedShape.routing != "" {
+			indexedShape["routing"] = q.indexedShape.routing
+		}
+	}
+
 	if q.queryName != "" {
 		params["_name"] = q.queryName
 	}
 
 	return source, nil
+}
+
+type Shape struct {
+}
+
+func (s *Shape) Source() (interface{}, error) {
+	return nil, nil
 }

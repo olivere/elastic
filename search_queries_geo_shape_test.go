@@ -11,7 +11,7 @@ import (
 
 func TestGeoShapeQueryWithPreIndexedShape(t *testing.T) {
 	q := NewGeoShapeQuery("pin.location")
-	q = q.IndexedShape("shapes", "_doc", "location", "deu")
+	q = q.IndexedShape("shapes", "_doc", "location", "deu", "")
 	q = q.Relation("contains")
 	src, err := q.Source()
 	if err != nil {
