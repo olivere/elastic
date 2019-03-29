@@ -97,7 +97,7 @@ func (s *ScrollService) Scroll(keepAlive string) *ScrollService {
 }
 
 // KeepAlive sets the maximum time after which the cursor will expire.
-// It is "2m" by default.
+// It is "5m" by default.
 func (s *ScrollService) KeepAlive(keepAlive string) *ScrollService {
 	s.keepAlive = keepAlive
 	return s
