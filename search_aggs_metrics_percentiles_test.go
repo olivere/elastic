@@ -76,3 +76,41 @@ func TestPercentilesAggregationWithMetaData(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestPercentilesAggregationWithCompression(t *testing.T) {
+	agg := NewPercentilesAggregation().Field("load_time").Compression(200.0)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"percentiles":{"field":"load_time","tdigest":{"compression":200}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestPercentilesAggregationWithNumberOfSignificantValueDigits(t *testing.T) {
+	agg := NewPercentilesAggregation().
+		Field("load_time").
+		Percentiles(95, 99, 99.9).
+		Method("hdr").
+		NumberOfSignificantValueDigits(5)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"percentiles":{"field":"load_time","hdr":{"number_of_significant_value_digits":5},"percents":[95,99,99.9]}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
