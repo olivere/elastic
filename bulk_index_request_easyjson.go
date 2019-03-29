@@ -57,7 +57,15 @@ func easyjson9de0fcbfDecodeGithubComOlivereElastic(in *jlexer.Lexer, out *bulkIn
 		case "routing":
 			out.Routing = string(in.String())
 		case "version":
-			out.Version = int64(in.Int64())
+			if in.IsNull() {
+				in.Skip()
+				out.Version = nil
+			} else {
+				if out.Version == nil {
+					out.Version = new(int64)
+				}
+				*out.Version = int64(in.Int64())
+			}
 		case "version_type":
 			out.VersionType = string(in.String())
 		case "pipeline":
@@ -136,7 +144,7 @@ func easyjson9de0fcbfEncodeGithubComOlivereElastic(out *jwriter.Writer, in bulkI
 		}
 		out.String(string(in.Routing))
 	}
-	if in.Version != 0 {
+	if in.Version != nil {
 		const prefix string = ",\"version\":"
 		if first {
 			first = false
@@ -144,7 +152,7 @@ func easyjson9de0fcbfEncodeGithubComOlivereElastic(out *jwriter.Writer, in bulkI
 		} else {
 			out.RawString(prefix)
 		}
-		out.Int64(int64(in.Version))
+		out.Int64(int64(*in.Version))
 	}
 	if in.VersionType != "" {
 		const prefix string = ",\"version_type\":"

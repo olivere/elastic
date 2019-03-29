@@ -24,7 +24,7 @@ type BulkIndexRequest struct {
 	opType          string
 	routing         string
 	parent          string
-	version         int64  // default is MATCH_ANY
+	version         *int64 // default is MATCH_ANY
 	versionType     string // default is "internal"
 	doc             interface{}
 	pipeline        string
@@ -47,7 +47,7 @@ type bulkIndexRequestCommandOp struct {
 	// RetryOnConflict is "_retry_on_conflict" for 6.0 and "retry_on_conflict" for 6.1+.
 	RetryOnConflict *int   `json:"retry_on_conflict,omitempty"`
 	Routing         string `json:"routing,omitempty"`
-	Version         int64  `json:"version,omitempty"`
+	Version         *int64 `json:"version,omitempty"`
 	VersionType     string `json:"version_type,omitempty"`
 	Pipeline        string `json:"pipeline,omitempty"`
 }
@@ -120,7 +120,8 @@ func (r *BulkIndexRequest) Parent(parent string) *BulkIndexRequest {
 // Version indicates the version of the document as part of an optimistic
 // concurrency model.
 func (r *BulkIndexRequest) Version(version int64) *BulkIndexRequest {
-	r.version = version
+	v := version
+	r.version = &v
 	r.source = nil
 	return r
 }
