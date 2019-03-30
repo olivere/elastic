@@ -87,7 +87,7 @@ func TestTransport(t *testing.T) {
 	if want, have := "PerformRequest", span.OperationName; want != have {
 		t.Fatalf("want Span.OperationName=%q, have %q", want, have)
 	}
-	if want, have := "github.com/olivere/elastic/v6", span.Tag("component"); want != have {
+	if want, have := "github.com/olivere/elastic/v7", span.Tag("component"); want != have {
 		t.Fatalf("want component tag=%q, have %q", want, have)
 	}
 	if want, have := ts.URL+"/", span.Tag("http.url"); want != have {

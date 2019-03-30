@@ -21,12 +21,12 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/olivere/elastic/config"
+	"github.com/olivere/elastic/v7/config"
 )
 
 const (
 	// Version is the current version of Elastic.
-	Version = "6.2.16"
+	Version = "7.0.0"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1558,11 +1558,6 @@ func (c *Client) ShrinkIndex(source, target string) *IndicesShrinkService {
 // is considered to be too large or too old.
 func (c *Client) RolloverIndex(alias string) *IndicesRolloverService {
 	return NewIndicesRolloverService(c).Alias(alias)
-}
-
-// TypeExists allows to check if one or more types exist in one or more indices.
-func (c *Client) TypeExists() *IndicesExistsTypeService {
-	return NewIndicesExistsTypeService(c)
 }
 
 // IndexStats provides statistics on different operations happining

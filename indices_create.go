@@ -9,7 +9,7 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+	"github.com/olivere/elastic/v7/uritemplates"
 )
 
 // IndicesCreateService creates a new index.

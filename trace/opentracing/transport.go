@@ -45,7 +45,7 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req = req.WithContext(ctx)
 	defer span.Finish()
 
-	ext.Component.Set(span, "github.com/olivere/elastic/v6")
+	ext.Component.Set(span, "github.com/olivere/elastic/v7")
 	ext.HTTPUrl.Set(span, req.URL.String())
 	ext.HTTPMethod.Set(span, req.Method)
 	ext.PeerHostname.Set(span, req.URL.Hostname())
