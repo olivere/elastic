@@ -23,7 +23,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 const (
@@ -34,14 +34,12 @@ const (
 			"number_of_replicas":0
 		},
 		"mappings":{
-			"_doc":{
-				"properties":{
-					"name":{
-						"type":"keyword"
-					},
-					"name_suggest":{
-						"type":"completion"
-					}
+			"properties":{
+				"name":{
+					"type":"keyword"
+				},
+				"name_suggest":{
+					"type":"completion"
 				}
 			}
 		}
@@ -126,7 +124,6 @@ func main() {
 		fmt.Printf("Add %s...\n", name)
 		_, err := client.Index().
 			Index(*index).
-			Type("_doc").
 			BodyJson(&City{
 				Name:        name,
 				NameSuggest: elastic.NewSuggestField(name),
@@ -150,7 +147,6 @@ func main() {
 
 		res, err := client.Search().
 			Index(*index).
-			Type("_doc").
 			Suggester(
 				elastic.NewCompletionSuggester("name_suggestion").
 					Field("name_suggest").

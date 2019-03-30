@@ -13,7 +13,7 @@ import (
 
 	"go.opencensus.io/trace"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 func init() {

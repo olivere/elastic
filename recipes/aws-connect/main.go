@@ -16,10 +16,10 @@ import (
 	"log"
 
 	"github.com/olivere/env"
-	"github.com/smartystreets/go-aws-auth"
+	awsauth "github.com/smartystreets/go-aws-auth"
 
-	"github.com/olivere/elastic"
-	"github.com/olivere/elastic/aws"
+	"github.com/olivere/elastic/v7"
+	"github.com/olivere/elastic/v7/aws"
 )
 
 func main() {

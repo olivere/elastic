@@ -37,14 +37,13 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 func main() {
 	var (
 		url       = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
 		index     = flag.String("index", "", "Elasticsearch index name")
-		typ       = flag.String("type", "", "Elasticsearch type name")
 		field     = flag.String("field", "", "Slice field (must be numeric)")
 		numSlices = flag.Int("n", 2, "Number of slices to use in parallel")
 		sniff     = flag.Bool("sniff", true, "Enable or disable sniffing")
@@ -89,11 +88,7 @@ func main() {
 
 		// Prepare the query
 		var query elastic.Query
-		if *typ == "" {
-			query = elastic.NewMatchAllQuery()
-		} else {
-			query = elastic.NewTypeQuery(*typ)
-		}
+		query = elastic.NewMatchAllQuery()
 
 		// Prepare the slice
 		sliceQuery := elastic.NewSliceQuery().Id(i).Max(*numSlices)

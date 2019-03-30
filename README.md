@@ -1,6 +1,6 @@
 # Elastic
 
-**This is a development branch that is actively being worked on. DO NOT USE IN PRODUCTION! If you want to use stable versions of Elastic, please use a dependency manager like [dep](https://github.com/golang/dep).**
+**This is a development branch that is actively being worked on. DO NOT USE IN PRODUCTION! If you want to use stable versions of Elastic, please use Go modules for the 7.x release (or later) or a dependency manager like [dep](https://github.com/golang/dep) for earlier releases.**
 
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for the
 [Go](http://www.golang.org/) programming language.
@@ -14,17 +14,17 @@ See the [wiki](https://github.com/olivere/elastic/wiki) for additional informati
 
 <a href="https://www.buymeacoffee.com/Bjd96U8fm" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
-
 ## Releases
 
-**The release branches (e.g. [`release-branch.v6`](https://github.com/olivere/elastic/tree/release-branch.v6))
+**The release branches (e.g. [`release-branch.v7`](https://github.com/olivere/elastic/tree/release-branch.v7))
 are actively being worked on and can break at any time.
-If you want to use stable versions of Elastic, please use a dependency manager like [dep](https://github.com/golang/dep).**
+If you want to use stable versions of Elastic, please use Go modules.**
 
 Here's the version matrix:
 
 Elasticsearch version | Elastic version  | Package URL | Remarks |
 ----------------------|------------------|-------------|---------|
+7.x                   | 7.0              | [`github.com/olivere/elastic/v7`](https://github.com/olivere/elastic) ([source](https://github.com/olivere/elastic/tree/release-branch.v7) [doc](http://godoc.org/github.com/olivere/elastic)) | Use Go modules.
 6.x                   | 6.0              | [`github.com/olivere/elastic`](https://github.com/olivere/elastic) ([source](https://github.com/olivere/elastic/tree/release-branch.v6) [doc](http://godoc.org/github.com/olivere/elastic)) | Use a dependency manager (see below).
 5.x                   | 5.0              | [`gopkg.in/olivere/elastic.v5`](https://gopkg.in/olivere/elastic.v5) ([source](https://github.com/olivere/elastic/tree/release-branch.v5) [doc](http://godoc.org/gopkg.in/olivere/elastic.v5)) | Actively maintained.
 2.x                   | 3.0              | [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3) ([source](https://github.com/olivere/elastic/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/olivere/elastic.v3)) | Deprecated. Please update.
@@ -33,21 +33,26 @@ Elasticsearch version | Elastic version  | Package URL | Remarks |
 
 **Example:**
 
-You have installed Elasticsearch 6.0.0 and want to use Elastic.
-As listed above, you should use Elastic 6.0.
+You have installed Elasticsearch 7.0.0 and want to use Elastic.
+As listed above, you should use Elastic 7.0 (code is in `release-branch.v7`).
 
-To use the required version of Elastic in your application, it is strongly
-advised to use a tool like
-[dep](https://github.com/golang/dep)
-or
-[Go modules](https://github.com/golang/go/wiki/Modules)
-to manage dependencies. Make sure to use a version such as `^6.0.0`.
+To use the required version of Elastic in your application, you
+shoud use [Go modules](https://github.com/golang/go/wiki/Modules)
+to manage dependencies. Make sure to use a version such as `7.0.0` or later.
 
 To use Elastic, import:
 
 ```go
-import "github.com/olivere/elastic"
+import "github.com/olivere/elastic/v7"
 ```
+
+### Elastic 7.0
+
+Elastic 7.0 targets Elasticsearch 7.x which [is currently at rc1](https://www.elastic.co/guide/en/elasticsearch/reference/7.0/release-notes-7.0.0-rc1.html).
+
+As always with major version, there are a lot of [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/7.0/release-notes-7.0.0-rc1.html#breaking-7.0.0-rc1).
+We will use this as an opportunity to [clean up and refactor Elastic](https://github.com/olivere/elastic/blob/release-branch.v7/CHANGELOG-7.0.md),
+as we already did in earlier (major) releases.
 
 ### Elastic 6.0
 
@@ -101,7 +106,7 @@ Having said that, there have been no big API changes that required you
 to rewrite your application big time. More often than not it's renaming APIs
 and adding/removing features so that Elastic is in sync with Elasticsearch.
 
-Elastic has been used in production starting with Elasticsearch 0.90 up to recent 6.x
+Elastic has been used in production starting with Elasticsearch 0.90 up to recent 7.x
 versions. Furthermore, we use [Travis CI](https://travis-ci.org/)
 to test Elastic with the most recent versions of Elasticsearch and Go.
 See the [.travis.yml](https://github.com/olivere/elastic/blob/master/.travis.yml)
