@@ -1576,6 +1576,16 @@ func (c *Client) CloseIndex(name string) *IndicesCloseService {
 	return NewIndicesCloseService(c).Index(name)
 }
 
+// FreezeIndex freezes an index.
+func (c *Client) FreezeIndex(name string) *IndicesFreezeService {
+	return NewIndicesFreezeService(c).Index(name)
+}
+
+// UnfreezeIndex unfreezes an index.
+func (c *Client) UnfreezeIndex(name string) *IndicesUnfreezeService {
+	return NewIndicesUnfreezeService(c).Index(name)
+}
+
 // IndexGet retrieves information about one or more indices.
 // IndexGet is only available for Elasticsearch 1.4 or later.
 func (c *Client) IndexGet(indices ...string) *IndicesGetService {
