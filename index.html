@@ -43,7 +43,7 @@
       for the
       <a href="https://golang.org/">Go programming language</a>.
       We use it in production since 2012.
-      It supports Elasticsearch versions 1.x, 2.x, 5.x and 6.0.
+      It supports Elasticsearch versions 1.x, 2.x, 5.x, 6.x and 7.x.
     </p>
     <p>
       The code is MIT licensed and hosted on
@@ -70,6 +70,14 @@
         </tr>
       </thead>
       <tbody>
+        <tr>
+          <td>7.x</td>
+          <td>7.0</td>
+          <td>
+            <a href="https://github.com/olivere/elastic">https://github.com/olivere/elastic/v7</a>
+						(<a href="https://github.com/olivere/elastic/tree/release-branch.v7">source</a>&nbsp;&bull;&nbsp;<a href="http://godoc.org/github.com/olivere/elastic">docs</a>&nbsp;&bull;&nbsp;<a href="https://github.com/olivere/elastic/blob/release-branch.v7/CHANGELOG-7.0.md">changelog</a>)
+          </td>
+        </tr>
         <tr>
           <td>6.x</td>
           <td>6.0</td>
@@ -128,9 +136,20 @@
 			<a href="https://github.com/olivere/elastic/">https://github.com/olivere/elastic</a>
       always refers to the latest version of Elastic.
 			If you want to use stable versions of Elastic, you should use a tagged
-			version. Starting from Elastic 6.0, we tag released directly on
-			<code>github.com/olivere/elastic</code>. You can use e.g.
-			<a href="https://github.com/golang/dep">dep</a> to target a specific version of Elastic 6.x.
+			version.
+		</p>
+		<p>
+			Starting with Elastic 7.0, we support Go modules. You must use an import path of
+			<code>github.com/olivere/elastic/v7</code>. Notice that you also must use a
+			version of Go that is compatible with Go modules (Go 1.10.3 or later).
+		</p>
+		<p>
+			With Elastic 6.0 we started tagging releases directly on
+			<code>github.com/olivere/elastic</code>. So with Elastic 6.x forward, you
+			should also be able to use
+			<a href="https://github.com/golang/dep">dep</a>. Notice however that dep still
+			lacks support for version numbers in import paths (see 
+			<a href="https://github.com/golang/dep/pull/1963">PR #1963</a>).
 		</p>
 		<p>
 			Earlier versions of Elastic (5.x and earlier) published
