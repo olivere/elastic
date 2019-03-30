@@ -346,7 +346,7 @@ func (r *SearchRequest) SearchAfter(sortValues ...interface{}) *SearchRequest {
 // Slice allows partitioning the documents in multiple slices.
 // It is e.g. used to slice a scroll operation, supported in
 // Elasticsearch 5.0 or later.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-request-scroll.html#sliced-scroll
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-scroll.html#sliced-scroll
 // for details.
 func (r *SearchRequest) Slice(sliceQuery Query) *SearchRequest {
 	r.searchSource = r.searchSource.Slice(sliceQuery)
@@ -363,7 +363,7 @@ func (r *SearchRequest) TrackScores(trackScores bool) *SearchRequest {
 // TrackTotalHits indicates if the total hit count for the query should be tracked.
 // Defaults to true.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-request-track-total-hits.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-track-total-hits.html
 // for details.
 func (r *SearchRequest) TrackTotalHits(trackTotalHits interface{}) *SearchRequest {
 	r.searchSource = r.searchSource.TrackTotalHits(trackTotalHits)
@@ -455,7 +455,7 @@ func (r *SearchRequest) PreFilterShardSize(size int) *SearchRequest {
 
 // header is used e.g. by MultiSearch to get information about the search header
 // of one SearchRequest.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-multi-search.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-multi-search.html
 func (r *SearchRequest) header() interface{} {
 	h := make(map[string]interface{})
 	if r.searchType != "" {
@@ -511,7 +511,7 @@ func (r *SearchRequest) header() interface{} {
 //
 // Body is used e.g. by MultiSearch to get information about the search body
 // of one SearchRequest.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-multi-search.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-multi-search.html
 func (r *SearchRequest) Body() (string, error) {
 	if r.source == nil {
 		// Default: No custom source specified

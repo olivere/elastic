@@ -7,7 +7,7 @@ package elastic
 // TermsLookup encapsulates the parameters needed to fetch terms.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.x/query-dsl-terms-query.html#query-dsl-terms-lookup.
+// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-terms-query.html#query-dsl-terms-lookup.
 type TermsLookup struct {
 	index   string
 	typ     string

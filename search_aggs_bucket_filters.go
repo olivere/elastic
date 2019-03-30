@@ -15,7 +15,7 @@ import "errors"
 // use both named and unnamed filters.
 //
 // For details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-aggregations-bucket-filters-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-filters-aggregation.html
 type FiltersAggregation struct {
 	unnamedFilters  []Query
 	namedFilters    map[string]Query

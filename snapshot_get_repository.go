@@ -15,7 +15,7 @@ import (
 )
 
 // SnapshotGetRepositoryService reads a snapshot repository.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/modules-snapshots.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-snapshots.html
 // for details.
 type SnapshotGetRepositoryService struct {
 	client        *Client

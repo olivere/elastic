@@ -16,7 +16,7 @@ import (
 // TasksCancelService can cancel long-running tasks.
 // It is supported as of Elasticsearch 2.3.0.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/tasks.html#task-cancellation
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/tasks.html#task-cancellation
 // for details.
 type TasksCancelService struct {
 	client       *Client

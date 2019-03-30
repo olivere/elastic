@@ -800,7 +800,7 @@ func TestSearchInnerHitsOnHasChild(t *testing.T) {
 	}
 
 	// Add documents
-	// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/parent-join.html for example code.
+	// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/parent-join.html for example code.
 	doc1 := joinDoc{
 		Message:   "This is a question",
 		JoinField: &joinField{Name: "question"},
@@ -913,7 +913,7 @@ func TestSearchInnerHitsOnHasParent(t *testing.T) {
 	}
 
 	// Add documents
-	// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/parent-join.html for example code.
+	// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/parent-join.html for example code.
 	doc1 := joinDoc{
 		Message:   "This is a question",
 		JoinField: &joinField{Name: "question"},

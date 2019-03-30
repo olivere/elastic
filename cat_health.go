@@ -14,7 +14,7 @@ import (
 // CatHealthService returns a terse representation of the same information
 // as /_cluster/health.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/cat-health.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cat-health.html
 // for details.
 type CatHealthService struct {
 	client              *Client

@@ -7,7 +7,7 @@ package elastic
 // RegexpQuery allows you to use regular expression term queries.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.x/query-dsl-regexp-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-regexp-query.html
 type RegexpQuery struct {
 	name                  string
 	regexp                string

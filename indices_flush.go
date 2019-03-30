@@ -17,7 +17,7 @@ import (
 // basically frees memory from the index by flushing data to the index
 // storage and clearing the internal transaction log.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/indices-flush.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-flush.html
 // for details.
 type IndicesFlushService struct {
 	client            *Client

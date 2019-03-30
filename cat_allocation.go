@@ -16,7 +16,7 @@ import (
 // CatAllocationService provides a snapshot of how many shards are allocated
 // to each data node and how much disk space they are using.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/cat-allocation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cat-allocation.html
 // for details.
 type CatAllocationService struct {
 	client        *Client

@@ -78,7 +78,7 @@ func (s *SearchSource) PostFilter(postFilter Query) *SearchSource {
 // Slice allows partitioning the documents in multiple slices.
 // It is e.g. used to slice a scroll operation, supported in
 // Elasticsearch 5.0 or later.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-request-scroll.html#sliced-scroll
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-scroll.html#sliced-scroll
 // for details.
 func (s *SearchSource) Slice(sliceQuery Query) *SearchSource {
 	s.sliceQuery = sliceQuery
@@ -169,7 +169,7 @@ func (s *SearchSource) TrackScores(trackScores bool) *SearchSource {
 // TrackTotalHits controls how the total number of hits should be tracked.
 // Defaults to 10000 which will count the total hit accurately up to 10,000 hits.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-request-track-total-hits.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-track-total-hits.html
 // for details.
 func (s *SearchSource) TrackTotalHits(trackTotalHits interface{}) *SearchSource {
 	s.trackTotalHits = trackTotalHits
@@ -179,7 +179,7 @@ func (s *SearchSource) TrackTotalHits(trackTotalHits interface{}) *SearchSource 
 // SearchAfter allows a different form of pagination by using a live cursor,
 // using the results of the previous page to help the retrieval of the next.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-request-search-after.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-search-after.html
 func (s *SearchSource) SearchAfter(sortValues ...interface{}) *SearchSource {
 	s.searchAfterSortValues = append(s.searchAfterSortValues, sortValues...)
 	return s

@@ -8,7 +8,7 @@ package elastic
 // MatchAllQuery.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.x/query-dsl-match-all-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-match-all-query.html
 type MatchNoneQuery struct {
 	queryName string
 }

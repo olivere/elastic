@@ -158,7 +158,7 @@ type Client struct {
 //
 // If the sniffer is enabled (the default), the new client then sniffes
 // the cluster via the Nodes Info API
-// (see https://www.elastic.co/guide/en/elasticsearch/reference/7.x/cluster-nodes-info.html#cluster-nodes-info).
+// (see https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cluster-nodes-info.html#cluster-nodes-info).
 // It uses the URLs specified by the caller. The caller is responsible
 // to only pass a list of URLs of nodes that belong to the same cluster.
 // This sniffing process is run on startup and periodically.
@@ -1456,7 +1456,7 @@ func (c *Client) BulkProcessor() *BulkProcessorService {
 
 // Reindex copies data from a source index into a destination index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/docs-reindex.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-reindex.html
 // for details on the Reindex API.
 func (c *Client) Reindex() *ReindexService {
 	return NewReindexService(c)
@@ -1622,7 +1622,7 @@ func (c *Client) Flush(indices ...string) *IndicesFlushService {
 
 // SyncedFlush performs a synced flush.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/indices-synced-flush.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-synced-flush.html
 // for more details on synched flushes and how they differ from a normal
 // Flush.
 func (c *Client) SyncedFlush(indices ...string) *IndicesSyncedFlushService {
@@ -1894,7 +1894,7 @@ func (c *Client) XPackSecurityDeleteRole(roleName string) *XPackSecurityDeleteRo
 }
 
 // TODO: Clear role cache API
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.x/security-api-clear-role-cache.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/security-api-clear-role-cache.html
 
 // -- X-Pack Watcher --
 

@@ -16,7 +16,7 @@ import (
 // IndicesPutMappingService allows to register specific mapping definition
 // for a specific type.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/indices-put-mapping.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-put-mapping.html
 // for details.
 type IndicesPutMappingService struct {
 	client            *Client

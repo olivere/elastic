@@ -17,7 +17,7 @@ import (
 // GetService allows to get a typed JSON document from the index based
 // on its id.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/docs-get.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-get.html
 // for details.
 type GetService struct {
 	client                        *Client
@@ -105,7 +105,7 @@ func (s *GetService) FetchSourceContext(fetchSourceContext *FetchSourceContext) 
 
 // Refresh the shard containing the document before performing the operation.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/docs-refresh.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-refresh.html
 // for details.
 func (s *GetService) Refresh(refresh string) *GetService {
 	s.refresh = refresh

@@ -15,7 +15,7 @@ import (
 
 // GetScriptService reads a stored script in Elasticsearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/modules-scripting.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-scripting.html
 // for details.
 type GetScriptService struct {
 	client *Client
