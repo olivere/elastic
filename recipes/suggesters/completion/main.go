@@ -170,7 +170,7 @@ func main() {
 
 				// The document's source is in opt.Source
 				var city City
-				if err = json.Unmarshal(*opt.Source, &city); err != nil {
+				if err = json.Unmarshal(opt.Source, &city); err != nil {
 					log.Fatal(err)
 				}
 				_ = city

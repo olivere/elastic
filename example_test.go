@@ -199,7 +199,7 @@ func Example() {
 
 			// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 			var t Tweet
-			err := json.Unmarshal(*hit.Source, &t)
+			err := json.Unmarshal(hit.Source, &t)
 			if err != nil {
 				// Deserialization failed
 			}
@@ -373,7 +373,7 @@ func ExampleSearchService() {
 
 			// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 			var t Tweet
-			err := json.Unmarshal(*hit.Source, &t)
+			err := json.Unmarshal(hit.Source, &t)
 			if err != nil {
 				// Deserialization failed
 			}
@@ -473,7 +473,7 @@ func ExampleSearchResult() {
 
 			// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 			var t Tweet
-			err := json.Unmarshal(*hit.Source, &t)
+			err := json.Unmarshal(hit.Source, &t)
 			if err != nil {
 				// Deserialization failed
 			}

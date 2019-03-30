@@ -192,7 +192,7 @@ func TestHighlightWithTermQuery(t *testing.T) {
 
 	hit := searchResult.Hits.Hits[0]
 	var tw tweet
-	if err := json.Unmarshal(*hit.Source, &tw); err != nil {
+	if err := json.Unmarshal(hit.Source, &tw); err != nil {
 		t.Fatal(err)
 	}
 	if hit.Highlight == nil || len(hit.Highlight) == 0 {

@@ -78,7 +78,7 @@ func TestGetWithSourceFiltering(t *testing.T) {
 		t.Errorf("expected Source != nil; got %v", res.Source)
 	}
 	var tw tweet
-	err = json.Unmarshal(*res.Source, &tw)
+	err = json.Unmarshal(res.Source, &tw)
 	if err != nil {
 		t.Fatal(err)
 	}

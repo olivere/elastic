@@ -968,7 +968,7 @@ func TestAggs(t *testing.T) {
 		t.Fatal("expected != nil; got: nil")
 	}
 	var tw tweet
-	if err := json.Unmarshal(*hit.Source, &tw); err != nil {
+	if err := json.Unmarshal(hit.Source, &tw); err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}
 	if tw.Message != "Welcome to Golang and Elasticsearch." {

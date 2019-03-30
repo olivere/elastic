@@ -255,7 +255,7 @@ type GetResult struct {
 	Routing string                 `json:"_routing"` // routing meta field
 	Parent  string                 `json:"_parent"`  // parent meta field
 	Version *int64                 `json:"_version"` // version number, when Version is set to true in SearchService
-	Source  *json.RawMessage       `json:"_source,omitempty"`
+	Source  json.RawMessage        `json:"_source,omitempty"`
 	Found   bool                   `json:"found,omitempty"`
 	Fields  map[string]interface{} `json:"fields,omitempty"`
 	//Error     string                 `json:"error,omitempty"` // used only in MultiGet

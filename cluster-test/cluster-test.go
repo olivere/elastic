@@ -337,7 +337,7 @@ func (t *TestCase) search() {
 
 				// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 				var tweet Tweet
-				err := json.Unmarshal(*hit.Source, &tweet)
+				err := json.Unmarshal(hit.Source, &tweet)
 				if err != nil {
 					// Deserialization failed
 					//failf("Deserialize failed: %v\n", err)

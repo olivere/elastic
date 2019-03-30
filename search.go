@@ -504,7 +504,7 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 			slice = append(slice, v.Interface())
 			continue
 		}
-		if err := json.Unmarshal(*hit.Source, v.Addr().Interface()); err == nil {
+		if err := json.Unmarshal(hit.Source, v.Addr().Interface()); err == nil {
 			slice = append(slice, v.Interface())
 		}
 	}
@@ -543,7 +543,7 @@ type SearchHit struct {
 	Version        *int64                         `json:"_version,omitempty"`        // version number, when Version is set to true in SearchService
 	Sort           []interface{}                  `json:"sort,omitempty"`            // sort information
 	Highlight      SearchHitHighlight             `json:"highlight,omitempty"`       // highlighter information
-	Source         *json.RawMessage               `json:"_source,omitempty"`         // stored document source
+	Source         json.RawMessage                `json:"_source,omitempty"`         // stored document source
 	Fields         map[string]interface{}         `json:"fields,omitempty"`          // returned (stored) fields
 	Explanation    *SearchExplanation             `json:"_explanation,omitempty"`    // explains how the score was computed
 	MatchedQueries []string                       `json:"matched_queries,omitempty"` // matched queries
@@ -587,16 +587,16 @@ type SearchSuggestion struct {
 // SearchSuggestionOption is an option of a SearchSuggestion.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters.html.
 type SearchSuggestionOption struct {
-	Text            string           `json:"text"`
-	Index           string           `json:"_index"`
-	Type            string           `json:"_type"`
-	Id              string           `json:"_id"`
-	Score           float64          `json:"score"`  // term and phrase suggesters uses "score" as of 6.2.4
-	ScoreUnderscore float64          `json:"_score"` // completion and context suggesters uses "_score" as of 6.2.4
-	Highlighted     string           `json:"highlighted"`
-	CollateMatch    bool             `json:"collate_match"`
-	Freq            int              `json:"freq"` // from TermSuggestion.Option in Java API
-	Source          *json.RawMessage `json:"_source"`
+	Text            string          `json:"text"`
+	Index           string          `json:"_index"`
+	Type            string          `json:"_type"`
+	Id              string          `json:"_id"`
+	Score           float64         `json:"score"`  // term and phrase suggesters uses "score" as of 6.2.4
+	ScoreUnderscore float64         `json:"_score"` // completion and context suggesters uses "_score" as of 6.2.4
+	Highlighted     string          `json:"highlighted"`
+	CollateMatch    bool            `json:"collate_match"`
+	Freq            int             `json:"freq"` // from TermSuggestion.Option in Java API
+	Source          json.RawMessage `json:"_source"`
 }
 
 // SearchProfile is a list of shard profiling data collected during

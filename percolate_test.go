@@ -58,7 +58,7 @@ func TestPercolate(t *testing.T) {
 	if hit.Index != testQueryIndex {
 		t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testQueryIndex, hit.Index)
 	}
-	got := string(*hit.Source)
+	got := string(hit.Source)
 	expected := `{"query":{"match":{"message":"bonsai tree"}}}`
 	if got != expected {
 		t.Fatalf("expected\n%s\n,got:\n%s", expected, got)

@@ -103,7 +103,7 @@ func TestGeoPointIndexAndSearch(t *testing.T) {
 		t.Fatalf("TotalHits: want %d, have %d", want, have)
 	}
 	var doc City
-	if err := json.Unmarshal(*res.Hits.Hits[0].Source, &doc); err != nil {
+	if err := json.Unmarshal(res.Hits.Hits[0].Source, &doc); err != nil {
 		t.Fatal(err)
 	}
 	if want, have := munich.Name, doc.Name; want != have {

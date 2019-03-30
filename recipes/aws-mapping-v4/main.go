@@ -168,7 +168,7 @@ func main() {
 			log.Fatal(err)
 		}
 		var tweet Tweet
-		if err = json.Unmarshal(*doc.Source, &tweet); err != nil {
+		if err = json.Unmarshal(doc.Source, &tweet); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Printf("%s at %s: %s (%d retweets)\n",
