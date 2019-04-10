@@ -48,9 +48,9 @@ import "github.com/olivere/elastic/v7"
 
 ### Elastic 7.0
 
-Elastic 7.0 targets Elasticsearch 7.x which [is currently at rc1](https://www.elastic.co/guide/en/elasticsearch/reference/7.0/release-notes-7.0.0-rc1.html).
+Elastic 7.0 targets Elasticsearch 7.x which [was released on April 10th 2019](https://www.elastic.co/guide/en/elasticsearch/reference/7.0/release-notes-7.0.0.html).
 
-As always with major version, there are a lot of [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/7.0/release-notes-7.0.0-rc1.html#breaking-7.0.0-rc1).
+As always with major version, there are a lot of [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/7.0/release-notes-7.0.0.html#breaking-7.0.0).
 We will use this as an opportunity to [clean up and refactor Elastic](https://github.com/olivere/elastic/blob/release-branch.v7/CHANGELOG-7.0.md),
 as we already did in earlier (major) releases.
 
