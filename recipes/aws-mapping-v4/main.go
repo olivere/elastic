@@ -88,7 +88,7 @@ func main() {
 		log.Fatal("please specify an index name with -index")
 	}
 	if *region == "" {
-		log.Fatal("please specify an AWS region with -regiom")
+		log.Fatal("please specify an AWS region with -region")
 	}
 
 	// Create an Elasticsearch client
