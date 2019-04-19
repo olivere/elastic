@@ -43,7 +43,7 @@ func main() {
 		log.Fatal("missing -secret-key or AWS_SECRET_KEY environment variable")
 	}
 	if *region == "" {
-		log.Fatal("please specify an AWS region with -regiom")
+		log.Fatal("please specify an AWS region with -region")
 	}
 
 	signingClient := aws.NewV4SigningClient(credentials.NewStaticCredentials(
