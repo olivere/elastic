@@ -39,7 +39,7 @@ func TestSearchSourceNoStoredFields(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"query":{"match_all":{}}}`
+	expected := `{"query":{"match_all":{}},"stored_fields":[]}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

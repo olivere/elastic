@@ -268,7 +268,7 @@ func (s *SearchSource) FetchSourceIncludeExclude(include, exclude []string) *Sea
 // NoStoredFields indicates that no fields should be loaded, resulting in only
 // id and type to be returned per field.
 func (s *SearchSource) NoStoredFields() *SearchSource {
-	s.storedFieldNames = nil
+	s.storedFieldNames = []string{}
 	return s
 }
 
