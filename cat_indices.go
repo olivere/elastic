@@ -219,8 +219,8 @@ type CatIndicesResponseRow struct {
 	PriRequestCacheHitCount      int    `json:"pri.request_cache.hit_count,string"`  // request cache hit count on primaries
 	RequestCacheMissCount        int    `json:"request_cache.miss_count,string"`     // request cache miss count on primaries & replicas
 	PriRequestCacheMissCount     int    `json:"pri.request_cache.miss_count,string"` // request cache miss count on primaries
-	FlushTotal                   int    `json:"flush.total"`                         // number of flushes on primaries & replicas
-	PriFlushTotal                int    `json:"pri.flush.total"`                     // number of flushes on primaries
+	FlushTotal                   int    `json:"flush.total,string"`                  // number of flushes on primaries & replicas
+	PriFlushTotal                int    `json:"pri.flush.total,string"`              // number of flushes on primaries
 	FlushTotalTime               string `json:"flush.total_time"`                    // time spent in flush on primaries & replicas
 	PriFlushTotalTime            string `json:"pri.flush.total_time"`                // time spent in flush on primaries
 	GetCurrent                   int    `json:"get.current,string"`                  // number of current get ops on primaries & replicas
@@ -291,6 +291,7 @@ type CatIndicesResponseRow struct {
 	PriSearchScrollTime          string `json:"pri.search.scroll_time"`              // time scroll contexts held open on primaries, e.g. "0s"
 	SearchScrollTotal            int    `json:"search.scroll_total,string"`          // completed scroll contexts on primaries & replicas
 	PriSearchScrollTotal         int    `json:"pri.search.scroll_total,string"`      // completed scroll contexts on primaries
+	SearchThrottled              bool   `json:"search.throttled,string"`             // indicates if the index is search throttled
 	SegmentsCount                int    `json:"segments.count,string"`               // number of segments on primaries & replicas
 	PriSegmentsCount             int    `json:"pri.segments.count,string"`           // number of segments on primaries
 	SegmentsMemory               string `json:"segments.memory"`                     // memory used by segments on primaries & replicas, e.g. "1.3kb"
@@ -301,8 +302,8 @@ type CatIndicesResponseRow struct {
 	PriSegmentsVersionMapMemory  string `json:"pri.segments.version_map_memory"`     // memory used by version map on primaries, e.g. "0b"
 	SegmentsFixedBitsetMemory    string `json:"segments.fixed_bitset_memory"`        // memory used by fixed bit sets for nested object field types and type filters for types referred in _parent fields on primaries & replicas, e.g. "0b"
 	PriSegmentsFixedBitsetMemory string `json:"pri.segments.fixed_bitset_memory"`    // memory used by fixed bit sets for nested object field types and type filters for types referred in _parent fields on primaries, e.g. "0b"
-	WarmerCurrent                int    `json:"warmer.count,string"`                 // current warmer ops on primaries & replicas
-	PriWarmerCurrent             int    `json:"pri.warmer.count,string"`             // current warmer ops on primaries
+	WarmerCurrent                int    `json:"warmer.current,string"`               // current warmer ops on primaries & replicas
+	PriWarmerCurrent             int    `json:"pri.warmer.current,string"`           // current warmer ops on primaries
 	WarmerTotal                  int    `json:"warmer.total,string"`                 // total warmer ops on primaries & replicas
 	PriWarmerTotal               int    `json:"pri.warmer.total,string"`             // total warmer ops on primaries
 	WarmerTotalTime              string `json:"warmer.total_time"`                   // time spent in warmers on primaries & replicas, e.g. "47s"
