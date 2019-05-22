@@ -5,7 +5,9 @@
 package elastic
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -290,6 +292,15 @@ type logger interface {
 	FailNow()
 	Log(args ...interface{})
 	Logf(format string, args ...interface{})
+}
+
+// strictDecoder returns an error if any JSON fields aren't decoded.
+type strictDecoder struct{}
+
+func (d *strictDecoder) Decode(data []byte, v interface{}) error {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	return dec.Decode(v)
 }
 
 func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
