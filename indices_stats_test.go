@@ -84,3 +84,41 @@ func TestIndexStats(t *testing.T) {
 		t.Fatalf("expected total docs count to be > 0; got: %d", stat.Total.Docs.Count)
 	}
 }
+
+func TestIndexStatsWithShards(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+
+	stats, err := client.IndexStats(testIndexName).Level("shards").Do(context.TODO())
+	if err != nil {
+		t.Fatalf("expected no error; got: %v", err)
+	}
+	if stats == nil {
+		t.Fatalf("expected response; got: %v", stats)
+	}
+	stat, found := stats.Indices[testIndexName]
+	if !found {
+		t.Fatalf("expected stats about index %q; got: %v", testIndexName, found)
+	}
+	if stat.Total == nil {
+		t.Fatalf("expected total to be != nil; got: %v", stat.Total)
+	}
+	if stat.Total.Docs == nil {
+		t.Fatalf("expected total docs to be != nil; got: %v", stat.Total.Docs)
+	}
+	if stat.Total.Docs.Count == 0 {
+		t.Fatalf("expected total docs count to be > 0; got: %d", stat.Total.Docs.Count)
+	}
+	if stat.Shards == nil {
+		t.Fatalf("expected shard level information to be != nil; got: %v", stat.Shards)
+	}
+	shard, found := stat.Shards["0"]
+	if !found || shard == nil {
+		t.Fatalf("expected shard level information for shard 0; got: %v (found=%v)", shard, found)
+	}
+	if len(shard) != 1 {
+		t.Fatalf("expected shard level information array to be == 1; got: %v", len(shard))
+	}
+	if shard[0].Docs == nil {
+		t.Fatalf("expected docs to be != nil; got: %v", shard[0].Docs)
+	}
+}
