@@ -108,7 +108,7 @@ func (s *GetScriptService) Do(ctx context.Context) (*GetScriptResponse, error) {
 	return ret, nil
 }
 
-// GetScriptResponse is the result of deleting a stored script
+// GetScriptResponse is the result of getting a stored script
 // in Elasticsearch.
 type GetScriptResponse struct {
 	Id     string          `json:"_id"`
