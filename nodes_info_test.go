@@ -9,6 +9,51 @@ import (
 	"testing"
 )
 
+func TestNodesInfoBuildURL(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tests := []struct {
+		NodeIDs  []string
+		Metrics  []string
+		Expected string
+	}{
+		{
+			nil,
+			nil,
+			"/_nodes/_all/_all",
+		},
+		{
+			[]string{},
+			[]string{},
+			"/_nodes/_all/_all",
+		},
+		{
+			[]string{"node1"},
+			[]string{},
+			"/_nodes/node1/_all",
+		},
+		{
+			[]string{"node1", "node2"},
+			nil,
+			"/_nodes/node1%2Cnode2/_all",
+		},
+		{
+			[]string{"node1", "node2"},
+			[]string{"metric1", "metric2"},
+			"/_nodes/node1%2Cnode2/metric1%2Cmetric2",
+		},
+	}
+
+	for i, test := range tests {
+		path, _, err := client.NodesInfo().NodeId(test.NodeIDs...).Metric(test.Metrics...).buildURL()
+		if err != nil {
+			t.Fatalf("case #%d: %v", i+1, err)
+		}
+		if path != test.Expected {
+			t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
+		}
+	}
+}
 func TestNodesInfo(t *testing.T) {
 	client, err := NewClient()
 	if err != nil {

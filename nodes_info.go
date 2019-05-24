@@ -30,8 +30,6 @@ type NodesInfoService struct {
 func NewNodesInfoService(client *Client) *NodesInfoService {
 	return &NodesInfoService{
 		client: client,
-		nodeId: []string{"_all"},
-		metric: []string{"_all"},
 	}
 }
 
@@ -71,10 +69,24 @@ func (s *NodesInfoService) Pretty(pretty bool) *NodesInfoService {
 
 // buildURL builds the URL for the operation.
 func (s *NodesInfoService) buildURL() (string, url.Values, error) {
+	var nodeId, metric string
+
+	if len(s.nodeId) > 0 {
+		nodeId = strings.Join(s.nodeId, ",")
+	} else {
+		nodeId = "_all"
+	}
+
+	if len(s.metric) > 0 {
+		metric = strings.Join(s.metric, ",")
+	} else {
+		metric = "_all"
+	}
+
 	// Build URL
 	path, err := uritemplates.Expand("/_nodes/{node_id}/{metric}", map[string]string{
-		"node_id": strings.Join(s.nodeId, ","),
-		"metric":  strings.Join(s.metric, ","),
+		"node_id": nodeId,
+		"metric":  metric,
 	})
 	if err != nil {
 		return "", url.Values{}, err
