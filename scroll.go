@@ -195,6 +195,15 @@ func (s *ScrollService) SortBy(sorter ...Sorter) *ScrollService {
 	return s
 }
 
+// TrackTotalHits controls if the total hit count for the query should be tracked.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.1/search-request-track-total-hits.html
+// for details.
+func (s *ScrollService) TrackTotalHits(trackTotalHits interface{}) *ScrollService {
+	s.ss = s.ss.TrackTotalHits(trackTotalHits)
+	return s
+}
+
 // Pretty asks Elasticsearch to pretty-print the returned JSON.
 func (s *ScrollService) Pretty(pretty bool) *ScrollService {
 	s.pretty = pretty

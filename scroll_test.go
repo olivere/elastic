@@ -141,7 +141,8 @@ func TestScrollWithQueryAndSort(t *testing.T) {
 	svc := client.Scroll(testIndexName).
 		Query(NewTermQuery("user", "olivere")).
 		Sort("message", false).
-		Size(1)
+		Size(1).
+		TrackTotalHits(true)
 
 	docs := 0
 	pages := 0
