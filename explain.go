@@ -202,7 +202,7 @@ func (s *ExplainService) buildURL() (string, url.Values, error) {
 	var path string
 	var err error
 
-	if s.typ == "_doc" {
+	if s.typ == "" || s.typ == "_doc" {
 		path, err = uritemplates.Expand("/{index}/_explain/{id}", map[string]string{
 			"id":    s.id,
 			"index": s.index,

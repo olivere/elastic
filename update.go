@@ -201,7 +201,7 @@ func (b *UpdateService) url() (string, url.Values, error) {
 	// Build url
 	var path string
 	var err error
-	if b.typ == "_doc" {
+	if b.typ == "" || b.typ == "_doc" {
 		path, err = uritemplates.Expand("/{index}/_update/{id}", map[string]string{
 			"index": b.index,
 			"id":    b.id,
