@@ -591,7 +591,7 @@ func TestScrollWithFilterPathKeepingContext(t *testing.T) {
 				t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
 			}
 			if hit.Source != nil {
-				t.Fatalf("expected SearchResult.Hits.Hit.Source = nil; got %s", hit.Source)
+				t.Fatal("expected SearchResult.Hits.Hit.Source = nil")
 			}
 			docs++
 		}
