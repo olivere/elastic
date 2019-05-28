@@ -13,13 +13,13 @@ type SnapshotRestoreService struct {
 	client              *Client
 	repository          string
 	snapshot            string
+	pretty              bool
 	masterTimeout       string
 	waitForCompletion   *bool
-	includeGlobalState  *bool
 	ingoreUnavailale    *bool
 	partial             *bool
 	includeAliases      *bool
-	pretty              bool
+	includeGlobalState  *bool
 	bodyString          string
 	renamePattern       string
 	renameReplacement   string
@@ -174,7 +174,7 @@ func (s *SnapshotRestoreService) buildBody() interface{} {
 	body := map[string]interface{}{}
 
 	if s.includeGlobalState != nil {
-		body["include_global_state"] = s.includeGlobalState
+		body["include_global_state"] = *s.includeGlobalState
 	}
 
 	if s.partial != nil {
