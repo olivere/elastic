@@ -1845,6 +1845,11 @@ func (c *Client) SnapshotVerifyRepository(repository string) *SnapshotVerifyRepo
 	return NewSnapshotVerifyRepositoryService(c).Repository(repository)
 }
 
+// SnapshotRestore restores the specified indices from a given snapshot
+func (c *Client) SnapshotRestore(repository string, snapshot string) *SnapshotRestore {
+	return NewSnapshotRestoreService(c).Repository(repository).Snapshot(snapshot)
+}
+
 // -- Scripting APIs --
 
 // GetScript reads a stored script in Elasticsearch.
