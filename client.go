@@ -1846,7 +1846,7 @@ func (c *Client) SnapshotVerifyRepository(repository string) *SnapshotVerifyRepo
 }
 
 // SnapshotRestore restores the specified indices from a given snapshot
-func (c *Client) SnapshotRestore(repository string, snapshot string) *SnapshotRestore {
+func (c *Client) SnapshotRestore(repository string, snapshot string) *SnapshotRestoreService {
 	return NewSnapshotRestoreService(c).Repository(repository).Snapshot(snapshot)
 }
 

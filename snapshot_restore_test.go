@@ -79,6 +79,7 @@ func TestSnapshotRestoreBuildBody(t *testing.T) {
 		IgnoreIndexSettings []string
 		Indices             []string
 		IndexSettings       map[string]interface{}
+		ExpectedBody        map[string]interface{}
 	}{
 
 		Repository:          "repo",
@@ -100,7 +101,7 @@ func TestSnapshotRestoreBuildBody(t *testing.T) {
 			"rename_pattern":        "index_(.+)",
 			"rename_replacement":    "restored_index_$1",
 			"ignore_index_settings": []string{"index.refresh_interval"},
-			"indices":               []string{"index_1", "indexe_2", "index_3"},
+			"indices":               "index_1,indexe_2,index_3",
 			"index_settings": map[string]interface{}{
 				"index.number_of_replicas": 0,
 			},
@@ -113,12 +114,12 @@ func TestSnapshotRestoreBuildBody(t *testing.T) {
 		IncludeGlobalState(test.IncludeGlobalState).
 		RenamePattern(test.RenamePattern).
 		RenameReplacement(test.RenameReplacement).
-		IgnoreIndexSettings(test.IgnoreIndexSettings).
-		Indices(tests.Indices).
-		IndexSettings(tests.IndexSettings).
+		IgnoreIndexSettings(test.IgnoreIndexSettings...).
+		Indices(test.Indices...).
+		IndexSettings(test.IndexSettings).
 		buildBody()
 
-	if !reflect.DeepEqual(params, test.ExpectedParams) {
-		t.Errorf("expected %q; got: %q", test.ExpectedParams, params)
+	if !reflect.DeepEqual(body, test.ExpectedBody) {
+		t.Errorf("expected %q; got: %q", test.ExpectedBody, body)
 	}
 }

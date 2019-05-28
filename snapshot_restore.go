@@ -16,7 +16,7 @@ type SnapshotRestoreService struct {
 	pretty              bool
 	masterTimeout       string
 	waitForCompletion   *bool
-	ingoreUnavailale    *bool
+	ignoreUnavailable   *bool
 	partial             *bool
 	includeAliases      *bool
 	includeGlobalState  *bool
@@ -106,8 +106,13 @@ func (s *SnapshotRestoreService) IgnoreIndexSettings(ignoreIndexSettings ...stri
 	return s
 }
 
-func (s *SnapshotRestoreService) InlcudeAliases(includeAliases bool) *SnapshotRestoreService {
+func (s *SnapshotRestoreService) IncludeAliases(includeAliases bool) *SnapshotRestoreService {
 	s.includeAliases = &includeAliases
+	return s
+}
+
+func (s *SnapshotRestoreService) IgnoreUnavailable(ignoreUnavailable bool) *SnapshotRestoreService {
+	s.ignoreUnavailable = &ignoreUnavailable
 	return s
 }
 
@@ -157,7 +162,7 @@ func (s *SnapshotRestoreService) Do(ctx context.Context) (*Response, error) {
 	var body interface{}
 
 	if len(s.bodyString) > 0 {
-		body = s.bodyStringbody
+		body = s.bodyString
 	} else {
 		body = s.buildBody()
 	}
