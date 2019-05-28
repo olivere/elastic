@@ -9,23 +9,25 @@ import (
 	"github.com/olivere/elastic/v7/uritemplates"
 )
 
+// SnapshotRestoreService restores a snapshot from a snapshot repository.
+// It is documented at
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-snapshots.html#_restore
 type SnapshotRestoreService struct {
-	client              *Client
-	repository          string
-	snapshot            string
-	pretty              bool
-	masterTimeout       string
-	waitForCompletion   *bool
-	ignoreUnavailable   *bool
-	partial             *bool
-	includeAliases      *bool
-	includeGlobalState  *bool
-	bodyString          string
-	renamePattern       string
-	renameReplacement   string
-	ignoreIndexSettings []string
-	indices             []string
-	indexSettings       map[string]interface{}
+	client             *Client
+	repository         string
+	snapshot           string
+	pretty             bool
+	masterTimeout      string
+	waitForCompletion  *bool
+	ignoreUnavailable  *bool
+	partial            *bool
+	includeAliases     *bool
+	includeGlobalState *bool
+	bodyString         string
+	renamePattern      string
+	renameReplacement  string
+	indices            []string
+	indexSettings      map[string]interface{}
 }
 
 // NewSnapshotCreateService creates a new SnapshotRestoreService.
@@ -59,26 +61,31 @@ func (s *SnapshotRestoreService) WaitForCompletion(waitForCompletion bool) *Snap
 	return s
 }
 
+// Indices sets the name of the indices that should be restored from the snapshot.
 func (s *SnapshotRestoreService) Indices(indices ...string) *SnapshotRestoreService {
 	s.indices = indices
 	return s
 }
 
+// IncludeGlobalSlate allows the global cluster state to be restored, defaults to false.
 func (s *SnapshotRestoreService) IncludeGlobalState(includeGlobalState bool) *SnapshotRestoreService {
 	s.includeGlobalState = &includeGlobalState
 	return s
 }
 
+// RenamePattern helps rename indices on restore using regular expressions.
 func (s *SnapshotRestoreService) RenamePattern(renamePattern string) *SnapshotRestoreService {
 	s.renamePattern = renamePattern
 	return s
 }
 
+// RenameReplacement as RenamePattern, helps rename indices on restore using regular expressions.
 func (s *SnapshotRestoreService) RenameReplacement(renameReplacement string) *SnapshotRestoreService {
 	s.renameReplacement = renameReplacement
 	return s
 }
 
+// Partial flags whether to restore indices that where partially snapshoted, defaults to false.
 func (s *SnapshotRestoreService) Partial(partial bool) *SnapshotRestoreService {
 	s.partial = &partial
 	return s
@@ -96,24 +103,69 @@ func (s *SnapshotRestoreService) BodyString(body string) *SnapshotRestoreService
 	return s
 }
 
+// IndexSettings sets the settings to be overwritten during the restore process
 func (s *SnapshotRestoreService) IndexSettings(indexSettings map[string]interface{}) *SnapshotRestoreService {
 	s.indexSettings = indexSettings
 	return s
 }
 
-func (s *SnapshotRestoreService) IgnoreIndexSettings(ignoreIndexSettings ...string) *SnapshotRestoreService {
-	s.ignoreIndexSettings = ignoreIndexSettings
-	return s
-}
-
+// IncludeAliases flags whether indices should be restored with their respective aliases, defaults ot false.
 func (s *SnapshotRestoreService) IncludeAliases(includeAliases bool) *SnapshotRestoreService {
 	s.includeAliases = &includeAliases
 	return s
 }
 
+// IgnoreUnavailable specifies whether to ignore unavailable snapshots, defaults to false.
 func (s *SnapshotRestoreService) IgnoreUnavailable(ignoreUnavailable bool) *SnapshotRestoreService {
 	s.ignoreUnavailable = &ignoreUnavailable
 	return s
+}
+
+// Do executes the operation.
+func (s *SnapshotRestoreService) Do(ctx context.Context) (*Response, error) {
+	if err := s.Validate(); err != nil {
+		return nil, err
+	}
+
+	path, params, err := s.buildURL()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var body interface{}
+
+	if len(s.bodyString) > 0 {
+		body = s.bodyString
+	} else {
+		body = s.buildBody()
+	}
+
+	return s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
+}
+
+// Validate checks if the operation is valid.
+func (s *SnapshotRestoreService) Validate() error {
+	var invalid []string
+
+	if s.repository == "" {
+		invalid = append(invalid, "Repository")
+	}
+
+	if s.snapshot == "" {
+		invalid = append(invalid, "Snapshot")
+	}
+
+	if len(invalid) > 0 {
+		return fmt.Errorf("missing required fields: %v", invalid)
+	}
+
+	return nil
 }
 
 func (s *SnapshotRestoreService) buildURL() (string, url.Values, error) {
@@ -145,34 +197,6 @@ func (s *SnapshotRestoreService) buildURL() (string, url.Values, error) {
 	}
 
 	return path, params, nil
-}
-
-// Do executes the operation.
-func (s *SnapshotRestoreService) Do(ctx context.Context) (*Response, error) {
-	if err := s.Validate(); err != nil {
-		return nil, err
-	}
-
-	path, params, err := s.buildURL()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var body interface{}
-
-	if len(s.bodyString) > 0 {
-		body = s.bodyString
-	} else {
-		body = s.buildBody()
-	}
-
-	return s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
-	})
 }
 
 func (s *SnapshotRestoreService) buildBody() interface{} {
@@ -211,23 +235,4 @@ func (s *SnapshotRestoreService) buildBody() interface{} {
 	}
 
 	return body
-}
-
-// Validate checks if the operation is valid.
-func (s *SnapshotRestoreService) Validate() error {
-	var invalid []string
-
-	if s.repository == "" {
-		invalid = append(invalid, "Repository")
-	}
-
-	if s.snapshot == "" {
-		invalid = append(invalid, "Snapshot")
-	}
-
-	if len(invalid) > 0 {
-		return fmt.Errorf("missing required fields: %v", invalid)
-	}
-
-	return nil
 }

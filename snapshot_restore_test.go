@@ -69,39 +69,36 @@ func TestSnapshotRestoreBuildBody(t *testing.T) {
 	client := setupTestClient(t)
 
 	test := struct {
-		Repository          string
-		Snapshot            string
-		Partial             bool
-		IncludeAliases      bool
-		IncludeGlobalState  bool
-		RenamePattern       string
-		RenameReplacement   string
-		IgnoreIndexSettings []string
-		Indices             []string
-		IndexSettings       map[string]interface{}
-		ExpectedBody        map[string]interface{}
+		Repository         string
+		Snapshot           string
+		Partial            bool
+		IncludeAliases     bool
+		IncludeGlobalState bool
+		RenamePattern      string
+		RenameReplacement  string
+		Indices            []string
+		IndexSettings      map[string]interface{}
+		ExpectedBody       map[string]interface{}
 	}{
 
-		Repository:          "repo",
-		Snapshot:            "snapshot_of_sunday",
-		Partial:             true,
-		IncludeAliases:      true,
-		IncludeGlobalState:  true,
-		RenamePattern:       "index_(.+)",
-		RenameReplacement:   "restored_index_$1",
-		IgnoreIndexSettings: []string{"index.refresh_interval"},
-		Indices:             []string{"index_1", "indexe_2", "index_3"},
+		Repository:         "repo",
+		Snapshot:           "snapshot_of_sunday",
+		Partial:            true,
+		IncludeAliases:     true,
+		IncludeGlobalState: true,
+		RenamePattern:      "index_(.+)",
+		RenameReplacement:  "restored_index_$1",
+		Indices:            []string{"index_1", "indexe_2", "index_3"},
 		IndexSettings: map[string]interface{}{
 			"index.number_of_replicas": 0,
 		},
 		ExpectedBody: map[string]interface{}{
-			"partial":               true,
-			"include_aliases":       true,
-			"include_global_state":  true,
-			"rename_pattern":        "index_(.+)",
-			"rename_replacement":    "restored_index_$1",
-			"ignore_index_settings": []string{"index.refresh_interval"},
-			"indices":               "index_1,indexe_2,index_3",
+			"partial":              true,
+			"include_aliases":      true,
+			"include_global_state": true,
+			"rename_pattern":       "index_(.+)",
+			"rename_replacement":   "restored_index_$1",
+			"indices":              "index_1,indexe_2,index_3",
 			"index_settings": map[string]interface{}{
 				"index.number_of_replicas": 0,
 			},
@@ -114,7 +111,6 @@ func TestSnapshotRestoreBuildBody(t *testing.T) {
 		IncludeGlobalState(test.IncludeGlobalState).
 		RenamePattern(test.RenamePattern).
 		RenameReplacement(test.RenameReplacement).
-		IgnoreIndexSettings(test.IgnoreIndexSettings...).
 		Indices(test.Indices...).
 		IndexSettings(test.IndexSettings).
 		buildBody()
