@@ -2,6 +2,7 @@ package elastic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -122,7 +123,7 @@ func (s *SnapshotRestoreService) IgnoreUnavailable(ignoreUnavailable bool) *Snap
 }
 
 // Do executes the operation.
-func (s *SnapshotRestoreService) Do(ctx context.Context) (*Response, error) {
+func (s *SnapshotRestoreService) Do(ctx context.Context) (*SnapshotRestoreResponse, error) {
 	if err := s.Validate(); err != nil {
 		return nil, err
 	}
@@ -141,12 +142,24 @@ func (s *SnapshotRestoreService) Do(ctx context.Context) (*Response, error) {
 		body = s.buildBody()
 	}
 
-	return s.client.PerformRequest(ctx, PerformRequestOptions{
+	response, err := s.client.PerformRequest(ctx, PerformRequestOptions{
 		Method: "POST",
 		Path:   path,
 		Params: params,
 		Body:   body,
 	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	ret := new(SnapshotRestoreResponse)
+
+	if err := json.Unmarshal(res.Body, ret); err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 // Validate checks if the operation is valid.
@@ -231,4 +244,21 @@ func (s *SnapshotRestoreService) buildBody() interface{} {
 	}
 
 	return body
+}
+
+// SnapshotRestoreResponse represents the response for SnapshotRestoreService.Do
+type SnapshotRestoreResponse struct {
+	// Accepted indicates whether the request was accepted by elasticsearch.
+	// It's available when waitForCompletion is false.
+	Accepted *bool `json:"accepted"`
+
+	// It's available when waitForCompletion is false.
+	RestoredSnapshot `json:"snapshot"`
+}
+
+// RestoredSnapshot represents the response body for a restored snapshot
+type RestoredSnapshot struct {
+	Indices  []string   `json:"indices"`
+	Shards   ShardsInfo `json:"shards"`
+	Snapshot string     `json:"snapshot"`
 }

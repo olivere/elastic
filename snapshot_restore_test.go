@@ -7,18 +7,14 @@ import (
 )
 
 func TestSnapshotRestoreValidate(t *testing.T) {
-	var client *Client
-
 	expected := "missing required fields: [Repository Snapshot]"
 
-	if got := NewSnapshotRestoreService(client).Validate().Error(); got != expected {
+	if got := NewSnapshotRestoreService(new(Client)).Validate().Error(); got != expected {
 		t.Errorf("expected %q; got: %q", expected, got)
 	}
 }
 
 func TestSnapshotRestorePostURL(t *testing.T) {
-	client := setupTestClient(t)
-
 	test := struct {
 		Repository        string
 		Snapshot          string
@@ -45,7 +41,7 @@ func TestSnapshotRestorePostURL(t *testing.T) {
 		},
 	}
 
-	path, params, err := client.SnapshotRestore(test.Repository, test.Snapshot).
+	path, params, err := new(Client).SnapshotRestore(test.Repository, test.Snapshot).
 		Pretty(test.Pretty).
 		MasterTimeout(test.MasterTimeout).
 		WaitForCompletion(test.WaitForCompletion).
@@ -66,8 +62,6 @@ func TestSnapshotRestorePostURL(t *testing.T) {
 }
 
 func TestSnapshotRestoreBuildBody(t *testing.T) {
-	client := setupTestClient(t)
-
 	test := struct {
 		Repository         string
 		Snapshot           string
@@ -105,7 +99,7 @@ func TestSnapshotRestoreBuildBody(t *testing.T) {
 		},
 	}
 
-	body := client.SnapshotRestore(test.Repository, test.Snapshot).
+	body := new(Client).SnapshotRestore(test.Repository, test.Snapshot).
 		Partial(test.Partial).
 		IncludeAliases(test.IncludeAliases).
 		IncludeGlobalState(test.IncludeGlobalState).
