@@ -230,9 +230,5 @@ func (s *SnapshotRestoreService) buildBody() interface{} {
 		body["index_settings"] = s.indexSettings
 	}
 
-	if len(s.ignoreIndexSettings) > 0 {
-		body["ignore_index_settings"] = s.ignoreIndexSettings
-	}
-
 	return body
 }
