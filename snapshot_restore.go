@@ -142,7 +142,7 @@ func (s *SnapshotRestoreService) Do(ctx context.Context) (*SnapshotRestoreRespon
 		body = s.buildBody()
 	}
 
-	response, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
 		Method: "POST",
 		Path:   path,
 		Params: params,
