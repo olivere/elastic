@@ -264,6 +264,12 @@ Here are a few tips on how to get used to Elastic:
 - [x] Refresh
 - [x] Force Merge
 
+### Index Lifecycle Management APIs
+
+- [x] Create Policy
+- [x] Get Policy
+- [x] Delete Policy
+
 ### cat APIs
 
 The cat APIs are not implemented as of now. We think they are better suited for operating with Elasticsearch on the command line.
