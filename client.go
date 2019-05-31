@@ -1858,6 +1858,23 @@ func (c *Client) DeleteScript() *DeleteScriptService {
 	return NewDeleteScriptService(c)
 }
 
+// -- Index Lifecycle Management --
+
+// IlmPutLifecycle adds or modifies an ilm policy.
+func (c *Client) IlmPutLifecycle() *IlmPutLifecycleService {
+	return NewIlmPutLifecycleService(c)
+}
+
+// IlmGettLifecycle gets an ilm policy.
+func (c *Client) IlmGettLifecycle() *IlmGetLifecycleService {
+	return NewIlmGetLifecycleService(c)
+}
+
+// IlmDeleteLifecycle deletes an ilm policy.
+func (c *Client) IlmDeleteLifecycle() *IlmDeleteLifecycleService {
+	return NewIlmDeleteLifecycleService(c)
+}
+
 // -- X-Pack General --
 
 // XPackInfo gets information on the xpack plugins enabled on the cluster
