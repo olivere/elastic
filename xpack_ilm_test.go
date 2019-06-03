@@ -10,7 +10,7 @@ import (
 )
 
 func TestXPackIlmPolicyLifecycle(t *testing.T) {
-	client := setupTestClient(t)
+	client := setupTestClient(t, SetURL("http://elastic:elastic@localhost:9210"))
 
 	testPolicyName := "test-policy"
 
