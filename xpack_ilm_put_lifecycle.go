@@ -15,7 +15,7 @@ import (
 // See the documentation at
 // https://www.elastic.co/guide/en/elasticsearch/reference/6.7/ilm-put-lifecycle.html
 
-type IlmPutLifecycleService struct {
+type XPackIlmPutLifecycleService struct {
 	client        *Client
 	policy        string
 	pretty        bool
@@ -26,57 +26,57 @@ type IlmPutLifecycleService struct {
 	bodyString    string
 }
 
-// NewIlmPutLifecycleService creates a new IlmPutLifecycleService.
-func NewIlmPutLifecycleService(client *Client) *IlmPutLifecycleService {
-	return &IlmPutLifecycleService{
+// NewXPackIlmPutLifecycleService creates a new XPackIlmPutLifecycleService.
+func NewXPackIlmPutLifecycleService(client *Client) *XPackIlmPutLifecycleService {
+	return &XPackIlmPutLifecycleService{
 		client: client,
 	}
 }
 
 // Policy is the name of the index lifecycle policy.
-func (s *IlmPutLifecycleService) Policy(policy string) *IlmPutLifecycleService {
+func (s *XPackIlmPutLifecycleService) Policy(policy string) *XPackIlmPutLifecycleService {
 	s.policy = policy
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *IlmPutLifecycleService) Pretty(pretty bool) *IlmPutLifecycleService {
+func (s *XPackIlmPutLifecycleService) Pretty(pretty bool) *XPackIlmPutLifecycleService {
 	s.pretty = pretty
 	return s
 }
 
 // Timeout is an explicit operation timeout.
-func (s *IlmPutLifecycleService) Timeout(timeout string) *IlmPutLifecycleService {
+func (s *XPackIlmPutLifecycleService) Timeout(timeout string) *XPackIlmPutLifecycleService {
 	s.timeout = timeout
 	return s
 }
 
 // MasterTimeout specifies the timeout for connection to master.
-func (s *IlmPutLifecycleService) MasterTimeout(masterTimeout string) *IlmPutLifecycleService {
+func (s *XPackIlmPutLifecycleService) MasterTimeout(masterTimeout string) *XPackIlmPutLifecycleService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
 // FlatSettings indicates whether to return settings in flat format (default: false).
-func (s *IlmPutLifecycleService) FlatSettings(flatSettings bool) *IlmPutLifecycleService {
+func (s *XPackIlmPutLifecycleService) FlatSettings(flatSettings bool) *XPackIlmPutLifecycleService {
 	s.flatSettings = &flatSettings
 	return s
 }
 
 // BodyJson is documented as: The template definition.
-func (s *IlmPutLifecycleService) BodyJson(body interface{}) *IlmPutLifecycleService {
+func (s *XPackIlmPutLifecycleService) BodyJson(body interface{}) *XPackIlmPutLifecycleService {
 	s.bodyJson = body
 	return s
 }
 
 // BodyString is documented as: The template definition.
-func (s *IlmPutLifecycleService) BodyString(body string) *IlmPutLifecycleService {
+func (s *XPackIlmPutLifecycleService) BodyString(body string) *XPackIlmPutLifecycleService {
 	s.bodyString = body
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *IlmPutLifecycleService) buildURL() (string, url.Values, error) {
+func (s *XPackIlmPutLifecycleService) buildURL() (string, url.Values, error) {
 	// Build URL
 	path, err := uritemplates.Expand("/_ilm/policy/{policy}", map[string]string{
 		"policy": s.policy,
@@ -103,7 +103,7 @@ func (s *IlmPutLifecycleService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *IlmPutLifecycleService) Validate() error {
+func (s *XPackIlmPutLifecycleService) Validate() error {
 	var invalid []string
 	if s.policy == "" {
 		invalid = append(invalid, "Policy")
@@ -118,7 +118,7 @@ func (s *IlmPutLifecycleService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *IlmPutLifecycleService) Do(ctx context.Context) (*IlmPutLifecycleResponse, error) {
+func (s *XPackIlmPutLifecycleService) Do(ctx context.Context) (*XPackIlmPutLifecycleResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -150,14 +150,14 @@ func (s *IlmPutLifecycleService) Do(ctx context.Context) (*IlmPutLifecycleRespon
 	}
 
 	// Return operation response
-	ret := new(IlmPutLifecycleResponse)
+	ret := new(XPackIlmPutLifecycleResponse)
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// IlmPutLifecycleSResponse is the response of IlmPutLifecycleService.Do.
-type IlmPutLifecycleResponse struct {
+// XPackIlmPutLifecycleSResponse is the response of XPackIlmPutLifecycleService.Do.
+type XPackIlmPutLifecycleResponse struct {
 	Acknowledged bool `json:"acknowledged"`
 }

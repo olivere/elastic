@@ -14,7 +14,7 @@ import (
 
 // See the documentation at
 // https://www.elastic.co/guide/en/elasticsearch/reference/6.7/ilm-get-lifecycle.html.
-type IlmDeleteLifecycleService struct {
+type XPackIlmDeleteLifecycleService struct {
 	client        *Client
 	policy        string
 	pretty        bool
@@ -24,45 +24,45 @@ type IlmDeleteLifecycleService struct {
 	local         *bool
 }
 
-// NewIlmDeleteLifecycleService creates a new IlmDeleteLifecycleService.
-func NewIlmDeleteLifecycleService(client *Client) *IlmDeleteLifecycleService {
-	return &IlmDeleteLifecycleService{
+// NewXPackIlmDeleteLifecycleService creates a new XPackIlmDeleteLifecycleService.
+func NewXPackIlmDeleteLifecycleService(client *Client) *XPackIlmDeleteLifecycleService {
+	return &XPackIlmDeleteLifecycleService{
 		client: client,
 	}
 }
 
 // Policy is the name of the index lifecycle policy.
-func (s *IlmDeleteLifecycleService) Policy(policy string) *IlmDeleteLifecycleService {
+func (s *XPackIlmDeleteLifecycleService) Policy(policy string) *XPackIlmDeleteLifecycleService {
 	s.policy = policy
 	return s
 }
 
 // Timeout is an explicit operation timeout.
-func (s *IlmDeleteLifecycleService) Timeout(timeout string) *IlmDeleteLifecycleService {
+func (s *XPackIlmDeleteLifecycleService) Timeout(timeout string) *XPackIlmDeleteLifecycleService {
 	s.timeout = timeout
 	return s
 }
 
 // MasterTimeout specifies the timeout for connection to master.
-func (s *IlmDeleteLifecycleService) MasterTimeout(masterTimeout string) *IlmDeleteLifecycleService {
+func (s *XPackIlmDeleteLifecycleService) MasterTimeout(masterTimeout string) *XPackIlmDeleteLifecycleService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
 // FlatSettings is returns settings in flat format (default: false).
-func (s *IlmDeleteLifecycleService) FlatSettings(flatSettings bool) *IlmDeleteLifecycleService {
+func (s *XPackIlmDeleteLifecycleService) FlatSettings(flatSettings bool) *XPackIlmDeleteLifecycleService {
 	s.flatSettings = &flatSettings
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *IlmDeleteLifecycleService) Pretty(pretty bool) *IlmDeleteLifecycleService {
+func (s *XPackIlmDeleteLifecycleService) Pretty(pretty bool) *XPackIlmDeleteLifecycleService {
 	s.pretty = pretty
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *IlmDeleteLifecycleService) buildURL() (string, url.Values, error) {
+func (s *XPackIlmDeleteLifecycleService) buildURL() (string, url.Values, error) {
 	// Build URL
 	var err error
 	var path string
@@ -98,7 +98,7 @@ func (s *IlmDeleteLifecycleService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *IlmDeleteLifecycleService) Validate() error {
+func (s *XPackIlmDeleteLifecycleService) Validate() error {
 	var invalid []string
 	if s.policy == "" {
 		invalid = append(invalid, "Policy")
@@ -110,7 +110,7 @@ func (s *IlmDeleteLifecycleService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *IlmDeleteLifecycleService) Do(ctx context.Context) (*IlmDeleteLifecycleResponse, error) {
+func (s *XPackIlmDeleteLifecycleService) Do(ctx context.Context) (*XPackIlmDeleteLifecycleResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -133,14 +133,14 @@ func (s *IlmDeleteLifecycleService) Do(ctx context.Context) (*IlmDeleteLifecycle
 	}
 
 	// Return operation response
-	ret := new(IlmDeleteLifecycleResponse)
+	ret := new(XPackIlmDeleteLifecycleResponse)
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// IlmDeleteLifecycleResponse is the response of IlmDeleteLifecycleService.Do.
-type IlmDeleteLifecycleResponse struct {
+// XPackIlmDeleteLifecycleResponse is the response of XPackIlmDeleteLifecycleService.Do.
+type XPackIlmDeleteLifecycleResponse struct {
 	Acknowledged bool `json:"acknowledged"`
 }

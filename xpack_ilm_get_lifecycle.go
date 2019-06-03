@@ -14,7 +14,7 @@ import (
 
 // See the documentation at
 // https://www.elastic.co/guide/en/elasticsearch/reference/6.7/ilm-get-lifecycle.html.
-type IlmGetLifecycleService struct {
+type XPackIlmGetLifecycleService struct {
 	client        *Client
 	policy        string
 	pretty        bool
@@ -24,45 +24,45 @@ type IlmGetLifecycleService struct {
 	local         *bool
 }
 
-// NewIlmGetLifecycleService creates a new IlmGetLifecycleService.
-func NewIlmGetLifecycleService(client *Client) *IlmGetLifecycleService {
-	return &IlmGetLifecycleService{
+// NewXPackIlmGetLifecycleService creates a new XPackIlmGetLifecycleService.
+func NewXPackIlmGetLifecycleService(client *Client) *XPackIlmGetLifecycleService {
+	return &XPackIlmGetLifecycleService{
 		client: client,
 	}
 }
 
 // Policy is the name of the index lifecycle policy.
-func (s *IlmGetLifecycleService) Policy(policy string) *IlmGetLifecycleService {
+func (s *XPackIlmGetLifecycleService) Policy(policy string) *XPackIlmGetLifecycleService {
 	s.policy = policy
 	return s
 }
 
 // Timeout is an explicit operation timeout.
-func (s *IlmGetLifecycleService) Timeout(timeout string) *IlmGetLifecycleService {
+func (s *XPackIlmGetLifecycleService) Timeout(timeout string) *XPackIlmGetLifecycleService {
 	s.timeout = timeout
 	return s
 }
 
 // MasterTimeout specifies the timeout for connection to master.
-func (s *IlmGetLifecycleService) MasterTimeout(masterTimeout string) *IlmGetLifecycleService {
+func (s *XPackIlmGetLifecycleService) MasterTimeout(masterTimeout string) *XPackIlmGetLifecycleService {
 	s.masterTimeout = masterTimeout
 	return s
 }
 
 // FlatSettings is returns settings in flat format (default: false).
-func (s *IlmGetLifecycleService) FlatSettings(flatSettings bool) *IlmGetLifecycleService {
+func (s *XPackIlmGetLifecycleService) FlatSettings(flatSettings bool) *XPackIlmGetLifecycleService {
 	s.flatSettings = &flatSettings
 	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
-func (s *IlmGetLifecycleService) Pretty(pretty bool) *IlmGetLifecycleService {
+func (s *XPackIlmGetLifecycleService) Pretty(pretty bool) *XPackIlmGetLifecycleService {
 	s.pretty = pretty
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *IlmGetLifecycleService) buildURL() (string, url.Values, error) {
+func (s *XPackIlmGetLifecycleService) buildURL() (string, url.Values, error) {
 	// Build URL
 	var err error
 	var path string
@@ -98,12 +98,12 @@ func (s *IlmGetLifecycleService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *IlmGetLifecycleService) Validate() error {
+func (s *XPackIlmGetLifecycleService) Validate() error {
 	return nil
 }
 
 // Do executes the operation.
-func (s *IlmGetLifecycleService) Do(ctx context.Context) (map[string]*IlmGetLifecycleResponse, error) {
+func (s *XPackIlmGetLifecycleService) Do(ctx context.Context) (map[string]*XPackIlmGetLifecycleResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -126,15 +126,15 @@ func (s *IlmGetLifecycleService) Do(ctx context.Context) (map[string]*IlmGetLife
 	}
 
 	// Return operation response
-	var ret map[string]*IlmGetLifecycleResponse
+	var ret map[string]*XPackIlmGetLifecycleResponse
 	if err := s.client.decoder.Decode(res.Body, &ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// IlmGetLifecycleResponse is the response of IlmGetLifecycleService.Do.
-type IlmGetLifecycleResponse struct {
+// XPackIlmGetLifecycleResponse is the response of XPackIlmGetLifecycleService.Do.
+type XPackIlmGetLifecycleResponse struct {
 	Version      int                    `json:"version,omitempty"`
 	ModifiedDate int                    `json:"modified,omitempty"`
 	Policy       map[string]interface{} `json:"policy,omitempty"`
