@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -16,7 +17,7 @@ import (
 // https://www.elastic.co/guide/en/elasticsearch/reference/6.7/ilm-get-lifecycle.html.
 type XPackIlmGetLifecycleService struct {
 	client        *Client
-	policy        string
+	policy        []string
 	pretty        bool
 	timeout       string
 	masterTimeout string
@@ -32,8 +33,8 @@ func NewXPackIlmGetLifecycleService(client *Client) *XPackIlmGetLifecycleService
 }
 
 // Policy is the name of the index lifecycle policy.
-func (s *XPackIlmGetLifecycleService) Policy(policy string) *XPackIlmGetLifecycleService {
-	s.policy = policy
+func (s *XPackIlmGetLifecycleService) Policy(policies ...string) *XPackIlmGetLifecycleService {
+	s.policy = append(s.policy, policies...)
 	return s
 }
 
@@ -66,12 +67,12 @@ func (s *XPackIlmGetLifecycleService) buildURL() (string, url.Values, error) {
 	// Build URL
 	var err error
 	var path string
-	if s.policy != "" {
+	if len(s.policy) > 0 {
 		path, err = uritemplates.Expand("/_ilm/policy/{policy}", map[string]string{
-			"policy": s.policy,
+			"policy": strings.Join(s.policy, ","),
 		})
 	} else {
-		path = "/_template"
+		path = "/_ilm/policy"
 	}
 	if err != nil {
 		return "", url.Values{}, err
