@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestIlmPolicyLifecycle(t *testing.T) {
+func TestXPackIlmPolicyLifecycle(t *testing.T) {
 	client := setupTestClient(t)
 
 	testPolicyName := "test-policy"
@@ -28,7 +28,7 @@ func TestIlmPolicyLifecycle(t *testing.T) {
 	}`
 
 	// Create the policy
-	putilm, err := client.IlmPutLifecycle().Policy(testPolicyName).BodyString(body).Do(context.TODO())
+	putilm, err := client.XPackIlmPutLifecycle().Policy(testPolicyName).BodyString(body).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected put lifecycle to succeed; got: %v", err)
 	}
@@ -40,7 +40,7 @@ func TestIlmPolicyLifecycle(t *testing.T) {
 	}
 
 	// Get the policy
-	getilm, err := client.IlmGettLifecycle().Policy(testPolicyName).Do(context.TODO())
+	getilm, err := client.XPackIlmGettLifecycle().Policy(testPolicyName).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected get lifecycle to succeed; got: %v", err)
 	}
@@ -55,7 +55,7 @@ func TestIlmPolicyLifecycle(t *testing.T) {
 	}
 
 	// Delete the policy
-	delilm, err := client.IlmDeleteLifecycle().Policy(testPolicyName).Do(context.TODO())
+	delilm, err := client.XPackIlmDeleteLifecycle().Policy(testPolicyName).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected deletelifecycle to succeed; got: %v", err)
 	}
@@ -67,7 +67,7 @@ func TestIlmPolicyLifecycle(t *testing.T) {
 	}
 
 	// Get the policy
-	getilm, err = client.IlmGettLifecycle().Policy(testPolicyName).Do(context.TODO())
+	getilm, err = client.XPackIlmGettLifecycle().Policy(testPolicyName).Do(context.TODO())
 	if err == nil {
 		t.Fatalf("expected lifecycle to be deleted; got: %v", getilm)
 	}
