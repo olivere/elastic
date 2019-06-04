@@ -66,13 +66,9 @@ func (s *XPackIlmDeleteLifecycleService) buildURL() (string, url.Values, error) 
 	// Build URL
 	var err error
 	var path string
-	if s.policy != "" {
-		path, err = uritemplates.Expand("/_ilm/policy/{policy}", map[string]string{
-			"policy": s.policy,
-		})
-	} else {
-		path = "/_template"
-	}
+	path, err = uritemplates.Expand("/_ilm/policy/{policy}", map[string]string{
+		"policy": s.policy,
+	})
 	if err != nil {
 		return "", url.Values{}, err
 	}
