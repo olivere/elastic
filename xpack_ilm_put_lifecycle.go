@@ -14,7 +14,6 @@ import (
 
 // See the documentation at
 // https://www.elastic.co/guide/en/elasticsearch/reference/6.7/ilm-put-lifecycle.html
-
 type XPackIlmPutLifecycleService struct {
 	client        *Client
 	policy        string
