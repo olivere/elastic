@@ -1871,6 +1871,23 @@ func (c *Client) XPackInfo() *XPackInfoService {
 	return NewXPackInfoService(c)
 }
 
+// -- X-Pack Index Lifecycle Management --
+
+// XPackIlmPutLifecycle adds or modifies an ilm policy.
+func (c *Client) XPackIlmPutLifecycle() *XPackIlmPutLifecycleService {
+	return NewXPackIlmPutLifecycleService(c)
+}
+
+// XPackIlmGettLifecycle gets an ilm policy.
+func (c *Client) XPackIlmGetLifecycle() *XPackIlmGetLifecycleService {
+	return NewXPackIlmGetLifecycleService(c)
+}
+
+// XPackIlmDeleteLifecycle deletes an ilm policy.
+func (c *Client) XPackIlmDeleteLifecycle() *XPackIlmDeleteLifecycleService {
+	return NewXPackIlmDeleteLifecycleService(c)
+}
+
 // -- X-Pack Security --
 
 // XPackSecurityGetRoleMapping gets a role mapping.

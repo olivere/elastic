@@ -33,6 +33,7 @@ services:
       - cluster.name=platinum
       - bootstrap.memory_lock=true
       - discovery.type=single-node
+      - xpack.ilm.enabled=true
       - xpack.license.self_generated.type=trial
       - xpack.security.enabled=true
       - xpack.watcher.enabled=true
