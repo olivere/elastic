@@ -1806,7 +1806,7 @@ func (c *Client) TasksGetTask() *TasksGetTaskService {
 // TODO Snapshot Status
 
 // SnapshotCreate creates a snapshot.
-func (c *Client) SnapshotCreate(repository string, snapshot string) *SnapshotCreateService {
+func (c *Client) SnapshotCreate(repository, snapshot string) *SnapshotCreateService {
 	return NewSnapshotCreateService(c).Repository(repository).Snapshot(snapshot)
 }
 
@@ -1816,7 +1816,7 @@ func (c *Client) SnapshotCreateRepository(repository string) *SnapshotCreateRepo
 }
 
 // SnapshotDelete deletes a snapshot in a snapshot repository.
-func (c *Client) SnapshotDelete(repository string, snapshot string) *SnapshotDeleteService {
+func (c *Client) SnapshotDelete(repository, snapshot string) *SnapshotDeleteService {
 	return NewSnapshotDeleteService(c).Repository(repository).Snapshot(snapshot)
 }
 
@@ -1838,6 +1838,11 @@ func (c *Client) SnapshotGet(repository string) *SnapshotGetService {
 // SnapshotVerifyRepository verifies a snapshot repository.
 func (c *Client) SnapshotVerifyRepository(repository string) *SnapshotVerifyRepositoryService {
 	return NewSnapshotVerifyRepositoryService(c).Repository(repository)
+}
+
+// SnapshotRestore restores the specified indices from a given snapshot
+func (c *Client) SnapshotRestore(repository, snapshot string) *SnapshotRestoreService {
+	return NewSnapshotRestoreService(c).Repository(repository).Snapshot(snapshot)
 }
 
 // -- Scripting APIs --
