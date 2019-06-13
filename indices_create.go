@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/url"
 
 	"github.com/olivere/elastic/uritemplates"
@@ -17,13 +18,14 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/indices-create-index.html
 // for details.
 type IndicesCreateService struct {
-	client        *Client
-	pretty        bool
-	index         string
-	timeout       string
-	masterTimeout string
-	bodyJson      interface{}
-	bodyString    string
+	client          *Client
+	pretty          bool
+	index           string
+	timeout         string
+	masterTimeout   string
+	includeTypeName *bool
+	bodyJson        interface{}
+	bodyString      string
 }
 
 // NewIndicesCreateService returns a new IndicesCreateService.
@@ -75,6 +77,12 @@ func (b *IndicesCreateService) Pretty(pretty bool) *IndicesCreateService {
 	return b
 }
 
+// IncludeTypeName specifies whether requests and responses should include a type name.
+func (s *IndicesCreateService) IncludeTypeName(includeTypeName bool) *IndicesCreateService {
+	s.includeTypeName = &includeTypeName
+	return s
+}
+
 // Do executes the operation.
 func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, error) {
 	if b.index == "" {
@@ -89,17 +97,6 @@ func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 		return nil, err
 	}
 
-	params := make(url.Values)
-	if b.pretty {
-		params.Set("pretty", "true")
-	}
-	if b.masterTimeout != "" {
-		params.Set("master_timeout", b.masterTimeout)
-	}
-	if b.timeout != "" {
-		params.Set("timeout", b.timeout)
-	}
-
 	// Setup HTTP request body
 	var body interface{}
 	if b.bodyJson != nil {
@@ -112,7 +109,7 @@ func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 	res, err := b.client.PerformRequest(ctx, PerformRequestOptions{
 		Method: "PUT",
 		Path:   path,
-		Params: params,
+		Params: b.buildParams(),
 		Body:   body,
 	})
 	if err != nil {
@@ -124,6 +121,23 @@ func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 		return nil, err
 	}
 	return ret, nil
+}
+
+func (b *IndicesCreateService) buildParams() url.Values {
+	params := make(url.Values)
+	if b.pretty {
+		params.Set("pretty", "true")
+	}
+	if b.masterTimeout != "" {
+		params.Set("master_timeout", b.masterTimeout)
+	}
+	if b.timeout != "" {
+		params.Set("timeout", b.timeout)
+	}
+	if b.includeTypeName != nil {
+		params.Set("include_type_name", fmt.Sprintf("%v", *b.includeTypeName))
+	}
+	return params
 }
 
 // -- Result of a create index request.

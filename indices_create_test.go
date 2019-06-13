@@ -6,7 +6,10 @@ package elastic
 
 import (
 	"context"
+	"net/url"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestIndicesLifecycle(t *testing.T) {
@@ -59,5 +62,40 @@ func TestIndicesCreateValidate(t *testing.T) {
 	}
 	if res != nil {
 		t.Fatalf("expected result to be == nil; got: %v", res)
+	}
+}
+
+func TestIndicesCreateService_buildParams(t *testing.T) {
+	tests := []struct {
+		pretty          bool
+		masterTimeout   string
+		timeout         string
+		includeTypeName bool
+		expectedParams  url.Values
+	}{
+		{
+			pretty:          true,
+			masterTimeout:   "3s",
+			timeout:         "5s",
+			includeTypeName: true,
+			expectedParams: url.Values{
+				"pretty":            []string{"true"},
+				"master_timeout":    []string{"3s"},
+				"timeout":           []string{"5s"},
+				"include_type_name": []string{"true"},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		params := NewIndicesCreateService(nil).
+			Pretty(tt.pretty).
+			MasterTimeout(tt.masterTimeout).
+			Timeout(tt.timeout).
+			IncludeTypeName(tt.includeTypeName).
+			buildParams()
+		if want, have := tt.expectedParams, params; !cmp.Equal(want, have) {
+			t.Errorf("expected params=%#v; got: %#v\ndiff: %s", want, have, cmp.Diff(want, have))
+		}
 	}
 }

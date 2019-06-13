@@ -26,6 +26,7 @@ type IndicesExistsService struct {
 	allowNoIndices    *bool
 	expandWildcards   string
 	local             *bool
+	includeTypeName   *bool
 }
 
 // NewIndicesExistsService creates and initializes a new IndicesExistsService.
@@ -77,6 +78,12 @@ func (s *IndicesExistsService) Pretty(pretty bool) *IndicesExistsService {
 	return s
 }
 
+// IncludeTypeName specifies whether requests and responses should include a type name.
+func (s *IndicesExistsService) IncludeTypeName(includeTypeName bool) *IndicesExistsService {
+	s.includeTypeName = &includeTypeName
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndicesExistsService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -103,6 +110,9 @@ func (s *IndicesExistsService) buildURL() (string, url.Values, error) {
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
+	}
+	if s.includeTypeName != nil {
+		params.Set("include_type_name", fmt.Sprintf("%v", *s.includeTypeName))
 	}
 	return path, params, nil
 }
