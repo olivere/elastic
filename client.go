@@ -103,14 +103,14 @@ var (
 // It is used in NewClient.
 type ClientOptionFunc func(*Client) error
 
-//HTTPClienter is a HTTP client interface to use for request.
-type HTTPClienter interface {
+//HTTPClienter is a HTTP doer interface for to do request.
+type HTTPDoer interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
 // Client is an Elasticsearch client. Create one by calling NewClient.
 type Client struct {
-	c HTTPClienter // HTTP client to use for request
+	c HTTPDoer // HTTP doer for to do request
 
 	connsMu sync.RWMutex // connsMu guards the next block
 	conns   []*conn      // all connections
@@ -466,12 +466,12 @@ func configToOptions(cfg *config.Config) ([]ClientOptionFunc, error) {
 	return options, nil
 }
 
-// SetHttpClient can be used to specify the HTTPClienter to use when making
+// SetHttpClient can be used to specify the HTTPDoer to use when making
 // HTTP requests to Elasticsearch.
-func SetHttpClient(httpClient HTTPClienter) ClientOptionFunc {
+func SetHttpClient(doer HTTPDoer) ClientOptionFunc {
 	return func(c *Client) error {
-		if httpClient != nil {
-			c.c = httpClient
+		if doer != nil {
+			c.c = doer
 		} else {
 			c.c = http.DefaultClient
 		}
