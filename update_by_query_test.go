@@ -7,6 +7,10 @@ package elastic
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -143,6 +147,88 @@ func TestUpdateByQuery(t *testing.T) {
 	}
 	if res.Updated != sourceCount {
 		t.Fatalf("expected %d; got: %d", sourceCount, res.Updated)
+	}
+}
+
+type hookHttpTransport struct {
+	ForPath    string
+	StatusCode int
+	Body       string
+}
+
+func (h *hookHttpTransport) RoundTrip(request *http.Request) (*http.Response, error) {
+	fmt.Printf("request %s (%s)\n", request.Method, request.URL.Path)
+	if strings.Index(request.URL.Path, h.ForPath) != -1 {
+		return &http.Response{
+			StatusCode:    h.StatusCode,
+			Body:          ioutil.NopCloser(strings.NewReader(h.Body)),
+			ContentLength: int64(len(h.Body)),
+			Header:        map[string][]string{
+				//"Content-Length": {fmt.Sprint(len(h.Body))},
+			},
+		}, nil
+	} else {
+		return http.DefaultTransport.RoundTrip(request)
+	}
+}
+
+func TestUpdateByQueryConflict(t *testing.T) {
+	mockResponse := `{
+ "took": 3,
+ "timed_out": false,
+ "total": 1,
+ "updated": 0,
+ "deleted": 0,
+ "batches": 1,
+ "version_conflicts": 1,
+ "noops": 0,
+ "retries": {
+   "bulk": 0,
+   "search": 0
+ },
+ "throttled_millis": 0,
+ "requests_per_second": -1,
+ "throttled_until_millis": 0,
+ "failures": [
+   {
+     "index": "a",
+     "type": "_doc",
+     "id": "yjsmdGsBm363wfQmSbhj",
+     "cause": {
+       "type": "version_conflict_engine_exception",
+       "reason": "[_doc][yjsmdGsBm363wfQmSbhj]: version conflict, current version [4] is different than the one provided [3]",
+       "index_uuid": "1rmL3mt8TimwshF-M1DxdQ",
+       "shard": "0",
+       "index": "a"
+     },
+     "status": 409
+   }
+ ]
+}`
+	var mock = hookHttpTransport{StatusCode: 409, Body: mockResponse, ForPath: "_update_by_query"}
+	client, err := NewClient(SetHttpClient(&http.Client{Transport: &mock}), SetHealthcheck(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.UpdateByQuery("example").ProceedOnVersionConflict().Do(context.TODO())
+	if err != nil {
+		t.Fatalf("mock should not be failed %+v", err)
+	}
+	if res.Took != 3 {
+		t.Errorf("took should be 3, got %d", res.Took)
+	}
+	if res.Total != 1 {
+		t.Errorf("total should be 1, got %d", res.Total)
+	}
+	if res.VersionConflicts != 1 {
+		t.Errorf("total should be 1, got %d", res.VersionConflicts)
+	}
+	if len(res.Failures) != 1 {
+		t.Errorf("failures length should be 1, got %d", len(res.Failures))
+	}
+	expected := bulkIndexByScrollResponseFailure{Index: "a", Type: "_doc", Id: "yjsmdGsBm363wfQmSbhj", Status: 409}
+	if res.Failures[0] != expected {
+		t.Errorf("failures should be %+v, got %+v", expected, res.Failures[0])
 	}
 }
 
