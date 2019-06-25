@@ -723,7 +723,7 @@ func (c *Client) updateConns(conns []*conn) {
 	for _, conn := range conns {
 		var found bool
 		for _, oldConn := range c.conns {
-			if oldConn.NodeID() == conn.NodeID() {
+			if oldConn.NodeID() == conn.NodeID() && oldConn.URL() == conn.URL() {
 				// Take over the old connection
 				newConns = append(newConns, oldConn)
 				found = true
