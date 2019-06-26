@@ -116,6 +116,8 @@ func (s *IngestGetPipelineService) Do(ctx context.Context) (IngestGetPipelineRes
 type IngestGetPipelineResponse map[string]*IngestGetPipeline
 
 type IngestGetPipeline struct {
-	ID     string                 `json:"id"`
-	Config map[string]interface{} `json:"config"`
+	Description string                   `json:"description"`
+	Version     int                      `json:"version,omitempty"`
+	Processors  []map[string]interface{} `json:"processors"`
+	On_failure  []map[string]interface{} `json:"on_failure,omitempty"`
 }
