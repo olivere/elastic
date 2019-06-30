@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -654,10 +655,11 @@ func (s *UpdateByQueryService) Do(ctx context.Context) (*BulkIndexByScrollRespon
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:       "POST",
+		Path:         path,
+		Params:       params,
+		Body:         body,
+		IgnoreErrors: []int{http.StatusConflict},
 	})
 	if err != nil {
 		return nil, err
