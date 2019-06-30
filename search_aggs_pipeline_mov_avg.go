@@ -8,7 +8,7 @@ package elastic
 // across the data and emit the average value of that window.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-movavg-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-movavg-aggregation.html
 //
 // Deprecated: The MovAvgAggregation has been deprecated in 6.4.0. Use the more generate MovFnAggregation instead.
 type MovAvgAggregation struct {
@@ -147,7 +147,7 @@ func (a *MovAvgAggregation) Source() (interface{}, error) {
 }
 
 // -- Models for moving averages --
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-movavg-aggregation.html#_models
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-movavg-aggregation.html#_models
 
 // MovAvgModel specifies the model to use with the MovAvgAggregation.
 type MovAvgModel interface {
@@ -160,7 +160,7 @@ type MovAvgModel interface {
 // EWMAMovAvgModel calculates an exponentially weighted moving average.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-movavg-aggregation.html#_ewma_exponentially_weighted
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-movavg-aggregation.html#_ewma_exponentially_weighted
 type EWMAMovAvgModel struct {
 	alpha *float64
 }
@@ -198,7 +198,7 @@ func (m *EWMAMovAvgModel) Settings() map[string]interface{} {
 // HoltLinearMovAvgModel calculates a doubly exponential weighted moving average.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-movavg-aggregation.html#_holt_linear
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-movavg-aggregation.html#_holt_linear
 type HoltLinearMovAvgModel struct {
 	alpha *float64
 	beta  *float64
@@ -247,7 +247,7 @@ func (m *HoltLinearMovAvgModel) Settings() map[string]interface{} {
 // HoltWintersMovAvgModel calculates a triple exponential weighted moving average.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-movavg-aggregation.html#_holt_winters
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-movavg-aggregation.html#_holt_winters
 type HoltWintersMovAvgModel struct {
 	alpha           *float64
 	beta            *float64
@@ -334,7 +334,7 @@ func (m *HoltWintersMovAvgModel) Settings() map[string]interface{} {
 // by position in collection.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-movavg-aggregation.html#_linear
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-movavg-aggregation.html#_linear
 type LinearMovAvgModel struct {
 }
 
@@ -358,7 +358,7 @@ func (m *LinearMovAvgModel) Settings() map[string]interface{} {
 // SimpleMovAvgModel calculates a simple unweighted (arithmetic) moving average.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-movavg-aggregation.html#_simple
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-movavg-aggregation.html#_simple
 type SimpleMovAvgModel struct {
 }
 

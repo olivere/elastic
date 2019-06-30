@@ -11,7 +11,7 @@ package elastic
 //
 // The stats that are returned consist of: min, max, sum, count and avg.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-metrics-stats-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-metrics-stats-aggregation.html
 // for details.
 type MatrixStatsAggregation struct {
 	fields          []string

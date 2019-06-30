@@ -9,7 +9,7 @@ package elastic
 // from the aggregated documents. These values can be extracted either
 // from specific numeric fields in the documents.
 //
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-metrics-weight-avg-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-metrics-weight-avg-aggregation.html
 type WeightedAvgAggregation struct {
 	fields          map[string]*MultiValuesSourceFieldConfig
 	valueType       string

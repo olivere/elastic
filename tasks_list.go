@@ -16,7 +16,7 @@ import (
 
 // TasksListService retrieves the list of currently executing tasks
 // on one ore more nodes in the cluster. It is part of the Task Management API
-// documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.7/tasks.html.
+// documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.8/tasks.html.
 //
 // It is supported as of Elasticsearch 2.3.0.
 type TasksListService struct {

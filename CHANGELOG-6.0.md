@@ -14,5 +14,5 @@ Only use `true` or `false` for boolean values, not `0` or `1` or `on` or `off`.
 
 Notice that 6.0 and future versions will default to single type indices, i.e. you may not use multiple types when e.g. adding an index with a mapping.
 
-See [here for details](https://www.elastic.co/guide/en/elasticsearch/reference/6.7/removal-of-types.html#_what_are_mapping_types).
+See [here for details](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/removal-of-types.html#_what_are_mapping_types).
 

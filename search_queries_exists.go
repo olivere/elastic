@@ -8,7 +8,7 @@ package elastic
 // has a value in them.
 //
 // For more details, see:
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/query-dsl-exists-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/query-dsl-exists-query.html
 type ExistsQuery struct {
 	name      string
 	queryName string

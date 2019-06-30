@@ -15,7 +15,7 @@ import (
 )
 
 // DeleteByQueryService deletes documents that match a query.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/docs-delete-by-query.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/docs-delete-by-query.html.
 type DeleteByQueryService struct {
 	client                 *Client
 	index                  []string
@@ -243,7 +243,7 @@ func (s *DeleteByQueryService) Query(query Query) *DeleteByQueryService {
 
 // Refresh indicates whether the effected indexes should be refreshed.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/docs-refresh.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/docs-refresh.html
 // for details.
 func (s *DeleteByQueryService) Refresh(refresh string) *DeleteByQueryService {
 	s.refresh = refresh
@@ -306,7 +306,7 @@ func (s *DeleteByQueryService) Size(size int) *DeleteByQueryService {
 // Slices represents the number of slices (default: 1).
 // It used to  be a number, but can be set to "auto" as of 6.7.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/docs-delete-by-query.html#docs-delete-by-query-automatic-slice
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/docs-delete-by-query.html#docs-delete-by-query-automatic-slice
 // for details.
 func (s *DeleteByQueryService) Slices(slices interface{}) *DeleteByQueryService {
 	s.slices = slices

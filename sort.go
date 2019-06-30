@@ -9,7 +9,7 @@ import "errors"
 // -- Sorter --
 
 // Sorter is an interface for sorting strategies, e.g. ScoreSort or FieldSort.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-request-sort.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-request-sort.html.
 type Sorter interface {
 	Source() (interface{}, error)
 }
@@ -91,7 +91,7 @@ func (info SortInfo) Source() (interface{}, error) {
 // -- SortByDoc --
 
 // SortByDoc sorts by the "_doc" field, as described in
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-request-scroll.html.
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-request-scroll.html.
 //
 // Example:
 //   ss := elastic.NewSearchSource()
@@ -305,7 +305,7 @@ func (s *FieldSort) Source() (interface{}, error) {
 // -- GeoDistanceSort --
 
 // GeoDistanceSort allows for sorting by geographic distance.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-request-sort.html#_geo_distance_sorting.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-request-sort.html#_geo_distance_sorting.
 type GeoDistanceSort struct {
 	Sorter
 	fieldName    string
@@ -371,7 +371,7 @@ func (s *GeoDistanceSort) GeoHashes(geohashes ...string) *GeoDistanceSort {
 }
 
 // Unit specifies the distance unit to use. It defaults to km.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/common-options.html#distance-units
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/common-options.html#distance-units
 // for details.
 func (s *GeoDistanceSort) Unit(unit string) *GeoDistanceSort {
 	s.unit = unit
@@ -384,7 +384,7 @@ func (s *GeoDistanceSort) GeoDistance(geoDistance string) *GeoDistanceSort {
 }
 
 // DistanceType describes how to compute the distance, e.g. "arc" or "plane".
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-request-sort.html#geo-sorting
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-request-sort.html#geo-sorting
 // for details.
 func (s *GeoDistanceSort) DistanceType(distanceType string) *GeoDistanceSort {
 	s.distanceType = &distanceType
@@ -474,7 +474,7 @@ func (s *GeoDistanceSort) Source() (interface{}, error) {
 // -- ScriptSort --
 
 // ScriptSort sorts by a custom script. See
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/modules-scripting.html#modules-scripting
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/modules-scripting.html#modules-scripting
 // for details about scripting.
 type ScriptSort struct {
 	Sorter

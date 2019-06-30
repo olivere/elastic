@@ -11,7 +11,7 @@ package elastic
 // parameters from and size may be set in order to truncate the result buckets.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-bucket-sort-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-bucket-sort-aggregation.html
 type BucketSortAggregation struct {
 	sorters   []Sorter
 	from      int

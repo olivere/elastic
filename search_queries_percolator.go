@@ -9,7 +9,7 @@ import "errors"
 // PercolatorQuery can be used to match queries stored in an index.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/query-dsl-percolate-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/query-dsl-percolate-query.html
 type PercolatorQuery struct {
 	field                     string
 	name                      string

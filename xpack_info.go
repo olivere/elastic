@@ -14,7 +14,7 @@ import (
 )
 
 // XPackInfoService retrieves xpack info.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/info-api.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/info-api.html.
 type XPackInfoService struct {
 	client *Client
 	pretty bool

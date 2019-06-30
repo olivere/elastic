@@ -10,7 +10,7 @@ package elastic
 // response represents a non-empty cell in the matrix of intersecting filters.
 //
 // For details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-bucket-adjacency-matrix-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-bucket-adjacency-matrix-aggregation.html
 type AdjacencyMatrixAggregation struct {
 	filters         map[string]Query
 	subAggregations map[string]Aggregation

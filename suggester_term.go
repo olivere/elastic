@@ -6,7 +6,7 @@ package elastic
 
 // TermSuggester suggests terms based on edit distance.
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-suggesters-term.html.
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-suggesters-term.html.
 type TermSuggester struct {
 	Suggester
 	name           string

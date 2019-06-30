@@ -8,7 +8,7 @@ package elastic
 // with a specified prefix (not analyzed).
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/query-dsl-prefix-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/query-dsl-prefix-query.html
 type PrefixQuery struct {
 	name      string
 	prefix    string

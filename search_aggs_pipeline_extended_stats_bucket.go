@@ -12,7 +12,7 @@ package elastic
 // This aggregation provides a few more statistics (sum of squares, standard deviation, etc)
 // compared to the stats_bucket aggregation.
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-extended-stats-bucket-aggregation.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-extended-stats-bucket-aggregation.html
 type ExtendedStatsBucketAggregation struct {
 	format       string
 	gapPolicy    string

@@ -6,7 +6,7 @@ package elastic
 
 // GeoCentroidAggregation is a metric aggregation that computes the weighted centroid
 // from all coordinate values for a Geo-point datatype field.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-metrics-geocentroid-aggregation.html
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-metrics-geocentroid-aggregation.html
 type GeoCentroidAggregation struct {
 	field           string
 	script          *Script

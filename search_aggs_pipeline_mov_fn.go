@@ -10,7 +10,7 @@ package elastic
 //
 // You must pass a script to process the values. There are a number of predefined
 // script functions you can use as described here:
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-movfn-aggregation.html#_pre_built_functions.
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-movfn-aggregation.html#_pre_built_functions.
 //
 // Example:
 //   agg := elastic.NewMovFnAggregation(
@@ -20,7 +20,7 @@ package elastic
 //   )
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-aggregations-pipeline-movfn-aggregation.html.
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations-pipeline-movfn-aggregation.html.
 type MovFnAggregation struct {
 	script    *Script
 	format    string

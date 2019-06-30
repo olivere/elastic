@@ -8,7 +8,7 @@ package elastic
 // string fields, and a +/- margin on numeric and date fields.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/6.7/query-dsl-fuzzy-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.8/query-dsl-fuzzy-query.html
 type FuzzyQuery struct {
 	name           string
 	value          interface{}
