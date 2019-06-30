@@ -707,6 +707,7 @@ func (s *UpdateByQueryService) DoAsync(ctx context.Context) (*StartTaskResult, e
 		Path:   path,
 		Params: params,
 		Body:   body,
+		IgnoreErrors: []int{http.StatusConflict},
 	})
 	if err != nil {
 		return nil, err
