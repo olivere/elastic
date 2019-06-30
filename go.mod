@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-sdk-go v1.19.6
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/golang/mock v1.2.0 // indirect
-	github.com/google/go-cmp v0.2.0
+	github.com/google/go-cmp v0.3.0
 	github.com/mailru/easyjson v0.0.0-20190312143242-1de009706dbe
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/pkg/errors v0.8.1
