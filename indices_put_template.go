@@ -90,7 +90,7 @@ func (s *IndicesPutTemplateService) Create(create bool) *IndicesPutTemplateServi
 
 // IncludeTypeName indicates whether to update the mapping for all fields
 // with the same name across all types or not.
-func (s *IndicesPutTemplateService) IncludeTypeName(include bool) *IndicesPutMappingService {
+func (s *IndicesPutTemplateService) IncludeTypeName(include bool) *IndicesPutTemplateService {
 	s.includeTypeName = &include
 	return s
 }
