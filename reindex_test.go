@@ -107,10 +107,10 @@ func TestReindexSourceWithSourceAndRemoteAndDestination(t *testing.T) {
 	}
 }
 
-func TestReindexSourceWithSourceAndDestinationAndOpType(t *testing.T) {
+func TestReindexSourceWithSourceAndDestinationAndOpTypeAndPipeline(t *testing.T) {
 	client := setupTestClient(t)
 	src := NewReindexSource().Index("twitter")
-	dst := NewReindexDestination().Index("new_twitter").OpType("create")
+	dst := NewReindexDestination().Index("new_twitter").OpType("create").Pipeline("some_ingest_pipeline")
 	out, err := client.Reindex().Source(src).Destination(dst).getBody()
 	if err != nil {
 		t.Fatal(err)
@@ -120,7 +120,7 @@ func TestReindexSourceWithSourceAndDestinationAndOpType(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := string(b)
-	want := `{"dest":{"index":"new_twitter","op_type":"create"},"source":{"index":"twitter"}}`
+	want := `{"dest":{"index":"new_twitter","op_type":"create","pipeline":"some_ingest_pipeline"},"source":{"index":"twitter"}}`
 	if got != want {
 		t.Fatalf("\ngot  %s\nwant %s", got, want)
 	}
