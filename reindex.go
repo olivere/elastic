@@ -611,6 +611,7 @@ type ReindexDestination struct {
 	opType      string
 	version     int64  // default is MATCH_ANY
 	versionType string // default is "internal"
+	pipeline    string
 }
 
 // NewReindexDestination returns a new ReindexDestination.
@@ -680,6 +681,12 @@ func (r *ReindexDestination) VersionType(versionType string) *ReindexDestination
 	return r
 }
 
+// Pipeline specifies the pipeline to use for reindexing.
+func (r *ReindexDestination) Pipeline(pipeline string) *ReindexDestination {
+	r.pipeline = pipeline
+	return r
+}
+
 // Source returns a serializable JSON request for the request.
 func (r *ReindexDestination) Source() (interface{}, error) {
 	source := make(map[string]interface{})
@@ -703,6 +710,9 @@ func (r *ReindexDestination) Source() (interface{}, error) {
 	}
 	if r.versionType != "" {
 		source["version_type"] = r.versionType
+	}
+	if r.pipeline != "" {
+		source["pipeline"] = r.pipeline
 	}
 	return source, nil
 }
