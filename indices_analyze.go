@@ -238,11 +238,12 @@ type IndicesAnalyzeResponse struct {
 }
 
 type IndicesAnalyzeResponseToken struct {
-	Token       string `json:"token"`
-	StartOffset int    `json:"start_offset"`
-	EndOffset   int    `json:"end_offset"`
-	Type        string `json:"type"`
-	Position    int    `json:"position"`
+	Token          string `json:"token"`
+	StartOffset    int    `json:"start_offset"`
+	EndOffset      int    `json:"end_offset"`
+	Type           string `json:"type"`
+	Position       int    `json:"position"`
+	PositionLength int    `json:"positionLength"` // seems to be wrong in 7.2 (no snake_case), see https://github.com/elastic/elasticsearch/blob/7.2/server/src/main/java/org/elasticsearch/action/admin/indices/analyze/AnalyzeResponse.java
 }
 
 type IndicesAnalyzeResponseDetail struct {
