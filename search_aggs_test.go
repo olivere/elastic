@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"encoding/json"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -3991,5 +3992,128 @@ func TestAggsComposite(t *testing.T) {
 	}
 	if want, have := 1321009080000.0, f; want != have {
 		t.Fatalf("expected to find bucket key value %v; got: %v", want, have)
+	}
+}
+
+func TestAggsScriptedMetric(t *testing.T) {
+	s := `{
+  "bool_metric": {
+    "value": true
+  },
+  "int_metric": {
+    "value": 1
+  },
+  "float_metric": {
+    "value": 2.5
+  },
+  "string_metric": {
+    "value": "test"
+  },
+  "slice_metric": {
+    "value": [
+      1,
+      2,
+      3
+    ]
+  },
+  "map_metric": {
+    "value": {
+      "a": "1",
+      "b": "2"
+    }
+  }
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %+v", err)
+	}
+
+	agg, found := aggs.ScriptedMetric("bool_metric")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %+v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %+v", agg)
+	}
+	if v, ok := agg.Value.(bool); !ok || !v {
+		t.Fatalf("expected aggregation value is bool true; got: %+v", agg.Value)
+	}
+
+	agg, found = aggs.ScriptedMetric("int_metric")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %+v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %+v", agg)
+	}
+	if v, ok := agg.Value.(json.Number); ok {
+		if iv, err := v.Int64(); err != nil || iv != 1 {
+			t.Fatalf("expected aggregation value is 1; got: %+v", iv)
+		}
+	} else {
+		t.Fatalf("expected aggregation value is json.Number; got: %+v", agg.Value)
+	}
+
+	agg, found = aggs.ScriptedMetric("float_metric")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %+v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %+v", agg)
+	}
+	if v, ok := agg.Value.(json.Number); ok {
+		if iv, err := v.Float64(); err != nil || iv != 2.5 {
+			t.Fatalf("expected aggregation value is 2.5; got: %+v", iv)
+		}
+	} else {
+		t.Fatalf("expected aggregation value is json.Number; got: %+v", agg.Value)
+	}
+
+	agg, found = aggs.ScriptedMetric("string_metric")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %+v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %+v", agg)
+	}
+	if v, ok := agg.Value.(string); !ok || v != "test" {
+		t.Fatalf("expected aggregation value is test; got: %+v", agg.Value)
+	}
+
+	agg, found = aggs.ScriptedMetric("slice_metric")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %+v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %+v", agg)
+	}
+	if v, ok := agg.Value.([]interface{}); ok {
+		expected := []interface{}{json.Number("1"), json.Number("2"), json.Number("3")}
+		if !reflect.DeepEqual(v, expected) {
+			t.Fatalf("expected %+v; got: %+v", expected, v)
+		}
+	} else {
+		t.Fatalf("expected aggregation value is []interface{}; got: %+v", agg.Value)
+	}
+
+	agg, found = aggs.ScriptedMetric("map_metric")
+	if !found {
+		t.Fatalf("expected aggregation to be found; got: %+v", found)
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %+v", agg)
+	}
+	if v, ok := agg.Value.(map[string]interface{}); ok {
+		expected := map[string]interface{}{
+			"a": "1",
+			"b": "2",
+		}
+		if !reflect.DeepEqual(v, expected) {
+			t.Fatalf("expected %+v; got: %+v", expected, v)
+		}
+	} else {
+		t.Fatalf("expected aggregation value is map[string]interface{}; got: %+v", agg.Value)
 	}
 }
