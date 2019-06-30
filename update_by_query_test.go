@@ -7,6 +7,9 @@ package elastic
 import (
 	"context"
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -185,5 +188,76 @@ func TestUpdateByQueryAsync(t *testing.T) {
 	}
 	if taskStatus == nil {
 		t.Fatal("expected task status result != nil")
+	}
+}
+
+func TestUpdateByQueryConflict(t *testing.T) {
+	fail := func(r *http.Request) (*http.Response, error) {
+		body := `{
+			"took": 3,
+			"timed_out": false,
+			"total": 1,
+			"updated": 0,
+			"deleted": 0,
+			"batches": 1,
+			"version_conflicts": 1,
+			"noops": 0,
+			"retries": {
+			  "bulk": 0,
+			  "search": 0
+			},
+			"throttled_millis": 0,
+			"requests_per_second": -1,
+			"throttled_until_millis": 0,
+			"failures": [
+			  {
+				"index": "a",
+				"type": "_doc",
+				"id": "yjsmdGsBm363wfQmSbhj",
+				"cause": {
+				  "type": "version_conflict_engine_exception",
+				  "reason": "[_doc][yjsmdGsBm363wfQmSbhj]: version conflict, current version [4] is different than the one provided [3]",
+				  "index_uuid": "1rmL3mt8TimwshF-M1DxdQ",
+				  "shard": "0",
+				  "index": "a"
+				},
+				"status": 409
+			  }
+			]
+		   }`
+		return &http.Response{
+			StatusCode:    http.StatusConflict,
+			Body:          ioutil.NopCloser(strings.NewReader(body)),
+			ContentLength: int64(len(body)),
+		}, nil
+	}
+
+	// Run against a failing endpoint and see if PerformRequest
+	// retries correctly.
+	tr := &failingTransport{path: "/example/_update_by_query", fail: fail}
+	httpClient := &http.Client{Transport: tr}
+	client, err := NewClient(SetHttpClient(httpClient), SetHealthcheck(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.UpdateByQuery("example").ProceedOnVersionConflict().Do(context.TODO())
+	if err != nil {
+		t.Fatalf("mock should not be failed %+v", err)
+	}
+	if res.Took != 3 {
+		t.Errorf("took should be 3, got %d", res.Took)
+	}
+	if res.Total != 1 {
+		t.Errorf("total should be 1, got %d", res.Total)
+	}
+	if res.VersionConflicts != 1 {
+		t.Errorf("total should be 1, got %d", res.VersionConflicts)
+	}
+	if len(res.Failures) != 1 {
+		t.Errorf("failures length should be 1, got %d", len(res.Failures))
+	}
+	expected := bulkIndexByScrollResponseFailure{Index: "a", Type: "_doc", Id: "yjsmdGsBm363wfQmSbhj", Status: 409}
+	if res.Failures[0] != expected {
+		t.Errorf("failures should be %+v, got %+v", expected, res.Failures[0])
 	}
 }
