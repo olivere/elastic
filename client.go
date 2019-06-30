@@ -99,13 +99,19 @@ var (
 	noRetries = NewStopRetrier()
 )
 
+// Doer is an interface to perform HTTP requests.
+// It can be used for mocking.
+type Doer interface {
+	Do(*http.Request) (*http.Response, error)
+}
+
 // ClientOptionFunc is a function that configures a Client.
 // It is used in NewClient.
 type ClientOptionFunc func(*Client) error
 
 // Client is an Elasticsearch client. Create one by calling NewClient.
 type Client struct {
-	c *http.Client // net/http Client to use for requests
+	c Doer // e.g. a net/*http.Client to use for requests
 
 	connsMu sync.RWMutex // connsMu guards the next block
 	conns   []*conn      // all connections
@@ -463,7 +469,7 @@ func configToOptions(cfg *config.Config) ([]ClientOptionFunc, error) {
 
 // SetHttpClient can be used to specify the http.Client to use when making
 // HTTP requests to Elasticsearch.
-func SetHttpClient(httpClient *http.Client) ClientOptionFunc {
+func SetHttpClient(httpClient Doer) ClientOptionFunc {
 	return func(c *Client) error {
 		if httpClient != nil {
 			c.c = httpClient
