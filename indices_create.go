@@ -17,13 +17,15 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/indices-create-index.html
 // for details.
 type IndicesCreateService struct {
-	client        *Client
-	pretty        bool
-	index         string
-	timeout       string
-	masterTimeout string
-	bodyJson      interface{}
-	bodyString    string
+	client          *Client
+	pretty          bool
+	index           string
+	timeout         string
+	masterTimeout   string
+	includeTypeName *bool
+	updateAllTypes  *bool
+	bodyJson        interface{}
+	bodyString      string
 }
 
 // NewIndicesCreateService returns a new IndicesCreateService.
@@ -46,6 +48,20 @@ func (s *IndicesCreateService) Timeout(timeout string) *IndicesCreateService {
 // MasterTimeout specifies the timeout for connection to master.
 func (s *IndicesCreateService) MasterTimeout(masterTimeout string) *IndicesCreateService {
 	s.masterTimeout = masterTimeout
+	return s
+}
+
+// IncludeTypeName indicates whether a type should be expected in the
+// body of the mappings.
+func (s *IndicesCreateService) IncludeTypeName(include bool) *IndicesCreateService {
+	s.includeTypeName = &include
+	return s
+}
+
+// UpdateAllTypes indicates whether to update the mapping for all fields
+// with the same name across all types or not.
+func (s *IndicesCreateService) UpdateAllTypes(update bool) *IndicesCreateService {
+	s.updateAllTypes = &update
 	return s
 }
 
@@ -98,6 +114,20 @@ func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 	}
 	if b.timeout != "" {
 		params.Set("timeout", b.timeout)
+	}
+	if v := b.includeTypeName; v != nil {
+		if *v {
+			params.Set("include_type_name", "true")
+		} else {
+			params.Set("include_type_name", "false")
+		}
+	}
+	if v := b.updateAllTypes; v != nil && *v {
+		if *v {
+			params.Set("update_all_types", "true")
+		} else {
+			params.Set("update_all_types", "false")
+		}
 	}
 
 	// Setup HTTP request body

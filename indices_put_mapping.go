@@ -27,6 +27,7 @@ type IndicesPutMappingService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	includeTypeName   *bool
 	updateAllTypes    *bool
 	timeout           string
 	bodyJson          map[string]interface{}
@@ -94,10 +95,17 @@ func (s *IndicesPutMappingService) ExpandWildcards(expandWildcards string) *Indi
 	return s
 }
 
-// UpdateAllTypes, if true, indicates that all fields that span multiple indices
-// should be updated (default: false).
-func (s *IndicesPutMappingService) UpdateAllTypes(updateAllTypes bool) *IndicesPutMappingService {
-	s.updateAllTypes = &updateAllTypes
+// IncludeTypeName indicates whether to update the mapping for all fields
+// with the same name across all types or not.
+func (s *IndicesPutMappingService) IncludeTypeName(include bool) *IndicesPutMappingService {
+	s.includeTypeName = &include
+	return s
+}
+
+// UpdateAllTypes indicates whether to update the mapping for all fields
+// with the same name across all types or not.
+func (s *IndicesPutMappingService) UpdateAllTypes(update bool) *IndicesPutMappingService {
+	s.updateAllTypes = &update
 	return s
 }
 
@@ -153,8 +161,19 @@ func (s *IndicesPutMappingService) buildURL() (string, url.Values, error) {
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
 	}
-	if s.updateAllTypes != nil {
-		params.Set("update_all_types", fmt.Sprintf("%v", *s.updateAllTypes))
+	if v := s.includeTypeName; v != nil {
+		if *v {
+			params.Set("include_type_name", "true")
+		} else {
+			params.Set("include_type_name", "false")
+		}
+	}
+	if v := s.updateAllTypes; v != nil && *v {
+		if *v {
+			params.Set("update_all_types", "true")
+		} else {
+			params.Set("update_all_types", "false")
+		}
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)

@@ -15,18 +15,19 @@ import (
 // IndicesPutTemplateService creates or updates index mappings.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/indices-templates.html.
 type IndicesPutTemplateService struct {
-	client        *Client
-	pretty        bool
-	name          string
-	cause         string
-	order         interface{}
-	version       *int
-	create        *bool
-	timeout       string
-	masterTimeout string
-	flatSettings  *bool
-	bodyJson      interface{}
-	bodyString    string
+	client          *Client
+	pretty          bool
+	name            string
+	cause           string
+	order           interface{}
+	version         *int
+	create          *bool
+	timeout         string
+	masterTimeout   string
+	flatSettings    *bool
+	includeTypeName *bool
+	bodyJson        interface{}
+	bodyString      string
 }
 
 // NewIndicesPutTemplateService creates a new IndicesPutTemplateService.
@@ -87,6 +88,13 @@ func (s *IndicesPutTemplateService) Create(create bool) *IndicesPutTemplateServi
 	return s
 }
 
+// IncludeTypeName indicates whether to update the mapping for all fields
+// with the same name across all types or not.
+func (s *IndicesPutTemplateService) IncludeTypeName(include bool) *IndicesPutMappingService {
+	s.includeTypeName = &include
+	return s
+}
+
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesPutTemplateService) Pretty(pretty bool) *IndicesPutTemplateService {
 	s.pretty = pretty
@@ -140,6 +148,13 @@ func (s *IndicesPutTemplateService) buildURL() (string, url.Values, error) {
 	}
 	if s.flatSettings != nil {
 		params.Set("flat_settings", fmt.Sprintf("%v", *s.flatSettings))
+	}
+	if v := s.includeTypeName; v != nil {
+		if *v {
+			params.Set("include_type_name", "true")
+		} else {
+			params.Set("include_type_name", "false")
+		}
 	}
 	return path, params, nil
 }
