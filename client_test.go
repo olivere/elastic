@@ -1476,3 +1476,66 @@ func testPerformRequestWithCompression(t *testing.T, hc *http.Client) {
 		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
 	}
 }
+
+// Testing change introduced in https://github.com/olivere/elastic/pull/1125
+func TestUpdateNodeURL(t *testing.T) {
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer l.Close()
+
+	nodeID := "nodeID"
+	nodeURL := l.Addr().String()
+
+	nodesInfoHandler := func(w http.ResponseWriter, _ *http.Request) {
+		nodesResponse, err := json.Marshal(NodesInfoResponse{
+			Nodes: map[string]*NodesInfoNode{
+				nodeID: {HTTP: &NodesInfoNodeHTTP{PublishAddress: nodeURL}},
+			},
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			w.Write(nodesResponse)
+		}
+	}
+
+	go func() { http.Serve(l, http.HandlerFunc(nodesInfoHandler)) }()
+
+	client, err := NewSimpleClient(SetURL("http://"+nodeURL), SetSniff(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = client.sniff(context.Background(), 5*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(client.conns) != 1 {
+		t.Fatal("expect exactly 1 connection")
+	}
+	if id := client.conns[0].NodeID(); id != nodeID {
+		t.Fatalf("wrong node ID: %q instead of %q", id, nodeID)
+	}
+	oldURL := client.conns[0].URL()
+
+	nodeURL = "127.0.0.1:0" // dummy that needs to be different from the original value
+	err = client.sniff(context.Background(), 5*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(client.conns) != 1 {
+		t.Fatal("expect exactly 1 connection")
+	}
+	if id := client.conns[0].NodeID(); id != nodeID {
+		t.Fatalf("wrong node ID: %q instead of %q", id, nodeID)
+	}
+	newURL := client.conns[0].URL()
+
+	if newURL == oldURL {
+		t.Fatal("node URL failed to update")
+	}
+}
