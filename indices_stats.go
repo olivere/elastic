@@ -236,6 +236,7 @@ type IndexStatsDetails struct {
 	Translog    *IndexStatsTranslog    `json:"translog,omitempty"`
 	Suggest     *IndexStatsSuggest     `json:"suggest,omitempty"`
 	QueryCache  *IndexStatsQueryCache  `json:"query_cache,omitempty"`
+	SeqNo       *IndexStatsSeqNo       `json:"seq_no,omitempty"`
 }
 
 type IndexStatsDocs struct {
@@ -390,4 +391,10 @@ type IndexStatsQueryCache struct {
 	Evictions         int64  `json:"evictions,omitempty"`
 	HitCount          int64  `json:"hit_count,omitempty"`
 	MissCount         int64  `json:"miss_count,omitempty"`
+}
+
+type IndexStatsSeqNo struct {
+	MaxSeqNo         int64 `json:"max_seq_no,omitempty"`
+	LocalCheckpoint  int64 `json:"local_checkpoint,omitempty"`
+	GlobalCheckpoint int64 `json:"global_checkpoint,omitempty"`
 }
