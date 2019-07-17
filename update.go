@@ -29,6 +29,8 @@ type UpdateService struct {
 	version             *int64
 	versionType         string
 	retryOnConflict     *int
+	ifSeqNo				*int64
+	ifPrimaryTerm	    *int
 	refresh             string
 	waitForActiveShards string
 	upsert              interface{}
@@ -92,6 +94,18 @@ func (b *UpdateService) Script(script *Script) *UpdateService {
 // when a conflict occurs (default: 0).
 func (b *UpdateService) RetryOnConflict(retryOnConflict int) *UpdateService {
 	b.retryOnConflict = &retryOnConflict
+	return b
+}
+
+// IfSeqNo specifies seq no of the last operation.
+func (b *UpdateService) IfSeqNo(ifSeqNo int64) *UpdateService {
+	b.ifSeqNo = &ifSeqNo
+	return b
+}
+
+// IfPrimaryTerm specifies primary term of the last operation.
+func (b *UpdateService) IfPrimaryTerm(ifPrimaryTerm int) *UpdateService {
+	b.ifPrimaryTerm = &ifPrimaryTerm
 	return b
 }
 
@@ -248,6 +262,12 @@ func (b *UpdateService) url() (string, url.Values, error) {
 	}
 	if b.retryOnConflict != nil {
 		params.Set("retry_on_conflict", fmt.Sprintf("%v", *b.retryOnConflict))
+	}
+	if b.ifSeqNo != nil {
+		params.Set("if_seq_no", fmt.Sprintf("%v", *b.ifSeqNo))
+	}
+	if b.ifPrimaryTerm != nil {
+		params.Set("if_primary_term", fmt.Sprintf("%v", *b.ifPrimaryTerm))
 	}
 
 	return path, params, nil
