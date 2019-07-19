@@ -29,8 +29,8 @@ type UpdateService struct {
 	version             *int64
 	versionType         string
 	retryOnConflict     *int
-	ifSeqNo				*int64
-	ifPrimaryTerm	    *int
+	ifSeqNo             *int64
+	ifPrimaryTerm       *int
 	refresh             string
 	waitForActiveShards string
 	upsert              interface{}
