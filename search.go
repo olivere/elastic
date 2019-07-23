@@ -17,21 +17,22 @@ import (
 
 // Search for documents in Elasticsearch.
 type SearchService struct {
-	client            *Client
-	searchSource      *SearchSource
-	source            interface{}
-	pretty            bool
-	filterPath        []string
-	searchType        string
-	index             []string
-	typ               []string
-	routing           string
-	preference        string
-	requestCache      *bool
-	ignoreUnavailable *bool
-	allowNoIndices    *bool
-	expandWildcards   string
-	maxResponseSize   int64
+	client             *Client
+	searchSource       *SearchSource
+	source             interface{}
+	pretty             bool
+	filterPath         []string
+	searchType         string
+	index              []string
+	typ                []string
+	routing            string
+	preference         string
+	requestCache       *bool
+	ignoreUnavailable  *bool
+	allowNoIndices     *bool
+	expandWildcards    string
+	maxResponseSize    int64
+	restTotalHitsAsInt *bool
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -348,6 +349,15 @@ func (s *SearchService) MaxResponseSize(maxResponseSize int64) *SearchService {
 	return s
 }
 
+// RestTotalHitsAsInt returns hits.total as an int instead of an object
+// on 7.x
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/breaking-changes-7.0.html#hits-total-now-object-search-response
+func (s *SearchService) RestTotalHitsAsInt(v bool) *SearchService {
+	s.restTotalHitsAsInt = &v
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *SearchService) buildURL() (string, url.Values, error) {
 	var err error
@@ -401,6 +411,9 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	}
 	if len(s.filterPath) > 0 {
 		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
+	if s.restTotalHitsAsInt != nil {
+		params.Set("rest_total_hits_as_int", fmt.Sprintf("%v", *s.restTotalHitsAsInt))
 	}
 	return path, params, nil
 }

@@ -20,6 +20,7 @@ type MultiSearchService struct {
 	pretty                bool
 	maxConcurrentRequests *int
 	preFilterShardSize    *int
+	restTotalHitsAsInt    *bool
 }
 
 func NewMultiSearchService(client *Client) *MultiSearchService {
@@ -54,6 +55,11 @@ func (s *MultiSearchService) PreFilterShardSize(size int) *MultiSearchService {
 	return s
 }
 
+func (s *MultiSearchService) RestTotalHitsAsInt(v bool) *MultiSearchService {
+	s.restTotalHitsAsInt = &v
+	return s
+}
+
 func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error) {
 	// Build url
 	path := "/_msearch"
@@ -68,6 +74,9 @@ func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error)
 	}
 	if v := s.preFilterShardSize; v != nil {
 		params.Set("pre_filter_shard_size", fmt.Sprintf("%v", *v))
+	}
+	if v := s.restTotalHitsAsInt; v != nil {
+		params.Set("rest_total_hits_as_int", fmt.Sprintf("%v", *v))
 	}
 
 	// Set body
