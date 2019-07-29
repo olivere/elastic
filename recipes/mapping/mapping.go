@@ -6,8 +6,7 @@
 //
 // Example
 //
-//
-//     mapping -url=http://127.0.0.1:9200 -index=twitter -type=tweet
+//     mapping -url=http://127.0.0.1:9200 -index=twitter
 //
 package main
 
