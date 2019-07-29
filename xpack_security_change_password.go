@@ -17,12 +17,12 @@ import (
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.1/security-api-change-password.html.
 type XPackSecurityChangePasswordService struct {
-	client *Client
-	pretty bool
-	username   string
+	client   *Client
+	pretty   bool
+	username string
 	password string
-	refresh string
-	body   interface{}
+	refresh  string
+	body     interface{}
 }
 
 // NewXPackSecurityChangePasswordService creates a new XPackSecurityChangePasswordService.
