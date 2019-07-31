@@ -29,6 +29,8 @@ type BulkUpdateRequest struct {
 	version         int64  // default is MATCH_ANY
 	versionType     string // default is "internal"
 	retryOnConflict *int
+	ifSeqNo         *int64
+	ifPrimaryTerm   *int64
 	upsert          interface{}
 	docAsUpsert     *bool
 	detectNoop      *bool
@@ -143,6 +145,18 @@ func (r *BulkUpdateRequest) ScriptedUpsert(upsert bool) *BulkUpdateRequest {
 func (r *BulkUpdateRequest) RetryOnConflict(retryOnConflict int) *BulkUpdateRequest {
 	r.retryOnConflict = &retryOnConflict
 	r.source = nil
+	return r
+}
+
+// IfSeqNo specifies seq no of the last operation.
+func (r *BulkUpdateRequest) IfSeqNo(ifSeqNo int64) *BulkUpdateRequest {
+	r.ifSeqNo = &ifSeqNo
+	return r
+}
+
+// IfPrimaryTerm specifies primary term of the last operation.
+func (r *BulkUpdateRequest) IfPrimaryTerm(ifPrimaryTerm int64) *BulkUpdateRequest {
+	r.ifPrimaryTerm = &ifPrimaryTerm
 	return r
 }
 

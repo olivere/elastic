@@ -29,6 +29,8 @@ type BulkIndexRequest struct {
 	doc             interface{}
 	pipeline        string
 	retryOnConflict *int
+	ifSeqNo         *int64
+	ifPrimaryTerm   *int64
 
 	source []string
 
@@ -148,6 +150,18 @@ func (r *BulkIndexRequest) Doc(doc interface{}) *BulkIndexRequest {
 func (r *BulkIndexRequest) RetryOnConflict(retryOnConflict int) *BulkIndexRequest {
 	r.retryOnConflict = &retryOnConflict
 	r.source = nil
+	return r
+}
+
+// IfSeqNo specifies seq no of the last operation.
+func (r *BulkIndexRequest) IfSeqNo(ifSeqNo int64) *BulkIndexRequest {
+	r.ifSeqNo = &ifSeqNo
+	return r
+}
+
+// IfPrimaryTerm specifies primary term of the last operation.
+func (r *BulkIndexRequest) IfPrimaryTerm(ifPrimaryTerm int64) *BulkIndexRequest {
+	r.ifPrimaryTerm = &ifPrimaryTerm
 	return r
 }
 

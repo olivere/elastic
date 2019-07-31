@@ -34,6 +34,8 @@ type IndexService struct {
 	refresh             string
 	waitForActiveShards string
 	pipeline            string
+	ifSeqNo             *int64
+	ifPrimaryTerm       *int64
 	bodyJson            interface{}
 	bodyString          string
 }
@@ -79,6 +81,18 @@ func (s *IndexService) WaitForActiveShards(waitForActiveShards string) *IndexSer
 // Pipeline specifies the pipeline id to preprocess incoming documents with.
 func (s *IndexService) Pipeline(pipeline string) *IndexService {
 	s.pipeline = pipeline
+	return s
+}
+
+// IfSeqNo specifies seq no of the last operation.
+func (s *IndexService) IfSeqNo(ifSeqNo int64) *IndexService {
+	s.ifSeqNo = &ifSeqNo
+	return s
+}
+
+// IfPrimaryTerm specifies primary term of the last operation.
+func (s *IndexService) IfPrimaryTerm(ifPrimaryTerm int64) *IndexService {
+	s.ifPrimaryTerm = &ifPrimaryTerm
 	return s
 }
 
@@ -226,6 +240,12 @@ func (s *IndexService) buildURL() (string, string, url.Values, error) {
 	}
 	if s.versionType != "" {
 		params.Set("version_type", s.versionType)
+	}
+	if s.ifSeqNo != nil {
+		params.Set("if_seq_no", fmt.Sprintf("%v", *s.ifSeqNo))
+	}
+	if s.ifPrimaryTerm != nil {
+		params.Set("if_primary_term", fmt.Sprintf("%v", *s.ifPrimaryTerm))
 	}
 	return method, path, params, nil
 }

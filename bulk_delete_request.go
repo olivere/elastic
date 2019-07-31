@@ -20,15 +20,16 @@ import (
 // for details.
 type BulkDeleteRequest struct {
 	BulkableRequest
-	index       string
-	typ         string
-	id          string
-	parent      string
-	routing     string
-	version     int64  // default is MATCH_ANY
-	versionType string // default is "internal"
-
-	source []string
+	index         string
+	typ           string
+	id            string
+	parent        string
+	routing       string
+	version       int64  // default is MATCH_ANY
+	versionType   string // default is "internal"
+	ifSeqNo       *int64
+	ifPrimaryTerm *int64
+	source        []string
 
 	useEasyJSON bool
 }
@@ -113,6 +114,18 @@ func (r *BulkDeleteRequest) Version(version int64) *BulkDeleteRequest {
 func (r *BulkDeleteRequest) VersionType(versionType string) *BulkDeleteRequest {
 	r.versionType = versionType
 	r.source = nil
+	return r
+}
+
+// IfSeqNo specifies seq no of the last operation.
+func (r *BulkDeleteRequest) IfSeqNo(ifSeqNo int64) *BulkDeleteRequest {
+	r.ifSeqNo = &ifSeqNo
+	return r
+}
+
+// IfPrimaryTerm specifies primary term of the last operation.
+func (r *BulkDeleteRequest) IfPrimaryTerm(ifPrimaryTerm int64) *BulkDeleteRequest {
+	r.ifPrimaryTerm = &ifPrimaryTerm
 	return r
 }
 

@@ -30,7 +30,7 @@ type UpdateService struct {
 	versionType         string
 	retryOnConflict     *int
 	ifSeqNo             *int64
-	ifPrimaryTerm       *int
+	ifPrimaryTerm       *int64
 	refresh             string
 	waitForActiveShards string
 	upsert              interface{}
@@ -104,7 +104,7 @@ func (b *UpdateService) IfSeqNo(ifSeqNo int64) *UpdateService {
 }
 
 // IfPrimaryTerm specifies primary term of the last operation.
-func (b *UpdateService) IfPrimaryTerm(ifPrimaryTerm int) *UpdateService {
+func (b *UpdateService) IfPrimaryTerm(ifPrimaryTerm int64) *UpdateService {
 	b.ifPrimaryTerm = &ifPrimaryTerm
 	return b
 }

@@ -31,6 +31,8 @@ type DeleteService struct {
 	waitForActiveShards string
 	parent              string
 	refresh             string
+	ifSeqNo             *int64
+	ifPrimaryTerm       *int64
 }
 
 // NewDeleteService creates a new DeleteService.
@@ -116,6 +118,18 @@ func (s *DeleteService) Pretty(pretty bool) *DeleteService {
 	return s
 }
 
+// IfSeqNo specifies seq no of the last operation.
+func (s *DeleteService) IfSeqNo(ifSeqNo int64) *DeleteService {
+	s.ifSeqNo = &ifSeqNo
+	return s
+}
+
+// IfPrimaryTerm specifies primary term of the last operation.
+func (s *DeleteService) IfPrimaryTerm(ifPrimaryTerm int64) *DeleteService {
+	s.ifPrimaryTerm = &ifPrimaryTerm
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *DeleteService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -153,6 +167,12 @@ func (s *DeleteService) buildURL() (string, url.Values, error) {
 	}
 	if s.parent != "" {
 		params.Set("parent", s.parent)
+	}
+	if s.ifSeqNo != nil {
+		params.Set("if_seq_no", fmt.Sprintf("%v", *s.ifSeqNo))
+	}
+	if s.ifPrimaryTerm != nil {
+		params.Set("if_primary_term", fmt.Sprintf("%v", *s.ifPrimaryTerm))
 	}
 	return path, params, nil
 }

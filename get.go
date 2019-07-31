@@ -256,7 +256,7 @@ type GetResult struct {
 	Parent      string                 `json:"_parent"`  // parent meta field
 	Version     *int64                 `json:"_version"` // version number, when Version is set to true in SearchService
 	SeqNo       *int64                 `json:"_seq_no"`
-	PrimaryTerm *int                   `json:"_primary_term"`
+	PrimaryTerm *int64                 `json:"_primary_term"`
 	Source      json.RawMessage        `json:"_source,omitempty"`
 	Found       bool                   `json:"found,omitempty"`
 	Fields      map[string]interface{} `json:"fields,omitempty"`
