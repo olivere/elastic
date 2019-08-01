@@ -52,6 +52,8 @@ type bulkIndexRequestCommandOp struct {
 	Version         *int64 `json:"version,omitempty"`
 	VersionType     string `json:"version_type,omitempty"`
 	Pipeline        string `json:"pipeline,omitempty"`
+	IfSeqNo         *int64 `json:"if_seq_no,omitempty"`
+	IfPrimaryTerm   *int64 `json:"if_primary_term,omitempty"`
 }
 
 // NewBulkIndexRequest returns a new BulkIndexRequest.
@@ -207,6 +209,8 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 		VersionType:     r.versionType,
 		RetryOnConflict: r.retryOnConflict,
 		Pipeline:        r.pipeline,
+		IfSeqNo:         r.ifSeqNo,
+		IfPrimaryTerm:   r.ifPrimaryTerm,
 	}
 	command := bulkIndexRequestCommand{
 		r.opType: indexCommand,

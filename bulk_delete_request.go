@@ -39,13 +39,15 @@ type bulkDeleteRequestCommand map[string]bulkDeleteRequestCommandOp
 
 //easyjson:json
 type bulkDeleteRequestCommandOp struct {
-	Index       string `json:"_index,omitempty"`
-	Type        string `json:"_type,omitempty"`
-	Id          string `json:"_id,omitempty"`
-	Parent      string `json:"parent,omitempty"`
-	Routing     string `json:"routing,omitempty"`
-	Version     int64  `json:"version,omitempty"`
-	VersionType string `json:"version_type,omitempty"`
+	Index         string `json:"_index,omitempty"`
+	Type          string `json:"_type,omitempty"`
+	Id            string `json:"_id,omitempty"`
+	Parent        string `json:"parent,omitempty"`
+	Routing       string `json:"routing,omitempty"`
+	Version       int64  `json:"version,omitempty"`
+	VersionType   string `json:"version_type,omitempty"`
+	IfSeqNo       *int64 `json:"if_seq_no,omitempty"`
+	IfPrimaryTerm *int64 `json:"if_primary_term,omitempty"`
 }
 
 // NewBulkDeleteRequest returns a new BulkDeleteRequest.
@@ -149,13 +151,15 @@ func (r *BulkDeleteRequest) Source() ([]string, error) {
 	}
 	command := bulkDeleteRequestCommand{
 		"delete": bulkDeleteRequestCommandOp{
-			Index:       r.index,
-			Type:        r.typ,
-			Id:          r.id,
-			Routing:     r.routing,
-			Parent:      r.parent,
-			Version:     r.version,
-			VersionType: r.versionType,
+			Index:         r.index,
+			Type:          r.typ,
+			Id:            r.id,
+			Routing:       r.routing,
+			Parent:        r.parent,
+			Version:       r.version,
+			VersionType:   r.versionType,
+			IfSeqNo:       r.ifSeqNo,
+			IfPrimaryTerm: r.ifPrimaryTerm,
 		},
 	}
 

@@ -56,6 +56,8 @@ type bulkUpdateRequestCommandOp struct {
 	Routing         string `json:"routing,omitempty"`
 	Version         int64  `json:"version,omitempty"`
 	VersionType     string `json:"version_type,omitempty"`
+	IfSeqNo         *int64 `json:"if_seq_no,omitempty"`
+	IfPrimaryTerm   *int64 `json:"if_primary_term,omitempty"`
 }
 
 //easyjson:json
@@ -257,6 +259,8 @@ func (r *BulkUpdateRequest) Source() ([]string, error) {
 		Version:         r.version,
 		VersionType:     r.versionType,
 		RetryOnConflict: r.retryOnConflict,
+		IfSeqNo:         r.ifSeqNo,
+		IfPrimaryTerm:   r.ifPrimaryTerm,
 	}
 	command := bulkUpdateRequestCommand{
 		"update": updateCommand,
