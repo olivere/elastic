@@ -58,7 +58,7 @@ func easyjson8092efb6DecodeGithubComOlivereElastic(in *jlexer.Lexer, out *bulkDe
 				if out.IfSeqNo == nil {
 					out.IfSeqNo = new(int64)
 				}
-				*out.IfSeqNo = int(in.Int64())
+				*out.IfSeqNo = int64(in.Int64())
 			}
 		case "if_primary_term":
 			if in.IsNull() {
@@ -68,7 +68,7 @@ func easyjson8092efb6DecodeGithubComOlivereElastic(in *jlexer.Lexer, out *bulkDe
 				if out.IfPrimaryTerm == nil {
 					out.IfPrimaryTerm = new(int64)
 				}
-				*out.IfPrimaryTerm = int(in.Int64())
+				*out.IfPrimaryTerm = int64(in.Int64())
 			}
 		default:
 			in.SkipRecursive()
