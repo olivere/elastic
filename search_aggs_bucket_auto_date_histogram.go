@@ -126,8 +126,6 @@ func (a *AutoDateHistogramAggregation) Source() (interface{}, error) {
 
 	if a.buckets > 0 {
 		opts["buckets"] = a.buckets
-	} else {
-		opts["buckets"] = 10
 	}
 
 	if a.minDocCount != nil {
