@@ -20,6 +20,7 @@ type MultiSearchService struct {
 	pretty                bool
 	maxConcurrentRequests *int
 	preFilterShardSize    *int
+	restTotalHitsAsInt    *bool
 }
 
 func NewMultiSearchService(client *Client) *MultiSearchService {
@@ -54,6 +55,18 @@ func (s *MultiSearchService) PreFilterShardSize(size int) *MultiSearchService {
 	return s
 }
 
+// RestTotalHitsAsInt is a flag that is temporarily available for ES 7.x
+// servers to return total hits as an int64 instead of a response structure.
+//
+// Warning: Using it indicates that you are using elastic.v6 with ES 7.x,
+// which is an unsupported scenario. Use at your own risk.
+// This option will also be removed with ES 8.x.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/breaking-changes-7.0.html#hits-total-now-object-search-response.
+func (s *MultiSearchService) RestTotalHitsAsInt(v bool) *MultiSearchService {
+	s.restTotalHitsAsInt = &v
+	return s
+}
+
 func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error) {
 	// Build url
 	path := "/_msearch"
@@ -61,13 +74,16 @@ func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error)
 	// Parameters
 	params := make(url.Values)
 	if s.pretty {
-		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+		params.Set("pretty", fmt.Sprint(s.pretty))
 	}
 	if v := s.maxConcurrentRequests; v != nil {
-		params.Set("max_concurrent_searches", fmt.Sprintf("%v", *v))
+		params.Set("max_concurrent_searches", fmt.Sprint(*v))
 	}
 	if v := s.preFilterShardSize; v != nil {
-		params.Set("pre_filter_shard_size", fmt.Sprintf("%v", *v))
+		params.Set("pre_filter_shard_size", fmt.Sprint(*v))
+	}
+	if v := s.restTotalHitsAsInt; v != nil {
+		params.Set("rest_total_hits_as_int", fmt.Sprint(*v))
 	}
 
 	// Set body

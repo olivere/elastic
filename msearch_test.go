@@ -64,6 +64,7 @@ func TestMultiSearch(t *testing.T) {
 	searchResult, err := client.MultiSearch().
 		Add(sreq1, sreq2).
 		Pretty(true).
+		RestTotalHitsAsInt(true).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -269,6 +270,7 @@ func TestMultiSearchWithOneRequest(t *testing.T) {
 	searchResult, err := client.MultiSearch().
 		Index(testIndexName).
 		Add(sreq).
+		RestTotalHitsAsInt(false).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)

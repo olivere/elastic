@@ -17,21 +17,22 @@ import (
 
 // Search for documents in Elasticsearch.
 type SearchService struct {
-	client            *Client
-	searchSource      *SearchSource
-	source            interface{}
-	pretty            bool
-	filterPath        []string
-	searchType        string
-	index             []string
-	typ               []string
-	routing           string
-	preference        string
-	requestCache      *bool
-	ignoreUnavailable *bool
-	allowNoIndices    *bool
-	expandWildcards   string
-	maxResponseSize   int64
+	client             *Client
+	searchSource       *SearchSource
+	source             interface{}
+	pretty             bool
+	filterPath         []string
+	searchType         string
+	index              []string
+	typ                []string
+	routing            string
+	preference         string
+	requestCache       *bool
+	ignoreUnavailable  *bool
+	allowNoIndices     *bool
+	expandWildcards    string
+	maxResponseSize    int64
+	restTotalHitsAsInt *bool
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -348,6 +349,18 @@ func (s *SearchService) MaxResponseSize(maxResponseSize int64) *SearchService {
 	return s
 }
 
+// RestTotalHitsAsInt is a flag that is temporarily available for ES 7.x
+// servers to return total hits as an int64 instead of a response structure.
+//
+// Warning: Using it indicates that you are using elastic.v6 with ES 7.x,
+// which is an unsupported scenario. Use at your own risk.
+// This option will also be removed with ES 8.x.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/breaking-changes-7.0.html#hits-total-now-object-search-response.
+func (s *SearchService) RestTotalHitsAsInt(v bool) *SearchService {
+	s.restTotalHitsAsInt = &v
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *SearchService) buildURL() (string, url.Values, error) {
 	var err error
@@ -376,7 +389,7 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+		params.Set("pretty", fmt.Sprint(s.pretty))
 	}
 	if s.searchType != "" {
 		params.Set("search_type", s.searchType)
@@ -388,19 +401,22 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 		params.Set("preference", s.preference)
 	}
 	if s.requestCache != nil {
-		params.Set("request_cache", fmt.Sprintf("%v", *s.requestCache))
+		params.Set("request_cache", fmt.Sprint(*s.requestCache))
 	}
 	if s.allowNoIndices != nil {
-		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+		params.Set("allow_no_indices", fmt.Sprint(*s.allowNoIndices))
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
 	}
 	if s.ignoreUnavailable != nil {
-		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+		params.Set("ignore_unavailable", fmt.Sprint(*s.ignoreUnavailable))
 	}
 	if len(s.filterPath) > 0 {
 		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
+	if s.restTotalHitsAsInt != nil {
+		params.Set("rest_total_hits_as_int", fmt.Sprint(*s.restTotalHitsAsInt))
 	}
 	return path, params, nil
 }

@@ -75,6 +75,54 @@ func TestSearchMatchAllWithRequestCacheDisabled(t *testing.T) {
 	}
 }
 
+func TestSearchMatchAllWithTotalHitsAsInt(t *testing.T) {
+	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+
+	t.Run("Unspecified", func(t *testing.T) {
+		search := client.Search().
+			Index(testIndexName).
+			Query(NewMatchAllQuery()).
+			Size(100).
+			Pretty(true)
+		testSearchMatchAllWithTotalHitsAsInt(t, search)
+	})
+	t.Run("Enabled", func(t *testing.T) {
+		search := client.Search().
+			Index(testIndexName).
+			Query(NewMatchAllQuery()).
+			Size(100).
+			Pretty(true).
+			RestTotalHitsAsInt(true)
+		testSearchMatchAllWithTotalHitsAsInt(t, search)
+	})
+	t.Run("Disabled", func(t *testing.T) {
+		search := client.Search().
+			Index(testIndexName).
+			Query(NewMatchAllQuery()).
+			Size(100).
+			Pretty(true).
+			RestTotalHitsAsInt(false)
+		testSearchMatchAllWithTotalHitsAsInt(t, search)
+	})
+}
+
+func testSearchMatchAllWithTotalHitsAsInt(t *testing.T, search *SearchService) {
+	searchResult, err := search.Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult.Hits == nil {
+		t.Errorf("expected SearchResult.Hits != nil; got nil")
+	}
+	if got, want := searchResult.Hits.TotalHits, int64(3); got != want {
+		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", want, got)
+	}
+	if got, want := len(searchResult.Hits.Hits), 3; got != want {
+		t.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", want, got)
+	}
+}
+
 func BenchmarkSearchMatchAll(b *testing.B) {
 	client := setupTestClientAndCreateIndexAndAddDocs(b)
 
