@@ -260,3 +260,61 @@ func TestUpdateAndFetchSource(t *testing.T) {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
 }
+
+func TestUpdateOptimistic(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+
+	doc, err := client.Get().
+		Index(testIndexName).Type("doc").Id("1").
+		Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if doc.SeqNo == nil {
+		t.Fatal("expected seq_no != nil")
+	}
+	if doc.PrimaryTerm == nil {
+		t.Fatal("expected primary_term != nil")
+	}
+
+	// Update with seqNo != doc.SeqNo and primaryTerm != doc.PrimaryTerm
+	_, err = client.Update().
+		Index(testIndexName).Type("doc").Id(doc.Id).
+		Doc(map[string]interface{}{"user": "sandrae"}).
+		IfSeqNo(*doc.SeqNo + 1000).
+		IfPrimaryTerm(*doc.PrimaryTerm + 1000).
+		Do(context.Background())
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !IsConflict(err) {
+		t.Fatalf("expected conflict error, got %v (%T)", err, err)
+	}
+
+	// Update with seqNo == doc.SeqNo and primaryTerm == doc.PrimaryTerm
+	res, err := client.Update().
+		Index(testIndexName).Type("doc").Id(doc.Id).
+		Doc(map[string]interface{}{"user": "sandrae"}).
+		IfSeqNo(*doc.SeqNo).
+		IfPrimaryTerm(*doc.PrimaryTerm).
+		FetchSource(true).
+		Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response != nil")
+	}
+	if res.GetResult == nil {
+		t.Fatal("expected GetResult != nil")
+	}
+	data, err := json.Marshal(res.GetResult.Source)
+	if err != nil {
+		t.Fatalf("expected to marshal body as JSON, got: %v", err)
+	}
+	got := string(data)
+	expected := `{"user":"sandrae","message":"Welcome to Golang and Elasticsearch.","retweets":0,"created":"0001-01-01T00:00:00Z"}`
+	if got != expected {
+		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
+	}
+}

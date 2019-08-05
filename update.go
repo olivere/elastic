@@ -37,6 +37,8 @@ type UpdateService struct {
 	detectNoop          *bool
 	doc                 interface{}
 	timeout             string
+	ifSeqNo             *int64
+	ifPrimaryTerm       *int64
 	pretty              bool
 }
 
@@ -170,6 +172,20 @@ func (b *UpdateService) Timeout(timeout string) *UpdateService {
 	return b
 }
 
+// IfSeqNo indicates to only perform the update operation if the last
+// operation that has changed the document has the specified sequence number.
+func (b *UpdateService) IfSeqNo(seqNo int64) *UpdateService {
+	b.ifSeqNo = &seqNo
+	return b
+}
+
+// IfPrimaryTerm indicates to only perform the update operation if the
+// last operation that has changed the document has the specified primary term.
+func (b *UpdateService) IfPrimaryTerm(primaryTerm int64) *UpdateService {
+	b.ifPrimaryTerm = &primaryTerm
+	return b
+}
+
 // Pretty instructs to return human readable, prettified JSON.
 func (b *UpdateService) Pretty(pretty bool) *UpdateService {
 	b.pretty = pretty
@@ -237,6 +253,12 @@ func (b *UpdateService) url() (string, url.Values, error) {
 	}
 	if b.retryOnConflict != nil {
 		params.Set("retry_on_conflict", fmt.Sprintf("%v", *b.retryOnConflict))
+	}
+	if v := b.ifSeqNo; v != nil {
+		params.Set("if_seq_no", fmt.Sprintf("%d", *v))
+	}
+	if v := b.ifPrimaryTerm; v != nil {
+		params.Set("if_primary_term", fmt.Sprintf("%d", *v))
 	}
 
 	return path, params, nil

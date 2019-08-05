@@ -132,3 +132,46 @@ func TestDeleteValidate(t *testing.T) {
 		t.Fatalf("expected result to be == nil; got: %v", res)
 	}
 }
+
+func TestDeleteOptimistic(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+
+	doc, err := client.Get().
+		Index(testIndexName).Type("doc").Id("1").
+		Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if doc.SeqNo == nil {
+		t.Fatal("expected seq_no != nil")
+	}
+	if doc.PrimaryTerm == nil {
+		t.Fatal("expected primary_term != nil")
+	}
+
+	// Delete with seqNo != doc.SeqNo and primaryTerm != doc.PrimaryTerm
+	_, err = client.Delete().
+		Index(testIndexName).Type("doc").Id(doc.Id).
+		IfSeqNo(*doc.SeqNo + 1000).
+		IfPrimaryTerm(*doc.PrimaryTerm + 1000).
+		Do(context.Background())
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !IsConflict(err) {
+		t.Fatalf("expected conflict error, got %v (%T)", err, err)
+	}
+
+	// Update with seqNo == doc.SeqNo and primaryTerm == doc.PrimaryTerm
+	res, err := client.Delete().
+		Index(testIndexName).Type("doc").Id(doc.Id).
+		IfSeqNo(*doc.SeqNo).
+		IfPrimaryTerm(*doc.PrimaryTerm).
+		Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response != nil")
+	}
+}

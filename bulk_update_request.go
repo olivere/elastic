@@ -34,6 +34,8 @@ type BulkUpdateRequest struct {
 	detectNoop      *bool
 	doc             interface{}
 	returnSource    *bool
+	ifSeqNo         *int64
+	ifPrimaryTerm   *int64
 
 	source []string
 
@@ -54,6 +56,8 @@ type bulkUpdateRequestCommandOp struct {
 	Routing         string `json:"routing,omitempty"`
 	Version         int64  `json:"version,omitempty"`
 	VersionType     string `json:"version_type,omitempty"`
+	IfSeqNo         *int64 `json:"if_seq_no,omitempty"`
+	IfPrimaryTerm   *int64 `json:"if_primary_term,omitempty"`
 }
 
 //easyjson:json
@@ -162,6 +166,20 @@ func (r *BulkUpdateRequest) VersionType(versionType string) *BulkUpdateRequest {
 	return r
 }
 
+// IfSeqNo indicates to only perform the index operation if the last
+// operation that has changed the document has the specified sequence number.
+func (r *BulkUpdateRequest) IfSeqNo(ifSeqNo int64) *BulkUpdateRequest {
+	r.ifSeqNo = &ifSeqNo
+	return r
+}
+
+// IfPrimaryTerm indicates to only perform the index operation if the
+// last operation that has changed the document has the specified primary term.
+func (r *BulkUpdateRequest) IfPrimaryTerm(ifPrimaryTerm int64) *BulkUpdateRequest {
+	r.ifPrimaryTerm = &ifPrimaryTerm
+	return r
+}
+
 // Doc specifies the updated document.
 func (r *BulkUpdateRequest) Doc(doc interface{}) *BulkUpdateRequest {
 	r.doc = doc
@@ -243,6 +261,8 @@ func (r *BulkUpdateRequest) Source() ([]string, error) {
 		Version:         r.version,
 		VersionType:     r.versionType,
 		RetryOnConflict: r.retryOnConflict,
+		IfSeqNo:         r.ifSeqNo,
+		IfPrimaryTerm:   r.ifPrimaryTerm,
 	}
 	command := bulkUpdateRequestCommand{
 		"update": updateCommand,

@@ -20,13 +20,15 @@ import (
 // for details.
 type BulkDeleteRequest struct {
 	BulkableRequest
-	index       string
-	typ         string
-	id          string
-	parent      string
-	routing     string
-	version     int64  // default is MATCH_ANY
-	versionType string // default is "internal"
+	index         string
+	typ           string
+	id            string
+	parent        string
+	routing       string
+	version       int64  // default is MATCH_ANY
+	versionType   string // default is "internal"
+	ifSeqNo       *int64
+	ifPrimaryTerm *int64
 
 	source []string
 
@@ -38,13 +40,15 @@ type bulkDeleteRequestCommand map[string]bulkDeleteRequestCommandOp
 
 //easyjson:json
 type bulkDeleteRequestCommandOp struct {
-	Index       string `json:"_index,omitempty"`
-	Type        string `json:"_type,omitempty"`
-	Id          string `json:"_id,omitempty"`
-	Parent      string `json:"parent,omitempty"`
-	Routing     string `json:"routing,omitempty"`
-	Version     int64  `json:"version,omitempty"`
-	VersionType string `json:"version_type,omitempty"`
+	Index         string `json:"_index,omitempty"`
+	Type          string `json:"_type,omitempty"`
+	Id            string `json:"_id,omitempty"`
+	Parent        string `json:"parent,omitempty"`
+	Routing       string `json:"routing,omitempty"`
+	Version       int64  `json:"version,omitempty"`
+	VersionType   string `json:"version_type,omitempty"`
+	IfSeqNo       *int64 `json:"if_seq_no,omitempty"`
+	IfPrimaryTerm *int64 `json:"if_primary_term,omitempty"`
 }
 
 // NewBulkDeleteRequest returns a new BulkDeleteRequest.
@@ -116,6 +120,20 @@ func (r *BulkDeleteRequest) VersionType(versionType string) *BulkDeleteRequest {
 	return r
 }
 
+// IfSeqNo indicates to only perform the delete operation if the last
+// operation that has changed the document has the specified sequence number.
+func (r *BulkDeleteRequest) IfSeqNo(ifSeqNo int64) *BulkDeleteRequest {
+	r.ifSeqNo = &ifSeqNo
+	return r
+}
+
+// IfPrimaryTerm indicates to only perform the delete operation if the
+// last operation that has changed the document has the specified primary term.
+func (r *BulkDeleteRequest) IfPrimaryTerm(ifPrimaryTerm int64) *BulkDeleteRequest {
+	r.ifPrimaryTerm = &ifPrimaryTerm
+	return r
+}
+
 // String returns the on-wire representation of the delete request,
 // concatenated as a single string.
 func (r *BulkDeleteRequest) String() string {
@@ -136,13 +154,15 @@ func (r *BulkDeleteRequest) Source() ([]string, error) {
 	}
 	command := bulkDeleteRequestCommand{
 		"delete": bulkDeleteRequestCommandOp{
-			Index:       r.index,
-			Type:        r.typ,
-			Id:          r.id,
-			Routing:     r.routing,
-			Parent:      r.parent,
-			Version:     r.version,
-			VersionType: r.versionType,
+			Index:         r.index,
+			Type:          r.typ,
+			Id:            r.id,
+			Routing:       r.routing,
+			Parent:        r.parent,
+			Version:       r.version,
+			VersionType:   r.versionType,
+			IfSeqNo:       r.ifSeqNo,
+			IfPrimaryTerm: r.ifPrimaryTerm,
 		},
 	}
 
