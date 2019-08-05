@@ -524,6 +524,38 @@ func TestBulkContentType(t *testing.T) {
 	}
 }
 
+func TestBulkWithFilterPath(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
+
+	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet1)
+	index2Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("2").Doc(tweet2)
+
+	bulkRequest := client.Bulk().Index(testIndexName).Type("doc").FilterPath("took", "errors")
+	bulkRequest = bulkRequest.Add(index1Req)
+	bulkRequest = bulkRequest.Add(index2Req)
+
+	bulkResponse, err := bulkRequest.Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bulkResponse == nil {
+		t.Errorf("expected bulkResponse to be != nil; got nil")
+	}
+
+	// 0 because it was filtered out.
+	if want, got := 0, len(bulkResponse.Items); want != got {
+		t.Errorf("expected len(BulkResponse.Items) = %d; got %d", want, got)
+	}
+
+	// Should be more than 0 since it wasn't filtered out.
+	if want, got := 0, bulkResponse.Took; got == want {
+		t.Fatalf("expected BulkResponse.Took > %d; got %d", want, got)
+	}
+}
+
 // -- Benchmarks --
 
 var benchmarkBulkEstimatedSizeInBytes int64
