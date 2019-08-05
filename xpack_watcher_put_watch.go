@@ -22,6 +22,8 @@ type XPackWatcherPutWatchService struct {
 	id            string
 	active        *bool
 	masterTimeout string
+	ifSeqNo       *int64
+	ifPrimaryTerm *int64
 	body          interface{}
 }
 
@@ -47,6 +49,20 @@ func (s *XPackWatcherPutWatchService) Active(active bool) *XPackWatcherPutWatchS
 // MasterTimeout is an explicit operation timeout for connection to master node.
 func (s *XPackWatcherPutWatchService) MasterTimeout(masterTimeout string) *XPackWatcherPutWatchService {
 	s.masterTimeout = masterTimeout
+	return s
+}
+
+// IfSeqNo indicates to update the watch only if the last operation that
+// has changed the watch has the specified sequence number.
+func (s *XPackWatcherPutWatchService) IfSeqNo(seqNo int64) *XPackWatcherPutWatchService {
+	s.ifSeqNo = &seqNo
+	return s
+}
+
+// IfPrimaryTerm indicates to update the watch only if the last operation that
+// has changed the watch has the specified primary term.
+func (s *XPackWatcherPutWatchService) IfPrimaryTerm(primaryTerm int64) *XPackWatcherPutWatchService {
+	s.ifPrimaryTerm = &primaryTerm
 	return s
 }
 
@@ -82,6 +98,12 @@ func (s *XPackWatcherPutWatchService) buildURL() (string, url.Values, error) {
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
+	}
+	if v := s.ifSeqNo; v != nil {
+		params.Set("if_seq_no", fmt.Sprintf("%d", *v))
+	}
+	if v := s.ifPrimaryTerm; v != nil {
+		params.Set("if_primary_term", fmt.Sprintf("%d", *v))
 	}
 	return path, params, nil
 }

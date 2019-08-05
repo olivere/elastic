@@ -32,6 +32,7 @@ type SearchService struct {
 	allowNoIndices    *bool
 	expandWildcards   string
 	maxResponseSize   int64
+	seqNoPrimaryTerm  *bool
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -360,6 +361,13 @@ func (s *SearchService) MaxResponseSize(maxResponseSize int64) *SearchService {
 	return s
 }
 
+// SeqNoPrimaryTerm specifies whether to return sequence number and
+// primary term of the last modification of each hit.
+func (s *SearchService) SeqNoPrimaryTerm(v bool) *SearchService {
+	s.seqNoPrimaryTerm = &v
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *SearchService) buildURL() (string, url.Values, error) {
 	var err error
@@ -413,6 +421,9 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	}
 	if len(s.filterPath) > 0 {
 		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
+	if s.seqNoPrimaryTerm != nil {
+		params.Set("seq_no_primary_term", fmt.Sprint(*s.seqNoPrimaryTerm))
 	}
 	return path, params, nil
 }
@@ -532,14 +543,16 @@ type TotalHits struct {
 
 // SearchHit is a single hit.
 type SearchHit struct {
-	Score          *float64                       `json:"_score,omitempty"`          // computed score
-	Index          string                         `json:"_index,omitempty"`          // index name
-	Type           string                         `json:"_type,omitempty"`           // type meta field
-	Id             string                         `json:"_id,omitempty"`             // external or internal
-	Uid            string                         `json:"_uid,omitempty"`            // uid meta field (see MapperService.java for all meta fields)
-	Routing        string                         `json:"_routing,omitempty"`        // routing meta field
-	Parent         string                         `json:"_parent,omitempty"`         // parent meta field
-	Version        *int64                         `json:"_version,omitempty"`        // version number, when Version is set to true in SearchService
+	Score          *float64                       `json:"_score,omitempty"`   // computed score
+	Index          string                         `json:"_index,omitempty"`   // index name
+	Type           string                         `json:"_type,omitempty"`    // type meta field
+	Id             string                         `json:"_id,omitempty"`      // external or internal
+	Uid            string                         `json:"_uid,omitempty"`     // uid meta field (see MapperService.java for all meta fields)
+	Routing        string                         `json:"_routing,omitempty"` // routing meta field
+	Parent         string                         `json:"_parent,omitempty"`  // parent meta field
+	Version        *int64                         `json:"_version,omitempty"` // version number, when Version is set to true in SearchService
+	SeqNo          *int64                         `json:"_seq_no"`
+	PrimaryTerm    *int64                         `json:"_primary_term"`
 	Sort           []interface{}                  `json:"sort,omitempty"`            // sort information
 	Highlight      SearchHitHighlight             `json:"highlight,omitempty"`       // highlighter information
 	Source         json.RawMessage                `json:"_source,omitempty"`         // stored document source

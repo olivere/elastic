@@ -218,24 +218,26 @@ type IndexStats struct {
 }
 
 type IndexStatsDetails struct {
-	Docs        *IndexStatsDocs        `json:"docs,omitempty"`
-	Store       *IndexStatsStore       `json:"store,omitempty"`
-	Indexing    *IndexStatsIndexing    `json:"indexing,omitempty"`
-	Get         *IndexStatsGet         `json:"get,omitempty"`
-	Search      *IndexStatsSearch      `json:"search,omitempty"`
-	Merges      *IndexStatsMerges      `json:"merges,omitempty"`
-	Refresh     *IndexStatsRefresh     `json:"refresh,omitempty"`
-	Flush       *IndexStatsFlush       `json:"flush,omitempty"`
-	Warmer      *IndexStatsWarmer      `json:"warmer,omitempty"`
-	FilterCache *IndexStatsFilterCache `json:"filter_cache,omitempty"`
-	IdCache     *IndexStatsIdCache     `json:"id_cache,omitempty"`
-	Fielddata   *IndexStatsFielddata   `json:"fielddata,omitempty"`
-	Percolate   *IndexStatsPercolate   `json:"percolate,omitempty"`
-	Completion  *IndexStatsCompletion  `json:"completion,omitempty"`
-	Segments    *IndexStatsSegments    `json:"segments,omitempty"`
-	Translog    *IndexStatsTranslog    `json:"translog,omitempty"`
-	Suggest     *IndexStatsSuggest     `json:"suggest,omitempty"`
-	QueryCache  *IndexStatsQueryCache  `json:"query_cache,omitempty"`
+	Docs            *IndexStatsDocs            `json:"docs,omitempty"`
+	Store           *IndexStatsStore           `json:"store,omitempty"`
+	Indexing        *IndexStatsIndexing        `json:"indexing,omitempty"`
+	Get             *IndexStatsGet             `json:"get,omitempty"`
+	Search          *IndexStatsSearch          `json:"search,omitempty"`
+	Merges          *IndexStatsMerges          `json:"merges,omitempty"`
+	Refresh         *IndexStatsRefresh         `json:"refresh,omitempty"`
+	Flush           *IndexStatsFlush           `json:"flush,omitempty"`
+	Warmer          *IndexStatsWarmer          `json:"warmer,omitempty"`
+	FilterCache     *IndexStatsFilterCache     `json:"filter_cache,omitempty"`
+	IdCache         *IndexStatsIdCache         `json:"id_cache,omitempty"`
+	Fielddata       *IndexStatsFielddata       `json:"fielddata,omitempty"`
+	Percolate       *IndexStatsPercolate       `json:"percolate,omitempty"`
+	Completion      *IndexStatsCompletion      `json:"completion,omitempty"`
+	Segments        *IndexStatsSegments        `json:"segments,omitempty"`
+	Translog        *IndexStatsTranslog        `json:"translog,omitempty"`
+	Suggest         *IndexStatsSuggest         `json:"suggest,omitempty"`
+	QueryCache      *IndexStatsQueryCache      `json:"query_cache,omitempty"`
+	SeqNo           *IndexStatsSeqNo           `json:"seq_no,omitempty"`
+	RetentionLeases *IndexStatsRetentionLeases `json:"retention_leases,omitempty"`
 }
 
 type IndexStatsDocs struct {
@@ -390,4 +392,21 @@ type IndexStatsQueryCache struct {
 	Evictions         int64  `json:"evictions,omitempty"`
 	HitCount          int64  `json:"hit_count,omitempty"`
 	MissCount         int64  `json:"miss_count,omitempty"`
+}
+
+type IndexStatsSeqNo struct {
+	MaxSeqNo         int64 `json:"max_seq_no,omitempty"`
+	LocalCheckpoint  int64 `json:"local_checkpoint,omitempty"`
+	GlobalCheckpoint int64 `json:"global_checkpoint,omitempty"`
+}
+
+type IndexStatsRetentionLeases struct {
+	Leases []*IndexStatsRetentionLease `json:"leases,omitempty"`
+}
+
+type IndexStatsRetentionLease struct {
+	Id             string `json:"id,omitempty"`
+	RetainingSeqNo int64  `json:"retaining_seq_no,omitempty"`
+	Timestamp      int64  `json:"timestamp,omitempty"`
+	Source         string `json:"source,omitempty"`
 }

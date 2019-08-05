@@ -265,3 +265,54 @@ func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
 		t.Errorf("expected ack for deleting index; got %v", deleteIndex.Acknowledged)
 	}
 }
+
+func TestIndexOptimistic(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+
+	tw := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+
+	// Add a document
+	doc, err := client.Index().
+		Index(testIndexName).Id("1").
+		BodyJson(&tw).
+		Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if doc == nil {
+		t.Errorf("expected result to be != nil; got: %v", doc)
+	}
+
+	tw.Retweets++
+
+	// Index with seqNo != doc.SeqNo and primaryTerm != doc.PrimaryTerm
+	_, err = client.Index().
+		Index(testIndexName).Id(doc.Id).
+		IfSeqNo(doc.SeqNo + 1000).
+		IfPrimaryTerm(doc.PrimaryTerm + 1000).
+		BodyJson(&tw).
+		Do(context.Background())
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !IsConflict(err) {
+		t.Fatalf("expected conflict error, got %v (%T)", err, err)
+	}
+
+	// Index with seqNo == doc.SeqNo and primaryTerm == doc.PrimaryTerm
+	res, err := client.Index().
+		Index(testIndexName).Id(doc.Id).
+		IfSeqNo(doc.SeqNo).
+		IfPrimaryTerm(doc.PrimaryTerm).
+		BodyJson(&tw).
+		Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response != nil")
+	}
+	if want, have := res.SeqNo, doc.SeqNo; want == have {
+		t.Fatalf("expected SeqNo to change (%d == %d)", want, have)
+	}
+}

@@ -34,6 +34,8 @@ type IndexService struct {
 	refresh             string
 	waitForActiveShards string
 	pipeline            string
+	ifSeqNo             *int64
+	ifPrimaryTerm       *int64
 	bodyJson            interface{}
 	bodyString          string
 }
@@ -145,6 +147,20 @@ func (s *IndexService) VersionType(versionType string) *IndexService {
 	return s
 }
 
+// IfSeqNo indicates to only perform the index operation if the last
+// operation that has changed the document has the specified sequence number.
+func (s *IndexService) IfSeqNo(seqNo int64) *IndexService {
+	s.ifSeqNo = &seqNo
+	return s
+}
+
+// IfPrimaryTerm indicates to only perform the index operation if the
+// last operation that has changed the document has the specified primary term.
+func (s *IndexService) IfPrimaryTerm(primaryTerm int64) *IndexService {
+	s.ifPrimaryTerm = &primaryTerm
+	return s
+}
+
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndexService) Pretty(pretty bool) *IndexService {
 	s.pretty = pretty
@@ -226,6 +242,12 @@ func (s *IndexService) buildURL() (string, string, url.Values, error) {
 	}
 	if s.versionType != "" {
 		params.Set("version_type", s.versionType)
+	}
+	if v := s.ifSeqNo; v != nil {
+		params.Set("if_seq_no", fmt.Sprintf("%d", *v))
+	}
+	if v := s.ifPrimaryTerm; v != nil {
+		params.Set("if_primary_term", fmt.Sprintf("%d", *v))
 	}
 	return method, path, params, nil
 }

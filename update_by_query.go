@@ -703,10 +703,10 @@ func (s *UpdateByQueryService) DoAsync(ctx context.Context) (*StartTaskResult, e
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:       "POST",
+		Path:         path,
+		Params:       params,
+		Body:         body,
 		IgnoreErrors: []int{http.StatusConflict},
 	})
 	if err != nil {

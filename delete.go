@@ -31,6 +31,8 @@ type DeleteService struct {
 	waitForActiveShards string
 	parent              string
 	refresh             string
+	ifSeqNo             *int64
+	ifPrimaryTerm       *int64
 }
 
 // NewDeleteService creates a new DeleteService.
@@ -110,6 +112,20 @@ func (s *DeleteService) Refresh(refresh string) *DeleteService {
 	return s
 }
 
+// IfSeqNo indicates to only perform the delete operation if the last
+// operation that has changed the document has the specified sequence number.
+func (s *DeleteService) IfSeqNo(seqNo int64) *DeleteService {
+	s.ifSeqNo = &seqNo
+	return s
+}
+
+// IfPrimaryTerm indicates to only perform the delete operation if the
+// last operation that has changed the document has the specified primary term.
+func (s *DeleteService) IfPrimaryTerm(primaryTerm int64) *DeleteService {
+	s.ifPrimaryTerm = &primaryTerm
+	return s
+}
+
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *DeleteService) Pretty(pretty bool) *DeleteService {
 	s.pretty = pretty
@@ -153,6 +169,12 @@ func (s *DeleteService) buildURL() (string, url.Values, error) {
 	}
 	if s.parent != "" {
 		params.Set("parent", s.parent)
+	}
+	if v := s.ifSeqNo; v != nil {
+		params.Set("if_seq_no", fmt.Sprintf("%d", *v))
+	}
+	if v := s.ifPrimaryTerm; v != nil {
+		params.Set("if_primary_term", fmt.Sprintf("%d", *v))
 	}
 	return path, params, nil
 }
