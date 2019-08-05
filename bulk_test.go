@@ -525,7 +525,7 @@ func TestBulkContentType(t *testing.T) {
 }
 
 func TestBulkWithFilterPath(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
@@ -549,10 +549,9 @@ func TestBulkWithFilterPath(t *testing.T) {
 	if want, got := 0, len(bulkResponse.Items); want != got {
 		t.Errorf("expected len(BulkResponse.Items) = %d; got %d", want, got)
 	}
-
 	// Should be more than 0 since it wasn't filtered out.
-	if want, got := 0, bulkResponse.Took; got == want {
-		t.Fatalf("expected BulkResponse.Took > %d; got %d", want, got)
+	if got := bulkResponse.Took; got <= 0 {
+		t.Fatalf("expected BulkResponse.Took > 0; got %d", got)
 	}
 }
 

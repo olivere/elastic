@@ -132,7 +132,7 @@ func (s *BulkService) Pretty(pretty bool) *BulkService {
 }
 
 // FilterPath allows reducing the response, a mechanism known as
-// response filtering and described here:
+// response filtering and described here in
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#common-options-response-filtering.
 func (s *BulkService) FilterPath(filterPath ...string) *BulkService {
 	s.filterPath = append(s.filterPath, filterPath...)
