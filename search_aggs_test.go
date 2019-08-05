@@ -15,8 +15,7 @@ import (
 
 // TestAggs is an integration test for most aggregation types.
 func TestAggs(t *testing.T) {
-	//client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 
 	tweet1 := tweet{
 		User:     "olivere",
@@ -102,6 +101,7 @@ func TestAggs(t *testing.T) {
 	dateRangeAgg := NewDateRangeAggregation().Field("created").Lt("2012-01-01").Between("2012-01-01", "2013-01-01").Gt("2013-01-01")
 	missingTagsAgg := NewMissingAggregation().Field("tags")
 	retweetsHistoAgg := NewHistogramAggregation().Field("retweets").Interval(100)
+	autoDateHistoAgg := NewAutoDateHistogramAggregation().Field("created").Buckets(2).Missing("1900-01-01").Format("yyyy-MM-dd")
 	dateHistoAgg := NewDateHistogramAggregation().Field("created").Interval("year")
 	dateHistoKeyedAgg := NewDateHistogramAggregation().Field("created").Interval("year").Keyed(true)
 	retweetsFilterAgg := NewFilterAggregation().Filter(
@@ -139,6 +139,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("dateRange", dateRangeAgg)
 	builder = builder.Aggregation("missingTags", missingTagsAgg)
 	builder = builder.Aggregation("retweetsHisto", retweetsHistoAgg)
+	builder = builder.Aggregation("autoDateHisto", autoDateHistoAgg)
 	builder = builder.Aggregation("dateHisto", dateHistoAgg)
 	builder = builder.Aggregation("dateHistoKeyed", dateHistoKeyedAgg)
 	builder = builder.Aggregation("retweetsFilter", retweetsFilterAgg)
@@ -830,6 +831,21 @@ func TestAggs(t *testing.T) {
 	}
 	if histoRes.Buckets[1].Key != 100.0 {
 		t.Errorf("expected %v; got: %+v", 100.0, histoRes.Buckets[1].Key)
+	}
+
+	// autoDateHisto
+	autoDateHistoRes, found := agg.DateHistogram("autoDateHisto")
+	if !found {
+		t.Errorf("expected %v; got: %v", true, found)
+	}
+	if autoDateHistoRes == nil {
+		t.Fatal("expected != nil; got: nil")
+	}
+	if len(autoDateHistoRes.Buckets) != 2 {
+		t.Fatalf("expected %d; got: %d", 2, len(autoDateHistoRes.Buckets))
+	}
+	if autoDateHistoRes.Interval == nil {
+		t.Fatalf("expected an interval; got: %v", autoDateHistoRes.Interval)
 	}
 
 	// dateHisto

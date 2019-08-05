@@ -197,6 +197,7 @@ Here are a few tips on how to get used to Elastic:
 - Bucket Aggregations
   - [x] Adjacency Matrix
   - [x] Children
+  - [x] Auto-interval Date Histogram
   - [x] Date Histogram
   - [x] Date Range
   - [x] Diversified Sampler
