@@ -267,8 +267,12 @@ type CatIndicesResponseRow struct {
 	PriMergesTotalTime           string `json:"pri.merges.total_time"`               // time spent in merges on primaries
 	RefreshTotal                 int    `json:"refresh.total,string"`                // total refreshes on primaries & replicas
 	PriRefreshTotal              int    `json:"pri.refresh.total,string"`            // total refreshes on primaries
+	RefreshExternalTotal         int    `json:"refresh.external_total,string"`       // total external refreshes on primaries & replicas
+	PriRefreshExternalTotal      int    `json:"pri.refresh.external_total,string"`   // total external refreshes on primaries
 	RefreshTime                  string `json:"refresh.time"`                        // time spent in refreshes on primaries & replicas
 	PriRefreshTime               string `json:"pri.refresh.time"`                    // time spent in refreshes on primaries
+	RefreshExternalTime          string `json:"refresh.external_time"`               // external time spent in refreshes on primaries & replicas
+	PriRefreshExternalTime       string `json:"pri.refresh.external_time"`           // external time spent in refreshes on primaries
 	RefreshListeners             int    `json:"refresh.listeners,string"`            // number of pending refresh listeners on primaries & replicas
 	PriRefreshListeners          int    `json:"pri.refresh.listeners,string"`        // number of pending refresh listeners on primaries
 	SearchFetchCurrent           int    `json:"search.fetch_current,string"`         // current fetch phase ops on primaries & replicas
