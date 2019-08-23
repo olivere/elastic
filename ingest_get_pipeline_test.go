@@ -6,8 +6,6 @@ package elastic
 
 import (
 	"context"
-	"log"
-	"os"
 	"testing"
 )
 
@@ -48,7 +46,7 @@ func TestIngestGetPipelineURL(t *testing.T) {
 }
 
 func TestIngestLifecycle(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	// With the new ES Docker images, XPack is already installed and returns a pipeline. So we cannot test for "no pipelines". Skipping for now.
 	/*
