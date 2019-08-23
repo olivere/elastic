@@ -129,3 +129,20 @@ func TestMultiMatchQueryBestFieldsWithCustomTieBreaker(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestMultiMatchQueryBoolPrefix(t *testing.T) {
+	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("bool_prefix")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"multi_match":{"fields":["subject","message"],"query":"this is a test","tie_breaker":0,"type":"bool_prefix"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
