@@ -280,14 +280,12 @@ Here are a few tips on how to get used to Elastic:
 
 ### cat APIs
 
-The cat APIs are not implemented as of now. We think they are better suited for operating with Elasticsearch on the command line.
-
-- [ ] cat aliases
-- [ ] cat allocation
-- [ ] cat count
+- [X] cat aliases
+- [X] cat allocation
+- [X] cat count
 - [ ] cat fielddata
-- [ ] cat health
-- [ ] cat indices
+- [X] cat health
+- [X] cat indices
 - [ ] cat master
 - [ ] cat nodeattrs
 - [ ] cat nodes
