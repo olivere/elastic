@@ -13,6 +13,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"regexp"
@@ -465,6 +466,101 @@ func TestClientHealthcheckTimeoutLeak(t *testing.T) {
 		t.Fatal("Request wasn't canceled or stopped")
 	}
 	reqDoneMu.Unlock()
+}
+
+func TestClientSniffUpdatingNodeURL(t *testing.T) {
+	var (
+		nodeID  = "3DWDurZJQvWyWIOFnEB7VA"
+		nodeURL string
+		n       int
+	)
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		n++
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path != "/_nodes/http" {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		u, err := url.Parse(nodeURL)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprintf(w, `{
+			"cluster_name": "elasticsearch",
+			"nodes": {
+				%q: {
+					"name": "elasticsearch",
+					"http": {
+						"publish_address": %q
+					}
+				}
+			}
+		}`, nodeID, u.Host)
+		fmt.Fprintln(w)
+	})
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	nodeURL = ts.URL
+
+	client, err := NewSimpleClient(SetURL(ts.URL), SetSniff(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, have := 0, n; want != have {
+		t.Fatalf("expected %d calls to handler; got %d", want, have)
+	}
+	if want, have := 1, len(client.conns); want != have {
+		t.Fatalf("expected %d connections; got %d", want, have)
+	}
+	if want, have := nodeURL, client.conns[0].URL(); want != have {
+		t.Fatalf("expected URL=%q; got %q", want, have)
+	}
+
+	err = client.sniff(context.Background(), 2*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want, have := 1, n; want != have {
+		t.Fatalf("expected %d calls to handler; got %d", want, have)
+	}
+	if want, have := 1, len(client.conns); want != have {
+		t.Fatalf("expected %d connections; got %d", want, have)
+	}
+	if want, have := nodeID, client.conns[0].NodeID(); want != have {
+		t.Fatalf("expected NodeID=%q; got %q", want, have)
+	}
+	if want, have := nodeURL, client.conns[0].URL(); want != have {
+		t.Fatalf("expected URL=%q; got %q", want, have)
+	}
+	oldNodeID := client.conns[0].NodeID()
+	oldURL := client.conns[0].URL()
+
+	nodeURL = "http://127.0.0.1:9999" // some other nodeURL to report
+
+	err = client.sniff(context.Background(), 2*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want, have := 2, n; want != have {
+		t.Fatalf("expected %d calls to handler; got %d", want, have)
+	}
+	if want, have := 1, len(client.conns); want != have {
+		t.Fatalf("expected %d connections; got %d", want, have)
+	}
+	newNodeID := client.conns[0].NodeID()
+	newURL := client.conns[0].URL()
+
+	// NodeID mustn't change
+	if newNodeID != oldNodeID {
+		t.Fatalf("expected NodeID=%q; got %q", oldNodeID, newNodeID)
+	}
+	// URL must have change
+	if newURL == oldURL {
+		t.Fatalf("expected to update URL=%q to %q", oldURL, newURL)
+	}
 }
 
 // -- NewSimpleClient --
