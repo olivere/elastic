@@ -93,7 +93,7 @@ func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error)
 
 	// Get response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
+		Method: "POST",
 		Path:   path,
 		Params: params,
 		Body:   body,
