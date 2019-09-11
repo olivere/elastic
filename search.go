@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"reflect"
@@ -21,6 +22,7 @@ type SearchService struct {
 	searchSource      *SearchSource
 	source            interface{}
 	pretty            bool
+	rollup            bool
 	filterPath        []string
 	searchType        string
 	index             []string
@@ -86,6 +88,13 @@ func (s *SearchService) Type(typ ...string) *SearchService {
 // Pretty enables the caller to indent the JSON output.
 func (s *SearchService) Pretty(pretty bool) *SearchService {
 	s.pretty = pretty
+	return s
+}
+
+// RollupSearch indicates the caller perform roll-up data search
+// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/rollup-search.html
+func (s *SearchService) Rollup(rollup bool) *SearchService {
+	s.rollup = rollup
 	return s
 }
 
@@ -373,7 +382,15 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	var err error
 	var path string
 
-	if len(s.index) > 0 && len(s.typ) > 0 {
+	if s.rollup {
+		// roll-up data search
+		if len(s.index) == 0 {
+			return "", url.Values{}, errors.New("At least one index/index-pattern must be specified when using roll-up search")
+		}
+		path, err = uritemplates.Expand("/{index}/_rollup_search", map[string]string{
+			"index": strings.Join(s.index, ","),
+		})
+	} else if len(s.index) > 0 && len(s.typ) > 0 {
 		path, err = uritemplates.Expand("/{index}/{type}/_search", map[string]string{
 			"index": strings.Join(s.index, ","),
 			"type":  strings.Join(s.typ, ","),

@@ -176,6 +176,7 @@ Here are a few tips on how to get used to Elastic:
 - [x] Explain API
 - [x] Profile API
 - [x] Field Capabilities API
+- [x] Rollup Search API
 
 ### Aggregations
 
