@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"errors"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -124,7 +125,7 @@ func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 		Path:    path,
 		Params:  params,
 		Body:    body,
-		Headers: s.headers,
+		Headers: b.headers,
 	})
 	if err != nil {
 		return nil, err

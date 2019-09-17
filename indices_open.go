@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -89,7 +90,7 @@ func (s *IndicesOpenService) Pretty(pretty bool) *IndicesOpenService {
 }
 
 // Header sets headers on the request
-func (s *CatAliasesService) Header(name string, value string) *CatAliasesService {
+func (s *IndicesOpenService) Header(name string, value string) *IndicesOpenService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}

@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -91,13 +92,6 @@ func (s *IndicesUnfreezeService) Pretty(pretty bool) *IndicesUnfreezeService {
 }
 
 // Header sets headers on the request
-func (s *IndicesUnfreezeService) Header(name string, value string) *IndicesUnfreezeService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
 func (s *IndicesUnfreezeService) Header(name string, value string) *IndicesUnfreezeService {
 	if s.headers == nil {
 		s.headers = http.Header{}

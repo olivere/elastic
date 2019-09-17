@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"net/url"
 	"strings"
 

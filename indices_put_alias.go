@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -27,7 +28,6 @@ type AliasAddAction struct {
 	searchRouting string
 	indexRouting  string
 	isWriteIndex  *bool
-	headers       http.Header
 }
 
 // NewAliasAddAction returns an action to add an alias.
@@ -245,6 +245,7 @@ type AliasService struct {
 	client  *Client
 	actions []AliasAction
 	pretty  bool
+	headers http.Header
 }
 
 // NewAliasService implements a service to manage aliases.

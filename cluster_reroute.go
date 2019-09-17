@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -102,11 +103,11 @@ func (s *ClusterRerouteService) Body(body interface{}) *ClusterRerouteService {
 }
 
 // header sets headers on the request
-func (s *cataliasesservice) header(name string, value string) *cataliasesservice {
+func (s *ClusterRerouteService) Header(name string, value string) *ClusterRerouteService {
 	if s.headers == nil {
-		s.headers = http.header{}
+		s.headers = http.Header{}
 	}
-	s.headers.add(name, value)
+	s.headers.Add(name, value)
 	return s
 }
 
