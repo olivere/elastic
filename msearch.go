@@ -20,6 +20,7 @@ type MultiSearchService struct {
 	pretty                bool
 	maxConcurrentRequests *int
 	preFilterShardSize    *int
+	headers               http.Header
 }
 
 func NewMultiSearchService(client *Client) *MultiSearchService {
@@ -51,6 +52,15 @@ func (s *MultiSearchService) MaxConcurrentSearches(max int) *MultiSearchService 
 
 func (s *MultiSearchService) PreFilterShardSize(size int) *MultiSearchService {
 	s.preFilterShardSize = &size
+	return s
+}
+
+// Header sets headers on the request
+func (s *MultiSearchService) Header(name string, value string) *MultiSearchService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -93,10 +103,11 @@ func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error)
 
 	// Get response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

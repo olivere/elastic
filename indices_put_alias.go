@@ -27,6 +27,7 @@ type AliasAddAction struct {
 	searchRouting string
 	indexRouting  string
 	isWriteIndex  *bool
+	headers       http.Header
 }
 
 // NewAliasAddAction returns an action to add an alias.
@@ -288,6 +289,15 @@ func (s *AliasService) Action(action ...AliasAction) *AliasService {
 	return s
 }
 
+// Header sets headers on the request
+func (s *AliasService) Header(name string, value string) *AliasService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *AliasService) buildURL() (string, url.Values, error) {
 	path := "/_aliases"
@@ -321,10 +331,11 @@ func (s *AliasService) Do(ctx context.Context) (*AliasResult, error) {
 
 	// Get response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

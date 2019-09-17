@@ -27,6 +27,7 @@ type IndicesUnfreezeService struct {
 	allowNoIndices      *bool
 	expandWildcards     string
 	waitForActiveShards string
+	headers             http.Header
 }
 
 // NewIndicesUnfreezeService creates a new IndicesUnfreezeService.
@@ -86,6 +87,22 @@ func (s *IndicesUnfreezeService) WaitForActiveShards(numShards string) *IndicesU
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesUnfreezeService) Pretty(pretty bool) *IndicesUnfreezeService {
 	s.pretty = pretty
+	return s
+}
+
+// Header sets headers on the request
+func (s *IndicesUnfreezeService) Header(name string, value string) *IndicesUnfreezeService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+func (s *IndicesUnfreezeService) Header(name string, value string) *IndicesUnfreezeService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -155,9 +172,10 @@ func (s *IndicesUnfreezeService) Do(ctx context.Context) (*IndicesUnfreezeRespon
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

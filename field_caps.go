@@ -28,6 +28,7 @@ type FieldCapsService struct {
 	ignoreUnavailable *bool
 	bodyJson          interface{}
 	bodyString        string
+	headers           http.Header
 }
 
 // NewFieldCapsService creates a new FieldCapsService
@@ -86,6 +87,15 @@ func (s *FieldCapsService) BodyJson(body interface{}) *FieldCapsService {
 // BodyString is documented as: Field json objects containing the name and optionally a range to filter out indices result, that have results outside the defined bounds.
 func (s *FieldCapsService) BodyString(body string) *FieldCapsService {
 	s.bodyString = body
+	return s
+}
+
+// Header sets headers on the request
+func (s *FieldCapsService) Header(name string, value string) *FieldCapsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -158,6 +168,7 @@ func (s *FieldCapsService) Do(ctx context.Context) (*FieldCapsResponse, error) {
 		Params:       params,
 		Body:         body,
 		IgnoreErrors: []int{http.StatusNotFound},
+		Headers:      s.headers,
 	})
 	if err != nil {
 		return nil, err

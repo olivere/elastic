@@ -30,6 +30,7 @@ type IndicesForcemergeService struct {
 	ignoreUnavailable  *bool
 	maxNumSegments     interface{}
 	onlyExpungeDeletes *bool
+	headers            http.Header
 }
 
 // NewIndicesForcemergeService creates a new IndicesForcemergeService.
@@ -99,6 +100,15 @@ func (s *IndicesForcemergeService) Pretty(pretty bool) *IndicesForcemergeService
 	return s
 }
 
+// Header sets headers on the request
+func (s *IndicesForcemergeService) Header(name string, value string) *IndicesForcemergeService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndicesForcemergeService) buildURL() (string, url.Values, error) {
 	var err error
@@ -162,9 +172,10 @@ func (s *IndicesForcemergeService) Do(ctx context.Context) (*IndicesForcemergeRe
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

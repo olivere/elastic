@@ -21,6 +21,7 @@ type IngestGetPipelineService struct {
 	pretty        bool
 	id            []string
 	masterTimeout string
+	headers       http.Header
 }
 
 // NewIngestGetPipelineService creates a new IngestGetPipelineService.
@@ -45,6 +46,15 @@ func (s *IngestGetPipelineService) MasterTimeout(masterTimeout string) *IngestGe
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IngestGetPipelineService) Pretty(pretty bool) *IngestGetPipelineService {
 	s.pretty = pretty
+	return s
+}
+
+// Header sets headers on the request
+func (s *IngestGetPipelineService) Header(name string, value string) *IngestGetPipelineService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -96,9 +106,10 @@ func (s *IngestGetPipelineService) Do(ctx context.Context) (IngestGetPipelineRes
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

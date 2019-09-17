@@ -28,6 +28,7 @@ type IndicesFlushService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	headers           http.Header
 }
 
 // NewIndicesFlushService creates a new IndicesFlushService.
@@ -87,6 +88,15 @@ func (s *IndicesFlushService) ExpandWildcards(expandWildcards string) *IndicesFl
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesFlushService) Pretty(pretty bool) *IndicesFlushService {
 	s.pretty = pretty
+	return s
+}
+
+// Header sets headers on the request
+func (s *IndicesFlushService) Header(name string, value string) *IndicesFlushService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -150,9 +160,10 @@ func (s *IndicesFlushService) Do(ctx context.Context) (*IndicesFlushResponse, er
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

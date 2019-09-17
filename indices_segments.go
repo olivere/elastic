@@ -31,6 +31,7 @@ type IndicesSegmentsService struct {
 	human              *bool
 	operationThreading interface{}
 	verbose            *bool
+	headers            http.Header
 }
 
 // NewIndicesSegmentsService creates a new IndicesSegmentsService.
@@ -90,6 +91,15 @@ func (s *IndicesSegmentsService) Verbose(verbose bool) *IndicesSegmentsService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesSegmentsService) Pretty(pretty bool) *IndicesSegmentsService {
 	s.pretty = pretty
+	return s
+}
+
+// Header sets headers on the request
+func (s *IndicesSegmentsService) Header(name string, value string) *IndicesSegmentsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -155,9 +165,10 @@ func (s *IndicesSegmentsService) Do(ctx context.Context) (*IndicesSegmentsRespon
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

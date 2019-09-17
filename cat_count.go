@@ -26,6 +26,7 @@ type CatCountService struct {
 	masterTimeout string
 	columns       []string
 	sort          []string // list of columns for sort order
+	headers       http.Header
 }
 
 // NewCatCountService creates a new CatCountService.
@@ -81,6 +82,15 @@ func (s *CatCountService) Pretty(pretty bool) *CatCountService {
 	return s
 }
 
+// Header sets headers on the request
+func (s *CatCountService) Header(name string, value string) *CatCountService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *CatCountService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -132,9 +142,10 @@ func (s *CatCountService) Do(ctx context.Context) (CatCountResponse, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

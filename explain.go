@@ -39,6 +39,7 @@ type ExplainService struct {
 	source                 string
 	bodyJson               interface{}
 	bodyString             string
+	headers                http.Header
 }
 
 // NewExplainService creates a new ExplainService.
@@ -196,6 +197,15 @@ func (s *ExplainService) BodyString(body string) *ExplainService {
 	return s
 }
 
+// Header sets headers on the request
+func (s *ExplainService) Header(name string, value string) *ExplainService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *ExplainService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -312,10 +322,11 @@ func (s *ExplainService) Do(ctx context.Context) (*ExplainResponse, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

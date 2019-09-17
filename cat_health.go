@@ -24,6 +24,7 @@ type CatHealthService struct {
 	columns             []string
 	sort                []string // list of columns for sort order
 	disableTimestamping *bool
+	headers             http.Header
 }
 
 // NewCatHealthService creates a new CatHealthService.
@@ -78,6 +79,15 @@ func (s *CatHealthService) Pretty(pretty bool) *CatHealthService {
 	return s
 }
 
+// Header sets headers on the request
+func (s *CatHealthService) Header(name string, value string) *CatHealthService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *CatHealthService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -118,9 +128,10 @@ func (s *CatHealthService) Do(ctx context.Context) (CatHealthResponse, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

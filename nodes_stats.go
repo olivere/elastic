@@ -31,6 +31,7 @@ type NodesStatsService struct {
 	level            string
 	timeout          string
 	types            []string
+	headers          http.Header
 }
 
 // NewNodesStatsService creates a new NodesStatsService.
@@ -114,6 +115,15 @@ func (s *NodesStatsService) Types(types ...string) *NodesStatsService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *NodesStatsService) Pretty(pretty bool) *NodesStatsService {
 	s.pretty = pretty
+	return s
+}
+
+// Header sets headers on the request
+func (s *NodesStatsService) Header(name string, value string) *NodesStatsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -214,9 +224,10 @@ func (s *NodesStatsService) Do(ctx context.Context) (*NodesStatsResponse, error)
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err
