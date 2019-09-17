@@ -119,6 +119,12 @@ func (s *ScrollService) Body(body interface{}) *ScrollService {
 	return s
 }
 
+// Highlight allows to highlight search results on one or more fields
+func (s *ScrollService) Highlight(highlight *Highlight) *ScrollService {
+	s.ss = s.ss.Highlight(highlight)
+	return s
+}
+
 // SearchSource sets the search source builder to use with this iterator.
 // Notice that only a certain number of properties can be used when scrolling,
 // e.g. query and sorting.
