@@ -110,10 +110,13 @@ func (s *PingService) Do(ctx context.Context) (*PingResult, int, error) {
 	}
 
 	res, err := s.client.c.Do((*http.Request)(req).WithContext(ctx))
+	//Make sure resp.Body is closed, if it exists, regardless of error state
+	if res != nil && res.Body != nil {
+		defer res.Body.Close()
+	}
 	if err != nil {
 		return nil, 0, err
 	}
-	defer res.Body.Close()
 
 	var ret *PingResult
 	if !s.httpHeadOnly {

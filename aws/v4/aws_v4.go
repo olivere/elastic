@@ -6,6 +6,7 @@ package v4
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -71,11 +72,17 @@ func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 	resp, err := st.client.Do(req)
+
+	//Make sure resp.Body is closed, if it exists, regardless of error state
+	if resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
+	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	if resp.Body != nil {
-		defer resp.Body.Close()
 		buf := new(bytes.Buffer)
 		_, err = buf.ReadFrom(resp.Body)
 		if err != nil {

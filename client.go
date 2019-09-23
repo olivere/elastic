@@ -949,15 +949,13 @@ func (c *Client) sniffNode(ctx context.Context, url string) []*conn {
 	c.mu.RUnlock()
 
 	res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
+
+	//Make sure resp.Body is closed, if it exists, regardless of error state
+	if res != nil && res.Body != nil {
+		defer res.Body.Close()
+	}
 	if err != nil {
 		return nodes
-	}
-	if res == nil {
-		return nodes
-	}
-
-	if res.Body != nil {
-		defer res.Body.Close()
 	}
 
 	var info NodesInfoResponse
@@ -1342,6 +1340,12 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 
 		// Get response
 		res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
+
+		//Make sure res.Body is closed, if it exists, regardless of error state
+		if res != nil && res.Body != nil {
+			defer res.Body.Close()
+		}
+
 		if IsContextErr(err) {
 			// Proceed, but don't mark the node as dead
 			return nil, err
@@ -1362,9 +1366,6 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			retried = true
 			time.Sleep(wait)
 			continue // try again
-		}
-		if res.Body != nil {
-			defer res.Body.Close()
 		}
 
 		// Tracing
