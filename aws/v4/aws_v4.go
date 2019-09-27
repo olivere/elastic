@@ -71,11 +71,13 @@ func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 	resp, err := st.client.Do(req)
+	if resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
+	}
 	if err != nil {
 		return nil, err
 	}
 	if resp.Body != nil {
-		defer resp.Body.Close()
 		buf := new(bytes.Buffer)
 		_, err = buf.ReadFrom(resp.Body)
 		if err != nil {
