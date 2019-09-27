@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/signer/v4"
+	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 )
 
 // NewV4SigningClient returns an *http.Client that will sign all requests with AWS V4 Signing.
@@ -71,11 +71,13 @@ func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 	resp, err := st.client.Do(req)
+	if resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
+	}
 	if err != nil {
 		return nil, err
 	}
 	if resp.Body != nil {
-		defer resp.Body.Close()
 		buf := new(bytes.Buffer)
 		_, err = buf.ReadFrom(resp.Body)
 		if err != nil {

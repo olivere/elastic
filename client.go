@@ -958,13 +958,7 @@ func (c *Client) sniffNode(ctx context.Context, url string) []*conn {
 	if err != nil {
 		return nodes
 	}
-	if res == nil {
-		return nodes
-	}
-
-	if res.Body != nil {
-		defer res.Body.Close()
-	}
+	defer res.Body.Close()
 
 	var info NodesInfoResponse
 	if err := json.NewDecoder(res.Body).Decode(&info); err == nil {
@@ -1369,9 +1363,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			time.Sleep(wait)
 			continue // try again
 		}
-		if res.Body != nil {
-			defer res.Body.Close()
-		}
+		defer res.Body.Close()
 
 		// Tracing
 		c.dumpResponse(res)

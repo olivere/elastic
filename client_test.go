@@ -1318,7 +1318,6 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 	var numFailedReqs int
 	fail := func(r *http.Request) (*http.Response, error) {
 		numFailedReqs += 1
-		//return &http.Response{Request: r, StatusCode: 400}, nil
 		return nil, errors.New("request failed")
 	}
 
@@ -1352,7 +1351,7 @@ func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 	var numFailedReqs int
 	fail := func(r *http.Request) (*http.Response, error) {
 		numFailedReqs += 1
-		return &http.Response{Request: r, StatusCode: 500}, nil
+		return &http.Response{Request: r, StatusCode: 500, Body: http.NoBody}, nil
 	}
 
 	// Run against a failing endpoint and see if PerformRequest
