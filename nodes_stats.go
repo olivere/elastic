@@ -325,16 +325,19 @@ type NodesStatsStoreStats struct {
 }
 
 type NodesStatsIndexingStats struct {
-	IndexTotal         int64  `json:"index_total"`
-	IndexTime          string `json:"index_time"`
-	IndexTimeInMillis  int64  `json:"index_time_in_millis"`
-	IndexCurrent       int64  `json:"index_current"`
-	IndexFailed        int64  `json:"index_failed"`
-	DeleteTotal        int64  `json:"delete_total"`
-	DeleteTime         string `json:"delete_time"`
-	DeleteTimeInMillis int64  `json:"delete_time_in_millis"`
-	DeleteCurrent      int64  `json:"delete_current"`
-	NoopUpdateTotal    int64  `json:"noop_update_total"`
+	IndexTotal            int64  `json:"index_total"`
+	IndexTime             string `json:"index_time"`
+	IndexTimeInMillis     int64  `json:"index_time_in_millis"`
+	IndexCurrent          int64  `json:"index_current"`
+	IndexFailed           int64  `json:"index_failed"`
+	DeleteTotal           int64  `json:"delete_total"`
+	DeleteTime            string `json:"delete_time"`
+	DeleteTimeInMillis    int64  `json:"delete_time_in_millis"`
+	DeleteCurrent         int64  `json:"delete_current"`
+	NoopUpdateTotal       int64  `json:"noop_update_total"`
+	IsThrottled           bool   `json:"is_throttled"`
+	ThrottledTime         string `json:"throttle_time"` // no typo, see https://github.com/elastic/elasticsearch/blob/ff99bc1d3f8a7ea72718872d214ec2097dfca276/server/src/main/java/org/elasticsearch/index/shard/IndexingStats.java#L244
+	ThrottledTimeInMillis int64  `json:"throttle_time_in_millis"`
 
 	Types map[string]*NodesStatsIndexingStats `json:"types"` // stats for individual types
 }
