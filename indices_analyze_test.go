@@ -50,7 +50,7 @@ func TestIndicesAnalyzeDetail(t *testing.T) {
 	client := setupTestClient(t)
 	// client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	res, err := client.IndexAnalyze().Text("hello hi guy").Explain(true).Do(context.TODO())
+	res, err := client.IndexAnalyze().Text("hello hi guy").Explain(true).Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}

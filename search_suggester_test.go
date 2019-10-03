@@ -258,7 +258,7 @@ func TestCompletionSuggester(t *testing.T) {
 }
 
 func TestContextSuggester(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t) // AndLog(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndex(t)
 
 	// TODO make a nice way of creating tweets, as currently the context fields are unsupported as part of the suggestion fields
 	tweet1 := `
@@ -269,8 +269,8 @@ func TestContextSuggester(t *testing.T) {
 		"created":"0001-01-01T00:00:00Z",
 		"suggest_field":{
 			"input":[
-			"Golang",
-			"Elasticsearch"
+				"Golang",
+				"Elasticsearch"
 			],
 			"contexts":{
 				"user_name": ["olivere"]
@@ -286,7 +286,7 @@ func TestContextSuggester(t *testing.T) {
 		"created":"0001-01-01T00:00:00Z",
 		"suggest_field":{
 			"input":[
-			"Golfing"
+				"Golfing"
 			],
 			"contexts":{
 				"user_name": ["sandrae"]

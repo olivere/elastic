@@ -137,6 +137,6 @@ func (s *XPackIlmGetLifecycleService) Do(ctx context.Context) (map[string]*XPack
 // XPackIlmGetLifecycleResponse is the response of XPackIlmGetLifecycleService.Do.
 type XPackIlmGetLifecycleResponse struct {
 	Version      int                    `json:"version,omitempty"`
-	ModifiedDate int                    `json:"modified,omitempty"`
+	ModifiedDate string                 `json:"modified_date,omitempty"` // e.g. "2019-10-03T17:43:42.720Z"
 	Policy       map[string]interface{} `json:"policy,omitempty"`
 }

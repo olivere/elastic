@@ -801,6 +801,8 @@ func (c *Client) Stop() {
 	c.infof("elastic: client stopped")
 }
 
+var logDeprecation = func(*http.Request, *http.Response) {}
+
 // errorf logs to the error log.
 func (c *Client) errorf(format string, args ...interface{}) {
 	if c.errorlog != nil {
@@ -1369,8 +1371,11 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		c.dumpResponse(res)
 
 		// Log deprecation warnings as errors
-		if s := res.Header.Get("Warning"); s != "" {
-			c.errorf(s)
+		if len(res.Header["Warning"]) > 0 {
+			logDeprecation((*http.Request)(req), res)
+			for _, warning := range res.Header["Warning"] {
+				c.errorf("Deprecation warning: %s", warning)
+			}
 		}
 
 		// Check for errors

@@ -112,5 +112,6 @@ func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error)
 
 // MultiSearchResult is the outcome of running a multi-search operation.
 type MultiSearchResult struct {
-	Responses []*SearchResult `json:"responses,omitempty"`
+	TookInMillis int64           `json:"took,omitempty"` // search time in milliseconds
+	Responses    []*SearchResult `json:"responses,omitempty"`
 }

@@ -127,6 +127,7 @@ func (s *ClusterStatsService) Do(ctx context.Context) (*ClusterStatsResponse, er
 
 // ClusterStatsResponse is the response of ClusterStatsService.Do.
 type ClusterStatsResponse struct {
+	NodesStats  *ShardsInfo          `json:"_nodes,omitempty"`
 	Timestamp   int64                `json:"timestamp"`
 	ClusterName string               `json:"cluster_name"`
 	ClusterUUID string               `json:"cluster_uuid"`
@@ -143,7 +144,7 @@ type ClusterStatsIndices struct {
 	FieldData  *ClusterStatsIndicesFieldData  `json:"fielddata"`
 	QueryCache *ClusterStatsIndicesQueryCache `json:"query_cache"`
 	Completion *ClusterStatsIndicesCompletion `json:"completion"`
-	Segments   *ClusterStatsIndicesSegments   `json:"segments"`
+	Segments   *IndexStatsSegments            `json:"segments"`
 }
 
 type ClusterStatsIndicesShards struct {
@@ -211,29 +212,6 @@ type ClusterStatsIndicesCompletion struct {
 	} `json:"fields,omitempty"`
 }
 
-type ClusterStatsIndicesSegments struct {
-	Count                     int64                                       `json:"count"`
-	Memory                    string                                      `json:"memory"` // e.g. "61.3kb"
-	MemoryInBytes             int64                                       `json:"memory_in_bytes"`
-	TermsMemory               string                                      `json:"terms_memory"` // e.g. "61.3kb"
-	TermsMemoryInBytes        int64                                       `json:"terms_memory_in_bytes"`
-	StoredFieldsMemory        string                                      `json:"stored_fields_memory"` // e.g. "61.3kb"
-	StoredFieldsMemoryInBytes int64                                       `json:"stored_fields_memory_in_bytes"`
-	NormsMemory               string                                      `json:"norms_memory"` // e.g. "61.3kb"
-	NormsMemoryInBytes        int64                                       `json:"norms_memory_in_bytes"`
-	PointsMemory              string                                      `json:"points_memory"` // e.g. "61.3kb"
-	PointsMemoryInBytes       int64                                       `json:"points_memory_in_bytes"`
-	DocValuesMemory           string                                      `json:"doc_values_memory"` // e.g. "61.3kb"
-	DocValuesMemoryInBytes    int64                                       `json:"doc_values_memory_in_bytes"`
-	IndexWriterMemory         string                                      `json:"index_writer_memory"` // e.g. "61.3kb"
-	IndexWriterMemoryInBytes  int64                                       `json:"index_writer_memory_in_bytes"`
-	VersionMapMemory          string                                      `json:"version_map_memory"` // e.g. "61.3kb"
-	VersionMapMemoryInBytes   int64                                       `json:"version_map_memory_in_bytes"`
-	FixedBitSet               string                                      `json:"fixed_bit_set"` // e.g. "61.3kb"
-	FixedBitSetInBytes        int64                                       `json:"fixed_bit_set_memory_in_bytes"`
-	FileSizes                 map[string]*ClusterStatsIndicesSegmentsFile `json:"file_sizes"`
-}
-
 type ClusterStatsIndicesSegmentsFile struct {
 	Size        string `json:"size"` // e.g. "61.3kb"
 	SizeInBytes int64  `json:"size_in_bytes"`
@@ -250,6 +228,10 @@ type ClusterStatsNodes struct {
 	JVM      *ClusterStatsNodesJvmStats     `json:"jvm"`
 	FS       *ClusterStatsNodesFsStats      `json:"fs"`
 	Plugins  []*ClusterStatsNodesPlugin     `json:"plugins"`
+
+	NetworkTypes   *ClusterStatsNodesNetworkTypes   `json:"network_types"`
+	DiscoveryTypes *ClusterStatsNodesDiscoveryTypes `json:"discovery_types"`
+	PackagingTypes *ClusterStatsNodesPackagingTypes `json:"packaging_types"`
 }
 
 type ClusterStatsNodesCount struct {
@@ -261,14 +243,29 @@ type ClusterStatsNodesCount struct {
 }
 
 type ClusterStatsNodesOsStats struct {
-	AvailableProcessors int                            `json:"available_processors"`
-	Mem                 *ClusterStatsNodesOsStatsMem   `json:"mem"`
-	CPU                 []*ClusterStatsNodesOsStatsCPU `json:"cpu"`
+	AvailableProcessors int `json:"available_processors"`
+	AllocatedProcessors int `json:"allocated_processors"`
+	Names               []struct {
+		Name  string `json:"name"`
+		Value int    `json:"count"`
+	} `json:"names"`
+	PrettyNames []struct {
+		PrettyName string `json:"pretty_name"`
+		Value      int    `json:"count"`
+	} `json:"pretty_names"`
+	Mem *ClusterStatsNodesOsStatsMem `json:"mem"`
+	// CPU []*ClusterStatsNodesOsStatsCPU `json:"cpu"`
 }
 
 type ClusterStatsNodesOsStatsMem struct {
 	Total        string `json:"total"` // e.g. "16gb"
 	TotalInBytes int64  `json:"total_in_bytes"`
+	Free         string `json:"free"` // e.g. "12gb"
+	FreeInBytes  int64  `json:"free_in_bytes"`
+	Used         string `json:"used"` // e.g. "4gb"
+	UsedInBytes  int64  `json:"used_in_bytes"`
+	FreePercent  int    `json:"free_percent"`
+	UsedPercent  int    `json:"used_percent"`
 }
 
 type ClusterStatsNodesOsStatsCPU struct {
@@ -307,11 +304,13 @@ type ClusterStatsNodesJvmStats struct {
 }
 
 type ClusterStatsNodesJvmStatsVersion struct {
-	Version   string `json:"version"`    // e.g. "1.8.0_45"
-	VMName    string `json:"vm_name"`    // e.g. "Java HotSpot(TM) 64-Bit Server VM"
-	VMVersion string `json:"vm_version"` // e.g. "25.45-b02"
-	VMVendor  string `json:"vm_vendor"`  // e.g. "Oracle Corporation"
-	Count     int    `json:"count"`
+	Version         string `json:"version"`    // e.g. "1.8.0_45"
+	VMName          string `json:"vm_name"`    // e.g. "Java HotSpot(TM) 64-Bit Server VM"
+	VMVersion       string `json:"vm_version"` // e.g. "25.45-b02"
+	VMVendor        string `json:"vm_vendor"`  // e.g. "Oracle Corporation"
+	BundledJDK      bool   `json:"bundled_jdk"`
+	UsingBundledJDK bool   `json:"using_bundled_jdk"`
+	Count           int    `json:"count"`
 }
 
 type ClusterStatsNodesJvmStatsMem struct {
@@ -351,4 +350,19 @@ type ClusterStatsNodesPlugin struct {
 	URL         string `json:"url"`
 	JVM         bool   `json:"jvm"`
 	Site        bool   `json:"site"`
+}
+
+type ClusterStatsNodesNetworkTypes struct {
+	TransportTypes map[string]interface{} `json:"transport_types"` // e.g. "netty4": 1
+	HTTPTypes      map[string]interface{} `json:"http_types"`      // e.g. "netty4": 1
+}
+
+type ClusterStatsNodesDiscoveryTypes interface{}
+
+type ClusterStatsNodesPackagingTypes []*ClusterStatsNodesPackagingType
+
+type ClusterStatsNodesPackagingType struct {
+	Flavor string `json:"flavor"` // e.g. "oss"
+	Type   string `json:"type"`   // e.g. "docker"
+	Count  int    `json:"count"`  // e.g. 1
 }

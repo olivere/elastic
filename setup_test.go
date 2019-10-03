@@ -8,19 +8,22 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
 	"os"
 	"time"
 )
 
 const (
-	testIndexName  = "elastic-test"
-	testIndexName2 = "elastic-test2"
-	testIndexName3 = "elastic-test3"
-	testIndexName4 = "elastic-test4"
-	testMapping    = `
+	testIndexName      = "elastic-test"
+	testIndexName2     = "elastic-test2"
+	testIndexName3     = "elastic-test3"
+	testIndexName4     = "elastic-test4"
+	testIndexNameEmpty = "elastic-test-empty"
+	testMapping        = `
 {
 	"settings":{
 		"number_of_shards":1,
@@ -303,6 +306,11 @@ func (d *strictDecoder) Decode(data []byte, v interface{}) error {
 	return dec.Decode(v)
 }
 
+var (
+	logDeprecations = flag.String("deprecations", "off", "log or fail on deprecation warnings")
+	strict          = flag.Bool("strict-decoder", false, "treat missing unknown fields in response as errors")
+)
+
 func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 	var err error
 
@@ -311,10 +319,34 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 		t.Fatal(err)
 	}
 
+	// Add a strict decoder (unless a specific decoder has been specified already)
+	if *strict {
+		if client.decoder == nil {
+			client.decoder = &strictDecoder{}
+		} else if _, ok := client.decoder.(*DefaultDecoder); ok {
+			client.decoder = &strictDecoder{}
+		}
+	}
+
+	// Log deprecations during tests
+	if loglevel := *logDeprecations; loglevel != "off" {
+		logDeprecation = func(req *http.Request, res *http.Response) {
+			for _, warning := range res.Header["Warning"] {
+				switch loglevel {
+				default:
+					t.Logf("[%s] Deprecation warning: %s", req.URL, warning)
+				case "fail", "error":
+					t.Errorf("[%s] Deprecation warning: %s", req.URL, warning)
+				}
+			}
+		}
+	}
+
 	client.DeleteIndex(testIndexName).Do(context.TODO())
 	client.DeleteIndex(testIndexName2).Do(context.TODO())
 	client.DeleteIndex(testIndexName3).Do(context.TODO())
 	client.DeleteIndex(testIndexName4).Do(context.TODO())
+	client.DeleteIndex(testIndexNameEmpty).Do(context.TODO())
 	client.DeleteIndex(testOrderIndex).Do(context.TODO())
 	client.DeleteIndex(testNoSourceIndexName).Do(context.TODO())
 	//client.DeleteIndex(testDoctypeIndex).Do(context.TODO())
@@ -363,6 +395,15 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 		t.Errorf("expected result to be != nil; got: %v", createOrderIndex)
 	}
 
+	// Create empty index
+	createIndexEmpty, err := client.CreateIndex(testIndexNameEmpty).Body(testMapping).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if createIndexEmpty == nil {
+		t.Errorf("expected result to be != nil; got: %v", createIndexEmpty)
+	}
+
 	return client
 }
 
@@ -377,7 +418,6 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
-	//comment1 := comment{User: "nico", Comment: "You bet."}
 
 	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
@@ -391,12 +431,6 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	if err != nil {
 		t.Fatal(err)
 	}
-	/*
-		_, err = client.Index().Index(testIndexName).Id("1").Parent("3").BodyJson(&comment1).Do(context.TODO())
-		if err != nil {
-			t.Fatal(err)
-		}
-	*/
 
 	// Add orders
 	var orders []order

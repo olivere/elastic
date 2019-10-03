@@ -97,7 +97,7 @@ func TestCount(t *testing.T) {
 	}
 
 	// Count documents
-	count, err = client.Count(testIndexName).Type("gezwitscher").Do(context.TODO())
+	count, err = client.Count(testIndexNameEmpty).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

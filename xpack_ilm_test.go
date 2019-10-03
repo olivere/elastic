@@ -10,7 +10,7 @@ import (
 )
 
 func TestXPackIlmPolicyLifecycle(t *testing.T) {
-	client := setupTestClient(t, SetURL("http://elastic:elastic@localhost:9210"))
+	client := setupTestClient(t, SetURL("http://elastic:elastic@localhost:9210")) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	testPolicyName := "test-policy"
 
@@ -40,7 +40,7 @@ func TestXPackIlmPolicyLifecycle(t *testing.T) {
 	}
 
 	// Get the policy
-	getilm, err := client.XPackIlmGetLifecycle().Policy(testPolicyName).Do(context.TODO())
+	getilm, err := client.XPackIlmGetLifecycle().Policy(testPolicyName).Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected get lifecycle to succeed; got: %v", err)
 	}

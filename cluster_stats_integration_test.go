@@ -10,10 +10,10 @@ import (
 )
 
 func TestClusterStats(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t)
+	client := setupTestClientAndCreateIndexAndAddDocs(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	// Get cluster stats
-	res, err := client.ClusterStats().Do(context.Background())
+	res, err := client.ClusterStats().Human(true).Pretty(true).Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}

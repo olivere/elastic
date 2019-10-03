@@ -61,9 +61,9 @@ func TestIndexStatsBuildURL(t *testing.T) {
 }
 
 func TestIndexStats(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t)
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	stats, err := client.IndexStats(testIndexName).Do(context.TODO())
+	stats, err := client.IndexStats(testIndexName).Human(true).Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}
@@ -86,9 +86,9 @@ func TestIndexStats(t *testing.T) {
 }
 
 func TestIndexStatsWithShards(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t)
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	stats, err := client.IndexStats(testIndexName).Level("shards").Do(context.TODO())
+	stats, err := client.IndexStats(testIndexName).Level("shards").Human(true).Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}

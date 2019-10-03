@@ -51,7 +51,7 @@ func TestClusterRerouteURLs(t *testing.T) {
 }
 
 func TestClusterReroute(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndex(t)
 
 	// Get cluster nodes
 	var nodes []string
@@ -75,6 +75,7 @@ func TestClusterReroute(t *testing.T) {
 			NewMoveAllocationCommand(testIndexName, 0, nodes[0], nodes[0]),
 			NewCancelAllocationCommand(testIndexName, 0, nodes[0], true),
 		).
+		Pretty(true).
 		Do(context.Background())
 	// Expect an error here: We just test if it's of a specific kind
 	if err == nil {

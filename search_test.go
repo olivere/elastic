@@ -469,7 +469,6 @@ func TestSearchSpecificFields(t *testing.T) {
 
 func TestSearchExplain(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
-	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
@@ -515,7 +514,7 @@ func TestSearchExplain(t *testing.T) {
 		Query(all).
 		Explain(true).
 		Timeout("1s").
-		// Pretty(true).
+		Pretty(true).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)

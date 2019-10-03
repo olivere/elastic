@@ -188,7 +188,8 @@ type FieldCapsRequest struct {
 
 // FieldCapsResponse contains field capabilities.
 type FieldCapsResponse struct {
-	Fields map[string]FieldCapsType `json:"fields,omitempty"` // Name -> type -> caps
+	Indices []string                 `json:"indices,omitempty"` // list of index names
+	Fields  map[string]FieldCapsType `json:"fields,omitempty"`  // Name -> type -> caps
 }
 
 // FieldCapsType represents a mapping from type (e.g. keyword)

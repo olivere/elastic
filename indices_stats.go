@@ -212,12 +212,14 @@ type IndicesStatsResponse struct {
 
 // IndexStats is index stats for a specific index.
 type IndexStats struct {
+	UUID      string                          `json:"uuid,omitempty"`
 	Primaries *IndexStatsDetails              `json:"primaries,omitempty"`
 	Total     *IndexStatsDetails              `json:"total,omitempty"`
 	Shards    map[string][]*IndexStatsDetails `json:"shards,omitempty"`
 }
 
 type IndexStatsDetails struct {
+	Routing         *IndexStatsRouting         `json:"routing,omitempty"`
 	Docs            *IndexStatsDocs            `json:"docs,omitempty"`
 	Store           *IndexStatsStore           `json:"store,omitempty"`
 	Indexing        *IndexStatsIndexing        `json:"indexing,omitempty"`
@@ -225,6 +227,7 @@ type IndexStatsDetails struct {
 	Search          *IndexStatsSearch          `json:"search,omitempty"`
 	Merges          *IndexStatsMerges          `json:"merges,omitempty"`
 	Refresh         *IndexStatsRefresh         `json:"refresh,omitempty"`
+	Recovery        *IndexStatsRecovery        `json:"recovery,omitempty"`
 	Flush           *IndexStatsFlush           `json:"flush,omitempty"`
 	Warmer          *IndexStatsWarmer          `json:"warmer,omitempty"`
 	FilterCache     *IndexStatsFilterCache     `json:"filter_cache,omitempty"`
@@ -236,8 +239,24 @@ type IndexStatsDetails struct {
 	Translog        *IndexStatsTranslog        `json:"translog,omitempty"`
 	Suggest         *IndexStatsSuggest         `json:"suggest,omitempty"`
 	QueryCache      *IndexStatsQueryCache      `json:"query_cache,omitempty"`
+	RequestCache    *IndexStatsRequestCache    `json:"request_cache,omitempty"`
+	Commit          *IndexStatsCommit          `json:"commit,omitempty"`
 	SeqNo           *IndexStatsSeqNo           `json:"seq_no,omitempty"`
 	RetentionLeases *IndexStatsRetentionLeases `json:"retention_leases,omitempty"`
+	ShardPath       *IndexStatsShardPath       `json:"shard_path,omitempty"`
+}
+
+type IndexStatsRouting struct {
+	State          string  `json:"state"` // e.g. "STARTED"
+	Primary        bool    `json:"primary"`
+	Node           string  `json:"node"` // e.g. "-aXnGv4oTW6bIIl0db3eCg"
+	RelocatingNode *string `json:"relocating_node"`
+}
+
+type IndexStatsShardPath struct {
+	StatePath        string `json:"state_path"` // e.g. "/usr/share/elasticsearch/data/nodes/0"
+	DataPath         string `json:"data_path"`  // e.g. "/usr/share/elasticsearch/data/nodes/0"
+	IsCustomDataPath bool   `json:"is_custom_data_path"`
 }
 
 type IndexStatsDocs struct {
@@ -251,20 +270,24 @@ type IndexStatsStore struct {
 }
 
 type IndexStatsIndexing struct {
-	IndexTotal         int64  `json:"index_total,omitempty"`
-	IndexTime          string `json:"index_time,omitempty"`
-	IndexTimeInMillis  int64  `json:"index_time_in_millis,omitempty"`
-	IndexCurrent       int64  `json:"index_current,omitempty"`
-	DeleteTotal        int64  `json:"delete_total,omitempty"`
-	DeleteTime         string `json:"delete_time,omitempty"`
-	DeleteTimeInMillis int64  `json:"delete_time_in_millis,omitempty"`
-	DeleteCurrent      int64  `json:"delete_current,omitempty"`
-	NoopUpdateTotal    int64  `json:"noop_update_total,omitempty"`
+	IndexTotal           int64  `json:"index_total,omitempty"`
+	IndexTime            string `json:"index_time,omitempty"`
+	IndexTimeInMillis    int64  `json:"index_time_in_millis,omitempty"`
+	IndexCurrent         int64  `json:"index_current,omitempty"`
+	IndexFailed          int64  `json:"index_failed,omitempty"`
+	DeleteTotal          int64  `json:"delete_total,omitempty"`
+	DeleteTime           string `json:"delete_time,omitempty"`
+	DeleteTimeInMillis   int64  `json:"delete_time_in_millis,omitempty"`
+	DeleteCurrent        int64  `json:"delete_current,omitempty"`
+	NoopUpdateTotal      int64  `json:"noop_update_total,omitempty"`
+	IsThrottled          bool   `json:"is_throttled,omitempty"`
+	ThrottleTime         string `json:"throttle_time,omitempty"`
+	ThrottleTimeInMillis int64  `json:"throttle_time_in_millis,omitempty"`
 }
 
 type IndexStatsGet struct {
 	Total               int64  `json:"total,omitempty"`
-	GetTime             string `json:"get_time,omitempty"`
+	GetTime             string `json:"getTime,omitempty"` // 7.4.0 uses "getTime", earlier versions used "get_time"
 	TimeInMillis        int64  `json:"time_in_millis,omitempty"`
 	ExistsTotal         int64  `json:"exists_total,omitempty"`
 	ExistsTime          string `json:"exists_time,omitempty"`
@@ -296,28 +319,46 @@ type IndexStatsSearch struct {
 }
 
 type IndexStatsMerges struct {
-	Current            int64  `json:"current,omitempty"`
-	CurrentDocs        int64  `json:"current_docs,omitempty"`
-	CurrentSize        string `json:"current_size,omitempty"`
-	CurrentSizeInBytes int64  `json:"current_size_in_bytes,omitempty"`
-	Total              int64  `json:"total,omitempty"`
-	TotalTime          string `json:"total_time,omitempty"`
-	TotalTimeInMillis  int64  `json:"total_time_in_millis,omitempty"`
-	TotalDocs          int64  `json:"total_docs,omitempty"`
-	TotalSize          string `json:"total_size,omitempty"`
-	TotalSizeInBytes   int64  `json:"total_size_in_bytes,omitempty"`
+	Current                    int64  `json:"current,omitempty"`
+	CurrentDocs                int64  `json:"current_docs,omitempty"`
+	CurrentSize                string `json:"current_size,omitempty"`
+	CurrentSizeInBytes         int64  `json:"current_size_in_bytes,omitempty"`
+	Total                      int64  `json:"total,omitempty"`
+	TotalTime                  string `json:"total_time,omitempty"`
+	TotalTimeInMillis          int64  `json:"total_time_in_millis,omitempty"`
+	TotalDocs                  int64  `json:"total_docs,omitempty"`
+	TotalSize                  string `json:"total_size,omitempty"`
+	TotalSizeInBytes           int64  `json:"total_size_in_bytes,omitempty"`
+	TotalStoppedTime           string `json:"total_stopped_time,omitempty"`
+	TotalStoppedTimeInMillis   int64  `json:"total_stopped_time_in_millis,omitempty"`
+	TotalThrottledTime         string `json:"total_throttled_time,omitempty"`
+	TotalThrottledTimeInMillis int64  `json:"total_throttled_time_in_millis,omitempty"`
+	TotalAutoThrottle          string `json:"total_auto_throttle,omitempty"`
+	TotalAutoThrottleInBytes   int64  `json:"total_auto_throttle_in_bytes,omitempty"`
 }
 
 type IndexStatsRefresh struct {
-	Total             int64  `json:"total,omitempty"`
-	TotalTime         string `json:"total_time,omitempty"`
-	TotalTimeInMillis int64  `json:"total_time_in_millis,omitempty"`
+	Total                     int64  `json:"total,omitempty"`
+	TotalTime                 string `json:"total_time,omitempty"`
+	TotalTimeInMillis         int64  `json:"total_time_in_millis,omitempty"`
+	ExternalTotal             int64  `json:"external_total,omitempty"`
+	ExternalTotalTime         string `json:"external_total_time,omitempty"`
+	ExternalTotalTimeInMillis int64  `json:"external_total_time_in_millis,omitempty"`
+	Listeners                 int64  `json:"listeners,omitempty"`
+}
+
+type IndexStatsRecovery struct {
+	CurrentAsSource      int64  `json:"current_as_source,omitempty"`
+	CurrentAsTarget      int64  `json:"current_as_target,omitempty"`
+	ThrottleTime         string `json:"throttle_time,omitempty"`
+	ThrottleTimeInMillis int64  `json:"throttle_time_in_millis,omitempty"`
 }
 
 type IndexStatsFlush struct {
 	Total             int64  `json:"total,omitempty"`
 	TotalTime         string `json:"total_time,omitempty"`
 	TotalTimeInMillis int64  `json:"total_time_in_millis,omitempty"`
+	Periodic          int64  `json:"periodic,omitempty"`
 }
 
 type IndexStatsWarmer struct {
@@ -325,6 +366,21 @@ type IndexStatsWarmer struct {
 	Total             int64  `json:"total,omitempty"`
 	TotalTime         string `json:"total_time,omitempty"`
 	TotalTimeInMillis int64  `json:"total_time_in_millis,omitempty"`
+}
+
+type IndexStatsRequestCache struct {
+	MemorySize        string `json:"memory_size,omitempty"`
+	MemorySizeInBytes int64  `json:"memory_size_in_bytes,omitempty"`
+	Evictions         int64  `json:"evictions,omitempty"`
+	HitCount          int64  `json:"hit_count,omitempty"`
+	MissCount         int64  `json:"miss_count,omitempty"`
+}
+
+type IndexStatsCommit struct {
+	ID         string            `json:"id,omitempty"` // lucene commit ID in base64, e.g. "m2tDMYHzSpSV6zJH0lIAnA=="
+	Generation int64             `json:"generation,omitempty"`
+	UserData   map[string]string `json:"user_data,omitempty"`
+	NumDocs    int64             `json:"num_docs,omitempty"`
 }
 
 type IndexStatsFilterCache struct {
@@ -360,23 +416,39 @@ type IndexStatsCompletion struct {
 }
 
 type IndexStatsSegments struct {
-	Count                       int64  `json:"count,omitempty"`
-	Memory                      string `json:"memory,omitempty"`
-	MemoryInBytes               int64  `json:"memory_in_bytes,omitempty"`
-	IndexWriterMemory           string `json:"index_writer_memory,omitempty"`
-	IndexWriterMemoryInBytes    int64  `json:"index_writer_memory_in_bytes,omitempty"`
-	IndexWriterMaxMemory        string `json:"index_writer_max_memory,omitempty"`
-	IndexWriterMaxMemoryInBytes int64  `json:"index_writer_max_memory_in_bytes,omitempty"`
-	VersionMapMemory            string `json:"version_map_memory,omitempty"`
-	VersionMapMemoryInBytes     int64  `json:"version_map_memory_in_bytes,omitempty"`
-	FixedBitSetMemory           string `json:"fixed_bit_set,omitempty"`
-	FixedBitSetMemoryInBytes    int64  `json:"fixed_bit_set_memory_in_bytes,omitempty"`
+	Count                     int64                                       `json:"count"`
+	Memory                    string                                      `json:"memory"` // e.g. "61.3kb"
+	MemoryInBytes             int64                                       `json:"memory_in_bytes"`
+	TermsMemory               string                                      `json:"terms_memory"` // e.g. "61.3kb"
+	TermsMemoryInBytes        int64                                       `json:"terms_memory_in_bytes"`
+	StoredFieldsMemory        string                                      `json:"stored_fields_memory"` // e.g. "61.3kb"
+	StoredFieldsMemoryInBytes int64                                       `json:"stored_fields_memory_in_bytes"`
+	TermVectorsMemory         string                                      `json:"term_vectors_memory"` // e.g. "61.3kb"
+	TermVectorsMemoryInBytes  int64                                       `json:"term_vectors_memory_in_bytes"`
+	NormsMemory               string                                      `json:"norms_memory"` // e.g. "61.3kb"
+	NormsMemoryInBytes        int64                                       `json:"norms_memory_in_bytes"`
+	PointsMemory              string                                      `json:"points_memory"` // e.g. "61.3kb"
+	PointsMemoryInBytes       int64                                       `json:"points_memory_in_bytes"`
+	DocValuesMemory           string                                      `json:"doc_values_memory"` // e.g. "61.3kb"
+	DocValuesMemoryInBytes    int64                                       `json:"doc_values_memory_in_bytes"`
+	IndexWriterMemory         string                                      `json:"index_writer_memory"` // e.g. "61.3kb"
+	IndexWriterMemoryInBytes  int64                                       `json:"index_writer_memory_in_bytes"`
+	VersionMapMemory          string                                      `json:"version_map_memory"` // e.g. "61.3kb"
+	VersionMapMemoryInBytes   int64                                       `json:"version_map_memory_in_bytes"`
+	FixedBitSet               string                                      `json:"fixed_bit_set"` // e.g. "61.3kb"
+	FixedBitSetInBytes        int64                                       `json:"fixed_bit_set_memory_in_bytes"`
+	MaxUnsafeAutoIDTimestamp  int64                                       `json:"max_unsafe_auto_id_timestamp"`
+	FileSizes                 map[string]*ClusterStatsIndicesSegmentsFile `json:"file_sizes"`
 }
 
 type IndexStatsTranslog struct {
-	Operations  int64  `json:"operations,omitempty"`
-	Size        string `json:"size,omitempty"`
-	SizeInBytes int64  `json:"size_in_bytes,omitempty"`
+	Operations              int64  `json:"operations,omitempty"`
+	Size                    string `json:"size,omitempty"`
+	SizeInBytes             int64  `json:"size_in_bytes,omitempty"`
+	UncommittedOperations   int64  `json:"uncommitted_operations,omitempty"`
+	UncommittedSize         string `json:"uncommitted_size,omitempty"`
+	UncommittedSizeInBytes  int64  `json:"uncommitted_size_in_bytes,omitempty"`
+	EarliestLastModifiedAge int64  `json:"earliest_last_modified_age,omitempty"`
 }
 
 type IndexStatsSuggest struct {
@@ -389,9 +461,12 @@ type IndexStatsSuggest struct {
 type IndexStatsQueryCache struct {
 	MemorySize        string `json:"memory_size,omitempty"`
 	MemorySizeInBytes int64  `json:"memory_size_in_bytes,omitempty"`
-	Evictions         int64  `json:"evictions,omitempty"`
+	TotalCount        int64  `json:"total_count,omitempty"`
 	HitCount          int64  `json:"hit_count,omitempty"`
 	MissCount         int64  `json:"miss_count,omitempty"`
+	CacheSize         int64  `json:"cache_size,omitempty"`
+	CacheCount        int64  `json:"cache_count,omitempty"`
+	Evictions         int64  `json:"evictions,omitempty"`
 }
 
 type IndexStatsSeqNo struct {
@@ -401,7 +476,9 @@ type IndexStatsSeqNo struct {
 }
 
 type IndexStatsRetentionLeases struct {
-	Leases []*IndexStatsRetentionLease `json:"leases,omitempty"`
+	PrimaryTerm int64                       `json:"primary_term,omitempty"`
+	Version     int64                       `json:"version,omitempty"`
+	Leases      []*IndexStatsRetentionLease `json:"leases,omitempty"`
 }
 
 type IndexStatsRetentionLease struct {
