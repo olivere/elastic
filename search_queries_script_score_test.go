@@ -11,11 +11,10 @@ import (
 )
 
 func TestScriptScoreQuery(t *testing.T) {
-	q := NewScriptScoreQuery().
-		Query(NewMatchQuery("message", "elasticsearch")).
-		Script(NewScript("doc['likes'].value / 10")).
-		MinScore(1.1).
-		QueryName("my_query")
+	q := NewScriptScoreQuery(
+		NewMatchQuery("message", "elasticsearch"),
+		NewScript("doc['likes'].value / 10"),
+	).MinScore(1.1).Boost(5.0).QueryName("my_query")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -25,7 +24,7 @@ func TestScriptScoreQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"script_score":{"_name":"my_query","min_score":1.1,"query":{"match":{"message":{"query":"elasticsearch"}}},"script":{"source":"doc['likes'].value / 10"}}}`
+	expected := `{"script_score":{"_name":"my_query","boost":5,"min_score":1.1,"query":{"match":{"message":{"query":"elasticsearch"}}},"script":{"source":"doc['likes'].value / 10"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -34,12 +33,14 @@ func TestScriptScoreQuery(t *testing.T) {
 func TestScriptScoreQueryIntegration(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	ssq := NewScriptScoreQuery().
-		Query(NewMatchQuery("message", "Golang")).
-		Script(NewScript("(1 + doc['retweets'].value) * 10"))
 	res, err := client.Search().
 		Index(testIndexName).
-		Query(ssq).
+		Query(
+			NewScriptScoreQuery(
+				NewMatchQuery("message", "Golang"),
+				NewScript("(1 + doc['retweets'].value) * 10"),
+			),
+		).
 		Pretty(true).
 		Do(context.Background())
 	if err != nil {
