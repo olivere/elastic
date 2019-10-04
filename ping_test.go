@@ -24,10 +24,10 @@ func TestPingGet(t *testing.T) {
 		t.Fatalf("expected to return result, got: %v", res)
 	}
 	if res.Name == "" {
-		t.Errorf("expected Name != \"\"; got %q", res.Name)
+		t.Errorf("expected Name != %q; got %q", "", res.Name)
 	}
 	if res.Version.Number == "" {
-		t.Errorf("expected Version.Number != \"\"; got %q", res.Version.Number)
+		t.Errorf("expected Version.Number != %q; got %q", "", res.Version.Number)
 	}
 }
 

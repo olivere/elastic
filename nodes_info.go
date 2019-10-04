@@ -69,12 +69,18 @@ func (s *NodesInfoService) Pretty(pretty bool) *NodesInfoService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *NodesInfoService) Header(name string, value string) *NodesInfoService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *NodesInfoService) Headers(headers http.Header) *NodesInfoService {
+	s.headers = headers
 	return s
 }
 

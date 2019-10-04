@@ -83,12 +83,18 @@ func (s *CatCountService) Pretty(pretty bool) *CatCountService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *CatCountService) Header(name string, value string) *CatCountService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *CatCountService) Headers(headers http.Header) *CatCountService {
+	s.headers = headers
 	return s
 }
 

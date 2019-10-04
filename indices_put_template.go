@@ -107,12 +107,18 @@ func (s *IndicesPutTemplateService) BodyString(body string) *IndicesPutTemplateS
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesPutTemplateService) Header(name string, value string) *IndicesPutTemplateService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesPutTemplateService) Headers(headers http.Header) *IndicesPutTemplateService {
+	s.headers = headers
 	return s
 }
 

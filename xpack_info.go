@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -16,8 +17,9 @@ import (
 // XPackInfoService retrieves xpack info.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/info-api.html.
 type XPackInfoService struct {
-	client *Client
-	pretty bool
+	client  *Client
+	pretty  bool
+	headers http.Header
 }
 
 // NewXPackInfoService creates a new XPackInfoService.
@@ -30,6 +32,21 @@ func NewXPackInfoService(client *Client) *XPackInfoService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackInfoService) Pretty(pretty bool) *XPackInfoService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackInfoService) Header(name string, value string) *XPackInfoService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackInfoService) Headers(headers http.Header) *XPackInfoService {
+	s.headers = headers
 	return s
 }
 
@@ -73,9 +90,10 @@ func (s *XPackInfoService) Do(ctx context.Context) (*XPackInfoServiceResponse, e
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

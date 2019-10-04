@@ -192,12 +192,18 @@ func (s *CountService) BodyString(body string) *CountService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *CountService) Header(name string, value string) *CountService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *CountService) Headers(headers http.Header) *CountService {
+	s.headers = headers
 	return s
 }
 

@@ -91,12 +91,18 @@ func (s *IndicesFreezeService) Pretty(pretty bool) *IndicesFreezeService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesFreezeService) Header(name string, value string) *IndicesFreezeService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesFreezeService) Headers(headers http.Header) *IndicesFreezeService {
+	s.headers = headers
 	return s
 }
 

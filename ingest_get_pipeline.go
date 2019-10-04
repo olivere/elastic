@@ -50,12 +50,18 @@ func (s *IngestGetPipelineService) Pretty(pretty bool) *IngestGetPipelineService
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IngestGetPipelineService) Header(name string, value string) *IngestGetPipelineService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IngestGetPipelineService) Headers(headers http.Header) *IngestGetPipelineService {
+	s.headers = headers
 	return s
 }
 

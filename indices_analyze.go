@@ -134,12 +134,18 @@ func (s *IndicesAnalyzeService) BodyString(body string) *IndicesAnalyzeService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesAnalyzeService) Header(name string, value string) *IndicesAnalyzeService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesAnalyzeService) Headers(headers http.Header) *IndicesAnalyzeService {
+	s.headers = headers
 	return s
 }
 
@@ -248,14 +254,6 @@ type IndicesAnalyzeResponse struct {
 	Tokens []AnalyzeToken               `json:"tokens"` // json part for normal message
 	Detail IndicesAnalyzeResponseDetail `json:"detail"` // json part for verbose message of explain request
 }
-
-/*
-private final boolean customAnalyzer;
-private final AnalyzeTokenList analyzer;
-private final CharFilteredText[] charfilters;
-private final AnalyzeTokenList tokenizer;
-private final AnalyzeTokenList[] tokenfilters;
-*/
 
 type AnalyzeTokenList struct {
 	Name   string         `json:"name"`

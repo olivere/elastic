@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -22,6 +23,7 @@ type SnapshotVerifyRepositoryService struct {
 	repository    string
 	masterTimeout string
 	timeout       string
+	headers       http.Header
 }
 
 // NewSnapshotVerifyRepositoryService creates a new SnapshotVerifyRepositoryService.
@@ -52,6 +54,21 @@ func (s *SnapshotVerifyRepositoryService) Timeout(timeout string) *SnapshotVerif
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *SnapshotVerifyRepositoryService) Pretty(pretty bool) *SnapshotVerifyRepositoryService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *SnapshotVerifyRepositoryService) Header(name string, value string) *SnapshotVerifyRepositoryService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SnapshotVerifyRepositoryService) Headers(headers http.Header) *SnapshotVerifyRepositoryService {
+	s.headers = headers
 	return s
 }
 
@@ -106,9 +123,10 @@ func (s *SnapshotVerifyRepositoryService) Do(ctx context.Context) (*SnapshotVeri
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

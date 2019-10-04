@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -23,6 +24,7 @@ type XPackSecurityChangePasswordService struct {
 	password string
 	refresh  string
 	body     interface{}
+	headers  http.Header
 }
 
 // NewXPackSecurityChangePasswordService creates a new XPackSecurityChangePasswordService.
@@ -55,6 +57,21 @@ func (s *XPackSecurityChangePasswordService) Refresh(refresh string) *XPackSecur
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackSecurityChangePasswordService) Pretty(pretty bool) *XPackSecurityChangePasswordService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackSecurityChangePasswordService) Header(name string, value string) *XPackSecurityChangePasswordService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackSecurityChangePasswordService) Headers(headers http.Header) *XPackSecurityChangePasswordService {
+	s.headers = headers
 	return s
 }
 
@@ -124,10 +141,11 @@ func (s *XPackSecurityChangePasswordService) Do(ctx context.Context) (*XPackSecu
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

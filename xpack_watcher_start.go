@@ -7,14 +7,16 @@ package elastic
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"net/url"
 )
 
 // XPackWatcherStartService starts the watcher service if it is not already running.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/watcher-api-start.html.
 type XPackWatcherStartService struct {
-	client *Client
-	pretty bool
+	client  *Client
+	pretty  bool
+	headers http.Header
 }
 
 // NewXPackWatcherStartService creates a new XPackWatcherStartService.
@@ -27,6 +29,21 @@ func NewXPackWatcherStartService(client *Client) *XPackWatcherStartService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackWatcherStartService) Pretty(pretty bool) *XPackWatcherStartService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackWatcherStartService) Header(name string, value string) *XPackWatcherStartService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackWatcherStartService) Headers(headers http.Header) *XPackWatcherStartService {
+	s.headers = headers
 	return s
 }
 
@@ -63,9 +80,10 @@ func (s *XPackWatcherStartService) Do(ctx context.Context) (*XPackWatcherStartRe
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

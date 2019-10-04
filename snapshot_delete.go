@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -20,6 +21,7 @@ type SnapshotDeleteService struct {
 	client     *Client
 	repository string
 	snapshot   string
+	headers    http.Header
 }
 
 // NewSnapshotDeleteService creates a new SnapshotDeleteService.
@@ -38,6 +40,21 @@ func (s *SnapshotDeleteService) Repository(repository string) *SnapshotDeleteSer
 // Snapshot is the snapshot name.
 func (s *SnapshotDeleteService) Snapshot(snapshot string) *SnapshotDeleteService {
 	s.snapshot = snapshot
+	return s
+}
+
+// Header adds a header to the request.
+func (s *SnapshotDeleteService) Header(name string, value string) *SnapshotDeleteService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SnapshotDeleteService) Headers(headers http.Header) *SnapshotDeleteService {
+	s.headers = headers
 	return s
 }
 

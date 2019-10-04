@@ -43,12 +43,18 @@ func (s *ClearScrollService) Pretty(pretty bool) *ClearScrollService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *ClearScrollService) Header(name string, value string) *ClearScrollService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *ClearScrollService) Headers(headers http.Header) *ClearScrollService {
+	s.headers = headers
 	return s
 }
 

@@ -55,12 +55,18 @@ func (s *IndicesDeleteTemplateService) Pretty(pretty bool) *IndicesDeleteTemplat
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesDeleteTemplateService) Header(name string, value string) *IndicesDeleteTemplateService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesDeleteTemplateService) Headers(headers http.Header) *IndicesDeleteTemplateService {
+	s.headers = headers
 	return s
 }
 

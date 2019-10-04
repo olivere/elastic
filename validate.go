@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -35,6 +36,7 @@ type ValidateService struct {
 	expandWildcards   string
 	bodyJson          interface{}
 	bodyString        string
+	headers           http.Header
 }
 
 // NewValidateService creates a new ValidateService.
@@ -156,6 +158,21 @@ func (s *ValidateService) ExpandWildcards(expandWildcards string) *ValidateServi
 	return s
 }
 
+// Header adds a header to the request.
+func (s *ValidateService) Header(name string, value string) *ValidateService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *ValidateService) Headers(headers http.Header) *ValidateService {
+	s.headers = headers
+	return s
+}
+
 // BodyJson sets the query definition using the Query DSL.
 func (s *ValidateService) BodyJson(body interface{}) *ValidateService {
 	s.bodyJson = body
@@ -263,10 +280,11 @@ func (s *ValidateService) Do(ctx context.Context) (*ValidateResponse, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

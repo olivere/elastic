@@ -176,12 +176,18 @@ func (s *MultiTermvectorService) Source() interface{} {
 	return source
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *MultiTermvectorService) Header(name string, value string) *MultiTermvectorService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *MultiTermvectorService) Headers(headers http.Header) *MultiTermvectorService {
+	s.headers = headers
 	return s
 }
 

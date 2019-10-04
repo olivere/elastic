@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -40,6 +41,7 @@ type UpdateService struct {
 	ifSeqNo             *int64
 	ifPrimaryTerm       *int64
 	pretty              bool
+	headers             http.Header
 }
 
 // NewUpdateService creates the service to update documents in Elasticsearch.
@@ -212,6 +214,21 @@ func (s *UpdateService) FetchSourceContext(fetchSourceContext *FetchSourceContex
 	return s
 }
 
+// Header adds a header to the request.
+func (b *UpdateService) Header(name string, value string) *UpdateService {
+	if b.headers == nil {
+		b.headers = http.Header{}
+	}
+	b.headers.Add(name, value)
+	return b
+}
+
+// Headers specifies the headers of the request.
+func (b *UpdateService) Headers(headers http.Header) *UpdateService {
+	b.headers = headers
+	return b
+}
+
 // url returns the URL part of the document request.
 func (b *UpdateService) url() (string, url.Values, error) {
 	// Build url
@@ -329,10 +346,11 @@ func (b *UpdateService) Do(ctx context.Context) (*UpdateResponse, error) {
 
 	// Get response
 	res, err := b.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: b.headers,
 	})
 	if err != nil {
 		return nil, err

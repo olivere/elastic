@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -22,6 +23,7 @@ type XPackWatcherExecuteWatchService struct {
 	debug      *bool
 	bodyJson   interface{}
 	bodyString string
+	headers    http.Header
 }
 
 // NewXPackWatcherExecuteWatchService creates a new XPackWatcherExecuteWatchService.
@@ -46,6 +48,21 @@ func (s *XPackWatcherExecuteWatchService) Debug(debug bool) *XPackWatcherExecute
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackWatcherExecuteWatchService) Pretty(pretty bool) *XPackWatcherExecuteWatchService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackWatcherExecuteWatchService) Header(name string, value string) *XPackWatcherExecuteWatchService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackWatcherExecuteWatchService) Headers(headers http.Header) *XPackWatcherExecuteWatchService {
+	s.headers = headers
 	return s
 }
 
@@ -118,10 +135,11 @@ func (s *XPackWatcherExecuteWatchService) Do(ctx context.Context) (*XPackWatcher
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

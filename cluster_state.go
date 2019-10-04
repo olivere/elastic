@@ -103,12 +103,18 @@ func (s *ClusterStateService) Pretty(pretty bool) *ClusterStateService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *ClusterStateService) Header(name string, value string) *ClusterStateService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *ClusterStateService) Headers(headers http.Header) *ClusterStateService {
+	s.headers = headers
 	return s
 }
 

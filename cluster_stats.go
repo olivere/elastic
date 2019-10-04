@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -21,6 +22,7 @@ type ClusterStatsService struct {
 	nodeId       []string
 	flatSettings *bool
 	human        *bool
+	headers      http.Header
 }
 
 // NewClusterStatsService creates a new ClusterStatsService.
@@ -52,6 +54,21 @@ func (s *ClusterStatsService) Human(human bool) *ClusterStatsService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *ClusterStatsService) Pretty(pretty bool) *ClusterStatsService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *ClusterStatsService) Header(name string, value string) *ClusterStatsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *ClusterStatsService) Headers(headers http.Header) *ClusterStatsService {
+	s.headers = headers
 	return s
 }
 
@@ -109,9 +126,10 @@ func (s *ClusterStatsService) Do(ctx context.Context) (*ClusterStatsResponse, er
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

@@ -163,12 +163,18 @@ func (s *GetService) Validate() error {
 	return nil
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *GetService) Header(name string, value string) *GetService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *GetService) Headers(headers http.Header) *GetService {
+	s.headers = headers
 	return s
 }
 

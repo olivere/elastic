@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -23,6 +24,7 @@ type XPackIlmGetLifecycleService struct {
 	masterTimeout string
 	flatSettings  *bool
 	local         *bool
+	headers       http.Header
 }
 
 // NewXPackIlmGetLifecycleService creates a new XPackIlmGetLifecycleService.
@@ -59,6 +61,21 @@ func (s *XPackIlmGetLifecycleService) FlatSettings(flatSettings bool) *XPackIlmG
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackIlmGetLifecycleService) Pretty(pretty bool) *XPackIlmGetLifecycleService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackIlmGetLifecycleService) Header(name string, value string) *XPackIlmGetLifecycleService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackIlmGetLifecycleService) Headers(headers http.Header) *XPackIlmGetLifecycleService {
+	s.headers = headers
 	return s
 }
 
@@ -118,9 +135,10 @@ func (s *XPackIlmGetLifecycleService) Do(ctx context.Context) (map[string]*XPack
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

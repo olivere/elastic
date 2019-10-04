@@ -98,12 +98,18 @@ func (s *IndicesGetFieldMappingService) Pretty(pretty bool) *IndicesGetFieldMapp
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesGetFieldMappingService) Header(name string, value string) *IndicesGetFieldMappingService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesGetFieldMappingService) Headers(headers http.Header) *IndicesGetFieldMappingService {
+	s.headers = headers
 	return s
 }
 

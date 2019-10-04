@@ -80,12 +80,18 @@ func (s *CatHealthService) Pretty(pretty bool) *CatHealthService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *CatHealthService) Header(name string, value string) *CatHealthService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *CatHealthService) Headers(headers http.Header) *CatHealthService {
+	s.headers = headers
 	return s
 }
 

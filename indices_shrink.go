@@ -90,12 +90,18 @@ func (s *IndicesShrinkService) BodyString(body string) *IndicesShrinkService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesShrinkService) Header(name string, value string) *IndicesShrinkService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesShrinkService) Headers(headers http.Header) *IndicesShrinkService {
+	s.headers = headers
 	return s
 }
 

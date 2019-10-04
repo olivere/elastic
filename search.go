@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"reflect"
 	"strings"
@@ -33,6 +34,7 @@ type SearchService struct {
 	expandWildcards   string
 	maxResponseSize   int64
 	seqNoPrimaryTerm  *bool
+	headers           http.Header
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -368,6 +370,21 @@ func (s *SearchService) SeqNoPrimaryTerm(v bool) *SearchService {
 	return s
 }
 
+// Header adds a header to the request.
+func (s *SearchService) Header(name string, value string) *SearchService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SearchService) Headers(headers http.Header) *SearchService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *SearchService) buildURL() (string, url.Values, error) {
 	var err error
@@ -462,6 +479,7 @@ func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 		Path:            path,
 		Params:          params,
 		Body:            body,
+		Headers:         s.headers,
 		MaxResponseSize: s.maxResponseSize,
 	})
 	if err != nil {
@@ -471,13 +489,16 @@ func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 	// Return search results
 	ret := new(SearchResult)
 	if err := s.client.decoder.Decode(res.Body, ret); err != nil {
+		ret.Header = res.Header
 		return nil, err
 	}
+	ret.Header = res.Header
 	return ret, nil
 }
 
 // SearchResult is the result of a search in Elasticsearch.
 type SearchResult struct {
+	Header          http.Header            `json:"-"`
 	TookInMillis    int64                  `json:"took,omitempty"`             // search time in milliseconds
 	TerminatedEarly bool                   `json:"terminated_early,omitempty"` // request terminated early
 	NumReducePhases int                    `json:"num_reduce_phases,omitempty"`
@@ -622,7 +643,7 @@ type SearchSuggestionOption struct {
 	CollateMatch    bool                `json:"collate_match"`
 	Freq            int                 `json:"freq"` // from TermSuggestion.Option in Java API
 	Source          json.RawMessage     `json:"_source"`
-	Contexts        map[string][]string `json_"contexts,omitempty"`
+	Contexts        map[string][]string `json:"contexts,omitempty"`
 }
 
 // SearchProfile is a list of shard profiling data collected during

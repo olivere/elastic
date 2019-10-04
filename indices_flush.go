@@ -92,12 +92,18 @@ func (s *IndicesFlushService) Pretty(pretty bool) *IndicesFlushService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesFlushService) Header(name string, value string) *IndicesFlushService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesFlushService) Headers(headers http.Header) *IndicesFlushService {
+	s.headers = headers
 	return s
 }
 

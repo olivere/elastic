@@ -105,12 +105,18 @@ func (s *CatIndicesService) Pretty(pretty bool) *CatIndicesService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *CatIndicesService) Header(name string, value string) *CatIndicesService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *CatIndicesService) Headers(headers http.Header) *CatIndicesService {
+	s.headers = headers
 	return s
 }
 

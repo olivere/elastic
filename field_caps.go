@@ -90,12 +90,18 @@ func (s *FieldCapsService) BodyString(body string) *FieldCapsService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *FieldCapsService) Header(name string, value string) *FieldCapsService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *FieldCapsService) Headers(headers http.Header) *FieldCapsService {
+	s.headers = headers
 	return s
 }
 

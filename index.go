@@ -181,12 +181,18 @@ func (s *IndexService) BodyString(body string) *IndexService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndexService) Header(name string, value string) *IndexService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndexService) Headers(headers http.Header) *IndexService {
+	s.headers = headers
 	return s
 }
 

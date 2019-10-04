@@ -133,12 +133,18 @@ func (s *DeleteService) Pretty(pretty bool) *DeleteService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *DeleteService) Header(name string, value string) *DeleteService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *DeleteService) Headers(headers http.Header) *DeleteService {
+	s.headers = headers
 	return s
 }
 

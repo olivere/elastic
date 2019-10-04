@@ -23,6 +23,7 @@ type PingService struct {
 	timeout      string
 	httpHeadOnly bool
 	pretty       bool
+	headers      http.Header
 }
 
 // PingResult is the result returned from querying the Elasticsearch server.
@@ -74,6 +75,21 @@ func (s *PingService) Pretty(pretty bool) *PingService {
 	return s
 }
 
+// Header adds a header to the request.
+func (s *PingService) Header(name string, value string) *PingService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *PingService) Headers(headers http.Header) *PingService {
+	s.headers = headers
+	return s
+}
+
 // Do returns the PingResult, the HTTP status code of the Elasticsearch
 // server, and an error.
 func (s *PingService) Do(ctx context.Context) (*PingResult, int, error) {
@@ -107,6 +123,13 @@ func (s *PingService) Do(ctx context.Context) (*PingResult, int, error) {
 	req, err := NewRequest(method, url_)
 	if err != nil {
 		return nil, 0, err
+	}
+	if len(s.headers) > 0 {
+		for key, values := range s.headers {
+			for _, v := range values {
+				req.Header.Add(key, v)
+			}
+		}
 	}
 
 	if basicAuth {

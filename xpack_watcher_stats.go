@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 )
 
@@ -18,6 +19,7 @@ type XPackWatcherStatsService struct {
 	pretty          bool
 	metric          string
 	emitStacktraces *bool
+	headers         http.Header
 }
 
 // NewXPackWatcherStatsService creates a new XPackWatcherStatsService.
@@ -42,6 +44,21 @@ func (s *XPackWatcherStatsService) EmitStacktraces(emitStacktraces bool) *XPackW
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackWatcherStatsService) Pretty(pretty bool) *XPackWatcherStatsService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackWatcherStatsService) Header(name string, value string) *XPackWatcherStatsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackWatcherStatsService) Headers(headers http.Header) *XPackWatcherStatsService {
+	s.headers = headers
 	return s
 }
 
@@ -84,9 +101,10 @@ func (s *XPackWatcherStatsService) Do(ctx context.Context) (*XPackWatcherStatsRe
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

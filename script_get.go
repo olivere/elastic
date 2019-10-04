@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -18,9 +19,10 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-scripting.html
 // for details.
 type GetScriptService struct {
-	client *Client
-	pretty bool
-	id     string
+	client  *Client
+	pretty  bool
+	id      string
+	headers http.Header
 }
 
 // NewGetScriptService creates a new GetScriptService.
@@ -39,6 +41,21 @@ func (s *GetScriptService) Id(id string) *GetScriptService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *GetScriptService) Pretty(pretty bool) *GetScriptService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *GetScriptService) Header(name string, value string) *GetScriptService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *GetScriptService) Headers(headers http.Header) *GetScriptService {
+	s.headers = headers
 	return s
 }
 
@@ -92,9 +109,10 @@ func (s *GetScriptService) Do(ctx context.Context) (*GetScriptResponse, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: method,
-		Path:   path,
-		Params: params,
+		Method:  method,
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

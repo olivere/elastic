@@ -43,12 +43,18 @@ func (s *RefreshService) Pretty(pretty bool) *RefreshService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *RefreshService) Header(name string, value string) *RefreshService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *RefreshService) Headers(headers http.Header) *RefreshService {
+	s.headers = headers
 	return s
 }
 

@@ -78,6 +78,21 @@ func (s *IndicesExistsService) Pretty(pretty bool) *IndicesExistsService {
 	return s
 }
 
+// Header adds a header to the request.
+func (s *IndicesExistsService) Header(name string, value string) *IndicesExistsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesExistsService) Headers(headers http.Header) *IndicesExistsService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndicesExistsService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -106,15 +121,6 @@ func (s *IndicesExistsService) buildURL() (string, url.Values, error) {
 		params.Set("expand_wildcards", s.expandWildcards)
 	}
 	return path, params, nil
-}
-
-// Header sets headers on the request
-func (s *IndicesExistsService) Header(name string, value string) *IndicesExistsService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
 }
 
 // Validate checks if the operation is valid.

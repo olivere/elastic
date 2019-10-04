@@ -169,12 +169,18 @@ func (s *IndicesRolloverService) getBody() interface{} {
 	return body
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesRolloverService) Header(name string, value string) *IndicesRolloverService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesRolloverService) Headers(headers http.Header) *IndicesRolloverService {
+	s.headers = headers
 	return s
 }
 

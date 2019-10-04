@@ -51,12 +51,18 @@ func (s *AliasesService) Alias(alias ...string) *AliasesService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *AliasesService) Header(name string, value string) *AliasesService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *AliasesService) Headers(headers http.Header) *AliasesService {
+	s.headers = headers
 	return s
 }
 

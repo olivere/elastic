@@ -50,12 +50,18 @@ func (s *IndicesExistsTemplateService) Pretty(pretty bool) *IndicesExistsTemplat
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesExistsTemplateService) Header(name string, value string) *IndicesExistsTemplateService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesExistsTemplateService) Headers(headers http.Header) *IndicesExistsTemplateService {
+	s.headers = headers
 	return s
 }
 

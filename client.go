@@ -143,6 +143,7 @@ type Client struct {
 	gzipEnabled               bool            // gzip compression enabled or disabled (default)
 	requiredPlugins           []string        // list of required plugins
 	retrier                   Retrier         // strategy for retries
+	headers                   http.Header     // a list of default headers to add to each request
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -720,6 +721,15 @@ func SetRetrier(retrier Retrier) ClientOptionFunc {
 	}
 }
 
+// SetHeaders adds a list of default HTTP headers that will be added to
+// each requests executed by PerformRequest.
+func SetHeaders(headers http.Header) ClientOptionFunc {
+	return func(c *Client) error {
+		c.headers = headers
+		return nil
+	}
+}
+
 // String returns a string representation of the client status.
 func (c *Client) String() string {
 	c.connsMu.Lock()
@@ -1263,6 +1273,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 	if opt.Retrier != nil {
 		retrier = opt.Retrier
 	}
+	defaultHeaders := c.headers
 	c.mu.RUnlock()
 
 	var err error
@@ -1312,16 +1323,21 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(opt.Method), conn.URL()+pathWithParams, err)
 			return nil, err
 		}
-
 		if basicAuth {
 			req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 		}
 		if opt.ContentType != "" {
 			req.Header.Set("Content-Type", opt.ContentType)
 		}
-
 		if len(opt.Headers) > 0 {
 			for key, value := range opt.Headers {
+				for _, v := range value {
+					req.Header.Add(key, v)
+				}
+			}
+		}
+		if len(defaultHeaders) > 0 {
+			for key, value := range defaultHeaders {
 				for _, v := range value {
 					req.Header.Add(key, v)
 				}

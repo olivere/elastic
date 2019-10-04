@@ -101,12 +101,18 @@ func (s *IndicesForcemergeService) Pretty(pretty bool) *IndicesForcemergeService
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesForcemergeService) Header(name string, value string) *IndicesForcemergeService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesForcemergeService) Headers(headers http.Header) *IndicesForcemergeService {
+	s.headers = headers
 	return s
 }
 

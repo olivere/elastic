@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"time"
 
@@ -17,9 +18,10 @@ import (
 // XPackWatcherGetWatchService retrieves a watch by its ID.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/watcher-api-get-watch.html.
 type XPackWatcherGetWatchService struct {
-	client *Client
-	pretty bool
-	id     string
+	client  *Client
+	pretty  bool
+	id      string
+	headers http.Header
 }
 
 // NewXPackWatcherGetWatchService creates a new XPackWatcherGetWatchService.
@@ -38,6 +40,21 @@ func (s *XPackWatcherGetWatchService) Id(id string) *XPackWatcherGetWatchService
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackWatcherGetWatchService) Pretty(pretty bool) *XPackWatcherGetWatchService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackWatcherGetWatchService) Header(name string, value string) *XPackWatcherGetWatchService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackWatcherGetWatchService) Headers(headers http.Header) *XPackWatcherGetWatchService {
+	s.headers = headers
 	return s
 }
 
@@ -86,9 +103,10 @@ func (s *XPackWatcherGetWatchService) Do(ctx context.Context) (*XPackWatcherGetW
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

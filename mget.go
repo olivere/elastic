@@ -100,12 +100,18 @@ func (s *MgetService) Source() (interface{}, error) {
 	return source, nil
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *MgetService) Header(name string, value string) *MgetService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *MgetService) Headers(headers http.Header) *MgetService {
+	s.headers = headers
 	return s
 }
 

@@ -96,12 +96,18 @@ func (s *IndicesGetSettingsService) Pretty(pretty bool) *IndicesGetSettingsServi
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesGetSettingsService) Header(name string, value string) *IndicesGetSettingsService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesGetSettingsService) Headers(headers http.Header) *IndicesGetSettingsService {
+	s.headers = headers
 	return s
 }
 

@@ -114,14 +114,4 @@ func TestCount(t *testing.T) {
 	if count != 2 {
 		t.Errorf("expected Count = %d; got %d", 2, count)
 	}
-
-	// Count with query and type
-	query = NewTermQuery("user", "olivere")
-	count, err = client.Count(testIndexName).Query(query).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Errorf("expected Count = %d; got %d", 2, count)
-	}
 }

@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -16,9 +17,10 @@ import (
 // XPackSecurityGetRoleService retrieves a role by its name.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/security-api-get-role.html.
 type XPackSecurityGetRoleService struct {
-	client *Client
-	pretty bool
-	name   string
+	client  *Client
+	pretty  bool
+	name    string
+	headers http.Header
 }
 
 // NewXPackSecurityGetRoleService creates a new XPackSecurityGetRoleService.
@@ -37,6 +39,21 @@ func (s *XPackSecurityGetRoleService) Name(name string) *XPackSecurityGetRoleSer
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackSecurityGetRoleService) Pretty(pretty bool) *XPackSecurityGetRoleService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackSecurityGetRoleService) Header(name string, value string) *XPackSecurityGetRoleService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackSecurityGetRoleService) Headers(headers http.Header) *XPackSecurityGetRoleService {
+	s.headers = headers
 	return s
 }
 
@@ -85,9 +102,10 @@ func (s *XPackSecurityGetRoleService) Do(ctx context.Context) (*XPackSecurityGet
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

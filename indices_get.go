@@ -80,15 +80,6 @@ func (s *IndicesGetService) ExpandWildcards(expandWildcards string) *IndicesGetS
 	return s
 }
 
-/* Disabled because serialization would fail in that case. */
-/*
-// FlatSettings make the service return settings in flat format (default: false).
-func (s *IndicesGetService) FlatSettings(flatSettings bool) *IndicesGetService {
-	s.flatSettings = &flatSettings
-	return s
-}
-*/
-
 // Human indicates whether to return version and creation date values
 // in human-readable format (default: false).
 func (s *IndicesGetService) Human(human bool) *IndicesGetService {
@@ -102,12 +93,18 @@ func (s *IndicesGetService) Pretty(pretty bool) *IndicesGetService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *IndicesGetService) Header(name string, value string) *IndicesGetService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesGetService) Headers(headers http.Header) *IndicesGetService {
+	s.headers = headers
 	return s
 }
 

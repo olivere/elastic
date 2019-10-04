@@ -56,12 +56,18 @@ func (s *MultiSearchService) PreFilterShardSize(size int) *MultiSearchService {
 	return s
 }
 
-// Header sets headers on the request
+// Header adds a header to the request.
 func (s *MultiSearchService) Header(name string, value string) *MultiSearchService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *MultiSearchService) Headers(headers http.Header) *MultiSearchService {
+	s.headers = headers
 	return s
 }
 

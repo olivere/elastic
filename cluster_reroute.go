@@ -102,12 +102,18 @@ func (s *ClusterRerouteService) Body(body interface{}) *ClusterRerouteService {
 	return s
 }
 
-// header sets headers on the request
+// Header adds a header to the request.
 func (s *ClusterRerouteService) Header(name string, value string) *ClusterRerouteService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
 	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *ClusterRerouteService) Headers(headers http.Header) *ClusterRerouteService {
+	s.headers = headers
 	return s
 }
 

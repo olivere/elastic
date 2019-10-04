@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -23,6 +24,7 @@ type SnapshotCreateService struct {
 	waitForCompletion *bool
 	bodyJson          interface{}
 	bodyString        string
+	headers           http.Header
 }
 
 // NewSnapshotCreateService creates a new SnapshotCreateService.
@@ -71,6 +73,21 @@ func (s *SnapshotCreateService) BodyJson(body interface{}) *SnapshotCreateServic
 // BodyString is documented as: The snapshot definition.
 func (s *SnapshotCreateService) BodyString(body string) *SnapshotCreateService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds a header to the request.
+func (s *SnapshotCreateService) Header(name string, value string) *SnapshotCreateService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SnapshotCreateService) Headers(headers http.Header) *SnapshotCreateService {
+	s.headers = headers
 	return s
 }
 
@@ -137,10 +154,11 @@ func (s *SnapshotCreateService) Do(ctx context.Context) (*SnapshotCreateResponse
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

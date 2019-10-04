@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -16,10 +17,11 @@ import (
 // XPackSecurityPutRoleService retrieves a role by its name.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/security-api-put-role.html.
 type XPackSecurityPutRoleService struct {
-	client *Client
-	pretty bool
-	name   string
-	body   interface{}
+	client  *Client
+	pretty  bool
+	name    string
+	body    interface{}
+	headers http.Header
 }
 
 // NewXPackSecurityPutRoleService creates a new XPackSecurityPutRoleService.
@@ -38,6 +40,21 @@ func (s *XPackSecurityPutRoleService) Name(name string) *XPackSecurityPutRoleSer
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackSecurityPutRoleService) Pretty(pretty bool) *XPackSecurityPutRoleService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackSecurityPutRoleService) Header(name string, value string) *XPackSecurityPutRoleService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackSecurityPutRoleService) Headers(headers http.Header) *XPackSecurityPutRoleService {
+	s.headers = headers
 	return s
 }
 
@@ -95,10 +112,11 @@ func (s *XPackSecurityPutRoleService) Do(ctx context.Context) (*XPackSecurityPut
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
-		Body:   s.body,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Body:    s.body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err
