@@ -323,5 +323,5 @@ func (s *CountService) Do(ctx context.Context) (int64, error) {
 type CountResponse struct {
 	Count           int64       `json:"count"`
 	TerminatedEarly bool        `json:"terminated_early,omitempty"`
-	Shards          *ShardsInfo `json:"_shards,omitempty"
+	Shards          *ShardsInfo `json:"_shards,omitempty"`
 }
