@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -24,6 +25,7 @@ type NodesInfoService struct {
 	metric       []string
 	flatSettings *bool
 	human        *bool
+	headers      http.Header
 }
 
 // NewNodesInfoService creates a new NodesInfoService.
@@ -64,6 +66,21 @@ func (s *NodesInfoService) Human(human bool) *NodesInfoService {
 // Pretty indicates whether to indent the returned JSON.
 func (s *NodesInfoService) Pretty(pretty bool) *NodesInfoService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *NodesInfoService) Header(name string, value string) *NodesInfoService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *NodesInfoService) Headers(headers http.Header) *NodesInfoService {
+	s.headers = headers
 	return s
 }
 
@@ -126,9 +143,10 @@ func (s *NodesInfoService) Do(ctx context.Context) (*NodesInfoResponse, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

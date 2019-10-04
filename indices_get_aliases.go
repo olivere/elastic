@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -17,10 +18,11 @@ import (
 // indices associated with one or more aliases, or a combination of those filters.
 // See http://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-aliases.html.
 type AliasesService struct {
-	client *Client
-	index  []string
-	alias  []string
-	pretty bool
+	client  *Client
+	index   []string
+	alias   []string
+	pretty  bool
+	headers http.Header
 }
 
 // NewAliasesService instantiates a new AliasesService.
@@ -46,6 +48,21 @@ func (s *AliasesService) Index(index ...string) *AliasesService {
 // Alias adds one or more aliases.
 func (s *AliasesService) Alias(alias ...string) *AliasesService {
 	s.alias = append(s.alias, alias...)
+	return s
+}
+
+// Header adds a header to the request.
+func (s *AliasesService) Header(name string, value string) *AliasesService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *AliasesService) Headers(headers http.Header) *AliasesService {
+	s.headers = headers
 	return s
 }
 
@@ -85,9 +102,10 @@ func (s *AliasesService) Do(ctx context.Context) (*AliasesResult, error) {
 
 	// Get response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -21,6 +22,7 @@ type IngestDeletePipelineService struct {
 	id            string
 	masterTimeout string
 	timeout       string
+	headers       http.Header
 }
 
 // NewIngestDeletePipelineService creates a new IngestDeletePipelineService.
@@ -51,6 +53,21 @@ func (s *IngestDeletePipelineService) Timeout(timeout string) *IngestDeletePipel
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IngestDeletePipelineService) Pretty(pretty bool) *IngestDeletePipelineService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IngestDeletePipelineService) Header(name string, value string) *IngestDeletePipelineService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IngestDeletePipelineService) Headers(headers http.Header) *IngestDeletePipelineService {
+	s.headers = headers
 	return s
 }
 
@@ -105,9 +122,10 @@ func (s *IngestDeletePipelineService) Do(ctx context.Context) (*IngestDeletePipe
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "DELETE",
-		Path:   path,
-		Params: params,
+		Method:  "DELETE",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

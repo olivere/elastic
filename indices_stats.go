@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -27,6 +28,7 @@ type IndicesStatsService struct {
 	fields           []string
 	groups           []string
 	human            *bool
+	headers          http.Header
 }
 
 // NewIndicesStatsService creates a new IndicesStatsService.
@@ -108,6 +110,21 @@ func (s *IndicesStatsService) Pretty(pretty bool) *IndicesStatsService {
 	return s
 }
 
+// Header adds a header to the request.
+func (s *IndicesStatsService) Header(name string, value string) *IndicesStatsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesStatsService) Headers(headers http.Header) *IndicesStatsService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndicesStatsService) buildURL() (string, url.Values, error) {
 	var err error
@@ -181,9 +198,10 @@ func (s *IndicesStatsService) Do(ctx context.Context) (*IndicesStatsResponse, er
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

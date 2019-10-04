@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -26,6 +27,7 @@ type SearchShardsService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	headers           http.Header
 }
 
 // NewSearchShardsService creates a new SearchShardsService.
@@ -85,6 +87,21 @@ func (s *SearchShardsService) AllowNoIndices(allowNoIndices bool) *SearchShardsS
 // concrete indices that are open, closed or both.
 func (s *SearchShardsService) ExpandWildcards(expandWildcards string) *SearchShardsService {
 	s.expandWildcards = expandWildcards
+	return s
+}
+
+// Header adds a header to the request.
+func (s *SearchShardsService) Header(name string, value string) *SearchShardsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SearchShardsService) Headers(headers http.Header) *SearchShardsService {
+	s.headers = headers
 	return s
 }
 
@@ -151,9 +168,10 @@ func (s *SearchShardsService) Do(ctx context.Context) (*SearchShardsResponse, er
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

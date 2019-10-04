@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -28,6 +29,7 @@ type IndicesGetService struct {
 	expandWildcards   string
 	flatSettings      *bool
 	human             *bool
+	headers           http.Header
 }
 
 // NewIndicesGetService creates a new IndicesGetService.
@@ -78,15 +80,6 @@ func (s *IndicesGetService) ExpandWildcards(expandWildcards string) *IndicesGetS
 	return s
 }
 
-/* Disabled because serialization would fail in that case. */
-/*
-// FlatSettings make the service return settings in flat format (default: false).
-func (s *IndicesGetService) FlatSettings(flatSettings bool) *IndicesGetService {
-	s.flatSettings = &flatSettings
-	return s
-}
-*/
-
 // Human indicates whether to return version and creation date values
 // in human-readable format (default: false).
 func (s *IndicesGetService) Human(human bool) *IndicesGetService {
@@ -97,6 +90,21 @@ func (s *IndicesGetService) Human(human bool) *IndicesGetService {
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesGetService) Pretty(pretty bool) *IndicesGetService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesGetService) Header(name string, value string) *IndicesGetService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesGetService) Headers(headers http.Header) *IndicesGetService {
+	s.headers = headers
 	return s
 }
 
@@ -181,9 +189,10 @@ func (s *IndicesGetService) Do(ctx context.Context) (map[string]*IndicesGetRespo
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -27,6 +28,7 @@ type SnapshotCreateRepositoryService struct {
 	settings      map[string]interface{}
 	bodyJson      interface{}
 	bodyString    string
+	headers       http.Header
 }
 
 // NewSnapshotCreateRepositoryService creates a new SnapshotCreateRepositoryService.
@@ -96,6 +98,21 @@ func (s *SnapshotCreateRepositoryService) BodyJson(body interface{}) *SnapshotCr
 // BodyString is documented as: The repository definition.
 func (s *SnapshotCreateRepositoryService) BodyString(body string) *SnapshotCreateRepositoryService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds a header to the request.
+func (s *SnapshotCreateRepositoryService) Header(name string, value string) *SnapshotCreateRepositoryService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SnapshotCreateRepositoryService) Headers(headers http.Header) *SnapshotCreateRepositoryService {
+	s.headers = headers
 	return s
 }
 
@@ -180,10 +197,11 @@ func (s *SnapshotCreateRepositoryService) Do(ctx context.Context) (*SnapshotCrea
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

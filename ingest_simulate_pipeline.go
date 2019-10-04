@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -25,6 +26,7 @@ type IngestSimulatePipelineService struct {
 	verbose    *bool
 	bodyJson   interface{}
 	bodyString string
+	headers    http.Header
 }
 
 // NewIngestSimulatePipelineService creates a new IngestSimulatePipeline.
@@ -62,6 +64,21 @@ func (s *IngestSimulatePipelineService) BodyJson(body interface{}) *IngestSimula
 // BodyString is the simulate definition, defined as a string.
 func (s *IngestSimulatePipelineService) BodyString(body string) *IngestSimulatePipelineService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IngestSimulatePipelineService) Header(name string, value string) *IngestSimulatePipelineService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IngestSimulatePipelineService) Headers(headers http.Header) *IngestSimulatePipelineService {
+	s.headers = headers
 	return s
 }
 
@@ -128,10 +145,11 @@ func (s *IngestSimulatePipelineService) Do(ctx context.Context) (*IngestSimulate
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

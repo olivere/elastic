@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -30,6 +31,7 @@ type SnapshotRestoreService struct {
 	renameReplacement  string
 	indices            []string
 	indexSettings      map[string]interface{}
+	headers            http.Header
 }
 
 // NewSnapshotCreateService creates a new SnapshotRestoreService.
@@ -125,6 +127,21 @@ func (s *SnapshotRestoreService) IgnoreUnavailable(ignoreUnavailable bool) *Snap
 	return s
 }
 
+// Header adds a header to the request.
+func (s *SnapshotRestoreService) Header(name string, value string) *SnapshotRestoreService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SnapshotRestoreService) Headers(headers http.Header) *SnapshotRestoreService {
+	s.headers = headers
+	return s
+}
+
 // Do executes the operation.
 func (s *SnapshotRestoreService) Do(ctx context.Context) (*SnapshotRestoreResponse, error) {
 	if err := s.Validate(); err != nil {
@@ -143,10 +160,11 @@ func (s *SnapshotRestoreService) Do(ctx context.Context) (*SnapshotRestoreRespon
 	}
 
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

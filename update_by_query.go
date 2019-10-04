@@ -67,6 +67,7 @@ type UpdateByQueryService struct {
 	versionType            *bool
 	waitForActiveShards    string
 	waitForCompletion      *bool
+	headers                http.Header
 }
 
 // NewUpdateByQueryService creates a new UpdateByQueryService.
@@ -440,6 +441,21 @@ func (s *UpdateByQueryService) WaitForCompletion(waitForCompletion bool) *Update
 	return s
 }
 
+// Header adds a header to the request.
+func (s *UpdateByQueryService) Header(name string, value string) *UpdateByQueryService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *UpdateByQueryService) Headers(headers http.Header) *UpdateByQueryService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *UpdateByQueryService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -659,6 +675,7 @@ func (s *UpdateByQueryService) Do(ctx context.Context) (*BulkIndexByScrollRespon
 		Path:         path,
 		Params:       params,
 		Body:         body,
+		Headers:      s.headers,
 		IgnoreErrors: []int{http.StatusConflict},
 	})
 	if err != nil {
@@ -707,6 +724,7 @@ func (s *UpdateByQueryService) DoAsync(ctx context.Context) (*StartTaskResult, e
 		Path:         path,
 		Params:       params,
 		Body:         body,
+		Headers:      s.headers,
 		IgnoreErrors: []int{http.StatusConflict},
 	})
 	if err != nil {

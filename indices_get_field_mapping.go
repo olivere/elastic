@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -28,6 +29,7 @@ type IndicesGetFieldMappingService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	headers           http.Header
 }
 
 // NewGetFieldMappingService is an alias for NewIndicesGetFieldMappingService.
@@ -93,6 +95,21 @@ func (s *IndicesGetFieldMappingService) IgnoreUnavailable(ignoreUnavailable bool
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesGetFieldMappingService) Pretty(pretty bool) *IndicesGetFieldMappingService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesGetFieldMappingService) Header(name string, value string) *IndicesGetFieldMappingService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesGetFieldMappingService) Headers(headers http.Header) *IndicesGetFieldMappingService {
+	s.headers = headers
 	return s
 }
 
@@ -171,9 +188,10 @@ func (s *IndicesGetFieldMappingService) Do(ctx context.Context) (map[string]inte
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

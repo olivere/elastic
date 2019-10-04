@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -42,6 +43,8 @@ type BulkService struct {
 	// estimated bulk size in bytes, up to the request index sizeInBytesCursor
 	sizeInBytes       int64
 	sizeInBytesCursor int
+
+	headers http.Header
 }
 
 // NewBulkService initializes a new BulkService.
@@ -133,6 +136,21 @@ func (s *BulkService) Pretty(pretty bool) *BulkService {
 // and/or BulkDeleteRequest.
 func (s *BulkService) Add(requests ...BulkableRequest) *BulkService {
 	s.requests = append(s.requests, requests...)
+	return s
+}
+
+// Header adds a header to the request.
+func (s *BulkService) Header(name string, value string) *BulkService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *BulkService) Headers(headers http.Header) *BulkService {
+	s.headers = headers
 	return s
 }
 
@@ -252,6 +270,7 @@ func (s *BulkService) Do(ctx context.Context) (*BulkResponse, error) {
 		Body:        body,
 		ContentType: "application/x-ndjson",
 		Retrier:     s.retrier,
+		Headers:     s.headers,
 	})
 	if err != nil {
 		return nil, err

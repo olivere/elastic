@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -25,6 +26,7 @@ type SnapshotGetService struct {
 	masterTimeout     string
 	ignoreUnavailable *bool
 	verbose           *bool
+	headers           http.Header
 }
 
 // NewSnapshotGetService creates a new SnapshotGetService.
@@ -61,6 +63,21 @@ func (s *SnapshotGetService) IgnoreUnavailable(ignoreUnavailable bool) *Snapshot
 // Verbose specifies whether to show verbose snapshot info or only show the basic info found in the repository index blob
 func (s *SnapshotGetService) Verbose(verbose bool) *SnapshotGetService {
 	s.verbose = &verbose
+	return s
+}
+
+// Header adds a header to the request.
+func (s *SnapshotGetService) Header(name string, value string) *SnapshotGetService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SnapshotGetService) Headers(headers http.Header) *SnapshotGetService {
+	s.headers = headers
 	return s
 }
 
@@ -124,9 +141,10 @@ func (s *SnapshotGetService) Do(ctx context.Context) (*SnapshotGetResponse, erro
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

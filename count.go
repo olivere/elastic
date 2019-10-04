@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -38,6 +39,7 @@ type CountService struct {
 	terminateAfter         *int
 	bodyJson               interface{}
 	bodyString             string
+	headers                http.Header
 }
 
 // NewCountService creates a new CountService.
@@ -190,6 +192,21 @@ func (s *CountService) BodyString(body string) *CountService {
 	return s
 }
 
+// Header adds a header to the request.
+func (s *CountService) Header(name string, value string) *CountService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *CountService) Headers(headers http.Header) *CountService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *CountService) buildURL() (string, url.Values, error) {
 	var err error
@@ -301,10 +318,11 @@ func (s *CountService) Do(ctx context.Context) (int64, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return 0, err

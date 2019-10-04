@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -16,9 +17,10 @@ import (
 // XPackSecurityGetRoleMappingService retrieves a role mapping by its name.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/security-api-get-role-mapping.html.
 type XPackSecurityGetRoleMappingService struct {
-	client *Client
-	pretty bool
-	name   string
+	client  *Client
+	pretty  bool
+	name    string
+	headers http.Header
 }
 
 // NewXPackSecurityGetRoleMappingService creates a new XPackSecurityGetRoleMappingService.
@@ -37,6 +39,21 @@ func (s *XPackSecurityGetRoleMappingService) Name(name string) *XPackSecurityGet
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackSecurityGetRoleMappingService) Pretty(pretty bool) *XPackSecurityGetRoleMappingService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackSecurityGetRoleMappingService) Header(name string, value string) *XPackSecurityGetRoleMappingService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackSecurityGetRoleMappingService) Headers(headers http.Header) *XPackSecurityGetRoleMappingService {
+	s.headers = headers
 	return s
 }
 
@@ -85,9 +102,10 @@ func (s *XPackSecurityGetRoleMappingService) Do(ctx context.Context) (*XPackSecu
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

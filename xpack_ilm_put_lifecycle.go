@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -23,6 +24,7 @@ type XPackIlmPutLifecycleService struct {
 	flatSettings  *bool
 	bodyJson      interface{}
 	bodyString    string
+	headers       http.Header
 }
 
 // NewXPackIlmPutLifecycleService creates a new XPackIlmPutLifecycleService.
@@ -71,6 +73,21 @@ func (s *XPackIlmPutLifecycleService) BodyJson(body interface{}) *XPackIlmPutLif
 // BodyString is documented as: The template definition.
 func (s *XPackIlmPutLifecycleService) BodyString(body string) *XPackIlmPutLifecycleService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackIlmPutLifecycleService) Header(name string, value string) *XPackIlmPutLifecycleService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackIlmPutLifecycleService) Headers(headers http.Header) *XPackIlmPutLifecycleService {
+	s.headers = headers
 	return s
 }
 
@@ -139,10 +156,11 @@ func (s *XPackIlmPutLifecycleService) Do(ctx context.Context) (*XPackIlmPutLifec
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -30,6 +31,7 @@ type ClusterRerouteService struct {
 	timeout       string
 	commands      []AllocationCommand
 	body          interface{}
+	headers       http.Header
 }
 
 // NewClusterRerouteService creates a new ClusterRerouteService.
@@ -97,6 +99,21 @@ func (s *ClusterRerouteService) Add(commands ...AllocationCommand) *ClusterRerou
 // In other words: Body takes precedence over Add.
 func (s *ClusterRerouteService) Body(body interface{}) *ClusterRerouteService {
 	s.body = body
+	return s
+}
+
+// Header adds a header to the request.
+func (s *ClusterRerouteService) Header(name string, value string) *ClusterRerouteService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *ClusterRerouteService) Headers(headers http.Header) *ClusterRerouteService {
+	s.headers = headers
 	return s
 }
 
@@ -177,10 +194,11 @@ func (s *ClusterRerouteService) Do(ctx context.Context) (*ClusterRerouteResponse
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

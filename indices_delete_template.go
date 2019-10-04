@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -20,6 +21,7 @@ type IndicesDeleteTemplateService struct {
 	name          string
 	timeout       string
 	masterTimeout string
+	headers       http.Header
 }
 
 // NewIndicesDeleteTemplateService creates a new IndicesDeleteTemplateService.
@@ -50,6 +52,21 @@ func (s *IndicesDeleteTemplateService) MasterTimeout(masterTimeout string) *Indi
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesDeleteTemplateService) Pretty(pretty bool) *IndicesDeleteTemplateService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesDeleteTemplateService) Header(name string, value string) *IndicesDeleteTemplateService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesDeleteTemplateService) Headers(headers http.Header) *IndicesDeleteTemplateService {
+	s.headers = headers
 	return s
 }
 
@@ -104,9 +121,10 @@ func (s *IndicesDeleteTemplateService) Do(ctx context.Context) (*IndicesDeleteTe
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "DELETE",
-		Path:   path,
-		Params: params,
+		Method:  "DELETE",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -20,6 +21,7 @@ type XPackWatcherDeleteWatchService struct {
 	pretty        bool
 	id            string
 	masterTimeout string
+	headers       http.Header
 }
 
 // NewXPackWatcherDeleteWatchService creates a new XPackWatcherDeleteWatchService.
@@ -38,6 +40,21 @@ func (s *XPackWatcherDeleteWatchService) Id(id string) *XPackWatcherDeleteWatchS
 // MasterTimeout specifies an explicit operation timeout for connection to master node.
 func (s *XPackWatcherDeleteWatchService) MasterTimeout(masterTimeout string) *XPackWatcherDeleteWatchService {
 	s.masterTimeout = masterTimeout
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackWatcherDeleteWatchService) Header(name string, value string) *XPackWatcherDeleteWatchService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackWatcherDeleteWatchService) Headers(headers http.Header) *XPackWatcherDeleteWatchService {
+	s.headers = headers
 	return s
 }
 
@@ -95,9 +112,10 @@ func (s *XPackWatcherDeleteWatchService) Do(ctx context.Context) (*XPackWatcherD
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "DELETE",
-		Path:   path,
-		Params: params,
+		Method:  "DELETE",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

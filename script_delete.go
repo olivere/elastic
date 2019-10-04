@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -22,6 +23,7 @@ type DeleteScriptService struct {
 	id            string
 	timeout       string
 	masterTimeout string
+	headers       http.Header
 }
 
 // NewDeleteScriptService creates a new DeleteScriptService.
@@ -52,6 +54,21 @@ func (s *DeleteScriptService) MasterTimeout(masterTimeout string) *DeleteScriptS
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *DeleteScriptService) Pretty(pretty bool) *DeleteScriptService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *DeleteScriptService) Header(name string, value string) *DeleteScriptService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *DeleteScriptService) Headers(headers http.Header) *DeleteScriptService {
+	s.headers = headers
 	return s
 }
 
@@ -114,6 +131,7 @@ func (s *DeleteScriptService) Do(ctx context.Context) (*DeleteScriptResponse, er
 		Method: method,
 		Path:   path,
 		Params: params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

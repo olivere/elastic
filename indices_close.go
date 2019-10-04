@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -25,6 +26,7 @@ type IndicesCloseService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	headers           http.Header
 }
 
 // NewIndicesCloseService creates and initializes a new IndicesCloseService.
@@ -74,6 +76,21 @@ func (s *IndicesCloseService) ExpandWildcards(expandWildcards string) *IndicesCl
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesCloseService) Pretty(pretty bool) *IndicesCloseService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesCloseService) Header(name string, value string) *IndicesCloseService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesCloseService) Headers(headers http.Header) *IndicesCloseService {
+	s.headers = headers
 	return s
 }
 
@@ -135,9 +152,10 @@ func (s *IndicesCloseService) Do(ctx context.Context) (*IndicesCloseResponse, er
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

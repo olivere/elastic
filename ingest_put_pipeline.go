@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -25,6 +26,7 @@ type IngestPutPipelineService struct {
 	timeout       string
 	bodyJson      interface{}
 	bodyString    string
+	headers       http.Header
 }
 
 // NewIngestPutPipelineService creates a new IngestPutPipelineService.
@@ -68,6 +70,21 @@ func (s *IngestPutPipelineService) BodyJson(body interface{}) *IngestPutPipeline
 // BodyString is the ingest definition, specified as a string.
 func (s *IngestPutPipelineService) BodyString(body string) *IngestPutPipelineService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IngestPutPipelineService) Header(name string, value string) *IngestPutPipelineService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IngestPutPipelineService) Headers(headers http.Header) *IngestPutPipelineService {
+	s.headers = headers
 	return s
 }
 
@@ -133,10 +150,11 @@ func (s *IngestPutPipelineService) Do(ctx context.Context) (*IngestPutPipelineRe
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

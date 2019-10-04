@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"errors"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -24,6 +25,7 @@ type IndicesCreateService struct {
 	masterTimeout string
 	bodyJson      interface{}
 	bodyString    string
+	headers       http.Header
 }
 
 // NewIndicesCreateService returns a new IndicesCreateService.
@@ -75,6 +77,21 @@ func (b *IndicesCreateService) Pretty(pretty bool) *IndicesCreateService {
 	return b
 }
 
+// Header adds a header to the request.
+func (s *IndicesCreateService) Header(name string, value string) *IndicesCreateService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesCreateService) Headers(headers http.Header) *IndicesCreateService {
+	s.headers = headers
+	return s
+}
+
 // Do executes the operation.
 func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, error) {
 	if b.index == "" {
@@ -110,10 +127,11 @@ func (b *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 
 	// Get response
 	res, err := b.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: b.headers,
 	})
 	if err != nil {
 		return nil, err

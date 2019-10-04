@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -25,6 +26,7 @@ type PutScriptService struct {
 	masterTimeout string
 	bodyJson      interface{}
 	bodyString    string
+	headers       http.Header
 }
 
 // NewPutScriptService creates a new PutScriptService.
@@ -73,6 +75,21 @@ func (s *PutScriptService) BodyJson(body interface{}) *PutScriptService {
 // BodyString is the document encoded as a string.
 func (s *PutScriptService) BodyString(body string) *PutScriptService {
 	s.bodyString = body
+	return s
+}
+
+// Header adds a header to the request.
+func (s *PutScriptService) Header(name string, value string) *PutScriptService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *PutScriptService) Headers(headers http.Header) *PutScriptService {
+	s.headers = headers
 	return s
 }
 
@@ -150,10 +167,11 @@ func (s *PutScriptService) Do(ctx context.Context) (*PutScriptResponse, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: method,
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  method,
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

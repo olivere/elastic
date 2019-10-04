@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -43,6 +44,7 @@ type TermvectorsService struct {
 	versionType      string
 	bodyJson         interface{}
 	bodyString       string
+	headers          http.Header
 }
 
 // NewTermvectorsService creates a new TermvectorsService.
@@ -180,6 +182,21 @@ func (s *TermvectorsService) VersionType(versionType string) *TermvectorsService
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *TermvectorsService) Pretty(pretty bool) *TermvectorsService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *TermvectorsService) Header(name string, value string) *TermvectorsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *TermvectorsService) Headers(headers http.Header) *TermvectorsService {
+	s.headers = headers
 	return s
 }
 
@@ -325,10 +342,11 @@ func (s *TermvectorsService) Do(ctx context.Context) (*TermvectorsResponse, erro
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

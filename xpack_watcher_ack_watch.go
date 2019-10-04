@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -22,6 +23,7 @@ type XPackWatcherAckWatchService struct {
 	watchId       string
 	actionId      []string
 	masterTimeout string
+	headers       http.Header
 }
 
 // NewXPackWatcherAckWatchService creates a new XPackWatcherAckWatchService.
@@ -47,6 +49,21 @@ func (s *XPackWatcherAckWatchService) ActionId(actionId ...string) *XPackWatcher
 // connection to master node.
 func (s *XPackWatcherAckWatchService) MasterTimeout(masterTimeout string) *XPackWatcherAckWatchService {
 	s.masterTimeout = masterTimeout
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackWatcherAckWatchService) Header(name string, value string) *XPackWatcherAckWatchService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackWatcherAckWatchService) Headers(headers http.Header) *XPackWatcherAckWatchService {
+	s.headers = headers
 	return s
 }
 
@@ -115,9 +132,10 @@ func (s *XPackWatcherAckWatchService) Do(ctx context.Context) (*XPackWatcherAckW
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

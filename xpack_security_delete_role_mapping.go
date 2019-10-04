@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -16,9 +17,10 @@ import (
 // XPackSecurityDeleteRoleMappingService delete a role mapping by its name.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/security-api-delete-role-mapping.html.
 type XPackSecurityDeleteRoleMappingService struct {
-	client *Client
-	pretty bool
-	name   string
+	client  *Client
+	pretty  bool
+	name    string
+	headers http.Header
 }
 
 // NewXPackSecurityDeleteRoleMappingService creates a new XPackSecurityDeleteRoleMappingService.
@@ -37,6 +39,21 @@ func (s *XPackSecurityDeleteRoleMappingService) Name(name string) *XPackSecurity
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *XPackSecurityDeleteRoleMappingService) Pretty(pretty bool) *XPackSecurityDeleteRoleMappingService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackSecurityDeleteRoleMappingService) Header(name string, value string) *XPackSecurityDeleteRoleMappingService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackSecurityDeleteRoleMappingService) Headers(headers http.Header) *XPackSecurityDeleteRoleMappingService {
+	s.headers = headers
 	return s
 }
 
@@ -85,9 +102,10 @@ func (s *XPackSecurityDeleteRoleMappingService) Do(ctx context.Context) (*XPackS
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "DELETE",
-		Path:   path,
-		Params: params,
+		Method:  "DELETE",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

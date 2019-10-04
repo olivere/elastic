@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
@@ -46,6 +47,33 @@ func TestSearchMatchAll(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+}
+
+func TestSearchWithCustomHTTPHeaders(t *testing.T) {
+	//client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+
+	// Match all should return all documents
+	res, err := client.Search().
+		Index(testIndexName).
+		Query(NewMatchAllQuery()).
+		Size(100).
+		Pretty(true).
+		Headers(http.Header{
+			"X-ID":      []string{"A", "B"},
+			"Custom-ID": []string{"olivere"},
+		}).
+		Header("X-ID", "12345").
+		Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := res.TotalHits(), int64(3); got != want {
+		t.Errorf("expected SearchResult.TotalHits() = %d; got %d", want, got)
+	}
+	if got, want := res.Header.Get("Content-Type"), "application/json; charset=UTF-8"; got != want {
+		t.Errorf("expected SearchResult.Header(%q) = %q; got %q", "Content-Type", want, got)
 	}
 }
 

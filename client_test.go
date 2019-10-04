@@ -1434,6 +1434,7 @@ func TestPerformRequestWithCancel(t *testing.T) {
 		err error
 	}
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	resc := make(chan result, 1)
 	go func() {
@@ -1492,7 +1493,7 @@ func TestPerformRequestWithTimeout(t *testing.T) {
 	}
 }
 
-func TestPerformRequestWithCustomHeader(t *testing.T) {
+func TestPerformRequestWithCustomHTTPHeadersOnRequest(t *testing.T) {
 	client, err := NewClient()
 	if err != nil {
 		t.Fatal(err)
@@ -1515,6 +1516,84 @@ func TestPerformRequestWithCustomHeader(t *testing.T) {
 	}
 	if want, have := "123456", res.Header.Get("X-Opaque-Id"); want != have {
 		t.Fatalf("want response header X-Opaque-Id=%q, have %q", want, have)
+	}
+}
+
+func TestPerformRequestWithCustomHTTPHeadersOnClient(t *testing.T) {
+	client, err := NewClient(SetHeaders(http.Header{
+		"Custom-Id":   []string{"olivere"},
+		"X-Opaque-Id": []string{"sandra"},
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/_tasks",
+		Params: url.Values{
+			"pretty": []string{"true"},
+		},
+		Headers: http.Header{
+			"X-Opaque-Id": []string{"123456"},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+	// Request-level headers have preference
+	if want, have := "123456", res.Header.Get("X-Opaque-Id"); want != have {
+		t.Fatalf("want response header X-Opaque-Id=%q, have %q", want, have)
+	}
+}
+
+func TestPerformRequestWithCustomHTTPHeadersPriority(t *testing.T) {
+	var req *http.Request
+	h := func(r *http.Request) (*http.Response, error) {
+		req = new(http.Request)
+		*req = *r
+		return &http.Response{Request: r, StatusCode: http.StatusOK, Body: http.NoBody}, nil
+	}
+	tr := &failingTransport{path: "/", fail: h}
+	httpClient := &http.Client{Transport: tr}
+
+	client, err := NewClient(SetHttpClient(httpClient), SetHeaders(http.Header{
+		"Custom-Id":   []string{"olivere"},
+		"X-Opaque-Id": []string{"sandra"}, // <- will be overridden by request-level header
+	}), SetSniff(false), SetHealthcheck(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+		Params: url.Values{
+			"pretty": []string{"true"},
+		},
+		Headers: http.Header{
+			"X-Opaque-Id": []string{"123456"}, // <- request-level has preference
+			"X-Somewhat":  []string{"somewhat"},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+	if req == nil {
+		t.Fatal("expected to record HTTP request")
+	}
+	if want, have := "123456", req.Header.Get("X-Opaque-Id"); want != have {
+		t.Fatalf("want HTTP header X-Opaque-Id=%q, have %q", want, have)
+	}
+	if want, have := "olivere", req.Header.Get("Custom-Id"); want != have {
+		t.Fatalf("want HTTP header Custom-Id=%q, have %q", want, have)
+	}
+	if want, have := "somewhat", req.Header.Get("X-Somewhat"); want != have {
+		t.Fatalf("want HTTP header X-Somewhat=%q, have %q", want, have)
 	}
 }
 

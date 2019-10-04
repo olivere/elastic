@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -21,6 +22,7 @@ type IndicesGetTemplateService struct {
 	name         []string
 	flatSettings *bool
 	local        *bool
+	headers      http.Header
 }
 
 // NewIndicesGetTemplateService creates a new IndicesGetTemplateService.
@@ -53,6 +55,21 @@ func (s *IndicesGetTemplateService) Local(local bool) *IndicesGetTemplateService
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesGetTemplateService) Pretty(pretty bool) *IndicesGetTemplateService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesGetTemplateService) Header(name string, value string) *IndicesGetTemplateService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesGetTemplateService) Headers(headers http.Header) *IndicesGetTemplateService {
+	s.headers = headers
 	return s
 }
 
@@ -106,9 +123,10 @@ func (s *IndicesGetTemplateService) Do(ctx context.Context) (map[string]*Indices
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

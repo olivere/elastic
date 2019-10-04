@@ -33,6 +33,7 @@ type DeleteService struct {
 	refresh             string
 	ifSeqNo             *int64
 	ifPrimaryTerm       *int64
+	headers             http.Header
 }
 
 // NewDeleteService creates a new DeleteService.
@@ -132,6 +133,21 @@ func (s *DeleteService) Pretty(pretty bool) *DeleteService {
 	return s
 }
 
+// Header adds a header to the request.
+func (s *DeleteService) Header(name string, value string) *DeleteService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *DeleteService) Headers(headers http.Header) *DeleteService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *DeleteService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -218,6 +234,7 @@ func (s *DeleteService) Do(ctx context.Context) (*DeleteResponse, error) {
 		Path:         path,
 		Params:       params,
 		IgnoreErrors: []int{http.StatusNotFound},
+		Headers:      s.headers,
 	})
 	if err != nil {
 		return nil, err

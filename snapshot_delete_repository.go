@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -23,6 +24,7 @@ type SnapshotDeleteRepositoryService struct {
 	repository    []string
 	masterTimeout string
 	timeout       string
+	headers       http.Header
 }
 
 // NewSnapshotDeleteRepositoryService creates a new SnapshotDeleteRepositoryService.
@@ -54,6 +56,21 @@ func (s *SnapshotDeleteRepositoryService) Timeout(timeout string) *SnapshotDelet
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *SnapshotDeleteRepositoryService) Pretty(pretty bool) *SnapshotDeleteRepositoryService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *SnapshotDeleteRepositoryService) Header(name string, value string) *SnapshotDeleteRepositoryService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SnapshotDeleteRepositoryService) Headers(headers http.Header) *SnapshotDeleteRepositoryService {
+	s.headers = headers
 	return s
 }
 
@@ -108,9 +125,10 @@ func (s *SnapshotDeleteRepositoryService) Do(ctx context.Context) (*SnapshotDele
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "DELETE",
-		Path:   path,
-		Params: params,
+		Method:  "DELETE",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

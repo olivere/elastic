@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -25,6 +26,7 @@ type XPackWatcherPutWatchService struct {
 	ifSeqNo       *int64
 	ifPrimaryTerm *int64
 	body          interface{}
+	headers       http.Header
 }
 
 // NewXPackWatcherPutWatchService creates a new XPackWatcherPutWatchService.
@@ -75,6 +77,21 @@ func (s *XPackWatcherPutWatchService) Pretty(pretty bool) *XPackWatcherPutWatchS
 // Body specifies the watch. Use a string or a type that will get serialized as JSON.
 func (s *XPackWatcherPutWatchService) Body(body interface{}) *XPackWatcherPutWatchService {
 	s.body = body
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackWatcherPutWatchService) Header(name string, value string) *XPackWatcherPutWatchService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackWatcherPutWatchService) Headers(headers http.Header) *XPackWatcherPutWatchService {
+	s.headers = headers
 	return s
 }
 
@@ -138,10 +155,11 @@ func (s *XPackWatcherPutWatchService) Do(ctx context.Context) (*XPackWatcherPutW
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
-		Body:   s.body,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Body:    s.body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

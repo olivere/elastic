@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -25,6 +26,7 @@ type TasksCancelService struct {
 	actions      []string
 	nodeId       []string
 	parentTaskId string
+	headers      http.Header
 }
 
 // NewTasksCancelService creates a new TasksCancelService.
@@ -86,6 +88,21 @@ func (s *TasksCancelService) Pretty(pretty bool) *TasksCancelService {
 	return s
 }
 
+// Header adds a header to the request.
+func (s *TasksCancelService) Header(name string, value string) *TasksCancelService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *TasksCancelService) Headers(headers http.Header) *TasksCancelService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *TasksCancelService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -139,9 +156,10 @@ func (s *TasksCancelService) Do(ctx context.Context) (*TasksListResponse, error)
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -27,6 +28,7 @@ type IndicesFreezeService struct {
 	allowNoIndices      *bool
 	expandWildcards     string
 	waitForActiveShards string
+	headers             http.Header
 }
 
 // NewIndicesFreezeService creates a new IndicesFreezeService.
@@ -86,6 +88,21 @@ func (s *IndicesFreezeService) WaitForActiveShards(numShards string) *IndicesFre
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesFreezeService) Pretty(pretty bool) *IndicesFreezeService {
 	s.pretty = pretty
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesFreezeService) Header(name string, value string) *IndicesFreezeService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesFreezeService) Headers(headers http.Header) *IndicesFreezeService {
+	s.headers = headers
 	return s
 }
 
@@ -155,9 +172,10 @@ func (s *IndicesFreezeService) Do(ctx context.Context) (*IndicesFreezeResponse, 
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

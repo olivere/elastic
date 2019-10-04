@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -28,6 +29,7 @@ type ClusterStateService struct {
 	ignoreUnavailable *bool
 	local             *bool
 	masterTimeout     string
+	headers           http.Header
 }
 
 // NewClusterStateService creates a new ClusterStateService.
@@ -101,6 +103,21 @@ func (s *ClusterStateService) Pretty(pretty bool) *ClusterStateService {
 	return s
 }
 
+// Header adds a header to the request.
+func (s *ClusterStateService) Header(name string, value string) *ClusterStateService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *ClusterStateService) Headers(headers http.Header) *ClusterStateService {
+	s.headers = headers
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *ClusterStateService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -166,9 +183,10 @@ func (s *ClusterStateService) Do(ctx context.Context) (*ClusterStateResponse, er
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

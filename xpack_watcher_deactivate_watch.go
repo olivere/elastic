@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -20,6 +21,7 @@ type XPackWatcherDeactivateWatchService struct {
 	pretty        bool
 	watchId       string
 	masterTimeout string
+	headers       http.Header
 }
 
 // NewXPackWatcherDeactivateWatchService creates a new XPackWatcherDeactivateWatchService.
@@ -38,6 +40,21 @@ func (s *XPackWatcherDeactivateWatchService) WatchId(watchId string) *XPackWatch
 // MasterTimeout specifies an explicit operation timeout for connection to master node.
 func (s *XPackWatcherDeactivateWatchService) MasterTimeout(masterTimeout string) *XPackWatcherDeactivateWatchService {
 	s.masterTimeout = masterTimeout
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackWatcherDeactivateWatchService) Header(name string, value string) *XPackWatcherDeactivateWatchService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackWatcherDeactivateWatchService) Headers(headers http.Header) *XPackWatcherDeactivateWatchService {
+	s.headers = headers
 	return s
 }
 
@@ -95,9 +112,10 @@ func (s *XPackWatcherDeactivateWatchService) Do(ctx context.Context) (*XPackWatc
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err
