@@ -145,6 +145,12 @@ func (s *ScrollService) Size(size int) *ScrollService {
 	return s
 }
 
+// Highlight allows to highlight search results on one or more fields
+func (s *ScrollService) Highlight(highlight *Highlight) *ScrollService {
+	s.ss = s.ss.Highlight(highlight)
+	return s
+}
+
 // Body sets the raw body to send to Elasticsearch. This can be e.g. a string,
 // a map[string]interface{} or anything that can be serialized into JSON.
 // Notice that setting the body disables the use of SearchSource and many
