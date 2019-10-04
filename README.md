@@ -358,6 +358,7 @@ Here are a few tips on how to get used to Elastic:
 - Specialized queries
   - [x] More Like This Query
   - [x] Script Query
+  - [x] Script Score Query
   - [x] Percolate Query
 - Span queries
   - [ ] Span Term Query
