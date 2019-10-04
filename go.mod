@@ -8,6 +8,7 @@ require (
 	github.com/golang/mock v1.2.0 // indirect
 	github.com/google/go-cmp v0.3.0
 	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e
+	github.com/olivere/elastic v6.2.23+incompatible
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/pkg/errors v0.8.1
 	github.com/smartystreets/go-aws-auth v0.0.0-20180515143844-0c1422d1fdb9

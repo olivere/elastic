@@ -18,11 +18,16 @@ import (
 
 // Search for documents in Elasticsearch.
 type SearchService struct {
-	client            *Client
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	searchSource      *SearchSource
 	source            interface{}
-	pretty            bool
-	filterPath        []string
 	searchType        string
 	index             []string
 	typ               []string
@@ -34,7 +39,6 @@ type SearchService struct {
 	expandWildcards   string
 	maxResponseSize   int64
 	seqNoPrimaryTerm  *bool
-	headers           http.Header
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -44,6 +48,46 @@ func NewSearchService(client *Client) *SearchService {
 		searchSource: NewSearchSource(),
 	}
 	return builder
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *SearchService) Pretty(pretty bool) *SearchService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *SearchService) Human(human bool) *SearchService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *SearchService) ErrorTrace(errorTrace bool) *SearchService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *SearchService) FilterPath(filterPath ...string) *SearchService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *SearchService) Header(name string, value string) *SearchService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SearchService) Headers(headers http.Header) *SearchService {
+	s.headers = headers
+	return s
 }
 
 // SearchSource sets the search source builder to use with this service.
@@ -62,14 +106,6 @@ func (s *SearchService) Source(source interface{}) *SearchService {
 	return s
 }
 
-// FilterPath allows reducing the response, a mechanism known as
-// response filtering and described here:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/common-options.html#common-options-response-filtering.
-func (s *SearchService) FilterPath(filterPath ...string) *SearchService {
-	s.filterPath = append(s.filterPath, filterPath...)
-	return s
-}
-
 // Index sets the names of the indices to use for search.
 func (s *SearchService) Index(index ...string) *SearchService {
 	s.index = append(s.index, index...)
@@ -82,12 +118,6 @@ func (s *SearchService) Index(index ...string) *SearchService {
 // filter on a field on the document.
 func (s *SearchService) Type(typ ...string) *SearchService {
 	s.typ = append(s.typ, typ...)
-	return s
-}
-
-// Pretty enables the caller to indent the JSON output.
-func (s *SearchService) Pretty(pretty bool) *SearchService {
-	s.pretty = pretty
 	return s
 }
 
@@ -370,21 +400,6 @@ func (s *SearchService) SeqNoPrimaryTerm(v bool) *SearchService {
 	return s
 }
 
-// Header adds a header to the request.
-func (s *SearchService) Header(name string, value string) *SearchService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *SearchService) Headers(headers http.Header) *SearchService {
-	s.headers = headers
-	return s
-}
-
 // buildURL builds the URL for the operation.
 func (s *SearchService) buildURL() (string, url.Values, error) {
 	var err error
@@ -412,8 +427,17 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.searchType != "" {
 		params.Set("search_type", s.searchType)
@@ -435,9 +459,6 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	}
 	if s.ignoreUnavailable != nil {
 		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
-	}
-	if len(s.filterPath) > 0 {
-		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.seqNoPrimaryTerm != nil {
 		params.Set("seq_no_primary_term", fmt.Sprint(*s.seqNoPrimaryTerm))

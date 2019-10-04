@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/v7/uritemplates"
 )
@@ -17,11 +18,16 @@ import (
 // XPackSecurityPutRoleMappingService create or update a role mapping by its name.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/security-api-put-role-mapping.html.
 type XPackSecurityPutRoleMappingService struct {
-	client  *Client
-	pretty  bool
-	name    string
-	body    interface{}
-	headers http.Header
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
+	name string
+	body interface{}
 }
 
 // NewXPackSecurityPutRoleMappingService creates a new XPackSecurityPutRoleMappingService.
@@ -31,15 +37,28 @@ func NewXPackSecurityPutRoleMappingService(client *Client) *XPackSecurityPutRole
 	}
 }
 
-// Name is name of the role mapping to create/update.
-func (s *XPackSecurityPutRoleMappingService) Name(name string) *XPackSecurityPutRoleMappingService {
-	s.name = name
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *XPackSecurityPutRoleMappingService) Pretty(pretty bool) *XPackSecurityPutRoleMappingService {
+	s.pretty = &pretty
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *XPackSecurityPutRoleMappingService) Pretty(pretty bool) *XPackSecurityPutRoleMappingService {
-	s.pretty = pretty
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *XPackSecurityPutRoleMappingService) Human(human bool) *XPackSecurityPutRoleMappingService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *XPackSecurityPutRoleMappingService) ErrorTrace(errorTrace bool) *XPackSecurityPutRoleMappingService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *XPackSecurityPutRoleMappingService) FilterPath(filterPath ...string) *XPackSecurityPutRoleMappingService {
+	s.filterPath = filterPath
 	return s
 }
 
@@ -55,6 +74,12 @@ func (s *XPackSecurityPutRoleMappingService) Header(name string, value string) *
 // Headers specifies the headers of the request.
 func (s *XPackSecurityPutRoleMappingService) Headers(headers http.Header) *XPackSecurityPutRoleMappingService {
 	s.headers = headers
+	return s
+}
+
+// Name is name of the role mapping to create/update.
+func (s *XPackSecurityPutRoleMappingService) Name(name string) *XPackSecurityPutRoleMappingService {
+	s.name = name
 	return s
 }
 
@@ -76,8 +101,17 @@ func (s *XPackSecurityPutRoleMappingService) buildURL() (string, url.Values, err
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	return path, params, nil
 }

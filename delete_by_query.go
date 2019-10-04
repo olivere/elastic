@@ -17,7 +17,14 @@ import (
 // DeleteByQueryService deletes documents that match a query.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-delete-by-query.html.
 type DeleteByQueryService struct {
-	client                 *Client
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	index                  []string
 	typ                    []string
 	query                  Query
@@ -63,8 +70,6 @@ type DeleteByQueryService struct {
 	version                *bool
 	waitForActiveShards    string
 	waitForCompletion      *bool
-	pretty                 bool
-	headers                http.Header
 }
 
 // NewDeleteByQueryService creates a new DeleteByQueryService.
@@ -75,6 +80,46 @@ func NewDeleteByQueryService(client *Client) *DeleteByQueryService {
 		client: client,
 	}
 	return builder
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *DeleteByQueryService) Pretty(pretty bool) *DeleteByQueryService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *DeleteByQueryService) Human(human bool) *DeleteByQueryService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *DeleteByQueryService) ErrorTrace(errorTrace bool) *DeleteByQueryService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *DeleteByQueryService) FilterPath(filterPath ...string) *DeleteByQueryService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *DeleteByQueryService) Header(name string, value string) *DeleteByQueryService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *DeleteByQueryService) Headers(headers http.Header) *DeleteByQueryService {
+	s.headers = headers
+	return s
 }
 
 // Index sets the indices on which to perform the delete operation.
@@ -418,30 +463,9 @@ func (s *DeleteByQueryService) WaitForCompletion(waitForCompletion bool) *Delete
 	return s
 }
 
-// Pretty indents the JSON output from Elasticsearch.
-func (s *DeleteByQueryService) Pretty(pretty bool) *DeleteByQueryService {
-	s.pretty = pretty
-	return s
-}
-
 // Body specifies the body of the request. It overrides data being specified via SearchService.
 func (s *DeleteByQueryService) Body(body string) *DeleteByQueryService {
 	s.body = body
-	return s
-}
-
-// Header adds a header to the request.
-func (s *DeleteByQueryService) Header(name string, value string) *DeleteByQueryService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *DeleteByQueryService) Headers(headers http.Header) *DeleteByQueryService {
-	s.headers = headers
 	return s
 }
 
@@ -466,6 +490,18 @@ func (s *DeleteByQueryService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
 	if len(s.xSource) > 0 {
 		params.Set("_source", strings.Join(s.xSource, ","))
 	}
@@ -588,9 +624,6 @@ func (s *DeleteByQueryService) buildURL() (string, url.Values, error) {
 	}
 	if s.requestsPerSecond != nil {
 		params.Set("requests_per_second", fmt.Sprintf("%v", *s.requestsPerSecond))
-	}
-	if s.pretty {
-		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
 	}
 	return path, params, nil
 }

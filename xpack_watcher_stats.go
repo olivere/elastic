@@ -10,16 +10,22 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // XPackWatcherStatsService returns the current watcher metrics.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/watcher-api-stats.html.
 type XPackWatcherStatsService struct {
-	client          *Client
-	pretty          bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	metric          string
 	emitStacktraces *bool
-	headers         http.Header
 }
 
 // NewXPackWatcherStatsService creates a new XPackWatcherStatsService.
@@ -29,21 +35,28 @@ func NewXPackWatcherStatsService(client *Client) *XPackWatcherStatsService {
 	}
 }
 
-// Metric controls what additional stat metrics should be include in the response.
-func (s *XPackWatcherStatsService) Metric(metric string) *XPackWatcherStatsService {
-	s.metric = metric
-	return s
-}
-
-// EmitStacktraces, if enabled, emits stack traces of currently running watches.
-func (s *XPackWatcherStatsService) EmitStacktraces(emitStacktraces bool) *XPackWatcherStatsService {
-	s.emitStacktraces = &emitStacktraces
-	return s
-}
-
-// Pretty indicates that the JSON response be indented and human readable.
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
 func (s *XPackWatcherStatsService) Pretty(pretty bool) *XPackWatcherStatsService {
-	s.pretty = pretty
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *XPackWatcherStatsService) Human(human bool) *XPackWatcherStatsService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *XPackWatcherStatsService) ErrorTrace(errorTrace bool) *XPackWatcherStatsService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *XPackWatcherStatsService) FilterPath(filterPath ...string) *XPackWatcherStatsService {
+	s.filterPath = filterPath
 	return s
 }
 
@@ -62,6 +75,18 @@ func (s *XPackWatcherStatsService) Headers(headers http.Header) *XPackWatcherSta
 	return s
 }
 
+// Metric controls what additional stat metrics should be include in the response.
+func (s *XPackWatcherStatsService) Metric(metric string) *XPackWatcherStatsService {
+	s.metric = metric
+	return s
+}
+
+// EmitStacktraces, if enabled, emits stack traces of currently running watches.
+func (s *XPackWatcherStatsService) EmitStacktraces(emitStacktraces bool) *XPackWatcherStatsService {
+	s.emitStacktraces = &emitStacktraces
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *XPackWatcherStatsService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -69,11 +94,20 @@ func (s *XPackWatcherStatsService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
 	}
-	if s.emitStacktraces != nil {
-		params.Set("emit_stacktraces", fmt.Sprintf("%v", *s.emitStacktraces))
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
+	if v := s.emitStacktraces; v != nil {
+		params.Set("emit_stacktraces", fmt.Sprint(*v))
 	}
 	if s.metric != "" {
 		params.Set("metric", s.metric)

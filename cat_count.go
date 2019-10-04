@@ -20,14 +20,19 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cat-count.html
 // for details.
 type CatCountService struct {
-	client        *Client
-	pretty        bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	index         []string
 	local         *bool
 	masterTimeout string
 	columns       []string
 	sort          []string // list of columns for sort order
-	headers       http.Header
 }
 
 // NewCatCountService creates a new CatCountService.
@@ -35,6 +40,46 @@ func NewCatCountService(client *Client) *CatCountService {
 	return &CatCountService{
 		client: client,
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *CatCountService) Pretty(pretty bool) *CatCountService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *CatCountService) Human(human bool) *CatCountService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *CatCountService) ErrorTrace(errorTrace bool) *CatCountService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *CatCountService) FilterPath(filterPath ...string) *CatCountService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *CatCountService) Header(name string, value string) *CatCountService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *CatCountService) Headers(headers http.Header) *CatCountService {
+	s.headers = headers
+	return s
 }
 
 // Index specifies zero or more indices for which to return counts
@@ -77,27 +122,6 @@ func (s *CatCountService) Sort(fields ...string) *CatCountService {
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *CatCountService) Pretty(pretty bool) *CatCountService {
-	s.pretty = pretty
-	return s
-}
-
-// Header adds a header to the request.
-func (s *CatCountService) Header(name string, value string) *CatCountService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *CatCountService) Headers(headers http.Header) *CatCountService {
-	s.headers = headers
-	return s
-}
-
 // buildURL builds the URL for the operation.
 func (s *CatCountService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -121,8 +145,17 @@ func (s *CatCountService) buildURL() (string, url.Values, error) {
 	params := url.Values{
 		"format": []string{"json"}, // always returns as JSON
 	}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if v := s.local; v != nil {
 		params.Set("local", fmt.Sprint(*v))

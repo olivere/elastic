@@ -34,7 +34,7 @@ func TestFieldCapsURLs(t *testing.T) {
 		{
 			Service: &FieldCapsService{
 				index:  []string{"index_*"},
-				pretty: true,
+				pretty: boolPtr(true),
 			},
 			ExpectedPath:   "/index_%2A/_field_caps",
 			ExpectedParams: url.Values{"pretty": []string{"true"}},

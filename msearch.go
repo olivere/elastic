@@ -15,13 +15,18 @@ import (
 
 // MultiSearch executes one or more searches in one roundtrip.
 type MultiSearchService struct {
-	client                *Client
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	requests              []*SearchRequest
 	indices               []string
-	pretty                bool
 	maxConcurrentRequests *int
 	preFilterShardSize    *int
-	headers               http.Header
 }
 
 func NewMultiSearchService(client *Client) *MultiSearchService {
@@ -31,28 +36,28 @@ func NewMultiSearchService(client *Client) *MultiSearchService {
 	return builder
 }
 
-func (s *MultiSearchService) Add(requests ...*SearchRequest) *MultiSearchService {
-	s.requests = append(s.requests, requests...)
-	return s
-}
-
-func (s *MultiSearchService) Index(indices ...string) *MultiSearchService {
-	s.indices = append(s.indices, indices...)
-	return s
-}
-
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
 func (s *MultiSearchService) Pretty(pretty bool) *MultiSearchService {
-	s.pretty = pretty
+	s.pretty = &pretty
 	return s
 }
 
-func (s *MultiSearchService) MaxConcurrentSearches(max int) *MultiSearchService {
-	s.maxConcurrentRequests = &max
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *MultiSearchService) Human(human bool) *MultiSearchService {
+	s.human = &human
 	return s
 }
 
-func (s *MultiSearchService) PreFilterShardSize(size int) *MultiSearchService {
-	s.preFilterShardSize = &size
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *MultiSearchService) ErrorTrace(errorTrace bool) *MultiSearchService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *MultiSearchService) FilterPath(filterPath ...string) *MultiSearchService {
+	s.filterPath = filterPath
 	return s
 }
 
@@ -71,14 +76,43 @@ func (s *MultiSearchService) Headers(headers http.Header) *MultiSearchService {
 	return s
 }
 
+func (s *MultiSearchService) Add(requests ...*SearchRequest) *MultiSearchService {
+	s.requests = append(s.requests, requests...)
+	return s
+}
+
+func (s *MultiSearchService) Index(indices ...string) *MultiSearchService {
+	s.indices = append(s.indices, indices...)
+	return s
+}
+
+func (s *MultiSearchService) MaxConcurrentSearches(max int) *MultiSearchService {
+	s.maxConcurrentRequests = &max
+	return s
+}
+
+func (s *MultiSearchService) PreFilterShardSize(size int) *MultiSearchService {
+	s.preFilterShardSize = &size
+	return s
+}
+
 func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error) {
 	// Build url
 	path := "/_msearch"
 
 	// Parameters
-	params := make(url.Values)
-	if s.pretty {
-		params.Set("pretty", fmt.Sprintf("%v", s.pretty))
+	params := url.Values{}
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if v := s.maxConcurrentRequests; v != nil {
 		params.Set("max_concurrent_searches", fmt.Sprintf("%v", *v))

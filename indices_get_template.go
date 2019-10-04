@@ -17,12 +17,17 @@ import (
 // IndicesGetTemplateService returns an index template.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-templates.html.
 type IndicesGetTemplateService struct {
-	client       *Client
-	pretty       bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	name         []string
 	flatSettings *bool
 	local        *bool
-	headers      http.Header
 }
 
 // NewIndicesGetTemplateService creates a new IndicesGetTemplateService.
@@ -31,6 +36,46 @@ func NewIndicesGetTemplateService(client *Client) *IndicesGetTemplateService {
 		client: client,
 		name:   make([]string, 0),
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *IndicesGetTemplateService) Pretty(pretty bool) *IndicesGetTemplateService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *IndicesGetTemplateService) Human(human bool) *IndicesGetTemplateService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *IndicesGetTemplateService) ErrorTrace(errorTrace bool) *IndicesGetTemplateService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *IndicesGetTemplateService) FilterPath(filterPath ...string) *IndicesGetTemplateService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesGetTemplateService) Header(name string, value string) *IndicesGetTemplateService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesGetTemplateService) Headers(headers http.Header) *IndicesGetTemplateService {
+	s.headers = headers
+	return s
 }
 
 // Name is the name of the index template.
@@ -52,27 +97,6 @@ func (s *IndicesGetTemplateService) Local(local bool) *IndicesGetTemplateService
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *IndicesGetTemplateService) Pretty(pretty bool) *IndicesGetTemplateService {
-	s.pretty = pretty
-	return s
-}
-
-// Header adds a header to the request.
-func (s *IndicesGetTemplateService) Header(name string, value string) *IndicesGetTemplateService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *IndicesGetTemplateService) Headers(headers http.Header) *IndicesGetTemplateService {
-	s.headers = headers
-	return s
-}
-
 // buildURL builds the URL for the operation.
 func (s *IndicesGetTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -91,8 +115,17 @@ func (s *IndicesGetTemplateService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.flatSettings != nil {
 		params.Set("flat_settings", fmt.Sprintf("%v", *s.flatSettings))

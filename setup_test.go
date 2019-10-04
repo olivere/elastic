@@ -283,6 +283,8 @@ type logger interface {
 	Logf(format string, args ...interface{})
 }
 
+func boolPtr(b bool) *bool { return &b }
+
 // strictDecoder returns an error if any JSON fields aren't decoded.
 type strictDecoder struct{}
 

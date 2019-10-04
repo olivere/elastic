@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/v7/uritemplates"
 )
@@ -16,14 +17,19 @@ import (
 // See the documentation at
 // https://www.elastic.co/guide/en/elasticsearch/reference/6.7/ilm-get-lifecycle.html.
 type XPackIlmDeleteLifecycleService struct {
-	client        *Client
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	policy        string
-	pretty        bool
 	timeout       string
 	masterTimeout string
 	flatSettings  *bool
 	local         *bool
-	headers       http.Header
 }
 
 // NewXPackIlmDeleteLifecycleService creates a new XPackIlmDeleteLifecycleService.
@@ -31,6 +37,46 @@ func NewXPackIlmDeleteLifecycleService(client *Client) *XPackIlmDeleteLifecycleS
 	return &XPackIlmDeleteLifecycleService{
 		client: client,
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *XPackIlmDeleteLifecycleService) Pretty(pretty bool) *XPackIlmDeleteLifecycleService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *XPackIlmDeleteLifecycleService) Human(human bool) *XPackIlmDeleteLifecycleService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *XPackIlmDeleteLifecycleService) ErrorTrace(errorTrace bool) *XPackIlmDeleteLifecycleService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *XPackIlmDeleteLifecycleService) FilterPath(filterPath ...string) *XPackIlmDeleteLifecycleService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *XPackIlmDeleteLifecycleService) Header(name string, value string) *XPackIlmDeleteLifecycleService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *XPackIlmDeleteLifecycleService) Headers(headers http.Header) *XPackIlmDeleteLifecycleService {
+	s.headers = headers
+	return s
 }
 
 // Policy is the name of the index lifecycle policy.
@@ -57,27 +103,6 @@ func (s *XPackIlmDeleteLifecycleService) FlatSettings(flatSettings bool) *XPackI
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *XPackIlmDeleteLifecycleService) Pretty(pretty bool) *XPackIlmDeleteLifecycleService {
-	s.pretty = pretty
-	return s
-}
-
-// Header adds a header to the request.
-func (s *XPackIlmDeleteLifecycleService) Header(name string, value string) *XPackIlmDeleteLifecycleService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *XPackIlmDeleteLifecycleService) Headers(headers http.Header) *XPackIlmDeleteLifecycleService {
-	s.headers = headers
-	return s
-}
-
 // buildURL builds the URL for the operation.
 func (s *XPackIlmDeleteLifecycleService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -92,11 +117,20 @@ func (s *XPackIlmDeleteLifecycleService) buildURL() (string, url.Values, error) 
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
 	}
-	if s.flatSettings != nil {
-		params.Set("flat_settings", fmt.Sprintf("%v", *s.flatSettings))
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
+	if v := s.flatSettings; v != nil {
+		params.Set("flat_settings", fmt.Sprint(*v))
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)
@@ -104,8 +138,8 @@ func (s *XPackIlmDeleteLifecycleService) buildURL() (string, url.Values, error) 
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
 	}
-	if s.local != nil {
-		params.Set("local", fmt.Sprintf("%v", *s.local))
+	if v := s.local; v != nil {
+		params.Set("local", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

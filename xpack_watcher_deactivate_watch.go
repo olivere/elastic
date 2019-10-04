@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/v7/uritemplates"
 )
@@ -17,11 +18,16 @@ import (
 // XPackWatcherDeactivateWatchService enables you to deactivate a currently active watch.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/watcher-api-deactivate-watch.html.
 type XPackWatcherDeactivateWatchService struct {
-	client        *Client
-	pretty        bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	watchId       string
 	masterTimeout string
-	headers       http.Header
 }
 
 // NewXPackWatcherDeactivateWatchService creates a new XPackWatcherDeactivateWatchService.
@@ -31,15 +37,28 @@ func NewXPackWatcherDeactivateWatchService(client *Client) *XPackWatcherDeactiva
 	}
 }
 
-// WatchId is the ID of the watch to deactivate.
-func (s *XPackWatcherDeactivateWatchService) WatchId(watchId string) *XPackWatcherDeactivateWatchService {
-	s.watchId = watchId
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *XPackWatcherDeactivateWatchService) Pretty(pretty bool) *XPackWatcherDeactivateWatchService {
+	s.pretty = &pretty
 	return s
 }
 
-// MasterTimeout specifies an explicit operation timeout for connection to master node.
-func (s *XPackWatcherDeactivateWatchService) MasterTimeout(masterTimeout string) *XPackWatcherDeactivateWatchService {
-	s.masterTimeout = masterTimeout
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *XPackWatcherDeactivateWatchService) Human(human bool) *XPackWatcherDeactivateWatchService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *XPackWatcherDeactivateWatchService) ErrorTrace(errorTrace bool) *XPackWatcherDeactivateWatchService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *XPackWatcherDeactivateWatchService) FilterPath(filterPath ...string) *XPackWatcherDeactivateWatchService {
+	s.filterPath = filterPath
 	return s
 }
 
@@ -58,9 +77,15 @@ func (s *XPackWatcherDeactivateWatchService) Headers(headers http.Header) *XPack
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *XPackWatcherDeactivateWatchService) Pretty(pretty bool) *XPackWatcherDeactivateWatchService {
-	s.pretty = pretty
+// WatchId is the ID of the watch to deactivate.
+func (s *XPackWatcherDeactivateWatchService) WatchId(watchId string) *XPackWatcherDeactivateWatchService {
+	s.watchId = watchId
+	return s
+}
+
+// MasterTimeout specifies an explicit operation timeout for connection to master node.
+func (s *XPackWatcherDeactivateWatchService) MasterTimeout(masterTimeout string) *XPackWatcherDeactivateWatchService {
+	s.masterTimeout = masterTimeout
 	return s
 }
 
@@ -76,8 +101,17 @@ func (s *XPackWatcherDeactivateWatchService) buildURL() (string, url.Values, err
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)

@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/v7/uritemplates"
 )
@@ -18,8 +19,14 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-snapshots.html
 // for details.
 type SnapshotCreateRepositoryService struct {
-	client        *Client
-	pretty        bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	repository    string
 	masterTimeout string
 	timeout       string
@@ -28,7 +35,6 @@ type SnapshotCreateRepositoryService struct {
 	settings      map[string]interface{}
 	bodyJson      interface{}
 	bodyString    string
-	headers       http.Header
 }
 
 // NewSnapshotCreateRepositoryService creates a new SnapshotCreateRepositoryService.
@@ -36,6 +42,46 @@ func NewSnapshotCreateRepositoryService(client *Client) *SnapshotCreateRepositor
 	return &SnapshotCreateRepositoryService{
 		client: client,
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *SnapshotCreateRepositoryService) Pretty(pretty bool) *SnapshotCreateRepositoryService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *SnapshotCreateRepositoryService) Human(human bool) *SnapshotCreateRepositoryService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *SnapshotCreateRepositoryService) ErrorTrace(errorTrace bool) *SnapshotCreateRepositoryService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *SnapshotCreateRepositoryService) FilterPath(filterPath ...string) *SnapshotCreateRepositoryService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *SnapshotCreateRepositoryService) Header(name string, value string) *SnapshotCreateRepositoryService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *SnapshotCreateRepositoryService) Headers(headers http.Header) *SnapshotCreateRepositoryService {
+	s.headers = headers
+	return s
 }
 
 // Repository is the repository name.
@@ -59,12 +105,6 @@ func (s *SnapshotCreateRepositoryService) Timeout(timeout string) *SnapshotCreat
 // Verify indicates whether to verify the repository after creation.
 func (s *SnapshotCreateRepositoryService) Verify(verify bool) *SnapshotCreateRepositoryService {
 	s.verify = &verify
-	return s
-}
-
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *SnapshotCreateRepositoryService) Pretty(pretty bool) *SnapshotCreateRepositoryService {
-	s.pretty = pretty
 	return s
 }
 
@@ -101,21 +141,6 @@ func (s *SnapshotCreateRepositoryService) BodyString(body string) *SnapshotCreat
 	return s
 }
 
-// Header adds a header to the request.
-func (s *SnapshotCreateRepositoryService) Header(name string, value string) *SnapshotCreateRepositoryService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *SnapshotCreateRepositoryService) Headers(headers http.Header) *SnapshotCreateRepositoryService {
-	s.headers = headers
-	return s
-}
-
 // buildURL builds the URL for the operation.
 func (s *SnapshotCreateRepositoryService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -128,8 +153,17 @@ func (s *SnapshotCreateRepositoryService) buildURL() (string, url.Values, error)
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
@@ -137,8 +171,8 @@ func (s *SnapshotCreateRepositoryService) buildURL() (string, url.Values, error)
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)
 	}
-	if s.verify != nil {
-		params.Set("verify", fmt.Sprintf("%v", *s.verify))
+	if v := s.verify; v != nil {
+		params.Set("verify", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

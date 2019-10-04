@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/v7/uritemplates"
 )
@@ -18,15 +19,20 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-scripting.html
 // for details.
 type PutScriptService struct {
-	client        *Client
-	pretty        bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	id            string
 	context       string
 	timeout       string
 	masterTimeout string
 	bodyJson      interface{}
 	bodyString    string
-	headers       http.Header
 }
 
 // NewPutScriptService creates a new PutScriptService.
@@ -34,6 +40,46 @@ func NewPutScriptService(client *Client) *PutScriptService {
 	return &PutScriptService{
 		client: client,
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *PutScriptService) Pretty(pretty bool) *PutScriptService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *PutScriptService) Human(human bool) *PutScriptService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *PutScriptService) ErrorTrace(errorTrace bool) *PutScriptService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *PutScriptService) FilterPath(filterPath ...string) *PutScriptService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *PutScriptService) Header(name string, value string) *PutScriptService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *PutScriptService) Headers(headers http.Header) *PutScriptService {
+	s.headers = headers
+	return s
 }
 
 // Id is the script ID.
@@ -60,12 +106,6 @@ func (s *PutScriptService) MasterTimeout(masterTimeout string) *PutScriptService
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *PutScriptService) Pretty(pretty bool) *PutScriptService {
-	s.pretty = pretty
-	return s
-}
-
 // BodyJson is the document as a serializable JSON interface.
 func (s *PutScriptService) BodyJson(body interface{}) *PutScriptService {
 	s.bodyJson = body
@@ -75,21 +115,6 @@ func (s *PutScriptService) BodyJson(body interface{}) *PutScriptService {
 // BodyString is the document encoded as a string.
 func (s *PutScriptService) BodyString(body string) *PutScriptService {
 	s.bodyString = body
-	return s
-}
-
-// Header adds a header to the request.
-func (s *PutScriptService) Header(name string, value string) *PutScriptService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *PutScriptService) Headers(headers http.Header) *PutScriptService {
-	s.headers = headers
 	return s
 }
 
@@ -117,8 +142,17 @@ func (s *PutScriptService) buildURL() (string, string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)

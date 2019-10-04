@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/v7/uritemplates"
 )
@@ -17,13 +18,18 @@ import (
 // XPackWatcherExecuteWatchService forces the execution of a stored watch.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/watcher-api-execute-watch.html.
 type XPackWatcherExecuteWatchService struct {
-	client     *Client
-	pretty     bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	id         string
 	debug      *bool
 	bodyJson   interface{}
 	bodyString string
-	headers    http.Header
 }
 
 // NewXPackWatcherExecuteWatchService creates a new XPackWatcherExecuteWatchService.
@@ -33,21 +39,28 @@ func NewXPackWatcherExecuteWatchService(client *Client) *XPackWatcherExecuteWatc
 	}
 }
 
-// Id of the watch to execute on.
-func (s *XPackWatcherExecuteWatchService) Id(id string) *XPackWatcherExecuteWatchService {
-	s.id = id
-	return s
-}
-
-// Debug indicates whether the watch should execute in debug mode.
-func (s *XPackWatcherExecuteWatchService) Debug(debug bool) *XPackWatcherExecuteWatchService {
-	s.debug = &debug
-	return s
-}
-
-// Pretty indicates that the JSON response be indented and human readable.
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
 func (s *XPackWatcherExecuteWatchService) Pretty(pretty bool) *XPackWatcherExecuteWatchService {
-	s.pretty = pretty
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *XPackWatcherExecuteWatchService) Human(human bool) *XPackWatcherExecuteWatchService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *XPackWatcherExecuteWatchService) ErrorTrace(errorTrace bool) *XPackWatcherExecuteWatchService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *XPackWatcherExecuteWatchService) FilterPath(filterPath ...string) *XPackWatcherExecuteWatchService {
+	s.filterPath = filterPath
 	return s
 }
 
@@ -63,6 +76,18 @@ func (s *XPackWatcherExecuteWatchService) Header(name string, value string) *XPa
 // Headers specifies the headers of the request.
 func (s *XPackWatcherExecuteWatchService) Headers(headers http.Header) *XPackWatcherExecuteWatchService {
 	s.headers = headers
+	return s
+}
+
+// Id of the watch to execute on.
+func (s *XPackWatcherExecuteWatchService) Id(id string) *XPackWatcherExecuteWatchService {
+	s.id = id
+	return s
+}
+
+// Debug indicates whether the watch should execute in debug mode.
+func (s *XPackWatcherExecuteWatchService) Debug(debug bool) *XPackWatcherExecuteWatchService {
+	s.debug = &debug
 	return s
 }
 
@@ -98,11 +123,20 @@ func (s *XPackWatcherExecuteWatchService) buildURL() (string, url.Values, error)
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
 	}
-	if s.debug != nil {
-		params.Set("debug", fmt.Sprintf("%v", *s.debug))
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
+	if v := s.debug; v != nil {
+		params.Set("debug", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

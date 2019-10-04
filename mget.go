@@ -20,15 +20,20 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-multi-get.html
 // for details.
 type MgetService struct {
-	client       *Client
-	pretty       bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	preference   string
 	realtime     *bool
 	refresh      string
 	routing      string
 	storedFields []string
 	items        []*MultiGetItem
-	headers      http.Header
 }
 
 // NewMgetService initializes a new Multi GET API request call.
@@ -37,6 +42,46 @@ func NewMgetService(client *Client) *MgetService {
 		client: client,
 	}
 	return builder
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *MgetService) Pretty(pretty bool) *MgetService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *MgetService) Human(human bool) *MgetService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *MgetService) ErrorTrace(errorTrace bool) *MgetService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *MgetService) FilterPath(filterPath ...string) *MgetService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *MgetService) Header(name string, value string) *MgetService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *MgetService) Headers(headers http.Header) *MgetService {
+	s.headers = headers
+	return s
 }
 
 // Preference specifies the node or shard the operation should be performed
@@ -73,12 +118,6 @@ func (s *MgetService) StoredFields(storedFields ...string) *MgetService {
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *MgetService) Pretty(pretty bool) *MgetService {
-	s.pretty = pretty
-	return s
-}
-
 // Add an item to the request.
 func (s *MgetService) Add(items ...*MultiGetItem) *MgetService {
 	s.items = append(s.items, items...)
@@ -100,27 +139,24 @@ func (s *MgetService) Source() (interface{}, error) {
 	return source, nil
 }
 
-// Header adds a header to the request.
-func (s *MgetService) Header(name string, value string) *MgetService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *MgetService) Headers(headers http.Header) *MgetService {
-	s.headers = headers
-	return s
-}
-
 // Do executes the request.
 func (s *MgetService) Do(ctx context.Context) (*MgetResponse, error) {
 	// Build url
 	path := "/_mget"
 
-	params := make(url.Values)
+	params := url.Values{}
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
 	if s.realtime != nil {
 		params.Add("realtime", fmt.Sprintf("%v", *s.realtime))
 	}

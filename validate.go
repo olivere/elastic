@@ -18,8 +18,14 @@ import (
 // expensive query without executing it.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-validate.html.
 type ValidateService struct {
-	client            *Client
-	pretty            bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	index             []string
 	typ               []string
 	q                 string
@@ -36,7 +42,6 @@ type ValidateService struct {
 	expandWildcards   string
 	bodyJson          interface{}
 	bodyString        string
-	headers           http.Header
 }
 
 // NewValidateService creates a new ValidateService.
@@ -44,6 +49,46 @@ func NewValidateService(client *Client) *ValidateService {
 	return &ValidateService{
 		client: client,
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *ValidateService) Pretty(pretty bool) *ValidateService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *ValidateService) Human(human bool) *ValidateService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *ValidateService) ErrorTrace(errorTrace bool) *ValidateService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *ValidateService) FilterPath(filterPath ...string) *ValidateService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *ValidateService) Header(name string, value string) *ValidateService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *ValidateService) Headers(headers http.Header) *ValidateService {
+	s.headers = headers
+	return s
 }
 
 // Index sets the names of the indices to use for search.
@@ -117,12 +162,6 @@ func (s *ValidateService) DefaultOperator(defaultOperator string) *ValidateServi
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *ValidateService) Pretty(pretty bool) *ValidateService {
-	s.pretty = pretty
-	return s
-}
-
 // Query sets a query definition using the Query DSL.
 func (s *ValidateService) Query(query Query) *ValidateService {
 	src, err := query.Source()
@@ -155,21 +194,6 @@ func (s *ValidateService) AllowNoIndices(allowNoIndices bool) *ValidateService {
 // concrete indices that are open, closed or both.
 func (s *ValidateService) ExpandWildcards(expandWildcards string) *ValidateService {
 	s.expandWildcards = expandWildcards
-	return s
-}
-
-// Header adds a header to the request.
-func (s *ValidateService) Header(name string, value string) *ValidateService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *ValidateService) Headers(headers http.Header) *ValidateService {
-	s.headers = headers
 	return s
 }
 
@@ -210,8 +234,17 @@ func (s *ValidateService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.explain != nil {
 		params.Set("explain", fmt.Sprintf("%v", *s.explain))
@@ -225,14 +258,14 @@ func (s *ValidateService) buildURL() (string, url.Values, error) {
 	if s.defaultOperator != "" {
 		params.Set("default_operator", s.defaultOperator)
 	}
-	if s.lenient != nil {
-		params.Set("lenient", fmt.Sprintf("%v", *s.lenient))
+	if v := s.lenient; v != nil {
+		params.Set("lenient", fmt.Sprint(*v))
 	}
 	if s.q != "" {
 		params.Set("q", s.q)
 	}
-	if s.analyzeWildcard != nil {
-		params.Set("analyze_wildcard", fmt.Sprintf("%v", *s.analyzeWildcard))
+	if v := s.analyzeWildcard; v != nil {
+		params.Set("analyze_wildcard", fmt.Sprint(*v))
 	}
 	if s.analyzer != "" {
 		params.Set("analyzer", s.analyzer)
@@ -240,14 +273,14 @@ func (s *ValidateService) buildURL() (string, url.Values, error) {
 	if s.df != "" {
 		params.Set("df", s.df)
 	}
-	if s.allowNoIndices != nil {
-		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+	if v := s.allowNoIndices; v != nil {
+		params.Set("allow_no_indices", fmt.Sprint(*v))
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
 	}
-	if s.ignoreUnavailable != nil {
-		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	if v := s.ignoreUnavailable; v != nil {
+		params.Set("ignore_unavailable", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

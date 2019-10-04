@@ -18,10 +18,16 @@ import (
 // It is documented at
 // https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-snapshots.html.
 type SnapshotDeleteService struct {
-	client     *Client
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	repository string
 	snapshot   string
-	headers    http.Header
 }
 
 // NewSnapshotDeleteService creates a new SnapshotDeleteService.
@@ -31,15 +37,28 @@ func NewSnapshotDeleteService(client *Client) *SnapshotDeleteService {
 	}
 }
 
-// Repository is the repository name.
-func (s *SnapshotDeleteService) Repository(repository string) *SnapshotDeleteService {
-	s.repository = repository
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *SnapshotDeleteService) Pretty(pretty bool) *SnapshotDeleteService {
+	s.pretty = &pretty
 	return s
 }
 
-// Snapshot is the snapshot name.
-func (s *SnapshotDeleteService) Snapshot(snapshot string) *SnapshotDeleteService {
-	s.snapshot = snapshot
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *SnapshotDeleteService) Human(human bool) *SnapshotDeleteService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *SnapshotDeleteService) ErrorTrace(errorTrace bool) *SnapshotDeleteService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *SnapshotDeleteService) FilterPath(filterPath ...string) *SnapshotDeleteService {
+	s.filterPath = filterPath
 	return s
 }
 
@@ -55,6 +74,18 @@ func (s *SnapshotDeleteService) Header(name string, value string) *SnapshotDelet
 // Headers specifies the headers of the request.
 func (s *SnapshotDeleteService) Headers(headers http.Header) *SnapshotDeleteService {
 	s.headers = headers
+	return s
+}
+
+// Repository is the repository name.
+func (s *SnapshotDeleteService) Repository(repository string) *SnapshotDeleteService {
+	s.repository = repository
+	return s
+}
+
+// Snapshot is the snapshot name.
+func (s *SnapshotDeleteService) Snapshot(snapshot string) *SnapshotDeleteService {
+	s.snapshot = snapshot
 	return s
 }
 

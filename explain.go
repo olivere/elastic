@@ -18,8 +18,14 @@ import (
 // a specific document.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-explain.html.
 type ExplainService struct {
-	client                 *Client
-	pretty                 bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	id                     string
 	index                  string
 	typ                    string
@@ -40,7 +46,6 @@ type ExplainService struct {
 	source                 string
 	bodyJson               interface{}
 	bodyString             string
-	headers                http.Header
 }
 
 // NewExplainService creates a new ExplainService.
@@ -53,6 +58,46 @@ func NewExplainService(client *Client) *ExplainService {
 		fields:         make([]string, 0),
 		xSourceInclude: make([]string, 0),
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *ExplainService) Pretty(pretty bool) *ExplainService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *ExplainService) Human(human bool) *ExplainService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *ExplainService) ErrorTrace(errorTrace bool) *ExplainService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *ExplainService) FilterPath(filterPath ...string) *ExplainService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *ExplainService) Header(name string, value string) *ExplainService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *ExplainService) Headers(headers http.Header) *ExplainService {
+	s.headers = headers
+	return s
 }
 
 // Id is the document ID.
@@ -167,12 +212,6 @@ func (s *ExplainService) XSource(xSource ...string) *ExplainService {
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *ExplainService) Pretty(pretty bool) *ExplainService {
-	s.pretty = pretty
-	return s
-}
-
 // Query sets a query definition using the Query DSL.
 func (s *ExplainService) Query(query Query) *ExplainService {
 	src, err := query.Source()
@@ -195,21 +234,6 @@ func (s *ExplainService) BodyJson(body interface{}) *ExplainService {
 // BodyString sets the query definition using the Query DSL as a string.
 func (s *ExplainService) BodyString(body string) *ExplainService {
 	s.bodyString = body
-	return s
-}
-
-// Header adds a header to the request.
-func (s *ExplainService) Header(name string, value string) *ExplainService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *ExplainService) Headers(headers http.Header) *ExplainService {
-	s.headers = headers
 	return s
 }
 
@@ -237,8 +261,17 @@ func (s *ExplainService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if len(s.xSource) > 0 {
 		params.Set("_source", strings.Join(s.xSource, ","))

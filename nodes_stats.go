@@ -19,8 +19,14 @@ import (
 // See http://www.elastic.co/guide/en/elasticsearch/reference/7.0/cluster-nodes-stats.html
 // for details.
 type NodesStatsService struct {
-	client           *Client
-	pretty           bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	metric           []string
 	indexMetric      []string
 	nodeId           []string
@@ -28,11 +34,9 @@ type NodesStatsService struct {
 	fielddataFields  []string
 	fields           []string
 	groups           *bool
-	human            *bool
 	level            string
 	timeout          string
 	types            []string
-	headers          http.Header
 }
 
 // NewNodesStatsService creates a new NodesStatsService.
@@ -40,6 +44,46 @@ func NewNodesStatsService(client *Client) *NodesStatsService {
 	return &NodesStatsService{
 		client: client,
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *NodesStatsService) Pretty(pretty bool) *NodesStatsService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *NodesStatsService) Human(human bool) *NodesStatsService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *NodesStatsService) ErrorTrace(errorTrace bool) *NodesStatsService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *NodesStatsService) FilterPath(filterPath ...string) *NodesStatsService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *NodesStatsService) Header(name string, value string) *NodesStatsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *NodesStatsService) Headers(headers http.Header) *NodesStatsService {
+	s.headers = headers
+	return s
 }
 
 // Metric limits the information returned to the specified metrics.
@@ -89,12 +133,6 @@ func (s *NodesStatsService) Groups(groups bool) *NodesStatsService {
 	return s
 }
 
-// Human indicates whether to return time and byte values in human-readable format.
-func (s *NodesStatsService) Human(human bool) *NodesStatsService {
-	s.human = &human
-	return s
-}
-
 // Level specifies whether to return indices stats aggregated at node, index or shard level.
 func (s *NodesStatsService) Level(level string) *NodesStatsService {
 	s.level = level
@@ -110,27 +148,6 @@ func (s *NodesStatsService) Timeout(timeout string) *NodesStatsService {
 // Types a list of document types for the `indexing` index metric.
 func (s *NodesStatsService) Types(types ...string) *NodesStatsService {
 	s.types = append(s.types, types...)
-	return s
-}
-
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *NodesStatsService) Pretty(pretty bool) *NodesStatsService {
-	s.pretty = pretty
-	return s
-}
-
-// Header adds a header to the request.
-func (s *NodesStatsService) Header(name string, value string) *NodesStatsService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *NodesStatsService) Headers(headers http.Header) *NodesStatsService {
-	s.headers = headers
 	return s
 }
 
@@ -181,8 +198,17 @@ func (s *NodesStatsService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if len(s.completionFields) > 0 {
 		params.Set("completion_fields", strings.Join(s.completionFields, ","))
@@ -195,9 +221,6 @@ func (s *NodesStatsService) buildURL() (string, url.Values, error) {
 	}
 	if s.groups != nil {
 		params.Set("groups", fmt.Sprintf("%v", *s.groups))
-	}
-	if s.human != nil {
-		params.Set("human", fmt.Sprintf("%v", *s.human))
 	}
 	if s.level != "" {
 		params.Set("level", s.level)

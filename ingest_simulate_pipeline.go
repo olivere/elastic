@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/v7/uritemplates"
 )
@@ -20,13 +21,18 @@ import (
 // The API is documented at
 // https://www.elastic.co/guide/en/elasticsearch/reference/7.0/simulate-pipeline-api.html.
 type IngestSimulatePipelineService struct {
-	client     *Client
-	pretty     bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	id         string
 	verbose    *bool
 	bodyJson   interface{}
 	bodyString string
-	headers    http.Header
 }
 
 // NewIngestSimulatePipelineService creates a new IngestSimulatePipeline.
@@ -36,34 +42,28 @@ func NewIngestSimulatePipelineService(client *Client) *IngestSimulatePipelineSer
 	}
 }
 
-// Id specifies the pipeline ID.
-func (s *IngestSimulatePipelineService) Id(id string) *IngestSimulatePipelineService {
-	s.id = id
-	return s
-}
-
-// Verbose mode. Display data output for each processor in executed pipeline.
-func (s *IngestSimulatePipelineService) Verbose(verbose bool) *IngestSimulatePipelineService {
-	s.verbose = &verbose
-	return s
-}
-
-// Pretty indicates that the JSON response be indented and human readable.
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
 func (s *IngestSimulatePipelineService) Pretty(pretty bool) *IngestSimulatePipelineService {
-	s.pretty = pretty
+	s.pretty = &pretty
 	return s
 }
 
-// BodyJson is the ingest definition, defined as a JSON-serializable simulate
-// definition. Use e.g. a map[string]interface{} here.
-func (s *IngestSimulatePipelineService) BodyJson(body interface{}) *IngestSimulatePipelineService {
-	s.bodyJson = body
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *IngestSimulatePipelineService) Human(human bool) *IngestSimulatePipelineService {
+	s.human = &human
 	return s
 }
 
-// BodyString is the simulate definition, defined as a string.
-func (s *IngestSimulatePipelineService) BodyString(body string) *IngestSimulatePipelineService {
-	s.bodyString = body
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *IngestSimulatePipelineService) ErrorTrace(errorTrace bool) *IngestSimulatePipelineService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *IngestSimulatePipelineService) FilterPath(filterPath ...string) *IngestSimulatePipelineService {
+	s.filterPath = filterPath
 	return s
 }
 
@@ -79,6 +79,31 @@ func (s *IngestSimulatePipelineService) Header(name string, value string) *Inges
 // Headers specifies the headers of the request.
 func (s *IngestSimulatePipelineService) Headers(headers http.Header) *IngestSimulatePipelineService {
 	s.headers = headers
+	return s
+}
+
+// Id specifies the pipeline ID.
+func (s *IngestSimulatePipelineService) Id(id string) *IngestSimulatePipelineService {
+	s.id = id
+	return s
+}
+
+// Verbose mode. Display data output for each processor in executed pipeline.
+func (s *IngestSimulatePipelineService) Verbose(verbose bool) *IngestSimulatePipelineService {
+	s.verbose = &verbose
+	return s
+}
+
+// BodyJson is the ingest definition, defined as a JSON-serializable simulate
+// definition. Use e.g. a map[string]interface{} here.
+func (s *IngestSimulatePipelineService) BodyJson(body interface{}) *IngestSimulatePipelineService {
+	s.bodyJson = body
+	return s
+}
+
+// BodyString is the simulate definition, defined as a string.
+func (s *IngestSimulatePipelineService) BodyString(body string) *IngestSimulatePipelineService {
+	s.bodyString = body
 	return s
 }
 
@@ -101,11 +126,20 @@ func (s *IngestSimulatePipelineService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
 	}
-	if s.verbose != nil {
-		params.Set("verbose", fmt.Sprintf("%v", *s.verbose))
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
+	if v := s.verbose; v != nil {
+		params.Set("verbose", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

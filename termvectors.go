@@ -21,8 +21,14 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-termvectors.html
 // for documentation.
 type TermvectorsService struct {
-	client           *Client
-	pretty           bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	id               string
 	index            string
 	typ              string
@@ -44,7 +50,6 @@ type TermvectorsService struct {
 	versionType      string
 	bodyJson         interface{}
 	bodyString       string
-	headers          http.Header
 }
 
 // NewTermvectorsService creates a new TermvectorsService.
@@ -52,6 +57,46 @@ func NewTermvectorsService(client *Client) *TermvectorsService {
 	return &TermvectorsService{
 		client: client,
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *TermvectorsService) Pretty(pretty bool) *TermvectorsService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *TermvectorsService) Human(human bool) *TermvectorsService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *TermvectorsService) ErrorTrace(errorTrace bool) *TermvectorsService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *TermvectorsService) FilterPath(filterPath ...string) *TermvectorsService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *TermvectorsService) Header(name string, value string) *TermvectorsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *TermvectorsService) Headers(headers http.Header) *TermvectorsService {
+	s.headers = headers
+	return s
 }
 
 // Index in which the document resides.
@@ -179,27 +224,6 @@ func (s *TermvectorsService) VersionType(versionType string) *TermvectorsService
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *TermvectorsService) Pretty(pretty bool) *TermvectorsService {
-	s.pretty = pretty
-	return s
-}
-
-// Header adds a header to the request.
-func (s *TermvectorsService) Header(name string, value string) *TermvectorsService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *TermvectorsService) Headers(headers http.Header) *TermvectorsService {
-	s.headers = headers
-	return s
-}
-
 // BodyJson defines the body parameters. See documentation.
 func (s *TermvectorsService) BodyJson(body interface{}) *TermvectorsService {
 	s.bodyJson = body
@@ -241,41 +265,50 @@ func (s *TermvectorsService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
 	}
-	if s.dfs != nil {
-		params.Set("dfs", fmt.Sprintf("%v", *s.dfs))
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
 	}
-	if s.fieldStatistics != nil {
-		params.Set("field_statistics", fmt.Sprintf("%v", *s.fieldStatistics))
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
+	if v := s.dfs; v != nil {
+		params.Set("dfs", fmt.Sprint(*v))
+	}
+	if v := s.fieldStatistics; v != nil {
+		params.Set("field_statistics", fmt.Sprint(*v))
 	}
 	if len(s.fields) > 0 {
 		params.Set("fields", strings.Join(s.fields, ","))
 	}
-	if s.offsets != nil {
-		params.Set("offsets", fmt.Sprintf("%v", *s.offsets))
+	if v := s.offsets; v != nil {
+		params.Set("offsets", fmt.Sprint(*v))
 	}
 	if s.parent != "" {
 		params.Set("parent", s.parent)
 	}
-	if s.payloads != nil {
-		params.Set("payloads", fmt.Sprintf("%v", *s.payloads))
+	if v := s.payloads; v != nil {
+		params.Set("payloads", fmt.Sprint(*v))
 	}
-	if s.positions != nil {
-		params.Set("positions", fmt.Sprintf("%v", *s.positions))
+	if v := s.positions; v != nil {
+		params.Set("positions", fmt.Sprint(*v))
 	}
 	if s.preference != "" {
 		params.Set("preference", s.preference)
 	}
-	if s.realtime != nil {
-		params.Set("realtime", fmt.Sprintf("%v", *s.realtime))
+	if v := s.realtime; v != nil {
+		params.Set("realtime", fmt.Sprint(*v))
 	}
 	if s.routing != "" {
 		params.Set("routing", s.routing)
 	}
-	if s.termStatistics != nil {
-		params.Set("term_statistics", fmt.Sprintf("%v", *s.termStatistics))
+	if v := s.termStatistics; v != nil {
+		params.Set("term_statistics", fmt.Sprint(*v))
 	}
 	if s.version != nil {
 		params.Set("version", fmt.Sprintf("%v", s.version))

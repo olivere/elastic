@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/v7/uritemplates"
 )
@@ -16,12 +17,17 @@ import (
 // IndicesDeleteTemplateService deletes index templates.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-templates.html.
 type IndicesDeleteTemplateService struct {
-	client        *Client
-	pretty        bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	name          string
 	timeout       string
 	masterTimeout string
-	headers       http.Header
 }
 
 // NewIndicesDeleteTemplateService creates a new IndicesDeleteTemplateService.
@@ -29,6 +35,46 @@ func NewIndicesDeleteTemplateService(client *Client) *IndicesDeleteTemplateServi
 	return &IndicesDeleteTemplateService{
 		client: client,
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *IndicesDeleteTemplateService) Pretty(pretty bool) *IndicesDeleteTemplateService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *IndicesDeleteTemplateService) Human(human bool) *IndicesDeleteTemplateService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *IndicesDeleteTemplateService) ErrorTrace(errorTrace bool) *IndicesDeleteTemplateService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *IndicesDeleteTemplateService) FilterPath(filterPath ...string) *IndicesDeleteTemplateService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesDeleteTemplateService) Header(name string, value string) *IndicesDeleteTemplateService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesDeleteTemplateService) Headers(headers http.Header) *IndicesDeleteTemplateService {
+	s.headers = headers
+	return s
 }
 
 // Name is the name of the template.
@@ -49,27 +95,6 @@ func (s *IndicesDeleteTemplateService) MasterTimeout(masterTimeout string) *Indi
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *IndicesDeleteTemplateService) Pretty(pretty bool) *IndicesDeleteTemplateService {
-	s.pretty = pretty
-	return s
-}
-
-// Header adds a header to the request.
-func (s *IndicesDeleteTemplateService) Header(name string, value string) *IndicesDeleteTemplateService {
-	if s.headers == nil {
-		s.headers = http.Header{}
-	}
-	s.headers.Add(name, value)
-	return s
-}
-
-// Headers specifies the headers of the request.
-func (s *IndicesDeleteTemplateService) Headers(headers http.Header) *IndicesDeleteTemplateService {
-	s.headers = headers
-	return s
-}
-
 // buildURL builds the URL for the operation.
 func (s *IndicesDeleteTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -82,8 +107,17 @@ func (s *IndicesDeleteTemplateService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)
