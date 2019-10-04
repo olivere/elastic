@@ -24,17 +24,28 @@ type DistanceFeatureQuery struct {
 }
 
 // NewDistanceFeatureQuery creates and initializes a new script_score query.
-func NewDistanceFeatureQuery(field, pivot string, origin interface{}) *DistanceFeatureQuery {
+func NewDistanceFeatureQuery(field string, origin interface{}, pivot string) *DistanceFeatureQuery {
 	return &DistanceFeatureQuery{
 		field:  field,
-		pivot:  pivot,
 		origin: origin,
+		pivot:  pivot,
 	}
 }
 
 // Field to be used in the DistanceFeatureQuery.
 func (q *DistanceFeatureQuery) Field(name string) *DistanceFeatureQuery {
 	q.field = name
+	return q
+}
+
+// Origin is the date or point of origin used to calculate distances.
+//
+// If the field is a date or date_nanos field, the origin value must be a
+// date. Date math such as "now-1h" is supported.
+//
+// If the field is a geo_point field, the origin must be a GeoPoint.
+func (q *DistanceFeatureQuery) Origin(origin interface{}) *DistanceFeatureQuery {
+	q.origin = origin
 	return q
 }
 
@@ -48,17 +59,6 @@ func (q *DistanceFeatureQuery) Field(name string) *DistanceFeatureQuery {
 // such as "1km" or "12m". You can pass a string, or a GeoPoint.
 func (q *DistanceFeatureQuery) Pivot(pivot string) *DistanceFeatureQuery {
 	q.pivot = pivot
-	return q
-}
-
-// Origin is the date or point of origin used to calculate distances.
-//
-// If the field is a date or date_nanos field, the origin value must be a
-// date. Date math such as "now-1h" is supported.
-//
-// If the field is a geo_point field, the origin must be a GeoPoint.
-func (q *DistanceFeatureQuery) Origin(origin interface{}) *DistanceFeatureQuery {
-	q.origin = origin
 	return q
 }
 

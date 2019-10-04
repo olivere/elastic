@@ -11,7 +11,7 @@ import (
 )
 
 func TestDistanceFeatureQueryForDateField(t *testing.T) {
-	q := NewDistanceFeatureQuery("production_date", "7d", "now")
+	q := NewDistanceFeatureQuery("production_date", "now", "7d")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -28,7 +28,7 @@ func TestDistanceFeatureQueryForDateField(t *testing.T) {
 }
 
 func TestDistanceFeatureQueryForGeoField(t *testing.T) {
-	q := NewDistanceFeatureQuery("location", "1000m", GeoPointFromLatLon(-71.3, 41.15))
+	q := NewDistanceFeatureQuery("location", GeoPointFromLatLon(-71.3, 41.15), "1000m")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -50,7 +50,7 @@ func TestDistanceFeatureQueryIntegration(t *testing.T) {
 	res, err := client.Search().
 		Index(testOrderIndex).
 		Query(
-			NewDistanceFeatureQuery("time", "7d", "now"),
+			NewDistanceFeatureQuery("time", "now", "7d"),
 		).
 		Pretty(true).
 		Do(context.Background())
