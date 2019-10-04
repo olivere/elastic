@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -26,6 +27,7 @@ type CatAliasesService struct {
 	aliases       []string
 	columns       []string
 	sort          []string // list of columns for sort order
+	headers       http.Header
 }
 
 // NewCatAliasesService creates a new CatAliasesService.
@@ -80,6 +82,15 @@ func (s *CatAliasesService) Pretty(pretty bool) *CatAliasesService {
 	return s
 }
 
+// Header sets headers on the request
+func (s *CatAliasesService) Header(name string, value string) *CatAliasesService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *CatAliasesService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -131,9 +142,10 @@ func (s *CatAliasesService) Do(ctx context.Context) (CatAliasesResponse, error) 
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

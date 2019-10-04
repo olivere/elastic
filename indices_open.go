@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -26,6 +27,7 @@ type IndicesOpenService struct {
 	allowNoIndices      *bool
 	expandWildcards     string
 	waitForActiveShards string
+	headers             http.Header
 }
 
 // NewIndicesOpenService creates and initializes a new IndicesOpenService.
@@ -84,6 +86,15 @@ func (s *IndicesOpenService) WaitForActiveShards(waitForActiveShards string) *In
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesOpenService) Pretty(pretty bool) *IndicesOpenService {
 	s.pretty = pretty
+	return s
+}
+
+// Header sets headers on the request
+func (s *IndicesOpenService) Header(name string, value string) *IndicesOpenService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -151,9 +162,10 @@ func (s *IndicesOpenService) Do(ctx context.Context) (*IndicesOpenResponse, erro
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

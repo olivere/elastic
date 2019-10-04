@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/olivere/elastic/v7/uritemplates"
@@ -38,6 +39,7 @@ type IndexService struct {
 	ifPrimaryTerm       *int64
 	bodyJson            interface{}
 	bodyString          string
+	headers             http.Header
 }
 
 // NewIndexService creates a new IndexService.
@@ -179,6 +181,15 @@ func (s *IndexService) BodyString(body string) *IndexService {
 	return s
 }
 
+// Header sets headers on the request
+func (s *IndexService) Header(name string, value string) *IndexService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndexService) buildURL() (string, string, url.Values, error) {
 	var err error
@@ -293,10 +304,11 @@ func (s *IndexService) Do(ctx context.Context) (*IndexResponse, error) {
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: method,
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  method,
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

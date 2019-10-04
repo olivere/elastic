@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -26,6 +27,7 @@ type IndicesSyncedFlushService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	headers           http.Header
 }
 
 // NewIndicesSyncedFlushService creates a new IndicesSyncedFlushService.
@@ -66,6 +68,15 @@ func (s *IndicesSyncedFlushService) ExpandWildcards(expandWildcards string) *Ind
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesSyncedFlushService) Pretty(pretty bool) *IndicesSyncedFlushService {
 	s.pretty = pretty
+	return s
+}
+
+// Header sets headers on the request
+func (s *IndicesSyncedFlushService) Header(name string, value string) *IndicesSyncedFlushService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -123,9 +134,10 @@ func (s *IndicesSyncedFlushService) Do(ctx context.Context) (*IndicesSyncedFlush
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

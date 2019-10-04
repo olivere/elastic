@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -27,6 +28,7 @@ type MgetService struct {
 	routing      string
 	storedFields []string
 	items        []*MultiGetItem
+	headers      http.Header
 }
 
 // NewMgetService initializes a new Multi GET API request call.
@@ -98,6 +100,15 @@ func (s *MgetService) Source() (interface{}, error) {
 	return source, nil
 }
 
+// Header sets headers on the request
+func (s *MgetService) Header(name string, value string) *MgetService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
 // Do executes the request.
 func (s *MgetService) Do(ctx context.Context) (*MgetResponse, error) {
 	// Build url
@@ -128,10 +139,11 @@ func (s *MgetService) Do(ctx context.Context) (*MgetResponse, error) {
 
 	// Get response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

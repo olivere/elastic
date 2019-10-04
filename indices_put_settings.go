@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -29,6 +30,7 @@ type IndicesPutSettingsService struct {
 	masterTimeout     string
 	bodyJson          interface{}
 	bodyString        string
+	headers           http.Header
 }
 
 // NewIndicesPutSettingsService creates a new IndicesPutSettingsService.
@@ -95,6 +97,15 @@ func (s *IndicesPutSettingsService) BodyJson(body interface{}) *IndicesPutSettin
 // BodyString is documented as: The index settings to be updated.
 func (s *IndicesPutSettingsService) BodyString(body string) *IndicesPutSettingsService {
 	s.bodyString = body
+	return s
+}
+
+// Header sets headers on the request
+func (s *IndicesPutSettingsService) Header(name string, value string) *IndicesPutSettingsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
 	return s
 }
 
@@ -166,10 +177,11 @@ func (s *IndicesPutSettingsService) Do(ctx context.Context) (*IndicesPutSettings
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "PUT",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err
