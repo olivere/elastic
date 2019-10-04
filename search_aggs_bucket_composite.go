@@ -400,27 +400,28 @@ func (a *CompositeAggregationHistogramValuesSource) Source() (interface{}, error
 // CompositeAggregationDateHistogramValuesSource is a source for the CompositeAggregation that handles date histograms
 // it works very similar to a date histogram aggregation with slightly different syntax
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-composite-aggregation.html#_date_histogram
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.4/search-aggregations-bucket-composite-aggregation.html#_date_histogram
 // for details.
 type CompositeAggregationDateHistogramValuesSource struct {
-	name          string
-	field         string
-	script        *Script
-	valueType     string
-	missing       interface{}
-	missingBucket *bool
-	order         string
-	interval      interface{}
-	format        string
-	timeZone      string
+	name             string
+	field            string
+	script           *Script
+	valueType        string
+	missing          interface{}
+	missingBucket    *bool
+	order            string
+	interval         interface{}
+	fixedInterval    interface{}
+	calendarInterval interface{}
+	format           string
+	timeZone         string
 }
 
 // NewCompositeAggregationDateHistogramValuesSource creates and initializes
 // a new CompositeAggregationDateHistogramValuesSource.
-func NewCompositeAggregationDateHistogramValuesSource(name string, interval interface{}) *CompositeAggregationDateHistogramValuesSource {
+func NewCompositeAggregationDateHistogramValuesSource(name string) *CompositeAggregationDateHistogramValuesSource {
 	return &CompositeAggregationDateHistogramValuesSource{
-		name:     name,
-		interval: interval,
+		name: name,
 	}
 }
 
@@ -479,8 +480,22 @@ func (a *CompositeAggregationDateHistogramValuesSource) Desc() *CompositeAggrega
 }
 
 // Interval to use for the date histogram, e.g. "1d" or a numeric value like "60".
+//
+// Deprecated: Use FixedInterval or CalendarInterval instead.
 func (a *CompositeAggregationDateHistogramValuesSource) Interval(interval interface{}) *CompositeAggregationDateHistogramValuesSource {
 	a.interval = interval
+	return a
+}
+
+// FixedInterval to use for the date histogram, e.g. "1d" or a numeric value like "60".
+func (a *CompositeAggregationDateHistogramValuesSource) FixedInterval(fixedInterval interface{}) *CompositeAggregationDateHistogramValuesSource {
+	a.fixedInterval = fixedInterval
+	return a
+}
+
+// CalendarInterval to use for the date histogram, e.g. "1d" or a numeric value like "60".
+func (a *CompositeAggregationDateHistogramValuesSource) CalendarInterval(calendarInterval interface{}) *CompositeAggregationDateHistogramValuesSource {
+	a.calendarInterval = calendarInterval
 	return a
 }
 
@@ -543,7 +558,15 @@ func (a *CompositeAggregationDateHistogramValuesSource) Source() (interface{}, e
 	}
 
 	// DateHistogram-related properties
-	values["interval"] = a.interval
+	if v := a.interval; v != nil {
+		values["interval"] = v
+	}
+	if v := a.fixedInterval; v != nil {
+		values["fixed_interval"] = v
+	}
+	if v := a.calendarInterval; v != nil {
+		values["calendar_interval"] = v
+	}
 
 	// timeZone
 	if a.timeZone != "" {

@@ -14,7 +14,7 @@ func TestCompositeAggregation(t *testing.T) {
 		Sources(
 			NewCompositeAggregationTermsValuesSource("my_terms").Field("a_term").Missing("N/A").Order("asc"),
 			NewCompositeAggregationHistogramValuesSource("my_histogram", 5).Field("price").Asc(),
-			NewCompositeAggregationDateHistogramValuesSource("my_date_histogram", "1d").Field("purchase_date").Desc(),
+			NewCompositeAggregationDateHistogramValuesSource("my_date_histogram").CalendarInterval("1d").Field("purchase_date").Desc(),
 		).
 		Size(10).
 		AggregateAfter(map[string]interface{}{
@@ -31,7 +31,7 @@ func TestCompositeAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"composite":{"after":{"my_date_histogram":"3","my_histogram":2,"my_terms":"1"},"size":10,"sources":[{"my_terms":{"terms":{"field":"a_term","missing":"N/A","order":"asc"}}},{"my_histogram":{"histogram":{"field":"price","interval":5,"order":"asc"}}},{"my_date_histogram":{"date_histogram":{"field":"purchase_date","interval":"1d","order":"desc"}}}]}}`
+	expected := `{"composite":{"after":{"my_date_histogram":"3","my_histogram":2,"my_terms":"1"},"size":10,"sources":[{"my_terms":{"terms":{"field":"a_term","missing":"N/A","order":"asc"}}},{"my_histogram":{"histogram":{"field":"price","interval":5,"order":"asc"}}},{"my_date_histogram":{"date_histogram":{"calendar_interval":"1d","field":"purchase_date","order":"desc"}}}]}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -73,8 +73,8 @@ func TestCompositeAggregationHistogramValuesSource(t *testing.T) {
 	}
 }
 
-func TestCompositeAggregationDateHistogramValuesSource(t *testing.T) {
-	in := NewCompositeAggregationDateHistogramValuesSource("date", "1d").
+func TestCompositeAggregationDateHistogramValuesSourceWithCalendarInterval(t *testing.T) {
+	in := NewCompositeAggregationDateHistogramValuesSource("date").CalendarInterval("1d").
 		Field("timestamp").
 		Format("strict_date_optional_time")
 	src, err := in.Source()
@@ -86,7 +86,26 @@ func TestCompositeAggregationDateHistogramValuesSource(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"date":{"date_histogram":{"field":"timestamp","format":"strict_date_optional_time","interval":"1d"}}}`
+	expected := `{"date":{"date_histogram":{"calendar_interval":"1d","field":"timestamp","format":"strict_date_optional_time"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestCompositeAggregationDateHistogramValuesSourceWithFixedInterval(t *testing.T) {
+	in := NewCompositeAggregationDateHistogramValuesSource("date").FixedInterval("1d").
+		Field("timestamp").
+		Format("strict_date_optional_time")
+	src, err := in.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"date":{"date_histogram":{"field":"timestamp","fixed_interval":"1d","format":"strict_date_optional_time"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

@@ -18,7 +18,7 @@ func TestAggsIntegrationAvgBucket(t *testing.T) {
 		Index(testOrderIndex).
 		Query(NewMatchAllQuery()).
 		Pretty(true)
-	h := NewDateHistogramAggregation().Field("time").Interval("month")
+	h := NewDateHistogramAggregation().Field("time").CalendarInterval("month")
 	h = h.SubAggregation("sales", NewSumAggregation().Field("price"))
 	builder = builder.Aggregation("sales_per_month", h)
 	builder = builder.Aggregation("avg_monthly_sales", NewAvgBucketAggregation().BucketsPath("sales_per_month>sales"))
@@ -60,7 +60,7 @@ func TestAggsIntegrationDerivative(t *testing.T) {
 		Index(testOrderIndex).
 		Query(NewMatchAllQuery()).
 		Pretty(true)
-	h := NewDateHistogramAggregation().Field("time").Interval("month")
+	h := NewDateHistogramAggregation().Field("time").CalendarInterval("month")
 	h = h.SubAggregation("sales", NewSumAggregation().Field("price"))
 	h = h.SubAggregation("sales_deriv", NewDerivativeAggregation().BucketsPath("sales"))
 	builder = builder.Aggregation("sales_per_month", h)
@@ -190,7 +190,7 @@ func TestAggsIntegrationMaxBucket(t *testing.T) {
 		Index(testOrderIndex).
 		Query(NewMatchAllQuery()).
 		Pretty(true)
-	h := NewDateHistogramAggregation().Field("time").Interval("month")
+	h := NewDateHistogramAggregation().Field("time").CalendarInterval("month")
 	h = h.SubAggregation("sales", NewSumAggregation().Field("price"))
 	builder = builder.Aggregation("sales_per_month", h)
 	builder = builder.Aggregation("max_monthly_sales", NewMaxBucketAggregation().BucketsPath("sales_per_month>sales"))
@@ -238,7 +238,7 @@ func TestAggsIntegrationMinBucket(t *testing.T) {
 		Index(testOrderIndex).
 		Query(NewMatchAllQuery()).
 		Pretty(true)
-	h := NewDateHistogramAggregation().Field("time").Interval("month")
+	h := NewDateHistogramAggregation().Field("time").CalendarInterval("month")
 	h = h.SubAggregation("sales", NewSumAggregation().Field("price"))
 	builder = builder.Aggregation("sales_per_month", h)
 	builder = builder.Aggregation("min_monthly_sales", NewMinBucketAggregation().BucketsPath("sales_per_month>sales"))
@@ -286,7 +286,7 @@ func TestAggsIntegrationSumBucket(t *testing.T) {
 		Index(testOrderIndex).
 		Query(NewMatchAllQuery()).
 		Pretty(true)
-	h := NewDateHistogramAggregation().Field("time").Interval("month")
+	h := NewDateHistogramAggregation().Field("time").CalendarInterval("month")
 	h = h.SubAggregation("sales", NewSumAggregation().Field("price"))
 	builder = builder.Aggregation("sales_per_month", h)
 	builder = builder.Aggregation("sum_monthly_sales", NewSumBucketAggregation().BucketsPath("sales_per_month>sales"))
@@ -328,7 +328,7 @@ func TestAggsIntegrationMovAvg(t *testing.T) {
 		Index(testOrderIndex).
 		Query(NewMatchAllQuery()).
 		Pretty(true)
-	h := NewDateHistogramAggregation().Field("time").Interval("month")
+	h := NewDateHistogramAggregation().Field("time").CalendarInterval("month")
 	h = h.SubAggregation("the_sum", NewSumAggregation().Field("price"))
 	h = h.SubAggregation("the_movavg", NewMovAvgAggregation().BucketsPath("the_sum"))
 	builder = builder.Aggregation("my_date_histo", h)
@@ -439,7 +439,7 @@ func TestAggsIntegrationCumulativeSum(t *testing.T) {
 		Index(testOrderIndex).
 		Query(NewMatchAllQuery()).
 		Pretty(true)
-	h := NewDateHistogramAggregation().Field("time").Interval("month")
+	h := NewDateHistogramAggregation().Field("time").CalendarInterval("month")
 	h = h.SubAggregation("sales", NewSumAggregation().Field("price"))
 	h = h.SubAggregation("cumulative_sales", NewCumulativeSumAggregation().BucketsPath("sales"))
 	builder = builder.Aggregation("sales_per_month", h)
@@ -581,7 +581,7 @@ func TestAggsIntegrationBucketScript(t *testing.T) {
 		Index(testOrderIndex).
 		Query(NewMatchAllQuery()).
 		Pretty(true)
-	h := NewDateHistogramAggregation().Field("time").Interval("month")
+	h := NewDateHistogramAggregation().Field("time").CalendarInterval("month")
 	h = h.SubAggregation("total_sales", NewSumAggregation().Field("price"))
 	appleFilter := NewFilterAggregation().Filter(NewTermQuery("manufacturer", "Apple"))
 	appleFilter = appleFilter.SubAggregation("sales", NewSumAggregation().Field("price"))
@@ -728,7 +728,7 @@ func TestAggsIntegrationBucketSelector(t *testing.T) {
 		Index(testOrderIndex).
 		Query(NewMatchAllQuery()).
 		Pretty(true)
-	h := NewDateHistogramAggregation().Field("time").Interval("month")
+	h := NewDateHistogramAggregation().Field("time").CalendarInterval("month")
 	h = h.SubAggregation("total_sales", NewSumAggregation().Field("price"))
 	h = h.SubAggregation("sales_bucket_filter",
 		NewBucketSelectorAggregation().
@@ -777,7 +777,7 @@ func TestAggsIntegrationSerialDiff(t *testing.T) {
 		Index(testOrderIndex).
 		Query(NewMatchAllQuery()).
 		Pretty(true)
-	h := NewDateHistogramAggregation().Field("time").Interval("month")
+	h := NewDateHistogramAggregation().Field("time").CalendarInterval("month")
 	h = h.SubAggregation("sales", NewSumAggregation().Field("price"))
 	h = h.SubAggregation("the_diff", NewSerialDiffAggregation().BucketsPath("sales").Lag(1))
 	builder = builder.Aggregation("sales_per_month", h)

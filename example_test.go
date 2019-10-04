@@ -397,7 +397,7 @@ func ExampleAggregations() {
 
 	// Create an aggregation for users and a sub-aggregation for a date histogram of tweets (per year).
 	timeline := elastic.NewTermsAggregation().Field("user").Size(10).OrderByCountDesc()
-	histogram := elastic.NewDateHistogramAggregation().Field("created").Interval("year")
+	histogram := elastic.NewDateHistogramAggregation().Field("created").CalendarInterval("year")
 	timeline = timeline.SubAggregation("history", histogram)
 
 	// Search with a term query

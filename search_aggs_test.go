@@ -102,8 +102,8 @@ func TestAggs(t *testing.T) {
 	missingTagsAgg := NewMissingAggregation().Field("tags")
 	retweetsHistoAgg := NewHistogramAggregation().Field("retweets").Interval(100)
 	autoDateHistoAgg := NewAutoDateHistogramAggregation().Field("created").Buckets(2).Missing("1900-01-01").Format("yyyy-MM-dd")
-	dateHistoAgg := NewDateHistogramAggregation().Field("created").Interval("year")
-	dateHistoKeyedAgg := NewDateHistogramAggregation().Field("created").Interval("year").Keyed(true)
+	dateHistoAgg := NewDateHistogramAggregation().Field("created").CalendarInterval("year")
+	dateHistoKeyedAgg := NewDateHistogramAggregation().Field("created").CalendarInterval("year").Keyed(true)
 	retweetsFilterAgg := NewFilterAggregation().Filter(
 		NewRangeQuery("created").Gte("2012-01-01").Lte("2012-12-31")).
 		SubAggregation("avgRetweetsSub", NewAvgAggregation().Field("retweets"))
@@ -163,27 +163,27 @@ func TestAggs(t *testing.T) {
 		Filters("groupB", NewTermQuery("user", "sandrae"))
 	builder = builder.Aggregation("interactions", adjacencyMatrixAgg)
 	// AvgBucket
-	dateHisto := NewDateHistogramAggregation().Field("created").Interval("year")
+	dateHisto := NewDateHistogramAggregation().Field("created").CalendarInterval("year")
 	dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
 	builder = builder.Aggregation("avgBucketDateHisto", dateHisto)
 	builder = builder.Aggregation("avgSumOfRetweets", NewAvgBucketAggregation().BucketsPath("avgBucketDateHisto>sumOfRetweets"))
 	// MinBucket
-	dateHisto = NewDateHistogramAggregation().Field("created").Interval("year")
+	dateHisto = NewDateHistogramAggregation().Field("created").CalendarInterval("year")
 	dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
 	builder = builder.Aggregation("minBucketDateHisto", dateHisto)
 	builder = builder.Aggregation("minBucketSumOfRetweets", NewMinBucketAggregation().BucketsPath("minBucketDateHisto>sumOfRetweets"))
 	// MaxBucket
-	dateHisto = NewDateHistogramAggregation().Field("created").Interval("year")
+	dateHisto = NewDateHistogramAggregation().Field("created").CalendarInterval("year")
 	dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
 	builder = builder.Aggregation("maxBucketDateHisto", dateHisto)
 	builder = builder.Aggregation("maxBucketSumOfRetweets", NewMaxBucketAggregation().BucketsPath("maxBucketDateHisto>sumOfRetweets"))
 	// SumBucket
-	dateHisto = NewDateHistogramAggregation().Field("created").Interval("year")
+	dateHisto = NewDateHistogramAggregation().Field("created").CalendarInterval("year")
 	dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
 	builder = builder.Aggregation("sumBucketDateHisto", dateHisto)
 	builder = builder.Aggregation("sumBucketSumOfRetweets", NewSumBucketAggregation().BucketsPath("sumBucketDateHisto>sumOfRetweets"))
 	// MovAvg
-	dateHisto = NewDateHistogramAggregation().Field("created").Interval("year")
+	dateHisto = NewDateHistogramAggregation().Field("created").CalendarInterval("year")
 	dateHisto = dateHisto.SubAggregation("sumOfRetweets", NewSumAggregation().Field("retweets"))
 	dateHisto = dateHisto.SubAggregation("movingAvg", NewMovAvgAggregation().BucketsPath("sumOfRetweets"))
 	dateHisto = dateHisto.SubAggregation("movingFn", NewMovFnAggregation("sumOfRetweets", NewScript("MovingFunctions.sum(values)"), 10))
@@ -1303,7 +1303,7 @@ func TestAggsCompositeIntegration(t *testing.T) {
 	composite := NewCompositeAggregation().Sources(
 		NewCompositeAggregationTermsValuesSource("composite_users").Field("user"),
 		NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).MissingBucket(true).Field("retweets"),
-		NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
+		NewCompositeAggregationDateHistogramValuesSource("composite_created").CalendarInterval("1m").Field("created"),
 	).Size(2)
 	builder = builder.Aggregation("composite", composite)
 
@@ -1368,7 +1368,7 @@ func TestAggsCompositeIntegration(t *testing.T) {
 	composite = NewCompositeAggregation().Sources(
 		NewCompositeAggregationTermsValuesSource("composite_users").Field("user"),
 		NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).Field("retweets"),
-		NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
+		NewCompositeAggregationDateHistogramValuesSource("composite_created").CalendarInterval("1m").Field("created"),
 	).Size(2).AggregateAfter(afterKey)
 	builder = builder.Aggregation("composite", composite)
 	searchResult, err = builder.Pretty(true).Do(context.TODO())
@@ -1421,7 +1421,7 @@ func TestAggsCompositeIntegration(t *testing.T) {
 	composite = NewCompositeAggregation().Sources(
 		NewCompositeAggregationTermsValuesSource("composite_users").Field("user"),
 		NewCompositeAggregationHistogramValuesSource("composite_retweets", 1).Field("retweets"),
-		NewCompositeAggregationDateHistogramValuesSource("composite_created", "1m").Field("created"),
+		NewCompositeAggregationDateHistogramValuesSource("composite_created").CalendarInterval("1m").Field("created"),
 	).Size(2).AggregateAfter(afterKey)
 	builder = builder.Aggregation("composite", composite)
 	searchResult, err = builder.Pretty(true).Do(context.TODO())
@@ -1483,7 +1483,7 @@ func TestAggsMarshal(t *testing.T) {
 
 	// Match all should return all documents
 	all := NewMatchAllQuery()
-	dhagg := NewDateHistogramAggregation().Field("created").Interval("year")
+	dhagg := NewDateHistogramAggregation().Field("created").CalendarInterval("year")
 
 	// Run query
 	builder := client.Search().Index(testIndexName).Query(all)
