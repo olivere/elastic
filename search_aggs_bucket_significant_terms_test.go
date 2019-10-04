@@ -48,6 +48,40 @@ func TestSignificantTermsAggregationWithArgs(t *testing.T) {
 	}
 }
 
+func TestSignificantTermsAggregationWithIncludeExclude(t *testing.T) {
+	agg := NewSignificantTermsAggregation().Field("crime_type").Include(".*sport.*").Exclude("water_.*")
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_terms":{"exclude":"water_.*","field":"crime_type","include":".*sport.*"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestSignificantTermsAggregationWithIncludeExcludeValues(t *testing.T) {
+	agg := NewSignificantTermsAggregation().Field("crime_type").IncludeValues("mazda", "honda").ExcludeValues("rover", "jensen")
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_terms":{"exclude":["rover","jensen"],"field":"crime_type","include":["mazda","honda"]}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestSignificantTermsAggregationSubAggregation(t *testing.T) {
 	crimeTypesAgg := NewSignificantTermsAggregation().Field("crime_type")
 	agg := NewTermsAggregation().Field("force")
