@@ -1286,7 +1286,7 @@ func TestPerformRequestWithMaxResponseSize(t *testing.T) {
 		t.Fatal("expected response to be != nil")
 	}
 
-	res, err = client.PerformRequest(context.TODO(), PerformRequestOptions{
+	_, err = client.PerformRequest(context.TODO(), PerformRequestOptions{
 		Method:          "GET",
 		Path:            "/",
 		MaxResponseSize: 100,

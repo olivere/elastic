@@ -14,6 +14,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -237,16 +238,6 @@ func (t tweet) String() string {
 	return fmt.Sprintf("tweet{User:%q,Message:%q,Retweets:%d}", t.User, t.Message, t.Retweets)
 }
 
-type comment struct {
-	User    string    `json:"user"`
-	Comment string    `json:"comment"`
-	Created time.Time `json:"created,omitempty"`
-}
-
-func (c comment) String() string {
-	return fmt.Sprintf("comment{User:%q,Comment:%q}", c.User, c.Comment)
-}
-
 type joinDoc struct {
 	Message   string      `json:"message"`
 	JoinField interface{} `json:"my_join_field,omitempty"`
@@ -271,11 +262,6 @@ func (o order) String() string {
 // doctype is required for Percolate tests.
 type doctype struct {
 	Message string `json:"message"`
-}
-
-// queries is required for Percolate tests.
-type queries struct {
-	Query string `json:"query"`
 }
 
 func isTravis() bool {
@@ -308,6 +294,7 @@ func (d *strictDecoder) Decode(data []byte, v interface{}) error {
 
 var (
 	logDeprecations = flag.String("deprecations", "off", "log or fail on deprecation warnings")
+	logTypesRemoval = flag.Bool("types-removal", false, "log deprecation warnings regarding types removal")
 	strict          = flag.Bool("strict-decoder", false, "treat missing unknown fields in response as errors")
 )
 
@@ -319,7 +306,7 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 		t.Fatal(err)
 	}
 
-	// Add a strict decoder (unless a specific decoder has been specified already)
+	// Use strict JSON decoder (unless a specific decoder has been specified already)
 	if *strict {
 		if client.decoder == nil {
 			client.decoder = &strictDecoder{}
@@ -332,6 +319,9 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 	if loglevel := *logDeprecations; loglevel != "off" {
 		logDeprecation = func(req *http.Request, res *http.Response) {
 			for _, warning := range res.Header["Warning"] {
+				if !*logTypesRemoval && strings.Contains(warning, "[types removal]") {
+					continue
+				}
 				switch loglevel {
 				default:
 					t.Logf("[%s] Deprecation warning: %s", req.URL, warning)

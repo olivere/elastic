@@ -995,7 +995,7 @@ func (c *Client) extractHostname(scheme, address string) string {
 	if idx := strings.Index(s, "/"); idx >= 0 {
 		s = s[idx+1:]
 	}
-	if strings.Index(s, ":") < 0 {
+	if !strings.Contains(s, ":") {
 		return ""
 	}
 	return fmt.Sprintf("%s://%s", scheme, s)
@@ -1160,11 +1160,9 @@ func (c *Client) startupHealthcheck(parentCtx context.Context, timeout time.Dura
 		case <-parentCtx.Done():
 			lastErr = parentCtx.Err()
 			done = true
-			break
 		case <-time.After(1 * time.Second):
 			if time.Since(start) > timeout {
 				done = true
-				break
 			}
 		}
 	}

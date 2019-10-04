@@ -315,7 +315,7 @@ func TestXPackWatcher(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	stats, err = client.XPackWatchStats().Do(context.Background())
+	_, err = client.XPackWatchStats().Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}

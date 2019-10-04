@@ -20,8 +20,6 @@ type XPackWatcherDeactivateWatchService struct {
 	pretty        bool
 	watchId       string
 	masterTimeout string
-	bodyJson      interface{}
-	bodyString    string
 }
 
 // NewXPackWatcherDeactivateWatchService creates a new XPackWatcherDeactivateWatchService.

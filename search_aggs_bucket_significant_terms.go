@@ -23,7 +23,7 @@ type SignificantTermsAggregation struct {
 
 func NewSignificantTermsAggregation() *SignificantTermsAggregation {
 	return &SignificantTermsAggregation{
-		subAggregations: make(map[string]Aggregation, 0),
+		subAggregations: make(map[string]Aggregation),
 	}
 }
 
