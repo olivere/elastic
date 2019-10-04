@@ -13,8 +13,6 @@ import (
 )
 
 type decoder struct {
-	dec json.Decoder
-
 	N int64
 }
 

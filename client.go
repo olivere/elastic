@@ -137,6 +137,7 @@ type Client struct {
 	gzipEnabled               bool            // gzip compression enabled or disabled (default)
 	requiredPlugins           []string        // list of required plugins
 	retrier                   Retrier         // strategy for retries
+	headers                   http.Header     // a list of default headers to add to each request
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -714,6 +715,15 @@ func SetRetrier(retrier Retrier) ClientOptionFunc {
 	}
 }
 
+// SetHeaders adds a list of default HTTP headers that will be added to
+// each requests executed by PerformRequest.
+func SetHeaders(headers http.Header) ClientOptionFunc {
+	return func(c *Client) error {
+		c.headers = headers
+		return nil
+	}
+}
+
 // String returns a string representation of the client status.
 func (c *Client) String() string {
 	c.connsMu.Lock()
@@ -794,6 +804,8 @@ func (c *Client) Stop() {
 
 	c.infof("elastic: client stopped")
 }
+
+var logDeprecation = func(*http.Request, *http.Response) {}
 
 // errorf logs to the error log.
 func (c *Client) errorf(format string, args ...interface{}) {
@@ -987,7 +999,7 @@ func (c *Client) extractHostname(scheme, address string) string {
 	if idx := strings.Index(s, "/"); idx >= 0 {
 		s = s[idx+1:]
 	}
-	if strings.Index(s, ":") < 0 {
+	if !strings.Contains(s, ":") {
 		return ""
 	}
 	return fmt.Sprintf("%s://%s", scheme, s)
@@ -1152,11 +1164,9 @@ func (c *Client) startupHealthcheck(parentCtx context.Context, timeout time.Dura
 		case <-parentCtx.Done():
 			lastErr = parentCtx.Err()
 			done = true
-			break
 		case <-time.After(1 * time.Second):
 			if time.Since(start) > timeout {
 				done = true
-				break
 			}
 		}
 	}
@@ -1257,6 +1267,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 	if opt.Retrier != nil {
 		retrier = opt.Retrier
 	}
+	defaultHeaders := c.headers
 	c.mu.RUnlock()
 
 	var err error
@@ -1313,9 +1324,15 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		if opt.ContentType != "" {
 			req.Header.Set("Content-Type", opt.ContentType)
 		}
-
 		if len(opt.Headers) > 0 {
 			for key, value := range opt.Headers {
+				for _, v := range value {
+					req.Header.Add(key, v)
+				}
+			}
+		}
+		if len(defaultHeaders) > 0 {
+			for key, value := range defaultHeaders {
 				for _, v := range value {
 					req.Header.Add(key, v)
 				}
@@ -1363,8 +1380,11 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		c.dumpResponse(res)
 
 		// Log deprecation warnings as errors
-		if s := res.Header.Get("Warning"); s != "" {
-			c.errorf(s)
+		if len(res.Header["Warning"]) > 0 {
+			logDeprecation((*http.Request)(req), res)
+			for _, warning := range res.Header["Warning"] {
+				c.errorf("Deprecation warning: %s", warning)
+			}
 		}
 
 		// Check for errors

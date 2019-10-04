@@ -482,15 +482,18 @@ func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 
 // SearchResult is the result of a search in Elasticsearch.
 type SearchResult struct {
-	TookInMillis int64          `json:"took,omitempty"`         // search time in milliseconds
-	ScrollId     string         `json:"_scroll_id,omitempty"`   // only used with Scroll and Scan operations
-	Hits         *SearchHits    `json:"hits,omitempty"`         // the actual search hits
-	Suggest      SearchSuggest  `json:"suggest,omitempty"`      // results from suggesters
-	Aggregations Aggregations   `json:"aggregations,omitempty"` // results from aggregations
-	TimedOut     bool           `json:"timed_out,omitempty"`    // true if the search timed out
-	Error        *ErrorDetails  `json:"error,omitempty"`        // only used in MultiGet
-	Profile      *SearchProfile `json:"profile,omitempty"`      // profiling results, if optional Profile API was active for this search
-	Shards       *ShardsInfo    `json:"_shards,omitempty"`      // shard information
+	TookInMillis    int64          `json:"took,omitempty"`             // search time in milliseconds
+	TerminatedEarly bool           `json:"terminated_early,omitempty"` // request terminated early
+	NumReducePhases int            `json:"num_reduce_phases,omitempty"`
+	ScrollId        string         `json:"_scroll_id,omitempty"`   // only used with Scroll and Scan operations
+	Hits            *SearchHits    `json:"hits,omitempty"`         // the actual search hits
+	Suggest         SearchSuggest  `json:"suggest,omitempty"`      // results from suggesters
+	Aggregations    Aggregations   `json:"aggregations,omitempty"` // results from aggregations
+	TimedOut        bool           `json:"timed_out,omitempty"`    // true if the search timed out
+	Error           *ErrorDetails  `json:"error,omitempty"`        // only used in MultiGet
+	Profile         *SearchProfile `json:"profile,omitempty"`      // profiling results, if optional Profile API was active for this search
+	Shards          *ShardsInfo    `json:"_shards,omitempty"`      // shard information
+	Status          int            `json:"status,omitempty"`       // used in MultiSearch
 }
 
 // TotalHits is a convenience function to return the number of hits for
@@ -558,8 +561,9 @@ type SearchHit struct {
 	MatchedQueries []string                       `json:"matched_queries,omitempty"` // matched queries
 	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits,omitempty"`      // inner hits with ES >= 1.5.0
 	Nested         *NestedHit                     `json:"_nested,omitempty"`         // for nested inner hits
+	Shard          string                         `json:"_shard,omitempty"`          // used e.g. in Search Explain
+	Node           string                         `json:"_node,omitempty"`           // used e.g. in Search Explain
 
-	// Shard
 	// HighlightFields
 	// SortValues
 	// MatchedFilters
@@ -596,16 +600,17 @@ type SearchSuggestion struct {
 // SearchSuggestionOption is an option of a SearchSuggestion.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-suggesters.html.
 type SearchSuggestionOption struct {
-	Text            string           `json:"text"`
-	Index           string           `json:"_index"`
-	Type            string           `json:"_type"`
-	Id              string           `json:"_id"`
-	Score           float64          `json:"score"`  // term and phrase suggesters uses "score" as of 6.2.4
-	ScoreUnderscore float64          `json:"_score"` // completion and context suggesters uses "_score" as of 6.2.4
-	Highlighted     string           `json:"highlighted"`
-	CollateMatch    bool             `json:"collate_match"`
-	Freq            int              `json:"freq"` // from TermSuggestion.Option in Java API
-	Source          *json.RawMessage `json:"_source"`
+	Text            string              `json:"text"`
+	Index           string              `json:"_index"`
+	Type            string              `json:"_type"`
+	Id              string              `json:"_id"`
+	Score           float64             `json:"score"`  // term and phrase suggesters uses "score" as of 6.2.4
+	ScoreUnderscore float64             `json:"_score"` // completion and context suggesters uses "_score" as of 6.2.4
+	Highlighted     string              `json:"highlighted"`
+	CollateMatch    bool                `json:"collate_match"`
+	Freq            int                 `json:"freq"` // from TermSuggestion.Option in Java API
+	Source          *json.RawMessage    `json:"_source"`
+	Contexts        map[string][]string `json:"contexts,omitempty"`
 }
 
 // SearchProfile is a list of shard profiling data collected during

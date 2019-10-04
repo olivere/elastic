@@ -18,7 +18,6 @@ import (
 type XPackInfoService struct {
 	client *Client
 	pretty bool
-	name   string
 }
 
 // NewXPackInfoService creates a new XPackInfoService.

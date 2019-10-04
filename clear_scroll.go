@@ -105,4 +105,6 @@ func (s *ClearScrollService) Do(ctx context.Context) (*ClearScrollResponse, erro
 
 // ClearScrollResponse is the response of ClearScrollService.Do.
 type ClearScrollResponse struct {
+	Succeeded bool `json:"succeeded,omitempty"`
+	NumFreed  int  `json:"num_freed,omitempty"`
 }

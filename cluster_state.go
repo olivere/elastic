@@ -185,6 +185,7 @@ func (s *ClusterStateService) Do(ctx context.Context) (*ClusterStateResponse, er
 // ClusterStateResponse is the response of ClusterStateService.Do.
 type ClusterStateResponse struct {
 	ClusterName  string                    `json:"cluster_name"`
+	ClusterUUID  string                    `json:"cluster_uuid"`
 	Version      int64                     `json:"version"`
 	StateUUID    string                    `json:"state_uuid"`
 	MasterNode   string                    `json:"master_node"`

@@ -5,20 +5,26 @@
 package elastic
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
 const (
-	testIndexName  = "elastic-test"
-	testIndexName2 = "elastic-test2"
-	testIndexName3 = "elastic-test3"
-	testIndexName4 = "elastic-test4"
-	testMapping    = `
+	testIndexName      = "elastic-test"
+	testIndexName2     = "elastic-test2"
+	testIndexName3     = "elastic-test3"
+	testIndexName4     = "elastic-test4"
+	testIndexNameEmpty = "elastic-test-empty"
+	testMapping        = `
 {
 	"settings":{
 		"number_of_shards":1,
@@ -215,16 +221,6 @@ func (t tweet) String() string {
 	return fmt.Sprintf("tweet{User:%q,Message:%q,Retweets:%d}", t.User, t.Message, t.Retweets)
 }
 
-type comment struct {
-	User    string    `json:"user"`
-	Comment string    `json:"comment"`
-	Created time.Time `json:"created,omitempty"`
-}
-
-func (c comment) String() string {
-	return fmt.Sprintf("comment{User:%q,Comment:%q}", c.User, c.Comment)
-}
-
 type joinDoc struct {
 	Message   string      `json:"message"`
 	JoinField interface{} `json:"my_join_field,omitempty"`
@@ -251,11 +247,6 @@ type doctype struct {
 	Message string `json:"message"`
 }
 
-// queries is required for Percolate tests.
-type queries struct {
-	Query string `json:"query"`
-}
-
 func isTravis() bool {
 	return os.Getenv("TRAVIS") != ""
 }
@@ -275,6 +266,23 @@ type logger interface {
 	Logf(format string, args ...interface{})
 }
 
+func boolPtr(b bool) *bool { return &b }
+
+// strictDecoder returns an error if any JSON fields aren't decoded.
+type strictDecoder struct{}
+
+func (d *strictDecoder) Decode(data []byte, v interface{}) error {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	return dec.Decode(v)
+}
+
+var (
+	logDeprecations = flag.String("deprecations", "off", "log or fail on deprecation warnings")
+	logTypesRemoval = flag.Bool("types-removal", false, "log deprecation warnings regarding types removal")
+	strict          = flag.Bool("strict-decoder", false, "treat missing unknown fields in response as errors")
+)
+
 func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 	var err error
 
@@ -283,10 +291,37 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 		t.Fatal(err)
 	}
 
+	// Use strict JSON decoder (unless a specific decoder has been specified already)
+	if *strict {
+		if client.decoder == nil {
+			client.decoder = &strictDecoder{}
+		} else if _, ok := client.decoder.(*DefaultDecoder); ok {
+			client.decoder = &strictDecoder{}
+		}
+	}
+
+	// Log deprecations during tests
+	if loglevel := *logDeprecations; loglevel != "off" {
+		logDeprecation = func(req *http.Request, res *http.Response) {
+			for _, warning := range res.Header["Warning"] {
+				if !*logTypesRemoval && strings.Contains(warning, "[types removal]") {
+					continue
+				}
+				switch loglevel {
+				default:
+					t.Logf("[%s] Deprecation warning: %s", req.URL, warning)
+				case "fail", "error":
+					t.Errorf("[%s] Deprecation warning: %s", req.URL, warning)
+				}
+			}
+		}
+	}
+
 	client.DeleteIndex(testIndexName).Do(context.TODO())
 	client.DeleteIndex(testIndexName2).Do(context.TODO())
 	client.DeleteIndex(testIndexName3).Do(context.TODO())
 	client.DeleteIndex(testIndexName4).Do(context.TODO())
+	client.DeleteIndex(testIndexNameEmpty).Do(context.TODO())
 	client.DeleteIndex(testOrderIndex).Do(context.TODO())
 	client.DeleteIndex(testNoSourceIndexName).Do(context.TODO())
 	//client.DeleteIndex(testDoctypeIndex).Do(context.TODO())
@@ -315,6 +350,15 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 	}
 	if createIndex2 == nil {
 		t.Errorf("expected result to be != nil; got: %v", createIndex2)
+	}
+
+	// Create empty index
+	createIndexEmpty, err := client.CreateIndex(testIndexNameEmpty).Body(testMapping).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if createIndexEmpty == nil {
+		t.Errorf("expected result to be != nil; got: %v", createIndexEmpty)
 	}
 
 	// Create no source index

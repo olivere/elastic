@@ -166,4 +166,6 @@ type CatAliasesResponseRow struct {
 	RoutingIndex string `json:"routing.index"`
 	// RoutingSearch specifies the search routing (or "-").
 	RoutingSearch string `json:"routing.search"`
+	// IsWriteIndex indicates whether the index can be written to (or "-").
+	IsWriteIndex string `json:"is_write_index"`
 }

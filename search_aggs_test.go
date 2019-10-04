@@ -1315,7 +1315,7 @@ func TestAggsCompositeIntegration(t *testing.T) {
 			t.Fatalf("expected %d; got: %d", want, have)
 		}
 		afterKey = compositeAggRes.AfterKey
-		if afterKey == nil || len(afterKey) == 0 {
+		if len(afterKey) == 0 {
 			t.Fatalf("expected after_key; got: %v", afterKey)
 		}
 		if v, found := afterKey["composite_users"]; !found {
@@ -1368,7 +1368,7 @@ func TestAggsCompositeIntegration(t *testing.T) {
 			t.Fatalf("expected %d; got: %d", want, have)
 		}
 		afterKey = compositeAggRes.AfterKey
-		if afterKey == nil || len(afterKey) == 0 {
+		if len(afterKey) == 0 {
 			t.Fatalf("expected after_key; got: %v", afterKey)
 		}
 		if v, found := afterKey["composite_users"]; !found {

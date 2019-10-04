@@ -321,6 +321,7 @@ func (s *CountService) Do(ctx context.Context) (int64, error) {
 
 // CountResponse is the response of using the Count API.
 type CountResponse struct {
-	Count  int64       `json:"count"`
-	Shards *ShardsInfo `json:"_shards,omitempty"`
+	Count           int64       `json:"count"`
+	TerminatedEarly bool        `json:"terminated_early,omitempty"`
+	Shards          *ShardsInfo `json:"_shards,omitempty"
 }

@@ -369,20 +369,7 @@ func (s *ReindexService) DoAsync(ctx context.Context) (*StartTaskResult, error) 
 
 // ReindexSource specifies the source of a Reindex process.
 type ReindexSource struct {
-	searchType string // default in ES is "query_then_fetch"
 	request    *SearchRequest
-	/*
-		indices      []string
-		types        []string
-		routing      *string
-		preference   *string
-		requestCache *bool
-		scroll       string
-		query        Query
-		sorts        []SortInfo
-		sorters      []Sorter
-		searchSource *SearchSource
-	*/
 	remoteInfo *ReindexRemoteInfo
 }
 
