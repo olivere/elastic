@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -16,8 +17,14 @@ import (
 // IndicesStatsService provides stats on various metrics of one or more
 // indices. See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/indices-stats.html.
 type IndicesStatsService struct {
-	client           *Client
-	pretty           bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	metric           []string
 	index            []string
 	level            string
@@ -26,7 +33,6 @@ type IndicesStatsService struct {
 	fielddataFields  []string
 	fields           []string
 	groups           []string
-	human            *bool
 }
 
 // NewIndicesStatsService creates a new IndicesStatsService.
@@ -41,6 +47,46 @@ func NewIndicesStatsService(client *Client) *IndicesStatsService {
 		groups:           make([]string, 0),
 		types:            make([]string, 0),
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *IndicesStatsService) Pretty(pretty bool) *IndicesStatsService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *IndicesStatsService) Human(human bool) *IndicesStatsService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *IndicesStatsService) ErrorTrace(errorTrace bool) *IndicesStatsService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *IndicesStatsService) FilterPath(filterPath ...string) *IndicesStatsService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesStatsService) Header(name string, value string) *IndicesStatsService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesStatsService) Headers(headers http.Header) *IndicesStatsService {
+	s.headers = headers
+	return s
 }
 
 // Metric limits the information returned the specific metrics. Options are:
@@ -96,18 +142,6 @@ func (s *IndicesStatsService) Groups(groups ...string) *IndicesStatsService {
 	return s
 }
 
-// Human indicates whether to return time and byte values in human-readable format..
-func (s *IndicesStatsService) Human(human bool) *IndicesStatsService {
-	s.human = &human
-	return s
-}
-
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *IndicesStatsService) Pretty(pretty bool) *IndicesStatsService {
-	s.pretty = pretty
-	return s
-}
-
 // buildURL builds the URL for the operation.
 func (s *IndicesStatsService) buildURL() (string, url.Values, error) {
 	var err error
@@ -134,14 +168,20 @@ func (s *IndicesStatsService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if len(s.groups) > 0 {
 		params.Set("groups", strings.Join(s.groups, ","))
-	}
-	if s.human != nil {
-		params.Set("human", fmt.Sprintf("%v", *s.human))
 	}
 	if s.level != "" {
 		params.Set("level", s.level)
@@ -181,9 +221,10 @@ func (s *IndicesStatsService) Do(ctx context.Context) (*IndicesStatsResponse, er
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "GET",
-		Path:   path,
-		Params: params,
+		Method:  "GET",
+		Path:    path,
+		Params:  params,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

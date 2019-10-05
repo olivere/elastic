@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -17,8 +18,14 @@ import (
 // See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-templates.html#indices-templates-exists
 // for documentation.
 type IndicesExistsTemplateService struct {
-	client          *Client
-	pretty          bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	name            string
 	local           *bool
 	includeTypeName *bool
@@ -29,6 +36,46 @@ func NewIndicesExistsTemplateService(client *Client) *IndicesExistsTemplateServi
 	return &IndicesExistsTemplateService{
 		client: client,
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *IndicesExistsTemplateService) Pretty(pretty bool) *IndicesExistsTemplateService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *IndicesExistsTemplateService) Human(human bool) *IndicesExistsTemplateService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *IndicesExistsTemplateService) ErrorTrace(errorTrace bool) *IndicesExistsTemplateService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *IndicesExistsTemplateService) FilterPath(filterPath ...string) *IndicesExistsTemplateService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesExistsTemplateService) Header(name string, value string) *IndicesExistsTemplateService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesExistsTemplateService) Headers(headers http.Header) *IndicesExistsTemplateService {
+	s.headers = headers
+	return s
 }
 
 // Name is the name of the template.
@@ -51,12 +98,6 @@ func (s *IndicesExistsTemplateService) IncludeTypeName(include bool) *IndicesExi
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *IndicesExistsTemplateService) Pretty(pretty bool) *IndicesExistsTemplateService {
-	s.pretty = pretty
-	return s
-}
-
 // buildURL builds the URL for the operation.
 func (s *IndicesExistsTemplateService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -69,8 +110,17 @@ func (s *IndicesExistsTemplateService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if v := s.local; v != nil {
 		params.Set("local", fmt.Sprint(*v))
@@ -111,7 +161,8 @@ func (s *IndicesExistsTemplateService) Do(ctx context.Context) (bool, error) {
 		Method:       "HEAD",
 		Path:         path,
 		Params:       params,
-		IgnoreErrors: []int{404},
+		IgnoreErrors: []int{http.StatusNotFound},
+		Headers:      s.headers,
 	})
 	if err != nil {
 		return false, err

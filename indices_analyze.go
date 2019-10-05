@@ -7,7 +7,9 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/olivere/elastic/uritemplates"
 )
@@ -18,8 +20,14 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/indices-analyze.html
 // for detail.
 type IndicesAnalyzeService struct {
-	client      *Client
-	pretty      bool
+	client *Client
+
+	pretty     *bool       // pretty format the returned JSON response
+	human      *bool       // return human readable values for statistics
+	errorTrace *bool       // include the stack trace of returned errors
+	filterPath []string    // list of filters used to reduce the response
+	headers    http.Header // custom request-level HTTP headers
+
 	index       string
 	request     *IndicesAnalyzeRequest
 	format      string
@@ -34,6 +42,46 @@ func NewIndicesAnalyzeService(client *Client) *IndicesAnalyzeService {
 		client:  client,
 		request: new(IndicesAnalyzeRequest),
 	}
+}
+
+// Pretty tells Elasticsearch whether to return a formatted JSON response.
+func (s *IndicesAnalyzeService) Pretty(pretty bool) *IndicesAnalyzeService {
+	s.pretty = &pretty
+	return s
+}
+
+// Human specifies whether human readable values should be returned in
+// the JSON response, e.g. "7.5mb".
+func (s *IndicesAnalyzeService) Human(human bool) *IndicesAnalyzeService {
+	s.human = &human
+	return s
+}
+
+// ErrorTrace specifies whether to include the stack trace of returned errors.
+func (s *IndicesAnalyzeService) ErrorTrace(errorTrace bool) *IndicesAnalyzeService {
+	s.errorTrace = &errorTrace
+	return s
+}
+
+// FilterPath specifies a list of filters used to reduce the response.
+func (s *IndicesAnalyzeService) FilterPath(filterPath ...string) *IndicesAnalyzeService {
+	s.filterPath = filterPath
+	return s
+}
+
+// Header adds a header to the request.
+func (s *IndicesAnalyzeService) Header(name string, value string) *IndicesAnalyzeService {
+	if s.headers == nil {
+		s.headers = http.Header{}
+	}
+	s.headers.Add(name, value)
+	return s
+}
+
+// Headers specifies the headers of the request.
+func (s *IndicesAnalyzeService) Headers(headers http.Header) *IndicesAnalyzeService {
+	s.headers = headers
+	return s
 }
 
 // Index is the name of the index to scope the operation.
@@ -114,12 +162,6 @@ func (s *IndicesAnalyzeService) Tokenizer(tokenizer string) *IndicesAnalyzeServi
 	return s
 }
 
-// Pretty indicates that the JSON response be indented and human readable.
-func (s *IndicesAnalyzeService) Pretty(pretty bool) *IndicesAnalyzeService {
-	s.pretty = pretty
-	return s
-}
-
 // BodyJson is the text on which the analysis should be performed.
 func (s *IndicesAnalyzeService) BodyJson(body interface{}) *IndicesAnalyzeService {
 	s.bodyJson = body
@@ -151,8 +193,17 @@ func (s *IndicesAnalyzeService) buildURL() (string, url.Values, error) {
 
 	// Add query string parameters
 	params := url.Values{}
-	if s.pretty {
-		params.Set("pretty", "true")
+	if v := s.pretty; v != nil {
+		params.Set("pretty", fmt.Sprint(*v))
+	}
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
+	}
+	if v := s.errorTrace; v != nil {
+		params.Set("error_trace", fmt.Sprint(*v))
+	}
+	if len(s.filterPath) > 0 {
+		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.format != "" {
 		params.Set("format", s.format)
@@ -190,10 +241,11 @@ func (s *IndicesAnalyzeService) Do(ctx context.Context) (*IndicesAnalyzeResponse
 	}
 
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: "POST",
-		Path:   path,
-		Params: params,
-		Body:   body,
+		Method:  "POST",
+		Path:    path,
+		Params:  params,
+		Body:    body,
+		Headers: s.headers,
 	})
 	if err != nil {
 		return nil, err

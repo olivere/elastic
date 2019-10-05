@@ -2,8 +2,6 @@ package elastic
 
 import (
 	"context"
-	"log"
-	"os"
 	"testing"
 )
 
@@ -36,8 +34,8 @@ func TestIndicesAnalyzeURL(t *testing.T) {
 }
 
 func TestIndicesAnalyze(t *testing.T) {
-	// client := setupTestClient(t)
-	client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClient(t)
+	// client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	res, err := client.IndexAnalyze().Text("hello hi guy").Do(context.TODO())
 	if err != nil {
@@ -49,8 +47,8 @@ func TestIndicesAnalyze(t *testing.T) {
 }
 
 func TestIndicesAnalyzeDetail(t *testing.T) {
-	// client := setupTestClient(t)
-	client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClient(t)
+	// client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	res, err := client.IndexAnalyze().Text("hello hi guy").Explain(true).Pretty(true).Do(context.TODO())
 	if err != nil {
