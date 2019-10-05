@@ -17,10 +17,11 @@ import (
 // See http://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-templates.html#indices-templates-exists
 // for documentation.
 type IndicesExistsTemplateService struct {
-	client *Client
-	pretty bool
-	name   string
-	local  *bool
+	client          *Client
+	pretty          bool
+	name            string
+	local           *bool
+	includeTypeName *bool
 }
 
 // NewIndicesExistsTemplateService creates a new IndicesExistsTemplateService.
@@ -40,6 +41,13 @@ func (s *IndicesExistsTemplateService) Name(name string) *IndicesExistsTemplateS
 // the state from master node (default: false).
 func (s *IndicesExistsTemplateService) Local(local bool) *IndicesExistsTemplateService {
 	s.local = &local
+	return s
+}
+
+// IncludeTypeName indicates whether a type should be expected in the
+// body of the mappings.
+func (s *IndicesExistsTemplateService) IncludeTypeName(include bool) *IndicesExistsTemplateService {
+	s.includeTypeName = &include
 	return s
 }
 
@@ -64,8 +72,11 @@ func (s *IndicesExistsTemplateService) buildURL() (string, url.Values, error) {
 	if s.pretty {
 		params.Set("pretty", "true")
 	}
-	if s.local != nil {
-		params.Set("local", fmt.Sprintf("%v", *s.local))
+	if v := s.local; v != nil {
+		params.Set("local", fmt.Sprint(*v))
+	}
+	if v := s.includeTypeName; v != nil {
+		params.Set("include_type_name", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

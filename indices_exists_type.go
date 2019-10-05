@@ -27,6 +27,7 @@ type IndicesExistsTypeService struct {
 	local             *bool
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
+	includeTypeName   *bool
 }
 
 // NewIndicesExistsTypeService creates a new IndicesExistsTypeService.
@@ -77,6 +78,13 @@ func (s *IndicesExistsTypeService) Local(local bool) *IndicesExistsTypeService {
 	return s
 }
 
+// IncludeTypeName indicates whether a type should be expected in the
+// body of the mappings.
+func (s *IndicesExistsTypeService) IncludeTypeName(include bool) *IndicesExistsTypeService {
+	s.includeTypeName = &include
+	return s
+}
+
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesExistsTypeService) Pretty(pretty bool) *IndicesExistsTypeService {
 	s.pretty = pretty
@@ -99,17 +107,20 @@ func (s *IndicesExistsTypeService) buildURL() (string, url.Values, error) {
 	if s.pretty {
 		params.Set("pretty", "true")
 	}
-	if s.ignoreUnavailable != nil {
-		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	if v := s.ignoreUnavailable; v != nil {
+		params.Set("ignore_unavailable", fmt.Sprint(*v))
 	}
-	if s.allowNoIndices != nil {
-		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+	if v := s.allowNoIndices; v != nil {
+		params.Set("allow_no_indices", fmt.Sprint(*v))
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
 	}
-	if s.local != nil {
-		params.Set("local", fmt.Sprintf("%v", *s.local))
+	if v := s.local; v != nil {
+		params.Set("local", fmt.Sprint(*v))
+	}
+	if v := s.includeTypeName; v != nil {
+		params.Set("include_type_name", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

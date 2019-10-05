@@ -118,7 +118,7 @@ func TestFetchSourceContextQueryFetchSourceWithIncludesAndExcludes(t *testing.T)
 	builder := NewFetchSourceContext(true).Include("a", "b").Exclude("c")
 	values := builder.Query()
 	got := values.Encode()
-	expected := "_source_exclude=c&_source_include=a%2Cb"
+	expected := "_source_excludes=c&_source_includes=a%2Cb"
 	if got != expected {
 		t.Errorf("expected %q; got: %q", expected, got)
 	}

@@ -75,7 +75,7 @@ func TestIndicesGetService(t *testing.T) {
 		return
 	}
 
-	res, err := client.IndexGet().Index(testIndexName).Do(context.TODO())
+	res, err := client.IndexGet().Index(testIndexName).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

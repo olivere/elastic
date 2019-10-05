@@ -13,7 +13,7 @@ func TestIndicesLifecycle(t *testing.T) {
 	client := setupTestClient(t)
 
 	// Create index
-	createIndex, err := client.CreateIndex(testIndexName).Do(context.TODO())
+	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

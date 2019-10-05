@@ -16,11 +16,12 @@ import (
 // IndicesGetTemplateService returns an index template.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/indices-templates.html.
 type IndicesGetTemplateService struct {
-	client       *Client
-	pretty       bool
-	name         []string
-	flatSettings *bool
-	local        *bool
+	client          *Client
+	pretty          bool
+	name            []string
+	flatSettings    *bool
+	local           *bool
+	includeTypeName *bool
 }
 
 // NewIndicesGetTemplateService creates a new IndicesGetTemplateService.
@@ -47,6 +48,13 @@ func (s *IndicesGetTemplateService) FlatSettings(flatSettings bool) *IndicesGetT
 // the state from master node (default: false).
 func (s *IndicesGetTemplateService) Local(local bool) *IndicesGetTemplateService {
 	s.local = &local
+	return s
+}
+
+// IncludeTypeName indicates whether to update the mapping for all fields
+// with the same name across all types or not.
+func (s *IndicesGetTemplateService) IncludeTypeName(include bool) *IndicesGetTemplateService {
+	s.includeTypeName = &include
 	return s
 }
 
@@ -77,11 +85,14 @@ func (s *IndicesGetTemplateService) buildURL() (string, url.Values, error) {
 	if s.pretty {
 		params.Set("pretty", "true")
 	}
-	if s.flatSettings != nil {
-		params.Set("flat_settings", fmt.Sprintf("%v", *s.flatSettings))
+	if v := s.flatSettings; v != nil {
+		params.Set("flat_settings", fmt.Sprint(*v))
 	}
-	if s.local != nil {
-		params.Set("local", fmt.Sprintf("%v", *s.local))
+	if v := s.local; v != nil {
+		params.Set("local", fmt.Sprint(*v))
+	}
+	if v := s.includeTypeName; v != nil {
+		params.Set("include_type_name", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

@@ -50,7 +50,10 @@ func TestMappingLifecycle(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndLog(t)
 
 	// Create index
-	createIndex, err := client.CreateIndex(testIndexName3).Do(context.TODO())
+	createIndex, err := client.CreateIndex(testIndexName3).Body(`{"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	}}`).IncludeTypeName(false).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,16 +62,14 @@ func TestMappingLifecycle(t *testing.T) {
 	}
 
 	mapping := `{
-		"doc":{
-			"properties":{
-				"field":{
-					"type":"keyword"
-				}
+		"properties":{
+			"field":{
+				"type":"keyword"
 			}
 		}
 	}`
 
-	putresp, err := client.PutMapping().Index(testIndexName3).Type("doc").BodyString(mapping).Do(context.TODO())
+	putresp, err := client.PutMapping().Index(testIndexName3).BodyString(mapping).IncludeTypeName(false).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected put mapping to succeed; got: %v", err)
 	}
@@ -79,7 +80,7 @@ func TestMappingLifecycle(t *testing.T) {
 		t.Fatalf("expected put mapping ack; got: %v", putresp.Acknowledged)
 	}
 
-	getresp, err := client.GetMapping().Index(testIndexName3).Type("doc").Do(context.TODO())
+	getresp, err := client.GetMapping().Index(testIndexName3).IncludeTypeName(false).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected get mapping to succeed; got: %v", err)
 	}

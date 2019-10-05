@@ -62,7 +62,7 @@ func TestGeoPointIndexAndSearch(t *testing.T) {
 		}
 	}
 `
-	createIndex, err := client.CreateIndex(testIndexName).Body(mapping).Do(context.TODO())
+	createIndex, err := client.CreateIndex(testIndexName).Body(mapping).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

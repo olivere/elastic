@@ -97,7 +97,7 @@ func Example() {
 	}
 }
 `
-		createIndex, err := client.CreateIndex("twitter").Body(mapping).Do(context.Background())
+		createIndex, err := client.CreateIndex("twitter").Body(mapping).IncludeTypeName(true).Do(context.Background())
 		if err != nil {
 			// Handle error
 			panic(err)
@@ -312,7 +312,7 @@ func ExampleIndicesCreateService() {
 		panic(err)
 	}
 	// Create a new index.
-	createIndex, err := client.CreateIndex("twitter").Do(context.Background())
+	createIndex, err := client.CreateIndex("twitter").IncludeTypeName(true).Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)

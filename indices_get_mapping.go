@@ -27,6 +27,7 @@ type IndicesGetMappingService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	includeTypeName   *bool
 }
 
 // NewGetMappingService is an alias for NewIndicesGetMappingService.
@@ -85,6 +86,13 @@ func (s *IndicesGetMappingService) IgnoreUnavailable(ignoreUnavailable bool) *In
 	return s
 }
 
+// IncludeTypeName indicates whether to update the mapping for all fields
+// with the same name across all types or not.
+func (s *IndicesGetMappingService) IncludeTypeName(include bool) *IndicesGetMappingService {
+	s.includeTypeName = &include
+	return s
+}
+
 // Pretty indicates that the JSON response be indented and human readable.
 func (s *IndicesGetMappingService) Pretty(pretty bool) *IndicesGetMappingService {
 	s.pretty = pretty
@@ -121,17 +129,20 @@ func (s *IndicesGetMappingService) buildURL() (string, url.Values, error) {
 	if s.pretty {
 		params.Set("pretty", "true")
 	}
-	if s.ignoreUnavailable != nil {
-		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	if v := s.ignoreUnavailable; v != nil {
+		params.Set("ignore_unavailable", fmt.Sprint(*v))
 	}
-	if s.allowNoIndices != nil {
-		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+	if v := s.allowNoIndices; v != nil {
+		params.Set("allow_no_indices", fmt.Sprint(*v))
 	}
-	if s.expandWildcards != "" {
-		params.Set("expand_wildcards", s.expandWildcards)
+	if v := s.expandWildcards; v != "" {
+		params.Set("expand_wildcards", v)
 	}
-	if s.local != nil {
-		params.Set("local", fmt.Sprintf("%v", *s.local))
+	if v := s.local; v != nil {
+		params.Set("local", fmt.Sprint(*v))
+	}
+	if v := s.includeTypeName; v != nil {
+		params.Set("include_type_name", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

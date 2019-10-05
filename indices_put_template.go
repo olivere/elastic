@@ -150,11 +150,7 @@ func (s *IndicesPutTemplateService) buildURL() (string, url.Values, error) {
 		params.Set("flat_settings", fmt.Sprintf("%v", *s.flatSettings))
 	}
 	if v := s.includeTypeName; v != nil {
-		if *v {
-			params.Set("include_type_name", "true")
-		} else {
-			params.Set("include_type_name", "false")
-		}
+		params.Set("include_type_name", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

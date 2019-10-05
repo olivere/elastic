@@ -42,7 +42,7 @@ func TestIndexGetTemplateURL(t *testing.T) {
 }
 
 func TestIndexGetTemplateService(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 	create := true
 	body := `
 {
@@ -63,20 +63,20 @@ func TestIndexGetTemplateService(t *testing.T) {
         },
         "created_at": {
           "type": "date",
-          "format": "EEE MMM dd HH:mm:ss Z YYYY"
+          "format": "8EEE MMM dd HH:mm:ss Z u"
         }
       }
     }
   }
 }
 `
-	_, err := client.IndexPutTemplate("template_1").BodyString(body).Create(create).Do(context.TODO())
+	_, err := client.IndexPutTemplate("template_1").BodyString(body).Create(create).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer client.IndexDeleteTemplate("template_1").Do(context.TODO())
 
-	res, err := client.IndexGetTemplate("template_1").Do(context.TODO())
+	res, err := client.IndexGetTemplate("template_1").IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -79,10 +79,10 @@ func TestIndicesExistsTypeBuildURL(t *testing.T) {
 }
 
 func TestIndicesExistsType(t *testing.T) {
-	client := setupTestClient(t)
+	client := setupTestClient(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	// Create index with tweet type
-	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).Do(context.TODO())
+	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +94,7 @@ func TestIndicesExistsType(t *testing.T) {
 	}
 
 	// Check if type exists
-	exists, err := client.TypeExists().Index(testIndexName).Type("doc").Do(context.TODO())
+	exists, err := client.TypeExists().Index(testIndexName).Type("doc").IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,7 +112,7 @@ func TestIndicesExistsType(t *testing.T) {
 	}
 
 	// Check if type exists
-	exists, err = client.TypeExists().Index(testIndexName).Type("doc").Do(context.TODO())
+	exists, err = client.TypeExists().Index(testIndexName).Type("doc").IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

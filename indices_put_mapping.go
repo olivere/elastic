@@ -187,7 +187,7 @@ func (s *IndicesPutMappingService) buildURL() (string, url.Values, error) {
 // Validate checks if the operation is valid.
 func (s *IndicesPutMappingService) Validate() error {
 	var invalid []string
-	if s.typ == "" {
+	if s.includeTypeName != nil && *s.includeTypeName && s.typ == "" {
 		invalid = append(invalid, "Type")
 	}
 	if s.bodyString == "" && s.bodyJson == nil {

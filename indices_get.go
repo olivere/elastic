@@ -28,6 +28,7 @@ type IndicesGetService struct {
 	expandWildcards   string
 	flatSettings      *bool
 	human             *bool
+	includeTypeName   *bool
 }
 
 // NewIndicesGetService creates a new IndicesGetService.
@@ -78,14 +79,12 @@ func (s *IndicesGetService) ExpandWildcards(expandWildcards string) *IndicesGetS
 	return s
 }
 
-/* Disabled because serialization would fail in that case. */
-/*
-// FlatSettings make the service return settings in flat format (default: false).
-func (s *IndicesGetService) FlatSettings(flatSettings bool) *IndicesGetService {
-	s.flatSettings = &flatSettings
+// IncludeTypeName indicates whether to update the mapping for all fields
+// with the same name across all types or not.
+func (s *IndicesGetService) IncludeTypeName(include bool) *IndicesGetService {
+	s.includeTypeName = &include
 	return s
 }
-*/
 
 // Human indicates whether to return version and creation date values
 // in human-readable format (default: false).
@@ -136,20 +135,23 @@ func (s *IndicesGetService) buildURL() (string, url.Values, error) {
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
 	}
-	if s.flatSettings != nil {
-		params.Set("flat_settings", fmt.Sprintf("%v", *s.flatSettings))
+	if v := s.flatSettings; v != nil {
+		params.Set("flat_settings", fmt.Sprint(*v))
 	}
-	if s.human != nil {
-		params.Set("human", fmt.Sprintf("%v", *s.human))
+	if v := s.human; v != nil {
+		params.Set("human", fmt.Sprint(*v))
 	}
-	if s.local != nil {
-		params.Set("local", fmt.Sprintf("%v", *s.local))
+	if v := s.local; v != nil {
+		params.Set("local", fmt.Sprint(*v))
 	}
-	if s.ignoreUnavailable != nil {
-		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	if v := s.ignoreUnavailable; v != nil {
+		params.Set("ignore_unavailable", fmt.Sprint(*v))
 	}
-	if s.allowNoIndices != nil {
-		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+	if v := s.allowNoIndices; v != nil {
+		params.Set("allow_no_indices", fmt.Sprint(*v))
+	}
+	if v := s.includeTypeName; v != nil {
+		params.Set("include_type_name", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

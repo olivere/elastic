@@ -10,12 +10,10 @@ import (
 )
 
 func TestPercolate(t *testing.T) {
-	//client := setupTestClientAndCreateIndex(t, SetErrorLog(log.New(os.Stdout, "", 0)))
-	//client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 	client := setupTestClientAndCreateIndex(t)
 
 	// Create query index
-	createQueryIndex, err := client.CreateIndex(testQueryIndex).Body(testQueryMapping).Do(context.TODO())
+	createQueryIndex, err := client.CreateIndex(testQueryIndex).Body(testQueryMapping).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,7 +36,6 @@ func TestPercolate(t *testing.T) {
 	// Percolate should return our registered query
 	pq := NewPercolatorQuery().
 		Field("query").
-		DocumentType("doc").
 		Document(doctype{Message: "A new bonsai tree in the office"})
 	res, err := client.Search(testQueryIndex).Type("doc").Query(pq).Do(context.TODO())
 	if err != nil {

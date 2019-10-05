@@ -53,6 +53,14 @@ const (
 						{
 							"name":"user_name",
 							"type":"category"
+						},
+						{
+							"name":"place_name",
+							"type":"category"
+						},
+						{
+							"name":"place_geo",
+							"type":"geo"
 						}
 					]
 				}
@@ -150,7 +158,7 @@ const (
 			},
 			"time":{
 				"type":"date",
-				"format": "YYYY-MM-dd"
+				"format": "8yyyy-MM-dd"
 			}
 		}
 	}
@@ -335,7 +343,7 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 	client := setupTestClient(t, options...)
 
 	// Create index
-	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).Do(context.TODO())
+	createIndex, err := client.CreateIndex(testIndexName).Body(testMapping).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -344,7 +352,7 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 	}
 
 	// Create second index
-	createIndex2, err := client.CreateIndex(testIndexName2).Body(testMapping).Do(context.TODO())
+	createIndex2, err := client.CreateIndex(testIndexName2).Body(testMapping).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -353,7 +361,7 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 	}
 
 	// Create empty index
-	createIndexEmpty, err := client.CreateIndex(testIndexNameEmpty).Body(testMapping).Do(context.TODO())
+	createIndexEmpty, err := client.CreateIndex(testIndexNameEmpty).Body(testMapping).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -362,7 +370,7 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 	}
 
 	// Create no source index
-	createNoSourceIndex, err := client.CreateIndex(testNoSourceIndexName).Body(testNoSourceMapping).Do(context.TODO())
+	createNoSourceIndex, err := client.CreateIndex(testNoSourceIndexName).Body(testNoSourceMapping).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -371,7 +379,7 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 	}
 
 	// Create order index
-	createOrderIndex, err := client.CreateIndex(testOrderIndex).Body(testOrderMapping).Do(context.TODO())
+	createOrderIndex, err := client.CreateIndex(testOrderIndex).Body(testOrderMapping).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -407,12 +415,6 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	if err != nil {
 		t.Fatal(err)
 	}
-	/*
-		_, err = client.Index().Index(testIndexName).Type("comment").Id("1").Parent("3").BodyJson(&comment1).Do(context.TODO())
-		if err != nil {
-			t.Fatal(err)
-		}
-	*/
 
 	// Add orders
 	var orders []order

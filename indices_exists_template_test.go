@@ -34,7 +34,7 @@ func TestIndexExistsTemplate(t *testing.T) {
 		}
 	}
 }`
-	putres, err := client.IndexPutTemplate("elastic-template").BodyString(tmpl).Do(context.TODO())
+	putres, err := client.IndexPutTemplate("elastic-template").BodyString(tmpl).IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}
@@ -49,7 +49,7 @@ func TestIndexExistsTemplate(t *testing.T) {
 	defer client.IndexDeleteTemplate("elastic-template").Do(context.TODO())
 
 	// Check if template exists
-	exists, err := client.IndexTemplateExists("elastic-template").Do(context.TODO())
+	exists, err := client.IndexTemplateExists("elastic-template").IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}
@@ -58,7 +58,7 @@ func TestIndexExistsTemplate(t *testing.T) {
 	}
 
 	// Get template
-	getres, err := client.IndexGetTemplate("elastic-template").Do(context.TODO())
+	getres, err := client.IndexGetTemplate("elastic-template").IncludeTypeName(true).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}

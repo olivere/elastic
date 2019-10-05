@@ -946,13 +946,12 @@ func TestSearchInnerHitsOnHasChild(t *testing.T) {
 }
 
 func TestSearchInnerHitsOnHasParent(t *testing.T) {
-	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 	client := setupTestClientAndCreateIndex(t)
 
 	ctx := context.Background()
 
 	// Create join index
-	createIndex, err := client.CreateIndex(testJoinIndex).Body(testJoinMapping).Do(ctx)
+	createIndex, err := client.CreateIndex(testJoinIndex).Body(testJoinMapping).IncludeTypeName(true).Do(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
