@@ -52,7 +52,6 @@ func NewPingService(client *Client) *PingService {
 		client:       client,
 		url:          DefaultURL,
 		httpHeadOnly: false,
-		pretty:       boolPtr(false),
 	}
 }
 
