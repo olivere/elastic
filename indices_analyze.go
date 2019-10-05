@@ -233,53 +233,36 @@ type IndicesAnalyzeRequest struct {
 }
 
 type IndicesAnalyzeResponse struct {
-	Tokens []IndicesAnalyzeResponseToken `json:"tokens"` // json part for normal message
-	Detail IndicesAnalyzeResponseDetail  `json:"detail"` // json part for verbose message of explain request
+	Tokens []AnalyzeToken               `json:"tokens"` // json part for normal message
+	Detail IndicesAnalyzeResponseDetail `json:"detail"` // json part for verbose message of explain request
 }
 
-type IndicesAnalyzeResponseToken struct {
+type AnalyzeTokenList struct {
+	Name   string         `json:"name"`
+	Tokens []AnalyzeToken `json:"tokens,omitempty"`
+}
+
+type AnalyzeToken struct {
 	Token          string `json:"token"`
+	Type           string `json:"type"` // e.g. "<ALPHANUM>"
 	StartOffset    int    `json:"start_offset"`
 	EndOffset      int    `json:"end_offset"`
-	Type           string `json:"type"`
+	Bytes          string `json:"bytes"` // e.g. "[67 75 79]"
 	Position       int    `json:"position"`
-	PositionLength int    `json:"positionLength"` // seems to be wrong in 6.8 (no snake_case), see https://github.com/elastic/elasticsearch/blob/6.8/server/src/main/java/org/elasticsearch/action/admin/indices/analyze/AnalyzeResponse.java
+	PositionLength int    `json:"positionLength"` // seems to be wrong in 7.2+ (no snake_case), see https://github.com/elastic/elasticsearch/blob/7.2/server/src/main/java/org/elasticsearch/action/admin/indices/analyze/AnalyzeResponse.java
+	TermFrequency  int    `json:"termFrequency"`
+	Keyword        bool   `json:"keyword"`
+}
+
+type CharFilteredText struct {
+	Name         string   `json:"name"`
+	FilteredText []string `json:"filtered_text"`
 }
 
 type IndicesAnalyzeResponseDetail struct {
-	CustomAnalyzer bool          `json:"custom_analyzer"`
-	Charfilters    []interface{} `json:"charfilters"`
-	Analyzer       struct {
-		Name   string `json:"name"`
-		Tokens []struct {
-			Token          string `json:"token"`
-			StartOffset    int    `json:"start_offset"`
-			EndOffset      int    `json:"end_offset"`
-			Type           string `json:"type"`
-			Position       int    `json:"position"`
-			Bytes          string `json:"bytes"`
-			PositionLength int    `json:"positionLength"`
-		} `json:"tokens"`
-	} `json:"analyzer"`
-	Tokenizer struct {
-		Name   string `json:"name"`
-		Tokens []struct {
-			Token       string `json:"token"`
-			StartOffset int    `json:"start_offset"`
-			EndOffset   int    `json:"end_offset"`
-			Type        string `json:"type"`
-			Position    int    `json:"position"`
-		} `json:"tokens"`
-	} `json:"tokenizer"`
-	Tokenfilters []struct {
-		Name   string `json:"name"`
-		Tokens []struct {
-			Token       string `json:"token"`
-			StartOffset int    `json:"start_offset"`
-			EndOffset   int    `json:"end_offset"`
-			Type        string `json:"type"`
-			Position    int    `json:"position"`
-			Keyword     bool   `json:"keyword"`
-		} `json:"tokens"`
-	} `json:"tokenfilters"`
+	CustomAnalyzer bool                `json:"custom_analyzer"`
+	Analyzer       *AnalyzeTokenList   `json:"analyzer,omitempty"`
+	Charfilters    []*CharFilteredText `json:"charfilters,omitempty"`
+	Tokenizer      *AnalyzeTokenList   `json:"tokenizer,omitempty"`
+	TokenFilters   []*AnalyzeTokenList `json:"tokenfilters,omitempty"`
 }
