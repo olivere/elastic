@@ -839,7 +839,7 @@ func TestSearchInnerHitsOnHasChild(t *testing.T) {
 	ctx := context.Background()
 
 	// Create join index
-	createIndex, err := client.CreateIndex(testJoinIndex).Body(testJoinMapping).Do(ctx)
+	createIndex, err := client.CreateIndex(testJoinIndex).Body(testJoinMapping).IncludeTypeName(true).Do(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

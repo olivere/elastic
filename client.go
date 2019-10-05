@@ -97,6 +97,9 @@ var (
 
 	// noRetries is a retrier that does not retry.
 	noRetries = NewStopRetrier()
+
+	// noDeprecationLog is a no-op for logging deprecations.
+	noDeprecationLog = func(*http.Request, *http.Response) {}
 )
 
 // ClientOptionFunc is a function that configures a Client.
@@ -111,12 +114,13 @@ type Client struct {
 	conns   []*conn      // all connections
 	cindex  int          // index into conns
 
-	mu                        sync.RWMutex    // guards the next block
-	urls                      []string        // set of URLs passed initially to the client
-	running                   bool            // true if the client's background processes are running
-	errorlog                  Logger          // error log for critical messages
-	infolog                   Logger          // information log for e.g. response times
-	tracelog                  Logger          // trace log for debugging
+	mu                        sync.RWMutex // guards the next block
+	urls                      []string     // set of URLs passed initially to the client
+	running                   bool         // true if the client's background processes are running
+	errorlog                  Logger       // error log for critical messages
+	infolog                   Logger       // information log for e.g. response times
+	tracelog                  Logger       // trace log for debugging
+	deprecationlog            func(*http.Request, *http.Response)
 	scheme                    string          // http or https
 	healthcheckEnabled        bool            // healthchecks enabled or disabled
 	healthcheckTimeoutStartup time.Duration   // time the healthcheck waits for a response from Elasticsearch on startup
@@ -239,6 +243,7 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 		sendGetBodyAs:             DefaultSendGetBodyAs,
 		gzipEnabled:               DefaultGzipEnabled,
 		retrier:                   noRetries, // no retries by default
+		deprecationlog:            noDeprecationLog,
 	}
 
 	// Run the options on it
@@ -324,6 +329,7 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 		sendGetBodyAs:             DefaultSendGetBodyAs,
 		gzipEnabled:               DefaultGzipEnabled,
 		retrier:                   noRetries, // no retries by default
+		deprecationlog:            noDeprecationLog,
 	}
 
 	// Run the options on it
@@ -804,8 +810,6 @@ func (c *Client) Stop() {
 
 	c.infof("elastic: client stopped")
 }
-
-var logDeprecation = func(*http.Request, *http.Response) {}
 
 // errorf logs to the error log.
 func (c *Client) errorf(format string, args ...interface{}) {
@@ -1381,7 +1385,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 
 		// Log deprecation warnings as errors
 		if len(res.Header["Warning"]) > 0 {
-			logDeprecation((*http.Request)(req), res)
+			c.deprecationlog((*http.Request)(req), res)
 			for _, warning := range res.Header["Warning"] {
 				c.errorf("Deprecation warning: %s", warning)
 			}
