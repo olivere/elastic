@@ -319,7 +319,7 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 
 	// Log deprecations during tests
 	if loglevel := *logDeprecations; loglevel != "off" {
-		logDeprecation = func(req *http.Request, res *http.Response) {
+		client.deprecationlog = func(req *http.Request, res *http.Response) {
 			for _, warning := range res.Header["Warning"] {
 				if !*logTypesRemoval && strings.Contains(warning, "[types removal]") {
 					continue

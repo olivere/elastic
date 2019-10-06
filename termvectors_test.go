@@ -46,7 +46,7 @@ func TestTermVectorsBuildURL(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		builder := client.TermVectors(test.Index, test.Type)
+		builder := client.TermVectors(test.Index).Type(test.Type)
 		if test.Id != "" {
 			builder = builder.Id(test.Id)
 		}
@@ -81,7 +81,7 @@ func TestTermVectorsWithId(t *testing.T) {
 
 	// TermVectors by specifying ID
 	field := "Message"
-	result, err := client.TermVectors(testIndexName, "_doc").
+	result, err := client.TermVectors(testIndexName).
 		Id("1").
 		Fields(field).
 		FieldStatistics(true).
@@ -115,7 +115,7 @@ func TestTermVectorsWithDoc(t *testing.T) {
 		"fullname": "keyword",
 	}
 
-	result, err := client.TermVectors(testIndexName, "_doc").
+	result, err := client.TermVectors(testIndexName).
 		Doc(doc).
 		PerFieldAnalyzer(perFieldAnalyzer).
 		FieldStatistics(true).
@@ -149,7 +149,7 @@ func TestTermVectorsWithFilter(t *testing.T) {
 		"fullname": "keyword",
 	}
 
-	result, err := client.TermVectors(testIndexName, "_doc").
+	result, err := client.TermVectors(testIndexName).
 		Doc(doc).
 		PerFieldAnalyzer(perFieldAnalyzer).
 		FieldStatistics(true).

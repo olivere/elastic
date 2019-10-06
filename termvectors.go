@@ -325,9 +325,6 @@ func (s *TermvectorsService) Validate() error {
 	if s.index == "" {
 		invalid = append(invalid, "Index")
 	}
-	if s.typ == "" {
-		invalid = append(invalid, "Type")
-	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
 	}
