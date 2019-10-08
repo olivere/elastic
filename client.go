@@ -1958,10 +1958,9 @@ func (c *Client) XPackSecurityChangePassword(username string) *XPackSecurityChan
 	return NewXPackSecurityChangePasswordService(c).Username(username)
 }
 
-/*
 // XPackSecurityGetUser gets a native user.
 func (c *Client) XPackSecurityGetUser(userName string) *XPackSecurityGetUserService {
-	return NewXPackSecurityGetUserService(c).Name(userName)
+	return NewXPackSecurityGetUserService(c).Username(userName)
 }
 
 // XPackSecurityPutUser adds or updates a native user.
@@ -1974,7 +1973,7 @@ func (c *Client) XPackSecurityEnableUser(userName string) *XPackSecurityEnableUs
 	return NewXPackSecurityEnableUserService(c).Name(userName)
 }
 
-// XPackSecurityEnableUser disables a native user.
+// XPackSecurityDisableUser disables a native user.
 func (c *Client) XPackSecurityDisableUser(userName string) *XPackSecurityDisableUserService {
 	return NewXPackSecurityDisableUserService(c).Name(userName)
 }
@@ -1983,7 +1982,6 @@ func (c *Client) XPackSecurityDisableUser(userName string) *XPackSecurityDisable
 func (c *Client) XPackSecurityDeleteUser(userName string) *XPackSecurityDeleteUserService {
 	return NewXPackSecurityDeleteUserService(c).Name(userName)
 }
-*/
 
 // -- X-Pack Watcher --
 
