@@ -26,20 +26,21 @@ type SearchService struct {
 	filterPath []string    // list of filters used to reduce the response
 	headers    http.Header // custom request-level HTTP headers
 
-	searchSource       *SearchSource
-	source             interface{}
-	searchType         string
-	index              []string
-	typ                []string
-	routing            string
-	preference         string
-	requestCache       *bool
-	ignoreUnavailable  *bool
-	allowNoIndices     *bool
-	expandWildcards    string
-	maxResponseSize    int64
-	restTotalHitsAsInt *bool
-	seqNoPrimaryTerm   *bool
+	searchSource              *SearchSource
+	source                    interface{}
+	searchType                string
+	index                     []string
+	typ                       []string
+	routing                   string
+	preference                string
+	requestCache              *bool
+	ignoreUnavailable         *bool
+	allowNoIndices            *bool
+	allowPartialSearchResults *bool
+	expandWildcards           string
+	maxResponseSize           int64
+	restTotalHitsAsInt        *bool
+	seqNoPrimaryTerm          *bool
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -368,6 +369,14 @@ func (s *SearchService) AllowNoIndices(allowNoIndices bool) *SearchService {
 	return s
 }
 
+// AllowPartialSearchResults indicates if this request should allow partial
+// results. (If method is not called, will default to the cluster level
+// setting).
+func (s *SearchService) AllowPartialSearchResults(allow bool) *SearchService {
+	s.allowPartialSearchResults = &allow
+	return s
+}
+
 // ExpandWildcards indicates whether to expand wildcard expression to
 // concrete indices that are open, closed or both.
 func (s *SearchService) ExpandWildcards(expandWildcards string) *SearchService {
@@ -454,6 +463,9 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	}
 	if s.allowNoIndices != nil {
 		params.Set("allow_no_indices", fmt.Sprint(*s.allowNoIndices))
+	}
+	if s.allowPartialSearchResults != nil {
+		params.Set("allow_partial_search_results", fmt.Sprintf("%v", *s.allowPartialSearchResults))
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
