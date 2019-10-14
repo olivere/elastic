@@ -48,6 +48,8 @@ type SearchService struct {
 	preFilterShardSize         *int  // pre_filter_shard_size
 	restTotalHitsAsInt         *bool // rest_total_hits_as_int
 
+	ccsMinimizeRoundtrips *bool // ccs_minimize_roundtrips
+
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -466,11 +468,17 @@ func (s *SearchService) PreFilterShardSize(threshold int) *SearchService {
 	return s
 }
 
-// RestTotalHitsAsInt is ignored in this version. It is used in the next major
-// version to control whether the rest response should render the total.hits
-// as an object or a number.
+// RestTotalHitsAsInt indicates whether hits.total should be rendered as an
+// integer or an object in the rest search response.
 func (s *SearchService) RestTotalHitsAsInt(enabled bool) *SearchService {
 	s.restTotalHitsAsInt = &enabled
+	return s
+}
+
+// CCSMinimizeRoundtrips indicates whether network round-trips should be minimized
+// as part of cross-cluster search requests execution.
+func (s *SearchService) CCSMinimizeRoundtrips(enabled bool) *SearchService {
+	s.ccsMinimizeRoundtrips = &enabled
 	return s
 }
 
@@ -522,11 +530,11 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	if s.preference != "" {
 		params.Set("preference", s.preference)
 	}
-	if s.requestCache != nil {
-		params.Set("request_cache", fmt.Sprintf("%v", *s.requestCache))
+	if v := s.requestCache; v != nil {
+		params.Set("request_cache", fmt.Sprint(*v))
 	}
-	if s.allowNoIndices != nil {
-		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+	if v := s.allowNoIndices; v != nil {
+		params.Set("allow_no_indices", fmt.Sprint(*v))
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
@@ -560,6 +568,9 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	}
 	if v := s.restTotalHitsAsInt; v != nil {
 		params.Set("rest_total_hits_as_int", fmt.Sprint(*v))
+	}
+	if v := s.ccsMinimizeRoundtrips; v != nil {
+		params.Set("ccs_minimize_roundtrips", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }
