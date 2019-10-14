@@ -26,20 +26,27 @@ type SearchService struct {
 	filterPath []string    // list of filters used to reduce the response
 	headers    http.Header // custom request-level HTTP headers
 
-	searchSource       *SearchSource
-	source             interface{}
-	searchType         string
-	index              []string
-	typ                []string
-	routing            string
-	preference         string
-	requestCache       *bool
-	ignoreUnavailable  *bool
-	allowNoIndices     *bool
-	expandWildcards    string
-	maxResponseSize    int64
-	restTotalHitsAsInt *bool
-	seqNoPrimaryTerm   *bool
+	searchSource               *SearchSource // q
+	source                     interface{}
+	searchType                 string // search_type
+	index                      []string
+	typ                        []string
+	routing                    string // routing
+	preference                 string // preference
+	requestCache               *bool  // request_cache
+	ignoreUnavailable          *bool  // ignore_unavailable
+	ignoreThrottled            *bool  // ignore_throttled
+	allowNoIndices             *bool  // allow_no_indices
+	expandWildcards            string // expand_wildcards
+	lenient                    *bool  // lenient
+	maxResponseSize            int64
+	allowPartialSearchResults  *bool // allow_partial_search_results
+	typedKeys                  *bool // typed_keys
+	seqNoPrimaryTerm           *bool // seq_no_primary_term
+	batchedReduceSize          *int  // batched_reduce_size
+	maxConcurrentShardRequests *int  // max_concurrent_shard_requests
+	preFilterShardSize         *int  // pre_filter_shard_size
+	restTotalHitsAsInt         *bool // rest_total_hits_as_int
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -360,6 +367,13 @@ func (s *SearchService) IgnoreUnavailable(ignoreUnavailable bool) *SearchService
 	return s
 }
 
+// IgnoreThrottled indicates whether specified concrete, expanded or aliased
+// indices should be ignored when throttled.
+func (s *SearchService) IgnoreThrottled(ignoreThrottled bool) *SearchService {
+	s.ignoreThrottled = &ignoreThrottled
+	return s
+}
+
 // AllowNoIndices indicates whether to ignore if a wildcard indices
 // expression resolves into no concrete indices. (This includes `_all` string
 // or when no indices have been specified).
@@ -375,10 +389,31 @@ func (s *SearchService) ExpandWildcards(expandWildcards string) *SearchService {
 	return s
 }
 
+// Lenient specifies whether format-based query failures (such as providing
+// text to a numeric field) should be ignored.
+func (s *SearchService) Lenient(lenient bool) *SearchService {
+	s.lenient = &lenient
+	return s
+}
+
 // MaxResponseSize sets an upper limit on the response body size that we accept,
 // to guard against OOM situations.
 func (s *SearchService) MaxResponseSize(maxResponseSize int64) *SearchService {
 	s.maxResponseSize = maxResponseSize
+	return s
+}
+
+// AllowPartialSearchResults indicates if an error should be returned if
+// there is a partial search failure or timeout.
+func (s *SearchService) AllowPartialSearchResults(enabled bool) *SearchService {
+	s.allowPartialSearchResults = &enabled
+	return s
+}
+
+// TypedKeys specifies whether aggregation and suggester names should be
+// prefixed by their respective types in the response.
+func (s *SearchService) TypedKeys(enabled bool) *SearchService {
+	s.typedKeys = &enabled
 	return s
 }
 
@@ -389,15 +424,44 @@ func (s *SearchService) MaxResponseSize(maxResponseSize int64) *SearchService {
 // which is an unsupported scenario. Use at your own risk.
 // This option will also be removed with ES 8.x.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/breaking-changes-7.0.html#hits-total-now-object-search-response.
-func (s *SearchService) RestTotalHitsAsInt(v bool) *SearchService {
-	s.restTotalHitsAsInt = &v
+func (s *SearchService) RestTotalHitsAsInt(enabled bool) *SearchService {
+	s.restTotalHitsAsInt = &enabled
 	return s
 }
 
 // SeqNoPrimaryTerm specifies whether to return sequence number and
 // primary term of the last modification of each hit.
-func (s *SearchService) SeqNoPrimaryTerm(v bool) *SearchService {
-	s.seqNoPrimaryTerm = &v
+func (s *SearchService) SeqNoPrimaryTerm(enabled bool) *SearchService {
+	s.seqNoPrimaryTerm = &enabled
+	return s
+}
+
+// BatchedReduceSize specifies the number of shard results that should be reduced
+// at once on the coordinating node. This value should be used as a protection
+// mechanism to reduce the memory overhead per search request if the potential
+// number of shards in the request can be large.
+func (s *SearchService) BatchedReduceSize(size int) *SearchService {
+	s.batchedReduceSize = &size
+	return s
+}
+
+// MaxConcurrentShardRequests specifies the number of concurrent shard requests
+// this search executes concurrently. This value should be used to limit the
+// impact of the search on the cluster in order to limit the number of
+// concurrent shard requests.
+func (s *SearchService) MaxConcurrentShardRequests(max int) *SearchService {
+	s.maxConcurrentShardRequests = &max
+	return s
+}
+
+// PreFilterShardSize specifies a threshold that enforces a pre-filter roundtrip
+// to prefilter search shards based on query rewriting if the number of shards
+// the search request expands to exceeds the threshold. This filter roundtrip
+// can limit the number of shards significantly if for instance a shard can
+// not match any documents based on it's rewrite method i.e. if date filters are
+// mandatory to match but the shard bounds and the query are disjoint.
+func (s *SearchService) PreFilterShardSize(threshold int) *SearchService {
+	s.preFilterShardSize = &threshold
 	return s
 }
 
@@ -449,23 +513,44 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	if s.preference != "" {
 		params.Set("preference", s.preference)
 	}
-	if s.requestCache != nil {
-		params.Set("request_cache", fmt.Sprint(*s.requestCache))
+	if v := s.requestCache; v != nil {
+		params.Set("request_cache", fmt.Sprint(*v))
 	}
-	if s.allowNoIndices != nil {
-		params.Set("allow_no_indices", fmt.Sprint(*s.allowNoIndices))
+	if v := s.allowNoIndices; v != nil {
+		params.Set("allow_no_indices", fmt.Sprint(*v))
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
 	}
-	if s.ignoreUnavailable != nil {
-		params.Set("ignore_unavailable", fmt.Sprint(*s.ignoreUnavailable))
+	if v := s.lenient; v != nil {
+		params.Set("lenient", fmt.Sprint(*v))
 	}
-	if s.restTotalHitsAsInt != nil {
-		params.Set("rest_total_hits_as_int", fmt.Sprint(*s.restTotalHitsAsInt))
+	if v := s.ignoreUnavailable; v != nil {
+		params.Set("ignore_unavailable", fmt.Sprint(*v))
 	}
-	if s.seqNoPrimaryTerm != nil {
-		params.Set("seq_no_primary_term", fmt.Sprint(*s.seqNoPrimaryTerm))
+	if v := s.ignoreThrottled; v != nil {
+		params.Set("ignore_throttled", fmt.Sprint(*v))
+	}
+	if v := s.seqNoPrimaryTerm; v != nil {
+		params.Set("seq_no_primary_term", fmt.Sprint(*v))
+	}
+	if v := s.allowPartialSearchResults; v != nil {
+		params.Set("allow_partial_search_results", fmt.Sprint(*v))
+	}
+	if v := s.typedKeys; v != nil {
+		params.Set("typed_keys", fmt.Sprint(*v))
+	}
+	if v := s.batchedReduceSize; v != nil {
+		params.Set("batched_reduce_size", fmt.Sprint(*v))
+	}
+	if v := s.maxConcurrentShardRequests; v != nil {
+		params.Set("max_concurrent_shard_requests", fmt.Sprint(*v))
+	}
+	if v := s.preFilterShardSize; v != nil {
+		params.Set("pre_filter_shard_size", fmt.Sprint(*v))
+	}
+	if v := s.restTotalHitsAsInt; v != nil {
+		params.Set("rest_total_hits_as_int", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }
