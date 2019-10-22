@@ -5,6 +5,8 @@
 package elastic
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 )
 
@@ -47,5 +49,51 @@ func TestXPackWatcherGetWatchBuildURL(t *testing.T) {
 				t.Errorf("case #%d: expected %q; got: %q", i+1, test.Expected, path)
 			}
 		}
+	}
+}
+
+func TestXPackWatchActionStatus_UnmarshalJSON(t *testing.T) {
+	tests := []struct {
+		Input     []byte
+		ExpectErr bool
+	}{
+		{
+			[]byte(`
+			   {
+			     "ack" : {
+			       "timestamp" : "2019-10-22T15:01:12.163Z",
+			       "state" : "ackable"
+			     },
+			     "last_execution" : {
+			       "timestamp" : "2019-10-22T15:01:12.163Z",
+			       "successful" : true
+			     },
+			     "last_successful_execution" : {
+			       "timestamp" : "2019-10-22T15:01:12.163Z",
+			       "successful" : true
+			     }
+			   }
+			`),
+			false,
+		},
+	}
+
+	for i, test := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			var status XPackWatchActionStatus
+			err := json.Unmarshal(test.Input, &status)
+			if err != nil {
+				t.Error(err)
+			}
+			if status.AckStatus == nil {
+				t.Error("nil AckStatus")
+			}
+			if status.LastExecution == nil {
+				t.Error("nil LastExecution")
+			}
+			if status.LastSuccessfulExecution == nil {
+				t.Error("nil LastSuccessfulExecution")
+			}
+		})
 	}
 }
