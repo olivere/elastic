@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+	"github.com/GlobalWebIndex/elastic/uritemplates"
 )
 
 // IndicesShrinkService allows you to shrink an existing index into a

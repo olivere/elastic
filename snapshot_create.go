@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/olivere/elastic/uritemplates"
+	"github.com/GlobalWebIndex/elastic/uritemplates"
 )
 
 // SnapshotCreateService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.2/modules-snapshots.html.

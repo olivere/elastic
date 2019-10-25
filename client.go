@@ -20,8 +20,8 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/GlobalWebIndex/elastic/config"
 	jsoniterlib "github.com/json-iterator/go"
-	"github.com/olivere/elastic/config"
 )
 
 var jsoniter = jsoniterlib.ConfigCompatibleWithStandardLibrary

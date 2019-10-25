@@ -8,7 +8,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/olivere/elastic"
+	"github.com/GlobalWebIndex/elastic"
 )
 
 func ExampleWildcardQuery() {

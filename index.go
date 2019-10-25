@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/olivere/elastic/uritemplates"
+	"github.com/GlobalWebIndex/elastic/uritemplates"
 )
 
 // IndexService adds or updates a typed JSON document in a specified index,

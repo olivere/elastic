@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/uritemplates"
+	"github.com/GlobalWebIndex/elastic/uritemplates"
 )
 
 // IndicesPutSettingsService changes specific index level settings in

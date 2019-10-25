@@ -12,8 +12,8 @@ import (
 	"reflect"
 	"time"
 
+	elastic "github.com/GlobalWebIndex/elastic"
 	jsoniterlib "github.com/json-iterator/go"
-	elastic "github.com/olivere/elastic"
 )
 
 var jsoniter = jsoniterlib.ConfigCompatibleWithStandardLibrary
