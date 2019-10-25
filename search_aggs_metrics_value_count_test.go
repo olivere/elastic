@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -15,7 +14,7 @@ func TestValueCountAggregation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -33,7 +32,7 @@ func TestValueCountAggregationWithFormat(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -51,7 +50,7 @@ func TestValueCountAggregationWithMetaData(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

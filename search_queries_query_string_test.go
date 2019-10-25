@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -16,7 +15,7 @@ func TestQueryStringQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -34,7 +33,7 @@ func TestQueryStringQueryTimeZone(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

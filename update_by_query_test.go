@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 )
 
@@ -85,7 +84,7 @@ func TestUpdateByQueryBodyWithQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +104,7 @@ func TestUpdateByQueryBodyWithQueryAndScript(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}

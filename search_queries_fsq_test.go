@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -22,7 +21,7 @@ func TestFunctionScoreQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -45,7 +44,7 @@ func TestFunctionScoreQueryWithNilFilter(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -68,7 +67,7 @@ func TestFieldValueFactor(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -91,7 +90,7 @@ func TestFieldValueFactorWithWeight(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -116,7 +115,7 @@ func TestFieldValueFactorWithMultipleScoreFuncsAndWeights(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -135,7 +134,7 @@ func TestFunctionScoreQueryWithGaussScoreFunc(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -154,7 +153,7 @@ func TestFunctionScoreQueryWithGaussScoreFuncAndMultiValueMode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -175,7 +174,7 @@ func TestFunctionScoreQueryWithFilters(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -204,7 +203,7 @@ func TestFunctionScoreQueryBug660(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

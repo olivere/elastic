@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -15,7 +14,7 @@ func TestReverseNestedAggregation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -32,7 +31,7 @@ func TestReverseNestedAggregationWithPath(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -52,7 +51,7 @@ func TestReverseNestedAggregationWithSubAggregation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -71,7 +70,7 @@ func TestReverseNestedAggregationWithMeta(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

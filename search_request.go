@@ -181,7 +181,7 @@ func (r *SearchRequest) header() interface{} {
 func (r *SearchRequest) Body() (string, error) {
 	switch t := r.source.(type) {
 	default:
-		body, err := json.Marshal(r.source)
+		body, err := jsoniter.Marshal(r.source)
 		if err != nil {
 			return "", err
 		}
@@ -191,7 +191,7 @@ func (r *SearchRequest) Body() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		body, err := json.Marshal(src)
+		body, err := jsoniter.Marshal(src)
 		if err != nil {
 			return "", err
 		}

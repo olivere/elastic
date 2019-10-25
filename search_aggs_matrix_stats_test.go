@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -22,7 +21,7 @@ func TestMatrixStatsAggregation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -41,7 +40,7 @@ func TestMatrixStatsAggregationWithMetaData(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

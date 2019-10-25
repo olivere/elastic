@@ -1,7 +1,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -12,7 +11,7 @@ func TestGeoHashGridAggregation(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("Marshalling to JSON failed: %v", err)
 	}
@@ -30,7 +29,7 @@ func TestGeoHashGridAggregation_PrecisionAsString(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("Marshalling to JSON failed: %v", err)
 	}
@@ -49,7 +48,7 @@ func TestGeoHashGridAggregationWithMetaData(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("Marshalling to JSON failed: %v", err)
 	}
@@ -69,7 +68,7 @@ func TestGeoHashGridAggregationWithSize(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("Marshalling to JSON failed: %v", err)
 	}
@@ -89,7 +88,7 @@ func TestGeoHashGridAggregationWithShardSize(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("Marshalling to JSON failed: %v", err)
 	}

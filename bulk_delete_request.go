@@ -7,7 +7,6 @@ package elastic
 //go:generate easyjson bulk_delete_request.go
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -153,7 +152,7 @@ func (r *BulkDeleteRequest) Source() ([]string, error) {
 		body, err = command.MarshalJSON()
 	} else {
 		// encoding/json
-		body, err = json.Marshal(command)
+		body, err = jsoniter.Marshal(command)
 	}
 	if err != nil {
 		return nil, err

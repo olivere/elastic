@@ -204,7 +204,7 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 		body, err = command.MarshalJSON()
 	} else {
 		// encoding/json
-		body, err = json.Marshal(command)
+		body, err = jsoniter.Marshal(command)
 	}
 	if err != nil {
 		return nil, err
@@ -216,7 +216,7 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 	if r.doc != nil {
 		switch t := r.doc.(type) {
 		default:
-			body, err := json.Marshal(r.doc)
+			body, err := jsoniter.Marshal(r.doc)
 			if err != nil {
 				return nil, err
 			}

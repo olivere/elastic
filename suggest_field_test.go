@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -17,7 +16,7 @@ func TestSuggestField(t *testing.T) {
 			NewSuggesterCategoryMapping("color").FieldName("color_field").DefaultValues("red", "green", "blue"),
 			NewSuggesterGeoMapping("location").Precision("5m").Neighbors(true).DefaultLocations(GeoPointFromLatLon(52.516275, 13.377704)),
 		)
-	data, err := json.Marshal(field)
+	data, err := jsoniter.Marshal(field)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

@@ -6,15 +6,17 @@ package elastic_test
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"reflect"
 	"time"
 
+	jsoniterlib "github.com/json-iterator/go"
 	elastic "github.com/olivere/elastic"
 )
+
+var jsoniter = jsoniterlib.ConfigCompatibleWithStandardLibrary
 
 type Tweet struct {
 	User     string                `json:"user"`
@@ -196,7 +198,7 @@ func Example() {
 
 			// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 			var t Tweet
-			err := json.Unmarshal(*hit.Source, &t)
+			err := jsoniter.Unmarshal(*hit.Source, &t)
 			if err != nil {
 				// Deserialization failed
 			}
@@ -370,7 +372,7 @@ func ExampleSearchService() {
 
 			// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 			var t Tweet
-			err := json.Unmarshal(*hit.Source, &t)
+			err := jsoniter.Unmarshal(*hit.Source, &t)
 			if err != nil {
 				// Deserialization failed
 			}
@@ -470,7 +472,7 @@ func ExampleSearchResult() {
 
 			// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 			var t Tweet
-			err := json.Unmarshal(*hit.Source, &t)
+			err := jsoniter.Unmarshal(*hit.Source, &t)
 			if err != nil {
 				// Deserialization failed
 			}

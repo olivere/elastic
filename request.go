@@ -7,7 +7,6 @@ package elastic
 import (
 	"bytes"
 	"compress/gzip"
-	"encoding/json"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -54,7 +53,7 @@ func (r *Request) SetBody(body interface{}, gzipCompress bool) error {
 
 // setBodyJson encodes the body as a struct to be marshaled via json.Marshal.
 func (r *Request) setBodyJson(data interface{}) error {
-	body, err := json.Marshal(data)
+	body, err := jsoniter.Marshal(data)
 	if err != nil {
 		return err
 	}
@@ -85,7 +84,7 @@ func (r *Request) setBodyGzip(body interface{}) error {
 		r.Header.Add("Vary", "Accept-Encoding")
 		return r.setBodyReader(bytes.NewReader(buf.Bytes()))
 	default:
-		data, err := json.Marshal(b)
+		data, err := jsoniter.Marshal(b)
 		if err != nil {
 			return err
 		}

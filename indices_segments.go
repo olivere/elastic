@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -165,7 +164,7 @@ func (s *IndicesSegmentsService) Do(ctx context.Context) (*IndicesSegmentsRespon
 
 	// Return operation response
 	ret := new(IndicesSegmentsResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := jsoniter.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

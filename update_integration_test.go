@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 )
 
@@ -19,7 +18,7 @@ func TestUpdateWithScript(t *testing.T) {
 		t.Fatal(err)
 	}
 	var original tweet
-	if err := json.Unmarshal(*getRes.Source, &original); err != nil {
+	if err := jsoniter.Unmarshal(*getRes.Source, &original); err != nil {
 		t.Fatal(err)
 	}
 
@@ -45,7 +44,7 @@ func TestUpdateWithScript(t *testing.T) {
 		t.Fatal(err)
 	}
 	var updated tweet
-	if err := json.Unmarshal(*getRes.Source, &updated); err != nil {
+	if err := jsoniter.Unmarshal(*getRes.Source, &updated); err != nil {
 		t.Fatal(err)
 	}
 
@@ -66,7 +65,7 @@ func TestUpdateWithScriptID(t *testing.T) {
 		t.Fatal(err)
 	}
 	var original tweet
-	if err := json.Unmarshal(*getRes.Source, &original); err != nil {
+	if err := jsoniter.Unmarshal(*getRes.Source, &original); err != nil {
 		t.Fatal(err)
 	}
 
@@ -111,7 +110,7 @@ func TestUpdateWithScriptID(t *testing.T) {
 		t.Fatal(err)
 	}
 	var updated tweet
-	if err := json.Unmarshal(*getRes.Source, &updated); err != nil {
+	if err := jsoniter.Unmarshal(*getRes.Source, &updated); err != nil {
 		t.Fatal(err)
 	}
 

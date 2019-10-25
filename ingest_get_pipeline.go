@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"net/url"
 	"strings"
 
@@ -106,7 +105,7 @@ func (s *IngestGetPipelineService) Do(ctx context.Context) (IngestGetPipelineRes
 
 	// Return operation response
 	var ret IngestGetPipelineResponse
-	if err := json.Unmarshal(res.Body, &ret); err != nil {
+	if err := jsoniter.Unmarshal(res.Body, &ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

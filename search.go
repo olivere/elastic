@@ -453,7 +453,7 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 			slice = append(slice, v.Interface())
 			continue
 		}
-		if err := json.Unmarshal(*hit.Source, v.Addr().Interface()); err == nil {
+		if err := jsoniter.Unmarshal(*hit.Source, v.Addr().Interface()); err == nil {
 			slice = append(slice, v.Interface())
 		}
 	}

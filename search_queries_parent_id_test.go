@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -41,7 +40,7 @@ func TestParentIdQueryTest(t *testing.T) {
 		if err != nil {
 			t.Fatalf("#%d: encoding Source failed: %v", i, err)
 		}
-		data, err := json.Marshal(src)
+		data, err := jsoniter.Marshal(src)
 		if err != nil {
 			t.Fatalf("#%d: marshaling to JSON failed: %v", i, err)
 		}

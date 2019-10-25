@@ -4,6 +4,7 @@ package elastic
 
 import (
 	json "encoding/json"
+
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -300,7 +301,7 @@ func easyjson1ed00e60EncodeGithubComOlivereElastic1(out *jwriter.Writer, in bulk
 		} else if m, ok := in.Doc.(json.Marshaler); ok {
 			out.Raw(m.MarshalJSON())
 		} else {
-			out.Raw(json.Marshal(in.Doc))
+			out.Raw(jsoniter.Marshal(in.Doc))
 		}
 	}
 	if in.DocAsUpsert != nil {
@@ -326,7 +327,7 @@ func easyjson1ed00e60EncodeGithubComOlivereElastic1(out *jwriter.Writer, in bulk
 		} else if m, ok := in.Script.(json.Marshaler); ok {
 			out.Raw(m.MarshalJSON())
 		} else {
-			out.Raw(json.Marshal(in.Script))
+			out.Raw(jsoniter.Marshal(in.Script))
 		}
 	}
 	if in.ScriptedUpsert != nil {
@@ -352,7 +353,7 @@ func easyjson1ed00e60EncodeGithubComOlivereElastic1(out *jwriter.Writer, in bulk
 		} else if m, ok := in.Upsert.(json.Marshaler); ok {
 			out.Raw(m.MarshalJSON())
 		} else {
-			out.Raw(json.Marshal(in.Upsert))
+			out.Raw(jsoniter.Marshal(in.Upsert))
 		}
 	}
 	if in.Source != nil {

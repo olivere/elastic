@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -48,7 +47,7 @@ func createResponseError(res *http.Response) error {
 		return &Error{Status: res.StatusCode}
 	}
 	errReply := new(Error)
-	err = json.Unmarshal(data, errReply)
+	err = jsoniter.Unmarshal(data, errReply)
 	if err != nil {
 		return &Error{Status: res.StatusCode}
 	}

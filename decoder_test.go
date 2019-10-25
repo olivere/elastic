@@ -20,7 +20,7 @@ type decoder struct {
 
 func (d *decoder) Decode(data []byte, v interface{}) error {
 	atomic.AddInt64(&d.N, 1)
-	dec := json.NewDecoder(bytes.NewReader(data))
+	dec := jsoniter.NewDecoder(bytes.NewReader(data))
 	dec.UseNumber()
 	return dec.Decode(v)
 }

@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 
@@ -165,7 +164,7 @@ func (s *IndicesShrinkService) Do(ctx context.Context) (*IndicesShrinkResponse, 
 
 	// Return operation response
 	ret := new(IndicesShrinkResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := jsoniter.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

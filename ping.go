@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/url"
 )
@@ -118,7 +117,7 @@ func (s *PingService) Do(ctx context.Context) (*PingResult, int, error) {
 	var ret *PingResult
 	if !s.httpHeadOnly {
 		ret = new(PingResult)
-		if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		if err := jsoniter.NewDecoder(res.Body).Decode(ret); err != nil {
 			return nil, res.StatusCode, err
 		}
 	}

@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 )
 
@@ -23,7 +22,7 @@ func TestReindexSourceWithBodyMap(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -52,7 +51,7 @@ func TestReindexSourceWithSourceIndexAndDestinationIndex(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,7 +70,7 @@ func TestReindexSourceWithSourceAndDestinationAndVersionType(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +95,7 @@ func TestReindexSourceWithSourceAndRemoteAndDestination(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +114,7 @@ func TestReindexSourceWithSourceAndDestinationAndOpType(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -134,7 +133,7 @@ func TestReindexSourceWithConflictsProceed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -153,7 +152,7 @@ func TestReindexSourceWithProceedOnVersionConflict(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -172,7 +171,7 @@ func TestReindexSourceWithQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,7 +190,7 @@ func TestReindexSourceWithMultipleSourceIndicesAndTypes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -210,7 +209,7 @@ func TestReindexSourceWithSourceAndSize(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -230,7 +229,7 @@ func TestReindexSourceWithScript(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -249,7 +248,7 @@ func TestReindexSourceWithRouting(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(out)
+	b, err := jsoniter.Marshal(out)
 	if err != nil {
 		t.Fatal(err)
 	}

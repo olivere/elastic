@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -78,7 +77,7 @@ func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error)
 			sr = sr.Index(s.indices...)
 		}
 
-		header, err := json.Marshal(sr.header())
+		header, err := jsoniter.Marshal(sr.header())
 		if err != nil {
 			return nil, err
 		}

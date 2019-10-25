@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -117,7 +116,7 @@ func (s *SnapshotGetRepositoryService) Do(ctx context.Context) (SnapshotGetRepos
 
 	// Return operation response
 	var ret SnapshotGetRepositoryResponse
-	if err := json.Unmarshal(res.Body, &ret); err != nil {
+	if err := jsoniter.Unmarshal(res.Body, &ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

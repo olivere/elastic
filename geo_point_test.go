@@ -6,14 +6,13 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 )
 
 func TestGeoPointSource(t *testing.T) {
 	pt := GeoPoint{Lat: 40, Lon: -70}
 
-	data, err := json.Marshal(pt.Source())
+	data, err := jsoniter.Marshal(pt.Source())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -27,7 +26,7 @@ func TestGeoPointSource(t *testing.T) {
 func TestGeoPointMarshalJSON(t *testing.T) {
 	pt := GeoPoint{Lat: 40, Lon: -70}
 
-	data, err := json.Marshal(pt)
+	data, err := jsoniter.Marshal(pt)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -106,7 +105,7 @@ func TestGeoPointIndexAndSearch(t *testing.T) {
 		t.Fatalf("TotalHits: want %d, have %d", want, have)
 	}
 	var doc City
-	if err := json.Unmarshal(*res.Hits.Hits[0].Source, &doc); err != nil {
+	if err := jsoniter.Unmarshal(*res.Hits.Hits[0].Source, &doc); err != nil {
 		t.Fatal(err)
 	}
 	if want, have := munich.Name, doc.Name; want != have {

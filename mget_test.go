@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 )
 
@@ -73,7 +72,7 @@ func TestMultiGet(t *testing.T) {
 		t.Errorf("expected Source != nil; got %v", item.Source)
 	}
 	var doc tweet
-	if err := json.Unmarshal(*item.Source, &doc); err != nil {
+	if err := jsoniter.Unmarshal(*item.Source, &doc); err != nil {
 		t.Fatalf("expected to unmarshal item Source; got %v", err)
 	}
 	if doc.Message != tweet1.Message {
@@ -87,7 +86,7 @@ func TestMultiGet(t *testing.T) {
 	if item.Source == nil {
 		t.Errorf("expected Source != nil; got %v", item.Source)
 	}
-	if err := json.Unmarshal(*item.Source, &doc); err != nil {
+	if err := jsoniter.Unmarshal(*item.Source, &doc); err != nil {
 		t.Fatalf("expected to unmarshal item Source; got %v", err)
 	}
 	if doc.Message != tweet3.Message {

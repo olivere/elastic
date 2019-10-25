@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	_ "net/http"
 	"testing"
 )
@@ -17,7 +16,7 @@ func TestCommonTermsQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := json.Marshal(src)
+	data, err := jsoniter.Marshal(src)
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -77,7 +76,7 @@ func TestSearchQueriesCommonTermsQuery(t *testing.T) {
 			t.Errorf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
 		}
 		item := make(map[string]interface{})
-		err := json.Unmarshal(*hit.Source, &item)
+		err := jsoniter.Unmarshal(*hit.Source, &item)
 		if err != nil {
 			t.Fatal(err)
 		}

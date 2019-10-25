@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"net/url"
 	"testing"
 )
@@ -33,7 +32,7 @@ func TestUpdateViaScript(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return body, got: %v", err)
 	}
-	data, err := json.Marshal(body)
+	data, err := jsoniter.Marshal(body)
 	if err != nil {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
@@ -77,7 +76,7 @@ func TestUpdateViaScriptId(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return body, got: %v", err)
 	}
-	data, err := json.Marshal(body)
+	data, err := jsoniter.Marshal(body)
 	if err != nil {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
@@ -111,7 +110,7 @@ func TestUpdateViaScriptAndUpsert(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return body, got: %v", err)
 	}
-	data, err := json.Marshal(body)
+	data, err := jsoniter.Marshal(body)
 	if err != nil {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
@@ -145,7 +144,7 @@ func TestUpdateViaDoc(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return body, got: %v", err)
 	}
-	data, err := json.Marshal(body)
+	data, err := jsoniter.Marshal(body)
 	if err != nil {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
@@ -181,7 +180,7 @@ func TestUpdateViaDocAndUpsert(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return body, got: %v", err)
 	}
-	data, err := json.Marshal(body)
+	data, err := jsoniter.Marshal(body)
 	if err != nil {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
@@ -221,7 +220,7 @@ func TestUpdateViaDocAndUpsertAndFetchSource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return body, got: %v", err)
 	}
-	data, err := json.Marshal(body)
+	data, err := jsoniter.Marshal(body)
 	if err != nil {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
@@ -250,7 +249,7 @@ func TestUpdateAndFetchSource(t *testing.T) {
 	if res.GetResult == nil {
 		t.Fatal("expected GetResult != nil")
 	}
-	data, err := json.Marshal(res.GetResult.Source)
+	data, err := jsoniter.Marshal(res.GetResult.Source)
 	if err != nil {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}

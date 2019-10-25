@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"errors"
 )
 
@@ -86,5 +85,5 @@ func (f *SuggestField) MarshalJSON() ([]byte, error) {
 		source["contexts"] = ctxq
 	}
 
-	return json.Marshal(source)
+	return jsoniter.Marshal(source)
 }

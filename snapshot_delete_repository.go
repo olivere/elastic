@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -118,7 +117,7 @@ func (s *SnapshotDeleteRepositoryService) Do(ctx context.Context) (*SnapshotDele
 
 	// Return operation response
 	ret := new(SnapshotDeleteRepositoryResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := jsoniter.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil

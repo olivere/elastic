@@ -7,7 +7,6 @@ package elastic
 //go:generate easyjson bulk_update_request.go
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -255,7 +254,7 @@ func (r *BulkUpdateRequest) Source() ([]string, error) {
 		body, err = command.MarshalJSON()
 	} else {
 		// encoding/json
-		body, err = json.Marshal(command)
+		body, err = jsoniter.Marshal(command)
 	}
 	if err != nil {
 		return nil, err
@@ -285,7 +284,7 @@ func (r *BulkUpdateRequest) Source() ([]string, error) {
 		body, err = data.MarshalJSON()
 	} else {
 		// encoding/json
-		body, err = json.Marshal(data)
+		body, err = jsoniter.Marshal(data)
 	}
 	if err != nil {
 		return nil, err

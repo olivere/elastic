@@ -5,7 +5,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -48,7 +47,7 @@ func TestIndicesRolloverBodyConditions(t *testing.T) {
 			"max_age":  "7d",
 			"max_docs": 1000,
 		})
-	data, err := json.Marshal(svc.getBody())
+	data, err := jsoniter.Marshal(svc.getBody())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -64,7 +63,7 @@ func TestIndicesRolloverBodyAddCondition(t *testing.T) {
 	svc := NewIndicesRolloverService(client).
 		AddCondition("max_age", "7d").
 		AddCondition("max_docs", 1000)
-	data, err := json.Marshal(svc.getBody())
+	data, err := jsoniter.Marshal(svc.getBody())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -80,7 +79,7 @@ func TestIndicesRolloverBodyAddPredefinedConditions(t *testing.T) {
 	svc := NewIndicesRolloverService(client).
 		AddMaxIndexAgeCondition("2d").
 		AddMaxIndexDocsCondition(1000000)
-	data, err := json.Marshal(svc.getBody())
+	data, err := jsoniter.Marshal(svc.getBody())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
@@ -104,7 +103,7 @@ func TestIndicesRolloverBodyComplex(t *testing.T) {
 				},
 			},
 		})
-	data, err := json.Marshal(svc.getBody())
+	data, err := jsoniter.Marshal(svc.getBody())
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}

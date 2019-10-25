@@ -6,7 +6,6 @@ package elastic
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"time"
@@ -149,7 +148,7 @@ func (s *SnapshotCreateService) Do(ctx context.Context) (*SnapshotCreateResponse
 
 	// Return operation response
 	ret := new(SnapshotCreateResponse)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
+	if err := jsoniter.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
