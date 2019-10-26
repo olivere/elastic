@@ -111,6 +111,22 @@ func (a *SignificantTermsAggregation) ExcludeValues(values ...interface{}) *Sign
 	return a
 }
 
+func (a *SignificantTermsAggregation) Partition(p int) *SignificantTermsAggregation {
+	if a.includeExclude == nil {
+		a.includeExclude = &TermsAggregationIncludeExclude{}
+	}
+	a.includeExclude.Partition = p
+	return a
+}
+
+func (a *SignificantTermsAggregation) NumPartitions(n int) *SignificantTermsAggregation {
+	if a.includeExclude == nil {
+		a.includeExclude = &TermsAggregationIncludeExclude{}
+	}
+	a.includeExclude.NumPartitions = n
+	return a
+}
+
 func (a *SignificantTermsAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
