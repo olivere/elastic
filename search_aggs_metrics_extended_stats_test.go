@@ -45,3 +45,45 @@ func TestExtendedStatsAggregationWithOptions(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestExtendedStatsAggregationWithSigma(t *testing.T) {
+	agg := NewExtendedStatsAggregation().
+		Field("grade").
+		Format("000.0").
+		Missing(1.2).
+		Sigma(1.6)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"extended_stats":{"field":"grade","format":"000.0","missing":1.2,"sigma":1.6}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestExtendedStatsAggregationWithInvalidSigma(t *testing.T) {
+	agg := NewExtendedStatsAggregation().
+		Field("grade").
+		Format("000.0").
+		Missing(1.2).
+		Sigma(-1.0)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"extended_stats":{"field":"grade","format":"000.0","missing":1.2}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
