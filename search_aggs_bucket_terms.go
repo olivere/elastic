@@ -136,6 +136,11 @@ func (a *TermsAggregation) NumPartitions(n int) *TermsAggregation {
 	return a
 }
 
+func (a *TermsAggregation) IncludeExclude(includeExclude *TermsAggregationIncludeExclude) *TermsAggregation {
+	a.includeExclude = includeExclude
+	return a
+}
+
 // ValueType can be string, long, or double.
 func (a *TermsAggregation) ValueType(valueType string) *TermsAggregation {
 	a.valueType = valueType

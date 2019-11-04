@@ -142,6 +142,11 @@ func (a *SignificantTextAggregation) NumPartitions(n int) *SignificantTextAggreg
 	return a
 }
 
+func (a *SignificantTextAggregation) IncludeExclude(includeExclude *TermsAggregationIncludeExclude) *SignificantTextAggregation {
+	a.includeExclude = includeExclude
+	return a
+}
+
 func (a *SignificantTextAggregation) Source() (interface{}, error) {
 	// Example:
 	// {
