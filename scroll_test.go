@@ -505,6 +505,17 @@ func TestScrollWithFilterPath(t *testing.T) {
 		if len(res.ScrollId) == 0 {
 			t.Fatalf("expected scrollId in results; got %q", res.ScrollId)
 		}
+
+		// Ensure we don't have "_scroll_id" in the query string more than once
+		var scrollIdCount int
+		for _, path := range svc.filterPath {
+			if path == "_scroll_id" {
+				scrollIdCount++
+			}
+		}
+		if want, have := 1, scrollIdCount; want != have {
+			t.Fatalf("expected _scroll_id to occur %d time(s), got %d", want, have)
+		}
 	}
 
 	if want, have := 3, pages; want != have {
