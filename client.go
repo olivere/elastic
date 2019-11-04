@@ -1958,32 +1958,30 @@ func (c *Client) XPackSecurityChangePassword(username string) *XPackSecurityChan
 	return NewXPackSecurityChangePasswordService(c).Username(username)
 }
 
-/*
-// XPackSecurityGetUser gets a native user.
-func (c *Client) XPackSecurityGetUser(userName string) *XPackSecurityGetUserService {
-	return NewXPackSecurityGetUserService(c).Name(userName)
+// XPackSecurityGetUser gets details about one or more users.
+func (c *Client) XPackSecurityGetUser(usernames ...string) *XPackSecurityGetUserService {
+	return NewXPackSecurityGetUserService(c).Usernames(usernames...)
 }
 
-// XPackSecurityPutUser adds or updates a native user.
-func (c *Client) XPackSecurityPutUser(userName string) *XPackSecurityPutUserService {
-	return NewXPackSecurityPutUserService(c).Name(userName)
+// XPackSecurityPutUser adds or updates a user.
+func (c *Client) XPackSecurityPutUser(username string) *XPackSecurityPutUserService {
+	return NewXPackSecurityPutUserService(c).Username(username)
 }
 
-// XPackSecurityEnableUser enables a native user.
-func (c *Client) XPackSecurityEnableUser(userName string) *XPackSecurityEnableUserService {
-	return NewXPackSecurityEnableUserService(c).Name(userName)
+// XPackSecurityEnableUser enables a user.
+func (c *Client) XPackSecurityEnableUser(username string) *XPackSecurityEnableUserService {
+	return NewXPackSecurityEnableUserService(c).Username(username)
 }
 
-// XPackSecurityEnableUser disables a native user.
-func (c *Client) XPackSecurityDisableUser(userName string) *XPackSecurityDisableUserService {
-	return NewXPackSecurityDisableUserService(c).Name(userName)
+// XPackSecurityDisableUser disables a user.
+func (c *Client) XPackSecurityDisableUser(username string) *XPackSecurityDisableUserService {
+	return NewXPackSecurityDisableUserService(c).Username(username)
 }
 
-// XPackSecurityDeleteUser deletes a native user.
-func (c *Client) XPackSecurityDeleteUser(userName string) *XPackSecurityDeleteUserService {
-	return NewXPackSecurityDeleteUserService(c).Name(userName)
+// XPackSecurityDeleteUser deletes a user.
+func (c *Client) XPackSecurityDeleteUser(username string) *XPackSecurityDeleteUserService {
+	return NewXPackSecurityDeleteUserService(c).Username(username)
 }
-*/
 
 // -- X-Pack Watcher --
 
