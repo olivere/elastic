@@ -82,6 +82,23 @@ func TestSignificantTermsAggregationWithIncludeExcludeValues(t *testing.T) {
 	}
 }
 
+func TestSignificantTermsAggregationWithPartitions(t *testing.T) {
+	agg := NewSignificantTermsAggregation().Field("account_id").Partition(0).NumPartitions(20)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_terms":{"field":"account_id","include":{"num_partitions":20,"partition":0}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestSignificantTermsAggregationSubAggregation(t *testing.T) {
 	crimeTypesAgg := NewSignificantTermsAggregation().Field("crime_type")
 	agg := NewTermsAggregation().Field("force")

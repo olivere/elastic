@@ -47,6 +47,23 @@ func TestSignificantTextAggregationWithArgs(t *testing.T) {
 	}
 }
 
+func TestSignificantTextAggregationWithPartitions(t *testing.T) {
+	agg := NewSignificantTextAggregation().Field("account_id").Partition(0).NumPartitions(20)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"significant_text":{"field":"account_id","include":{"num_partitions":20,"partition":0}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestSignificantTextAggregationWithMetaData(t *testing.T) {
 	agg := NewSignificantTextAggregation().Field("content")
 	agg = agg.Meta(map[string]interface{}{"name": "Oliver"})
