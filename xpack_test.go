@@ -255,7 +255,7 @@ func TestXPackSecurityUser(t *testing.T) {
 		t.Errorf("expected data from response; got empty response")
 	}
 	// Disable a user
-	err = client.XPackSecurityDisableUser(username).Do(context.Background())
+	_, err = client.XPackSecurityDisableUser(username).Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -267,7 +267,7 @@ func TestXPackSecurityUser(t *testing.T) {
 		t.Error("expected test user to be disabled; was still enabled")
 	}
 	// Enable a user
-	err = client.XPackSecurityEnableUser(username).Do(context.Background())
+	_, err = client.XPackSecurityEnableUser(username).Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -18,8 +18,8 @@ func TestXPackSecurityGetUserBuildURL(t *testing.T) {
 	}{
 		{
 			"",
-			"",
-			true,
+			"/_security/user",
+			false,
 		},
 		{
 			"my-user",

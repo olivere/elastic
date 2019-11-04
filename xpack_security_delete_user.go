@@ -16,7 +16,7 @@ import (
 )
 
 // XPackSecurityDeleteUserService delete a user by its name.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/security-api-delete-user.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.4/security-api-delete-user.html.
 type XPackSecurityDeleteUserService struct {
 	client *Client
 
@@ -26,7 +26,8 @@ type XPackSecurityDeleteUserService struct {
 	filterPath []string    // list of filters used to reduce the response
 	headers    http.Header // custom request-level HTTP headers
 
-	name string
+	username string
+	refresh  string
 }
 
 // NewXPackSecurityDeleteUserService creates a new XPackSecurityDeleteUserService.
@@ -76,17 +77,24 @@ func (s *XPackSecurityDeleteUserService) Headers(headers http.Header) *XPackSecu
 	return s
 }
 
-// Name is name of the user to delete.
-func (s *XPackSecurityDeleteUserService) Name(name string) *XPackSecurityDeleteUserService {
-	s.name = name
+// Username is name of the user to delete.
+func (s *XPackSecurityDeleteUserService) Username(username string) *XPackSecurityDeleteUserService {
+	s.username = username
+	return s
+}
+
+// Refresh specifies if and how to wait for refreshing the shards after the request.
+// Possible values are "true" (default), "false" and "wait_for", all of type string.
+func (s *XPackSecurityDeleteUserService) Refresh(refresh string) *XPackSecurityDeleteUserService {
+	s.refresh = refresh
 	return s
 }
 
 // buildURL builds the URL for the operation.
 func (s *XPackSecurityDeleteUserService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_security/user/{name}", map[string]string{
-		"name": s.name,
+	path, err := uritemplates.Expand("/_security/user/{username}", map[string]string{
+		"username": s.username,
 	})
 	if err != nil {
 		return "", url.Values{}, err
@@ -106,14 +114,17 @@ func (s *XPackSecurityDeleteUserService) buildURL() (string, url.Values, error) 
 	if len(s.filterPath) > 0 {
 		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
+	if v := s.refresh; v != "" {
+		params.Set("refresh", v)
+	}
 	return path, params, nil
 }
 
 // Validate checks if the operation is valid.
 func (s *XPackSecurityDeleteUserService) Validate() error {
 	var invalid []string
-	if s.name == "" {
-		invalid = append(invalid, "Name")
+	if s.username == "" {
+		invalid = append(invalid, "Username")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)

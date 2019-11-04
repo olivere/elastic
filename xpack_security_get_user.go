@@ -26,7 +26,7 @@ type XPackSecurityGetUserService struct {
 	filterPath []string    // list of filters used to reduce the response
 	headers    http.Header // custom request-level HTTP headers
 
-	username []string
+	usernames []string
 }
 
 // NewXPackSecurityGetUserService creates a new XPackSecurityGetUserService.
@@ -34,18 +34,6 @@ func NewXPackSecurityGetUserService(client *Client) *XPackSecurityGetUserService
 	return &XPackSecurityGetUserService{
 		client: client,
 	}
-}
-
-// Name is name of the user to retrieve.
-func (s *XPackSecurityGetUserService) Username(username string) *XPackSecurityGetUserService {
-	s.username = []string{username}
-	return s
-}
-
-// Name is name of the user to retrieve.
-func (s *XPackSecurityGetUserService) Usernames(usernames []string) *XPackSecurityGetUserService {
-	s.username = usernames
-	return s
 }
 
 // Pretty indicates that the JSON response be indented and human readable.
@@ -88,12 +76,30 @@ func (s *XPackSecurityGetUserService) Headers(headers http.Header) *XPackSecurit
 	return s
 }
 
+// Usernames are the names of one or more users to retrieve.
+func (s *XPackSecurityGetUserService) Usernames(usernames ...string) *XPackSecurityGetUserService {
+	for _, username := range usernames {
+		if v := strings.TrimSpace(username); v != "" {
+			s.usernames = append(s.usernames, v)
+		}
+	}
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *XPackSecurityGetUserService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_security/user/{username}", map[string]string{
-		"username": strings.Join(s.username, ","),
-	})
+	var (
+		path string
+		err  error
+	)
+	if len(s.usernames) > 0 {
+		path, err = uritemplates.Expand("/_security/user/{username}", map[string]string{
+			"username": strings.Join(s.usernames, ","),
+		})
+	} else {
+		path = "/_security/user"
+	}
 	if err != nil {
 		return "", url.Values{}, err
 	}
@@ -118,13 +124,6 @@ func (s *XPackSecurityGetUserService) buildURL() (string, url.Values, error) {
 
 // Validate checks if the operation is valid.
 func (s *XPackSecurityGetUserService) Validate() error {
-	var invalid []string
-	if len(s.username) == 0 {
-		invalid = append(invalid, "Username")
-	}
-	if len(invalid) > 0 {
-		return fmt.Errorf("missing required fields: %v", invalid)
-	}
 	return nil
 }
 
