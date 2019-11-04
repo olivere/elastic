@@ -262,11 +262,10 @@ type ClusterHealthResponse struct {
 	DelayedUnassignedShards        int     `json:"delayed_unassigned_shards"`
 	NumberOfPendingTasks           int     `json:"number_of_pending_tasks"`
 	NumberOfInFlightFetch          int     `json:"number_of_in_flight_fetch"`
-	TaskMaxWaitTimeInQueueInMillis int     `json:"task_max_waiting_in_queue_millis"`
-	ActiveShardsPercentAsNumber    float64 `json:"active_shards_percent_as_number"`
-
-	// Validation failures -> index name -> array of validation failures
-	ValidationFailures []map[string][]string `json:"validation_failures"`
+	TaskMaxWaitTimeInQueue         string  `json:"task_max_waiting_in_queue"`        // "0s"
+	TaskMaxWaitTimeInQueueInMillis int     `json:"task_max_waiting_in_queue_millis"` // 0
+	ActiveShardsPercent            string  `json:"active_shards_percent"`            // "100.0%"
+	ActiveShardsPercentAsNumber    float64 `json:"active_shards_percent_as_number"`  // 100.0
 
 	// Index name -> index health
 	Indices map[string]*ClusterIndexHealth `json:"indices"`
@@ -282,8 +281,6 @@ type ClusterIndexHealth struct {
 	RelocatingShards    int    `json:"relocating_shards"`
 	InitializingShards  int    `json:"initializing_shards"`
 	UnassignedShards    int    `json:"unassigned_shards"`
-	// Validation failures
-	ValidationFailures []string `json:"validation_failures"`
 	// Shards by id, e.g. "0" or "1"
 	Shards map[string]*ClusterShardHealth `json:"shards"`
 }
