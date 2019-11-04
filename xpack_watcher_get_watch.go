@@ -179,15 +179,21 @@ type XPackWatchExecutionState struct {
 }
 
 type XPackWatchActionStatus struct {
-	AckStatus               *XPackWatchActionAckStatus `json:"ack"`
-	LastExecution           *time.Time                 `json:"last_execution,omitempty"`
-	LastSuccessfulExecution *time.Time                 `json:"last_successful_execution,omitempty"`
-	LastThrottle            *XPackWatchActionThrottle  `json:"last_throttle,omitempty"`
+	AckStatus               *XPackWatchActionAckStatus      `json:"ack"`
+	LastExecution           *XPackWatchActionExecutionState `json:"last_execution,omitempty"`
+	LastSuccessfulExecution *XPackWatchActionExecutionState `json:"last_successful_execution,omitempty"`
+	LastThrottle            *XPackWatchActionThrottle       `json:"last_throttle,omitempty"`
 }
 
 type XPackWatchActionAckStatus struct {
 	Timestamp      time.Time `json:"timestamp"`
 	AckStatusState string    `json:"ack_status_state"`
+}
+
+type XPackWatchActionExecutionState struct {
+	Timestamp  time.Time `json:"timestamp"`
+	Successful bool      `json:"successful"`
+	Reason     string    `json:"reason,omitempty"`
 }
 
 type XPackWatchActionThrottle struct {
