@@ -438,7 +438,16 @@ func (s *ScrollService) buildFirstURL() (string, url.Values, error) {
 	}
 	if len(s.filterPath) > 0 {
 		// Always add "hits._scroll_id", otherwise we cannot scroll
-		s.filterPath = append(s.filterPath, "_scroll_id")
+		var found bool
+		for _, path := range s.filterPath {
+			if path == "_scroll_id" {
+				found = true
+				break
+			}
+		}
+		if !found {
+			s.filterPath = append(s.filterPath, "_scroll_id")
+		}
 		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.size != nil && *s.size > 0 {
@@ -550,7 +559,16 @@ func (s *ScrollService) buildNextURL() (string, url.Values, error) {
 	}
 	if len(s.filterPath) > 0 {
 		// Always add "hits._scroll_id", otherwise we cannot scroll
-		s.filterPath = append(s.filterPath, "_scroll_id")
+		var found bool
+		for _, path := range s.filterPath {
+			if path == "_scroll_id" {
+				found = true
+				break
+			}
+		}
+		if !found {
+			s.filterPath = append(s.filterPath, "_scroll_id")
+		}
 		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 
