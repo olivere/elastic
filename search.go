@@ -375,6 +375,19 @@ func (s *SearchService) SearchAfter(sortValues ...interface{}) *SearchService {
 	return s
 }
 
+// DefaultRescoreWindowSize sets the rescore window size for rescores
+// that don't specify their window.
+func (s *SearchService) DefaultRescoreWindowSize(defaultRescoreWindowSize int) *SearchService {
+	s.searchSource = s.searchSource.DefaultRescoreWindowSize(defaultRescoreWindowSize)
+	return s
+}
+
+// Rescorer adds a rescorer to the search.
+func (s *SearchService) Rescorer(rescore *Rescore) *SearchService {
+	s.searchSource = s.searchSource.Rescorer(rescore)
+	return s
+}
+
 // IgnoreUnavailable indicates whether the specified concrete indices
 // should be ignored when unavailable (missing or closed).
 func (s *SearchService) IgnoreUnavailable(ignoreUnavailable bool) *SearchService {
