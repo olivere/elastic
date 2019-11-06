@@ -21,7 +21,7 @@ func TestUpdateViaScript(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return URL, got: %v", err)
 	}
-	expectedPath := `/test/type1/1/_update`
+	expectedPath := `/test/_doc/1`
 	if expectedPath != path {
 		t.Errorf("expected URL path\n%s\ngot:\n%s", expectedPath, path)
 	}
@@ -65,7 +65,7 @@ func TestUpdateViaScriptId(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return URL, got: %v", err)
 	}
-	expectedPath := `/sessions/session/dh3sgudg8gsrgl/_update`
+	expectedPath := `/sessions/_doc/dh3sgudg8gsrgl`
 	if expectedPath != path {
 		t.Errorf("expected URL path\n%s\ngot:\n%s", expectedPath, path)
 	}
@@ -99,7 +99,7 @@ func TestUpdateViaScriptAndUpsert(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return URL, got: %v", err)
 	}
-	expectedPath := `/test/type1/1/_update`
+	expectedPath := `/test/_doc/1`
 	if expectedPath != path {
 		t.Errorf("expected URL path\n%s\ngot:\n%s", expectedPath, path)
 	}
@@ -133,7 +133,7 @@ func TestUpdateViaDoc(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return URL, got: %v", err)
 	}
-	expectedPath := `/test/type1/1/_update`
+	expectedPath := `/test/_doc/1`
 	if expectedPath != path {
 		t.Errorf("expected URL path\n%s\ngot:\n%s", expectedPath, path)
 	}
@@ -169,7 +169,7 @@ func TestUpdateViaDocAndUpsert(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return URL, got: %v", err)
 	}
-	expectedPath := `/test/type1/1/_update`
+	expectedPath := `/test/_doc/1`
 	if expectedPath != path {
 		t.Errorf("expected URL path\n%s\ngot:\n%s", expectedPath, path)
 	}
@@ -206,7 +206,7 @@ func TestUpdateViaDocAndUpsertAndFetchSource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to return URL, got: %v", err)
 	}
-	expectedPath := `/test/type1/1/_update`
+	expectedPath := `/test/_doc/1`
 	if expectedPath != path {
 		t.Errorf("expected URL path\n%s\ngot:\n%s", expectedPath, path)
 	}
