@@ -1278,6 +1278,33 @@ func TestPerformRequestWithTimeout(t *testing.T) {
 	}
 }
 
+func TestPerformRequestOnNoConnectionsWithHealthcheckRevival(t *testing.T) {
+	fail := func(r *http.Request) (*http.Response, error) {
+		return nil, errors.New("request failed")
+	}
+	tr := &failingTransport{path: "/fail", fail: fail}
+	httpClient := &http.Client{Transport: tr}
+	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(0), SetHealthcheck(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Run against a failing endpoint to mark connection as dead
+	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil)
+	if err == nil {
+		t.Fatal(err)
+	}
+
+	// Forced healthcheck should bring connection back to life and complete request
+	res, err = client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+}
+
 // -- Compression --
 
 // Notice that the trace log does always print "Accept-Encoding: gzip"

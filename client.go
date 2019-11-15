@@ -1257,6 +1257,11 @@ func (c *Client) PerformRequestWithOptions(ctx context.Context, opt PerformReque
 			if !retried {
 				// Force a healtcheck as all connections seem to be dead.
 				c.healthcheck(timeout, false)
+				// Continue with the request in case healthcheck found an alive connection
+				if c.healthcheckEnabled {
+					retried = true
+					continue
+				}
 			}
 			wait, ok, rerr := retrier.Retry(ctx, n, nil, nil, err)
 			if rerr != nil {
