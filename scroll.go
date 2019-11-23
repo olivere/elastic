@@ -116,6 +116,9 @@ func (s *ScrollService) Index(indices ...string) *ScrollService {
 }
 
 // Type sets the name of one or more types to iterate over.
+//
+// Deprecated: Types are in the process of being removed. Instead of using a type, prefer to
+// filter on a field on the document.
 func (s *ScrollService) Type(types ...string) *ScrollService {
 	if s.types == nil {
 		s.types = make([]string, 0)
