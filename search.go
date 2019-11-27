@@ -471,6 +471,8 @@ type NestedHit struct {
 // SearchHit is a single hit.
 type SearchHit struct {
 	Score          *float64                       `json:"_score"`          // computed score
+	Shard          string                         `json:"_shard"`          // shard name
+	Node           string                         `json:"_node"`           // node name
 	Index          string                         `json:"_index"`          // index name
 	Type           string                         `json:"_type"`           // type meta field
 	Id             string                         `json:"_id"`             // external or internal
