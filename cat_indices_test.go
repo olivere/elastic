@@ -27,7 +27,7 @@ func TestCatIndices(t *testing.T) {
 	}
 }
 
-// TestCatIndicesResponseRowAliasesMap tests if catIndicesResponseRowAliasesMap was inited
+// TestCatIndicesResponseRowAliasesMap tests if catIndicesResponseRowAliasesMap is declared
 func TestCatIndicesResponseRowAliasesMap(t *testing.T) {
 	if catIndicesResponseRowAliasesMap == nil {
 		t.Fatal("want catIndicesResponseRowAliasesMap to be not nil")
