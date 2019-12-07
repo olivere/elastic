@@ -1,35 +1,35 @@
 package elastic
 
-type AllOfRule struct {
-	intervals []IntervalRule
+type IntervalQueryRuleAllOf struct {
+	intervals []IntervalQueryRule
 	maxGaps   *int
 	ordered   *bool
-	filter    *FilterRule
+	filter    *IntervalQueryRuleFilter
 }
 
-var _ IntervalRule = &AllOfRule{}
+var _ IntervalQueryRule = &IntervalQueryRuleAllOf{}
 
-func NewAllOfRule(intervals ...IntervalRule) *AllOfRule {
-	return &AllOfRule{intervals: intervals}
+func NewIntervalQueryRuleAllOf(intervals ...IntervalQueryRule) *IntervalQueryRuleAllOf {
+	return &IntervalQueryRuleAllOf{intervals: intervals}
 }
 
-func (r *AllOfRule) MaxGaps(maxGaps int) *AllOfRule {
+func (r *IntervalQueryRuleAllOf) MaxGaps(maxGaps int) *IntervalQueryRuleAllOf {
 	r.maxGaps = &maxGaps
 	return r
 }
 
-func (r *AllOfRule) Ordered(ordered bool) *AllOfRule {
+func (r *IntervalQueryRuleAllOf) Ordered(ordered bool) *IntervalQueryRuleAllOf {
 	r.ordered = &ordered
 	return r
 }
 
-func (r *AllOfRule) Filter(filter *FilterRule) *AllOfRule {
+func (r *IntervalQueryRuleAllOf) Filter(filter *IntervalQueryRuleFilter) *IntervalQueryRuleAllOf {
 	r.filter = filter
 	return r
 }
 
 // Source returns JSON for the function score query.
-func (r *AllOfRule) Source() (interface{}, error) {
+func (r *IntervalQueryRuleAllOf) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	intervalSources := make([]interface{}, 0)
@@ -61,6 +61,6 @@ func (r *AllOfRule) Source() (interface{}, error) {
 	return map[string]interface{}{"all_of": source}, nil
 }
 
-func (r *AllOfRule) IsIntervalRule() bool {
+func (r *IntervalQueryRuleAllOf) isIntervalQueryRule() bool {
 	return true
 }

@@ -1,28 +1,28 @@
 package elastic
 
-type WildcardRule struct {
+type IntervalQueryRuleWildcard struct {
 	pattern  string
 	analyzer string
 	useField string
 }
 
-var _ IntervalRule = &WildcardRule{}
+var _ IntervalQueryRule = &IntervalQueryRuleWildcard{}
 
-func NewWildcardRule(pattern string) *WildcardRule {
-	return &WildcardRule{pattern: pattern}
+func NewIntervalQueryRuleWildcard(pattern string) *IntervalQueryRuleWildcard {
+	return &IntervalQueryRuleWildcard{pattern: pattern}
 }
 
-func (r *WildcardRule) Analyzer(analyzer string) *WildcardRule {
+func (r *IntervalQueryRuleWildcard) Analyzer(analyzer string) *IntervalQueryRuleWildcard {
 	r.analyzer = analyzer
 	return r
 }
-func (r *WildcardRule) UseField(useField string) *WildcardRule {
+func (r *IntervalQueryRuleWildcard) UseField(useField string) *IntervalQueryRuleWildcard {
 	r.useField = useField
 	return r
 }
 
 // Source returns JSON for the function score query.
-func (r *WildcardRule) Source() (interface{}, error) {
+func (r *IntervalQueryRuleWildcard) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	source["pattern"] = r.pattern
@@ -37,6 +37,6 @@ func (r *WildcardRule) Source() (interface{}, error) {
 	return map[string]interface{}{"wildcard": source}, nil
 }
 
-func (r *WildcardRule) IsIntervalRule() bool {
+func (r *IntervalQueryRuleWildcard) isIntervalQueryRule() bool {
 	return true
 }

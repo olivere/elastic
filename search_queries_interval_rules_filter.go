@@ -1,6 +1,6 @@
 package elastic
 
-type FilterRule struct {
+type IntervalQueryRuleFilter struct {
 	after          Query
 	before         Query
 	containedBy    Query
@@ -12,51 +12,51 @@ type FilterRule struct {
 	script         *Script
 }
 
-var _ IntervalRule = &FilterRule{}
+var _ IntervalQueryRule = &IntervalQueryRuleFilter{}
 
-func NewFilterRule() *FilterRule {
-	return &FilterRule{}
+func NewIntervalQueryRuleFilter() *IntervalQueryRuleFilter {
+	return &IntervalQueryRuleFilter{}
 }
 
-func (r *FilterRule) After(after Query) *FilterRule {
+func (r *IntervalQueryRuleFilter) After(after Query) *IntervalQueryRuleFilter {
 	r.after = after
 	return r
 }
-func (r *FilterRule) Before(before Query) *FilterRule {
+func (r *IntervalQueryRuleFilter) Before(before Query) *IntervalQueryRuleFilter {
 	r.before = before
 	return r
 }
-func (r *FilterRule) ContainedBy(containedBy Query) *FilterRule {
+func (r *IntervalQueryRuleFilter) ContainedBy(containedBy Query) *IntervalQueryRuleFilter {
 	r.containedBy = containedBy
 	return r
 }
-func (r *FilterRule) Containing(containing Query) *FilterRule {
+func (r *IntervalQueryRuleFilter) Containing(containing Query) *IntervalQueryRuleFilter {
 	r.containing = containing
 	return r
 }
-func (r *FilterRule) Overlapping(overlapping Query) *FilterRule {
+func (r *IntervalQueryRuleFilter) Overlapping(overlapping Query) *IntervalQueryRuleFilter {
 	r.overlapping = overlapping
 	return r
 }
-func (r *FilterRule) NotContainedBy(notContainedBy Query) *FilterRule {
+func (r *IntervalQueryRuleFilter) NotContainedBy(notContainedBy Query) *IntervalQueryRuleFilter {
 	r.notContainedBy = notContainedBy
 	return r
 }
-func (r *FilterRule) NotContaining(notContaining Query) *FilterRule {
+func (r *IntervalQueryRuleFilter) NotContaining(notContaining Query) *IntervalQueryRuleFilter {
 	r.notContaining = notContaining
 	return r
 }
-func (r *FilterRule) NotOverlapping(notOverlapping Query) *FilterRule {
+func (r *IntervalQueryRuleFilter) NotOverlapping(notOverlapping Query) *IntervalQueryRuleFilter {
 	r.notOverlapping = notOverlapping
 	return r
 }
-func (r *FilterRule) Script(script *Script) *FilterRule {
+func (r *IntervalQueryRuleFilter) Script(script *Script) *IntervalQueryRuleFilter {
 	r.script = script
 	return r
 }
 
 // Source returns JSON for the function score query.
-func (r *FilterRule) Source() (interface{}, error) {
+func (r *IntervalQueryRuleFilter) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	if r.before != nil {
@@ -137,6 +137,6 @@ func (r *FilterRule) Source() (interface{}, error) {
 	return source, nil
 }
 
-func (r *FilterRule) IsIntervalRule() bool {
+func (r *IntervalQueryRuleFilter) isIntervalQueryRule() bool {
 	return true
 }

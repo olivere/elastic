@@ -4,14 +4,14 @@
 
 package elastic
 
-// IntervalRule represents the generic matching rule interface. Matching Rule is
+// IntervalQueryRule represents the generic matching interval rule interface. Interval Rule is actually
 // just a Query, but may be used only inside IntervalQuery. An extra method is added
-// just to separate *Rule objects from other queries
-type IntervalRule interface {
+// just to separate all its implementations (*Rule objects) from other query objects
+type IntervalQueryRule interface {
 	Query
 
-	// IsIntervalRule is never actually called, and is used just for Rule to differ from standard Query
-	IsIntervalRule() bool
+	// isIntervalQueryRule is never actually called, and is used just for Rule to differ from standard Query
+	isIntervalQueryRule() bool
 }
 
 // IntervalQuery returns documents based on the order and proximity of matching terms
@@ -20,11 +20,11 @@ type IntervalRule interface {
 // https://www.elastic.co/guide/en/elasticsearch/reference/7.4/query-dsl-intervals-query.html
 type IntervalQuery struct {
 	field string
-	rule  IntervalRule
+	rule  IntervalQueryRule
 }
 
 // NewIntervalQuery creates and initializes a new IntervalQuery.
-func NewIntervalQuery(field string, rule IntervalRule) *IntervalQuery {
+func NewIntervalQuery(field string, rule IntervalQueryRule) *IntervalQuery {
 	return &IntervalQuery{field: field, rule: rule}
 }
 

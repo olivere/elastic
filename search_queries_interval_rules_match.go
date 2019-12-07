@@ -1,43 +1,43 @@
 package elastic
 
-type MatchRule struct {
+type IntervalQueryRuleMatch struct {
 	query    string
 	maxGaps  *int
 	ordered  *bool
 	analyzer string
 	useField string
-	filter   *FilterRule
+	filter   *IntervalQueryRuleFilter
 }
 
-var _ IntervalRule = &MatchRule{}
+var _ IntervalQueryRule = &IntervalQueryRuleMatch{}
 
-func NewMatchRule(query string) *MatchRule {
-	return &MatchRule{query: query}
+func NewIntervalQueryRuleMatch(query string) *IntervalQueryRuleMatch {
+	return &IntervalQueryRuleMatch{query: query}
 }
 
-func (r *MatchRule) MaxGaps(maxGaps int) *MatchRule {
+func (r *IntervalQueryRuleMatch) MaxGaps(maxGaps int) *IntervalQueryRuleMatch {
 	r.maxGaps = &maxGaps
 	return r
 }
-func (r *MatchRule) Ordered(ordered bool) *MatchRule {
+func (r *IntervalQueryRuleMatch) Ordered(ordered bool) *IntervalQueryRuleMatch {
 	r.ordered = &ordered
 	return r
 }
-func (r *MatchRule) Analyzer(analyzer string) *MatchRule {
+func (r *IntervalQueryRuleMatch) Analyzer(analyzer string) *IntervalQueryRuleMatch {
 	r.analyzer = analyzer
 	return r
 }
-func (r *MatchRule) UseField(useField string) *MatchRule {
+func (r *IntervalQueryRuleMatch) UseField(useField string) *IntervalQueryRuleMatch {
 	r.useField = useField
 	return r
 }
-func (r *MatchRule) Filter(filter *FilterRule) *MatchRule {
+func (r *IntervalQueryRuleMatch) Filter(filter *IntervalQueryRuleFilter) *IntervalQueryRuleMatch {
 	r.filter = filter
 	return r
 }
 
 // Source returns JSON for the function score query.
-func (r *MatchRule) Source() (interface{}, error) {
+func (r *IntervalQueryRuleMatch) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	source["query"] = r.query
@@ -66,6 +66,6 @@ func (r *MatchRule) Source() (interface{}, error) {
 	return map[string]interface{}{"match": source}, nil
 }
 
-func (r *MatchRule) IsIntervalRule() bool {
+func (r *IntervalQueryRuleMatch) isIntervalQueryRule() bool {
 	return true
 }

@@ -1,28 +1,28 @@
 package elastic
 
-type PrefixRule struct {
+type IntervalQueryRulePrefix struct {
 	prefix   string
 	analyzer string
 	useField string
 }
 
-var _ IntervalRule = &PrefixRule{}
+var _ IntervalQueryRule = &IntervalQueryRulePrefix{}
 
-func NewPrefixRule(prefix string) *PrefixRule {
-	return &PrefixRule{prefix: prefix}
+func NewIntervalQueryRulePrefix(prefix string) *IntervalQueryRulePrefix {
+	return &IntervalQueryRulePrefix{prefix: prefix}
 }
 
-func (r *PrefixRule) Analyzer(analyzer string) *PrefixRule {
+func (r *IntervalQueryRulePrefix) Analyzer(analyzer string) *IntervalQueryRulePrefix {
 	r.analyzer = analyzer
 	return r
 }
-func (r *PrefixRule) UseField(useField string) *PrefixRule {
+func (r *IntervalQueryRulePrefix) UseField(useField string) *IntervalQueryRulePrefix {
 	r.useField = useField
 	return r
 }
 
 // Source returns JSON for the function score query.
-func (r *PrefixRule) Source() (interface{}, error) {
+func (r *IntervalQueryRulePrefix) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	source["query"] = r.prefix
@@ -37,6 +37,6 @@ func (r *PrefixRule) Source() (interface{}, error) {
 	return map[string]interface{}{"prefix": source}, nil
 }
 
-func (r *PrefixRule) IsIntervalRule() bool {
+func (r *IntervalQueryRulePrefix) isIntervalQueryRule() bool {
 	return true
 }

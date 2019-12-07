@@ -1,22 +1,22 @@
 package elastic
 
-type AnyOfRule struct {
-	intervals []IntervalRule
-	filter    *FilterRule
+type IntervalQueryRuleAnyOf struct {
+	intervals []IntervalQueryRule
+	filter    *IntervalQueryRuleFilter
 }
 
-var _ IntervalRule = &AnyOfRule{}
+var _ IntervalQueryRule = &IntervalQueryRuleAnyOf{}
 
-func NewAnyOfRule(intervals ...IntervalRule) *AnyOfRule {
-	return &AnyOfRule{intervals: intervals}
+func NewIntervalQueryRuleAnyOf(intervals ...IntervalQueryRule) *IntervalQueryRuleAnyOf {
+	return &IntervalQueryRuleAnyOf{intervals: intervals}
 }
-func (r *AnyOfRule) Filter(filter *FilterRule) *AnyOfRule {
+func (r *IntervalQueryRuleAnyOf) Filter(filter *IntervalQueryRuleFilter) *IntervalQueryRuleAnyOf {
 	r.filter = filter
 	return r
 }
 
 // Source returns JSON for the function score query.
-func (r *AnyOfRule) Source() (interface{}, error) {
+func (r *IntervalQueryRuleAnyOf) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
 	intervalSources := make([]interface{}, 0)
@@ -42,6 +42,6 @@ func (r *AnyOfRule) Source() (interface{}, error) {
 	return map[string]interface{}{"any_of": source}, nil
 }
 
-func (r *AnyOfRule) IsIntervalRule() bool {
+func (r *IntervalQueryRuleAnyOf) isIntervalQueryRule() bool {
 	return true
 }
