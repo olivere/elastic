@@ -1852,6 +1852,11 @@ func (c *Client) SnapshotGet(repository string) *SnapshotGetService {
 	return NewSnapshotGetService(c).Repository(repository)
 }
 
+// ActiveSnapshots lists any active Snapshot operations in a Elasticsearch Cluster
+func (c *Client) SnapshotStatus() *SnapshotStatusService {
+	return NewSnapshotStatusService(c)
+}
+
 // SnapshotVerifyRepository verifies a snapshot repository.
 func (c *Client) SnapshotVerifyRepository(repository string) *SnapshotVerifyRepositoryService {
 	return NewSnapshotVerifyRepositoryService(c).Repository(repository)
