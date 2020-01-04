@@ -1254,7 +1254,7 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 	var numFailedReqs int
 	fail := func(r *http.Request) (*http.Response, error) {
-		numFailedReqs += 1
+		numFailedReqs++
 		return &http.Response{Request: r, StatusCode: 500, Body: http.NoBody}, nil
 	}
 
@@ -1284,6 +1284,42 @@ func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 	// Retry should not have triggered additional requests because
 	if numFailedReqs != 1 {
 		t.Errorf("expected %d failed requests; got: %d", 1, numFailedReqs)
+	}
+}
+
+func TestPerformRequestOnNoConnectionsWithHealthcheckRevival(t *testing.T) {
+	fail := func(r *http.Request) (*http.Response, error) {
+		return nil, errors.New("request failed")
+	}
+	tr := &failingTransport{path: "/fail", fail: fail}
+	httpClient := &http.Client{Transport: tr}
+	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(0), SetHealthcheck(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Run against a failing endpoint to mark connection as dead
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/fail",
+	})
+	if err == nil {
+		t.Fatal(err)
+	}
+	if res != nil {
+		t.Fatal("expected no response")
+	}
+
+	// Forced healthcheck should bring connection back to life and complete request
+	res, err = client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
 	}
 }
 
