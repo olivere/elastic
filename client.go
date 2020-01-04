@@ -26,7 +26,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "7.0.9"
+	Version = "7.0.10"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1837,6 +1837,7 @@ func (c *Client) TasksGetTask() *TasksGetTaskService {
 func (c *Client) SnapshotStatus() *SnapshotStatusService {
 	return NewSnapshotStatusService(c)
 }
+
 // SnapshotCreate creates a snapshot.
 func (c *Client) SnapshotCreate(repository string, snapshot string) *SnapshotCreateService {
 	return NewSnapshotCreateService(c).Repository(repository).Snapshot(snapshot)
