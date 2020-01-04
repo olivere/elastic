@@ -1296,6 +1296,42 @@ func TestPerformRequestWithMaxResponseSize(t *testing.T) {
 	}
 }
 
+func TestPerformRequestOnNoConnectionsWithHealthcheckRevival(t *testing.T) {
+	fail := func(r *http.Request) (*http.Response, error) {
+		return nil, errors.New("request failed")
+	}
+	tr := &failingTransport{path: "/fail", fail: fail}
+	httpClient := &http.Client{Transport: tr}
+	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(0), SetHealthcheck(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Run against a failing endpoint to mark connection as dead
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/fail",
+	})
+	if err == nil {
+		t.Fatal(err)
+	}
+	if res != nil {
+		t.Fatal("expected no response")
+	}
+
+	// Forced healthcheck should bring connection back to life and complete request
+	res, err = client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+}
+
 // failingTransport will run a fail callback if it sees a given URL path prefix.
 type failingTransport struct {
 	path string                                      // path prefix to look for
