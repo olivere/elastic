@@ -7,10 +7,11 @@ package elastic
 import (
 	"context"
 	"fmt"
-	"github.com/olivere/elastic/v7/uritemplates"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/olivere/elastic/v7/uritemplates"
 )
 
 // CatIndicesService returns the list of indices plus some additional
