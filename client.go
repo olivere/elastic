@@ -329,6 +329,9 @@ func NewClientFromConfig(cfg *config.Config) (*Client, error) {
 		if cfg.Sniff != nil {
 			options = append(options, SetSniff(*cfg.Sniff))
 		}
+		if cfg.Healthcheck != nil {
+			options = append(options, SetHealthcheck(*cfg.Healthcheck))
+		}
 	}
 	return NewClient(options...)
 }
@@ -1226,6 +1229,7 @@ func (c *Client) PerformRequestWithOptions(ctx context.Context, opt PerformReque
 	basicAuthPassword := c.basicAuthPassword
 	sendGetBodyAs := c.sendGetBodyAs
 	gzipEnabled := c.gzipEnabled
+	healthcheckEnabled := c.healthcheckEnabled
 	retrier := c.retrier
 	if opt.Retrier != nil {
 		retrier = opt.Retrier
@@ -1257,6 +1261,10 @@ func (c *Client) PerformRequestWithOptions(ctx context.Context, opt PerformReque
 			if !retried {
 				// Force a healtcheck as all connections seem to be dead.
 				c.healthcheck(timeout, false)
+				if healthcheckEnabled {
+					retried = true
+					continue
+				}
 			}
 			wait, ok, rerr := retrier.Retry(ctx, n, nil, nil, err)
 			if rerr != nil {
