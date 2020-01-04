@@ -1,16 +1,26 @@
 package elastic
 
+var (
+	_ IntervalQueryRule = (*IntervalQueryRuleAnyOf)(nil)
+)
+
+// IntervalQueryRuleAnyOf is an implementation of IntervalQueryRule.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.5/query-dsl-intervals-query.html#intervals-any_of
+// for details.
 type IntervalQueryRuleAnyOf struct {
 	intervals []IntervalQueryRule
-	filter    *IntervalQueryRuleFilter
+	filter    *IntervalQueryFilter
 }
 
-var _ IntervalQueryRule = &IntervalQueryRuleAnyOf{}
-
+// NewIntervalQueryRuleAnyOf initializes and returns a new instance
+// of IntervalQueryRuleAnyOf.
 func NewIntervalQueryRuleAnyOf(intervals ...IntervalQueryRule) *IntervalQueryRuleAnyOf {
 	return &IntervalQueryRuleAnyOf{intervals: intervals}
 }
-func (r *IntervalQueryRuleAnyOf) Filter(filter *IntervalQueryRuleFilter) *IntervalQueryRuleAnyOf {
+
+// Filter adds an additional interval filter.
+func (r *IntervalQueryRuleAnyOf) Filter(filter *IntervalQueryFilter) *IntervalQueryRuleAnyOf {
 	r.filter = filter
 	return r
 }
@@ -19,7 +29,7 @@ func (r *IntervalQueryRuleAnyOf) Filter(filter *IntervalQueryRuleFilter) *Interv
 func (r *IntervalQueryRuleAnyOf) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
-	intervalSources := make([]interface{}, 0)
+	var intervalSources []interface{}
 	for _, interval := range r.intervals {
 		src, err := interval.Source()
 		if err != nil {
@@ -39,9 +49,12 @@ func (r *IntervalQueryRuleAnyOf) Source() (interface{}, error) {
 		source["filter"] = src
 	}
 
-	return map[string]interface{}{"any_of": source}, nil
+	return map[string]interface{}{
+		"any_of": source,
+	}, nil
 }
 
+// isIntervalQueryRule implements the marker interface.
 func (r *IntervalQueryRuleAnyOf) isIntervalQueryRule() bool {
 	return true
 }

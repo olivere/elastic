@@ -1,29 +1,42 @@
 package elastic
 
+var (
+	_ IntervalQueryRule = (*IntervalQueryRuleAllOf)(nil)
+)
+
+// IntervalQueryRuleAllOf is an implementation of IntervalQueryRule.
+//
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.5/query-dsl-intervals-query.html#intervals-all_of
+// for details.
 type IntervalQueryRuleAllOf struct {
 	intervals []IntervalQueryRule
 	maxGaps   *int
 	ordered   *bool
-	filter    *IntervalQueryRuleFilter
+	filter    *IntervalQueryFilter
 }
 
-var _ IntervalQueryRule = &IntervalQueryRuleAllOf{}
-
+// NewIntervalQueryRuleAllOf initializes and returns a new instance
+// of IntervalQueryRuleAllOf.
 func NewIntervalQueryRuleAllOf(intervals ...IntervalQueryRule) *IntervalQueryRuleAllOf {
 	return &IntervalQueryRuleAllOf{intervals: intervals}
 }
 
+// MaxGaps specifies the maximum number of positions between the matching
+// terms. Terms further apart than this are considered matches. Defaults to -1.
 func (r *IntervalQueryRuleAllOf) MaxGaps(maxGaps int) *IntervalQueryRuleAllOf {
 	r.maxGaps = &maxGaps
 	return r
 }
 
+// Ordered, if true, indicates that matching terms must appear in their specified
+// order. Defaults to false.
 func (r *IntervalQueryRuleAllOf) Ordered(ordered bool) *IntervalQueryRuleAllOf {
 	r.ordered = &ordered
 	return r
 }
 
-func (r *IntervalQueryRuleAllOf) Filter(filter *IntervalQueryRuleFilter) *IntervalQueryRuleAllOf {
+// Filter adds an additional interval filter.
+func (r *IntervalQueryRuleAllOf) Filter(filter *IntervalQueryFilter) *IntervalQueryRuleAllOf {
 	r.filter = filter
 	return r
 }
@@ -58,9 +71,12 @@ func (r *IntervalQueryRuleAllOf) Source() (interface{}, error) {
 		source["filter"] = src
 	}
 
-	return map[string]interface{}{"all_of": source}, nil
+	return map[string]interface{}{
+		"all_of": source,
+	}, nil
 }
 
+// isIntervalQueryRule implements the marker interface.
 func (r *IntervalQueryRuleAllOf) isIntervalQueryRule() bool {
 	return true
 }
