@@ -30,6 +30,7 @@ before_install:
 - docker-compose up -d
 - go get -u github.com/google/go-cmp/cmp
 - go get -u github.com/fortytw2/leaktest
+- go get -u github.com/stretchr/testify/require
 - go get . ./aws/... ./config/... ./trace/... ./uritemplates/...
 - while ! nc -z localhost 9200; do sleep 1; done
 - while ! nc -z localhost 9210; do sleep 1; done
