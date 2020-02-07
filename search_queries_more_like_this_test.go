@@ -43,7 +43,7 @@ func TestMoreLikeThisQuerySourceWithLikeAndUnlikeItems(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := string(data)
-	expected := `{"more_like_this":{"like":[{"_id":"1"},{"_id":"2","_index":"elastic-test2","_routing":"routing_id","_type":"comment"}],"unlike":[{"_id":"3"}]}}`
+	expected := `{"more_like_this":{"like":[{"_id":"1"},{"_id":"2","_index":"elastic-test2","_type":"comment","routing":"routing_id"}],"unlike":[{"_id":"3"}]}}`
 	if got != expected {
 		t.Fatalf("expected\n%s\n,got:\n%s", expected, got)
 	}

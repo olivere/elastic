@@ -3,15 +3,17 @@ module github.com/olivere/elastic/v7
 go 1.13
 
 require (
-	github.com/aws/aws-sdk-go v1.27.0
+	github.com/aws/aws-sdk-go v1.28.12
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fortytw2/leaktest v1.3.0
-	github.com/golang/mock v1.2.0 // indirect
-	github.com/google/go-cmp v0.3.1
+	github.com/google/go-cmp v0.4.0
+	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mailru/easyjson v0.7.0
+	github.com/olivere/elastic v6.2.27+incompatible
 	github.com/opentracing/opentracing-go v1.1.0
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/go-aws-auth v0.0.0-20180515143844-0c1422d1fdb9
-	go.opencensus.io v0.22.2
-	google.golang.org/api v0.3.1 // indirect
+	github.com/smartystreets/gunit v1.1.3 // indirect
+	go.opencensus.io v0.22.3
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
