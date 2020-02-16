@@ -1505,3 +1505,24 @@ func TestSearchWithDateMathIndices(t *testing.T) {
 		t.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", want, got)
 	}
 }
+
+func TestSearchService_TrackTotalHits(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t)
+
+	searchResult, err := client.Search().
+		Index(testIndexName).
+		Query(NewMatchAllQuery()).
+		Size(100).
+		Pretty(true).
+		TrackTotalHits(true).
+		Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult.Hits == nil {
+		t.Errorf("expected SearchResult.Hits != nil; got nil")
+	}
+	if searchResult.Hits.TotalHits != 3 {
+		t.Errorf("expected SearchResult.Hits.TotalHits = %d; got %d", 3, searchResult.Hits.TotalHits)
+	}
+}
