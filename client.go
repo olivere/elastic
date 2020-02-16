@@ -1645,6 +1645,10 @@ func (c *Client) Flush(indices ...string) *IndicesFlushService {
 	return NewIndicesFlushService(c).Index(indices...)
 }
 
+func (c *Client) ClearCache(indices ...string) *IndicesClearCacheService {
+	return NewIndicesClearCacheService(c).Index(indices...)
+}
+
 // SyncedFlush performs a synced flush.
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/indices-synced-flush.html
