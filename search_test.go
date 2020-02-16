@@ -1512,7 +1512,6 @@ func TestSearchService_TrackTotalHits(t *testing.T) {
 	searchResult, err := client.Search().
 		Index(testIndexName).
 		Query(NewMatchAllQuery()).
-		Size(100).
 		Pretty(true).
 		TrackTotalHits(true).
 		Do(context.TODO())
