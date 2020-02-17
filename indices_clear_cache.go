@@ -1,3 +1,7 @@
+// Copyright 2020-present Aman Jain. All rights reserved.
+// Use of this source code is governed by a MIT-license.
+// See http://olivere.mit-license.org/license.txt for details.
+
 package elastic
 
 import (
@@ -9,6 +13,9 @@ import (
 	"strings"
 )
 
+// IndicesClearCacheService allows to clear either all caches or specific cached associated with one or more indices.
+//
+// Documentation: http://www.elastic.co/guide/en/elasticsearch/reference/master/indices-clearcache.html
 type IndicesClearCacheService struct {
 	client *Client
 
@@ -25,6 +32,7 @@ type IndicesClearCacheService struct {
 	fieldData         *bool
 	fields            string
 	query             *bool
+	requestCache      *bool
 	request           *bool
 }
 
@@ -125,6 +133,12 @@ func (s *IndicesClearCacheService) Request(requestCache bool) *IndicesClearCache
 	return s
 }
 
+// Request_cache indicates whether to clear only request cache
+func (s *IndicesClearCacheService) RequestCache(requestCache bool) *IndicesClearCacheService {
+	s.requestCache = &requestCache
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *IndicesClearCacheService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -179,6 +193,9 @@ func (s *IndicesClearCacheService) buildURL() (string, url.Values, error) {
 	}
 	if s.request != nil {
 		params.Set("request", fmt.Sprintf("%v", *s.request))
+	}
+	if s.request != nil {
+		params.Set("request_cache", fmt.Sprintf("%v", *s.requestCache))
 	}
 
 	return path, params, nil
