@@ -9,6 +9,7 @@ require (
 	github.com/google/go-cmp v0.4.0
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mailru/easyjson v0.7.1
+	github.com/olivere/elastic v6.2.27+incompatible // indirect
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/go-aws-auth v0.0.0-20180515143844-0c1422d1fdb9
