@@ -5,7 +5,7 @@
 Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for the
 [Go](http://www.golang.org/) programming language.
 
-[![Build Status](https://github.com/olivere/elastic/workflows/Test/badge.svg)]
+[![Build Status](https://github.com/olivere/elastic/workflows/Test/badge.svg)](https://github.com/olivere/elastic/actions)
 [![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://pkg.go.dev/github.com/olivere/elastic/v7?tab=doc)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/olivere/elastic/master/LICENSE)
 
