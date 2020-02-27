@@ -252,7 +252,7 @@ func TestBulkIndexDeleteUpdate(t *testing.T) {
 		t.Fatal(err)
 	}
 	if bulkResponse == nil {
-		t.Errorf("expected bulkResponse to be != nil; got nil")
+		t.Fatal("expected bulkResponse to be != nil; got nil")
 	}
 	if bulkResponse.Took == 0 {
 		t.Errorf("expected took to be > 0; got %d", bulkResponse.Took)
@@ -542,7 +542,7 @@ func TestBulkWithFilterPath(t *testing.T) {
 		t.Fatal(err)
 	}
 	if bulkResponse == nil {
-		t.Errorf("expected bulkResponse to be != nil; got nil")
+		t.Fatal("expected bulkResponse to be != nil; got nil")
 	}
 
 	// 0 because it was filtered out.
