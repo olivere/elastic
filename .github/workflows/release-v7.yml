@@ -1,9 +1,8 @@
-name: Release
 on:
-  pull_request:
   push:
     tags:
-      - '*'
+      - v7.*
+name: Release v7
 jobs:
   goreleaser:
     runs-on: ubuntu-latest

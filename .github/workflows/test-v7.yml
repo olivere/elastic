@@ -1,5 +1,11 @@
-on: [push, pull_request]
-name: Test
+on:
+  push:
+    branches:
+      - release-branch.v7
+  pull_request:
+    branches:
+      - release-branch.v7
+name: Test v7
 jobs:
   test:
     strategy:
