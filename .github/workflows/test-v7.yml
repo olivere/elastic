@@ -1,10 +1,10 @@
 on:
   push:
     branches:
-      - release-branch.v7
+      - '*.v7'
   pull_request:
     branches:
-      - release-branch.v7
+      - '*.v7'
 name: Test v7
 jobs:
   test:
