@@ -1654,6 +1654,11 @@ func (c *Client) SyncedFlush(indices ...string) *IndicesSyncedFlushService {
 	return NewIndicesSyncedFlushService(c).Index(indices...)
 }
 
+// ClearCache clears caches for one or more indices.
+func (c *Client) ClearCache(indices ...string) *IndicesClearCacheService {
+	return NewIndicesClearCacheService(c).Index(indices...)
+}
+
 // Alias enables the caller to add and/or remove aliases.
 func (c *Client) Alias() *AliasService {
 	return NewAliasService(c)

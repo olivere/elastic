@@ -250,7 +250,7 @@ Here are a few tips on how to get used to Elastic:
 - [x] Indices Segments
 - [ ] Indices Recovery
 - [ ] Indices Shard Stores
-- [ ] Clear Cache
+- [x] Clear Cache
 - [x] Flush
   - [x] Synced Flush
 - [x] Refresh
