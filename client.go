@@ -815,8 +815,6 @@ func (c *Client) Stop() {
 	c.infof("elastic: client stopped")
 }
 
-var logDeprecation = func(*http.Request, *http.Response) {}
-
 // errorf logs to the error log.
 func (c *Client) errorf(format string, args ...interface{}) {
 	if c.errorlog != nil {

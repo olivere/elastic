@@ -1557,8 +1557,7 @@ func TestPerformRequestWithCustomHTTPHeadersOnRequest(t *testing.T) {
 
 func TestPerformRequestWithCustomHTTPHeadersOnClient(t *testing.T) {
 	client, err := NewClient(SetHeaders(http.Header{
-		"Custom-Id":   []string{"olivere"},
-		"X-Opaque-Id": []string{"sandra"},
+		"Custom-Id": []string{"olivere"},
 	}))
 	if err != nil {
 		t.Fatal(err)

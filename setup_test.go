@@ -272,6 +272,8 @@ func travisGoVersion() string {
 	return os.Getenv("TRAVIS_GO_VERSION")
 }
 
+var _ = travisGoVersion // remove unused warning in staticcheck
+
 type logger interface {
 	Error(args ...interface{})
 	Errorf(format string, args ...interface{})
@@ -402,6 +404,8 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 func setupTestClientAndCreateIndexAndLog(t logger, options ...ClientOptionFunc) *Client {
 	return setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 }
+
+var _ = setupTestClientAndCreateIndexAndLog // remove unused warning in staticcheck
 
 func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFunc) *Client {
 	client := setupTestClientAndCreateIndex(t, options...)

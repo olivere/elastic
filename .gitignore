@@ -21,6 +21,8 @@ _testmain.go
 
 *.exe
 
+.envrc
+
 /.vscode/
 /.idea/
 /debug.test
