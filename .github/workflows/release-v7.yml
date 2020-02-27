@@ -1,7 +1,7 @@
 on:
   push:
     tags:
-      - v7.*
+      - 'v7.*'
 name: Release v7
 jobs:
   goreleaser:
