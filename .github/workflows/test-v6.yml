@@ -1,10 +1,10 @@
 on:
   push:
     branches:
-      - '*.v6'
+      - release-branch.v6
   pull_request:
     branches:
-      - '*.v6'
+      - release-branch.v6
 name: Test v6
 jobs:
   test:
