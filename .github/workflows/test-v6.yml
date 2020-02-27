@@ -1,10 +1,10 @@
 on:
   push:
     branches:
-      - release-branch.v6
+      - '*.v6'
   pull_request:
     branches:
-      - release-branch.v6
+      - '*.v6'
 name: Test v6
 jobs:
   test:
@@ -36,7 +36,8 @@ jobs:
       run: |
         go get -u github.com/google/go-cmp/cmp
         go get -u github.com/fortytw2/leaktest
-        go get . ./aws/... ./config/... ./trace/... ./uritemplates/...
+        go get -u github.com/pkg/errors
+        go get -u -v ./config/... ./uritemplates/...
     - name: Wait for Elasticsearch
       run: |
         while ! nc -z localhost 9200; do sleep 1; done
