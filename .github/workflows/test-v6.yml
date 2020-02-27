@@ -37,7 +37,6 @@ jobs:
         go get -u github.com/google/go-cmp/cmp
         go get -u github.com/fortytw2/leaktest
         go get -u github.com/pkg/errors
-        go get -u -v ./config/... ./uritemplates/...
     - name: Wait for Elasticsearch
       run: |
         while ! nc -z localhost 9200; do sleep 1; done
