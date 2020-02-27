@@ -8,6 +8,7 @@ services:
       - cluster.name=elasticsearch
       - bootstrap.memory_lock=true
       - discovery.type=single-node
+      # - http.publish_host=localhost
       # - http.host=0.0.0.0
       # - transport.host=127.0.0.1
       # - network.host=_local_
@@ -37,6 +38,7 @@ services:
       - xpack.license.self_generated.type=trial
       - xpack.security.enabled=true
       - xpack.watcher.enabled=true
+      # - http.publish_host=localhost
       # - http.host=0.0.0.0
       # - transport.host=127.0.0.1
       # - network.host=_local_

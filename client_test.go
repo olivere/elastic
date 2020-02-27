@@ -836,18 +836,8 @@ func TestClientExtractHostname(t *testing.T) {
 	}{
 		{
 			Scheme:  "http",
-			Address: "",
-			Output:  "",
-		},
-		{
-			Scheme:  "https",
-			Address: "abc",
-			Output:  "",
-		},
-		{
-			Scheme:  "http",
-			Address: "127.0.0.1:19200",
-			Output:  "http://127.0.0.1:19200",
+			Address: "127.0.0.1:9200",
+			Output:  "http://127.0.0.1:9200",
 		},
 		{
 			Scheme:  "https",
@@ -856,8 +846,13 @@ func TestClientExtractHostname(t *testing.T) {
 		},
 		{
 			Scheme:  "http",
+			Address: "127.0.0.1:19200",
+			Output:  "http://127.0.0.1:19200",
+		},
+		{
+			Scheme:  "http",
 			Address: "myelk.local/10.1.0.24:9200",
-			Output:  "http://10.1.0.24:9200",
+			Output:  "http://myelk.local:9200",
 		},
 	}
 
