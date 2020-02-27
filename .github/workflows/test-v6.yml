@@ -16,6 +16,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     env:
       # We only support Go Modules for v7 and later
+      GOPATH: ${{ github.workspace }}
       GO111MODULE: off
     steps:
     - name: Prepare tests
@@ -28,20 +29,26 @@ jobs:
         go-version: ${{ matrix.go-version }}
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        path: ./src/github.com/${{ github.repository }}
     - name: Run Docker containers
+      working-directory: ./src/github.com/${{ github.repository }}
       run: docker-compose up -d
     - name: Check Docker containers
       run: docker ps -a
+      working-directory: ./src/github.com/${{ github.repository }}
     - name: Get dependencies
+      working-directory: ./src/github.com/${{ github.repository }}
       run: |
         go get -u github.com/google/go-cmp/cmp
         go get -u github.com/fortytw2/leaktest
-        go get -u github.com/pkg/errors
-        go get -u github.com/mailru/easyjson/...
+        go get . ./aws/... ./config/... ./trace/... ./uritemplates/...
     - name: Wait for Elasticsearch
+      working-directory: ./src/github.com/${{ github.repository }}
       run: |
         while ! nc -z localhost 9200; do sleep 1; done
         while ! nc -z localhost 9210; do sleep 1; done
     - name: Run the tests
+      working-directory: ./src/github.com/${{ github.repository }}
       run: |
-        go test -race -deprecations -strict-decoder -v . ./config/... ./uritemplates/...
+        go test -race -deprecations -strict-decoder -v . ./aws/... ./config/... ./trace/... ./uritemplates/...
