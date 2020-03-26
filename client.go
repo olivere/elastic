@@ -97,6 +97,9 @@ var (
 
 	// noRetries is a retrier that does not retry.
 	noRetries = NewStopRetrier()
+
+	// noDeprecationLog is a no-op for logging deprecations.
+	noDeprecationLog = func(*http.Request, *http.Response) {}
 )
 
 // ClientOptionFunc is a function that configures a Client.
@@ -111,12 +114,13 @@ type Client struct {
 	conns   []*conn      // all connections
 	cindex  int          // index into conns
 
-	mu                        sync.RWMutex    // guards the next block
-	urls                      []string        // set of URLs passed initially to the client
-	running                   bool            // true if the client's background processes are running
-	errorlog                  Logger          // error log for critical messages
-	infolog                   Logger          // information log for e.g. response times
-	tracelog                  Logger          // trace log for debugging
+	mu                        sync.RWMutex // guards the next block
+	urls                      []string     // set of URLs passed initially to the client
+	running                   bool         // true if the client's background processes are running
+	errorlog                  Logger       // error log for critical messages
+	infolog                   Logger       // information log for e.g. response times
+	tracelog                  Logger       // trace log for debugging
+	deprecationlog            func(*http.Request, *http.Response)
 	scheme                    string          // http or https
 	healthcheckEnabled        bool            // healthchecks enabled or disabled
 	healthcheckTimeoutStartup time.Duration   // time the healthcheck waits for a response from Elasticsearch on startup
@@ -137,6 +141,7 @@ type Client struct {
 	requiredPlugins           []string        // list of required plugins
 	gzipEnabled               bool            // gzip compression enabled or disabled (default)
 	retrier                   Retrier         // strategy for retries
+	headers                   http.Header     // a list of default headers to add to each request
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -211,6 +216,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		sendGetBodyAs:             DefaultSendGetBodyAs,
 		gzipEnabled:               DefaultGzipEnabled,
 		retrier:                   noRetries, // no retries by default
+		deprecationlog:            noDeprecationLog,
 	}
 
 	// Run the options on it
@@ -372,6 +378,7 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 		sendGetBodyAs:             DefaultSendGetBodyAs,
 		gzipEnabled:               DefaultGzipEnabled,
 		retrier:                   noRetries, // no retries by default
+		deprecationlog:            noDeprecationLog,
 	}
 
 	// Run the options on it
@@ -676,6 +683,15 @@ func SetRetrier(retrier Retrier) ClientOptionFunc {
 			retrier = noRetries // no retries by default
 		}
 		c.retrier = retrier
+		return nil
+	}
+}
+
+// SetHeaders adds a list of default HTTP headers that will be added to
+// each requests executed by PerformRequest.
+func SetHeaders(headers http.Header) ClientOptionFunc {
+	return func(c *Client) error {
+		c.headers = headers
 		return nil
 	}
 }
@@ -1178,13 +1194,15 @@ func (c *Client) mustActiveConn() error {
 
 // PerformRequestOptions must be passed into PerformRequest.
 type PerformRequestOptions struct {
-	Method       string
-	Path         string
-	Params       url.Values
-	Body         interface{}
-	ContentType  string
-	IgnoreErrors []int
-	Retrier      Retrier
+	Method          string
+	Path            string
+	Params          url.Values
+	Body            interface{}
+	ContentType     string
+	IgnoreErrors    []int
+	Retrier         Retrier
+	Headers         http.Header
+	MaxResponseSize int64
 }
 
 // PerformRequest does a HTTP request to Elasticsearch.
@@ -1234,6 +1252,7 @@ func (c *Client) PerformRequestWithOptions(ctx context.Context, opt PerformReque
 	if opt.Retrier != nil {
 		retrier = opt.Retrier
 	}
+	defaultHeaders := c.headers
 	c.mu.RUnlock()
 
 	var err error
@@ -1294,6 +1313,20 @@ func (c *Client) PerformRequestWithOptions(ctx context.Context, opt PerformReque
 		if opt.ContentType != "" {
 			req.Header.Set("Content-Type", opt.ContentType)
 		}
+		if len(opt.Headers) > 0 {
+			for key, value := range opt.Headers {
+				for _, v := range value {
+					req.Header.Add(key, v)
+				}
+			}
+		}
+		if len(defaultHeaders) > 0 {
+			for key, value := range defaultHeaders {
+				for _, v := range value {
+					req.Header.Add(key, v)
+				}
+			}
+		}
 
 		// Set body
 		if opt.Body != nil {
@@ -1337,18 +1370,26 @@ func (c *Client) PerformRequestWithOptions(ctx context.Context, opt PerformReque
 		// Tracing
 		c.dumpResponse(res)
 
+		// Log deprecation warnings as errors
+		if len(res.Header["Warning"]) > 0 {
+			c.deprecationlog((*http.Request)(req), res)
+			for _, warning := range res.Header["Warning"] {
+				c.errorf("Deprecation warning: %s", warning)
+			}
+		}
+
 		// Check for errors
 		if err := checkResponse((*http.Request)(req), res, opt.IgnoreErrors...); err != nil {
 			// No retry if request succeeded
 			// We still try to return a response.
-			resp, _ = c.newResponse(res)
+			resp, _ = c.newResponse(res, opt.MaxResponseSize)
 			return resp, err
 		}
 
 		// We successfully made a request with this connection
 		conn.MarkAsHealthy()
 
-		resp, err = c.newResponse(res)
+		resp, err = c.newResponse(res, opt.MaxResponseSize)
 		if err != nil {
 			return nil, err
 		}
@@ -1682,6 +1723,36 @@ func (c *Client) GetFieldMapping() *IndicesGetFieldMappingService {
 // TODO cat thread pool
 // TODO cat shards
 // TODO cat segments
+
+// CatAliases returns information about aliases.
+func (c *Client) CatAliases() *CatAliasesService {
+	return NewCatAliasesService(c)
+}
+
+// CatAllocation returns information about the allocation across nodes.
+func (c *Client) CatAllocation() *CatAllocationService {
+	return NewCatAllocationService(c)
+}
+
+// CatCount returns document counts for indices.
+func (c *Client) CatCount() *CatCountService {
+	return NewCatCountService(c)
+}
+
+// CatHealth returns information about cluster health.
+func (c *Client) CatHealth() *CatHealthService {
+	return NewCatHealthService(c)
+}
+
+// CatIndices returns information about indices.
+func (c *Client) CatIndices() *CatIndicesService {
+	return NewCatIndicesService(c)
+}
+
+// CatShards returns information about shards.
+func (c *Client) CatShards() *CatShardsService {
+	return NewCatShardsService(c)
+}
 
 // -- Ingest APIs --
 

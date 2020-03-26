@@ -5,10 +5,14 @@
 package elastic
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
 	"os"
 	"time"
 )
@@ -193,12 +197,49 @@ type logger interface {
 	Logf(format string, args ...interface{})
 }
 
+// strictDecoder returns an error if any JSON fields aren't decoded.
+type strictDecoder struct{}
+
+func (d *strictDecoder) Decode(data []byte, v interface{}) error {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	return dec.Decode(v)
+}
+
+var (
+	logDeprecations = flag.String("deprecations", "off", "log or fail on deprecation warnings")
+	strict          = flag.Bool("strict-decoder", false, "treat missing unknown fields in response as errors")
+)
+
 func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 	var err error
 
 	client, err = NewClient(options...)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	// Use strict JSON decoder (unless a specific decoder has been specified already)
+	if *strict {
+		if client.decoder == nil {
+			client.decoder = &strictDecoder{}
+		} else if _, ok := client.decoder.(*DefaultDecoder); ok {
+			client.decoder = &strictDecoder{}
+		}
+	}
+
+	// Log deprecations during tests
+	if loglevel := *logDeprecations; loglevel != "off" {
+		client.deprecationlog = func(req *http.Request, res *http.Response) {
+			for _, warning := range res.Header["Warning"] {
+				switch loglevel {
+				default:
+					t.Logf("[%s] Deprecation warning: %s", req.URL, warning)
+				case "fail", "error":
+					t.Errorf("[%s] Deprecation warning: %s", req.URL, warning)
+				}
+			}
+		}
 	}
 
 	client.DeleteIndex(testIndexName).Do(context.TODO())
