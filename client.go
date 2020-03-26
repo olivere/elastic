@@ -1754,6 +1754,11 @@ func (c *Client) CatIndices() *CatIndicesService {
 	return NewCatIndicesService(c)
 }
 
+// CatShards returns information about shards.
+func (c *Client) CatShards() *CatShardsService {
+	return NewCatShardsService(c)
+}
+
 // -- Ingest APIs --
 
 // IngestPutPipeline adds pipelines and updates existing pipelines in
