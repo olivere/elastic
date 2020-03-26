@@ -131,6 +131,12 @@ func (s *CatShardsService) Sort(fields ...string) *CatShardsService {
 	return s
 }
 
+// Time specifies the way that time values are formatted with.
+func (s *CatShardsService) Time(time string) *CatShardsService {
+	s.time = time
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *CatShardsService) buildURL() (string, url.Values, error) {
 	// Build URL
@@ -168,6 +174,9 @@ func (s *CatShardsService) buildURL() (string, url.Values, error) {
 	}
 	if s.bytes != "" {
 		params.Set("bytes", s.bytes)
+	}
+	if s.time != "" {
+		params.Set("time", s.time)
 	}
 	if v := s.local; v != nil {
 		params.Set("local", fmt.Sprint(*v))
