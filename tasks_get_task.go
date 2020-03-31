@@ -164,5 +164,18 @@ func (s *TasksGetTaskService) Do(ctx context.Context) (*TasksGetTaskResponse, er
 type TasksGetTaskResponse struct {
 	Header    http.Header `json:"-"`
 	Completed bool        `json:"completed"`
+	Error     ErrorDetail `json:"error"`
 	Task      *TaskInfo   `json:"task,omitempty"`
+}
+
+type ErrorDetail struct {
+	Type        string   `json:"type"`
+	Reason      string   `json:"reason"`
+	ScriptStack []string `json:"script_stack"`
+	Script      string   `json:"script"`
+	Lang        string   `json:"lang"`
+	CausedBy    struct {
+		Type   string `json:"type"`
+		Reason string `json:"reason"`
+	} `json:"caused_by"`
 }
