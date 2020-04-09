@@ -6,6 +6,7 @@ package v4
 
 import (
 	"bytes"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -53,37 +54,29 @@ func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		// Escaping path
 		req.URL.RawPath = url.PathEscape(req.URL.RawPath)
 	}
+
 	now := time.Now().UTC()
 	req.Header.Set("Date", now.Format(time.RFC3339))
+
 	var err error
 	switch req.Body {
 	case nil:
 		_, err = st.signer.Sign(req, nil, "es", st.region, now)
 	default:
-		buf, err := ioutil.ReadAll(req.Body)
-		if err != nil {
-			return nil, err
+		switch body := req.Body.(type) {
+		case io.ReadSeeker:
+			_, err = st.signer.Sign(req, body, "es", st.region, now)
+		default:
+			buf, err := ioutil.ReadAll(req.Body)
+			if err != nil {
+				return nil, err
+			}
+			req.Body = ioutil.NopCloser(bytes.NewReader(buf))
+			_, err = st.signer.Sign(req, bytes.NewReader(buf), "es", st.region, time.Now().UTC())
 		}
-		req.Body = ioutil.NopCloser(bytes.NewReader(buf))
-		_, err = st.signer.Sign(req, bytes.NewReader(buf), "es", st.region, time.Now().UTC())
 	}
 	if err != nil {
 		return nil, err
 	}
-	resp, err := st.client.Do(req)
-	if resp != nil && resp.Body != nil {
-		defer resp.Body.Close()
-	}
-	if err != nil {
-		return nil, err
-	}
-	if resp.Body != nil {
-		buf := new(bytes.Buffer)
-		_, err = buf.ReadFrom(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		resp.Body = ioutil.NopCloser(bytes.NewReader(buf.Bytes()))
-	}
-	return resp, nil
+	return st.client.Do(req)
 }
