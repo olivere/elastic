@@ -645,7 +645,7 @@ type SearchResult struct {
 	TookInMillis    int64                  `json:"took,omitempty"`             // search time in milliseconds
 	TerminatedEarly bool                   `json:"terminated_early,omitempty"` // request terminated early
 	NumReducePhases int                    `json:"num_reduce_phases,omitempty"`
-	Clusters        *SearchResultCluster `json:"_clusters,omitempty"`    // 6.1.0+
+	Clusters        *SearchResultCluster   `json:"_clusters,omitempty"`    // 6.1.0+
 	ScrollId        string                 `json:"_scroll_id,omitempty"`   // only used with Scroll and Scan operations
 	Hits            *SearchHits            `json:"hits,omitempty"`         // the actual search hits
 	Suggest         SearchSuggest          `json:"suggest,omitempty"`      // results from suggesters
