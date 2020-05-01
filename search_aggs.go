@@ -1422,9 +1422,8 @@ func (a *AggregationBucketAdjacencyMatrix) UnmarshalJSON(data []byte) error {
 type AggregationBucketHistogramItems struct {
 	Aggregations
 
-	Buckets  []*AggregationBucketHistogramItem //`json:"buckets"`
-	Interval interface{}                       // `json:"interval"` // can be numeric or a string
-	Meta     map[string]interface{}            // `json:"meta,omitempty"`
+	Buckets []*AggregationBucketHistogramItem // `json:"buckets"`
+	Meta    map[string]interface{}            // `json:"meta,omitempty"`
 }
 
 // UnmarshalJSON decodes JSON data and initializes an AggregationBucketHistogramItems structure.
@@ -1435,9 +1434,6 @@ func (a *AggregationBucketHistogramItems) UnmarshalJSON(data []byte) error {
 	}
 	if v, ok := aggs["buckets"]; ok && v != nil {
 		json.Unmarshal(v, &a.Buckets)
-	}
-	if v, ok := aggs["interval"]; ok && v != nil {
-		json.Unmarshal(v, &a.Interval)
 	}
 	if v, ok := aggs["meta"]; ok && v != nil {
 		json.Unmarshal(v, &a.Meta)

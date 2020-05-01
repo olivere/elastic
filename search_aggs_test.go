@@ -908,9 +908,6 @@ func TestAggs(t *testing.T) {
 		if len(agg.Buckets) != 2 {
 			t.Fatalf("expected %d; got: %d", 2, len(agg.Buckets))
 		}
-		if agg.Interval == nil {
-			t.Fatalf("expected an interval; got: %v", agg.Interval)
-		}
 	}
 
 	// dateHisto
