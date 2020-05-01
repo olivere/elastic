@@ -39,7 +39,6 @@ type MultiMatchQuery struct {
 func NewMultiMatchQuery(text interface{}, fields ...string) *MultiMatchQuery {
 	q := &MultiMatchQuery{
 		text:        text,
-		fields:      make([]string, 0),
 		fieldBoosts: make(map[string]*float64),
 	}
 	q.fields = append(q.fields, fields...)
@@ -209,19 +208,21 @@ func (q *MultiMatchQuery) Source() (interface{}, error) {
 
 	multiMatch["query"] = q.text
 
-	if len(q.fields) > 0 {
-		var fields []string
-		for _, field := range q.fields {
-			if boost, found := q.fieldBoosts[field]; found {
-				if boost != nil {
-					fields = append(fields, fmt.Sprintf("%s^%f", field, *boost))
-				} else {
-					fields = append(fields, field)
-				}
+	var fields []string
+	for _, field := range q.fields {
+		if boost, found := q.fieldBoosts[field]; found {
+			if boost != nil {
+				fields = append(fields, fmt.Sprintf("%s^%f", field, *boost))
 			} else {
 				fields = append(fields, field)
 			}
+		} else {
+			fields = append(fields, field)
 		}
+	}
+	if fields == nil {
+		multiMatch["fields"] = []string{}
+	} else {
 		multiMatch["fields"] = fields
 	}
 

@@ -26,6 +26,23 @@ func TestMultiMatchQuery(t *testing.T) {
 	}
 }
 
+func TestMultiMatchQueryWithNoFields(t *testing.T) {
+	q := NewMultiMatchQuery("accident")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"multi_match":{"fields":[],"query":"accident"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestMultiMatchQueryBestFields(t *testing.T) {
 	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("best_fields")
 	src, err := q.Source()
