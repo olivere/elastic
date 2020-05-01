@@ -384,6 +384,21 @@ func (a Aggregations) SignificantTerms(name string) (*AggregationBucketSignifica
 	return nil, false
 }
 
+// RareTerms returns rate terms aggregation results.
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-rare-terms-aggregation.html
+func (a Aggregations) RareTerms(name string) (*AggregationBucketKeyItems, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationBucketKeyItems)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // Sampler returns sampler aggregation results.
 // See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-sampler-aggregation.html
 func (a Aggregations) Sampler(name string) (*AggregationSingleBucket, bool) {

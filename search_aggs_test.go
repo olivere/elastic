@@ -95,6 +95,7 @@ func TestAggs(t *testing.T) {
 	percentileRanksRetweetsAgg := NewPercentileRanksAggregation().Field("retweets").Values(25, 50, 75)
 	cardinalityAgg := NewCardinalityAggregation().Field("user")
 	significantTermsAgg := NewSignificantTermsAggregation().Field("message")
+	rareTermsAgg := NewRareTermsAggregation().Field("message")
 	samplerAgg := NewSamplerAggregation().SubAggregation("tagged_with", NewTermsAggregation().Field("tags"))
 	diversifiedSamplerAgg := NewDiversifiedSamplerAggregation().Field("user").SubAggregation("tagged_with", NewSignificantTermsAggregation().Field("tags"))
 	retweetsRangeAgg := NewRangeAggregation().Field("retweets").Lt(10).Between(10, 100).Gt(100)
@@ -134,6 +135,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("percentileRanksRetweets", percentileRanksRetweetsAgg)
 	builder = builder.Aggregation("usersCardinality", cardinalityAgg)
 	builder = builder.Aggregation("significantTerms", significantTermsAgg)
+	builder = builder.Aggregation("rareTerms", rareTermsAgg)
 	builder = builder.Aggregation("sample", samplerAgg)
 	builder = builder.Aggregation("diversified_sampler", diversifiedSamplerAgg)
 	builder = builder.Aggregation("retweetsRange", retweetsRangeAgg)
@@ -694,6 +696,23 @@ func TestAggs(t *testing.T) {
 		}
 		if len(agg.Buckets) != 0 {
 			t.Errorf("expected %v; got: %v", 0, len(agg.Buckets))
+		}
+	}
+
+	// rareTerms
+	{
+		agg, found := agg.SignificantTerms("rareTerms")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.DocCount != 0 {
+			t.Errorf("expected %v; got: %v", 0, agg.DocCount)
+		}
+		if len(agg.Buckets) != 11 {
+			t.Errorf("expected %v; got: %v", 11, len(agg.Buckets))
 		}
 	}
 
