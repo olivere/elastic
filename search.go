@@ -717,6 +717,30 @@ type TotalHits struct {
 	Relation string `json:"relation"` // how the value should be interpreted: accurate ("eq") or a lower bound ("gte")
 }
 
+// UnmarshalJSON into TotalHits, accepting both the new response structure
+// in ES 7.x as well as the older response structure in earlier versions.
+// The latter can be enabled with RestTotalHitsAsInt(true).
+func (h *TotalHits) UnmarshalJSON(data []byte) error {
+	if data == nil || string(data) == "null" {
+		return nil
+	}
+	var v struct {
+		Value    int64  `json:"value"`    // value of the total hit count
+		Relation string `json:"relation"` // how the value should be interpreted: accurate ("eq") or a lower bound ("gte")
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		var count int64
+		if err2 := json.Unmarshal(data, &count); err2 != nil {
+			return err // return inner error
+		}
+		h.Value = count
+		h.Relation = "eq"
+		return nil
+	}
+	*h = v
+	return nil
+}
+
 // SearchHit is a single hit.
 type SearchHit struct {
 	Score          *float64                       `json:"_score,omitempty"`   // computed score

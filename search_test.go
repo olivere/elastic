@@ -103,6 +103,64 @@ func TestSearchMatchAllWithRequestCacheDisabled(t *testing.T) {
 	}
 }
 
+func TestSearchTotalHits(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
+
+	count, err := client.Count(testIndexName).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count == 0 {
+		t.Fatalf("expected more than %d documents", count)
+	}
+
+	// RestTotalHitsAsInt(false) (default)
+	{
+		res, err := client.Search().Index(testIndexName).Query(NewMatchAllQuery()).RestTotalHitsAsInt(false).Pretty(true).Do(context.TODO())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res == nil {
+			t.Fatal("expected SearchResult != nil; got nil")
+		}
+		if want, have := count, res.TotalHits(); want != have {
+			t.Errorf("expected SearchResult.TotalHits() = %d; got %d", want, have)
+		}
+		if res.Hits == nil || res.Hits.TotalHits == nil {
+			t.Fatal("expected SearchResult.Hits._ != nil; got nil")
+		}
+		if want, have := count, res.Hits.TotalHits.Value; want != have {
+			t.Errorf("expected SearchResult.TotalHits.Value = %d; got %d", want, have)
+		}
+		if want, have := "eq", res.Hits.TotalHits.Relation; want != have {
+			t.Errorf("expected SearchResult.TotalHits.Relation = %q; got %q", want, have)
+		}
+	}
+
+	// RestTotalHitsAsInt(true)
+	{
+		res, err := client.Search().Index(testIndexName).Query(NewMatchAllQuery()).RestTotalHitsAsInt(true).Pretty(true).Do(context.TODO())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res == nil {
+			t.Fatal("expected SearchResult != nil; got nil")
+		}
+		if want, have := count, res.TotalHits(); want != have {
+			t.Errorf("expected SearchResult.TotalHits() = %d; got %d", want, have)
+		}
+		if res.Hits == nil || res.Hits.TotalHits == nil {
+			t.Fatal("expected SearchResult.Hits._ != nil; got nil")
+		}
+		if want, have := count, res.Hits.TotalHits.Value; want != have {
+			t.Errorf("expected SearchResult.TotalHits.Value = %d; got %d", want, have)
+		}
+		if want, have := "eq", res.Hits.TotalHits.Relation; want != have {
+			t.Errorf("expected SearchResult.TotalHits.Relation = %q; got %q", want, have)
+		}
+	}
+}
+
 func BenchmarkSearchMatchAll(b *testing.B) {
 	client := setupTestClientAndCreateIndexAndAddDocs(b)
 
