@@ -86,6 +86,7 @@ func TestAggs(t *testing.T) {
 		Weight(&MultiValuesSourceFieldConfig{FieldName: "weight", Missing: 1.0})
 	minRetweetsAgg := NewMinAggregation().Field("retweets")
 	maxRetweetsAgg := NewMaxAggregation().Field("retweets")
+	medianAbsDevRetweetsAgg := NewMedianAbsoluteDeviationAggregation().Field("retweets")
 	sumRetweetsAgg := NewSumAggregation().Field("retweets")
 	statsRetweetsAgg := NewStatsAggregation().Field("retweets")
 	extstatsRetweetsAgg := NewExtendedStatsAggregation().Field("retweets")
@@ -124,6 +125,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("weightedAvgRetweets", weightedAvgRetweetsAgg)
 	builder = builder.Aggregation("minRetweets", minRetweetsAgg)
 	builder = builder.Aggregation("maxRetweets", maxRetweetsAgg)
+	builder = builder.Aggregation("medianAbsDevRetweets", medianAbsDevRetweetsAgg)
 	builder = builder.Aggregation("sumRetweets", sumRetweetsAgg)
 	builder = builder.Aggregation("statsRetweets", statsRetweetsAgg)
 	builder = builder.Aggregation("extstatsRetweets", extstatsRetweetsAgg)
@@ -207,681 +209,746 @@ func TestAggs(t *testing.T) {
 	}
 
 	// Search for non-existent aggregate should return (nil, false)
-	unknownAgg, found := agg.Terms("no-such-aggregate")
-	if found {
-		t.Errorf("expected unknown aggregation to not be found; got: %v", found)
-	}
-	if unknownAgg != nil {
-		t.Errorf("expected unknown aggregation to return %v; got %v", nil, unknownAgg)
+	{
+		agg, found := agg.Terms("no-such-aggregate")
+		if found {
+			t.Errorf("expected unknown aggregation to not be found; got: %v", found)
+		}
+		if agg != nil {
+			t.Errorf("expected unknown aggregation to return %v; got %v", nil, agg)
+		}
 	}
 
 	// Global
-	globalAggRes, found := agg.Global("global")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if globalAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if globalAggRes.DocCount != 3 {
-		t.Errorf("expected DocCount = %d; got: %d", 3, globalAggRes.DocCount)
+	{
+		agg, found := agg.Global("global")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.DocCount != 3 {
+			t.Errorf("expected DocCount = %d; got: %d", 3, agg.DocCount)
+		}
 	}
 
 	// Search for existent aggregate (by name) should return (aggregate, true)
-	termsAggRes, found := agg.Terms("users")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if termsAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if len(termsAggRes.Buckets) != 2 {
-		t.Fatalf("expected %d; got: %d", 2, len(termsAggRes.Buckets))
-	}
-	if termsAggRes.Buckets[0].Key != "olivere" {
-		t.Errorf("expected %q; got: %q", "olivere", termsAggRes.Buckets[0].Key)
-	}
-	if termsAggRes.Buckets[0].DocCount != 2 {
-		t.Errorf("expected %d; got: %d", 2, termsAggRes.Buckets[0].DocCount)
-	}
-	if termsAggRes.Buckets[1].Key != "sandrae" {
-		t.Errorf("expected %q; got: %q", "sandrae", termsAggRes.Buckets[1].Key)
-	}
-	if termsAggRes.Buckets[1].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, termsAggRes.Buckets[1].DocCount)
+	{
+		agg, found := agg.Terms("users")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 2 {
+			t.Fatalf("expected %d; got: %d", 2, len(agg.Buckets))
+		}
+		if agg.Buckets[0].Key != "olivere" {
+			t.Errorf("expected %q; got: %q", "olivere", agg.Buckets[0].Key)
+		}
+		if agg.Buckets[0].DocCount != 2 {
+			t.Errorf("expected %d; got: %d", 2, agg.Buckets[0].DocCount)
+		}
+		if agg.Buckets[1].Key != "sandrae" {
+			t.Errorf("expected %q; got: %q", "sandrae", agg.Buckets[1].Key)
+		}
+		if agg.Buckets[1].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[1].DocCount)
+		}
 	}
 
 	// A terms aggregate with keys that are not strings
-	retweetsAggRes, found := agg.Terms("retweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if retweetsAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if len(retweetsAggRes.Buckets) != 3 {
-		t.Fatalf("expected %d; got: %d", 3, len(retweetsAggRes.Buckets))
-	}
+	{
+		agg, found := agg.Terms("retweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 3 {
+			t.Fatalf("expected %d; got: %d", 3, len(agg.Buckets))
+		}
 
-	if retweetsAggRes.Buckets[0].Key != float64(0) {
-		t.Errorf("expected %v; got: %v", float64(0), retweetsAggRes.Buckets[0].Key)
-	}
-	if got, err := retweetsAggRes.Buckets[0].KeyNumber.Int64(); err != nil {
-		t.Errorf("expected %d; got: %v", 0, retweetsAggRes.Buckets[0].Key)
-	} else if got != 0 {
-		t.Errorf("expected %d; got: %d", 0, got)
-	}
-	if retweetsAggRes.Buckets[0].KeyNumber != "0" {
-		t.Errorf("expected %q; got: %q", "0", retweetsAggRes.Buckets[0].KeyNumber)
-	}
-	if retweetsAggRes.Buckets[0].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, retweetsAggRes.Buckets[0].DocCount)
-	}
+		if agg.Buckets[0].Key != float64(0) {
+			t.Errorf("expected %v; got: %v", float64(0), agg.Buckets[0].Key)
+		}
+		if got, err := agg.Buckets[0].KeyNumber.Int64(); err != nil {
+			t.Errorf("expected %d; got: %v", 0, agg.Buckets[0].Key)
+		} else if got != 0 {
+			t.Errorf("expected %d; got: %d", 0, got)
+		}
+		if agg.Buckets[0].KeyNumber != "0" {
+			t.Errorf("expected %q; got: %q", "0", agg.Buckets[0].KeyNumber)
+		}
+		if agg.Buckets[0].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[0].DocCount)
+		}
 
-	if retweetsAggRes.Buckets[1].Key != float64(12) {
-		t.Errorf("expected %v; got: %v", float64(12), retweetsAggRes.Buckets[1].Key)
-	}
-	if got, err := retweetsAggRes.Buckets[1].KeyNumber.Int64(); err != nil {
-		t.Errorf("expected %d; got: %v", 0, retweetsAggRes.Buckets[1].KeyNumber)
-	} else if got != 12 {
-		t.Errorf("expected %d; got: %d", 12, got)
-	}
-	if retweetsAggRes.Buckets[1].KeyNumber != "12" {
-		t.Errorf("expected %q; got: %q", "12", retweetsAggRes.Buckets[1].KeyNumber)
-	}
-	if retweetsAggRes.Buckets[1].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, retweetsAggRes.Buckets[1].DocCount)
-	}
+		if agg.Buckets[1].Key != float64(12) {
+			t.Errorf("expected %v; got: %v", float64(12), agg.Buckets[1].Key)
+		}
+		if got, err := agg.Buckets[1].KeyNumber.Int64(); err != nil {
+			t.Errorf("expected %d; got: %v", 0, agg.Buckets[1].KeyNumber)
+		} else if got != 12 {
+			t.Errorf("expected %d; got: %d", 12, got)
+		}
+		if agg.Buckets[1].KeyNumber != "12" {
+			t.Errorf("expected %q; got: %q", "12", agg.Buckets[1].KeyNumber)
+		}
+		if agg.Buckets[1].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[1].DocCount)
+		}
 
-	if retweetsAggRes.Buckets[2].Key != float64(108) {
-		t.Errorf("expected %v; got: %v", float64(108), retweetsAggRes.Buckets[2].Key)
-	}
-	if got, err := retweetsAggRes.Buckets[2].KeyNumber.Int64(); err != nil {
-		t.Errorf("expected %d; got: %v", 108, retweetsAggRes.Buckets[2].KeyNumber)
-	} else if got != 108 {
-		t.Errorf("expected %d; got: %d", 108, got)
-	}
-	if retweetsAggRes.Buckets[2].KeyNumber != "108" {
-		t.Errorf("expected %q; got: %q", "108", retweetsAggRes.Buckets[2].KeyNumber)
-	}
-	if retweetsAggRes.Buckets[2].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, retweetsAggRes.Buckets[2].DocCount)
+		if agg.Buckets[2].Key != float64(108) {
+			t.Errorf("expected %v; got: %v", float64(108), agg.Buckets[2].Key)
+		}
+		if got, err := agg.Buckets[2].KeyNumber.Int64(); err != nil {
+			t.Errorf("expected %d; got: %v", 108, agg.Buckets[2].KeyNumber)
+		} else if got != 108 {
+			t.Errorf("expected %d; got: %d", 108, got)
+		}
+		if agg.Buckets[2].KeyNumber != "108" {
+			t.Errorf("expected %q; got: %q", "108", agg.Buckets[2].KeyNumber)
+		}
+		if agg.Buckets[2].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[2].DocCount)
+		}
 	}
 
 	// avgRetweets
-	avgAggRes, found := agg.Avg("avgRetweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if avgAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if avgAggRes.Value == nil {
-		t.Fatalf("expected != nil; got: %v", *avgAggRes.Value)
-	}
-	if *avgAggRes.Value != 40.0 {
-		t.Errorf("expected %v; got: %v", 40.0, *avgAggRes.Value)
+	{
+		agg, found := agg.Avg("avgRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Value == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Value)
+		}
+		if *agg.Value != 40.0 {
+			t.Errorf("expected %v; got: %v", 40.0, *agg.Value)
+		}
 	}
 
 	// avgRetweetsWithMeta
-	avgMetaAggRes, found := agg.Avg("avgRetweetsWithMeta")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if avgMetaAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if avgMetaAggRes.Meta == nil {
-		t.Fatalf("expected != nil; got: %v", avgMetaAggRes.Meta)
-	}
-	metaDataValue, found := avgMetaAggRes.Meta["meta"]
-	if !found {
-		t.Fatalf("expected to return meta data key %q; got: %v", "meta", found)
-	}
-	if flag, ok := metaDataValue.(bool); !ok {
-		t.Fatalf("expected to return meta data key type %T; got: %T", true, metaDataValue)
-	} else if flag != true {
-		t.Fatalf("expected to return meta data key value %v; got: %v", true, flag)
+	{
+		agg, found := agg.Avg("avgRetweetsWithMeta")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Meta == nil {
+			t.Fatalf("expected != nil; got: %v", agg.Meta)
+		}
+		metaDataValue, found := agg.Meta["meta"]
+		if !found {
+			t.Fatalf("expected to return meta data key %q; got: %v", "meta", found)
+		}
+		if flag, ok := metaDataValue.(bool); !ok {
+			t.Fatalf("expected to return meta data key type %T; got: %T", true, metaDataValue)
+		} else if flag != true {
+			t.Fatalf("expected to return meta data key value %v; got: %v", true, flag)
+		}
 	}
 
 	// weightedAvgRetweets
-	weightedAvgRes, found := agg.Avg("weightedAvgRetweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if weightedAvgRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if weightedAvgRes.Value == nil {
-		t.Fatalf("expected != nil; got: %v", *weightedAvgRes.Value)
-	}
-	if *weightedAvgRes.Value != 40.0 {
-		t.Errorf("expected %v; got: %v", 40.0, *weightedAvgRes.Value)
+	{
+		agg, found := agg.Avg("weightedAvgRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Value == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Value)
+		}
+		if *agg.Value != 40.0 {
+			t.Errorf("expected %v; got: %v", 40.0, *agg.Value)
+		}
 	}
 
 	// minRetweets
-	minAggRes, found := agg.Min("minRetweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if minAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if minAggRes.Value == nil {
-		t.Fatalf("expected != nil; got: %v", *minAggRes.Value)
-	}
-	if *minAggRes.Value != 0.0 {
-		t.Errorf("expected %v; got: %v", 0.0, *minAggRes.Value)
+	{
+		agg, found := agg.Min("minRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Value == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Value)
+		}
+		if *agg.Value != 0.0 {
+			t.Errorf("expected %v; got: %v", 0.0, *agg.Value)
+		}
 	}
 
 	// maxRetweets
-	maxAggRes, found := agg.Max("maxRetweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
+	{
+		agg, found := agg.Max("maxRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Value == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Value)
+		}
+		if *agg.Value != 108.0 {
+			t.Errorf("expected %v; got: %v", 108.0, *agg.Value)
+		}
 	}
-	if maxAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if maxAggRes.Value == nil {
-		t.Fatalf("expected != nil; got: %v", *maxAggRes.Value)
-	}
-	if *maxAggRes.Value != 108.0 {
-		t.Errorf("expected %v; got: %v", 108.0, *maxAggRes.Value)
+
+	// medianAbsDevRetweets
+	{
+		agg, found := agg.MedianAbsoluteDeviation("medianAbsDevRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Value == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Value)
+		}
+		if *agg.Value != 12.0 {
+			t.Errorf("expected %v; got: %v", 12.0, *agg.Value)
+		}
 	}
 
 	// sumRetweets
-	sumAggRes, found := agg.Sum("sumRetweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if sumAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if sumAggRes.Value == nil {
-		t.Fatalf("expected != nil; got: %v", *sumAggRes.Value)
-	}
-	if *sumAggRes.Value != 120.0 {
-		t.Errorf("expected %v; got: %v", 120.0, *sumAggRes.Value)
+	{
+		agg, found := agg.Sum("sumRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Value == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Value)
+		}
+		if *agg.Value != 120.0 {
+			t.Errorf("expected %v; got: %v", 120.0, *agg.Value)
+		}
 	}
 
 	// statsRetweets
-	statsAggRes, found := agg.Stats("statsRetweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if statsAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if statsAggRes.Count != 3 {
-		t.Errorf("expected %d; got: %d", 3, statsAggRes.Count)
-	}
-	if statsAggRes.Min == nil {
-		t.Fatalf("expected != nil; got: %v", *statsAggRes.Min)
-	}
-	if *statsAggRes.Min != 0.0 {
-		t.Errorf("expected %v; got: %v", 0.0, *statsAggRes.Min)
-	}
-	if statsAggRes.Max == nil {
-		t.Fatalf("expected != nil; got: %v", *statsAggRes.Max)
-	}
-	if *statsAggRes.Max != 108.0 {
-		t.Errorf("expected %v; got: %v", 108.0, *statsAggRes.Max)
-	}
-	if statsAggRes.Avg == nil {
-		t.Fatalf("expected != nil; got: %v", *statsAggRes.Avg)
-	}
-	if *statsAggRes.Avg != 40.0 {
-		t.Errorf("expected %v; got: %v", 40.0, *statsAggRes.Avg)
-	}
-	if statsAggRes.Sum == nil {
-		t.Fatalf("expected != nil; got: %v", *statsAggRes.Sum)
-	}
-	if *statsAggRes.Sum != 120.0 {
-		t.Errorf("expected %v; got: %v", 120.0, *statsAggRes.Sum)
+	{
+		agg, found := agg.Stats("statsRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Count != 3 {
+			t.Errorf("expected %d; got: %d", 3, agg.Count)
+		}
+		if agg.Min == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Min)
+		}
+		if *agg.Min != 0.0 {
+			t.Errorf("expected %v; got: %v", 0.0, *agg.Min)
+		}
+		if agg.Max == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Max)
+		}
+		if *agg.Max != 108.0 {
+			t.Errorf("expected %v; got: %v", 108.0, *agg.Max)
+		}
+		if agg.Avg == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Avg)
+		}
+		if *agg.Avg != 40.0 {
+			t.Errorf("expected %v; got: %v", 40.0, *agg.Avg)
+		}
+		if agg.Sum == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Sum)
+		}
+		if *agg.Sum != 120.0 {
+			t.Errorf("expected %v; got: %v", 120.0, *agg.Sum)
+		}
 	}
 
 	// extstatsRetweets
-	extStatsAggRes, found := agg.ExtendedStats("extstatsRetweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if extStatsAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if extStatsAggRes.Count != 3 {
-		t.Errorf("expected %d; got: %d", 3, extStatsAggRes.Count)
-	}
-	if extStatsAggRes.Min == nil {
-		t.Fatalf("expected != nil; got: %v", *extStatsAggRes.Min)
-	}
-	if *extStatsAggRes.Min != 0.0 {
-		t.Errorf("expected %v; got: %v", 0.0, *extStatsAggRes.Min)
-	}
-	if extStatsAggRes.Max == nil {
-		t.Fatalf("expected != nil; got: %v", *extStatsAggRes.Max)
-	}
-	if *extStatsAggRes.Max != 108.0 {
-		t.Errorf("expected %v; got: %v", 108.0, *extStatsAggRes.Max)
-	}
-	if extStatsAggRes.Avg == nil {
-		t.Fatalf("expected != nil; got: %v", *extStatsAggRes.Avg)
-	}
-	if *extStatsAggRes.Avg != 40.0 {
-		t.Errorf("expected %v; got: %v", 40.0, *extStatsAggRes.Avg)
-	}
-	if extStatsAggRes.Sum == nil {
-		t.Fatalf("expected != nil; got: %v", *extStatsAggRes.Sum)
-	}
-	if *extStatsAggRes.Sum != 120.0 {
-		t.Errorf("expected %v; got: %v", 120.0, *extStatsAggRes.Sum)
-	}
-	if extStatsAggRes.SumOfSquares == nil {
-		t.Fatalf("expected != nil; got: %v", *extStatsAggRes.SumOfSquares)
-	}
-	if *extStatsAggRes.SumOfSquares != 11808.0 {
-		t.Errorf("expected %v; got: %v", 11808.0, *extStatsAggRes.SumOfSquares)
-	}
-	if extStatsAggRes.Variance == nil {
-		t.Fatalf("expected != nil; got: %v", *extStatsAggRes.Variance)
-	}
-	if *extStatsAggRes.Variance != 2336.0 {
-		t.Errorf("expected %v; got: %v", 2336.0, *extStatsAggRes.Variance)
-	}
-	if extStatsAggRes.StdDeviation == nil {
-		t.Fatalf("expected != nil; got: %v", *extStatsAggRes.StdDeviation)
-	}
-	if *extStatsAggRes.StdDeviation != 48.33218389437829 {
-		t.Errorf("expected %v; got: %v", 48.33218389437829, *extStatsAggRes.StdDeviation)
+	{
+		agg, found := agg.ExtendedStats("extstatsRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Count != 3 {
+			t.Errorf("expected %d; got: %d", 3, agg.Count)
+		}
+		if agg.Min == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Min)
+		}
+		if *agg.Min != 0.0 {
+			t.Errorf("expected %v; got: %v", 0.0, *agg.Min)
+		}
+		if agg.Max == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Max)
+		}
+		if *agg.Max != 108.0 {
+			t.Errorf("expected %v; got: %v", 108.0, *agg.Max)
+		}
+		if agg.Avg == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Avg)
+		}
+		if *agg.Avg != 40.0 {
+			t.Errorf("expected %v; got: %v", 40.0, *agg.Avg)
+		}
+		if agg.Sum == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Sum)
+		}
+		if *agg.Sum != 120.0 {
+			t.Errorf("expected %v; got: %v", 120.0, *agg.Sum)
+		}
+		if agg.SumOfSquares == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.SumOfSquares)
+		}
+		if *agg.SumOfSquares != 11808.0 {
+			t.Errorf("expected %v; got: %v", 11808.0, *agg.SumOfSquares)
+		}
+		if agg.Variance == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Variance)
+		}
+		if *agg.Variance != 2336.0 {
+			t.Errorf("expected %v; got: %v", 2336.0, *agg.Variance)
+		}
+		if agg.StdDeviation == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.StdDeviation)
+		}
+		if *agg.StdDeviation != 48.33218389437829 {
+			t.Errorf("expected %v; got: %v", 48.33218389437829, *agg.StdDeviation)
+		}
 	}
 
 	// valueCountRetweets
-	valueCountAggRes, found := agg.ValueCount("valueCountRetweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if valueCountAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if valueCountAggRes.Value == nil {
-		t.Fatalf("expected != nil; got: %v", *valueCountAggRes.Value)
-	}
-	if *valueCountAggRes.Value != 3.0 {
-		t.Errorf("expected %v; got: %v", 3.0, *valueCountAggRes.Value)
+	{
+		agg, found := agg.ValueCount("valueCountRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Value == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Value)
+		}
+		if *agg.Value != 3.0 {
+			t.Errorf("expected %v; got: %v", 3.0, *agg.Value)
+		}
 	}
 
 	// percentilesRetweets
-	percentilesAggRes, found := agg.Percentiles("percentilesRetweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if percentilesAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	// ES 1.4.x returns  7: {"1.0":...}
-	// ES 1.5.0 returns 14: {"1.0":..., "1.0_as_string":...}
-	// So we're relaxing the test here.
-	if len(percentilesAggRes.Values) == 0 {
-		t.Errorf("expected at least %d value; got: %d\nValues are: %#v", 1, len(percentilesAggRes.Values), percentilesAggRes.Values)
-	}
-	if _, found := percentilesAggRes.Values["0.0"]; found {
-		t.Errorf("expected %v; got: %v", false, found)
-	}
-	if percentilesAggRes.Values["1.0"] != 0.0 {
-		t.Errorf("expected %v; got: %v", 0.0, percentilesAggRes.Values["1.0"])
-	}
-	if percentilesAggRes.Values["5.0"] != 0.0 {
-		t.Errorf("expected %v; got: %v", 0.0, percentilesAggRes.Values["1.0"])
-	}
-	if percentilesAggRes.Values["25.0"] != 3.0 {
-		t.Errorf("expected %v; got: %v", 3.0, percentilesAggRes.Values["25.0"])
-	}
-	if percentilesAggRes.Values["50.0"] != 12.0 {
-		t.Errorf("expected %v; got: %v", 12.0, percentilesAggRes.Values["50.0"])
-	}
-	if percentilesAggRes.Values["75.0"] != 84.0 {
-		t.Errorf("expected %v; got: %v", 84.0, percentilesAggRes.Values["75.0"])
-	}
-	if percentilesAggRes.Values["95.0"] != 108.0 {
-		t.Errorf("expected %v; got: %v", 108.0, percentilesAggRes.Values["95.0"])
-	}
-	if percentilesAggRes.Values["99.0"] != 108.0 {
-		t.Errorf("expected %v; got: %v", 108.0, percentilesAggRes.Values["99.0"])
+	{
+		agg, found := agg.Percentiles("percentilesRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		// ES 1.4.x returns  7: {"1.0":...}
+		// ES 1.5.0 returns 14: {"1.0":..., "1.0_as_string":...}
+		// So we're relaxing the test here.
+		if len(agg.Values) == 0 {
+			t.Errorf("expected at least %d value; got: %d\nValues are: %#v", 1, len(agg.Values), agg.Values)
+		}
+		if _, found := agg.Values["0.0"]; found {
+			t.Errorf("expected %v; got: %v", false, found)
+		}
+		if agg.Values["1.0"] != 0.0 {
+			t.Errorf("expected %v; got: %v", 0.0, agg.Values["1.0"])
+		}
+		if agg.Values["5.0"] != 0.0 {
+			t.Errorf("expected %v; got: %v", 0.0, agg.Values["1.0"])
+		}
+		if agg.Values["25.0"] != 3.0 {
+			t.Errorf("expected %v; got: %v", 3.0, agg.Values["25.0"])
+		}
+		if agg.Values["50.0"] != 12.0 {
+			t.Errorf("expected %v; got: %v", 12.0, agg.Values["50.0"])
+		}
+		if agg.Values["75.0"] != 84.0 {
+			t.Errorf("expected %v; got: %v", 84.0, agg.Values["75.0"])
+		}
+		if agg.Values["95.0"] != 108.0 {
+			t.Errorf("expected %v; got: %v", 108.0, agg.Values["95.0"])
+		}
+		if agg.Values["99.0"] != 108.0 {
+			t.Errorf("expected %v; got: %v", 108.0, agg.Values["99.0"])
+		}
 	}
 
 	// percentileRanksRetweets
-	percentileRanksAggRes, found := agg.PercentileRanks("percentileRanksRetweets")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if percentileRanksAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if len(percentileRanksAggRes.Values) == 0 {
-		t.Errorf("expected at least %d value; got %d\nValues are: %#v", 1, len(percentileRanksAggRes.Values), percentileRanksAggRes.Values)
-	}
-	if _, found := percentileRanksAggRes.Values["0.0"]; found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if percentileRanksAggRes.Values["25.0"] != 45.06172839506173 {
-		t.Errorf("expected %v; got: %v", 45.06172839506173, percentileRanksAggRes.Values["25.0"])
-	}
-	if percentileRanksAggRes.Values["50.0"] != 60.49382716049383 {
-		t.Errorf("expected %v; got: %v", 60.49382716049383, percentileRanksAggRes.Values["50.0"])
-	}
-	if percentileRanksAggRes.Values["75.0"] != 100.0 {
-		t.Errorf("expected %v; got: %v", 100.0, percentileRanksAggRes.Values["75.0"])
+	{
+		agg, found := agg.PercentileRanks("percentileRanksRetweets")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if len(agg.Values) == 0 {
+			t.Errorf("expected at least %d value; got %d\nValues are: %#v", 1, len(agg.Values), agg.Values)
+		}
+		if _, found := agg.Values["0.0"]; found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg.Values["25.0"] != 45.06172839506173 {
+			t.Errorf("expected %v; got: %v", 45.06172839506173, agg.Values["25.0"])
+		}
+		if agg.Values["50.0"] != 60.49382716049383 {
+			t.Errorf("expected %v; got: %v", 60.49382716049383, agg.Values["50.0"])
+		}
+		if agg.Values["75.0"] != 100.0 {
+			t.Errorf("expected %v; got: %v", 100.0, agg.Values["75.0"])
+		}
 	}
 
 	// usersCardinality
-	cardAggRes, found := agg.Cardinality("usersCardinality")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if cardAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if cardAggRes.Value == nil {
-		t.Fatalf("expected != nil; got: %v", *cardAggRes.Value)
-	}
-	if *cardAggRes.Value != 2 {
-		t.Errorf("expected %v; got: %v", 2, *cardAggRes.Value)
+	{
+		agg, found := agg.Cardinality("usersCardinality")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.Value == nil {
+			t.Fatalf("expected != nil; got: %v", *agg.Value)
+		}
+		if *agg.Value != 2 {
+			t.Errorf("expected %v; got: %v", 2, *agg.Value)
+		}
 	}
 
 	// retweetsFilter
-	filterAggRes, found := agg.Filter("retweetsFilter")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if filterAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if filterAggRes.DocCount != 2 {
-		t.Fatalf("expected %v; got: %v", 2, filterAggRes.DocCount)
-	}
-
-	// Retrieve sub-aggregation
-	avgRetweetsAggRes, found := filterAggRes.Avg("avgRetweetsSub")
-	if !found {
-		t.Error("expected sub-aggregation \"avgRetweets\" to be found; got false")
-	}
-	if avgRetweetsAggRes == nil {
-		t.Fatal("expected sub-aggregation \"avgRetweets\"; got nil")
-	}
-	if avgRetweetsAggRes.Value == nil {
-		t.Fatalf("expected != nil; got: %v", avgRetweetsAggRes.Value)
-	}
-	if *avgRetweetsAggRes.Value != 54.0 {
-		t.Errorf("expected %v; got: %v", 54.0, *avgRetweetsAggRes.Value)
+	{
+		agg, found := agg.Filter("retweetsFilter")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.DocCount != 2 {
+			t.Fatalf("expected %v; got: %v", 2, agg.DocCount)
+		}
+		// Retrieve sub-aggregation
+		sub, found := agg.Avg("avgRetweetsSub")
+		if !found {
+			t.Error("expected sub-aggregation \"avgRetweets\" to be found; got false")
+		}
+		if sub == nil {
+			t.Fatal("expected sub-aggregation \"avgRetweets\"; got nil")
+		}
+		if sub.Value == nil {
+			t.Fatalf("expected != nil; got: %v", sub.Value)
+		}
+		if *sub.Value != 54.0 {
+			t.Errorf("expected %v; got: %v", 54.0, *sub.Value)
+		}
 	}
 
 	// queryFilter
-	queryFilterAggRes, found := agg.Filter("queryFilter")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if queryFilterAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if queryFilterAggRes.DocCount != 2 {
-		t.Fatalf("expected %v; got: %v", 2, queryFilterAggRes.DocCount)
+	{
+		agg, found := agg.Filter("queryFilter")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.DocCount != 2 {
+			t.Fatalf("expected %v; got: %v", 2, agg.DocCount)
+		}
 	}
 
 	// significantTerms
-	stAggRes, found := agg.SignificantTerms("significantTerms")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if stAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if stAggRes.DocCount != 3 {
-		t.Errorf("expected %v; got: %v", 3, stAggRes.DocCount)
-	}
-	if len(stAggRes.Buckets) != 0 {
-		t.Errorf("expected %v; got: %v", 0, len(stAggRes.Buckets))
+	{
+		agg, found := agg.SignificantTerms("significantTerms")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.DocCount != 3 {
+			t.Errorf("expected %v; got: %v", 3, agg.DocCount)
+		}
+		if len(agg.Buckets) != 0 {
+			t.Errorf("expected %v; got: %v", 0, len(agg.Buckets))
+		}
 	}
 
 	// sampler
-	samplerAggRes, found := agg.Sampler("sample")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if samplerAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if samplerAggRes.DocCount != 3 {
-		t.Errorf("expected %v; got: %v", 3, samplerAggRes.DocCount)
-	}
-	sub, found := samplerAggRes.Aggregations["tagged_with"]
-	if !found {
-		t.Fatalf("expected sub aggregation %q", "tagged_with")
-	}
-	if sub == nil {
-		t.Fatalf("expected sub aggregation %q; got: %v", "tagged_with", sub)
+	{
+		agg, found := agg.Sampler("sample")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.DocCount != 3 {
+			t.Errorf("expected %v; got: %v", 3, agg.DocCount)
+		}
+		sub, found := agg.Aggregations["tagged_with"]
+		if !found {
+			t.Fatalf("expected sub aggregation %q", "tagged_with")
+		}
+		if sub == nil {
+			t.Fatalf("expected sub aggregation %q; got: %v", "tagged_with", sub)
+		}
 	}
 
 	// diversified_sampler
-	diversifiedSamplerAggRes, found := agg.DiversifiedSampler("diversified_sampler")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if diversifiedSamplerAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if diversifiedSamplerAggRes.DocCount != 2 {
-		t.Errorf("expected %v; got: %v", 2, diversifiedSamplerAggRes.DocCount)
-	}
-	subAgg, found := samplerAggRes.Aggregations["tagged_with"]
-	if !found {
-		t.Fatalf("expected sub aggregation %q", "tagged_with")
-	}
-	if subAgg == nil {
-		t.Fatalf("expected sub aggregation %q; got: %v", "tagged_with", subAgg)
+	{
+		agg, found := agg.DiversifiedSampler("diversified_sampler")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.DocCount != 2 {
+			t.Errorf("expected %v; got: %v", 2, agg.DocCount)
+		}
 	}
 
 	// retweetsRange
-	rangeAggRes, found := agg.Range("retweetsRange")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if rangeAggRes == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if len(rangeAggRes.Buckets) != 3 {
-		t.Fatalf("expected %d; got: %d", 3, len(rangeAggRes.Buckets))
-	}
-	if rangeAggRes.Buckets[0].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, rangeAggRes.Buckets[0].DocCount)
-	}
-	if rangeAggRes.Buckets[1].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, rangeAggRes.Buckets[1].DocCount)
-	}
-	if rangeAggRes.Buckets[2].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, rangeAggRes.Buckets[2].DocCount)
+	{
+		agg, found := agg.Range("retweetsRange")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 3 {
+			t.Fatalf("expected %d; got: %d", 3, len(agg.Buckets))
+		}
+		if agg.Buckets[0].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[0].DocCount)
+		}
+		if agg.Buckets[1].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[1].DocCount)
+		}
+		if agg.Buckets[2].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[2].DocCount)
+		}
 	}
 
 	// retweetsKeyedRange
-	keyedRangeAggRes, found := agg.KeyedRange("retweetsKeyedRange")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if keyedRangeAggRes == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if len(keyedRangeAggRes.Buckets) != 3 {
-		t.Fatalf("expected %d; got: %d", 3, len(keyedRangeAggRes.Buckets))
-	}
-	_, found = keyedRangeAggRes.Buckets["no-such-key"]
-	if found {
-		t.Fatalf("expected bucket to not be found; got: %v", found)
-	}
-	bucket, found := keyedRangeAggRes.Buckets["*-10.0"]
-	if !found {
-		t.Fatalf("expected bucket to be found; got: %v", found)
-	}
-	if bucket.DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, bucket.DocCount)
-	}
-	bucket, found = keyedRangeAggRes.Buckets["10.0-100.0"]
-	if !found {
-		t.Fatalf("expected bucket to be found; got: %v", found)
-	}
-	if bucket.DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, bucket.DocCount)
-	}
-	bucket, found = keyedRangeAggRes.Buckets["100.0-*"]
-	if !found {
-		t.Fatalf("expected bucket to be found; got: %v", found)
-	}
-	if bucket.DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, bucket.DocCount)
+	{
+		agg, found := agg.KeyedRange("retweetsKeyedRange")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 3 {
+			t.Fatalf("expected %d; got: %d", 3, len(agg.Buckets))
+		}
+		_, found = agg.Buckets["no-such-key"]
+		if found {
+			t.Fatalf("expected bucket to not be found; got: %v", found)
+		}
+		bucket, found := agg.Buckets["*-10.0"]
+		if !found {
+			t.Fatalf("expected bucket to be found; got: %v", found)
+		}
+		if bucket.DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, bucket.DocCount)
+		}
+		bucket, found = agg.Buckets["10.0-100.0"]
+		if !found {
+			t.Fatalf("expected bucket to be found; got: %v", found)
+		}
+		if bucket.DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, bucket.DocCount)
+		}
+		bucket, found = agg.Buckets["100.0-*"]
+		if !found {
+			t.Fatalf("expected bucket to be found; got: %v", found)
+		}
+		if bucket.DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, bucket.DocCount)
+		}
 	}
 
 	// dateRange
-	dateRangeRes, found := agg.DateRange("dateRange")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if dateRangeRes == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if dateRangeRes.Buckets[0].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, dateRangeRes.Buckets[0].DocCount)
-	}
-	if dateRangeRes.Buckets[0].From != nil {
-		t.Fatal("expected From to be nil")
-	}
-	if dateRangeRes.Buckets[0].To == nil {
-		t.Fatal("expected To to be != nil")
-	}
-	if *dateRangeRes.Buckets[0].To != 1.325376e+12 {
-		t.Errorf("expected %v; got: %v", 1.325376e+12, *dateRangeRes.Buckets[0].To)
-	}
-	if dateRangeRes.Buckets[0].ToAsString != "2012-01-01T00:00:00.000Z" {
-		t.Errorf("expected %q; got: %q", "2012-01-01T00:00:00.000Z", dateRangeRes.Buckets[0].ToAsString)
-	}
-	if dateRangeRes.Buckets[1].DocCount != 2 {
-		t.Errorf("expected %d; got: %d", 2, dateRangeRes.Buckets[1].DocCount)
-	}
-	if dateRangeRes.Buckets[1].From == nil {
-		t.Fatal("expected From to be != nil")
-	}
-	if *dateRangeRes.Buckets[1].From != 1.325376e+12 {
-		t.Errorf("expected From = %v; got: %v", 1.325376e+12, *dateRangeRes.Buckets[1].From)
-	}
-	if dateRangeRes.Buckets[1].FromAsString != "2012-01-01T00:00:00.000Z" {
-		t.Errorf("expected FromAsString = %q; got: %q", "2012-01-01T00:00:00.000Z", dateRangeRes.Buckets[1].FromAsString)
-	}
-	if dateRangeRes.Buckets[1].To == nil {
-		t.Fatal("expected To to be != nil")
-	}
-	if *dateRangeRes.Buckets[1].To != 1.3569984e+12 {
-		t.Errorf("expected To = %v; got: %v", 1.3569984e+12, *dateRangeRes.Buckets[1].To)
-	}
-	if dateRangeRes.Buckets[1].ToAsString != "2013-01-01T00:00:00.000Z" {
-		t.Errorf("expected ToAsString = %q; got: %q", "2013-01-01T00:00:00.000Z", dateRangeRes.Buckets[1].ToAsString)
-	}
-	if dateRangeRes.Buckets[2].DocCount != 0 {
-		t.Errorf("expected %d; got: %d", 0, dateRangeRes.Buckets[2].DocCount)
-	}
-	if dateRangeRes.Buckets[2].To != nil {
-		t.Fatal("expected To to be nil")
-	}
-	if dateRangeRes.Buckets[2].From == nil {
-		t.Fatal("expected From to be != nil")
-	}
-	if *dateRangeRes.Buckets[2].From != 1.3569984e+12 {
-		t.Errorf("expected %v; got: %v", 1.3569984e+12, *dateRangeRes.Buckets[2].From)
-	}
-	if dateRangeRes.Buckets[2].FromAsString != "2013-01-01T00:00:00.000Z" {
-		t.Errorf("expected %q; got: %q", "2013-01-01T00:00:00.000Z", dateRangeRes.Buckets[2].FromAsString)
+	{
+		agg, found := agg.DateRange("dateRange")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if agg.Buckets[0].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[0].DocCount)
+		}
+		if agg.Buckets[0].From != nil {
+			t.Fatal("expected From to be nil")
+		}
+		if agg.Buckets[0].To == nil {
+			t.Fatal("expected To to be != nil")
+		}
+		if *agg.Buckets[0].To != 1.325376e+12 {
+			t.Errorf("expected %v; got: %v", 1.325376e+12, *agg.Buckets[0].To)
+		}
+		if agg.Buckets[0].ToAsString != "2012-01-01T00:00:00.000Z" {
+			t.Errorf("expected %q; got: %q", "2012-01-01T00:00:00.000Z", agg.Buckets[0].ToAsString)
+		}
+		if agg.Buckets[1].DocCount != 2 {
+			t.Errorf("expected %d; got: %d", 2, agg.Buckets[1].DocCount)
+		}
+		if agg.Buckets[1].From == nil {
+			t.Fatal("expected From to be != nil")
+		}
+		if *agg.Buckets[1].From != 1.325376e+12 {
+			t.Errorf("expected From = %v; got: %v", 1.325376e+12, *agg.Buckets[1].From)
+		}
+		if agg.Buckets[1].FromAsString != "2012-01-01T00:00:00.000Z" {
+			t.Errorf("expected FromAsString = %q; got: %q", "2012-01-01T00:00:00.000Z", agg.Buckets[1].FromAsString)
+		}
+		if agg.Buckets[1].To == nil {
+			t.Fatal("expected To to be != nil")
+		}
+		if *agg.Buckets[1].To != 1.3569984e+12 {
+			t.Errorf("expected To = %v; got: %v", 1.3569984e+12, *agg.Buckets[1].To)
+		}
+		if agg.Buckets[1].ToAsString != "2013-01-01T00:00:00.000Z" {
+			t.Errorf("expected ToAsString = %q; got: %q", "2013-01-01T00:00:00.000Z", agg.Buckets[1].ToAsString)
+		}
+		if agg.Buckets[2].DocCount != 0 {
+			t.Errorf("expected %d; got: %d", 0, agg.Buckets[2].DocCount)
+		}
+		if agg.Buckets[2].To != nil {
+			t.Fatal("expected To to be nil")
+		}
+		if agg.Buckets[2].From == nil {
+			t.Fatal("expected From to be != nil")
+		}
+		if *agg.Buckets[2].From != 1.3569984e+12 {
+			t.Errorf("expected %v; got: %v", 1.3569984e+12, *agg.Buckets[2].From)
+		}
+		if agg.Buckets[2].FromAsString != "2013-01-01T00:00:00.000Z" {
+			t.Errorf("expected %q; got: %q", "2013-01-01T00:00:00.000Z", agg.Buckets[2].FromAsString)
+		}
 	}
 
 	// missingTags
-	missingRes, found := agg.Missing("missingTags")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if missingRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if missingRes.DocCount != 0 {
-		t.Errorf("expected searchResult.Aggregations[\"missingTags\"].DocCount = %v; got %v", 0, missingRes.DocCount)
+	{
+		agg, found := agg.Missing("missingTags")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if agg.DocCount != 0 {
+			t.Errorf("expected searchResult.Aggregations[\"missingTags\"].DocCount = %v; got %v", 0, agg.DocCount)
+		}
 	}
 
 	// retweetsHisto
-	histoRes, found := agg.Histogram("retweetsHisto")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if histoRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if len(histoRes.Buckets) != 2 {
-		t.Fatalf("expected %d; got: %d", 2, len(histoRes.Buckets))
-	}
-	if histoRes.Buckets[0].DocCount != 2 {
-		t.Errorf("expected %d; got: %d", 2, histoRes.Buckets[0].DocCount)
-	}
-	if histoRes.Buckets[0].Key != 0.0 {
-		t.Errorf("expected %v; got: %v", 0.0, histoRes.Buckets[0].Key)
-	}
-	if histoRes.Buckets[1].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, histoRes.Buckets[1].DocCount)
-	}
-	if histoRes.Buckets[1].Key != 100.0 {
-		t.Errorf("expected %v; got: %+v", 100.0, histoRes.Buckets[1].Key)
+	{
+		agg, found := agg.Histogram("retweetsHisto")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 2 {
+			t.Fatalf("expected %d; got: %d", 2, len(agg.Buckets))
+		}
+		if agg.Buckets[0].DocCount != 2 {
+			t.Errorf("expected %d; got: %d", 2, agg.Buckets[0].DocCount)
+		}
+		if agg.Buckets[0].Key != 0.0 {
+			t.Errorf("expected %v; got: %v", 0.0, agg.Buckets[0].Key)
+		}
+		if agg.Buckets[1].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[1].DocCount)
+		}
+		if agg.Buckets[1].Key != 100.0 {
+			t.Errorf("expected %v; got: %+v", 100.0, agg.Buckets[1].Key)
+		}
 	}
 
 	// autoDateHisto
-	autoDateHistoRes, found := agg.DateHistogram("autoDateHisto")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if autoDateHistoRes == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if len(autoDateHistoRes.Buckets) != 2 {
-		t.Fatalf("expected %d; got: %d", 2, len(autoDateHistoRes.Buckets))
-	}
-	if autoDateHistoRes.Interval == nil {
-		t.Fatalf("expected an interval; got: %v", autoDateHistoRes.Interval)
+	{
+		agg, found := agg.DateHistogram("autoDateHisto")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 2 {
+			t.Fatalf("expected %d; got: %d", 2, len(agg.Buckets))
+		}
+		if agg.Interval == nil {
+			t.Fatalf("expected an interval; got: %v", agg.Interval)
+		}
 	}
 
 	// dateHisto
-	dateHistoRes, found := agg.DateHistogram("dateHisto")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if dateHistoRes == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if len(dateHistoRes.Buckets) != 2 {
-		t.Fatalf("expected %d; got: %d", 2, len(dateHistoRes.Buckets))
-	}
-	if dateHistoRes.Buckets[0].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, dateHistoRes.Buckets[0].DocCount)
-	}
-	if dateHistoRes.Buckets[0].Key != 1.29384e+12 {
-		t.Errorf("expected %v; got: %v", 1.29384e+12, dateHistoRes.Buckets[0].Key)
-	}
-	if dateHistoRes.Buckets[0].KeyAsString == nil {
-		t.Fatalf("expected != nil; got: %v", dateHistoRes.Buckets[0].KeyAsString)
-	}
-	if *dateHistoRes.Buckets[0].KeyAsString != "2011-01-01T00:00:00.000Z" {
-		t.Errorf("expected %q; got: %q", "2011-01-01T00:00:00.000Z", *dateHistoRes.Buckets[0].KeyAsString)
-	}
-	if dateHistoRes.Buckets[1].DocCount != 2 {
-		t.Errorf("expected %d; got: %d", 2, dateHistoRes.Buckets[1].DocCount)
-	}
-	if dateHistoRes.Buckets[1].Key != 1.325376e+12 {
-		t.Errorf("expected %v; got: %v", 1.325376e+12, dateHistoRes.Buckets[1].Key)
-	}
-	if dateHistoRes.Buckets[1].KeyAsString == nil {
-		t.Fatalf("expected != nil; got: %v", dateHistoRes.Buckets[1].KeyAsString)
-	}
-	if *dateHistoRes.Buckets[1].KeyAsString != "2012-01-01T00:00:00.000Z" {
-		t.Errorf("expected %q; got: %q", "2012-01-01T00:00:00.000Z", *dateHistoRes.Buckets[1].KeyAsString)
+	{
+		agg, found := agg.DateHistogram("dateHisto")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 2 {
+			t.Fatalf("expected %d; got: %d", 2, len(agg.Buckets))
+		}
+		if agg.Buckets[0].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[0].DocCount)
+		}
+		if agg.Buckets[0].Key != 1.29384e+12 {
+			t.Errorf("expected %v; got: %v", 1.29384e+12, agg.Buckets[0].Key)
+		}
+		if agg.Buckets[0].KeyAsString == nil {
+			t.Fatalf("expected != nil; got: %v", agg.Buckets[0].KeyAsString)
+		}
+		if *agg.Buckets[0].KeyAsString != "2011-01-01T00:00:00.000Z" {
+			t.Errorf("expected %q; got: %q", "2011-01-01T00:00:00.000Z", *agg.Buckets[0].KeyAsString)
+		}
+		if agg.Buckets[1].DocCount != 2 {
+			t.Errorf("expected %d; got: %d", 2, agg.Buckets[1].DocCount)
+		}
+		if agg.Buckets[1].Key != 1.325376e+12 {
+			t.Errorf("expected %v; got: %v", 1.325376e+12, agg.Buckets[1].Key)
+		}
+		if agg.Buckets[1].KeyAsString == nil {
+			t.Fatalf("expected != nil; got: %v", agg.Buckets[1].KeyAsString)
+		}
+		if *agg.Buckets[1].KeyAsString != "2012-01-01T00:00:00.000Z" {
+			t.Errorf("expected %q; got: %q", "2012-01-01T00:00:00.000Z", *agg.Buckets[1].KeyAsString)
+		}
 	}
 
 	// dateHistoKeyed
@@ -933,236 +1000,250 @@ func TestAggs(t *testing.T) {
 	}
 
 	// topHits
-	topTags, found := agg.Terms("top-tags")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if topTags == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if topTags.DocCountErrorUpperBound != 0 {
-		t.Errorf("expected %v; got: %v", 0, topTags.DocCountErrorUpperBound)
-	}
-	if topTags.SumOfOtherDocCount != 1 {
-		t.Errorf("expected %v; got: %v", 1, topTags.SumOfOtherDocCount)
-	}
-	if len(topTags.Buckets) != 3 {
-		t.Fatalf("expected %d; got: %d", 3, len(topTags.Buckets))
-	}
-	if topTags.Buckets[0].DocCount != 2 {
-		t.Errorf("expected %d; got: %d", 2, topTags.Buckets[0].DocCount)
-	}
-	if topTags.Buckets[0].Key != "golang" {
-		t.Errorf("expected %v; got: %v", "golang", topTags.Buckets[0].Key)
-	}
-	topHits, found := topTags.Buckets[0].TopHits("top_tag_hits")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if topHits == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if topHits.Hits == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if topHits.Hits.TotalHits == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if topHits.Hits.TotalHits.Value != 2 {
-		t.Errorf("expected %d; got: %d", 2, topHits.Hits.TotalHits.Value)
-	}
-	if topHits.Hits.Hits == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if len(topHits.Hits.Hits) != 2 {
-		t.Fatalf("expected %d; got: %d", 2, len(topHits.Hits.Hits))
-	}
-	hit := topHits.Hits.Hits[0]
-	if !found {
-		t.Fatalf("expected %v; got: %v", true, found)
-	}
-	if hit == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	var tw tweet
-	if err := json.Unmarshal(hit.Source, &tw); err != nil {
-		t.Fatalf("expected no error; got: %v", err)
-	}
-	if tw.Message != "Welcome to Golang and Elasticsearch." {
-		t.Errorf("expected %q; got: %q", "Welcome to Golang and Elasticsearch.", tw.Message)
-	}
-	if topTags.Buckets[1].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, topTags.Buckets[1].DocCount)
-	}
-	if topTags.Buckets[1].Key != "cycling" {
-		t.Errorf("expected %v; got: %v", "cycling", topTags.Buckets[1].Key)
-	}
-	topHits, found = topTags.Buckets[1].TopHits("top_tag_hits")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if topHits == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if topHits.Hits == nil {
-		t.Fatal("expected != nil; got nil")
-	}
-	if topHits.Hits.TotalHits == nil {
-		t.Fatal("expected != nil; got nil")
-	}
-	if topHits.Hits.TotalHits.Value != 1 {
-		t.Errorf("expected %d; got: %d", 1, topHits.Hits.TotalHits.Value)
-	}
-	if topTags.Buckets[2].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, topTags.Buckets[2].DocCount)
-	}
-	if topTags.Buckets[2].Key != "elasticsearch" {
-		t.Errorf("expected %v; got: %v", "elasticsearch", topTags.Buckets[2].Key)
-	}
-	topHits, found = topTags.Buckets[2].TopHits("top_tag_hits")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if topHits == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if topHits.Hits == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if topHits.Hits.TotalHits == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if topHits.Hits.TotalHits.Value != 1 {
-		t.Errorf("expected %d; got: %d", 1, topHits.Hits.TotalHits.Value)
+	{
+		topTags, found := agg.Terms("top-tags")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if topTags == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if topTags.DocCountErrorUpperBound != 0 {
+			t.Errorf("expected %v; got: %v", 0, topTags.DocCountErrorUpperBound)
+		}
+		if topTags.SumOfOtherDocCount != 1 {
+			t.Errorf("expected %v; got: %v", 1, topTags.SumOfOtherDocCount)
+		}
+		if len(topTags.Buckets) != 3 {
+			t.Fatalf("expected %d; got: %d", 3, len(topTags.Buckets))
+		}
+		if topTags.Buckets[0].DocCount != 2 {
+			t.Errorf("expected %d; got: %d", 2, topTags.Buckets[0].DocCount)
+		}
+		if topTags.Buckets[0].Key != "golang" {
+			t.Errorf("expected %v; got: %v", "golang", topTags.Buckets[0].Key)
+		}
+		topHits, found := topTags.Buckets[0].TopHits("top_tag_hits")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if topHits == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if topHits.Hits == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if topHits.Hits.TotalHits == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if topHits.Hits.TotalHits.Value != 2 {
+			t.Errorf("expected %d; got: %d", 2, topHits.Hits.TotalHits.Value)
+		}
+		if topHits.Hits.Hits == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if len(topHits.Hits.Hits) != 2 {
+			t.Fatalf("expected %d; got: %d", 2, len(topHits.Hits.Hits))
+		}
+		hit := topHits.Hits.Hits[0]
+		if !found {
+			t.Fatalf("expected %v; got: %v", true, found)
+		}
+		if hit == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		var tw tweet
+		if err := json.Unmarshal(hit.Source, &tw); err != nil {
+			t.Fatalf("expected no error; got: %v", err)
+		}
+		if tw.Message != "Welcome to Golang and Elasticsearch." {
+			t.Errorf("expected %q; got: %q", "Welcome to Golang and Elasticsearch.", tw.Message)
+		}
+		if topTags.Buckets[1].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, topTags.Buckets[1].DocCount)
+		}
+		if topTags.Buckets[1].Key != "cycling" {
+			t.Errorf("expected %v; got: %v", "cycling", topTags.Buckets[1].Key)
+		}
+		topHits, found = topTags.Buckets[1].TopHits("top_tag_hits")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if topHits == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if topHits.Hits == nil {
+			t.Fatal("expected != nil; got nil")
+		}
+		if topHits.Hits.TotalHits == nil {
+			t.Fatal("expected != nil; got nil")
+		}
+		if topHits.Hits.TotalHits.Value != 1 {
+			t.Errorf("expected %d; got: %d", 1, topHits.Hits.TotalHits.Value)
+		}
+		if topTags.Buckets[2].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, topTags.Buckets[2].DocCount)
+		}
+		if topTags.Buckets[2].Key != "elasticsearch" {
+			t.Errorf("expected %v; got: %v", "elasticsearch", topTags.Buckets[2].Key)
+		}
+		topHits, found = topTags.Buckets[2].TopHits("top_tag_hits")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if topHits == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if topHits.Hits == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if topHits.Hits.TotalHits == nil {
+			t.Fatal("expected != nil; got: nil")
+		}
+		if topHits.Hits.TotalHits.Value != 1 {
+			t.Errorf("expected %d; got: %d", 1, topHits.Hits.TotalHits.Value)
+		}
 	}
 
 	// viewport via geo_bounds (1.3.0 has an error in that it doesn't output the aggregation name)
-	geoBoundsRes, found := agg.GeoBounds("viewport")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if geoBoundsRes == nil {
-		t.Fatalf("expected != nil; got: nil")
+	{
+		agg, found := agg.GeoBounds("viewport")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
 	}
 
 	// geohashed via geohash
-	geoHashRes, found := agg.GeoHash("geohashed")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if geoHashRes == nil {
-		t.Fatalf("expected != nil; got: nil")
+	{
+		agg, found := agg.GeoHash("geohashed")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
 	}
 
 	// geo_centroid
-	geoCentroidRes, found := agg.GeoCentroid("centroid")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if geoCentroidRes == nil {
-		t.Fatalf("expected != nil; got: nil")
+	{
+		agg, found := agg.GeoCentroid("centroid")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
 	}
 
 	// Filters agg "countByUser" (unnamed)
-	countByUserAggRes, found := agg.Filters("countByUser")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if countByUserAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if len(countByUserAggRes.Buckets) != 2 {
-		t.Fatalf("expected %d; got: %d", 2, len(countByUserAggRes.Buckets))
-	}
-	if len(countByUserAggRes.NamedBuckets) != 0 {
-		t.Fatalf("expected %d; got: %d", 0, len(countByUserAggRes.NamedBuckets))
-	}
-	if countByUserAggRes.Buckets[0].DocCount != 2 {
-		t.Errorf("expected %d; got: %d", 2, countByUserAggRes.Buckets[0].DocCount)
-	}
-	if countByUserAggRes.Buckets[1].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, countByUserAggRes.Buckets[1].DocCount)
+	{
+		agg, found := agg.Filters("countByUser")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 2 {
+			t.Fatalf("expected %d; got: %d", 2, len(agg.Buckets))
+		}
+		if len(agg.NamedBuckets) != 0 {
+			t.Fatalf("expected %d; got: %d", 0, len(agg.NamedBuckets))
+		}
+		if agg.Buckets[0].DocCount != 2 {
+			t.Errorf("expected %d; got: %d", 2, agg.Buckets[0].DocCount)
+		}
+		if agg.Buckets[1].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[1].DocCount)
+		}
 	}
 
 	// Filters agg "countByUser2" (named)
-	countByUser2AggRes, found := agg.Filters("countByUser2")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if countByUser2AggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if len(countByUser2AggRes.Buckets) != 0 {
-		t.Fatalf("expected %d; got: %d", 0, len(countByUser2AggRes.Buckets))
-	}
-	if len(countByUser2AggRes.NamedBuckets) != 2 {
-		t.Fatalf("expected %d; got: %d", 2, len(countByUser2AggRes.NamedBuckets))
-	}
-	b, found := countByUser2AggRes.NamedBuckets["olivere"]
-	if !found {
-		t.Fatalf("expected bucket %q; got: %v", "olivere", found)
-	}
-	if b == nil {
-		t.Fatalf("expected bucket %q; got: %v", "olivere", b)
-	}
-	if b.DocCount != 2 {
-		t.Errorf("expected %d; got: %d", 2, b.DocCount)
-	}
-	b, found = countByUser2AggRes.NamedBuckets["sandrae"]
-	if !found {
-		t.Fatalf("expected bucket %q; got: %v", "sandrae", found)
-	}
-	if b == nil {
-		t.Fatalf("expected bucket %q; got: %v", "sandrae", b)
-	}
-	if b.DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, b.DocCount)
+	{
+		agg, found := agg.Filters("countByUser2")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 0 {
+			t.Fatalf("expected %d; got: %d", 0, len(agg.Buckets))
+		}
+		if len(agg.NamedBuckets) != 2 {
+			t.Fatalf("expected %d; got: %d", 2, len(agg.NamedBuckets))
+		}
+		b, found := agg.NamedBuckets["olivere"]
+		if !found {
+			t.Fatalf("expected bucket %q; got: %v", "olivere", found)
+		}
+		if b == nil {
+			t.Fatalf("expected bucket %q; got: %v", "olivere", b)
+		}
+		if b.DocCount != 2 {
+			t.Errorf("expected %d; got: %d", 2, b.DocCount)
+		}
+		b, found = agg.NamedBuckets["sandrae"]
+		if !found {
+			t.Fatalf("expected bucket %q; got: %v", "sandrae", found)
+		}
+		if b == nil {
+			t.Fatalf("expected bucket %q; got: %v", "sandrae", b)
+		}
+		if b.DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, b.DocCount)
+		}
 	}
 
 	// AdjacencyMatrix agg "adjacencyMatrixAgg" (named)
-	adjacencyMatrixAggRes, found := agg.AdjacencyMatrix("interactions")
-	if !found {
-		t.Errorf("expected %v; got: %v", true, found)
-	}
-	if adjacencyMatrixAggRes == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if len(adjacencyMatrixAggRes.Buckets) != 2 {
-		t.Fatalf("expected %d; got: %d", 2, len(adjacencyMatrixAggRes.Buckets))
-	}
-	if adjacencyMatrixAggRes.Buckets[0].DocCount != 2 {
-		t.Errorf("expected %d; got: %d", 2, adjacencyMatrixAggRes.Buckets[0].DocCount)
-	}
-	if adjacencyMatrixAggRes.Buckets[1].DocCount != 1 {
-		t.Errorf("expected %d; got: %d", 1, adjacencyMatrixAggRes.Buckets[1].DocCount)
+	{
+		agg, found := agg.AdjacencyMatrix("interactions")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 2 {
+			t.Fatalf("expected %d; got: %d", 2, len(agg.Buckets))
+		}
+		if agg.Buckets[0].DocCount != 2 {
+			t.Errorf("expected %d; got: %d", 2, agg.Buckets[0].DocCount)
+		}
+		if agg.Buckets[1].DocCount != 1 {
+			t.Errorf("expected %d; got: %d", 1, agg.Buckets[1].DocCount)
+		}
 	}
 
 	// movingAvgDateHisto
 	{
-		movingAvgDateHistoRes, found := agg.DateHistogram("movingAvgDateHisto")
+		agg, found := agg.DateHistogram("movingAvgDateHisto")
 		if !found {
 			t.Fatalf("expected %v; got: %v", true, false)
 		}
-		if movingAvgDateHistoRes == nil {
+		if agg == nil {
 			t.Fatal("expected != nil; got: nil")
 		}
-		if want, have := 2, len(movingAvgDateHistoRes.Buckets); want != have {
+		if want, have := 2, len(agg.Buckets); want != have {
 			t.Fatalf("expected %d buckets, have %d", want, have)
 		}
 		// movingAvgDateHisto.Buckets[0]
-		if want, have := int64(1), movingAvgDateHistoRes.Buckets[0].DocCount; want != have {
+		if want, have := int64(1), agg.Buckets[0].DocCount; want != have {
 			t.Fatalf("expected %d docs in bucket 0, have %d", want, have)
 		}
-		if want, have := 1293840000000.0, movingAvgDateHistoRes.Buckets[0].Key; want != have {
+		if want, have := 1293840000000.0, agg.Buckets[0].Key; want != have {
 			t.Fatalf("expected key of %v in bucket 0, have %v", want, have)
 		}
-		if have := movingAvgDateHistoRes.Buckets[0].KeyAsString; have == nil {
+		if have := agg.Buckets[0].KeyAsString; have == nil {
 			t.Fatalf("expected key_as_string != nil in bucket 0, have %v", have)
 		}
-		if want, have := "2011-01-01T00:00:00.000Z", *movingAvgDateHistoRes.Buckets[0].KeyAsString; want != have {
+		if want, have := "2011-01-01T00:00:00.000Z", *agg.Buckets[0].KeyAsString; want != have {
 			t.Fatalf("expected key_as_string of %q in bucket 0, have %q", want, have)
 		}
-		sumOfRetweetsAgg, found := movingAvgDateHistoRes.Buckets[0].SumBucket("sumOfRetweets")
+		sumOfRetweetsAgg, found := agg.Buckets[0].SumBucket("sumOfRetweets")
 		if !found {
 			t.Fatalf("expected sub-aggregation %q", "sumOfRetweets")
 		}
@@ -1172,14 +1253,14 @@ func TestAggs(t *testing.T) {
 		if want, have := 12.0, *sumOfRetweetsAgg.Value; want != have {
 			t.Fatalf("expected sumOfRetweets = %v, have %v", want, have)
 		}
-		movingAvgAgg, found := movingAvgDateHistoRes.Buckets[0].MovAvg("movingAvg")
+		movingAvgAgg, found := agg.Buckets[0].MovAvg("movingAvg")
 		if found {
 			t.Fatalf("expected no sub-aggregation %q", "movingAvg")
 		}
 		if movingAvgAgg != nil {
 			t.Fatalf("expected no sub-aggregation %q", "movingAvg")
 		}
-		movingFnAgg, found := movingAvgDateHistoRes.Buckets[0].MovFn("movingFn")
+		movingFnAgg, found := agg.Buckets[0].MovFn("movingFn")
 		if !found {
 			t.Fatalf("expected sub-aggregation %q", "movingFn")
 		}
@@ -1190,19 +1271,19 @@ func TestAggs(t *testing.T) {
 			t.Fatalf("expected movingFn = %v, have %v", want, have)
 		}
 		// movingAvgDateHisto.Buckets[1]
-		if want, have := int64(2), movingAvgDateHistoRes.Buckets[1].DocCount; want != have {
+		if want, have := int64(2), agg.Buckets[1].DocCount; want != have {
 			t.Fatalf("expected %d docs in bucket 1, have %d", want, have)
 		}
-		if want, have := 1325376000000.0, movingAvgDateHistoRes.Buckets[1].Key; want != have {
+		if want, have := 1325376000000.0, agg.Buckets[1].Key; want != have {
 			t.Fatalf("expected key of %v in bucket 1, have %v", want, have)
 		}
-		if have := movingAvgDateHistoRes.Buckets[1].KeyAsString; have == nil {
+		if have := agg.Buckets[1].KeyAsString; have == nil {
 			t.Fatalf("expected key_as_string != nil in bucket 1, have %v", have)
 		}
-		if want, have := "2012-01-01T00:00:00.000Z", *movingAvgDateHistoRes.Buckets[1].KeyAsString; want != have {
+		if want, have := "2012-01-01T00:00:00.000Z", *agg.Buckets[1].KeyAsString; want != have {
 			t.Fatalf("expected key_as_string of %q in bucket 1, have %q", want, have)
 		}
-		sumOfRetweetsAgg, found = movingAvgDateHistoRes.Buckets[1].SumBucket("sumOfRetweets")
+		sumOfRetweetsAgg, found = agg.Buckets[1].SumBucket("sumOfRetweets")
 		if !found {
 			t.Fatalf("expected sub-aggregation %q", "sumOfRetweets")
 		}
@@ -1212,7 +1293,7 @@ func TestAggs(t *testing.T) {
 		if want, have := 108.0, *sumOfRetweetsAgg.Value; want != have {
 			t.Fatalf("expected sumOfRetweets = %v, have %v", want, have)
 		}
-		movingAvgAgg, found = movingAvgDateHistoRes.Buckets[1].MovAvg("movingAvg")
+		movingAvgAgg, found = agg.Buckets[1].MovAvg("movingAvg")
 		if !found {
 			t.Fatalf("expected sub-aggregation %q", "movingAvg")
 		}
@@ -1222,7 +1303,7 @@ func TestAggs(t *testing.T) {
 		if want, have := 12.0, *movingAvgAgg.Value; want != have {
 			t.Fatalf("expected movingAvg = %v, have %v", want, have)
 		}
-		movingFnAgg, found = movingAvgDateHistoRes.Buckets[1].MovFn("movingFn")
+		movingFnAgg, found = agg.Buckets[1].MovFn("movingFn")
 		if !found {
 			t.Fatalf("expected sub-aggregation %q", "movingFn")
 		}

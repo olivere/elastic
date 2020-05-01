@@ -98,6 +98,22 @@ func (a Aggregations) WeightedAvg(name string) (*AggregationValueMetric, bool) {
 	return nil, false
 }
 
+// MedianAbsoluteDeviation returns median absolute deviation aggregation results.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-aggregations-metrics-median-absolute-deviation-aggregation.html
+// for details.
+func (a Aggregations) MedianAbsoluteDeviation(name string) (*AggregationValueMetric, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationValueMetric)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // ValueCount returns value-count aggregation results.
 // See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-metrics-valuecount-aggregation.html
 func (a Aggregations) ValueCount(name string) (*AggregationValueMetric, bool) {
