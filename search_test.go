@@ -788,7 +788,11 @@ func TestSearchSearchSource(t *testing.T) {
 	}
 
 	// Set up the search source manually and pass it to the search service via SearchSource()
-	ss := NewSearchSource().Query(NewMatchAllQuery()).From(0).Size(2)
+	ss := NewSearchSource().
+		Query(NewMatchAllQuery()).
+		IndexBoost(testIndexName, 1.0).
+		IndexBoosts(IndexBoost{Index: testIndexName2, Boost: 2.0}).
+		From(0).Size(2)
 
 	// One can use ss.Source() to get to the raw interface{} that will be used
 	// as the search request JSON by the SearchService.

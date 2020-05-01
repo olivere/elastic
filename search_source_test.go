@@ -216,7 +216,7 @@ func TestSearchSourceIndexBoost(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"indices_boost":{"index1":1.4,"index2":1.3},"query":{"match_all":{}}}`
+	expected := `{"indices_boost":[{"index1":1.4},{"index2":1.3}],"query":{"match_all":{}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
