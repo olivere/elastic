@@ -49,7 +49,6 @@ func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return st.client.Do(req)
 	}
 
-	req.URL.Scheme = "https"
 	if strings.Contains(req.URL.RawPath, "%2C") {
 		// Escaping path
 		req.URL.RawPath = url.PathEscape(req.URL.RawPath)
