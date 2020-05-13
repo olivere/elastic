@@ -4,7 +4,11 @@
 
 package elastic
 
-import "testing"
+import (
+	"bytes"
+	"compress/gzip"
+	"testing"
+)
 
 var testReq *Request // used as a temporary variable to avoid compiler optimizations in tests/benchmarks
 
@@ -29,7 +33,7 @@ func BenchmarkRequestSetBodyString(b *testing.B) {
 	}
 	for i := 0; i < b.N; i++ {
 		body := `{"query":{"match_all":{}}}`
-		err = req.SetBody(body, false)
+		err = req.SetBody(body, false, nil)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -45,7 +49,7 @@ func BenchmarkRequestSetBodyStringGzip(b *testing.B) {
 	}
 	for i := 0; i < b.N; i++ {
 		body := `{"query":{"match_all":{}}}`
-		err = req.SetBody(body, true)
+		err = req.SetBody(body, true, gzip.NewWriter(new(bytes.Buffer)))
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -61,7 +65,7 @@ func BenchmarkRequestSetBodyBytes(b *testing.B) {
 	}
 	for i := 0; i < b.N; i++ {
 		body := []byte(`{"query":{"match_all":{}}}`)
-		err = req.SetBody(body, false)
+		err = req.SetBody(body, false, nil)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -77,7 +81,7 @@ func BenchmarkRequestSetBodyBytesGzip(b *testing.B) {
 	}
 	for i := 0; i < b.N; i++ {
 		body := []byte(`{"query":{"match_all":{}}}`)
-		err = req.SetBody(body, true)
+		err = req.SetBody(body, true, gzip.NewWriter(new(bytes.Buffer)))
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -97,7 +101,7 @@ func BenchmarkRequestSetBodyMap(b *testing.B) {
 				"match_all": map[string]interface{}{},
 			},
 		}
-		err = req.SetBody(body, false)
+		err = req.SetBody(body, false, nil)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -117,7 +121,7 @@ func BenchmarkRequestSetBodyMapGzip(b *testing.B) {
 				"match_all": map[string]interface{}{},
 			},
 		}
-		err = req.SetBody(body, true)
+		err = req.SetBody(body, true, gzip.NewWriter(new(bytes.Buffer)))
 		if err != nil {
 			b.Fatal(err)
 		}

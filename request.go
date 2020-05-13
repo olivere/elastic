@@ -37,16 +37,16 @@ func (r *Request) SetBasicAuth(username, password string) {
 
 // SetBody encodes the body in the request. You may pass a flag to
 // compress the request via gzip.
-func (r *Request) SetBody(body interface{}, gzipCompress bool) error {
+func (r *Request) SetBody(body interface{}, gzipCompress bool, writer *gzip.Writer) error {
 	switch b := body.(type) {
 	case string:
 		if gzipCompress {
-			return r.setBodyGzip(b)
+			return r.setBodyGzip(b, writer)
 		}
 		return r.setBodyString(b)
 	default:
 		if gzipCompress {
-			return r.setBodyGzip(body)
+			return r.setBodyGzip(body, writer)
 		}
 		return r.setBodyJson(body)
 	}
@@ -70,7 +70,7 @@ func (r *Request) setBodyString(body string) error {
 
 // setBodyGzip gzip's the body. It accepts both strings and structs as body.
 // The latter will be encoded via json.Marshal.
-func (r *Request) setBodyGzip(body interface{}) error {
+func (r *Request) setBodyGzip(body interface{}, writer *gzip.Writer) error {
 	switch b := body.(type) {
 	case string:
 		buf := new(bytes.Buffer)
@@ -90,11 +90,11 @@ func (r *Request) setBodyGzip(body interface{}) error {
 			return err
 		}
 		buf := new(bytes.Buffer)
-		w := gzip.NewWriter(buf)
-		if _, err := w.Write(data); err != nil {
+		writer.Reset(buf)
+		if _, err := writer.Write(data); err != nil {
 			return err
 		}
-		if err := w.Close(); err != nil {
+		if err := writer.Close(); err != nil {
 			return err
 		}
 		r.Header.Add("Content-Encoding", "gzip")
