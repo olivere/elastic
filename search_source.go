@@ -254,6 +254,17 @@ func (s *SearchSource) FetchSourceContext(fetchSourceContext *FetchSourceContext
 	return s
 }
 
+// FetchSourceIncludeExclude specifies that _source should be returned
+// with each hit, where "include" and "exclude" serve as a simple wildcard
+// matcher that gets applied to its fields
+// (e.g. include := []string{"obj1.*","obj2.*"}, exclude := []string{"description.*"}).
+func (s *SearchSource) FetchSourceIncludeExclude(include, exclude []string) *SearchSource {
+	s.fetchSourceContext = NewFetchSourceContext(true).
+		Include(include...).
+		Exclude(exclude...)
+	return s
+}
+
 // NoStoredFields indicates that no fields should be loaded, resulting in only
 // id and type to be returned per field.
 func (s *SearchSource) NoStoredFields() *SearchSource {
