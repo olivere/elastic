@@ -10,9 +10,9 @@ import (
 )
 
 func TestCatShards(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t, SetDecoder(&strictDecoder{})) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t, SetDecoder(&strictDecoder{})) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 	ctx := context.Background()
-	res, err := client.CatShards().Columns("*").Do(ctx)
+	res, err := client.CatShards().Columns("*").Pretty(true).Do(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

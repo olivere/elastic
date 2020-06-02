@@ -316,6 +316,8 @@ type CatShardsResponseRow struct {
 	WarmerCurrent             int    `json:"warmer.current,string"` // current warmer ops on primaries & replicas
 	WarmerTotal               int    `json:"warmer.total,string"`   // total warmer ops on primaries & replicas
 	WarmerTotalTime           string `json:"warmer.total_time"`     // time spent in warmers on primaries & replicas, e.g. "47s"
+	PathData                  string `json:"path.data"`
+	PathState                 string `json:"path.state"`
 }
 
 // catShardsResponseRowAliasesMap holds the global map for columns aliases

@@ -418,12 +418,13 @@ func TestScrollWithMaxResponseSize(t *testing.T) {
 	}
 
 	// Test response size error on second scroll request (first response is 418 bytes, second is 439 bytes)
-	svc = client.Scroll(testIndexName).Size(1).MaxResponseSize(420)
+	svc = client.Scroll(testIndexName).Size(1).MaxResponseSize(16384)
 	_, err = svc.Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	svc = client.Scroll(testIndexName).Size(1).MaxResponseSize(400)
 	_, err = svc.Do(context.TODO())
 	if err != ErrResponseSize {
 		t.Fatalf("expected response size error")
