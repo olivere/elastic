@@ -362,7 +362,7 @@ Here are a few tips on how to get used to Elastic:
   - [ ] Span Term Query
   - [ ] Span Multi Term Query
   - [ ] Span First Query
-  - [ ] Span Near Query
+  - [x] Span Near Query
   - [ ] Span Or Query
   - [ ] Span Not Query
   - [ ] Span Containing Query
