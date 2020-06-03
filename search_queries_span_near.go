@@ -27,15 +27,33 @@ func NewClause(field, value string) *clause {
 }
 
 // NewSpanNearQuery creates and initializes a new SpanNearQuery.
-func NewSpanNearQuery(slop int, inOrder bool, clauses ...*clause) *SpanNearQuery {
+func NewSpanNearQuery(clauses ...*clause) *SpanNearQuery {
 	q := &SpanNearQuery{
-		slop:    slop,
-		inOrder: inOrder,
 		clauses: make([]*clause, 0),
 	}
 	if len(clauses) > 0 {
 		q.clauses = append(q.clauses, clauses...)
 	}
+	return q
+}
+
+//AddClause Add a span clause to the current list of clauses
+func (q *SpanNearQuery) AddClause(clause *clause) *SpanNearQuery {
+	if clause != nil {
+		q.clauses = append(q.clauses, clause)
+	}
+	return q
+}
+
+//InOrder must be in the same order as in clauses and must be non-overlapping
+func (q *SpanNearQuery) InOrder(inOrder bool) *SpanNearQuery {
+	q.inOrder = inOrder
+	return q
+}
+
+//Slop set the maximum number of intervening unmatched positions permitted
+func (q *SpanNearQuery) Slop(slop int) *SpanNearQuery {
+	q.slop = slop
 	return q
 }
 

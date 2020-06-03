@@ -10,7 +10,9 @@ import (
 
 func TestSpanNearQuery(t *testing.T) {
 
-	q := NewSpanNearQuery(1, false, NewClause("field", "value"))
+	q := NewSpanNearQuery(NewClause("field", "value")).
+		Slop(1).
+		InOrder(false)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
