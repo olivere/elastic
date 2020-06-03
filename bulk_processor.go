@@ -423,7 +423,12 @@ func (p *BulkProcessor) Flush() error {
 // FlushInterval is greater than 0.
 func (p *BulkProcessor) flusher(interval time.Duration) {
 	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
+	defer func(ticker2 *time.Ticker) {
+		ticker2.Stop()
+		if r := recover(); r != nil {
+			return
+		}
+	}(ticker)
 
 	for {
 		select {
