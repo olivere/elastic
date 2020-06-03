@@ -17,20 +17,22 @@ import (
 
 // Search for documents in Elasticsearch.
 type SearchService struct {
-	client            *Client
-	searchSource      *SearchSource
-	source            interface{}
-	pretty            bool
-	filterPath        []string
-	searchType        string
-	index             []string
-	typ               []string
-	routing           string
-	preference        string
-	requestCache      *bool
-	ignoreUnavailable *bool
-	allowNoIndices    *bool
-	expandWildcards   string
+	client                     *Client
+	searchSource               *SearchSource
+	source                     interface{}
+	pretty                     bool
+	filterPath                 []string
+	searchType                 string
+	index                      []string
+	typ                        []string
+	routing                    string
+	preference                 string
+	requestCache               *bool
+	ignoreUnavailable          *bool
+	allowNoIndices             *bool
+	expandWildcards            string
+	allowPartialSearchResults  *bool // allow_partial_search_results
+	maxConcurrentShardRequests *int  // max_concurrent_shard_requests
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
@@ -312,6 +314,22 @@ func (s *SearchService) ExpandWildcards(expandWildcards string) *SearchService {
 	return s
 }
 
+// AllowPartialSearchResults indicates if an error should be returned if
+// there is a partial search failure or timeout.
+func (s *SearchService) AllowPartialSearchResults(enabled bool) *SearchService {
+	s.allowPartialSearchResults = &enabled
+	return s
+}
+
+// MaxConcurrentShardRequests specifies the number of concurrent shard requests
+// this search executes concurrently. This value should be used to limit the
+// impact of the search on the cluster in order to limit the number of
+// concurrent shard requests.
+func (s *SearchService) MaxConcurrentShardRequests(max int) *SearchService {
+	s.maxConcurrentShardRequests = &max
+	return s
+}
+
 // buildURL builds the URL for the operation.
 func (s *SearchService) buildURL() (string, url.Values, error) {
 	var err error
@@ -365,6 +383,12 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 	}
 	if len(s.filterPath) > 0 {
 		params.Set("filter_path", strings.Join(s.filterPath, ","))
+	}
+	if v := s.allowPartialSearchResults; v != nil {
+		params.Set("allow_partial_search_results", fmt.Sprint(*v))
+	}
+	if v := s.maxConcurrentShardRequests; v != nil {
+		params.Set("max_concurrent_shard_requests", fmt.Sprint(*v))
 	}
 	return path, params, nil
 }

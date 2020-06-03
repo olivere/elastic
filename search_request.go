@@ -13,17 +13,19 @@ import (
 // query details (see SearchSource).
 // It is used in combination with MultiSearch.
 type SearchRequest struct {
-	searchType        string
-	indices           []string
-	types             []string
-	routing           *string
-	preference        *string
-	requestCache      *bool
-	ignoreUnavailable *bool
-	allowNoIndices    *bool
-	expandWildcards   string
-	scroll            string
-	source            interface{}
+	searchType                 string
+	indices                    []string
+	types                      []string
+	routing                    *string
+	preference                 *string
+	requestCache               *bool
+	ignoreUnavailable          *bool
+	allowNoIndices             *bool
+	expandWildcards            string
+	scroll                     string
+	source                     interface{}
+	allowPartialSearchResults  *bool
+	maxConcurrentShardRequests *int
 }
 
 // NewSearchRequest creates a new search request.
@@ -122,6 +124,25 @@ func (r *SearchRequest) Source(source interface{}) *SearchRequest {
 	return r
 }
 
+// AllowPartialSearchResults indicates if this request should allow partial
+// results. (If method is not called, will default to the cluster level
+// setting).
+func (r *SearchRequest) AllowPartialSearchResults(allow bool) *SearchRequest {
+	r.allowPartialSearchResults = &allow
+	return r
+}
+
+// MaxConcurrentShardRequests sets the number of shard requests that should
+// be executed concurrently. This value should be used as a protection
+// mechanism to reduce the number of shard requests fired per high level
+// search request. Searches that hit the entire cluster can be throttled
+// with this number to reduce the cluster load. The default grows with
+// the number of nodes in the cluster but is at most 256.
+func (r *SearchRequest) MaxConcurrentShardRequests(size int) *SearchRequest {
+	r.maxConcurrentShardRequests = &size
+	return r
+}
+
 // header is used e.g. by MultiSearch to get information about the search header
 // of one SearchRequest.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-multi-search.html
@@ -164,6 +185,9 @@ func (r *SearchRequest) header() interface{} {
 	}
 	if r.expandWildcards != "" {
 		h["expand_wildcards"] = r.expandWildcards
+	}
+	if v := r.allowPartialSearchResults; v != nil {
+		h["allow_partial_search_results"] = *v
 	}
 	if r.scroll != "" {
 		h["scroll"] = r.scroll
