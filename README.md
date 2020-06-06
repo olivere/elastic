@@ -359,10 +359,10 @@ Here are a few tips on how to get used to Elastic:
   - [x] Script Score Query
   - [x] Percolate Query
 - Span queries
-  - [ ] Span Term Query
+  - [x] Span Term Query
   - [ ] Span Multi Term Query
-  - [ ] Span First Query
-  - [ ] Span Near Query
+  - [x] Span First Query
+  - [x] Span Near Query
   - [ ] Span Or Query
   - [ ] Span Not Query
   - [ ] Span Containing Query
