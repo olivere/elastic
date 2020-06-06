@@ -137,8 +137,8 @@ func TestClientWithInvalidURLs(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
-	if want, have := `parse " http://foo.com": first path segment in URL cannot contain colon`, err.Error(); want != have {
-		t.Fatalf("expected error %q, have %q", want, have)
+	if want, have := `first path segment in URL cannot contain colon`, err.Error(); !strings.Contains(have, want) {
+		t.Fatalf("expected error to contain %q, have %q", want, have)
 	}
 	if client != nil {
 		t.Fatal("expected client == nil")
