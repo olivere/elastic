@@ -42,3 +42,20 @@ func TestMatchQueryWithOptions(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestMatchQueryWithInt64(t *testing.T) {
+	q := NewMatchQuery("message", 459751182159713792)
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"match":{"message":{"query":459751182159713792}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
