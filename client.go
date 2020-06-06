@@ -501,6 +501,12 @@ func SetURL(urls ...string) ClientOptionFunc {
 		default:
 			c.urls = urls
 		}
+		// Check URLs
+		for _, urlStr := range c.urls {
+			if _, err := url.Parse(urlStr); err != nil {
+				return err
+			}
+		}
 		return nil
 	}
 }

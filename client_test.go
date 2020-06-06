@@ -132,6 +132,19 @@ func TestClientWithMultipleURLs(t *testing.T) {
 	}
 }
 
+func TestClientWithInvalidURLs(t *testing.T) {
+	client, err := NewClient(SetURL(" http://foo.com", "http://[fe80::%31%25en0]:8080/"))
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if want, have := `parse " http://foo.com": first path segment in URL cannot contain colon`, err.Error(); want != have {
+		t.Fatalf("expected error %q, have %q", want, have)
+	}
+	if client != nil {
+		t.Fatal("expected client == nil")
+	}
+}
+
 func TestClientWithBasicAuth(t *testing.T) {
 	client, err := NewClient(SetBasicAuth("user", "secret"))
 	if err != nil {
