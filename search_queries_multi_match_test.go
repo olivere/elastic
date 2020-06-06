@@ -129,3 +129,48 @@ func TestMultiMatchQueryBestFieldsWithCustomTieBreaker(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestMultiMatchQueryOptions(t *testing.T) {
+	tests := []struct {
+		Query *MultiMatchQuery
+		Want  string
+	}{
+		{
+			Query: NewMultiMatchQuery("this is a test", "message"),
+			Want:  `{"multi_match":{"fields":["message"],"query":"this is a test"}}`,
+		},
+		{
+			Query: NewMultiMatchQuery("this is a test", "message").Type("best_fields"),
+			Want:  `{"multi_match":{"fields":["message"],"query":"this is a test","tie_breaker":0,"type":"best_fields"}}`,
+		},
+		{
+			Query: NewMultiMatchQuery("this is a test", "message").Type("best_fields").TieBreaker(0.5),
+			Want:  `{"multi_match":{"fields":["message"],"query":"this is a test","tie_breaker":0.5,"type":"best_fields"}}`,
+		},
+		{
+			Query: NewMultiMatchQuery("this is a test", "message").TieBreaker(0.5).Type("best_fields"),
+			Want:  `{"multi_match":{"fields":["message"],"query":"this is a test","tie_breaker":0.5,"type":"best_fields"}}`,
+		},
+		{
+			Query: NewMultiMatchQuery("this is a test", "message").Type("cross_fields").TieBreaker(0.5),
+			Want:  `{"multi_match":{"fields":["message"],"query":"this is a test","tie_breaker":0.5,"type":"cross_fields"}}`,
+		},
+		{
+			Query: NewMultiMatchQuery("this is a test", "message").TieBreaker(0.5).Type("cross_fields"),
+			Want:  `{"multi_match":{"fields":["message"],"query":"this is a test","tie_breaker":0.5,"type":"cross_fields"}}`,
+		},
+	}
+	for i, tt := range tests {
+		src, err := tt.Query.Source()
+		if err != nil {
+			t.Fatalf("#%d: %v", i, err)
+		}
+		data, err := json.Marshal(src)
+		if err != nil {
+			t.Fatalf("#%d: marshaling to JSON failed: %v", i, err)
+		}
+		if want, have := tt.Want, string(data); want != have {
+			t.Errorf("#%d: want\n%s\n, have:\n%s", i, want, have)
+		}
+	}
+}
