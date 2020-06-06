@@ -67,7 +67,7 @@ func TestScriptScoreQueryIntegration(t *testing.T) {
 	if hit.Score == nil {
 		t.Fatal("expected Hits.Hit.Score != nil")
 	}
-	if want, have := 10.0, *hit.Score; want != have {
+	if want, have := float64(1090), *hit.Score; want != have {
 		t.Fatalf("expected Hits.Hit.Score = %v; got %v", want, have)
 	}
 	var tw tweet

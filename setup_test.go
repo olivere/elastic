@@ -411,9 +411,9 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	client := setupTestClientAndCreateIndex(t, options...)
 
 	// Add tweets
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
-	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch.", Retweets: 108, Tags: []string{"golang", "elasticsearch"}}
+	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic.", Retweets: 0, Tags: []string{"golang"}}
+	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun.", Retweets: 12, Tags: []string{"sports", "cycling"}}
 
 	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {

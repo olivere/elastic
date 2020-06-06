@@ -285,6 +285,9 @@ func TestAggs(t *testing.T) {
 		if agg.Buckets[0].KeyNumber != "0" {
 			t.Errorf("expected %q; got: %q", "0", agg.Buckets[0].KeyNumber)
 		}
+		if agg.Buckets[0].KeyNumber.String() != "0" {
+			t.Errorf("expected %q; got: %q", "0", agg.Buckets[0].KeyNumber.String())
+		}
 		if agg.Buckets[0].DocCount != 1 {
 			t.Errorf("expected %d; got: %d", 1, agg.Buckets[0].DocCount)
 		}
@@ -300,6 +303,9 @@ func TestAggs(t *testing.T) {
 		if agg.Buckets[1].KeyNumber != "12" {
 			t.Errorf("expected %q; got: %q", "12", agg.Buckets[1].KeyNumber)
 		}
+		if agg.Buckets[1].KeyNumber.String() != "12" {
+			t.Errorf("expected %q; got: %q", "12", agg.Buckets[1].KeyNumber.String())
+		}
 		if agg.Buckets[1].DocCount != 1 {
 			t.Errorf("expected %d; got: %d", 1, agg.Buckets[1].DocCount)
 		}
@@ -314,6 +320,9 @@ func TestAggs(t *testing.T) {
 		}
 		if agg.Buckets[2].KeyNumber != "108" {
 			t.Errorf("expected %q; got: %q", "108", agg.Buckets[2].KeyNumber)
+		}
+		if agg.Buckets[2].KeyNumber.String() != "108" {
+			t.Errorf("expected %q; got: %q", "108", agg.Buckets[2].KeyNumber.String())
 		}
 		if agg.Buckets[2].DocCount != 1 {
 			t.Errorf("expected %d; got: %d", 1, agg.Buckets[2].DocCount)
