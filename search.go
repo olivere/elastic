@@ -529,7 +529,7 @@ type SearchSuggestionOption struct {
 	Index        string           `json:"_index"`
 	Type         string           `json:"_type"`
 	Id           string           `json:"_id"`
-	Score        float64          `json:"score"`
+	Score        float64          `json:"_score"`
 	Highlighted  string           `json:"highlighted"`
 	CollateMatch bool             `json:"collate_match"`
 	Freq         int              `json:"freq"` // from TermSuggestion.Option in Java API
