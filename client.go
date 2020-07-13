@@ -1082,6 +1082,7 @@ func (c *Client) healthcheck(parentCtx context.Context, timeout time.Duration, f
 		c.mu.RUnlock()
 		return
 	}
+	headers := c.headers
 	basicAuth := c.basicAuth
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
@@ -1107,6 +1108,13 @@ func (c *Client) healthcheck(parentCtx context.Context, timeout time.Duration, f
 			}
 			if basicAuth {
 				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+			}
+			if len(headers) > 0 {
+				for key, values := range headers {
+					for _, v := range values {
+						req.Header.Add(key, v)
+					}
+				}
 			}
 			res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
 			if res != nil {
@@ -1144,6 +1152,7 @@ func (c *Client) healthcheck(parentCtx context.Context, timeout time.Duration, f
 func (c *Client) startupHealthcheck(parentCtx context.Context, timeout time.Duration) error {
 	c.mu.Lock()
 	urls := c.urls
+	headers := c.headers
 	basicAuth := c.basicAuth
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
@@ -1161,6 +1170,13 @@ func (c *Client) startupHealthcheck(parentCtx context.Context, timeout time.Dura
 			}
 			if basicAuth {
 				req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
+			}
+			if len(headers) > 0 {
+				for key, values := range headers {
+					for _, v := range values {
+						req.Header.Add(key, v)
+					}
+				}
 			}
 			ctx, cancel := context.WithTimeout(parentCtx, timeout)
 			defer cancel()
