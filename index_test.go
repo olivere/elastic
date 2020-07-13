@@ -7,6 +7,7 @@ package elastic
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"testing"
 )
 
@@ -314,5 +315,46 @@ func TestIndexOptimistic(t *testing.T) {
 	}
 	if want, have := res.SeqNo, doc.SeqNo; want == have {
 		t.Fatalf("expected SeqNo to change (%d == %d)", want, have)
+	}
+}
+
+func TestIndexOnReadOnlyIndex(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+	//client := setupTestClientAndCreateIndexAndLog(t)
+
+	// Change index to read-only
+	{
+		_, err := client.IndexPutSettings(testIndexName).
+			BodyString(`{
+				"index": {
+					"blocks": {
+						"read_only_allow_delete": true
+					}
+				}
+			}`).Pretty(true).Do(context.Background())
+		if err != nil {
+			t.Fatalf("unable to set index into read-only mode: %v", err)
+		}
+	}
+
+	// Index something
+	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	resp, err := client.Index().
+		Index(testIndexName).Id("1").
+		BodyJson(tweet).
+		Pretty(true).
+		Do(context.Background())
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+	elasticErr, ok := err.(*Error)
+	if !ok {
+		t.Fatalf("expected an Error type, got %T", err)
+	}
+	if want, have := http.StatusTooManyRequests, elasticErr.Status; want != have {
+		t.Fatalf("expected HTTP status code %d, got %d", want, have)
+	}
+	if resp != nil {
+		t.Fatal("expected response to be nil")
 	}
 }
