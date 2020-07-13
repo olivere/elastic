@@ -178,6 +178,43 @@ func TestClientWithBasicAuthInUserInfo(t *testing.T) {
 	}
 }
 
+func TestClientWithBasicAuthDuringHealthcheck(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "HEAD" || r.URL.String() != "/" {
+			t.Fatalf("expected HEAD / request, got %s %s", r.Method, r.URL)
+			http.Error(w, fmt.Sprintf("expected HEAD / request, got %s %s", r.Method, r.URL), http.StatusBadRequest)
+			return
+		}
+		username, password, ok := r.BasicAuth()
+		if !ok {
+			t.Fatal("expected HEAD basic auth")
+			http.Error(w, "expected HTTP basic auth", http.StatusBadRequest)
+			return
+		}
+		if username != "user" && password != "secret" {
+			t.Fatalf("invalid HTTP basic auth username %q and password %q", username, password)
+			http.Error(w, fmt.Sprintf("invalid HTTP basic auth username %q and password %q", username, password), http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer ts.Close()
+
+	client, err := NewClient(SetBasicAuth("user", "secret"), SetURL(ts.URL), SetSniff(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if client.basicAuth != true {
+		t.Errorf("expected basic auth; got: %v", client.basicAuth)
+	}
+	if got, want := client.basicAuthUsername, "user"; got != want {
+		t.Errorf("expected basic auth username %q; got: %q", want, got)
+	}
+	if got, want := client.basicAuthPassword, "secret"; got != want {
+		t.Errorf("expected basic auth password %q; got: %q", want, got)
+	}
+}
+
 func TestClientWithXpackSecurity(t *testing.T) {
 	// Connect to ES Platinum with X-Pack Security enabled and L: elastic, P: elastic
 	client, err := NewClient(SetURL("http://elastic:elastic@127.0.0.1:9210"))
@@ -445,7 +482,7 @@ func TestClientHealthcheckTimeoutLeak(t *testing.T) {
 	cli := &Client{
 		c: &http.Client{},
 		conns: []*conn{
-			&conn{
+			{
 				url: "http://" + addr + "/",
 			},
 		},
