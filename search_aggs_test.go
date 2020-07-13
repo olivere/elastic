@@ -1185,7 +1185,7 @@ func TestAggs(t *testing.T) {
 		if agg.Buckets[1].DocCount != 1 {
 			t.Errorf("expected %d; got: %d", 1, agg.Buckets[1].DocCount)
 		}
-		if agg.Buckets[1].DocCount != 0 {
+		if agg.Buckets[2].DocCount != 0 {
 			t.Errorf("expected %d; got: %d", 0, agg.Buckets[2].DocCount)
 		}
 	}
