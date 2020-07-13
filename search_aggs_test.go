@@ -154,7 +154,8 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("centroid", geoCentroidAgg)
 	// Unnamed filters
 	countByUserAgg := NewFiltersAggregation().
-		Filters(NewTermQuery("user", "olivere"), NewTermQuery("user", "sandrae"))
+		Filters(NewTermQuery("user", "olivere"), NewTermQuery("user", "sandrae")).
+		OtherBucket(true).OtherBucketKey("other")
 	builder = builder.Aggregation("countByUser", countByUserAgg)
 	// Named filters
 	countByUserAgg2 := NewFiltersAggregation().
@@ -1172,8 +1173,8 @@ func TestAggs(t *testing.T) {
 		if agg == nil {
 			t.Fatalf("expected != nil; got: nil")
 		}
-		if len(agg.Buckets) != 2 {
-			t.Fatalf("expected %d; got: %d", 2, len(agg.Buckets))
+		if len(agg.Buckets) != 3 {
+			t.Fatalf("expected %d; got: %d", 3, len(agg.Buckets))
 		}
 		if len(agg.NamedBuckets) != 0 {
 			t.Fatalf("expected %d; got: %d", 0, len(agg.NamedBuckets))
@@ -1183,6 +1184,9 @@ func TestAggs(t *testing.T) {
 		}
 		if agg.Buckets[1].DocCount != 1 {
 			t.Errorf("expected %d; got: %d", 1, agg.Buckets[1].DocCount)
+		}
+		if agg.Buckets[1].DocCount != 0 {
+			t.Errorf("expected %d; got: %d", 0, agg.Buckets[2].DocCount)
 		}
 	}
 
