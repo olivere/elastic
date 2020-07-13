@@ -176,8 +176,8 @@ func TestXPackWatchResponseParser(t *testing.T) {
 					Actions: map[string]*XPackWatchActionStatus{
 						"test_index": {
 							AckStatus: &XPackWatchActionAckStatus{
-								AckStatusState: "awaits_successful_execution",
-								Timestamp:      mustParseTime(time.RFC3339, "2015-05-26T18:21:08.630Z"),
+								State:     "awaits_successful_execution",
+								Timestamp: mustParseTime(time.RFC3339, "2015-05-26T18:21:08.630Z"),
 							},
 						},
 					},

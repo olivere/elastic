@@ -186,8 +186,8 @@ type XPackWatchActionStatus struct {
 }
 
 type XPackWatchActionAckStatus struct {
-	Timestamp      time.Time `json:"timestamp"`
-	AckStatusState string    `json:"state"`
+	Timestamp time.Time `json:"timestamp"`
+	State     string    `json:"state"`
 }
 
 type XPackWatchActionExecutionState struct {
