@@ -204,14 +204,8 @@ func TestClientWithBasicAuthDuringHealthcheck(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if client.basicAuth != true {
-		t.Errorf("expected basic auth; got: %v", client.basicAuth)
-	}
-	if got, want := client.basicAuthUsername, "user"; got != want {
-		t.Errorf("expected basic auth username %q; got: %q", want, got)
-	}
-	if got, want := client.basicAuthPassword, "secret"; got != want {
-		t.Errorf("expected basic auth password %q; got: %q", want, got)
+	if client == nil {
+		t.Fatal("expected a client")
 	}
 }
 
