@@ -389,6 +389,48 @@ func TestBulkIndexDeleteUpdate(t *testing.T) {
 	}
 }
 
+func TestBulkOnReadOnlyIndex(t *testing.T) {
+	client := setupTestClientAndCreateIndex(t)
+	//client := setupTestClientAndCreateIndexAndLog(t)
+
+	// Change index to read-only
+	{
+		_, err := client.IndexPutSettings(testIndexName).
+			BodyString(`{
+				"index": {
+					"blocks": {
+						"read_only_allow_delete": true
+					}
+				}
+			}`).Pretty(true).Do(context.Background())
+		if err != nil {
+			t.Fatalf("unable to set index into read-only mode: %v", err)
+		}
+	}
+
+	// Index something
+	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	bulk := client.Bulk().Add(
+		NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet),
+	)
+	resp, err := bulk.Pretty(true).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp == nil {
+		t.Fatal("expected response to be != nil; got nil")
+	}
+	if !resp.Errors {
+		t.Fatal("expected response errors being set to true")
+	}
+	if len(resp.Items) != 1 {
+		t.Fatal("expected response with 1 item")
+	}
+	if want, have := http.StatusTooManyRequests, resp.ById("1")[0].Status; want != have {
+		t.Fatal("expected HTTP status code 200")
+	}
+}
+
 func TestFailedBulkRequests(t *testing.T) {
 	js := `{
   "took" : 2,
