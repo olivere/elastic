@@ -59,6 +59,27 @@ func TestFiltersAggregationWithKeyedAndNonKeyedFilters(t *testing.T) {
 	}
 }
 
+func TestFiltersAggregationWithOtherBuckets(t *testing.T) {
+	agg := NewFiltersAggregation().
+		FilterWithName("errors", NewMatchQuery("body", "error")).
+		FilterWithName("warnings", NewMatchQuery("body", "warnings")).
+		OtherBucket(true).
+		OtherBucketKey("other")
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"filters":{"filters":{"errors":{"match":{"body":{"query":"error"}}},"warnings":{"match":{"body":{"query":"warnings"}}}},"other_bucket":true,"other_bucket_key":"other"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestFiltersAggregationWithSubAggregation(t *testing.T) {
 	avgPriceAgg := NewAvgAggregation().Field("price")
 	f1 := NewRangeQuery("stock").Gt(0)
