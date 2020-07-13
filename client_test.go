@@ -209,6 +209,29 @@ func TestClientWithBasicAuthDuringHealthcheck(t *testing.T) {
 	}
 }
 
+func TestClientWithoutBasicAuthButAuthEnabledInElasticDuringHealthcheck(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "HEAD" || r.URL.String() != "/" {
+			t.Fatalf("expected HEAD / request, got %s %s", r.Method, r.URL)
+			http.Error(w, fmt.Sprintf("expected HEAD / request, got %s %s", r.Method, r.URL), http.StatusBadRequest)
+			return
+		}
+		_, _, ok := r.BasicAuth()
+		if ok {
+			t.Fatal("unexpected HEAD basic auth")
+			http.Error(w, "unexpected HTTP basic auth", http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer ts.Close()
+
+	_, err := NewClient(SetURL(ts.URL), SetSniff(false))
+	if err != ErrUnauthorized {
+		t.Fatal("expected unauthorized error")
+	}
+}
+
 func TestClientWithXpackSecurity(t *testing.T) {
 	// Connect to ES Platinum with X-Pack Security enabled and L: elastic, P: elastic
 	client, err := NewClient(SetURL("http://elastic:elastic@127.0.0.1:9210"))

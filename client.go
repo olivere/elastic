@@ -90,6 +90,9 @@ var (
 	// number of retries.
 	ErrRetry = errors.New("cannot connect after several retries")
 
+	// ErrUnauthorized is raised when Elasticsearch returns a 401 to the health request
+	ErrUnauthorized = errors.New("missing or erroneous credentials")
+
 	// ErrTimeout is raised when a request timed out, e.g. when WaitForStatus
 	// didn't return in time.
 	ErrTimeout = errors.New("timeout")
@@ -1182,10 +1185,14 @@ func (c *Client) startupHealthcheck(parentCtx context.Context, timeout time.Dura
 			defer cancel()
 			req = req.WithContext(ctx)
 			res, err := c.c.Do(req)
-			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
-				return nil
-			} else if err != nil {
+			if err != nil {
 				lastErr = err
+			} else if res.StatusCode >= 200 && res.StatusCode < 300 {
+				return nil
+			} else if res.StatusCode == 401 {
+				return ErrUnauthorized
+			} else {
+				return fmt.Errorf("Unkown response from Elasticsearch: %v", res.Status)
 			}
 		}
 		select {
