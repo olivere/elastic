@@ -294,6 +294,29 @@ func (s *ScrollService) MaxResponseSize(maxResponseSize int64) *ScrollService {
 	return s
 }
 
+
+// NoStoredFields indicates that no stored fields should be loaded, resulting in only
+// id and type to be returned per field.
+func (s *ScrollService) NoStoredFields() *ScrollService {
+	s.ss = s.ss.NoStoredFields()
+	return s
+}
+
+// StoredField adds a single field to load and return (note, must be stored) as
+// part of the search request. If none are specified, the source of the
+// document will be returned.
+func (s *ScrollService) StoredField(fieldName string) *ScrollService {
+	s.ss = s.ss.StoredField(fieldName)
+	return s
+}
+
+// StoredFields	sets the fields to load and return as part of the search request.
+// If none are specified, the source of the document will be returned.
+func (s *ScrollService) StoredFields(fields ...string) *ScrollService {
+	s.ss = s.ss.StoredFields(fields...)
+	return s
+}
+
 // ScrollId specifies the identifier of a scroll in action.
 func (s *ScrollService) ScrollId(scrollId string) *ScrollService {
 	s.mu.Lock()
