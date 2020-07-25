@@ -11,10 +11,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"time"
 
@@ -25,8 +27,8 @@ const (
 	mapping = `
 	{
 		"settings":{
-			"number_of_shards":1,
-			"number_of_replicas":0
+			"number_of_shards": {{.NumberOfShards}},
+			"number_of_replicas": {{.NumberOfReplicas}}
 		},
 		"mappings":{
 			"properties":{
@@ -62,9 +64,11 @@ type Tweet struct {
 
 func main() {
 	var (
-		url   = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
-		sniff = flag.Bool("sniff", true, "Enable or disable sniffing")
-		index = flag.String("index", "", "Index name")
+		url      = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
+		sniff    = flag.Bool("sniff", true, "Enable or disable sniffing")
+		index    = flag.String("index", "", "Index name")
+		shards   = flag.Int("shards", 1, "Number of shards")
+		replicas = flag.Int("replicas", 0, "Number of replicas")
 	)
 	flag.Parse()
 	log.SetFlags(0)
@@ -96,7 +100,24 @@ func main() {
 			log.Fatal(err)
 		}
 	}
-	_, err = client.CreateIndex(*index).Body(mapping).Do(ctx)
+
+	// Dynamically create the index with the specified number of shards/replicas
+	tmpl, err := template.New("T").Parse(mapping)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var body bytes.Buffer
+	err = tmpl.ExecuteTemplate(&body, "T", struct {
+		NumberOfShards   int
+		NumberOfReplicas int
+	}{
+		NumberOfShards:   *shards,
+		NumberOfReplicas: *replicas,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = client.CreateIndex(*index).BodyString(body.String()).Do(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
