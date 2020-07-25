@@ -67,9 +67,6 @@ func TestClientDefaults(t *testing.T) {
 	if client.snifferInterval != DefaultSnifferInterval {
 		t.Errorf("expected sniffer interval = %v, got: %v", DefaultSnifferInterval, client.snifferInterval)
 	}
-	if client.basicAuth != false {
-		t.Errorf("expected no basic auth; got: %v", client.basicAuth)
-	}
 	if client.basicAuthUsername != "" {
 		t.Errorf("expected no basic auth username; got: %q", client.basicAuthUsername)
 	}
@@ -151,9 +148,6 @@ func TestClientWithBasicAuth(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if client.basicAuth != true {
-		t.Errorf("expected basic auth; got: %v", client.basicAuth)
-	}
 	if got, want := client.basicAuthUsername, "user"; got != want {
 		t.Errorf("expected basic auth username %q; got: %q", want, got)
 	}
@@ -166,9 +160,6 @@ func TestClientWithBasicAuthInUserInfo(t *testing.T) {
 	client, err := NewClient(SetURL("http://user1:secret1@localhost:9200", "http://user2:secret2@localhost:9200"))
 	if err != nil {
 		t.Fatal(err)
-	}
-	if client.basicAuth != true {
-		t.Errorf("expected basic auth; got: %v", client.basicAuth)
 	}
 	if got, want := client.basicAuthUsername, "user1"; got != want {
 		t.Errorf("expected basic auth username %q; got: %q", want, got)
@@ -215,14 +206,50 @@ func TestClientWithXpackSecurity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if client.basicAuth != true {
-		t.Errorf("expected basic auth; got: %v", client.basicAuth)
-	}
 	if got, want := client.basicAuthUsername, "elastic"; got != want {
 		t.Errorf("expected basic auth username %q; got: %q", want, got)
 	}
 	if got, want := client.basicAuthPassword, "elastic"; got != want {
 		t.Errorf("expected basic auth password %q; got: %q", want, got)
+	}
+}
+
+func TestClientWithXpackSecurityUnauthorized(t *testing.T) {
+	client, err := NewClient(SetURL("http://no-such-user:invalid-password@127.0.0.1:9210"))
+	if client != nil {
+		t.Fatal("expected no client")
+	}
+	if !IsUnauthorized(err) {
+		t.Fatalf("expected IsUnauthorized to be true; got err=%+v", err)
+	}
+	if !IsStatusCode(err, http.StatusUnauthorized) {
+		t.Fatalf("expected IsUnauthorized to be true; got err=%+v", err)
+	}
+}
+
+func TestClientWithoutBasicAuthButAuthEnabledInElasticDuringHealthcheck(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "HEAD" || r.URL.String() != "/" {
+			t.Fatalf("expected HEAD / request, got %s %s", r.Method, r.URL)
+			http.Error(w, fmt.Sprintf("expected HEAD / request, got %s %s", r.Method, r.URL), http.StatusBadRequest)
+			return
+		}
+		_, _, ok := r.BasicAuth()
+		if ok {
+			t.Fatal("unexpected HEAD basic auth")
+			http.Error(w, "unexpected HTTP basic auth", http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer ts.Close()
+
+	_, err := NewClient(SetURL(ts.URL), SetSniff(false))
+	if err == nil {
+		t.Fatal("expected unauthorized error")
+	}
+	if !IsUnauthorized(err) {
+		t.Fatalf("expected IsUnauthorized = %v, got err=%+v", true, err)
 	}
 }
 
@@ -637,9 +664,6 @@ func TestSimpleClientDefaults(t *testing.T) {
 	}
 	if client.snifferInterval != off {
 		t.Errorf("expected sniffer interval = %v, got: %v", off, client.snifferInterval)
-	}
-	if client.basicAuth != false {
-		t.Errorf("expected no basic auth; got: %v", client.basicAuth)
 	}
 	if client.basicAuthUsername != "" {
 		t.Errorf("expected no basic auth username; got: %q", client.basicAuthUsername)

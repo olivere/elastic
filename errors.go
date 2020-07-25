@@ -152,6 +152,15 @@ func IsConflict(err interface{}) bool {
 	return IsStatusCode(err, http.StatusConflict)
 }
 
+// IsUnauthorized returns true if the given error indicates that
+// Elasticsearch returned HTTP status 401. This happens e.g. when the
+// cluster is configured to require HTTP Basic Auth.
+// The err parameter can be of type *elastic.Error, elastic.Error,
+// *http.Response or int (indicating the HTTP status code).
+func IsUnauthorized(err interface{}) bool {
+	return IsStatusCode(err, http.StatusUnauthorized)
+}
+
 // IsForbidden returns true if the given error indicates that Elasticsearch
 // returned HTTP status 403. This happens e.g. due to a missing license.
 // The err parameter can be of type *elastic.Error, elastic.Error,

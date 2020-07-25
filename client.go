@@ -139,7 +139,6 @@ type Client struct {
 	snifferCallback           SnifferCallback // callback to modify the sniffing decision
 	snifferStop               chan bool       // notify sniffer to stop, and notify back
 	decoder                   Decoder         // used to decode data sent from Elasticsearch
-	basicAuth                 bool            // indicates whether to send HTTP Basic Auth credentials
 	basicAuthUsername         string          // username for HTTP Basic Auth
 	basicAuthPassword         string          // password for HTTP Basic Auth
 	sendGetBodyAs             string          // override for when sending a GET with a body
@@ -265,11 +264,10 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 	c.urls = canonicalize(c.urls...)
 
 	// If the URLs have auth info, use them here as an alternative to SetBasicAuth
-	if !c.basicAuth {
+	if c.basicAuthUsername == "" && c.basicAuthPassword == "" {
 		for _, urlStr := range c.urls {
 			u, err := url.Parse(urlStr)
 			if err == nil && u.User != nil {
-				c.basicAuth = true
 				c.basicAuthUsername = u.User.Username()
 				c.basicAuthPassword, _ = u.User.Password()
 				break
@@ -351,11 +349,10 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 	c.urls = canonicalize(c.urls...)
 
 	// If the URLs have auth info, use them here as an alternative to SetBasicAuth
-	if !c.basicAuth {
+	if c.basicAuthUsername == "" && c.basicAuthPassword == "" {
 		for _, urlStr := range c.urls {
 			u, err := url.Parse(urlStr)
 			if err == nil && u.User != nil {
-				c.basicAuth = true
 				c.basicAuthUsername = u.User.Username()
 				c.basicAuthPassword, _ = u.User.Password()
 				break
@@ -490,7 +487,6 @@ func SetBasicAuth(username, password string) ClientOptionFunc {
 	return func(c *Client) error {
 		c.basicAuthUsername = username
 		c.basicAuthPassword = password
-		c.basicAuth = c.basicAuthUsername != "" || c.basicAuthPassword != ""
 		return nil
 	}
 }
@@ -968,7 +964,7 @@ func (c *Client) sniffNode(ctx context.Context, url string) []*conn {
 	}
 
 	c.mu.RLock()
-	if c.basicAuth {
+	if c.basicAuthUsername != "" || c.basicAuthPassword != "" {
 		req.SetBasicAuth(c.basicAuthUsername, c.basicAuthPassword)
 	}
 	c.mu.RUnlock()
@@ -1083,7 +1079,7 @@ func (c *Client) healthcheck(parentCtx context.Context, timeout time.Duration, f
 		return
 	}
 	headers := c.headers
-	basicAuth := c.basicAuth
+	basicAuth := c.basicAuthUsername != "" || c.basicAuthPassword != ""
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
 	c.mu.RUnlock()
@@ -1153,7 +1149,7 @@ func (c *Client) startupHealthcheck(parentCtx context.Context, timeout time.Dura
 	c.mu.Lock()
 	urls := c.urls
 	headers := c.headers
-	basicAuth := c.basicAuth
+	basicAuth := c.basicAuthUsername != "" || c.basicAuthPassword != ""
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
 	c.mu.Unlock()
@@ -1182,10 +1178,12 @@ func (c *Client) startupHealthcheck(parentCtx context.Context, timeout time.Dura
 			defer cancel()
 			req = req.WithContext(ctx)
 			res, err := c.c.Do(req)
-			if err == nil && res != nil && res.StatusCode >= 200 && res.StatusCode < 300 {
-				return nil
-			} else if err != nil {
+			if err != nil {
 				lastErr = err
+			} else if res.StatusCode >= 200 && res.StatusCode < 300 {
+				return nil
+			} else if res.StatusCode == http.StatusUnauthorized {
+				lastErr = &Error{Status: res.StatusCode}
 			}
 		}
 		select {
@@ -1199,7 +1197,7 @@ func (c *Client) startupHealthcheck(parentCtx context.Context, timeout time.Dura
 		}
 	}
 	if lastErr != nil {
-		if IsContextErr(lastErr) {
+		if IsContextErr(lastErr) || IsUnauthorized(lastErr) {
 			return lastErr
 		}
 		return errors.Wrapf(ErrNoClient, "health check timeout: %v", lastErr)
@@ -1286,7 +1284,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 
 	c.mu.RLock()
 	timeout := c.healthcheckTimeout
-	basicAuth := c.basicAuth
+	basicAuth := c.basicAuthUsername != "" || c.basicAuthPassword != ""
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
 	sendGetBodyAs := c.sendGetBodyAs
