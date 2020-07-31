@@ -33,13 +33,14 @@ func (q *PinnedQuery) Organic(query Query) *PinnedQuery {
 // Source returns the JSON serializable content for this query.
 func (q *PinnedQuery) Source() (interface{}, error) {
 	// {
-	// "pinned": {
-	// 	  "ids": [ "1", "4", "100" ],
-	//    "organic": {
-	// 	    "match": {
-	// 		  "description": "iphone"
+	// 	  "pinned": {
+	// 	  	"ids": [ "1", "4", "100" ],
+	// 	  	"organic": {
+	// 		  "match": {
+	// 		    "description": "iphone"
+	// 		  }
 	// 		}
-	// 	  }
+	//    }
 	// }
 
 	query := make(map[string]interface{})
