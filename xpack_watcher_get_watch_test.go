@@ -66,14 +66,8 @@ func TestXPackWatchActionStatus_UnmarshalJSON(t *testing.T) {
 			       "timestamp" : "2019-10-22T15:01:12.163Z",
 			       "state" : "ackable"
 			     },
-			     "last_execution" : {
-			       "timestamp" : "2019-10-22T15:01:12.163Z",
-			       "successful" : true
-			     },
-			     "last_successful_execution" : {
-			       "timestamp" : "2019-10-22T15:01:12.163Z",
-			       "successful" : true
-			     }
+			     "last_execution" : "2019-10-22T15:01:12.163Z",
+			     "last_successful_execution" : "2019-10-22T15:01:12.163Z"
 			   }
 			`),
 			false,
