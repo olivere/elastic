@@ -61,7 +61,7 @@ func createResponseError(res *http.Response) error {
 		if errReply.Details != nil && len(errReply.Details.CausedBy) > 0 {
 			reason := errReply.Details.CausedBy["reason"]
 			if reason != nil {
-				return fmt.Errorf(fmt.Sprintf("Error 400 (Bad Request): %v %v", errReply.Details.Type, reason))
+				return fmt.Errorf(fmt.Sprintf("Error %v: %v %v", res.StatusCode, errReply.Details.Type, reason))
 			}
 		}
 		return errReply
