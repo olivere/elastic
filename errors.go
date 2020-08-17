@@ -58,6 +58,12 @@ func createResponseError(res *http.Response) error {
 		if errReply.Status == 0 {
 			errReply.Status = res.StatusCode
 		}
+		if errReply.Details != nil && len(errReply.Details.CausedBy) > 0 {
+			reason := errReply.Details.CausedBy["reason"]
+			if reason != nil {
+				return fmt.Errorf(fmt.Sprintf("%v : %v", errReply.Details.Type, reason))
+			}
+		}
 		return errReply
 	}
 	return &Error{Status: res.StatusCode}
