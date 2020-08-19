@@ -44,7 +44,7 @@ func TestMultiMatchQueryWithNoFields(t *testing.T) {
 }
 
 func TestMultiMatchQueryBestFields(t *testing.T) {
-	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("best_fields")
+	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("best_fields").TieBreaker(0)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -61,7 +61,7 @@ func TestMultiMatchQueryBestFields(t *testing.T) {
 }
 
 func TestMultiMatchQueryMostFields(t *testing.T) {
-	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("most_fields")
+	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("most_fields").TieBreaker(1)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -78,7 +78,7 @@ func TestMultiMatchQueryMostFields(t *testing.T) {
 }
 
 func TestMultiMatchQueryCrossFields(t *testing.T) {
-	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("cross_fields")
+	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("cross_fields").TieBreaker(0)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -95,7 +95,7 @@ func TestMultiMatchQueryCrossFields(t *testing.T) {
 }
 
 func TestMultiMatchQueryPhrase(t *testing.T) {
-	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("phrase")
+	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("phrase").TieBreaker(0)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -112,7 +112,7 @@ func TestMultiMatchQueryPhrase(t *testing.T) {
 }
 
 func TestMultiMatchQueryPhrasePrefix(t *testing.T) {
-	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("phrase_prefix")
+	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("phrase_prefix").TieBreaker(0)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -148,7 +148,7 @@ func TestMultiMatchQueryBestFieldsWithCustomTieBreaker(t *testing.T) {
 }
 
 func TestMultiMatchQueryBoolPrefix(t *testing.T) {
-	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("bool_prefix")
+	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("bool_prefix").TieBreaker(1)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -158,7 +158,7 @@ func TestMultiMatchQueryBoolPrefix(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"multi_match":{"fields":["subject","message"],"query":"this is a test","tie_breaker":0,"type":"bool_prefix"}}`
+	expected := `{"multi_match":{"fields":["subject","message"],"query":"this is a test","tie_breaker":1,"type":"bool_prefix"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -174,7 +174,7 @@ func TestMultiMatchQueryOptions(t *testing.T) {
 			Want:  `{"multi_match":{"fields":["message"],"query":"this is a test"}}`,
 		},
 		{
-			Query: NewMultiMatchQuery("this is a test", "message").Type("best_fields"),
+			Query: NewMultiMatchQuery("this is a test", "message").Type("best_fields").TieBreaker(0),
 			Want:  `{"multi_match":{"fields":["message"],"query":"this is a test","tie_breaker":0,"type":"best_fields"}}`,
 		},
 		{
@@ -206,5 +206,23 @@ func TestMultiMatchQueryOptions(t *testing.T) {
 		if want, have := tt.Want, string(data); want != have {
 			t.Errorf("#%d: want\n%s\n, have:\n%s", i, want, have)
 		}
+	}
+}
+
+func TestMultiMatchQueryDefaultTieBreaker(t *testing.T) {
+	// should not add tie_breaker field within the query DSL unless specified
+	q := NewMultiMatchQuery("this is a test", "subject", "message").Type("bool_prefix")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"multi_match":{"fields":["subject","message"],"query":"this is a test","type":"bool_prefix"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
