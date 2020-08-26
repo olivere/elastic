@@ -41,6 +41,7 @@ type ScrollService struct {
 	routing           string
 	preference        string
 	ignoreUnavailable *bool
+	ignoreThrottled   *bool
 	allowNoIndices    *bool
 	expandWildcards   string
 	maxResponseSize   int64
@@ -272,6 +273,13 @@ func (s *ScrollService) IgnoreUnavailable(ignoreUnavailable bool) *ScrollService
 	return s
 }
 
+// IgnoreThrottled indicates whether specified concrete, expanded or aliased
+// indices should be ignored when throttled.
+func (s *ScrollService) IgnoreThrottled(ignoreThrottled bool) *ScrollService {
+	s.ignoreThrottled = &ignoreThrottled
+	return s
+}
+
 // AllowNoIndices indicates whether to ignore if a wildcard indices
 // expression resolves into no concrete indices. (This includes `_all` string
 // or when no indices have been specified).
@@ -293,7 +301,6 @@ func (s *ScrollService) MaxResponseSize(maxResponseSize int64) *ScrollService {
 	s.maxResponseSize = maxResponseSize
 	return s
 }
-
 
 // NoStoredFields indicates that no stored fields should be loaded, resulting in only
 // id and type to be returned per field.
@@ -496,6 +503,9 @@ func (s *ScrollService) buildFirstURL() (string, url.Values, error) {
 	}
 	if s.ignoreUnavailable != nil {
 		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+	}
+	if s.ignoreThrottled != nil {
+		params.Set("ignore_throttled", fmt.Sprintf("%v", *s.ignoreThrottled))
 	}
 
 	return path, params, nil
