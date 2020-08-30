@@ -61,40 +61,19 @@ func (q *MultiMatchQuery) FieldWithBoost(field string, boost float64) *MultiMatc
 // Type can be "best_fields", "boolean", "most_fields", "cross_fields",
 // "phrase", "phrase_prefix" or "bool_prefix"
 func (q *MultiMatchQuery) Type(typ string) *MultiMatchQuery {
-	var zero = float64(0.0)
-	var one = float64(1.0)
-
 	switch strings.ToLower(typ) {
 	default: // best_fields / boolean
 		q.typ = "best_fields"
-		if q.tieBreaker == nil {
-			q.tieBreaker = &zero
-		}
 	case "most_fields":
 		q.typ = "most_fields"
-		if q.tieBreaker == nil {
-			q.tieBreaker = &one
-		}
 	case "cross_fields":
 		q.typ = "cross_fields"
-		if q.tieBreaker == nil {
-			q.tieBreaker = &zero
-		}
 	case "phrase":
 		q.typ = "phrase"
-		if q.tieBreaker == nil {
-			q.tieBreaker = &zero
-		}
 	case "phrase_prefix":
 		q.typ = "phrase_prefix"
-		if q.tieBreaker == nil {
-			q.tieBreaker = &zero
-		}
 	case "bool_prefix":
 		q.typ = "bool_prefix"
-		if q.tieBreaker == nil {
-			q.tieBreaker = &zero
-		}
 	}
 	return q
 }
