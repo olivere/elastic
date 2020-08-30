@@ -107,6 +107,20 @@ func (e *Error) Error() string {
 	return fmt.Sprintf("elastic: Error %d (%s)", e.Status, http.StatusText(e.Status))
 }
 
+// ErrorReason returns the reason of an error that Elasticsearch reported,
+// if err is of kind Error and has ErrorDetails with a Reason. Any other
+// value of err will return an empty string.
+func ErrorReason(err error) string {
+	if err == nil {
+		return ""
+	}
+	e, ok := err.(*Error)
+	if !ok || e == nil || e.Details == nil {
+		return ""
+	}
+	return e.Details.Reason
+}
+
 // IsContextErr returns true if the error is from a context that was canceled or deadline exceeded
 func IsContextErr(err error) bool {
 	if err == context.Canceled || err == context.DeadlineExceeded {

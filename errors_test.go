@@ -12,6 +12,24 @@ import (
 	"testing"
 )
 
+func TestErrorReason(t *testing.T) {
+	if want, have := "", ErrorReason(nil); want != have {
+		t.Fatalf("want %q, have %q", want, have)
+	}
+
+	if want, have := "", ErrorReason(&Error{}); want != have {
+		t.Fatalf("want %q, have %q", want, have)
+	}
+
+	if want, have := "", ErrorReason(&Error{Details: &ErrorDetails{}}); want != have {
+		t.Fatalf("want %q, have %q", want, have)
+	}
+
+	if want, have := "no such index", ErrorReason(&Error{Details: &ErrorDetails{Reason: "no such index"}}); want != have {
+		t.Fatalf("want %q, have %q", want, have)
+	}
+}
+
 func TestResponseError(t *testing.T) {
 	raw := "HTTP/1.1 404 Not Found\r\n" +
 		"\r\n" +
@@ -36,6 +54,11 @@ func TestResponseError(t *testing.T) {
 	expected := fmt.Sprintf("elastic: Error %d (%s): no such index [type=index_missing_exception]", resp.StatusCode, http.StatusText(resp.StatusCode))
 	got := err.Error()
 	if got != expected {
+		t.Fatalf("expected %q; got: %q", expected, got)
+	}
+
+	// Check ErrorReason
+	if expected, got := "no such index", ErrorReason(err); expected != got {
 		t.Fatalf("expected %q; got: %q", expected, got)
 	}
 
