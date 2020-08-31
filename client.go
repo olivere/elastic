@@ -7,6 +7,7 @@ package elastic
 import (
 	"bytes"
 	"context"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -101,6 +102,12 @@ var (
 	// noDeprecationLog is a no-op for logging deprecations.
 	noDeprecationLog = func(*http.Request, *http.Response) {}
 )
+
+var gzipWriterPool = sync.Pool {
+	New: func()interface{} {
+		return gzip.NewWriter(new(bytes.Buffer))
+	},
+}
 
 // ClientOptionFunc is a function that configures a Client.
 // It is used in NewClient.
@@ -1353,7 +1360,18 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 
 		// Set body
 		if opt.Body != nil {
-			err = req.SetBody(opt.Body, gzipEnabled)
+			var gzipWriter *gzip.Writer;
+			if gzipEnabled {
+				item := gzipWriterPool.Get()
+				if item == nil {
+					c.infof("Got nothing from the pool. Creating a new gzip compressor...")
+					gzipWriter = gzip.NewWriter(new(bytes.Buffer))
+				} else {
+					gzipWriter = item.(*gzip.Writer)
+				}
+				defer gzipWriterPool.Put(gzipWriter)
+			}
+			err = req.SetBody(opt.Body, gzipEnabled, gzipWriter)
 			if err != nil {
 				c.errorf("elastic: couldn't set body %+v for request: %v", opt.Body, err)
 				return nil, err
