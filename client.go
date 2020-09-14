@@ -54,7 +54,7 @@ const (
 	DefaultHealthcheckInterval = 60 * time.Second
 
 	// DefaultSnifferEnabled specifies if the sniffer is enabled by default.
-	DefaultSnifferEnabled = true
+	DefaultSnifferEnabled = false
 
 	// DefaultSnifferInterval is the interval between two sniffing procedures,
 	// i.e. the lookup of all nodes in the cluster and their addition/removal
