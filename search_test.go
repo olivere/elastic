@@ -8,9 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -1442,7 +1440,7 @@ func TestSearchScriptQuery(t *testing.T) {
 }
 
 func TestSearchStoredScript(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	scriptId := "test_script"
 
