@@ -316,3 +316,22 @@ func TestSearchSourceSeqNoAndPrimaryTerm(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestSearchSourceStoredScript(t *testing.T) {
+	storedScript := NewScriptStored("complex_query").Param("query_string", "token")
+	builder := NewSearchSource().StoredScript(storedScript)
+	src, err := builder.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"id":"complex_query","params":{"query_string":"token"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+
+}
