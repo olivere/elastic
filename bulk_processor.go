@@ -52,6 +52,7 @@ type BulkProcessorService struct {
 	wantStats            bool          // indicates whether to gather statistics
 	backoff              Backoff       // a custom Backoff to use for errors
 	retryItemStatusCodes []int         // array of status codes for bulk response line items that may be retried
+	healthcheckListener  func(bool)    // callback that gets called each time a healthcheck returns - true for success, false otherwise
 }
 
 // NewBulkProcessorService creates a new BulkProcessorService.
@@ -148,6 +149,12 @@ func (s *BulkProcessorService) RetryItemStatusCodes(retryItemStatusCodes ...int)
 	return s
 }
 
+// HealthcheckListener sets the callback to be called whenever a healthcheck completes. true for success, false for failure
+func (s *BulkProcessorService) HealthcheckListener(listener func(bool)) *BulkProcessorService {
+	s.healthcheckListener = listener
+	return s
+}
+
 // Do creates a new BulkProcessor and starts it.
 // Consider the BulkProcessor as a running instance that accepts bulk requests
 // and commits them to Elasticsearch, spreading the work across one or more
@@ -181,7 +188,9 @@ func (s *BulkProcessorService) Do(ctx context.Context) (*BulkProcessor, error) {
 		s.flushInterval,
 		s.wantStats,
 		s.backoff,
-		retryItemStatusCodes)
+		retryItemStatusCodes,
+		s.healthcheckListener,
+	)
 
 	err := p.Start(ctx)
 	if err != nil {
@@ -271,6 +280,7 @@ type BulkProcessor struct {
 	wantStats            bool
 	retryItemStatusCodes map[int]struct{}
 	backoff              Backoff
+	healthcheckListener  func(bool)
 
 	startedMu sync.Mutex // guards the following block
 	started   bool
@@ -292,7 +302,8 @@ func newBulkProcessor(
 	flushInterval time.Duration,
 	wantStats bool,
 	backoff Backoff,
-	retryItemStatusCodes map[int]struct{}) *BulkProcessor {
+	retryItemStatusCodes map[int]struct{},
+	healthcheckListener func(bool)) *BulkProcessor {
 	return &BulkProcessor{
 		c:                    client,
 		beforeFn:             beforeFn,
@@ -305,6 +316,7 @@ func newBulkProcessor(
 		wantStats:            wantStats,
 		retryItemStatusCodes: retryItemStatusCodes,
 		backoff:              backoff,
+		healthcheckListener:  healthcheckListener,
 	}
 }
 
@@ -332,7 +344,7 @@ func (p *BulkProcessor) Start(ctx context.Context) error {
 	p.workers = make([]*bulkWorker, p.numWorkers)
 	for i := 0; i < p.numWorkers; i++ {
 		p.workerWg.Add(1)
-		p.workers[i] = newBulkWorker(p, i)
+		p.workers[i] = newBulkWorker(p, i, p.healthcheckUpdate)
 		go p.workers[i].work(ctx)
 	}
 
@@ -345,6 +357,12 @@ func (p *BulkProcessor) Start(ctx context.Context) error {
 	p.started = true
 
 	return nil
+}
+
+func (p *BulkProcessor) healthcheckUpdate(ready bool) {
+	if p.healthcheckListener != nil {
+		p.healthcheckListener(ready)
+	}
 }
 
 // Stop is an alias for Close.
@@ -443,25 +461,27 @@ func (p *BulkProcessor) flusher(interval time.Duration) {
 // receiving bulk requests and eventually committing them to Elasticsearch.
 // It is strongly bound to a BulkProcessor.
 type bulkWorker struct {
-	p           *BulkProcessor
-	i           int
-	bulkActions int
-	bulkSize    int
-	service     *BulkService
-	flushC      chan struct{}
-	flushAckC   chan struct{}
+	p                 *BulkProcessor
+	i                 int
+	bulkActions       int
+	bulkSize          int
+	service           *BulkService
+	flushC            chan struct{}
+	flushAckC         chan struct{}
+	healthcheckStatus func(bool)
 }
 
 // newBulkWorker creates a new bulkWorker instance.
-func newBulkWorker(p *BulkProcessor, i int) *bulkWorker {
+func newBulkWorker(p *BulkProcessor, i int, healthcheckStatus func(bool)) *bulkWorker {
 	return &bulkWorker{
-		p:           p,
-		i:           i,
-		bulkActions: p.bulkActions,
-		bulkSize:    p.bulkSize,
-		service:     NewBulkService(p.c),
-		flushC:      make(chan struct{}),
-		flushAckC:   make(chan struct{}),
+		p:                 p,
+		i:                 i,
+		bulkActions:       p.bulkActions,
+		bulkSize:          p.bulkSize,
+		service:           NewBulkService(p.c),
+		flushC:            make(chan struct{}),
+		flushAckC:         make(chan struct{}),
+		healthcheckStatus: healthcheckStatus,
 	}
 }
 
@@ -612,9 +632,12 @@ func (w *bulkWorker) waitForActiveConnection(ready chan<- struct{}) {
 		case <-t.C:
 			client.healthcheck(context.Background(), 3*time.Second, true)
 			if client.mustActiveConn() == nil {
+				w.healthcheckStatus(true)
 				// found an active connection
 				// exit and signal done to the WaitGroup
 				return
+			} else {
+				w.healthcheckStatus(false)
 			}
 		}
 	}
