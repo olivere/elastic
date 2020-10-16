@@ -23,6 +23,7 @@ const (
 	testIndexName2     = "elastic-test2"
 	testIndexName3     = "elastic-test3"
 	testIndexName4     = "elastic-test4"
+	testIndexName5     = "elastic-test5"
 	testIndexNameEmpty = "elastic-test-empty"
 	testMapping        = `
 {
@@ -340,6 +341,7 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 	client.DeleteIndex(testIndexName2).Do(context.TODO())
 	client.DeleteIndex(testIndexName3).Do(context.TODO())
 	client.DeleteIndex(testIndexName4).Do(context.TODO())
+	client.DeleteIndex(testIndexName5).Do(context.TODO())
 	client.DeleteIndex(testIndexNameEmpty).Do(context.TODO())
 	client.DeleteIndex(testOrderIndex).Do(context.TODO())
 	client.DeleteIndex(testNoSourceIndexName).Do(context.TODO())
