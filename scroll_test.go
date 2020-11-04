@@ -9,7 +9,10 @@ import (
 	"encoding/json"
 	"io"
 	_ "net/http"
+	"net/url"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestScroll(t *testing.T) {
@@ -916,5 +919,78 @@ func TestScrollTotalHits(t *testing.T) {
 	_, err = svc.Do(context.TODO())
 	if err == nil {
 		t.Fatal("expected to fail")
+	}
+}
+
+func TestScrollBuilder(t *testing.T) {
+	// client := setupTestClientAndCreateIndexAndLog(t)
+	client := setupTestClientAndCreateIndex(t)
+
+	tests := []struct {
+		Service        *ScrollService
+		ExpectedPath   string
+		ExpectedParams url.Values
+		ExpectedBody   string
+	}{
+		// #0: FetchSourceContext in ScrollService
+		{
+			Service: client.
+				Scroll(testIndexName).
+				SearchSource(
+					NewSearchSource().Query(NewMatchAllQuery()),
+				).
+				FetchSourceContext(NewFetchSourceContext(false).Include("foo")).
+				Size(600),
+			ExpectedPath: "/elastic-test/_search",
+			ExpectedParams: url.Values{
+				"scroll": []string{"5m"},
+				"size":   []string{"600"},
+			},
+			ExpectedBody: `{"_source":false,"query":{"match_all":{}},"sort":["_doc"]}`,
+		},
+		// #1: FetchSourceContext in SearchSource
+		{
+			Service: client.Scroll(testIndexName).
+				SearchSource(
+					NewSearchSource().Query(
+						NewMatchAllQuery(),
+					).
+						FetchSourceContext(NewFetchSourceContext(false).Include("foo")),
+				).
+				Size(600),
+			ExpectedPath: "/elastic-test/_search",
+			ExpectedParams: url.Values{
+				"scroll": []string{"5m"},
+				"size":   []string{"600"},
+			},
+			ExpectedBody: `{"_source":false,"query":{"match_all":{}},"sort":["_doc"]}`,
+		},
+	}
+
+	for i, tt := range tests {
+		// Get URL and parameters for request
+		path, params, err := tt.Service.buildFirstURL()
+		if err != nil {
+			t.Fatalf("#%d: %v", i, err)
+		}
+		if want, have := tt.ExpectedPath, path; want != have {
+			t.Fatalf("#%d: want Path=%q, have %q", i, want, have)
+		}
+		if want, have := tt.ExpectedParams, params; !cmp.Equal(want, have) {
+			t.Fatalf("#%d: invalid Params; expected:\ndiff=%v", i, cmp.Diff(want, have))
+		}
+
+		// Get HTTP request body
+		body, err := tt.Service.bodyFirst()
+		if err != nil {
+			t.Fatal(err)
+		}
+		js, err := json.Marshal(body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want, have := tt.ExpectedBody, string(js); !cmp.Equal(want, have) {
+			t.Fatalf("#%d: want Body=%s, have %s\ndiff=%v", i, want, have, cmp.Diff(want, have))
+		}
 	}
 }
