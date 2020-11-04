@@ -1449,7 +1449,7 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 	var numFailedReqs int
 	fail := func(r *http.Request) (*http.Response, error) {
-		numFailedReqs += 1
+		numFailedReqs++
 		return &http.Response{Request: r, StatusCode: 500, Body: http.NoBody}, nil
 	}
 
@@ -1478,6 +1478,47 @@ func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 	}
 	// Retry should not have triggered additional requests because
 	if numFailedReqs != 1 {
+		t.Errorf("expected %d failed requests; got: %d", 1, numFailedReqs)
+	}
+}
+
+func TestPerformRequestOnSpecifiedHttpStatusCodes(t *testing.T) {
+	var numFailedReqs int
+	fail := func(r *http.Request) (*http.Response, error) {
+		numFailedReqs++
+		return &http.Response{Request: r, StatusCode: 429, Body: http.NoBody}, nil
+	}
+
+	// Run against a failing endpoint and see if PerformRequest
+	// retries correctly.
+	tr := &failingTransport{path: "/fail", fail: fail}
+	httpClient := &http.Client{Transport: tr}
+
+	client, err := NewClient(
+		SetHttpClient(httpClient),
+		SetMaxRetries(5),
+		SetRetryStatusCodes(429, 504),
+		SetHealthcheck(false),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/fail",
+	})
+	if err == nil {
+		t.Fatalf("expected error: err=%v, resp=%+v", err, res)
+	}
+	if res == nil {
+		t.Fatal("expected response, got nil")
+	}
+	if want, got := 429, res.StatusCode; want != got {
+		t.Fatalf("expected status code = %d, got %d", want, got)
+	}
+	// Retry should not have triggered additional requests because
+	if numFailedReqs != 5 {
 		t.Errorf("expected %d failed requests; got: %d", 1, numFailedReqs)
 	}
 }
