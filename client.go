@@ -1742,29 +1742,81 @@ func (c *Client) Aliases() *AliasesService {
 	return NewAliasesService(c)
 }
 
-// IndexGetTemplate gets an index template.
-// Use XXXTemplate funcs to manage search templates.
+// -- Legacy templates --
+
+// IndexGetTemplate gets an index template (v1/legacy version before 7.8).
+//
+// This service implements the legacy version of index templates as described
+// in https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+//
+// See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 func (c *Client) IndexGetTemplate(names ...string) *IndicesGetTemplateService {
 	return NewIndicesGetTemplateService(c).Name(names...)
 }
 
-// IndexTemplateExists gets check if an index template exists.
-// Use XXXTemplate funcs to manage search templates.
+// IndexTemplateExists gets check if an index template exists (v1/legacy version before 7.8).
+//
+// This service implements the legacy version of index templates as described
+// in https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+//
+// See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 func (c *Client) IndexTemplateExists(name string) *IndicesExistsTemplateService {
 	return NewIndicesExistsTemplateService(c).Name(name)
 }
 
-// IndexPutTemplate creates or updates an index template.
-// Use XXXTemplate funcs to manage search templates.
+// IndexPutTemplate creates or updates an index template (v1/legacy version before 7.8).
+//
+// This service implements the legacy version of index templates as described
+// in https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+//
+// See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 func (c *Client) IndexPutTemplate(name string) *IndicesPutTemplateService {
 	return NewIndicesPutTemplateService(c).Name(name)
 }
 
-// IndexDeleteTemplate deletes an index template.
-// Use XXXTemplate funcs to manage search templates.
+// IndexDeleteTemplate deletes an index template (v1/legacy version before 7.8).
+//
+// This service implements the legacy version of index templates as described
+// in https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+//
+// See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 func (c *Client) IndexDeleteTemplate(name string) *IndicesDeleteTemplateService {
 	return NewIndicesDeleteTemplateService(c).Name(name)
 }
+
+// -- Index templates --
+
+// IndexPutIndexTemplate creates or updates an index template (new version after 7.8).
+//
+// This service implements the new version of index templates as described
+// on https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-put-template.html.
+//
+// See e.g. IndexPutTemplate for the v1/legacy version.
+func (c *Client) IndexPutIndexTemplate(name string) *IndicesPutIndexTemplateService {
+	return NewIndicesPutIndexTemplateService(c).Name(name)
+}
+
+// IndexGetIndexTemplate returns an index template (new version after 7.8).
+//
+// This service implements the new version of index templates as described
+// on https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-get-template.html.
+//
+// See e.g. IndexPutTemplate for the v1/legacy version.
+func (c *Client) IndexGetIndexTemplate(name string) *IndicesGetIndexTemplateService {
+	return NewIndicesGetIndexTemplateService(c).Name(name)
+}
+
+// IndexDeleteIndexTemplate deletes an index template (new version after 7.8).
+//
+// This service implements the new version of index templates as described
+// on https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-delete-template.html.
+//
+// See e.g. IndexPutTemplate for the v1/legacy version.
+func (c *Client) IndexDeleteIndexTemplate(name string) *IndicesDeleteIndexTemplateService {
+	return NewIndicesDeleteIndexTemplateService(c).Name(name)
+}
+
+// -- TODO Component templates --
 
 // GetMapping gets a mapping.
 func (c *Client) GetMapping() *IndicesGetMappingService {
