@@ -145,6 +145,7 @@ type Client struct {
 	gzipEnabled               bool            // gzip compression enabled or disabled (default)
 	requiredPlugins           []string        // list of required plugins
 	retrier                   Retrier         // strategy for retries
+	retryStatusCodes          []int           // HTTP status codes where to retry automatically (with retrier)
 	headers                   http.Header     // a list of default headers to add to each request
 }
 
@@ -247,6 +248,7 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 		sendGetBodyAs:             DefaultSendGetBodyAs,
 		gzipEnabled:               DefaultGzipEnabled,
 		retrier:                   noRetries, // no retries by default
+		retryStatusCodes:          nil,       // no automatic retries for specific HTTP status codes
 		deprecationlog:            noDeprecationLog,
 	}
 
@@ -332,6 +334,7 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 		sendGetBodyAs:             DefaultSendGetBodyAs,
 		gzipEnabled:               DefaultGzipEnabled,
 		retrier:                   noRetries, // no retries by default
+		retryStatusCodes:          nil,       // no automatic retries for specific HTTP status codes
 		deprecationlog:            noDeprecationLog,
 	}
 
@@ -722,6 +725,17 @@ func SetRetrier(retrier Retrier) ClientOptionFunc {
 			retrier = noRetries // no retries by default
 		}
 		c.retrier = retrier
+		return nil
+	}
+}
+
+// SetRetryStatusCodes specifies the HTTP status codes where the client
+// will retry automatically. Notice that retries call the specified retrier,
+// so calling SetRetryStatusCodes without setting a Retrier won't do anything
+// for retries.
+func SetRetryStatusCodes(statusCodes ...int) ClientOptionFunc {
+	return func(c *Client) error {
+		c.retryStatusCodes = statusCodes
 		return nil
 	}
 }
@@ -1262,15 +1276,16 @@ func (c *Client) mustActiveConn() error {
 
 // PerformRequestOptions must be passed into PerformRequest.
 type PerformRequestOptions struct {
-	Method          string
-	Path            string
-	Params          url.Values
-	Body            interface{}
-	ContentType     string
-	IgnoreErrors    []int
-	Retrier         Retrier
-	Headers         http.Header
-	MaxResponseSize int64
+	Method           string
+	Path             string
+	Params           url.Values
+	Body             interface{}
+	ContentType      string
+	IgnoreErrors     []int
+	Retrier          Retrier
+	RetryStatusCodes []int
+	Headers          http.Header
+	MaxResponseSize  int64
 }
 
 // PerformRequest does a HTTP request to Elasticsearch.
@@ -1294,8 +1309,22 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 	if opt.Retrier != nil {
 		retrier = opt.Retrier
 	}
+	retryStatusCodes := c.retryStatusCodes
+	if opt.RetryStatusCodes != nil {
+		retryStatusCodes = opt.RetryStatusCodes
+	}
 	defaultHeaders := c.headers
 	c.mu.RUnlock()
+
+	// retry returns true if statusCode indicates the request is to be retried
+	retry := func(statusCode int) bool {
+		for _, code := range retryStatusCodes {
+			if code == statusCode {
+				return true
+			}
+		}
+		return false
+	}
 
 	var err error
 	var conn *conn
@@ -1403,6 +1432,21 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			retried = true
 			time.Sleep(wait)
 			continue // try again
+		}
+		if retry(res.StatusCode) {
+			n++
+			wait, ok, rerr := retrier.Retry(ctx, n, (*http.Request)(req), res, err)
+			if rerr != nil {
+				c.errorf("elastic: %s is dead", conn.URL())
+				conn.MarkAsDead()
+				return nil, rerr
+			}
+			if ok {
+				// retry
+				retried = true
+				time.Sleep(wait)
+				continue // try again
+			}
 		}
 		defer res.Body.Close()
 
