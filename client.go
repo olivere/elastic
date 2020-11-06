@@ -1930,6 +1930,23 @@ func (c *Client) XPackInfo() *XPackInfoService {
 	return NewXPackInfoService(c)
 }
 
+// -- X-Pack Async Search --
+
+// XPackAsyncSearchSubmit starts an asynchronous search.
+func (c *Client) XPackAsyncSearchSubmit() *XPackAsyncSearchSubmit {
+	return NewXPackAsyncSearchSubmit(c)
+}
+
+// XPackAsyncSearchGet retrieves the outcome of an asynchronous search.
+func (c *Client) XPackAsyncSearchGet() *XPackAsyncSearchGet {
+	return NewXPackAsyncSearchGet(c)
+}
+
+// XPackAsyncSearchDelete deletes an asynchronous search.
+func (c *Client) XPackAsyncSearchDelete() *XPackAsyncSearchDelete {
+	return NewXPackAsyncSearchDelete(c)
+}
+
 // -- X-Pack Index Lifecycle Management --
 
 // XPackIlmPutLifecycle adds or modifies an ilm policy.
