@@ -179,7 +179,7 @@ func (r *BulkDeleteRequest) Source() ([]string, error) {
 		return nil, err
 	}
 
-	lines := []string{string(body)}
+	lines := []string{unsafeBytesToString(body)}
 	r.source = lines
 
 	return lines, nil
