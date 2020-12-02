@@ -1386,14 +1386,22 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		if len(opt.Headers) > 0 {
 			for key, value := range opt.Headers {
 				for _, v := range value {
-					req.Header.Add(key, v)
+					if key == "User-Agent" {
+						req.Header.Set(key, v)
+					} else {	
+						req.Header.Add(key, v)
+					}
 				}
 			}
 		}
 		if len(defaultHeaders) > 0 {
 			for key, value := range defaultHeaders {
 				for _, v := range value {
-					req.Header.Add(key, v)
+					if key == "User-Agent" {
+						req.Header.Set(key, v)
+					} else {
+						req.Header.Add(key, v)
+					}
 				}
 			}
 		}
