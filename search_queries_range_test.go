@@ -9,9 +9,8 @@ import (
 	"testing"
 )
 
-func TestRangeQuery(t *testing.T) {
-	q := NewRangeQuery("postDate").From("2010-03-01").To("2010-04-01").Boost(3).Relation("within")
-	q = q.QueryName("my_query")
+func TestEmptyRangeQuery(t *testing.T) {
+	q := NewRangeQuery("postDate")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -21,7 +20,29 @@ func TestRangeQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"range":{"_name":"my_query","postDate":{"boost":3,"from":"2010-03-01","include_lower":true,"include_upper":true,"relation":"within","to":"2010-04-01"}}}`
+	expected := `{"range":{"postDate":{}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestRangeQuery(t *testing.T) {
+	q := NewRangeQuery("postDate").
+		Gte("2010-03-01").
+		Lte("2010-04-01").
+		Format("yyyy-MM-dd").
+		Boost(3).
+		Relation(RelationWithin)
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"range":{"postDate":{"boost":3,"format":"yyyy-MM-dd","gte":"2010-03-01","lte":"2010-04-01","relation":"WITHIN"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -41,7 +62,7 @@ func TestRangeQueryWithTimeZone(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"range":{"born":{"from":"2012-01-01","include_lower":true,"include_upper":true,"time_zone":"+1:00","to":"now"}}}`
+	expected := `{"range":{"born":{"gte":"2012-01-01","lte":"now","time_zone":"+1:00"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -61,7 +82,7 @@ func TestRangeQueryWithFormat(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"range":{"born":{"format":"yyyy/MM/dd","from":"2012/01/01","include_lower":true,"include_upper":true,"to":"now"}}}`
+	expected := `{"range":{"born":{"format":"yyyy/MM/dd","gte":"2012/01/01","lte":"now"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
