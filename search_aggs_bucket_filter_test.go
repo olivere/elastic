@@ -21,7 +21,7 @@ func TestFilterAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"filter":{"range":{"stock":{"from":0,"include_lower":false,"include_upper":true,"to":null}}}}`
+	expected := `{"filter":{"range":{"stock":{"gt":0}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -41,7 +41,7 @@ func TestFilterAggregationWithSubAggregation(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"aggregations":{"avg_price":{"avg":{"field":"price"}}},"filter":{"range":{"stock":{"from":0,"include_lower":false,"include_upper":true,"to":null}}}}`
+	expected := `{"aggregations":{"avg_price":{"avg":{"field":"price"}}},"filter":{"range":{"stock":{"gt":0}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -59,7 +59,7 @@ func TestFilterAggregationWithMeta(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"filter":{"range":{"stock":{"from":0,"include_lower":false,"include_upper":true,"to":null}}},"meta":{"name":"Oliver"}}`
+	expected := `{"filter":{"range":{"stock":{"gt":0}}},"meta":{"name":"Oliver"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
