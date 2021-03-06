@@ -115,6 +115,7 @@ func TestAggs(t *testing.T) {
 	geoBoundsAgg := NewGeoBoundsAggregation().Field("location")
 	geoHashAgg := NewGeoHashGridAggregation().Field("location").Precision(5)
 	geoCentroidAgg := NewGeoCentroidAggregation().Field("location")
+	geoTileAgg := NewGeoTileGridAggregation().Field("location")
 
 	// Run query
 	builder := client.Search().Index(testIndexName).Query(all).Pretty(true)
@@ -152,6 +153,8 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("viewport", geoBoundsAgg)
 	builder = builder.Aggregation("geohashed", geoHashAgg)
 	builder = builder.Aggregation("centroid", geoCentroidAgg)
+	builder = builder.Aggregation("geotile-grid", geoTileAgg)
+
 	// Unnamed filters
 	countByUserAgg := NewFiltersAggregation().
 		Filters(NewTermQuery("user", "olivere"), NewTermQuery("user", "sandrae")).
@@ -1156,6 +1159,17 @@ func TestAggs(t *testing.T) {
 	// geo_centroid
 	{
 		agg, found := agg.GeoCentroid("centroid")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+	}
+
+	// geotile grid
+	{
+		agg, found := agg.GeoTile("geotile-grid")
 		if !found {
 			t.Errorf("expected %v; got: %v", true, found)
 		}
@@ -3111,8 +3125,8 @@ func TestAggsBucketDateRange(t *testing.T) {
 	if agg.Buckets[0].To == nil {
 		t.Errorf("expected To != %v; got: %v", nil, agg.Buckets[0].To)
 	}
-	if *agg.Buckets[0].To != float64(1.3437792E+12) {
-		t.Errorf("expected To = %v; got: %v", float64(1.3437792E+12), *agg.Buckets[0].To)
+	if *agg.Buckets[0].To != float64(1.3437792e+12) {
+		t.Errorf("expected To = %v; got: %v", float64(1.3437792e+12), *agg.Buckets[0].To)
 	}
 	if agg.Buckets[0].ToAsString != "08-2012" {
 		t.Errorf("expected ToAsString = %q; got: %q", "08-2012", agg.Buckets[0].ToAsString)
@@ -3123,8 +3137,8 @@ func TestAggsBucketDateRange(t *testing.T) {
 	if agg.Buckets[1].From == nil {
 		t.Errorf("expected From != %v; got: %v", nil, agg.Buckets[1].From)
 	}
-	if *agg.Buckets[1].From != float64(1.3437792E+12) {
-		t.Errorf("expected From = %v; got: %v", float64(1.3437792E+12), *agg.Buckets[1].From)
+	if *agg.Buckets[1].From != float64(1.3437792e+12) {
+		t.Errorf("expected From = %v; got: %v", float64(1.3437792e+12), *agg.Buckets[1].From)
 	}
 	if agg.Buckets[1].FromAsString != "08-2012" {
 		t.Errorf("expected FromAsString = %q; got: %q", "08-2012", agg.Buckets[1].FromAsString)
@@ -3426,6 +3440,55 @@ func TestAggsBucketGeoHash(t *testing.T) {
 	}
 	if agg.Buckets[1].DocCount != 3198 {
 		t.Errorf("expected doc count %d; got: %d", 3198, agg.Buckets[1].DocCount)
+	}
+}
+
+func TestAggsBucketGeoTileGrid(t *testing.T) {
+	s := `{
+	"geotile-grid-aggregation":{
+		"buckets":[
+			{
+				"key": "6/38/20",
+				"doc_count": 36914
+			},
+			{
+				"key": "6/38/19",
+				"doc_count": 22182
+			}
+		]
+	}
+}`
+
+	aggs := new(Aggregations)
+	err := json.Unmarshal([]byte(s), &aggs)
+	if err != nil {
+		t.Fatalf("expected no error decoding; got: %v", err)
+	}
+
+	agg, found := aggs.GeoTile("geotile-grid-aggregation")
+	if !found {
+		t.Fatal("expected aggregation to be found")
+	}
+	if agg == nil {
+		t.Fatalf("expected aggregation != nil; got: %v", agg)
+	}
+	if agg.Buckets == nil {
+		t.Fatalf("expected aggregation buckets != nil; got: %v", agg.Buckets)
+	}
+	if len(agg.Buckets) != 2 {
+		t.Errorf("expected %d bucket entries; got: %d", 2, len(agg.Buckets))
+	}
+	if agg.Buckets[0].Key != "6/38/20" {
+		t.Errorf("expected key %q; got: %q", "6/38/20", agg.Buckets[0].Key)
+	}
+	if agg.Buckets[0].DocCount != 36914 {
+		t.Errorf("expected doc count %d; got: %d", 36914, agg.Buckets[0].DocCount)
+	}
+	if agg.Buckets[1].Key != "6/38/19" {
+		t.Errorf("expected key %q; got: %q", "6/38/19", agg.Buckets[1].Key)
+	}
+	if agg.Buckets[1].DocCount != 22182 {
+		t.Errorf("expected doc count %d; got: %d", 22182, agg.Buckets[1].DocCount)
 	}
 }
 
