@@ -669,7 +669,7 @@ type SearchResultCluster struct {
 // a search result. The return value might not be accurate, unless
 // track_total_hits parameter has set to true.
 func (r *SearchResult) TotalHits() int64 {
-	if r.Hits != nil && r.Hits.TotalHits != nil {
+	if r != nil && r.Hits != nil && r.Hits.TotalHits != nil {
 		return r.Hits.TotalHits.Value
 	}
 	return 0
