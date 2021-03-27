@@ -41,6 +41,7 @@ type SearchSource struct {
 	innerHits                map[string]*InnerHit
 	collapse                 *CollapseBuilder // collapse
 	profile                  bool             // profile
+	storedScript             *Script          // stored script
 	// TODO extBuilders []SearchExtBuilder // ext
 }
 
@@ -324,6 +325,11 @@ func (s *SearchSource) DocvalueFieldsWithFormat(docvalueFields ...DocvalueField)
 	return s
 }
 
+func (s *SearchSource) StoredScript(storedScript *Script) *SearchSource {
+	s.storedScript = storedScript
+	return s
+}
+
 // ScriptField adds a single script field with the provided script.
 func (s *SearchSource) ScriptField(scriptField *ScriptField) *SearchSource {
 	s.scriptFields = append(s.scriptFields, scriptField)
@@ -595,6 +601,10 @@ func (s *SearchSource) Source() (interface{}, error) {
 			}
 		}
 		source["inner_hits"] = m
+	}
+
+	if s.storedScript != nil {
+		return s.storedScript.Source()
 	}
 
 	return source, nil

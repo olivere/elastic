@@ -1637,6 +1637,67 @@ func TestSearchScriptQuery(t *testing.T) {
 	}
 }
 
+func TestSearchStoredScript(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+
+	scriptId := "test_script"
+
+	// Put script to use for template search
+	putScriptResponse, err := client.PutScript().
+		Id(scriptId).
+		BodyString(`{
+	"script": {
+		"lang": "mustache",
+		"source": {
+			"query": {
+				"match": {
+					"{{field}}": "{{query_string}}"
+				}
+			}
+		}
+	}
+}`).
+		Pretty(true).
+		Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !putScriptResponse.Acknowledged {
+		t.Error("put script not acknowledged")
+	}
+
+	// Create stored script for template search
+	storedScript := NewScriptStored(scriptId).Param("field", "message").Param("query_string", "Golang")
+
+	// Execute search template
+	searchResult, err := client.Search().
+		Index(testIndexName).
+		Template(storedScript).
+		Pretty(true).
+		Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if searchResult.Hits == nil {
+		t.Errorf("expected SearchResult.Hits != nil; got nil")
+	}
+	if want, have := int64(1), searchResult.TotalHits(); want != have {
+		t.Errorf("expected SearchResult.TotalHits() = %d; got %d", want, have)
+	}
+	if want, have := 1, len(searchResult.Hits.Hits); want != have {
+		t.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", want, have)
+	}
+
+	// Remove stored script
+	deleteScriptResponse, err := client.DeleteScript().Id(scriptId).Do(context.TODO())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !deleteScriptResponse.Acknowledged {
+		t.Error("delete script not acknowledged")
+	}
+}
+
 func TestSearchWithDocvalueFields(t *testing.T) {
 	// client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 	client := setupTestClientAndCreateIndexAndAddDocs(t)

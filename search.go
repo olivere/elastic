@@ -31,6 +31,8 @@ type SearchService struct {
 	searchType                 string // search_type
 	index                      []string
 	typ                        []string
+	storedScript               *Script
+	template                   bool   // template search
 	routing                    string // routing
 	preference                 string // preference
 	requestCache               *bool  // request_cache
@@ -201,6 +203,13 @@ func (s *SearchService) RequestCache(requestCache bool) *SearchService {
 // Query sets the query to perform, e.g. MatchAllQuery.
 func (s *SearchService) Query(query Query) *SearchService {
 	s.searchSource = s.searchSource.Query(query)
+	return s
+}
+
+// Execute a search template based on a stored script.
+func (s *SearchService) Template(storedScript *Script) *SearchService {
+	s.template = true
+	s.searchSource.StoredScript(storedScript)
 	return s
 }
 
@@ -504,6 +513,10 @@ func (s *SearchService) buildURL() (string, url.Values, error) {
 		path, err = uritemplates.Expand("/{index}/{type}/_search", map[string]string{
 			"index": strings.Join(s.index, ","),
 			"type":  strings.Join(s.typ, ","),
+		})
+	} else if len(s.index) > 0 && s.template {
+		path, err = uritemplates.Expand("/{index}/_search/template", map[string]string{
+			"index": strings.Join(s.index, ","),
 		})
 	} else if len(s.index) > 0 {
 		path, err = uritemplates.Expand("/{index}/_search", map[string]string{
