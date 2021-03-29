@@ -1286,6 +1286,7 @@ type PerformRequestOptions struct {
 	RetryStatusCodes []int
 	Headers          http.Header
 	MaxResponseSize  int64
+	Stream           bool
 }
 
 // PerformRequest does a HTTP request to Elasticsearch.
@@ -1294,6 +1295,9 @@ type PerformRequestOptions struct {
 // Optionally, a list of HTTP error codes to ignore can be passed.
 // This is necessary for services that expect e.g. HTTP status 404 as a
 // valid outcome (Exists, IndicesExists, IndicesTypeExists).
+//
+// If Stream is set, the returned BodyReader field must be closed, even
+// if PerformRequest returns an error.
 func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) (*Response, error) {
 	start := time.Now().UTC()
 
@@ -1448,7 +1452,10 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 				continue // try again
 			}
 		}
-		defer res.Body.Close()
+
+		if !opt.Stream {
+			defer res.Body.Close()
+		}
 
 		// Tracing
 		c.dumpResponse(res)
@@ -1465,14 +1472,14 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		if err := checkResponse((*http.Request)(req), res, opt.IgnoreErrors...); err != nil {
 			// No retry if request succeeded
 			// We still try to return a response.
-			resp, _ = c.newResponse(res, opt.MaxResponseSize)
+			resp, _ = c.newResponse(res, opt.MaxResponseSize, opt.Stream)
 			return resp, err
 		}
 
 		// We successfully made a request with this connection
 		conn.MarkAsHealthy()
 
-		resp, err = c.newResponse(res, opt.MaxResponseSize)
+		resp, err = c.newResponse(res, opt.MaxResponseSize, opt.Stream)
 		if err != nil {
 			return nil, err
 		}
