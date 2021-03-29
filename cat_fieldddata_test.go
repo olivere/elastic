@@ -39,6 +39,7 @@ func TestCatFielddata(t *testing.T) {
 	for _, fielddata := range res {
 		if fielddata.Field == "message" {
 			exist = true
+			break
 		}
 	}
 	if !exist {
