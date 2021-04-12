@@ -16,7 +16,7 @@ func TestUpdateViaScript(t *testing.T) {
 
 	update := client.Update().
 		Index("test").Type("type1").Id("1").
-		Script(NewScript("ctx._source.tags += tag").Params(map[string]interface{}{"tag": "blue"}).Lang("groovy"))
+		Script(NewScript("ctx._source.tags += params.tag").Params(map[string]interface{}{"tag": "blue"}).Lang("groovy"))
 	path, params, err := update.url()
 	if err != nil {
 		t.Fatalf("expected to return URL, got: %v", err)
@@ -38,7 +38,7 @@ func TestUpdateViaScript(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"script":{"lang":"groovy","params":{"tag":"blue"},"source":"ctx._source.tags += tag"}}`
+	expected := `{"script":{"lang":"groovy","params":{"tag":"blue"},"source":"ctx._source.tags += params.tag"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
@@ -93,7 +93,7 @@ func TestUpdateViaScriptAndUpsert(t *testing.T) {
 
 	update := client.Update().
 		Index("test").Type("type1").Id("1").
-		Script(NewScript("ctx._source.counter += count").Params(map[string]interface{}{"count": 4})).
+		Script(NewScript("ctx._source.counter += params.count").Params(map[string]interface{}{"count": 4})).
 		Upsert(map[string]interface{}{"counter": 1})
 	path, params, err := update.url()
 	if err != nil {
@@ -116,7 +116,7 @@ func TestUpdateViaScriptAndUpsert(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"script":{"params":{"count":4},"source":"ctx._source.counter += count"},"upsert":{"counter":1}}`
+	expected := `{"script":{"params":{"count":4},"source":"ctx._source.counter += params.count"},"upsert":{"counter":1}}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
