@@ -859,7 +859,7 @@ func TestClientSniffTimeoutLeak(t *testing.T) {
 	cli := &Client{
 		c: &http.Client{},
 		conns: []*conn{
-			&conn{
+			{
 				url: "http://" + addr + "/",
 			},
 		},
@@ -1154,6 +1154,38 @@ func TestPerformRequest(t *testing.T) {
 
 	ret := new(PingResult)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
+		t.Fatalf("expected no error on decode; got: %v", err)
+	}
+	if ret.ClusterName == "" {
+		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
+	}
+}
+
+func TestPerformRequestWithStream(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+		Stream: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+	if res.BodyReader == nil {
+		t.Fatal("expected res.BodyReader to be != nil")
+	}
+	if res.Body != nil {
+		t.Fatal("expected res.Body to be == nil")
+	}
+
+	ret := new(PingResult)
+	if err := json.NewDecoder(res.BodyReader).Decode(ret); err != nil {
 		t.Fatalf("expected no error on decode; got: %v", err)
 	}
 	if ret.ClusterName == "" {
