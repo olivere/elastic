@@ -17,6 +17,7 @@ import (
 	"net/url"
 	"reflect"
 	"regexp"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -1716,7 +1717,40 @@ func TestPerformRequestWithCustomHTTPHeadersOnClient(t *testing.T) {
 	}
 	// Request-level headers have preference
 	if want, have := "123456", res.Header.Get("X-Opaque-Id"); want != have {
-		t.Fatalf("want response header X-Opaque-Id=%q, have %q", want, have)
+		t.Fatalf("want X-Opaque-Id=%q, have %q", want, have)
+	}
+}
+
+func TestPerformRequestSetsDefaultUserAgent(t *testing.T) {
+	var req *http.Request
+	h := func(r *http.Request) (*http.Response, error) {
+		req = new(http.Request)
+		*req = *r
+		return &http.Response{Request: r, StatusCode: http.StatusOK, Body: http.NoBody}, nil
+	}
+	tr := &failingTransport{path: "/", fail: h}
+	httpClient := &http.Client{Transport: tr}
+
+	client, err := NewClient(SetHttpClient(httpClient), SetSniff(false), SetHealthcheck(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+		Params: url.Values{
+			"pretty": []string{"true"},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res == nil {
+		t.Fatal("expected response to be != nil")
+	}
+	// Have a default for User-Agent
+	if want, have := "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")", req.Header.Get("User-Agent"); want != have {
+		t.Fatalf("want User-Agent=%q, have %q", want, have)
 	}
 }
 
@@ -1732,6 +1766,7 @@ func TestPerformRequestWithCustomHTTPHeadersPriority(t *testing.T) {
 
 	client, err := NewClient(SetHttpClient(httpClient), SetHeaders(http.Header{
 		"Custom-Id":   []string{"olivere"},
+		"User-Agent":  []string{"My user agent"},
 		"X-Opaque-Id": []string{"sandra"}, // <- will be overridden by request-level header
 	}), SetSniff(false), SetHealthcheck(false))
 	if err != nil {
@@ -1758,13 +1793,16 @@ func TestPerformRequestWithCustomHTTPHeadersPriority(t *testing.T) {
 		t.Fatal("expected to record HTTP request")
 	}
 	if want, have := "123456", req.Header.Get("X-Opaque-Id"); want != have {
-		t.Fatalf("want HTTP header X-Opaque-Id=%q, have %q", want, have)
+		t.Fatalf("want X-Opaque-Id=%q, have %q", want, have)
 	}
 	if want, have := "olivere", req.Header.Get("Custom-Id"); want != have {
-		t.Fatalf("want HTTP header Custom-Id=%q, have %q", want, have)
+		t.Fatalf("want Custom-Id=%q, have %q", want, have)
+	}
+	if want, have := "My user agent", req.Header.Get("User-Agent"); want != have {
+		t.Fatalf("want User-Agent=%q, have %q", want, have)
 	}
 	if want, have := "somewhat", req.Header.Get("X-Somewhat"); want != have {
-		t.Fatalf("want HTTP header X-Somewhat=%q, have %q", want, have)
+		t.Fatalf("want X-Somewhat=%q, have %q", want, have)
 	}
 }
 

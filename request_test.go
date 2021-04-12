@@ -14,11 +14,14 @@ func TestRequestSetContentType(t *testing.T) {
 		t.Fatal(err)
 	}
 	if want, have := "application/json", req.Header.Get("Content-Type"); want != have {
-		t.Fatalf("want %q, have %q", want, have)
+		t.Fatalf("want Content-Type=%q, have %q", want, have)
 	}
 	req.Header.Set("Content-Type", "application/x-ndjson")
 	if want, have := "application/x-ndjson", req.Header.Get("Content-Type"); want != have {
-		t.Fatalf("want %q, have %q", want, have)
+		t.Fatalf("want Content-Type=%q, have %q", want, have)
+	}
+	if want, have := "", req.Header.Get("User-Agent"); want != have {
+		t.Fatalf("want User-Agent=%q, have %q", want, have)
 	}
 }
 

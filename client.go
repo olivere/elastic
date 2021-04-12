@@ -14,6 +14,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -983,6 +984,10 @@ func (c *Client) sniffNode(ctx context.Context, url string) []*conn {
 	}
 	c.mu.RUnlock()
 
+	if req.Header.Get("User-Agent") == "" {
+		req.Header.Add("User-Agent", "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
+	}
+
 	res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
 	if err != nil {
 		return nodes
@@ -1125,6 +1130,9 @@ func (c *Client) healthcheck(parentCtx context.Context, timeout time.Duration, f
 						req.Header.Add(key, v)
 					}
 				}
+			}
+			if req.Header.Get("User-Agent") == "" {
+				req.Header.Add("User-Agent", "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 			}
 			res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
 			if res != nil {
@@ -1387,11 +1395,9 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		if opt.ContentType != "" {
 			req.Header.Set("Content-Type", opt.ContentType)
 		}
-		if len(opt.Headers) > 0 {
-			for key, value := range opt.Headers {
-				for _, v := range value {
-					req.Header.Add(key, v)
-				}
+		for key, value := range opt.Headers {
+			for _, v := range value {
+				req.Header.Add(key, v)
 			}
 		}
 		if len(defaultHeaders) > 0 {
@@ -1400,6 +1406,9 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 					req.Header.Add(key, v)
 				}
 			}
+		}
+		if req.Header.Get("User-Agent") == "" {
+			req.Header.Set("User-Agent", "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 		}
 
 		// Set body
