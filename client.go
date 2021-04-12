@@ -1636,6 +1636,16 @@ func (c *Client) ClearScroll(scrollIds ...string) *ClearScrollService {
 	return NewClearScrollService(c).ScrollId(scrollIds...)
 }
 
+// OpenPointInTime opens a new Point in Time.
+func (c *Client) OpenPointInTime(indices ...string) *OpenPointInTimeService {
+	return NewOpenPointInTimeService(c).Index(indices...)
+}
+
+// ClosePointInTime closes an existing Point in Time.
+func (c *Client) ClosePointInTime(id string) *ClosePointInTimeService {
+	return NewClosePointInTimeService(c).ID(id)
+}
+
 // -- Indices APIs --
 
 // CreateIndex returns a service to create a new index.
