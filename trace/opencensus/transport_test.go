@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"go.opencensus.io/trace"
@@ -31,6 +32,12 @@ func (t *testExporter) ExportSpan(s *trace.SpanData) {
 
 func TestTransport(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, password, ok := r.BasicAuth()
+		if !ok || username != "alice" || password != "secret" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
 		switch r.URL.Path {
 		case "/":
 			w.WriteHeader(http.StatusOK)
@@ -79,6 +86,7 @@ func TestTransport(t *testing.T) {
 		elastic.SetHttpClient(httpClient),
 		elastic.SetHealthcheck(false),
 		elastic.SetSniff(false),
+		elastic.SetBasicAuth("alice", "secret"),
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -101,6 +109,7 @@ func TestTransport(t *testing.T) {
 		t.Fatalf("want %d finished spans, have %d", want, have)
 	}
 	span := spans[0]
+
 	if want, have := "elastic:PerformRequest", span.Name; want != have {
 		t.Fatalf("want Span.Name=%q, have %q", want, have)
 	}
@@ -116,6 +125,8 @@ func TestTransport(t *testing.T) {
 	}
 	if attr, ok := span.Attributes["URL"].(string); !ok || attr == "" {
 		t.Fatalf("attribute %q not found", "URL")
+	} else if strings.Contains(attr, "alice") || strings.Contains(attr, "password") {
+		t.Fatalf("attribute %q contains username and/or password: %s", "URL", attr)
 	}
 	if attr, ok := span.Attributes["Hostname"].(string); !ok || attr == "" {
 		t.Fatalf("attribute %q not found", "Hostname")
