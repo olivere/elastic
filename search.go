@@ -152,6 +152,13 @@ func (s *SearchService) Collapse(collapse *CollapseBuilder) *SearchService {
 	return s
 }
 
+// PointInTime specifies an optional PointInTime to be used in the context
+// of this search.
+func (s *SearchService) PointInTime(pointInTime *PointInTime) *SearchService {
+	s.searchSource = s.searchSource.PointInTime(pointInTime)
+	return s
+}
+
 // TimeoutInMillis sets the timeout in milliseconds.
 func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
 	s.searchSource = s.searchSource.TimeoutInMillis(timeoutInMillis)
@@ -655,6 +662,7 @@ type SearchResult struct {
 	Profile         *SearchProfile       `json:"profile,omitempty"`      // profiling results, if optional Profile API was active for this search
 	Shards          *ShardsInfo          `json:"_shards,omitempty"`      // shard information
 	Status          int                  `json:"status,omitempty"`       // used in MultiSearch
+	PitId           string               `json:"pit_id,omitempty"`       // Point In Time ID
 }
 
 // SearchResultCluster holds information about a search response
