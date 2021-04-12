@@ -35,14 +35,14 @@ func TestCatFielddata(t *testing.T) {
 	}
 
 	// check fielddata "message" in response
-	exist := false
+	var found bool
 	for _, fielddata := range res {
 		if fielddata.Field == "message" {
-			exist = true
+			found = true
 			break
 		}
 	}
-	if !exist {
+	if !found {
 		t.Fatal("fielddata message not found")
 	}
 
