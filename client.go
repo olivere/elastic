@@ -1861,7 +1861,6 @@ func (c *Client) GetFieldMapping() *IndicesGetFieldMappingService {
 
 // -- cat APIs --
 
-// TODO cat master
 // TODO cat nodes
 // TODO cat pending tasks
 // TODO cat plugins
@@ -1869,6 +1868,11 @@ func (c *Client) GetFieldMapping() *IndicesGetFieldMappingService {
 // TODO cat thread pool
 // TODO cat shards
 // TODO cat segments
+
+// CatMaster returns information about the master node
+func (c *Client) CatMaster() *CatMasterService {
+	return NewCatMasterService(c)
+}
 
 // CatFielddata returns information about the amount of heap memory currently used by the field data cache.
 func (c *Client) CatFielddata() *CatFielddataService {
