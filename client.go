@@ -908,11 +908,11 @@ func (c *Client) sniff(parentCtx context.Context, timeout time.Duration) error {
 
 	// Use all available URLs provided to sniff the cluster.
 	var urls []string
-	urlsMap := make(map[string]bool)
+	urlsMap := make(map[string]struct{}, len(c.urls))
 
 	// Add all URLs provided on startup
 	for _, url := range c.urls {
-		urlsMap[url] = true
+		urlsMap[url] = struct{}{}
 		urls = append(urls, url)
 	}
 	c.mu.RUnlock()
