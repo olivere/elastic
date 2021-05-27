@@ -333,6 +333,7 @@ Here are a few tips on how to get used to Elastic:
 - [x] Inner hits
 - Full text queries
   - [x] Match Query
+  - [x] Match Boolean Prefix Query
   - [x] Match Phrase Query
   - [x] Match Phrase Prefix Query
   - [x] Multi Match Query
