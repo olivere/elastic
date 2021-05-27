@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/opentracing/opentracing-go"
@@ -19,6 +20,12 @@ import (
 
 func TestTransport(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, password, ok := r.BasicAuth()
+		if !ok || username != "alice" || password != "secret" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
 		switch r.URL.Path {
 		case "/":
 			w.WriteHeader(http.StatusOK)
@@ -63,6 +70,7 @@ func TestTransport(t *testing.T) {
 		elastic.SetHttpClient(httpClient),
 		elastic.SetHealthcheck(false),
 		elastic.SetSniff(false),
+		elastic.SetBasicAuth("alice", "secret"),
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -84,14 +92,22 @@ func TestTransport(t *testing.T) {
 		t.Fatalf("want %d finished spans, have %d", want, have)
 	}
 	span := spans[0]
+
 	if want, have := "PerformRequest", span.OperationName; want != have {
 		t.Fatalf("want Span.OperationName=%q, have %q", want, have)
 	}
 	if want, have := "github.com/olivere/elastic/v7", span.Tag("component"); want != have {
 		t.Fatalf("want component tag=%q, have %q", want, have)
 	}
-	if want, have := ts.URL+"/", span.Tag("http.url"); want != have {
+	httpURL, ok := span.Tag("http.url").(string)
+	if !ok || httpURL == "" {
+		t.Fatalf("want http.url tag=%q to be a non-empty string (found type %T)", "http.url", span.Tag("http.url"))
+	}
+	if want, have := ts.URL+"/", httpURL; want != have {
 		t.Fatalf("want http.url tag=%q, have %q", want, have)
+	}
+	if strings.Contains(httpURL, "alice") || strings.Contains(httpURL, "password") {
+		t.Fatalf("want http.url tag %q to not contain username and/or password: %s", "URL", span.Tag("http.url"))
 	}
 	if want, have := "GET", span.Tag("http.method"); want != have {
 		t.Fatalf("want http.method tag=%q, have %q", want, have)

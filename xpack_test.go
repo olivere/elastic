@@ -232,9 +232,15 @@ func TestXPackSecurityUser(t *testing.T) {
 	username := "john"
 
 	// Add a user
-	_, err = client.XPackSecurityPutUser(username).Body(testUserBody).Do(context.Background())
+	createResp, err := client.XPackSecurityPutUser(username).Body(testUserBody).Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
+	}
+	if createResp == nil {
+		t.Fatal("expected to create user")
+	}
+	if want, have := true, createResp.Created; want != have {
+		t.Fatalf("want Created=%v, have %v", want, have)
 	}
 	defer func() {
 		client.XPackSecurityDeleteUser(username).Do(context.Background())

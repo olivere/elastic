@@ -29,7 +29,7 @@ func BenchmarkResponse(b *testing.B) {
 			StatusCode: http.StatusOK,
 		}
 		var err error
-		resp, err = c.newResponse(res, 0)
+		resp, err = c.newResponse(res, 0, false)
 		if err != nil {
 			b.Fatal(err)
 		}
