@@ -269,7 +269,7 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 	// If the URLs have auth info, use them here as an alternative to SetBasicAuth
 	if c.basicAuthUsername == "" && c.basicAuthPassword == "" {
 		for _, urlStr := range c.urls {
-			u, err := url.Parse(urlStr)
+			u, err := url.ParseRequestURI(urlStr)
 			if err == nil && u.User != nil {
 				c.basicAuthUsername = u.User.Username()
 				c.basicAuthPassword, _ = u.User.Password()
@@ -278,8 +278,8 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 		}
 	}
 
-	for _, url := range c.urls {
-		c.conns = append(c.conns, newConn(url, url))
+	for _, urlStr := range c.urls {
+		c.conns = append(c.conns, newConn(urlStr, urlStr))
 	}
 
 	// Ensure that we have at least one connection available
@@ -355,7 +355,7 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 	// If the URLs have auth info, use them here as an alternative to SetBasicAuth
 	if c.basicAuthUsername == "" && c.basicAuthPassword == "" {
 		for _, urlStr := range c.urls {
-			u, err := url.Parse(urlStr)
+			u, err := url.ParseRequestURI(urlStr)
 			if err == nil && u.User != nil {
 				c.basicAuthUsername = u.User.Username()
 				c.basicAuthPassword, _ = u.User.Password()
@@ -378,8 +378,8 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 		}
 	} else {
 		// Do not sniff the cluster initially. Use the provided URLs instead.
-		for _, url := range c.urls {
-			c.conns = append(c.conns, newConn(url, url))
+		for _, urlStr := range c.urls {
+			c.conns = append(c.conns, newConn(urlStr, urlStr))
 		}
 	}
 
@@ -508,7 +508,7 @@ func SetURL(urls ...string) ClientOptionFunc {
 		}
 		// Check URLs
 		for _, urlStr := range c.urls {
-			if _, err := url.Parse(urlStr); err != nil {
+			if _, err := url.ParseRequestURI(urlStr); err != nil {
 				return err
 			}
 		}

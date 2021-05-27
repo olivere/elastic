@@ -553,7 +553,7 @@ func TestClientSniffUpdatingNodeURL(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		u, err := url.Parse(nodeURL)
+		u, err := url.ParseRequestURI(nodeURL)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
