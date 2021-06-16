@@ -64,6 +64,7 @@ jobs:
       run: |
         while ! nc -z localhost 9200; do sleep 1; done
         while ! nc -z localhost 9210; do sleep 1; done
+        sleep 5
 
     - name: Run the tests
       run: |
