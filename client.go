@@ -132,13 +132,13 @@ type Client struct {
 	healthcheckTimeoutStartup time.Duration   // time the healthcheck waits for a response from Elasticsearch on startup
 	healthcheckTimeout        time.Duration   // time the healthcheck waits for a response from Elasticsearch
 	healthcheckInterval       time.Duration   // interval between healthchecks
-	healthcheckStop           chan bool       // notify healthchecker to stop, and notify back
+	healthcheckStop           chan struct{}   // notify healthchecker to stop, and notify back
 	snifferEnabled            bool            // sniffer enabled or disabled
 	snifferTimeoutStartup     time.Duration   // time the sniffer waits for a response from nodes info API on startup
 	snifferTimeout            time.Duration   // time the sniffer waits for a response from nodes info API
 	snifferInterval           time.Duration   // interval between sniffing
 	snifferCallback           SnifferCallback // callback to modify the sniffing decision
-	snifferStop               chan bool       // notify sniffer to stop, and notify back
+	snifferStop               chan struct{}   // notify sniffer to stop, and notify back
 	decoder                   Decoder         // used to decode data sent from Elasticsearch
 	basicAuthUsername         string          // username for HTTP Basic Auth
 	basicAuthPassword         string          // password for HTTP Basic Auth
@@ -239,13 +239,13 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 		healthcheckTimeoutStartup: off,
 		healthcheckTimeout:        off,
 		healthcheckInterval:       off,
-		healthcheckStop:           make(chan bool),
+		healthcheckStop:           make(chan struct{}),
 		snifferEnabled:            false,
 		snifferTimeoutStartup:     off,
 		snifferTimeout:            off,
 		snifferInterval:           off,
 		snifferCallback:           nopSnifferCallback,
-		snifferStop:               make(chan bool),
+		snifferStop:               make(chan struct{}),
 		sendGetBodyAs:             DefaultSendGetBodyAs,
 		gzipEnabled:               DefaultGzipEnabled,
 		retrier:                   noRetries, // no retries by default
@@ -269,7 +269,7 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 	// If the URLs have auth info, use them here as an alternative to SetBasicAuth
 	if c.basicAuthUsername == "" && c.basicAuthPassword == "" {
 		for _, urlStr := range c.urls {
-			u, err := url.Parse(urlStr)
+			u, err := url.ParseRequestURI(urlStr)
 			if err == nil && u.User != nil {
 				c.basicAuthUsername = u.User.Username()
 				c.basicAuthPassword, _ = u.User.Password()
@@ -278,8 +278,8 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 		}
 	}
 
-	for _, url := range c.urls {
-		c.conns = append(c.conns, newConn(url, url))
+	for _, urlStr := range c.urls {
+		c.conns = append(c.conns, newConn(urlStr, urlStr))
 	}
 
 	// Ensure that we have at least one connection available
@@ -325,13 +325,13 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 		healthcheckTimeoutStartup: DefaultHealthcheckTimeoutStartup,
 		healthcheckTimeout:        DefaultHealthcheckTimeout,
 		healthcheckInterval:       DefaultHealthcheckInterval,
-		healthcheckStop:           make(chan bool),
+		healthcheckStop:           make(chan struct{}),
 		snifferEnabled:            DefaultSnifferEnabled,
 		snifferTimeoutStartup:     DefaultSnifferTimeoutStartup,
 		snifferTimeout:            DefaultSnifferTimeout,
 		snifferInterval:           DefaultSnifferInterval,
 		snifferCallback:           nopSnifferCallback,
-		snifferStop:               make(chan bool),
+		snifferStop:               make(chan struct{}),
 		sendGetBodyAs:             DefaultSendGetBodyAs,
 		gzipEnabled:               DefaultGzipEnabled,
 		retrier:                   noRetries, // no retries by default
@@ -355,7 +355,7 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 	// If the URLs have auth info, use them here as an alternative to SetBasicAuth
 	if c.basicAuthUsername == "" && c.basicAuthPassword == "" {
 		for _, urlStr := range c.urls {
-			u, err := url.Parse(urlStr)
+			u, err := url.ParseRequestURI(urlStr)
 			if err == nil && u.User != nil {
 				c.basicAuthUsername = u.User.Username()
 				c.basicAuthPassword, _ = u.User.Password()
@@ -378,8 +378,8 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 		}
 	} else {
 		// Do not sniff the cluster initially. Use the provided URLs instead.
-		for _, url := range c.urls {
-			c.conns = append(c.conns, newConn(url, url))
+		for _, urlStr := range c.urls {
+			c.conns = append(c.conns, newConn(urlStr, urlStr))
 		}
 	}
 
@@ -508,7 +508,7 @@ func SetURL(urls ...string) ClientOptionFunc {
 		}
 		// Check URLs
 		for _, urlStr := range c.urls {
-			if _, err := url.Parse(urlStr); err != nil {
+			if _, err := url.ParseRequestURI(urlStr); err != nil {
 				return err
 			}
 		}
@@ -815,12 +815,12 @@ func (c *Client) Stop() {
 	c.mu.RUnlock()
 
 	if c.healthcheckEnabled {
-		c.healthcheckStop <- true
+		c.healthcheckStop <- struct{}{}
 		<-c.healthcheckStop
 	}
 
 	if c.snifferEnabled {
-		c.snifferStop <- true
+		c.snifferStop <- struct{}{}
 		<-c.snifferStop
 	}
 
@@ -886,7 +886,7 @@ func (c *Client) sniffer() {
 		select {
 		case <-c.snifferStop:
 			// we are asked to stop, so we signal back that we're stopping now
-			c.snifferStop <- true
+			c.snifferStop <- struct{}{}
 			return
 		case <-ticker.C:
 			c.sniff(context.Background(), timeout)
@@ -908,11 +908,11 @@ func (c *Client) sniff(parentCtx context.Context, timeout time.Duration) error {
 
 	// Use all available URLs provided to sniff the cluster.
 	var urls []string
-	urlsMap := make(map[string]bool)
+	urlsMap := make(map[string]struct{}, len(c.urls))
 
 	// Add all URLs provided on startup
 	for _, url := range c.urls {
-		urlsMap[url] = true
+		urlsMap[url] = struct{}{}
 		urls = append(urls, url)
 	}
 	c.mu.RUnlock()
@@ -1079,7 +1079,7 @@ func (c *Client) healthchecker() {
 		select {
 		case <-c.healthcheckStop:
 			// we are asked to stop, so we signal back that we're stopping now
-			c.healthcheckStop <- true
+			c.healthcheckStop <- struct{}{}
 			return
 		case <-ticker.C:
 			c.healthcheck(context.Background(), timeout, false)

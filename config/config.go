@@ -41,7 +41,7 @@ func Parse(elasticURL string) (*Config, error) {
 		Sniff:    nil,
 	}
 
-	uri, err := url.Parse(elasticURL)
+	uri, err := url.ParseRequestURI(elasticURL)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing elastic parameter %q: %v", elasticURL, err)
 	}

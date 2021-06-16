@@ -21,7 +21,7 @@ import (
 func canonicalize(rawurls ...string) []string {
 	var canonicalized []string
 	for _, rawurl := range rawurls {
-		u, err := url.Parse(rawurl)
+		u, err := url.ParseRequestURI(rawurl)
 		if err == nil {
 			if u.Scheme == "http" || u.Scheme == "https" {
 				// Trim trailing slashes. Notice that strings.TrimSuffix will only remove the last slash,
