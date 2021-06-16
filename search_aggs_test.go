@@ -14,7 +14,7 @@ import (
 )
 
 // TestAggs is an integration test for most aggregation types.
-func TestAggs123(t *testing.T) {
+func TestAggs(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 
 	tweet1 := tweet{
