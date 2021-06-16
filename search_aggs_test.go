@@ -14,7 +14,7 @@ import (
 )
 
 // TestAggs is an integration test for most aggregation types.
-func TestAggs(t *testing.T) {
+func TestAggs123(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 
 	tweet1 := tweet{
@@ -79,6 +79,7 @@ func TestAggs(t *testing.T) {
 	globalAgg := NewGlobalAggregation()
 	usersAgg := NewTermsAggregation().Field("user").Size(10).OrderByCountDesc()
 	retweetsAgg := NewTermsAggregation().Field("retweets").Size(10)
+	multiTermsAgg := NewMultiTermsAggregation().Terms("user").MultiTerms(MultiTerm{Field: "tags", Missing: "unclassified"}).Size(10)
 	avgRetweetsAgg := NewAvgAggregation().Field("retweets")
 	avgRetweetsWithMetaAgg := NewAvgAggregation().Field("retweetsMeta").Meta(map[string]interface{}{"meta": true})
 	weightedAvgRetweetsAgg := NewWeightedAvgAggregation().
@@ -127,6 +128,7 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("global", globalAgg)
 	builder = builder.Aggregation("users", usersAgg)
 	builder = builder.Aggregation("retweets", retweetsAgg)
+	builder = builder.Aggregation("multiterms", multiTermsAgg)
 	builder = builder.Aggregation("avgRetweets", avgRetweetsAgg)
 	builder = builder.Aggregation("avgRetweetsWithMeta", avgRetweetsWithMetaAgg)
 	builder = builder.Aggregation("weightedAvgRetweets", weightedAvgRetweetsAgg)
@@ -336,6 +338,38 @@ func TestAggs(t *testing.T) {
 		}
 		if agg.Buckets[2].DocCount != 1 {
 			t.Errorf("expected %d; got: %d", 1, agg.Buckets[2].DocCount)
+		}
+	}
+
+	// A multi terms aggregate
+	{
+		agg, found := agg.MultiTerms("multiterms")
+		if !found {
+			t.Errorf("expected %v; got: %v", true, found)
+		}
+		if agg == nil {
+			t.Fatalf("expected != nil; got: nil")
+		}
+		if len(agg.Buckets) != 4 {
+			t.Fatalf("expected %d; got: %d", 4, len(agg.Buckets))
+		}
+		if want, have := 2, len(agg.Buckets[0].Key); want != have {
+			t.Errorf("expected %v; got: %v", want, have)
+		}
+		if want, have := "olivere", agg.Buckets[0].Key[0]; want != have {
+			t.Errorf("expected %v; got: %v", want, have)
+		}
+		if want, have := "golang", agg.Buckets[0].Key[1]; want != have {
+			t.Errorf("expected %v; got: %v", want, have)
+		}
+		if agg.Buckets[0].KeyAsString == nil {
+			t.Fatal("expected string not nil")
+		}
+		if want, have := "olivere|golang", *agg.Buckets[0].KeyAsString; want != have {
+			t.Errorf("expected %v; got: %v", want, have)
+		}
+		if agg.Buckets[0].DocCount != 2 {
+			t.Errorf("expected %d; got: %d", 2, agg.Buckets[0].DocCount)
 		}
 	}
 

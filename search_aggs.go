@@ -369,6 +369,21 @@ func (a Aggregations) Terms(name string) (*AggregationBucketKeyItems, bool) {
 	return nil, false
 }
 
+// MultiTerms returns multi terms aggregation results.
+// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.13/search-aggregations-bucket-multi-terms-aggregation.html
+func (a Aggregations) MultiTerms(name string) (*AggregationBucketMultiKeyItems, bool) {
+	if raw, found := a[name]; found {
+		agg := new(AggregationBucketMultiKeyItems)
+		if raw == nil {
+			return agg, true
+		}
+		if err := json.Unmarshal(raw, agg); err == nil {
+			return agg, true
+		}
+	}
+	return nil, false
+}
+
 // SignificantTerms returns significant terms aggregation results.
 // See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-significantterms-aggregation.html
 func (a Aggregations) SignificantTerms(name string) (*AggregationBucketSignificantTerms, bool) {
@@ -1322,6 +1337,71 @@ type AggregationBucketKeyItem struct {
 
 // UnmarshalJSON decodes JSON data and initializes an AggregationBucketKeyItem structure.
 func (a *AggregationBucketKeyItem) UnmarshalJSON(data []byte) error {
+	var aggs map[string]json.RawMessage
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	if err := dec.Decode(&aggs); err != nil {
+		return err
+	}
+	if v, ok := aggs["key"]; ok && v != nil {
+		json.Unmarshal(v, &a.Key)
+		json.Unmarshal(v, &a.KeyNumber)
+	}
+	if v, ok := aggs["key_as_string"]; ok && v != nil {
+		json.Unmarshal(v, &a.KeyAsString)
+	}
+	if v, ok := aggs["doc_count"]; ok && v != nil {
+		json.Unmarshal(v, &a.DocCount)
+	}
+	a.Aggregations = aggs
+	return nil
+}
+
+// AggregationBucketMultiKeyItems is a bucket aggregation that is returned
+// with a multi terms aggregation.
+type AggregationBucketMultiKeyItems struct {
+	Aggregations
+
+	DocCountErrorUpperBound int64                            //`json:"doc_count_error_upper_bound"`
+	SumOfOtherDocCount      int64                            //`json:"sum_other_doc_count"`
+	Buckets                 []*AggregationBucketMultiKeyItem //`json:"buckets"`
+	Meta                    map[string]interface{}           // `json:"meta,omitempty"`
+}
+
+// UnmarshalJSON decodes JSON data and initializes an AggregationBucketMultiKeyItems structure.
+func (a *AggregationBucketMultiKeyItems) UnmarshalJSON(data []byte) error {
+	var aggs map[string]json.RawMessage
+	if err := json.Unmarshal(data, &aggs); err != nil {
+		return err
+	}
+	if v, ok := aggs["doc_count_error_upper_bound"]; ok && v != nil {
+		json.Unmarshal(v, &a.DocCountErrorUpperBound)
+	}
+	if v, ok := aggs["sum_other_doc_count"]; ok && v != nil {
+		json.Unmarshal(v, &a.SumOfOtherDocCount)
+	}
+	if v, ok := aggs["buckets"]; ok && v != nil {
+		json.Unmarshal(v, &a.Buckets)
+	}
+	if v, ok := aggs["meta"]; ok && v != nil {
+		json.Unmarshal(v, &a.Meta)
+	}
+	a.Aggregations = aggs
+	return nil
+}
+
+// AggregationBucketMultiKeyItem is a single bucket of an AggregationBucketMultiKeyItems structure.
+type AggregationBucketMultiKeyItem struct {
+	Aggregations
+
+	Key         []interface{} //`json:"key"`
+	KeyAsString *string       //`json:"key_as_string"`
+	KeyNumber   []json.Number
+	DocCount    int64 //`json:"doc_count"`
+}
+
+// UnmarshalJSON decodes JSON data and initializes an AggregationBucketMultiKeyItem structure.
+func (a *AggregationBucketMultiKeyItem) UnmarshalJSON(data []byte) error {
 	var aggs map[string]json.RawMessage
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.UseNumber()
