@@ -30,6 +30,7 @@ func TestTermQueryWithOptions(t *testing.T) {
 	q := NewTermQuery("user", "ki")
 	q = q.Boost(2.79)
 	q = q.QueryName("my_tq")
+	q = q.CaseInsensitive(true)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +40,7 @@ func TestTermQueryWithOptions(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"term":{"user":{"_name":"my_tq","boost":2.79,"value":"ki"}}}`
+	expected := `{"term":{"user":{"_name":"my_tq","boost":2.79,"case_insensitive":true,"value":"ki"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

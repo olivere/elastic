@@ -30,6 +30,7 @@ func TestRegexpQueryWithOptions(t *testing.T) {
 	q := NewRegexpQuery("name.first", "s.*y").
 		Boost(1.2).
 		Flags("INTERSECTION|COMPLEMENT|EMPTY").
+		CaseInsensitive(true).
 		QueryName("my_query_name")
 	src, err := q.Source()
 	if err != nil {
@@ -40,7 +41,7 @@ func TestRegexpQueryWithOptions(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"regexp":{"name.first":{"boost":1.2,"flags":"INTERSECTION|COMPLEMENT|EMPTY","name":"my_query_name","value":"s.*y"}}}`
+	expected := `{"regexp":{"name.first":{"boost":1.2,"case_insensitive":true,"flags":"INTERSECTION|COMPLEMENT|EMPTY","name":"my_query_name","value":"s.*y"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
