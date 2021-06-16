@@ -4,17 +4,17 @@
 
 package elastic
 
-import "fmt"
-
-// A multi-bucket value source based aggregation where buckets are dynamically built - one per
-// unique set of values. The multi terms aggregation is very similar to the terms aggregation,
-// however in most cases it will be slower than the terms aggregation and will consume more
-// memory. Therefore, if the same set of fields is constantly used, it would be more efficient to
-// index a combined key for this fields as a separate field and use the terms aggregation on this field.
+// MultiTermsAggregation is a multi-bucket value source based aggregation
+// where buckets are dynamically built - one per unique set of values.
+// The multi terms aggregation is very similar to the terms aggregation,
+// however in most cases it will be slower than the terms aggregation and will
+// consume more memory. Therefore, if the same set of fields is constantly
+// used, it would be more efficient to index a combined key for this fields
+// as a separate field and use the terms aggregation on this field.
 //
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.12/search-aggregations-bucket-multi-terms-aggregation.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/7.13/search-aggregations-bucket-multi-terms-aggregation.html
 type MultiTermsAggregation struct {
-	multiTerms      []*MultiTerm
+	multiTerms      []MultiTerm
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 
@@ -27,14 +27,30 @@ type MultiTermsAggregation struct {
 	order                 []MultiTermsOrder
 }
 
+// NewMultiTermsAggregation initializes a new MultiTermsAggregation.
 func NewMultiTermsAggregation() *MultiTermsAggregation {
 	return &MultiTermsAggregation{
 		subAggregations: make(map[string]Aggregation),
 	}
 }
 
-func (a *MultiTermsAggregation) Terms(multiTerm ...*MultiTerm) *MultiTermsAggregation {
-	a.multiTerms = multiTerm
+// Terms adds a slice of field names to return in the aggregation.
+//
+// Notice that it appends to existing terms, so you can use Terms more than
+// once, and mix with MultiTerms method.
+func (a *MultiTermsAggregation) Terms(fields ...string) *MultiTermsAggregation {
+	for _, field := range fields {
+		a.multiTerms = append(a.multiTerms, MultiTerm{Field: field})
+	}
+	return a
+}
+
+// MultiTerms adds a slice of MultiTerm instances to return in the aggregation.
+//
+// Notice that it appends to existing terms, so you can use MultiTerms more
+// than once, and mix with Terms method.
+func (a *MultiTermsAggregation) MultiTerms(multiTerms ...MultiTerm) *MultiTermsAggregation {
+	a.multiTerms = append(a.multiTerms, multiTerms...)
 	return a
 }
 
@@ -206,9 +222,6 @@ func (a *MultiTermsAggregation) Source() (interface{}, error) {
 	// ValuesSourceAggregationBuilder
 	terms := make([]interface{}, len(a.multiTerms))
 	for i := range a.multiTerms {
-		if a.multiTerms[i] == nil {
-			return nil, fmt.Errorf("expected a multiterm but found a nil multiterm")
-		}
 		s, err := a.multiTerms[i].Source()
 		if err != nil {
 			return nil, err
@@ -288,26 +301,16 @@ func (order *MultiTermsOrder) Source() (interface{}, error) {
 
 // MultiTerm specifies a single term field for a multi terms aggregation.
 type MultiTerm struct {
-	field   string
-	missing interface{}
+	Field   string
+	Missing interface{}
 }
 
 // Source returns serializable JSON of the MultiTerm.
 func (term *MultiTerm) Source() (interface{}, error) {
 	source := make(map[string]interface{})
-	source["field"] = term.field
-	if term.missing != nil {
-		source["missing"] = term.missing
+	source["field"] = term.Field
+	if term.Missing != nil {
+		source["missing"] = term.Missing
 	}
 	return source, nil
-}
-
-// Missing configures the value to use when document miss a value
-func (term *MultiTerm) Missing(missing interface{}) *MultiTerm {
-	term.missing = missing
-	return term
-}
-
-func NewMultiTerm(field string) *MultiTerm {
-	return &MultiTerm{field: field}
 }

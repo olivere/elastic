@@ -10,7 +10,7 @@ import (
 )
 
 func TestMultiTermsAggregation(t *testing.T) {
-	agg := NewMultiTermsAggregation().Terms(NewMultiTerm("genre"), NewMultiTerm("product"))
+	agg := NewMultiTermsAggregation().Terms("genre", "product")
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -26,9 +26,29 @@ func TestMultiTermsAggregation(t *testing.T) {
 	}
 }
 
+func TestMultiTermsAggregationWithMultiTerms(t *testing.T) {
+	agg := NewMultiTermsAggregation().MultiTerms(
+		MultiTerm{Field: "genre", Missing: "n/a"},
+		MultiTerm{Field: "product", Missing: "n/a"},
+	)
+	src, err := agg.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"multi_terms":{"terms":[{"field":"genre","missing":"n/a"},{"field":"product","missing":"n/a"}]}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestMultiTermsAggregationWithSubAggregation(t *testing.T) {
 	subAgg := NewAvgAggregation().Field("height")
-	agg := NewMultiTermsAggregation().Terms(NewMultiTerm("genre"), NewMultiTerm("product")).Size(10).
+	agg := NewMultiTermsAggregation().Terms("genre", "product").Size(10).
 		OrderByAggregation("avg_height", false)
 	agg = agg.SubAggregation("avg_height", subAgg)
 	src, err := agg.Source()
@@ -49,7 +69,7 @@ func TestMultiTermsAggregationWithSubAggregation(t *testing.T) {
 func TestMultiTermsAggregationWithMultipleSubAggregation(t *testing.T) {
 	subAgg1 := NewAvgAggregation().Field("height")
 	subAgg2 := NewAvgAggregation().Field("width")
-	agg := NewMultiTermsAggregation().Terms(NewMultiTerm("genre"), NewMultiTerm("product")).Size(10).
+	agg := NewMultiTermsAggregation().Terms("genre", "product").Size(10).
 		OrderByAggregation("avg_height", false)
 	agg = agg.SubAggregation("avg_height", subAgg1)
 	agg = agg.SubAggregation("avg_width", subAgg2)
@@ -69,7 +89,7 @@ func TestMultiTermsAggregationWithMultipleSubAggregation(t *testing.T) {
 }
 
 func TestMultiTermsAggregationWithMetaData(t *testing.T) {
-	agg := NewMultiTermsAggregation().Terms(NewMultiTerm("genre"), NewMultiTerm("product")).Size(10).OrderByKeyDesc()
+	agg := NewMultiTermsAggregation().Terms("genre", "product").Size(10).OrderByKeyDesc()
 	agg = agg.Meta(map[string]interface{}{"name": "Oliver"})
 	src, err := agg.Source()
 	if err != nil {
@@ -87,7 +107,10 @@ func TestMultiTermsAggregationWithMetaData(t *testing.T) {
 }
 
 func TestMultiTermsAggregationWithMissing(t *testing.T) {
-	agg := NewMultiTermsAggregation().Terms(NewMultiTerm("genre"), NewMultiTerm("product").Missing("n/a")).Size(10)
+	agg := NewMultiTermsAggregation().MultiTerms(
+		MultiTerm{Field: "genre"},
+		MultiTerm{Field: "product", Missing: "n/a"},
+	).Size(10)
 	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
