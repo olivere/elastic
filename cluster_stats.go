@@ -168,13 +168,20 @@ func (s *ClusterStatsService) Do(ctx context.Context) (*ClusterStatsResponse, er
 
 // ClusterStatsResponse is the response of ClusterStatsService.Do.
 type ClusterStatsResponse struct {
-	NodesStats  *ShardsInfo          `json:"_nodes,omitempty"`
-	Timestamp   int64                `json:"timestamp"`
-	ClusterName string               `json:"cluster_name"`
-	ClusterUUID string               `json:"cluster_uuid"`
-	Status      string               `json:"status,omitempty"` // e.g. green
-	Indices     *ClusterStatsIndices `json:"indices"`
-	Nodes       *ClusterStatsNodes   `json:"nodes"`
+	NodesStats  *ClusterStatsNodesResponse `json:"_nodes,omitempty"`
+	Timestamp   int64                      `json:"timestamp"`
+	ClusterName string                     `json:"cluster_name"`
+	ClusterUUID string                     `json:"cluster_uuid"`
+	Status      string                     `json:"status,omitempty"` // e.g. green
+	Indices     *ClusterStatsIndices       `json:"indices"`
+	Nodes       *ClusterStatsNodes         `json:"nodes"`
+}
+
+type ClusterStatsNodesResponse struct {
+	Total      int                    `json:"total"`
+	Successful int                    `json:"successful"`
+	Failed     int                    `json:"failed"`
+	Failures   []*FailedNodeException `json:"failures,omitempty"`
 }
 
 type ClusterStatsIndices struct {

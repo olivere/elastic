@@ -81,7 +81,9 @@ type ErrorDetails struct {
 	Grouped      bool                     `json:"grouped,omitempty"`
 	CausedBy     map[string]interface{}   `json:"caused_by,omitempty"`
 	RootCause    []*ErrorDetails          `json:"root_cause,omitempty"`
+	Suppressed   []*ErrorDetails          `json:"suppressed,omitempty"`
 	FailedShards []map[string]interface{} `json:"failed_shards,omitempty"`
+	Header       map[string]interface{}   `json:"header,omitempty"`
 
 	// ScriptException adds the information in the following block.
 
@@ -204,11 +206,23 @@ func IsStatusCode(err interface{}, code int) bool {
 
 // ShardsInfo represents information from a shard.
 type ShardsInfo struct {
-	Total      int                    `json:"total"`
-	Successful int                    `json:"successful"`
-	Failed     int                    `json:"failed"`
-	Failures   []*FailedNodeException `json:"failures,omitempty"`
-	Skipped    int                    `json:"skipped,omitempty"`
+	Total      int                              `json:"total"`
+	Successful int                              `json:"successful"`
+	Failed     int                              `json:"failed"`
+	Failures   []*ShardOperationFailedException `json:"failures,omitempty"`
+	Skipped    int                              `json:"skipped,omitempty"`
+}
+
+type ShardOperationFailedException struct {
+	Shard  int                    `json:"shard,omitempty"`
+	Index  string                 `json:"index,omitempty"`
+	Status string                 `json:"status,omitempty"`
+	Reason map[string]interface{} `json:"reason,omitempty"`
+
+	// TODO(oe) Do we still have those?
+	Node string `json:"_node,omitempty"`
+	// TODO(oe) Do we still have those?
+	Primary bool `json:"primary,omitempty"`
 }
 
 // FailedNodeException returns an error on the node level.

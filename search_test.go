@@ -1742,3 +1742,51 @@ func TestSearchWithDateMathIndices(t *testing.T) {
 		t.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", want, got)
 	}
 }
+
+func TestSearchResultDecode(t *testing.T) {
+	tests := []struct {
+		Body string
+	}{
+		// #0 With _shards.failures
+		{
+			Body: `{
+				"took":1146,
+				"timed_out":false,
+				"_shards":{
+				   "total":8,
+				   "successful":6,
+				   "skipped":0,
+				   "failed":2,
+				   "failures":[
+					  {
+						 "shard":1,
+						 "index":"l9leakip-0000001",
+						 "node":"AsQq1Dh2QxCSTRSLTg0vFw",
+						 "reason":{
+							"type":"illegal_argument_exception",
+							"reason":"The length [1119437] of field [events.summary] in doc[2524900]/index[l9leakip-0000001] exceeds the [index.highlight.max_analyzed_offset] limit [1000000]. To avoid this error, set the query parameter [max_analyzed_offset] to a value less than index setting [1000000] and this will tolerate long field values by truncating them."
+						 }
+					  },
+					  {
+						 "shard":3,
+						 "index":"l9leakip-0000001",
+						 "node":"AsQq1Dh2QxCSTRSLTg0vFw",
+						 "reason":{
+							"type":"illegal_argument_exception",
+							"reason":"The length [1023566] of field [events.summary] in doc[2168434]/index[l9leakip-0000001] exceeds the [index.highlight.max_analyzed_offset] limit [1000000]. To avoid this error, set the query parameter [max_analyzed_offset] to a value less than index setting [1000000] and this will tolerate long field values by truncating them."
+						 }
+					  }
+				   ]
+				},
+				"hits":{}
+			 }`,
+		},
+	}
+
+	for i, tt := range tests {
+		var resp SearchResult
+		if err := json.Unmarshal([]byte(tt.Body), &resp); err != nil {
+			t.Fatalf("case #%d: expected no error, got %v", i, err)
+		}
+	}
+}
