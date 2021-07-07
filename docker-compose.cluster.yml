@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+  es1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.13.2}
+    hostname: es1
+    environment:
+      - bootstrap.memory_lock=true
+      - cluster.name=elasticsearch
+      - cluster.initial_master_nodes=es1
+      - discovery.seed_hosts=es1
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - node.name=es1
+      - logger.org.elasticsearch=warn
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      nproc: 65536
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        soft: -1
+        hard: -1
+    # volumes:
+    #   - ./data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
+  es2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.13.2}
+    hostname: es2
+    environment:
+      - bootstrap.memory_lock=true
+      - cluster.name=elasticsearch
+      - cluster.initial_master_nodes=es1
+      - discovery.seed_hosts=es1
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - node.name=es2
+      - logger.org.elasticsearch=warn
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      nproc: 65536
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        soft: -1
+        hard: -1
+    # volumes:
+    #   - ./data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9201:9200
+
+  es3:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.13.2}
+    hostname: es3
+    environment:
+      - bootstrap.memory_lock=true
+      - cluster.name=elasticsearch
+      - cluster.initial_master_nodes=es1
+      - discovery.seed_hosts=es1
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - node.name=es3
+      - logger.org.elasticsearch=warn
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      nproc: 65536
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        soft: -1
+        hard: -1
+    # volumes:
+    #   - ./data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9202:9200
