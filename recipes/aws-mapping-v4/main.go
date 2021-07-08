@@ -93,17 +93,29 @@ func main() {
 		ctx := context.Background()
 		exists, err := client.IndexExists(*index).Pretty(true).Do(ctx)
 		if err != nil {
-			log.Fatal(err)
+			if !*loop {
+				log.Fatal(err)
+			}
+			log.Print(err)
+			continue
 		}
 		if exists {
 			_, err := client.DeleteIndex(*index).Pretty(true).Do(ctx)
 			if err != nil {
-				log.Fatal(err)
+				if !*loop {
+					log.Fatal(err)
+				}
+				log.Print(err)
+				continue
 			}
 		}
 		_, err = client.CreateIndex(*index).Body(mapping).Pretty(true).Do(ctx)
 		if err != nil {
-			log.Fatal(err)
+			if !*loop {
+				log.Fatal(err)
+			}
+			log.Print(err)
+			continue
 		}
 
 		// Add a tweet
@@ -130,6 +142,7 @@ func main() {
 					log.Fatal(err)
 				}
 				log.Print(err)
+				continue
 			}
 		}
 
@@ -145,6 +158,7 @@ func main() {
 					log.Fatal(err)
 				}
 				log.Print(err)
+				continue
 			}
 			var tweet Tweet
 			if err = json.Unmarshal(doc.Source, &tweet); err != nil {
