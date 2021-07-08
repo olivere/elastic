@@ -148,6 +148,7 @@ type Client struct {
 	retrier                   Retrier         // strategy for retries
 	retryStatusCodes          []int           // HTTP status codes where to retry automatically (with retrier)
 	headers                   http.Header     // a list of default headers to add to each request
+	closeIdleConnsForDeadConn bool            // enable to call CloseIdleConnections when we find a dead node
 }
 
 // NewClient creates a new client to work with Elasticsearch.
@@ -470,6 +471,18 @@ func configToOptions(cfg *config.Config) ([]ClientOptionFunc, error) {
 		}
 	}
 	return options, nil
+}
+
+// SetCloseIdleConnections, when enabled, will call CloseIdleConnections
+// whenever we find a dead connection in PerformRequest. This might help
+// to fix issues with e.g. AWS Elasticsearch Service that automatically
+// changes its configuration and leads Go net/http to use cached HTTP
+// connection when it shouldn't.
+func SetCloseIdleConnections(enabled bool) ClientOptionFunc {
+	return func(c *Client) error {
+		c.closeIdleConnsForDeadConn = enabled
+		return nil
+	}
 }
 
 // SetHttpClient can be used to specify the http.Client to use when making
@@ -1326,6 +1339,19 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		retryStatusCodes = opt.RetryStatusCodes
 	}
 	defaultHeaders := c.headers
+	closeIdleConns := func() {}
+	if c.closeIdleConnsForDeadConn {
+		// If we're e.g. on AWS, we should make sure to close idle connections.
+		// That might happen when the AWS Elasticsearch domain is re-configured.
+		// Closing idle connections makes sure that net/http creates a
+		// new HTTP connection instead of re-using one from the cache.
+		type idleCloser interface {
+			CloseIdleConnections()
+		}
+		if ic, ok := c.c.(idleCloser); ok {
+			ic.CloseIdleConnections()
+		}
+	}
 	c.mu.RUnlock()
 
 	// retry returns true if statusCode indicates the request is to be retried
@@ -1434,11 +1460,13 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			wait, ok, rerr := retrier.Retry(ctx, n, (*http.Request)(req), res, err)
 			if rerr != nil {
 				c.errorf("elastic: %s is dead", conn.URL())
+				closeIdleConns()
 				conn.MarkAsDead()
 				return nil, rerr
 			}
 			if !ok {
 				c.errorf("elastic: %s is dead", conn.URL())
+				closeIdleConns()
 				conn.MarkAsDead()
 				return nil, err
 			}
@@ -1451,6 +1479,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			wait, ok, rerr := retrier.Retry(ctx, n, (*http.Request)(req), res, err)
 			if rerr != nil {
 				c.errorf("elastic: %s is dead", conn.URL())
+				closeIdleConns()
 				conn.MarkAsDead()
 				return nil, rerr
 			}

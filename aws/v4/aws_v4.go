@@ -34,6 +34,52 @@ func NewV4SigningClientWithHTTPClient(creds *credentials.Credentials, region str
 	}
 }
 
+// NewV4SigningClientWithOptions returns a configured *http.Client
+// that will sign all requests with AWS V4 Signing.
+func NewV4SigningClientWithOptions(opts ...SigningClientOption) *http.Client {
+	tr := &Transport{}
+	for _, o := range opts {
+		o(tr)
+	}
+	if tr.client == nil {
+		tr.client = http.DefaultClient
+	}
+	return &http.Client{
+		Transport: tr,
+	}
+}
+
+// SigningClientOption specifies options to be used with NewV4SigningClientWithOptions.
+type SigningClientOption func(*Transport)
+
+// WithHTTPClient configures the http.Client to be used in Transport.
+func WithHTTPClient(client *http.Client) SigningClientOption {
+	return func(tr *Transport) {
+		tr.client = client
+	}
+}
+
+// WithCredentials configures the AWS credentials to be used in Transport.
+func WithCredentials(creds *credentials.Credentials) SigningClientOption {
+	return func(tr *Transport) {
+		tr.creds = creds
+	}
+}
+
+// WithSigner configures the AWS signer to be used in Transport.
+func WithSigner(signer *v4.Signer) SigningClientOption {
+	return func(tr *Transport) {
+		tr.signer = signer
+	}
+}
+
+// WithRegion configures the AWS region to be used in Transport, e.g. eu-west-1.
+func WithRegion(region string) SigningClientOption {
+	return func(tr *Transport) {
+		tr.region = region
+	}
+}
+
 // Transport is a RoundTripper that will sign requests with AWS V4 Signing
 type Transport struct {
 	client *http.Client
@@ -49,6 +95,7 @@ func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return st.client.Do(req)
 	}
 
+	// TODO(oe) Do we still need this? Can we use signer.DisableURIPathEscaping = true instead?
 	if strings.Contains(req.URL.RawPath, "%2C") {
 		// Escaping path
 		req.URL.RawPath = url.PathEscape(req.URL.RawPath)
@@ -57,14 +104,19 @@ func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	now := time.Now().UTC()
 	req.Header.Set("Date", now.Format(time.RFC3339))
 
-	var err error
 	switch req.Body {
 	case nil:
-		_, err = st.signer.Sign(req, nil, "es", st.region, now)
+		_, err := st.signer.Sign(req, nil, "es", st.region, now)
+		if err != nil {
+			return nil, err
+		}
 	default:
 		switch body := req.Body.(type) {
 		case io.ReadSeeker:
-			_, err = st.signer.Sign(req, body, "es", st.region, now)
+			_, err := st.signer.Sign(req, body, "es", st.region, now)
+			if err != nil {
+				return nil, err
+			}
 		default:
 			buf, err := ioutil.ReadAll(req.Body)
 			if err != nil {
@@ -72,10 +124,10 @@ func (st Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			}
 			req.Body = ioutil.NopCloser(bytes.NewReader(buf))
 			_, err = st.signer.Sign(req, bytes.NewReader(buf), "es", st.region, time.Now().UTC())
+			if err != nil {
+				return nil, err
+			}
 		}
-	}
-	if err != nil {
-		return nil, err
 	}
 	return st.client.Do(req)
 }
