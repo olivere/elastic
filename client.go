@@ -1345,11 +1345,13 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		// That might happen when the AWS Elasticsearch domain is re-configured.
 		// Closing idle connections makes sure that net/http creates a
 		// new HTTP connection instead of re-using one from the cache.
-		type idleCloser interface {
-			CloseIdleConnections()
-		}
-		if ic, ok := c.c.(idleCloser); ok {
-			ic.CloseIdleConnections()
+		closeIdleConns = func() {
+			type idleCloser interface {
+				CloseIdleConnections()
+			}
+			if ic, ok := c.c.(idleCloser); ok {
+				ic.CloseIdleConnections()
+			}
 		}
 	}
 	c.mu.RUnlock()
