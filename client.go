@@ -43,7 +43,7 @@ const (
 	// for a response from Elasticsearch on startup, i.e. when creating a
 	// client. After the client is started, a shorter timeout is commonly used
 	// (its default is specified in DefaultHealthcheckTimeout).
-	DefaultHealthcheckTimeoutStartup = 5 * time.Second
+	DefaultHealthcheckTimeoutStartup = 10 * time.Second
 
 	// DefaultHealthcheckTimeout specifies the time a running client waits for
 	// a response from Elasticsearch. Notice that the healthcheck timeout
@@ -607,7 +607,7 @@ func SetHealthcheck(enabled bool) ClientOptionFunc {
 }
 
 // SetHealthcheckTimeoutStartup sets the timeout for the initial health check.
-// The default timeout is 5 seconds (see DefaultHealthcheckTimeoutStartup).
+// The default timeout is 10 seconds (see DefaultHealthcheckTimeoutStartup).
 // Notice that timeouts for subsequent health checks can be modified with
 // SetHealthcheckTimeout.
 func SetHealthcheckTimeoutStartup(timeout time.Duration) ClientOptionFunc {
