@@ -20,6 +20,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -76,6 +77,9 @@ func TestClientDefaults(t *testing.T) {
 	}
 	if client.sendGetBodyAs != "GET" {
 		t.Errorf("expected sendGetBodyAs to be GET; got: %q", client.sendGetBodyAs)
+	}
+	if client.closeIdleConnsForDeadConn != false {
+		t.Errorf("expected closeIdleConnsForDeadConn to be false; got: %v", client.closeIdleConnsForDeadConn)
 	}
 }
 
@@ -1430,9 +1434,10 @@ func TestPerformRequestOnNoConnectionsWithHealthcheckRevival(t *testing.T) {
 
 // failingTransport will run a fail callback if it sees a given URL path prefix.
 type failingTransport struct {
-	path string                                      // path prefix to look for
-	fail func(*http.Request) (*http.Response, error) // call when path prefix is found
-	next http.RoundTripper                           // next round-tripper (use http.DefaultTransport if nil)
+	path           string                                      // path prefix to look for
+	fail           func(*http.Request) (*http.Response, error) // call when path prefix is found
+	next           http.RoundTripper                           // next round-tripper (use http.DefaultTransport if nil)
+	closeIdleConns func()                                      // callback for CloseIdleConnections
 }
 
 // RoundTrip implements a failing transport.
@@ -1444,6 +1449,12 @@ func (tr *failingTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 		return tr.next.RoundTrip(r)
 	}
 	return http.DefaultTransport.RoundTrip(r)
+}
+
+func (tr *failingTransport) CloseIdleConnections() {
+	if tr.closeIdleConns != nil {
+		tr.closeIdleConns()
+	}
 }
 
 func TestPerformRequestRetryOnHttpError(t *testing.T) {
@@ -1553,6 +1564,96 @@ func TestPerformRequestOnSpecifiedHttpStatusCodes(t *testing.T) {
 	// Retry should not have triggered additional requests because
 	if numFailedReqs != 5 {
 		t.Errorf("expected %d failed requests; got: %d", 1, numFailedReqs)
+	}
+}
+
+func TestPerformRequestCloseIdleConnectionsEnabled(t *testing.T) {
+	var (
+		numCallsRoundTripper   int64
+		numCallsCloseIdleConns int64
+	)
+	tr := &failingTransport{
+		path: "/fail",
+		fail: func(r *http.Request) (*http.Response, error) {
+			// Called with every retry
+			atomic.AddInt64(&numCallsRoundTripper, 1)
+			return http.DefaultTransport.RoundTrip(r)
+		},
+		closeIdleConns: func() {
+			// Called when a connection is marked as dead
+			atomic.AddInt64(&numCallsCloseIdleConns, 1)
+		},
+	}
+	httpClient := &http.Client{Transport: tr}
+
+	client, err := NewClient(
+		SetURL("http://127.0.0.1:9201"),
+		SetHttpClient(httpClient),
+		SetMaxRetries(5),
+		SetSniff(false),
+		SetHealthcheck(false),
+		SetCloseIdleConnections(true), // <- call CloseIdleConnections for dead nodes
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Make a request, so that the connection is marked as dead.
+	client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/fail",
+	})
+
+	if want, have := int64(5), numCallsRoundTripper; want != have {
+		t.Errorf("expected %d calls to RoundTripper; got: %d", want, have)
+	}
+	if want, have := int64(1), numCallsCloseIdleConns; want != have {
+		t.Errorf("expected %d calls to CloseIdleConns; got: %d", want, have)
+	}
+}
+
+func TestPerformRequestCloseIdleConnectionsDisabled(t *testing.T) {
+	var (
+		numCallsRoundTripper   int64
+		numCallsCloseIdleConns int64
+	)
+	tr := &failingTransport{
+		path: "/fail",
+		fail: func(r *http.Request) (*http.Response, error) {
+			// Called with every retry
+			atomic.AddInt64(&numCallsRoundTripper, 1)
+			return http.DefaultTransport.RoundTrip(r)
+		},
+		closeIdleConns: func() {
+			// Called when a connection is marked as dead
+			atomic.AddInt64(&numCallsCloseIdleConns, 1)
+		},
+	}
+	httpClient := &http.Client{Transport: tr}
+
+	client, err := NewClient(
+		SetURL("http://127.0.0.1:9201"),
+		SetHttpClient(httpClient),
+		SetMaxRetries(5),
+		SetSniff(false),
+		SetHealthcheck(false),
+		SetCloseIdleConnections(false), // <- do NOT call CloseIdleConnections for dead nodes
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Make a request, so that the connection is marked as dead.
+	client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/fail",
+	})
+
+	if want, have := int64(5), numCallsRoundTripper; want != have {
+		t.Errorf("expected %d calls to RoundTripper; got: %d", want, have)
+	}
+	if want, have := int64(0), numCallsCloseIdleConns; want != have {
+		t.Errorf("expected %d calls to CloseIdleConns; got: %d", want, have)
 	}
 }
 
