@@ -295,10 +295,10 @@ Here are a few tips on how to get used to Elastic:
 - [X] cat aliases
 - [X] cat allocation
 - [X] cat count
-- [ ] cat fielddata
+- [x] cat fielddata
 - [X] cat health
 - [X] cat indices
-- [ ] cat master
+- [x] cat master
 - [ ] cat nodeattrs
 - [ ] cat nodes
 - [ ] cat pending tasks
