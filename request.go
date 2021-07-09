@@ -113,7 +113,7 @@ func (r *Request) setBodyReader(body io.Reader) error {
 		switch v := body.(type) {
 		case *strings.Reader:
 			r.ContentLength = int64(v.Len())
-		case *bytes.Buffer:
+		case *bytes.Reader:
 			r.ContentLength = int64(v.Len())
 		}
 	}
