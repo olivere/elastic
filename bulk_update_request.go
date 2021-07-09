@@ -281,7 +281,7 @@ func (r *BulkUpdateRequest) Source() ([]string, error) {
 		return nil, err
 	}
 
-	lines[0] = string(body)
+	lines[0] = unsafeBytesToString(body)
 
 	// 2nd line: {"doc" : { ... }} or {"script": {...}}
 	var doc interface{}
@@ -327,7 +327,7 @@ func (r *BulkUpdateRequest) Source() ([]string, error) {
 		return nil, err
 	}
 
-	lines[1] = string(body)
+	lines[1] = unsafeBytesToString(body)
 
 	r.source = lines
 	return lines, nil

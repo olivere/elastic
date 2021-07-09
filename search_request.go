@@ -530,7 +530,7 @@ func (r *SearchRequest) Body() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return string(body), nil
+		return unsafeBytesToString(body), nil
 	}
 	switch t := r.source.(type) {
 	default:
@@ -538,7 +538,7 @@ func (r *SearchRequest) Body() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return string(body), nil
+		return unsafeBytesToString(body), nil
 	case *SearchSource:
 		src, err := t.Source()
 		if err != nil {
@@ -548,7 +548,7 @@ func (r *SearchRequest) Body() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return string(body), nil
+		return unsafeBytesToString(body), nil
 	case json.RawMessage:
 		return string(t), nil
 	case *json.RawMessage:
