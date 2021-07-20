@@ -295,7 +295,7 @@ Here are a few tips on how to get used to Elastic:
 - [X] cat aliases
 - [X] cat allocation
 - [X] cat count
-- [ ] cat fielddata
+- [X] cat fielddata
 - [X] cat health
 - [X] cat indices
 - [ ] cat master
@@ -308,7 +308,7 @@ Here are a few tips on how to get used to Elastic:
 - [ ] cat thread pool
 - [ ] cat shards
 - [ ] cat segments
-- [ ] cat snapshots
+- [X] cat snapshots
 - [ ] cat templates
 
 ### Cluster APIs

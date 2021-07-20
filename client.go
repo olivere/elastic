@@ -1929,6 +1929,11 @@ func (c *Client) CatShards() *CatShardsService {
 	return NewCatShardsService(c)
 }
 
+// CatSnapshots returns information about snapshots.
+func (c *Client) CatSnapshots() *CatSnapshotsService {
+	return NewCatSnapshotsService(c)
+}
+
 // -- Ingest APIs --
 
 // IngestPutPipeline adds pipelines and updates existing pipelines in
