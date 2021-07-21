@@ -1,8 +1,8 @@
 package elastic
 
 import (
-"encoding/json"
-"testing"
+	"encoding/json"
+	"testing"
 )
 
 func TestCombinedFieldsQuery(t *testing.T) {
