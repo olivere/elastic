@@ -340,6 +340,8 @@ Here are a few tips on how to get used to Elastic:
   - [x] Common Terms Query
   - [x] Query String Query
   - [x] Simple Query String Query
+  - [x] Combined Fields Query
+  - [x] Intervals Query
 - Term level queries
   - [x] Term Query
   - [x] Terms Query
