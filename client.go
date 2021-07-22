@@ -1931,6 +1931,11 @@ func (c *Client) XPackSecurityGetRoleMapping(roleMappingName string) *XPackSecur
 	return NewXPackSecurityGetRoleMappingService(c).Name(roleMappingName)
 }
 
+// XPackSecurityPutUser adds or updates a user.
+func (c *Client) XPackSecurityPutUser(username string) *XPackSecurityPutUserService {
+	return NewXPackSecurityPutUserService(c).Username(username)
+}
+
 // XPackSecurityPutRoleMapping adds a role mapping.
 func (c *Client) XPackSecurityPutRoleMapping(roleMappingName string) *XPackSecurityPutRoleMappingService {
 	return NewXPackSecurityPutRoleMappingService(c).Name(roleMappingName)
