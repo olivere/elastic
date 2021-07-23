@@ -98,7 +98,7 @@ func (s *XPackSecurityGetUserService) buildURL() (string, url.Values, error) {
 			"username": strings.Join(s.usernames, ","),
 		})
 	} else {
-		path = "/_security/user"
+		path = "/_xpack/security/user"
 	}
 	if err != nil {
 		return "", url.Values{}, err
