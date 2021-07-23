@@ -1926,7 +1926,8 @@ func (c *Client) XPackIlmDeleteLifecycle() *XPackIlmDeleteLifecycleService {
 
 // -- X-Pack Security --
 
-// XPackSecurityGetRoleMapping gets a role mapping.
+// XPackSecurityGet
+Mapping gets a role mapping.
 func (c *Client) XPackSecurityGetRoleMapping(roleMappingName string) *XPackSecurityGetRoleMappingService {
 	return NewXPackSecurityGetRoleMappingService(c).Name(roleMappingName)
 }
@@ -1934,6 +1935,16 @@ func (c *Client) XPackSecurityGetRoleMapping(roleMappingName string) *XPackSecur
 // XPackSecurityPutUser adds or updates a user.
 func (c *Client) XPackSecurityPutUser(username string) *XPackSecurityPutUserService {
 	return NewXPackSecurityPutUserService(c).Username(username)
+}
+
+// XPackSecurityGetUser gets details about one or more users.
+func (c *Client) XPackSecurityGetUser(usernames ...string) *XPackSecurityGetUserService {
+	return NewXPackSecurityGetUserService(c).Usernames(usernames...)
+}
+
+// XPackSecurityDeleteUser deletes a user.
+func (c *Client) XPackSecurityDeleteUser(username string) *XPackSecurityDeleteUserService {
+	return NewXPackSecurityDeleteUserService(c).Username(username)
 }
 
 // XPackSecurityPutRoleMapping adds a role mapping.
