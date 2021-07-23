@@ -1926,10 +1926,7 @@ func (c *Client) XPackIlmDeleteLifecycle() *XPackIlmDeleteLifecycleService {
 
 // -- X-Pack Security --
 
-// XPackSecurityPutUser adds or updates a user.
-func (c *Client) XPackSecurityPutUser(username string) *XPackSecurityPutUserService {
-	return NewXPackSecurityPutUserService(c).Username(username)
-}
+
 
 // XPackSecurityGetUser gets details about one or more users.
 func (c *Client) XPackSecurityGetUser(usernames ...string) *XPackSecurityGetUserService {
