@@ -26,7 +26,7 @@ import (
 
 const (
 	// Version is the current version of Elastic.
-	Version = "6.2.36"
+	Version = "6.2.37"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -1925,8 +1925,6 @@ func (c *Client) XPackIlmDeleteLifecycle() *XPackIlmDeleteLifecycleService {
 }
 
 // -- X-Pack Security --
-
-
 
 // XPackSecurityGetUser gets details about one or more users.
 func (c *Client) XPackSecurityGetUser(usernames ...string) *XPackSecurityGetUserService {
