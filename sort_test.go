@@ -165,6 +165,7 @@ func TestGeoDistanceSort(t *testing.T) {
 		Point(-70, 40).
 		Order(true).
 		Unit("km").
+		IgnoreUnmapped(true).
 		SortMode("min").
 		GeoDistance("plane")
 	src, err := builder.Source()
@@ -176,7 +177,7 @@ func TestGeoDistanceSort(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"_geo_distance":{"distance_type":"plane","mode":"min","order":"asc","pin.location":[{"lat":-70,"lon":40}],"unit":"km"}}`
+	expected := `{"_geo_distance":{"distance_type":"plane","ignore_unmapped":true,"mode":"min","order":"asc","pin.location":[{"lat":-70,"lon":40}],"unit":"km"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

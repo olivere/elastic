@@ -308,16 +308,17 @@ func (s *FieldSort) Source() (interface{}, error) {
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-sort.html#_geo_distance_sorting.
 type GeoDistanceSort struct {
 	Sorter
-	fieldName    string
-	points       []*GeoPoint
-	geohashes    []string
-	distanceType *string
-	unit         string
-	ascending    bool
-	sortMode     *string
-	nestedFilter Query
-	nestedPath   *string
-	nestedSort   *NestedSort
+	fieldName      string
+	points         []*GeoPoint
+	geohashes      []string
+	distanceType   *string
+	unit           string
+	ignoreUnmapped *bool
+	ascending      bool
+	sortMode       *string
+	nestedFilter   Query
+	nestedPath     *string
+	nestedSort     *NestedSort
 }
 
 // NewGeoDistanceSort creates a new sorter for geo distances.
@@ -375,6 +376,15 @@ func (s *GeoDistanceSort) GeoHashes(geohashes ...string) *GeoDistanceSort {
 // for details.
 func (s *GeoDistanceSort) Unit(unit string) *GeoDistanceSort {
 	s.unit = unit
+	return s
+}
+
+// IgnoreUnmapped indicates whether the unmapped field should be treated as
+// a missing value. Setting it to true is equivalent to specifying an
+// unmapped_type in the field sort. The default is false (unmapped field
+// causes the search to fail).
+func (s *GeoDistanceSort) IgnoreUnmapped(ignoreUnmapped bool) *GeoDistanceSort {
+	s.ignoreUnmapped = &ignoreUnmapped
 	return s
 }
 
@@ -438,6 +448,9 @@ func (s *GeoDistanceSort) Source() (interface{}, error) {
 
 	if s.unit != "" {
 		x["unit"] = s.unit
+	}
+	if s.ignoreUnmapped != nil {
+		x["ignore_unmapped"] = *s.ignoreUnmapped
 	}
 	if s.distanceType != nil {
 		x["distance_type"] = *s.distanceType
