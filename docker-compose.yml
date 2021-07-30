@@ -13,6 +13,7 @@ services:
       - network.publish_host=127.0.0.1
       - logger.org.elasticsearch=warn
       - xpack.security.enabled=false
+      - path.repo=/usr/share/elasticsearch/backup
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
     ulimits:
       nproc: 65536
@@ -22,8 +23,8 @@ services:
       memlock:
         soft: -1
         hard: -1
-    # volumes:
-    #   - ./data/elasticsearch:/usr/share/elasticsearch/data
+    volumes:
+      - ./data/backup:/usr/share/elasticsearch/backup
     ports:
       - 9200:9200
   platinum:
@@ -43,6 +44,7 @@ services:
       - http.port=9210
       - network.publish_host=127.0.0.1
       - logger.org.elasticsearch=warn
+      - path.repo=/usr/share/elasticsearch/backup
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - ELASTIC_PASSWORD=elastic
     ulimits:
@@ -53,7 +55,7 @@ services:
       memlock:
         soft: -1
         hard: -1
-    # volumes:
-    #   - ./data/elasticsearch-platinum:/usr/share/elasticsearch/data
+    volumes:
+      - ./data/backup:/usr/share/elasticsearch/backup
     ports:
       - 9210:9210

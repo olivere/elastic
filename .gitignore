@@ -25,6 +25,7 @@ _testmain.go
 
 /.vscode/
 /.idea/
+/data
 /debug.test
 /generator
 /cluster-test/cluster-test
@@ -35,4 +36,3 @@ _testmain.go
 /spec
 /tmp
 /CHANGELOG-3.0.html
-
