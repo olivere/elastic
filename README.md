@@ -298,7 +298,7 @@ Here are a few tips on how to get used to Elastic:
 - [X] cat fielddata
 - [X] cat health
 - [X] cat indices
-- [ ] cat master
+- [x] cat master
 - [ ] cat nodeattrs
 - [ ] cat nodes
 - [ ] cat pending tasks
