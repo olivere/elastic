@@ -1,8 +1,6 @@
-version: '3'
-
 services:
   es1:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.13.2}
+    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.13.4}
     hostname: es1
     environment:
       - bootstrap.memory_lock=true
@@ -28,7 +26,7 @@ services:
       - 9200:9200
 
   es2:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.13.2}
+    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.13.4}
     hostname: es2
     environment:
       - bootstrap.memory_lock=true
@@ -54,7 +52,7 @@ services:
       - 9201:9200
 
   es3:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.13.2}
+    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.13.4}
     hostname: es3
     environment:
       - bootstrap.memory_lock=true
