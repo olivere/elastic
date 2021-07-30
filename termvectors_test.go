@@ -102,7 +102,7 @@ func TestTermVectorsWithDoc(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	// Travis lags sometimes
-	if isTravis() {
+	if isCI() {
 		time.Sleep(2 * time.Second)
 	}
 
@@ -136,7 +136,7 @@ func TestTermVectorsWithFilter(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	// Travis lags sometimes
-	if isTravis() {
+	if isCI() {
 		time.Sleep(2 * time.Second)
 	}
 

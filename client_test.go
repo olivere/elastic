@@ -90,7 +90,7 @@ func TestClientWithoutURL(t *testing.T) {
 	if len(client.conns) == 0 {
 		t.Fatalf("expected at least 1 node in the cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
-	if !isTravis() {
+	if !isCI() {
 		if _, found := findConn(DefaultURL, client.conns...); !found {
 			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
 		}
@@ -108,7 +108,7 @@ func TestClientWithSingleURL(t *testing.T) {
 	if len(client.conns) == 0 {
 		t.Fatalf("expected at least 1 node in the cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
-	if !isTravis() {
+	if !isCI() {
 		if _, found := findConn(DefaultURL, client.conns...); !found {
 			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
 		}
@@ -124,7 +124,7 @@ func TestClientWithMultipleURLs(t *testing.T) {
 	if len(client.conns) != 1 {
 		t.Fatalf("expected exactly 1 node in the local cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
-	if !isTravis() {
+	if !isCI() {
 		if client.conns[0].URL() != DefaultURL {
 			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
 		}
@@ -269,7 +269,7 @@ func TestClientFromConfig(t *testing.T) {
 	if len(client.conns) == 0 {
 		t.Fatalf("expected at least 1 node in the cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
-	if !isTravis() {
+	if !isCI() {
 		if _, found := findConn(DefaultURL, client.conns...); !found {
 			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
 		}
@@ -291,7 +291,7 @@ func TestClientDialFromConfig(t *testing.T) {
 	if len(client.conns) == 0 {
 		t.Fatalf("expected at least 1 node in the cluster, got: %d (%v)", len(client.conns), client.conns)
 	}
-	if !isTravis() {
+	if !isCI() {
 		if _, found := findConn(DefaultURL, client.conns...); !found {
 			t.Errorf("expected to find node with default URL of %s in %v", DefaultURL, client.conns)
 		}

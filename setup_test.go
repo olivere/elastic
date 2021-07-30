@@ -265,15 +265,9 @@ type doctype struct {
 	Message string `json:"message"`
 }
 
-func isTravis() bool {
-	return os.Getenv("TRAVIS") != ""
+func isCI() bool {
+	return os.Getenv("TRAVIS") != "" || os.Getenv("CI") != "" || os.Getenv("GITHUB_ACTIONS") != ""
 }
-
-func travisGoVersion() string {
-	return os.Getenv("TRAVIS_GO_VERSION")
-}
-
-var _ = travisGoVersion // remove unused warning in staticcheck
 
 type logger interface {
 	Error(args ...interface{})
