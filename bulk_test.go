@@ -495,7 +495,7 @@ func TestBulkEstimateSizeInBytesLength(t *testing.T) {
 	s := client.Bulk()
 	r := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
 	s = s.Add(r)
-	if got, want := s.estimateSizeInBytes(r), int64(1+len(r.String())); got != want {
+	if got, want := s.EstimateSizeInBytes(r), int64(1+len(r.String())); got != want {
 		t.Fatalf("expected %d; got: %d", want, got)
 	}
 }

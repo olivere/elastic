@@ -183,7 +183,7 @@ func (s *BulkService) EstimatedSizeInBytes() int64 {
 		return s.sizeInBytes
 	}
 	for _, r := range s.requests[s.sizeInBytesCursor:] {
-		s.sizeInBytes += s.estimateSizeInBytes(r)
+		s.sizeInBytes += s.EstimateSizeInBytes(r)
 		s.sizeInBytesCursor++
 	}
 	return s.sizeInBytes
@@ -192,7 +192,7 @@ func (s *BulkService) EstimatedSizeInBytes() int64 {
 // estimateSizeInBytes returns the estimates size of the given
 // bulkable request, i.e. BulkIndexRequest, BulkUpdateRequest, and
 // BulkDeleteRequest.
-func (s *BulkService) estimateSizeInBytes(r BulkableRequest) int64 {
+func (s *BulkService) EstimateSizeInBytes(r BulkableRequest) int64 {
 	lines, _ := r.Source()
 	size := 0
 	for _, line := range lines {
