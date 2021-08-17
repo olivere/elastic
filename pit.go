@@ -17,11 +17,14 @@ type PointInTime struct {
 }
 
 // NewPointInTime creates a new PointInTime.
-func NewPointInTime(id, keepAlive string) *PointInTime {
-	return &PointInTime{
+func NewPointInTime(id string, keepAlive ...string) *PointInTime {
+	pit := &PointInTime{
 		Id:        id,
-		KeepAlive: keepAlive,
 	}
+	if len(keepAlive) > 1 {
+		pit.KeepAlive = keepAlive[0]
+	}
+	return pit
 }
 
 // Source generates the JSON serializable fragment for the PointInTime.
