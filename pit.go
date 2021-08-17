@@ -29,8 +29,13 @@ func (pit *PointInTime) Source() (interface{}, error) {
 	if pit == nil {
 		return nil, nil
 	}
-	return map[string]interface{}{
-		"id":         pit.Id,
-		"keep_alive": pit.KeepAlive,
-	}, nil
+	source := map[string]interface{}{
+		"id": pit.Id,
+	}
+
+	if pit.KeepAlive != "" {
+		source["keep_alive"] = pit.KeepAlive
+	}
+
+	return source, nil
 }
