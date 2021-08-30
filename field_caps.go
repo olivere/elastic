@@ -32,6 +32,7 @@ type FieldCapsService struct {
 	expandWildcards   string
 	fields            []string
 	ignoreUnavailable *bool
+	includeUnmapped   *bool
 	bodyJson          interface{}
 	bodyString        string
 }
@@ -117,6 +118,12 @@ func (s *FieldCapsService) IgnoreUnavailable(ignoreUnavailable bool) *FieldCapsS
 	return s
 }
 
+// IncludeUnmapped specifies whether unmapped fields whould be included in the response.
+func (s *FieldCapsService) IncludeUnmapped(includeUnmapped bool) *FieldCapsService {
+	s.includeUnmapped = &includeUnmapped
+	return s
+}
+
 // BodyJson is documented as: Field json objects containing the name and optionally a range to filter out indices result, that have results outside the defined bounds.
 func (s *FieldCapsService) BodyJson(body interface{}) *FieldCapsService {
 	s.bodyJson = body
@@ -160,7 +167,7 @@ func (s *FieldCapsService) buildURL() (string, url.Values, error) {
 		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.allowNoIndices != nil {
-		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+		params.Set("allow_no_indices", fmt.Sprint(*s.allowNoIndices))
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
@@ -169,7 +176,10 @@ func (s *FieldCapsService) buildURL() (string, url.Values, error) {
 		params.Set("fields", strings.Join(s.fields, ","))
 	}
 	if s.ignoreUnavailable != nil {
-		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+		params.Set("ignore_unavailable", fmt.Sprint(*s.ignoreUnavailable))
+	}
+	if s.includeUnmapped != nil {
+		params.Set("include_unmapped", fmt.Sprint(*s.includeUnmapped))
 	}
 	return path, params, nil
 }
@@ -231,7 +241,9 @@ func (s *FieldCapsService) Do(ctx context.Context) (*FieldCapsResponse, error) {
 // FieldCapsRequest can be used to set up the body to be used in the
 // Field Capabilities API.
 type FieldCapsRequest struct {
-	Fields []string `json:"fields"`
+	Fields          []string        `json:"fields"` // list of fields to retrieve
+	IndexFilter     Query           `json:"index_filter,omitempty"`
+	RuntimeMappings RuntimeMappings `json:"runtime_mappings,omitempty"`
 }
 
 // -- Response --
@@ -248,10 +260,12 @@ type FieldCapsType map[string]FieldCaps // type -> caps
 
 // FieldCaps contains capabilities of an individual field.
 type FieldCaps struct {
-	Type                   string   `json:"type"`
-	Searchable             bool     `json:"searchable"`
-	Aggregatable           bool     `json:"aggregatable"`
-	Indices                []string `json:"indices,omitempty"`
-	NonSearchableIndices   []string `json:"non_searchable_indices,omitempty"`
-	NonAggregatableIndices []string `json:"non_aggregatable_indices,omitempty"`
+	Type                   string                 `json:"type"`
+	MetadataField          bool                   `json:"metadata_field"`
+	Searchable             bool                   `json:"searchable"`
+	Aggregatable           bool                   `json:"aggregatable"`
+	Indices                []string               `json:"indices,omitempty"`
+	NonSearchableIndices   []string               `json:"non_searchable_indices,omitempty"`
+	NonAggregatableIndices []string               `json:"non_aggregatable_indices,omitempty"`
+	Meta                   map[string]interface{} `json:"meta,omitempty"`
 }

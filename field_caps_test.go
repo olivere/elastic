@@ -96,25 +96,25 @@ func TestFieldCapsResponse(t *testing.T) {
 				"failed": 0
 		},
 		"fields": {
-			"rating": { 
+			"rating": {
 				"long": {
 					"searchable": true,
 					"aggregatable": false,
 					"indices": ["index1", "index2"],
-					"non_aggregatable_indices": ["index1"] 
+					"non_aggregatable_indices": ["index1"]
 				},
 				"keyword": {
 					"searchable": false,
 					"aggregatable": true,
 					"indices": ["index3", "index4"],
-					"non_searchable_indices": ["index4"] 
+					"non_searchable_indices": ["index4"]
 				}
 			},
-			"title": { 
+			"title": {
 				"text": {
 					"searchable": true,
 					"aggregatable": false
-	
+
 				}
 			}
 		}

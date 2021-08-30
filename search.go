@@ -159,6 +159,12 @@ func (s *SearchService) PointInTime(pointInTime *PointInTime) *SearchService {
 	return s
 }
 
+// RuntimeMappings specifies optional runtime mappings.
+func (s *SearchService) RuntimeMappings(runtimeMappings RuntimeMappings) *SearchService {
+	s.searchSource = s.searchSource.RuntimeMappings(runtimeMappings)
+	return s
+}
+
 // TimeoutInMillis sets the timeout in milliseconds.
 func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
 	s.searchSource = s.searchSource.TimeoutInMillis(timeoutInMillis)
@@ -764,7 +770,7 @@ type SearchHit struct {
 	Sort           []interface{}                  `json:"sort,omitempty"`            // sort information
 	Highlight      SearchHitHighlight             `json:"highlight,omitempty"`       // highlighter information
 	Source         json.RawMessage                `json:"_source,omitempty"`         // stored document source
-	Fields         map[string]interface{}         `json:"fields,omitempty"`          // returned (stored) fields
+	Fields         SearchHitFields                `json:"fields,omitempty"`          // returned (stored) fields
 	Explanation    *SearchExplanation             `json:"_explanation,omitempty"`    // explains how the score was computed
 	MatchedQueries []string                       `json:"matched_queries,omitempty"` // matched queries
 	InnerHits      map[string]*SearchHitInnerHits `json:"inner_hits,omitempty"`      // inner hits with ES >= 1.5.0
@@ -775,6 +781,43 @@ type SearchHit struct {
 	// HighlightFields
 	// SortValues
 	// MatchedFilters
+}
+
+// SearchHitFields helps to simplify resolving slices of specific types.
+type SearchHitFields map[string]interface{}
+
+// Strings returns a slice of strings for the given field, if there is any
+// such field in the hit. The method ignores elements that are not of type
+// string.
+func (f SearchHitFields) Strings(fieldName string) ([]string, bool) {
+	slice, ok := f[fieldName].([]interface{})
+	if !ok {
+		return nil, false
+	}
+	results := make([]string, 0, len(slice))
+	for _, item := range slice {
+		if v, ok := item.(string); ok {
+			results = append(results, v)
+		}
+	}
+	return results, true
+}
+
+// Float64s returns a slice of float64's for the given field, if there is any
+// such field in the hit. The method ignores elements that are not of
+// type float64.
+func (f SearchHitFields) Float64s(fieldName string) ([]float64, bool) {
+	slice, ok := f[fieldName].([]interface{})
+	if !ok {
+		return nil, false
+	}
+	results := make([]float64, 0, len(slice))
+	for _, item := range slice {
+		if v, ok := item.(float64); ok {
+			results = append(results, v)
+		}
+	}
+	return results, true
 }
 
 // SearchHitInnerHits is used for inner hits.

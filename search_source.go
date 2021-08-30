@@ -42,7 +42,8 @@ type SearchSource struct {
 	collapse                 *CollapseBuilder // collapse
 	profile                  bool             // profile
 	// TODO extBuilders []SearchExtBuilder // ext
-	pointInTime *PointInTime // pit
+	pointInTime     *PointInTime // pit
+	runtimeMappings RuntimeMappings
 }
 
 // NewSearchSource initializes a new SearchSource.
@@ -375,6 +376,12 @@ func (s *SearchSource) PointInTime(pointInTime *PointInTime) *SearchSource {
 	return s
 }
 
+// RuntimeMappings specifies optional runtime mappings.
+func (s *SearchSource) RuntimeMappings(runtimeMappings RuntimeMappings) *SearchSource {
+	s.runtimeMappings = runtimeMappings
+	return s
+}
+
 // Source returns the serializable JSON for the source builder.
 func (s *SearchSource) Source() (interface{}, error) {
 	source := make(map[string]interface{})
@@ -612,6 +619,14 @@ func (s *SearchSource) Source() (interface{}, error) {
 			return nil, err
 		}
 		source["pit"] = src
+	}
+
+	if s.runtimeMappings != nil {
+		src, err := s.runtimeMappings.Source()
+		if err != nil {
+			return nil, err
+		}
+		source["runtime_mappings"] = src
 	}
 
 	return source, nil
