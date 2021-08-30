@@ -3,7 +3,7 @@ module github.com/olivere/elastic/v7
 go 1.15
 
 require (
-	github.com/aws/aws-sdk-go v1.40.11
+	github.com/aws/aws-sdk-go v1.40.32
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/google/go-cmp v0.5.6
 	github.com/mailru/easyjson v0.7.7
