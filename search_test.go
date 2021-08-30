@@ -477,9 +477,14 @@ func TestSearchSpecificFields(t *testing.T) {
 	// client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
-	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
-	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
+	tweet1 := tweet{User: "olivere", Retweets: 1, Message: "Welcome to Golang and Elasticsearch."}
+	tweet2 := tweet{User: "olivere", Retweets: 2, Message: "Another unrelated topic."}
+	tweet3 := tweet{User: "sandrae", Retweets: 3, Message: "Cycling is fun."}
+	tweets := []tweet{
+		tweet1,
+		tweet2,
+		tweet3,
+	}
 
 	// Add all documents
 	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
@@ -508,6 +513,8 @@ func TestSearchSpecificFields(t *testing.T) {
 		Index(testIndexName).
 		Query(all).
 		StoredFields("message").
+		DocvalueFields("retweets").
+		Sort("_id", true).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -522,6 +529,7 @@ func TestSearchSpecificFields(t *testing.T) {
 		t.Errorf("expected len(SearchResult.Hits.Hits) = %d; got %d", 3, len(searchResult.Hits.Hits))
 	}
 
+	// Manually inspect the fields
 	for _, hit := range searchResult.Hits.Hits {
 		if hit.Index != testIndexName {
 			t.Errorf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
@@ -549,6 +557,42 @@ func TestSearchSpecificFields(t *testing.T) {
 		}
 		if message == "" {
 			t.Errorf("expected a message; got: %q", message)
+		}
+	}
+
+	// With the new helper method for fields
+	for i, hit := range searchResult.Hits.Hits {
+		// Field: message
+		items, ok := hit.Fields.Strings("message")
+		if !ok {
+			t.Fatalf("expected SearchResult.Hits.Hit.Fields[%s] to be found", "message")
+		}
+		if want, have := 1, len(items); want != have {
+			t.Fatalf("expected a field with %d entries; got %d", want, have)
+		}
+		if want, have := tweets[i].Message, items[0]; want != have {
+			t.Fatalf("expected message[%d]=%q; got %q", i, want, have)
+		}
+
+		// Field: retweets
+		retweets, ok := hit.Fields.Float64s("retweets")
+		if !ok {
+			t.Fatalf("expected SearchResult.Hits.Hit.Fields[%s] to be found", "retweets")
+		}
+		if want, have := 1, len(retweets); want != have {
+			t.Fatalf("expected a field with %d entries; got %d", want, have)
+		}
+		if want, have := tweets[i].Retweets, int(retweets[0]); want != have {
+			t.Fatalf("expected retweets[%d]=%q; got %q", i, want, have)
+		}
+
+		// Field should not exist
+		numbers, ok := hit.Fields.Float64s("score")
+		if ok {
+			t.Fatalf("expected SearchResult.Hits.Hit.Fields[%s] to NOT be found", "numbers")
+		}
+		if numbers != nil {
+			t.Fatalf("expected no field %q; got %+v", "numbers", numbers)
 		}
 	}
 }
