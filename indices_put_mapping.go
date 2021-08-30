@@ -33,7 +33,8 @@ type IndicesPutMappingService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
-	updateAllTypes    *bool
+	includeTypeName   *bool
+	writeIndexOnly    *bool
 	timeout           string
 	bodyJson          map[string]interface{}
 	bodyString        string
@@ -134,10 +135,15 @@ func (s *IndicesPutMappingService) ExpandWildcards(expandWildcards string) *Indi
 	return s
 }
 
-// UpdateAllTypes, if true, indicates that all fields that span multiple indices
-// should be updated (default: false).
-func (s *IndicesPutMappingService) UpdateAllTypes(updateAllTypes bool) *IndicesPutMappingService {
-	s.updateAllTypes = &updateAllTypes
+// IncludeTypeName indicates whether a type should be expected in the body of the mappings.
+func (s *IndicesPutMappingService) IncludeTypeName(includeTypeName bool) *IndicesPutMappingService {
+	s.includeTypeName = &includeTypeName
+	return s
+}
+
+// WriteIndexOnly, when true, applies mappings only to the write index of an alias or data stream.
+func (s *IndicesPutMappingService) WriteIndexOnly(writeIndexOnly bool) *IndicesPutMappingService {
+	s.writeIndexOnly = &writeIndexOnly
 	return s
 }
 
@@ -177,16 +183,19 @@ func (s *IndicesPutMappingService) buildURL() (string, url.Values, error) {
 		params.Set("filter_path", strings.Join(s.filterPath, ","))
 	}
 	if s.ignoreUnavailable != nil {
-		params.Set("ignore_unavailable", fmt.Sprintf("%v", *s.ignoreUnavailable))
+		params.Set("ignore_unavailable", fmt.Sprint(*s.ignoreUnavailable))
 	}
 	if s.allowNoIndices != nil {
-		params.Set("allow_no_indices", fmt.Sprintf("%v", *s.allowNoIndices))
+		params.Set("allow_no_indices", fmt.Sprint(*s.allowNoIndices))
 	}
 	if s.expandWildcards != "" {
 		params.Set("expand_wildcards", s.expandWildcards)
 	}
-	if s.updateAllTypes != nil {
-		params.Set("update_all_types", fmt.Sprintf("%v", *s.updateAllTypes))
+	if s.includeTypeName != nil {
+		params.Set("include_type_name", fmt.Sprint(*s.includeTypeName))
+	}
+	if s.writeIndexOnly != nil {
+		params.Set("write_index_only", fmt.Sprint(*s.writeIndexOnly))
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)

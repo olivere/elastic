@@ -31,16 +31,17 @@ type IndicesPutTemplateService struct {
 	filterPath []string    // list of filters used to reduce the response
 	headers    http.Header // custom request-level HTTP headers
 
-	name          string
-	cause         string
-	order         interface{}
-	version       *int
-	create        *bool
-	timeout       string
-	masterTimeout string
-	flatSettings  *bool
-	bodyJson      interface{}
-	bodyString    string
+	name            string
+	cause           string
+	order           interface{}
+	version         *int
+	create          *bool
+	timeout         string
+	masterTimeout   string
+	flatSettings    *bool
+	includeTypeName *bool
+	bodyJson        interface{}
+	bodyString      string
 }
 
 // NewIndicesPutTemplateService creates a new IndicesPutTemplateService.
@@ -115,6 +116,12 @@ func (s *IndicesPutTemplateService) MasterTimeout(masterTimeout string) *Indices
 	return s
 }
 
+// IncludeTypeName indicates whether a type should be expected in the body of the mappings.
+func (s *IndicesPutTemplateService) IncludeTypeName(includeTypeName bool) *IndicesPutTemplateService {
+	s.includeTypeName = &includeTypeName
+	return s
+}
+
 // FlatSettings indicates whether to return settings in flat format (default: false).
 func (s *IndicesPutTemplateService) FlatSettings(flatSettings bool) *IndicesPutTemplateService {
 	s.flatSettings = &flatSettings
@@ -181,10 +188,10 @@ func (s *IndicesPutTemplateService) buildURL() (string, url.Values, error) {
 		params.Set("order", fmt.Sprintf("%v", s.order))
 	}
 	if s.version != nil {
-		params.Set("version", fmt.Sprintf("%v", *s.version))
+		params.Set("version", fmt.Sprint(*s.version))
 	}
 	if s.create != nil {
-		params.Set("create", fmt.Sprintf("%v", *s.create))
+		params.Set("create", fmt.Sprint(*s.create))
 	}
 	if s.cause != "" {
 		params.Set("cause", s.cause)
@@ -196,7 +203,10 @@ func (s *IndicesPutTemplateService) buildURL() (string, url.Values, error) {
 		params.Set("master_timeout", s.masterTimeout)
 	}
 	if s.flatSettings != nil {
-		params.Set("flat_settings", fmt.Sprintf("%v", *s.flatSettings))
+		params.Set("flat_settings", fmt.Sprint(*s.flatSettings))
+	}
+	if s.includeTypeName != nil {
+		params.Set("include_type_name", fmt.Sprint(*s.includeTypeName))
 	}
 	return path, params, nil
 }

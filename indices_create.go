@@ -28,11 +28,12 @@ type IndicesCreateService struct {
 	filterPath []string    // list of filters used to reduce the response
 	headers    http.Header // custom request-level HTTP headers
 
-	index         string
-	timeout       string
-	masterTimeout string
-	bodyJson      interface{}
-	bodyString    string
+	index           string
+	timeout         string
+	masterTimeout   string
+	includeTypeName *bool
+	bodyJson        interface{}
+	bodyString      string
 }
 
 // NewIndicesCreateService returns a new IndicesCreateService.
@@ -98,6 +99,12 @@ func (s *IndicesCreateService) MasterTimeout(masterTimeout string) *IndicesCreat
 	return s
 }
 
+// IncludeTypeName indicates whether a type should be expected in the body of the mappings.
+func (s *IndicesCreateService) IncludeTypeName(includeTypeName bool) *IndicesCreateService {
+	s.includeTypeName = &includeTypeName
+	return s
+}
+
 // Body specifies the configuration of the index as a string.
 // It is an alias for BodyString.
 func (s *IndicesCreateService) Body(body string) *IndicesCreateService {
@@ -150,6 +157,9 @@ func (s *IndicesCreateService) Do(ctx context.Context) (*IndicesCreateResult, er
 	}
 	if s.timeout != "" {
 		params.Set("timeout", s.timeout)
+	}
+	if v := s.includeTypeName; v != nil {
+		params.Set("include_type_name", fmt.Sprint(*v))
 	}
 
 	// Setup HTTP request body
