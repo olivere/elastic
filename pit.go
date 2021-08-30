@@ -17,7 +17,15 @@ type PointInTime struct {
 }
 
 // NewPointInTime creates a new PointInTime.
-func NewPointInTime(id, keepAlive string) *PointInTime {
+func NewPointInTime(id string) *PointInTime {
+	return &PointInTime{
+		Id: id,
+	}
+}
+
+// NewPointInTimeWithKeepAlive creates a new PointInTime with the given
+// time to keep alive.
+func NewPointInTimeWithKeepAlive(id, keepAlive string) *PointInTime {
 	return &PointInTime{
 		Id:        id,
 		KeepAlive: keepAlive,
@@ -29,8 +37,11 @@ func (pit *PointInTime) Source() (interface{}, error) {
 	if pit == nil {
 		return nil, nil
 	}
-	return map[string]interface{}{
-		"id":         pit.Id,
-		"keep_alive": pit.KeepAlive,
-	}, nil
+	m := map[string]interface{}{
+		"id": pit.Id,
+	}
+	if pit.KeepAlive != "" {
+		m["keep_alive"] = pit.KeepAlive
+	}
+	return m, nil
 }

@@ -320,7 +320,7 @@ func TestSearchSourceSeqNoAndPrimaryTerm(t *testing.T) {
 func TestSearchSourcePointInTime(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	builder := NewSearchSource().Query(matchAllQ).PointInTime(
-		NewPointInTime("pit_id", "2m"),
+		NewPointInTimeWithKeepAlive("pit_id", "2m"),
 	)
 	src, err := builder.Source()
 	if err != nil {

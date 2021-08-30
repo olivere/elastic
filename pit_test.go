@@ -76,7 +76,7 @@ func TestPointInTimeLifecycle(t *testing.T) {
 	searchResult, err := client.Search().
 		// Index(testIndexName). // <-- you may not use indices with PointInTime!
 		Query(NewMatchAllQuery()).
-		PointInTime(NewPointInTime(pitResp.Id, "1m")).
+		PointInTime(NewPointInTimeWithKeepAlive(pitResp.Id, "1m")).
 		Size(100).
 		Pretty(true).
 		Do(context.TODO())
