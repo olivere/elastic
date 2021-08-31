@@ -350,6 +350,15 @@ func (s *SearchService) Do() (*SearchResult, error) {
 	return ret, nil
 }
 
+// GetSource return source
+func (s *SearchService) GetSource() interface{} {
+	if s.source != nil {
+		return s.source
+	} else {
+		return s.searchSource.Source()
+	}
+}
+
 // SearchResult is the result of a search in Elasticsearch.
 type SearchResult struct {
 	TookInMillis int64         `json:"took"`            // search time in milliseconds
