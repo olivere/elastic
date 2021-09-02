@@ -2,7 +2,9 @@ package elastic
 
 import (
 	"context"
+	"fmt"
 	"testing"
+	"time"
 )
 
 const (
@@ -105,6 +107,28 @@ const (
 				}
 			}
 		}
+	}`
+	testRollupBody = `{
+		"index_pattern": "elastic-orders",
+		"rollup_index": "orders-rollup",
+		"cron": "*/30 * * * * ?",
+		"page_size" :1000,
+		"groups" : {
+			"date_histogram": {
+				"field": "time",
+				"interval": "1h",
+				"delay": "7d"
+			},
+			"terms": {
+				"fields": ["manufacturer"]
+			}
+		},
+		"metrics": [
+			{
+				"field": "price",
+				"metrics": ["min", "max", "sum"]
+			}
+		]
 	}`
 )
 
@@ -403,5 +427,86 @@ func TestXPackWatcher(t *testing.T) {
 	}
 	if want, have := true, start.Acknowledged; want != have {
 		t.Errorf("expected start.Acknowledged == %v; got %v", want, have)
+	}
+}
+
+func TestXPackRollup(t *testing.T) {
+	client := setupTestClientAndCreateIndexAndAddDocs(t, SetURL("http://elastic:elastic@localhost:9210"))
+
+	xpack_info, err := client.XPackInfo().Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !xpack_info.Features.Rollup.Enabled {
+		t.Skip("skip due to deactivated xpack rollup")
+	}
+
+	// Adding timestamp to the job id here to improve test re-run ablity, relates to issue where rollup jobs are
+	// not cleanly removed leaving _meta behind. https://github.com/elastic/elasticsearch/issues/31347
+	jobId := fmt.Sprintf("my-job-%d", time.Now().Unix())
+
+	// Add a rollup job
+	_, err = client.XPackRollupPut(jobId).Body(testRollupBody).Do(context.Background())
+	if err != nil {
+		if IsForbidden(err) {
+			t.Skipf("skip due to missing license: %v", err)
+		}
+		t.Fatal(err)
+	}
+	defer func() {
+		client.XPackRollupDelete(jobId).Do(context.Background())
+	}()
+
+	// Get rollup jobs
+	jobs, err := client.XPackRollupGet(jobId).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(jobs.Jobs) != 1 {
+		t.Errorf("expected len(jobs.Jobs) == 1; got %d", len(jobs.Jobs))
+	}
+	if want, have := jobs.Jobs[0].Config.IndexPattern, "elastic-orders"; want != have {
+		t.Errorf("expected IndexPattern == %q; got %q", want, have)
+	}
+
+	// Start rollup job
+	_, err = client.XPackRollupStart(jobId).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	jobs, err = client.XPackRollupGet(jobId).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want, have := "started", jobs.Jobs[0].Status.JobState; want != have {
+		t.Errorf("expected job.Status.JobState == %v; got %v", want, have)
+	}
+
+	// Stop rollup job
+	_, err = client.XPackRollupStop(jobId).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	jobs, err = client.XPackRollupGet(jobId).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want, have := "stopped", jobs.Jobs[0].Status.JobState; want != have {
+		t.Errorf("expected job.Status.JobState == %v; got %v", want, have)
+	}
+
+	// Delete rollup job
+	_, err = client.XPackRollupDelete(jobId).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	jobs, err = client.XPackRollupGet(jobId).Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(jobs.Jobs) > 0 {
+		t.Errorf("expected len(jobs.Jobs) == 0; got %d", len(jobs.Jobs))
 	}
 }

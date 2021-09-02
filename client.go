@@ -2188,6 +2188,33 @@ func (c *Client) XPackSecurityDeleteUser(username string) *XPackSecurityDeleteUs
 	return NewXPackSecurityDeleteUserService(c).Username(username)
 }
 
+// -- X-Pack Rollup --
+
+// XPackRollupPut creates or updates a rollup job.
+func (c *Client) XPackRollupPut(jobId string) *XPackRollupPutService {
+	return NewXPackRollupPutService(c).JobId(jobId)
+}
+
+// XPackRollupGet gets a rollup job.
+func (c *Client) XPackRollupGet(jobId string) *XPackRollupGetService {
+	return NewXPackRollupGetService(c).JobId(jobId)
+}
+
+// XPackRollupDelete deletes a rollup job.
+func (c *Client) XPackRollupDelete(jobId string) *XPackRollupDeleteService {
+	return NewXPackRollupDeleteService(c).JobId(jobId)
+}
+
+// XPackRollupStart starts a rollup job.
+func (c *Client) XPackRollupStart(jobId string) *XPackRollupStartService {
+	return NewXPackRollupStartService(c).JobId(jobId)
+}
+
+// XPackRollupStop stops a rollup job.
+func (c *Client) XPackRollupStop(jobId string) *XPackRollupStopService {
+	return NewXPackRollupStopService(c).JobId(jobId)
+}
+
 // -- X-Pack Watcher --
 
 // XPackWatchPut adds a watch.
