@@ -327,6 +327,13 @@ Here are a few tips on how to get used to Elastic:
 - [ ] Nodes hot_threads
 - [ ] Cluster Allocation Explain API
 
+### Rollup APIs (XPack)
+- [x] Create Job
+- [x] Delete Job
+- [x] Get Job
+- [x] Start Job
+- [x] Stop Job
+
 ### Query DSL
 
 - [x] Match All Query
