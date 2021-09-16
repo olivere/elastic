@@ -9,20 +9,6 @@ import (
 	"testing"
 )
 
-func TestGeoBoundingBoxQueryIncomplete(t *testing.T) {
-	q := NewGeoBoundingBoxQuery("pin.location")
-	q = q.TopLeft(40.73, -74.1)
-	// no bottom and no right here
-	q = q.Type("memory")
-	src, err := q.Source()
-	if err == nil {
-		t.Fatal("expected error")
-	}
-	if src != nil {
-		t.Fatal("expected empty source")
-	}
-}
-
 func TestGeoBoundingBoxQuery(t *testing.T) {
 	q := NewGeoBoundingBoxQuery("pin.location")
 	q = q.TopLeft(40.73, -74.1)
@@ -57,6 +43,83 @@ func TestGeoBoundingBoxQueryWithGeoPoint(t *testing.T) {
 	}
 	got := string(data)
 	expected := `{"geo_bounding_box":{"pin.location":{"bottom_right":[-71.12,40.01],"top_left":[-74.1,40.73]}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestGeoBoundingBoxQueryWithGeoHash(t *testing.T) {
+	q := NewGeoBoundingBoxQuery("pin.location")
+	q = q.TopLeftFromGeoHash("dr5r9ydj2y73")
+	q = q.BottomRightFromGeoHash("drj7teegpus6")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"geo_bounding_box":{"pin.location":{"bottom_right":"drj7teegpus6","top_left":"dr5r9ydj2y73"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestGeoBoundingBoxQueryWithWKT(t *testing.T) {
+	q := NewGeoBoundingBoxQuery("pin.location")
+	q = q.WKT("BBOX (-74.1, -71.12, 40.73, 40.01)")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"geo_bounding_box":{"pin.location":{"wkt":"BBOX (-74.1, -71.12, 40.73, 40.01)"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestGeoBoundingBoxQueryWithMixed(t *testing.T) {
+	q := NewGeoBoundingBoxQuery("pin.location")
+	q = q.TopLeftFromGeoPoint(GeoPointFromLatLon(40.73, -74.1))
+	q = q.BottomRightFromGeoHash("drj7teegpus6")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"geo_bounding_box":{"pin.location":{"bottom_right":"drj7teegpus6","top_left":[-74.1,40.73]}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestGeoBoundingBoxQueryWithParameters(t *testing.T) {
+	q := NewGeoBoundingBoxQuery("pin.location")
+	q = q.TopLeftFromGeoHash("dr5r9ydj2y73")
+	q = q.BottomRightFromGeoHash("drj7teegpus6")
+	q = q.ValidationMethod("IGNORE_MALFORMED")
+	q = q.IgnoreUnmapped((true))
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"geo_bounding_box":{"ignore_unmapped":true,"pin.location":{"bottom_right":"drj7teegpus6","top_left":"dr5r9ydj2y73"},"validation_method":"IGNORE_MALFORMED"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
