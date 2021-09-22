@@ -14,15 +14,12 @@ type SamplerAggregation struct {
 	subAggregations map[string]Aggregation
 	meta            map[string]interface{}
 
-	shardSize       int
-	maxDocsPerValue int
-	executionHint   string
+	shardSize int
 }
 
 func NewSamplerAggregation() *SamplerAggregation {
 	return &SamplerAggregation{
 		shardSize:       -1,
-		maxDocsPerValue: -1,
 		subAggregations: make(map[string]Aggregation),
 	}
 }
@@ -41,16 +38,6 @@ func (a *SamplerAggregation) Meta(metaData map[string]interface{}) *SamplerAggre
 // ShardSize sets the maximum number of docs returned from each shard.
 func (a *SamplerAggregation) ShardSize(shardSize int) *SamplerAggregation {
 	a.shardSize = shardSize
-	return a
-}
-
-func (a *SamplerAggregation) MaxDocsPerValue(maxDocsPerValue int) *SamplerAggregation {
-	a.maxDocsPerValue = maxDocsPerValue
-	return a
-}
-
-func (a *SamplerAggregation) ExecutionHint(hint string) *SamplerAggregation {
-	a.executionHint = hint
 	return a
 }
 
@@ -81,12 +68,6 @@ func (a *SamplerAggregation) Source() (interface{}, error) {
 
 	if a.shardSize >= 0 {
 		opts["shard_size"] = a.shardSize
-	}
-	if a.maxDocsPerValue >= 0 {
-		opts["max_docs_per_value"] = a.maxDocsPerValue
-	}
-	if a.executionHint != "" {
-		opts["execution_hint"] = a.executionHint
 	}
 
 	// AggregationBuilder (SubAggregations)
