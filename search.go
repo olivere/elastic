@@ -709,7 +709,7 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 			continue
 		}
 		if err := json.Unmarshal(hit.Source, v.Addr().Interface()); err == nil {
-                        if v1, ok := v.(SetIDInterface); ok {
+                        if v1, ok := v.Interface().(SetIDInterface); ok {
 			    v1.SetID(hit.Id)
 			}
 			slice = append(slice, v.Interface())
