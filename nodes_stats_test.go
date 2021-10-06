@@ -6,16 +6,28 @@ package elastic
 
 import (
 	"context"
+	"log"
+	"os"
 	"testing"
 )
 
 func TestNodesStats(t *testing.T) {
-	client, err := NewClient()
+	client, err := NewClient(SetTraceLog(log.New(os.Stdout, "", 0)))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	info, err := client.NodesStats().Human(true).Do(context.TODO())
+	// TODO(oe) Remove this hack after a fix for https://github.com/elastic/elasticsearch/issues/78311 is released
+	version, err := client.ElasticsearchVersion(DefaultURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if version == "7.15.0" {
+		t.Skip("skipping NodesStats test for 7.15.0 because of https://github.com/elastic/elasticsearch/issues/78311")
+		return
+	}
+
+	info, err := client.NodesStats().Human(true).Pretty(true).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

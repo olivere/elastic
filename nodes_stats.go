@@ -333,6 +333,7 @@ type NodesStatsNode struct {
 
 type NodesStatsIndex struct {
 	Docs         *NodesStatsDocsStats         `json:"docs"`
+	Shards       *NodesStatsShardCountStats   `json:"shards_stats"`
 	Store        *NodesStatsStoreStats        `json:"store"`
 	Indexing     *NodesStatsIndexingStats     `json:"indexing"`
 	Get          *NodesStatsGetStats          `json:"get"`
@@ -343,21 +344,23 @@ type NodesStatsIndex struct {
 	Warmer       *NodesStatsWarmerStats       `json:"warmer"`
 	QueryCache   *NodesStatsQueryCacheStats   `json:"query_cache"`
 	Fielddata    *NodesStatsFielddataStats    `json:"fielddata"`
-	Percolate    *NodesStatsPercolateStats    `json:"percolate"`
 	Completion   *NodesStatsCompletionStats   `json:"completion"`
 	Segments     *NodesStatsSegmentsStats     `json:"segments"`
 	Translog     *NodesStatsTranslogStats     `json:"translog"`
-	Suggest      *NodesStatsSuggestStats      `json:"suggest"`
 	RequestCache *NodesStatsRequestCacheStats `json:"request_cache"`
 	Recovery     NodesStatsRecoveryStats      `json:"recovery"`
 
-	Indices map[string]*NodesStatsIndex `json:"indices"` // for level=indices
-	Shards  map[string]*NodesStatsIndex `json:"shards"`  // for level=shards
+	IndicesLevel map[string]*NodesStatsIndex `json:"indices"` // for level=indices
+	ShardsLevel  map[string]*NodesStatsIndex `json:"shards"`  // for level=shards
 }
 
 type NodesStatsDocsStats struct {
 	Count   int64 `json:"count"`
 	Deleted int64 `json:"deleted"`
+}
+
+type NodesStatsShardCountStats struct {
+	TotalCount int64 `json:"total_count"`
 }
 
 type NodesStatsStoreStats struct {
@@ -473,16 +476,6 @@ type NodesStatsFielddataStats struct {
 	} `json:"fields"`
 }
 
-type NodesStatsPercolateStats struct {
-	Total             int64  `json:"total"`
-	Time              string `json:"time"`
-	TimeInMillis      int64  `json:"time_in_millis"`
-	Current           int64  `json:"current"`
-	MemorySize        string `json:"memory_size"`
-	MemorySizeInBytes int64  `json:"memory_size_in_bytes"`
-	Queries           int64  `json:"queries"`
-}
-
 type NodesStatsCompletionStats struct {
 	Size        string `json:"size"`
 	SizeInBytes int64  `json:"size_in_bytes"`
@@ -520,13 +513,6 @@ type NodesStatsTranslogStats struct {
 	Operations  int64  `json:"operations"`
 	Size        string `json:"size"`
 	SizeInBytes int64  `json:"size_in_bytes"`
-}
-
-type NodesStatsSuggestStats struct {
-	Total             int64  `json:"total"`
-	TotalTime         string `json:"total_time"`
-	TotalTimeInMillis int64  `json:"total_time_in_millis"`
-	Current           int64  `json:"current"`
 }
 
 type NodesStatsRequestCacheStats struct {
