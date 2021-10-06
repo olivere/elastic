@@ -6,13 +6,11 @@ package elastic
 
 import (
 	"context"
-	"log"
-	"os"
 	"testing"
 )
 
 func TestNodesStats(t *testing.T) {
-	client, err := NewClient(SetTraceLog(log.New(os.Stdout, "", 0)))
+	client, err := NewClient() // SetTraceLog(log.New(os.Stdout, "", 0)))
 	if err != nil {
 		t.Fatal(err)
 	}
