@@ -45,6 +45,7 @@ type DeleteByQueryService struct {
 	ignoreUnavailable      *bool
 	lenient                *bool
 	lowercaseExpandedTerms *bool
+	maxDocs                *int
 	preference             string
 	q                      string
 	refresh                string
@@ -260,6 +261,13 @@ func (s *DeleteByQueryService) Lenient(lenient bool) *DeleteByQueryService {
 // LowercaseExpandedTerms specifies whether query terms should be lowercased.
 func (s *DeleteByQueryService) LowercaseExpandedTerms(lowercaseExpandedTerms bool) *DeleteByQueryService {
 	s.lowercaseExpandedTerms = &lowercaseExpandedTerms
+	return s
+}
+
+// MaxDocs specifies the maximum number of documents to process.
+// Defaults to all documents.
+func (s *DeleteByQueryService) MaxDocs(maxDocs int) *DeleteByQueryService {
+	s.maxDocs = &maxDocs
 	return s
 }
 
@@ -552,6 +560,9 @@ func (s *DeleteByQueryService) buildURL() (string, url.Values, error) {
 	}
 	if s.lowercaseExpandedTerms != nil {
 		params.Set("lowercase_expanded_terms", fmt.Sprintf("%v", *s.lowercaseExpandedTerms))
+	}
+	if s.maxDocs != nil {
+		params.Set("max_docs", fmt.Sprint(*s.maxDocs))
 	}
 	if s.preference != "" {
 		params.Set("preference", s.preference)
