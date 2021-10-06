@@ -690,7 +690,7 @@ func (r *SearchResult) TotalHits() int64 {
 }
 
 type SetIDInterface interface {
-    SetID(ID string)
+	SetID(ID string)
 }
 
 // Each is a utility function to iterate over all hits. It saves you from
@@ -709,8 +709,8 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 			continue
 		}
 		if err := json.Unmarshal(hit.Source, v.Addr().Interface()); err == nil {
-                        if v1, ok := v.Interface().(SetIDInterface); ok {
-			    v1.SetID(hit.Id)
+			if v1, ok := v.Interface().(SetIDInterface); ok {
+				v1.SetID(hit.Id)
 			}
 			slice = append(slice, v.Interface())
 		}

@@ -261,6 +261,26 @@ func TestSearchResultEach(t *testing.T) {
 		t.Errorf("expected to find some hits; got: %d", count)
 	}
 
+	// Iterate over ptr-type
+	count = 0
+	var aTweetPtrWithID *tweetWithID
+	for _, item := range searchResult.Each(reflect.TypeOf(aTweetPtrWithID)) {
+		count++
+		tw, ok := item.(*tweetWithID)
+		if !ok {
+			t.Fatalf("expected hit to be serialized as tweet; got: %v", reflect.ValueOf(item))
+		}
+		if tw == nil {
+			t.Fatal("expected hit to not be nil")
+		}
+		if tw.ElasticID == "" {
+			t.Fatal("No ID setup in the structure")
+		}
+	}
+	if count == 0 {
+		t.Errorf("expected to find some hits; got: %d", count)
+	}
+
 	// Does not iterate when no hits are found
 	searchResult = &SearchResult{Hits: nil}
 	count = 0

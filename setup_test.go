@@ -239,6 +239,26 @@ func (t tweet) String() string {
 	return fmt.Sprintf("tweet{User:%q,Message:%q,Retweets:%d}", t.User, t.Message, t.Retweets)
 }
 
+type tweetWithID struct {
+	User      string        `json:"user"`
+	Message   string        `json:"message"`
+	Retweets  int           `json:"retweets"`
+	Image     string        `json:"image,omitempty"`
+	Created   time.Time     `json:"created,omitempty"`
+	Tags      []string      `json:"tags,omitempty"`
+	Location  string        `json:"location,omitempty"`
+	Suggest   *SuggestField `json:"suggest_field,omitempty"`
+	ElasticID string
+}
+
+func (t tweetWithID) String() string {
+	return fmt.Sprintf("tweet{User:%q,Message:%q,Retweets:%d}", t.User, t.Message, t.Retweets)
+}
+
+func (t tweetWithID) SetID(ID string) {
+	t.ElasticID = ID
+}
+
 type joinDoc struct {
 	Message   string      `json:"message"`
 	JoinField interface{} `json:"my_join_field,omitempty"`
