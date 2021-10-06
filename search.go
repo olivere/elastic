@@ -689,6 +689,10 @@ func (r *SearchResult) TotalHits() int64 {
 	return 0
 }
 
+type SetIDInterface interface {
+    SetID(ID string)
+}
+
 // Each is a utility function to iterate over all hits. It saves you from
 // checking for nil values. Notice that Each will ignore errors in
 // serializing JSON and hits with empty/nil _source will get an empty
@@ -705,6 +709,9 @@ func (r *SearchResult) Each(typ reflect.Type) []interface{} {
 			continue
 		}
 		if err := json.Unmarshal(hit.Source, v.Addr().Interface()); err == nil {
+                        if v1, ok := v.(SetIDInterface); ok {
+			    v1.SetID(hit.Id)
+			}
 			slice = append(slice, v.Interface())
 		}
 	}
