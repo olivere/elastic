@@ -20,8 +20,8 @@ func TestNodesStats(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if version == "7.15.0" {
-		t.Skip("skipping NodesStats test for 7.15.0 because of https://github.com/elastic/elasticsearch/issues/78311")
+	if version == "7.15.0" || version == "7.15.1" {
+		t.Skipf("skipping NodesStats test for %s because of https://github.com/elastic/elasticsearch/issues/78311", version)
 		return
 	}
 
