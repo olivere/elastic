@@ -84,6 +84,9 @@ const (
 )
 
 var (
+	// nilByte is used in JSON marshal/unmarshal
+	nilByte = []byte("null")
+
 	// ErrNoClient is raised when no Elasticsearch node is available.
 	ErrNoClient = errors.New("no Elasticsearch node available")
 
