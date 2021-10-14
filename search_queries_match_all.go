@@ -4,6 +4,8 @@
 
 package elastic
 
+import "encoding/json"
+
 // MatchAllQuery is the most simple query, which matches all documents,
 // giving them all a _score of 1.0.
 //
@@ -34,7 +36,7 @@ func (q *MatchAllQuery) QueryName(name string) *MatchAllQuery {
 }
 
 // Source returns JSON for the match all query.
-func (q MatchAllQuery) Source() (interface{}, error) {
+func (q *MatchAllQuery) Source() (interface{}, error) {
 	// {
 	//   "match_all" : { ... }
 	// }
@@ -48,4 +50,16 @@ func (q MatchAllQuery) Source() (interface{}, error) {
 		params["_name"] = q.queryName
 	}
 	return source, nil
+}
+
+// MarshalJSON enables serializing the type as JSON.
+func (q *MatchAllQuery) MarshalJSON() ([]byte, error) {
+	if q == nil {
+		return nilByte, nil
+	}
+	src, err := q.Source()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(src)
 }

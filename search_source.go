@@ -5,6 +5,7 @@
 package elastic
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -630,6 +631,18 @@ func (s *SearchSource) Source() (interface{}, error) {
 	}
 
 	return source, nil
+}
+
+// MarshalJSON enables serializing the type as JSON.
+func (q *SearchSource) MarshalJSON() ([]byte, error) {
+	if q == nil {
+		return nilByte, nil
+	}
+	src, err := q.Source()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(src)
 }
 
 // -- IndexBoosts --

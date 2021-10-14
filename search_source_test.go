@@ -27,6 +27,19 @@ func TestSearchSourceMatchAllQuery(t *testing.T) {
 	}
 }
 
+func TestSearchSourceMarshalJSON(t *testing.T) {
+	matchAllQ := NewMatchAllQuery()
+	builder := NewSearchSource().Query(matchAllQ)
+	data, err := builder.MarshalJSON()
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"query":{"match_all":{}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
 func TestSearchSourceNoStoredFields(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
 	builder := NewSearchSource().Query(matchAllQ).NoStoredFields()

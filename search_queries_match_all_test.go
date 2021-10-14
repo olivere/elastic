@@ -59,3 +59,16 @@ func TestMatchAllQueryWithQueryName(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestMatchAllMarshalJSON(t *testing.T) {
+	in := NewMatchAllQuery().Boost(3.14)
+	data, err := json.Marshal(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := string(data)
+	expected := `{"match_all":{"boost":3.14}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
