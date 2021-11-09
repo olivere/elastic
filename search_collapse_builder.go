@@ -9,7 +9,7 @@ package elastic
 // for details.
 type CollapseBuilder struct {
 	field                      string
-	innerHit                   *InnerHit
+	innerHits                  []*InnerHit
 	maxConcurrentGroupRequests *int
 }
 
@@ -25,8 +25,8 @@ func (b *CollapseBuilder) Field(field string) *CollapseBuilder {
 }
 
 // InnerHit option to expand the collapsed results.
-func (b *CollapseBuilder) InnerHit(innerHit *InnerHit) *CollapseBuilder {
-	b.innerHit = innerHit
+func (b *CollapseBuilder) InnerHit(innerHits ...*InnerHit) *CollapseBuilder {
+	b.innerHits = innerHits
 	return b
 }
 
@@ -52,10 +52,20 @@ func (b *CollapseBuilder) Source() (interface{}, error) {
 		"field": b.field,
 	}
 
-	if b.innerHit != nil {
-		hits, err := b.innerHit.Source()
+	if len(b.innerHits) == 1 {
+		hits, err := b.innerHits[0].Source()
 		if err != nil {
 			return nil, err
+		}
+		src["inner_hits"] = hits
+	} else if len(b.innerHits) > 1 {
+		var hits []interface{}
+		for _, innerHit := range b.innerHits {
+			hit, err := innerHit.Source()
+			if err != nil {
+				return nil, err
+			}
+			hits = append(hits, hit)
 		}
 		src["inner_hits"] = hits
 	}

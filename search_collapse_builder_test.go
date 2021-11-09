@@ -27,3 +27,25 @@ func TestCollapseBuilderSource(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
+
+func TestCollapseBuilderMultiInnerHitsSource(t *testing.T) {
+	b := NewCollapseBuilder("user").
+		InnerHit(
+			NewInnerHit().Name("last_tweets").Size(5).Sort("date", true),
+			NewInnerHit().Name("elder_age").Size(5).Sort("age", false),
+		).
+		MaxConcurrentGroupRequests(4)
+	src, err := b.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"field":"user","inner_hits":[{"name":"last_tweets","size":5,"sort":[{"date":{"order":"asc"}}]},{"name":"elder_age","size":5,"sort":[{"age":{"order":"desc"}}]}],"max_concurrent_group_searches":4}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
