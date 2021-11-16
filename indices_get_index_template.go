@@ -199,12 +199,24 @@ type IndicesGetIndexTemplates struct {
 	IndexTemplate *IndicesGetIndexTemplate `json:"index_template"`
 }
 
+type IndicesDataStream struct {
+	Name           string   `json:"name,omitempty"`
+	TimestampField string   `json:"timestamp_field,omitempty"`
+	Indices        []string `json:"indices,omitempty"`
+	Hidden         bool     `json:"hidden,omitempty"`
+	System         bool     `json:"system,omitempty"`
+	IlmPolicy      string   `json:"ilm_policy,omitempty"`
+	Status         string   `json:"status,omitempty"`
+	IndexTemplate  string   `json:"template,omitempty"`
+}
+
 type IndicesGetIndexTemplate struct {
 	IndexPatterns []string                     `json:"index_patterns,omitempty"`
 	ComposedOf    []string                     `json:"composed_of,omitempty"`
 	Priority      int                          `json:"priority,omitempty"`
 	Version       int                          `json:"version,omitempty"`
 	Template      *IndicesGetIndexTemplateData `json:"template,omitempty"`
+	DataStream    *IndicesDataStream           `json:"data_stream,omitempty"`
 }
 
 type IndicesGetIndexTemplateData struct {
