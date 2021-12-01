@@ -6,33 +6,31 @@ import "github.com/olivere/elastic/v7"
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-// SpanOrQuery matches spans which are near one another. One can specify slop,
+// SpanOrQuery matches spans or. One can specify slop,
 // the maximum number of intervening unmatched positions, as well as whether
-// matches are required to be in-order. The span near query maps to Lucene SpanOrQuery.
-//
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.7/query-dsl-span-near-query.html
-// for details.
+// The span or query maps to Lucene SpanOrQuery.
+
 type SpanOrQuery struct {
-	clauses   []elastic.Query
+	clauses   []Query
 	boost     *float64
 	queryName string
 }
 
 // NewSpanOrQuery creates a new NewSpanOrQuery.
-func NewSpanOrQuery(clauses ...elastic.Query) *SpanOrQuery {
+func NewSpanOrQuery(clauses ...Query) *SpanOrQuery {
 	return &SpanOrQuery{
 		clauses: clauses,
 	}
 }
 
 // Add clauses to use in the query.
-func (q *SpanOrQuery) Add(clauses ...elastic.Query) *SpanOrQuery {
+func (q *SpanOrQuery) Add(clauses ...Query) *SpanOrQuery {
 	q.clauses = append(q.clauses, clauses...)
 	return q
 }
 
 // Clauses to use in the query.
-func (q *SpanOrQuery) Clauses(clauses ...elastic.Query) *SpanOrQuery {
+func (q *SpanOrQuery) Clauses(clauses ...Query) *SpanOrQuery {
 	q.clauses = clauses
 	return q
 }
