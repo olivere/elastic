@@ -30,6 +30,8 @@ type CommonTermsQuery struct {
 }
 
 // NewCommonTermsQuery creates and initializes a new common terms query.
+//
+// Deprecated: Common Terms Query was deprecated in >= 7.3.0. See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-common-terms-query.html.
 func NewCommonTermsQuery(name string, text interface{}) *CommonTermsQuery {
 	return &CommonTermsQuery{name: name, text: text}
 }

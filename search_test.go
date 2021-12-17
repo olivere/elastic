@@ -514,7 +514,7 @@ func TestSearchSpecificFields(t *testing.T) {
 		Query(all).
 		StoredFields("message").
 		DocvalueFields("retweets").
-		Sort("_id", true).
+		Sort("created", true).
 		Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)

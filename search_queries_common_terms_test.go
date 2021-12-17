@@ -31,12 +31,24 @@ func TestCommonTermsQuery(t *testing.T) {
 func TestSearchQueriesCommonTermsQuery(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
+	// Deprecated in >= 7.3.0
+	// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-common-terms-query.html
+	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if esversion < "7.3.0" {
+		t.Skipf("Elasticsearch versions >= 7.3.0 deprecated Common Terms Query. "+
+			"See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-common-terms-query.html. "+
+			"You are running Elasticsearch %v.", esversion)
+	}
+
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
