@@ -26,6 +26,23 @@ func TestTermQuery(t *testing.T) {
 	}
 }
 
+func TestTermQueryWithCaseInsensitive(t *testing.T) {
+	q := NewTermQuery("user", "ki").CaseInsensitive(true)
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"term":{"user":{"case_insensitive":true,"value":"ki"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestTermQueryWithOptions(t *testing.T) {
 	q := NewTermQuery("user", "ki")
 	q = q.Boost(2.79)
