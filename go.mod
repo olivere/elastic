@@ -3,7 +3,7 @@ module github.com/olivere/elastic/v7
 go 1.16
 
 require (
-	github.com/aws/aws-sdk-go v1.40.43
+	github.com/aws/aws-sdk-go v1.42.23
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/go-cmp v0.5.6
