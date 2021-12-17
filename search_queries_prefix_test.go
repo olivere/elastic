@@ -26,6 +26,23 @@ func TestPrefixQuery(t *testing.T) {
 	}
 }
 
+func TestPrefixQueryWithCaseInsensitive(t *testing.T) {
+	q := NewPrefixQuery("user", "ki").CaseInsensitive(true)
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"prefix":{"user":{"case_insensitive":true,"value":"ki"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestPrefixQueryWithOptions(t *testing.T) {
 	q := NewPrefixQuery("user", "ki").CaseInsensitive(true)
 	q = q.QueryName("my_query_name")

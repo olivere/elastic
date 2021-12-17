@@ -52,7 +52,7 @@ func (q *PrefixQuery) Source() (interface{}, error) {
 	query := make(map[string]interface{})
 	source["prefix"] = query
 
-	if q.boost == nil && q.rewrite == "" && q.queryName == "" {
+	if q.boost == nil && q.rewrite == "" && q.queryName == "" && q.caseInsensitive == nil {
 		query[q.name] = q.prefix
 	} else {
 		subQuery := make(map[string]interface{})
