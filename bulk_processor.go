@@ -503,7 +503,7 @@ func (w *bulkWorker) work(ctx context.Context) {
 			w.flushAckC <- struct{}{}
 		}
 		if err != nil {
-			w.p.c.errorf("elastic: bulk processor %q was unable to perform work: %v", w.p.name, err)
+			w.p.c.errorf(ctx, "elastic: bulk processor %q was unable to perform work: %v", w.p.name, err)
 			if !stop {
 				waitForActive := func() {
 					// Add back pressure to prevent Add calls from filling up the request queue
@@ -556,7 +556,7 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 	}
 	// notifyFunc will be called if retry fails
 	notifyFunc := func(err error) {
-		w.p.c.errorf("elastic: bulk processor %q failed but may retry: %v", w.p.name, err)
+		w.p.c.errorf(ctx, "elastic: bulk processor %q failed but may retry: %v", w.p.name, err)
 	}
 
 	id := atomic.AddInt64(&w.p.executionId, 1)
@@ -580,7 +580,7 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 	err := RetryNotify(commitFunc, w.p.backoff, notifyFunc)
 	w.updateStats(res)
 	if err != nil {
-		w.p.c.errorf("elastic: bulk processor %q failed: %v", w.p.name, err)
+		w.p.c.errorf(ctx, "elastic: bulk processor %q failed: %v", w.p.name, err)
 	}
 
 	// Invoke after callback
@@ -599,14 +599,14 @@ func (w *bulkWorker) waitForActiveConnection(ready chan<- struct{}) {
 
 	client := w.p.c
 	stopReconnC := w.p.stopReconnC
-	w.p.c.errorf("elastic: bulk processor %q is waiting for an active connection", w.p.name)
+	w.p.c.errorf(context.Background(), "elastic: bulk processor %q is waiting for an active connection", w.p.name)
 
 	// loop until a health check finds at least 1 active connection or the reconnection channel is closed
 	for {
 		select {
 		case _, ok := <-stopReconnC:
 			if !ok {
-				w.p.c.errorf("elastic: bulk processor %q active connection check interrupted", w.p.name)
+				w.p.c.errorf(context.Background(), "elastic: bulk processor %q active connection check interrupted", w.p.name)
 				return
 			}
 		case <-t.C:
