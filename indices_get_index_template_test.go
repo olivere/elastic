@@ -6,8 +6,6 @@ package elastic
 
 import (
 	"context"
-	"log"
-	"os"
 	"testing"
 )
 
@@ -36,8 +34,8 @@ func TestIndexGetIndexTemplateURL(t *testing.T) {
 }
 
 func TestIndexGetIndexTemplateService(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
-	// client := setupTestClientAndCreateIndex(t)
+	// client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndex(t)
 
 	create := true
 	body := `
