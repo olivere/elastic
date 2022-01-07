@@ -9,7 +9,7 @@ package elastic
 // for details.
 type CollapseBuilder struct {
 	field                      string
-	innerHit                   *InnerHit
+	innerHits                  []*InnerHit
 	maxConcurrentGroupRequests *int
 }
 
@@ -25,8 +25,8 @@ func (b *CollapseBuilder) Field(field string) *CollapseBuilder {
 }
 
 // InnerHit option to expand the collapsed results.
-func (b *CollapseBuilder) InnerHit(innerHit *InnerHit) *CollapseBuilder {
-	b.innerHit = innerHit
+func (b *CollapseBuilder) InnerHit(innerHits ...*InnerHit) *CollapseBuilder {
+	b.innerHits = append(b.innerHits, innerHits...)
 	return b
 }
 
@@ -41,23 +41,27 @@ func (b *CollapseBuilder) MaxConcurrentGroupRequests(max int) *CollapseBuilder {
 func (b *CollapseBuilder) Source() (interface{}, error) {
 	// {
 	//   "field": "user",
-	//   "inner_hits": {
+	//   "inner_hits": [{
 	//     "name": "last_tweets",
 	//     "size": 5,
 	//     "sort": [{ "date": "asc" }]
-	//   },
+	//   }],
 	//   "max_concurrent_group_searches": 4
 	// }
 	src := map[string]interface{}{
 		"field": b.field,
 	}
 
-	if b.innerHit != nil {
-		hits, err := b.innerHit.Source()
-		if err != nil {
-			return nil, err
+	if len(b.innerHits) > 0 {
+		var innerHits []interface{}
+		for _, h := range b.innerHits {
+			hits, err := h.Source()
+			if err != nil {
+				return nil, err
+			}
+			innerHits = append(innerHits, hits)
 		}
-		src["inner_hits"] = hits
+		src["inner_hits"] = innerHits
 	}
 
 	if b.maxConcurrentGroupRequests != nil {
