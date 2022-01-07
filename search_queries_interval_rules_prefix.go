@@ -37,7 +37,7 @@ func (r *IntervalQueryRulePrefix) UseField(useField string) *IntervalQueryRulePr
 func (r *IntervalQueryRulePrefix) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
-	source["query"] = r.prefix
+	source["prefix"] = r.prefix
 
 	if r.analyzer != "" {
 		source["analyzer"] = r.analyzer
