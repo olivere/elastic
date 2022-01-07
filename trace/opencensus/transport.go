@@ -58,7 +58,7 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	attrs = append(attrs,
 		trace.StringAttribute("Component", "github.com/olivere/elastic/v7"),
 		trace.StringAttribute("Method", req.Method),
-		trace.StringAttribute("URL", req.URL.String()),
+		trace.StringAttribute("URL", req.URL.Redacted()),
 		trace.StringAttribute("Hostname", req.URL.Hostname()),
 		trace.Int64Attribute("Port", atoi64(req.URL.Port())),
 	)
