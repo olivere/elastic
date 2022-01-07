@@ -6,9 +6,7 @@ package opentracing
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -18,42 +16,7 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
-func TestTransport(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		username, password, ok := r.BasicAuth()
-		if !ok || username != "alice" || password != "secret" {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-
-		switch r.URL.Path {
-		case "/":
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprintln(w, `{
-				"name" : "Qg28M36",
-				"cluster_name" : "docker-cluster",
-				"cluster_uuid" : "rwHa7BBnRC2h8KoDfCbmuQ",
-				"version" : {
-					"number" : "6.3.2",
-					"build_flavor" : "oss",
-					"build_type" : "tar",
-					"build_hash" : "053779d",
-					"build_date" : "2018-07-20T05:20:23.451332Z",
-					"build_snapshot" : false,
-					"lucene_version" : "7.3.1",
-					"minimum_wire_compatibility_version" : "5.6.0",
-					"minimum_index_compatibility_version" : "5.0.0"
-				},
-				"tagline" : "You Know, for Search"
-			}`)
-			return
-		default:
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-	}))
-	defer ts.Close()
-
+func TestTransportIntegration(t *testing.T) {
 	// Mock tracer
 	tracer := mocktracer.New()
 	opentracing.InitGlobalTracer(tracer)
@@ -66,24 +29,18 @@ func TestTransport(t *testing.T) {
 
 	// Create a simple Ping request via Elastic
 	client, err := elastic.NewClient(
-		elastic.SetURL(ts.URL),
-		elastic.SetHttpClient(httpClient),
+		elastic.SetURL("http://127.0.0.1:9210"),
 		elastic.SetHealthcheck(false),
 		elastic.SetSniff(false),
-		elastic.SetBasicAuth("alice", "secret"),
+		elastic.SetBasicAuth("elastic", "elastic"),
+		elastic.SetHttpClient(httpClient),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, code, err := client.Ping(ts.URL).Do(context.Background())
+	_, err = client.Search("_all").Query(elastic.NewMatchAllQuery()).Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
-	}
-	if want, have := http.StatusOK, code; want != have {
-		t.Fatalf("want Status=%d, have %d", want, have)
-	}
-	if want, have := "You Know, for Search", res.TagLine; want != have {
-		t.Fatalf("want TagLine=%q, have %q", want, have)
 	}
 
 	// Check the data written into tracer
@@ -103,14 +60,13 @@ func TestTransport(t *testing.T) {
 	if !ok || httpURL == "" {
 		t.Fatalf("want http.url tag=%q to be a non-empty string (found type %T)", "http.url", span.Tag("http.url"))
 	}
-	if want, have := ts.URL+"/", httpURL; want != have {
+	if want, have := "http://127.0.0.1:9210/_all/_search", httpURL; want != have {
 		t.Fatalf("want http.url tag=%q, have %q", want, have)
 	}
-	t.Logf("http.url = %q", httpURL)
-	if strings.Contains(httpURL, "alice") || strings.Contains(httpURL, "password") {
+	if strings.Contains(httpURL, "elastic") {
 		t.Fatalf("want http.url tag %q to not contain username and/or password: %s", "URL", span.Tag("http.url"))
 	}
-	if want, have := "GET", span.Tag("http.method"); want != have {
+	if want, have := "POST", span.Tag("http.method"); want != have {
 		t.Fatalf("want http.method tag=%q, have %q", want, have)
 	}
 	if want, have := uint16(http.StatusOK), span.Tag("http.status_code"); want != have {
