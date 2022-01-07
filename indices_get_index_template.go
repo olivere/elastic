@@ -191,7 +191,21 @@ func (s *IndicesGetIndexTemplateService) Do(ctx context.Context) (*IndicesGetInd
 
 // IndicesGetIndexTemplateResponse is the response of IndicesGetIndexTemplateService.Do.
 type IndicesGetIndexTemplateResponse struct {
-	IndexTemplates []IndicesGetIndexTemplates `json:"index_templates"`
+	IndexTemplates IndicesGetIndexTemplatesSlice `json:"index_templates"`
+}
+
+// IndicesGetIndexTemplatesSlice is a slice of IndicesGetIndexTemplates.
+type IndicesGetIndexTemplatesSlice []IndicesGetIndexTemplates
+
+// ByName returns the template with the given name, if it exists.
+// The bool indicates whether a template with that name has been found.
+func (slice IndicesGetIndexTemplatesSlice) ByName(name string) (*IndicesGetIndexTemplates, bool) {
+	for _, t := range slice {
+		if t.Name == name {
+			return &t, true
+		}
+	}
+	return nil, false
 }
 
 type IndicesGetIndexTemplates struct {
@@ -200,15 +214,33 @@ type IndicesGetIndexTemplates struct {
 }
 
 type IndicesGetIndexTemplate struct {
-	IndexPatterns []string                     `json:"index_patterns,omitempty"`
-	ComposedOf    []string                     `json:"composed_of,omitempty"`
-	Priority      int                          `json:"priority,omitempty"`
-	Version       int                          `json:"version,omitempty"`
-	Template      *IndicesGetIndexTemplateData `json:"template,omitempty"`
+	IndexPatterns   []string                     `json:"index_patterns,omitempty"`
+	ComposedOf      []string                     `json:"composed_of,omitempty"`
+	Priority        int                          `json:"priority,omitempty"`
+	Version         int                          `json:"version,omitempty"`
+	Template        *IndicesGetIndexTemplateData `json:"template,omitempty"`
+	Meta            map[string]interface{}       `json:"_meta,omitempty"`
+	DataStream      *IndicesDataStream           `json:"data_stream,omitempty"`
+	AllowAutoCreate bool                         `json:"allow_auto_create,omitempty"`
 }
 
 type IndicesGetIndexTemplateData struct {
 	Settings map[string]interface{} `json:"settings,omitempty"`
 	Mappings map[string]interface{} `json:"mappings,omitempty"`
 	Aliases  map[string]interface{} `json:"aliases,omitempty"`
+}
+
+type IndicesDataStream struct {
+	Name               string                 `json:"name,omitempty"`
+	TimestampField     string                 `json:"timestamp_field,omitempty"`
+	Indices            []string               `json:"indices,omitempty"`
+	Generation         int64                  `json:"generation,omitempty"`
+	Status             string                 `json:"status,omitempty"`
+	IndexTemplate      string                 `json:"template,omitempty"`
+	IlmPolicy          string                 `json:"ilm_policy,omitempty"`
+	Meta               map[string]interface{} `json:"_meta,omitempty"`
+	Hidden             bool                   `json:"hidden,omitempty"`
+	System             bool                   `json:"system,omitempty"`
+	AllowCustomRouting bool                   `json:"allow_custom_routing,omitempty"`
+	Replicated         bool                   `json:"replicated,omitempty"`
 }
