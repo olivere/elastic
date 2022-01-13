@@ -231,16 +231,20 @@ type IndicesGetIndexTemplateData struct {
 }
 
 type IndicesDataStream struct {
-	Name               string                 `json:"name,omitempty"`
-	TimestampField     string                 `json:"timestamp_field,omitempty"`
-	Indices            []string               `json:"indices,omitempty"`
-	Generation         int64                  `json:"generation,omitempty"`
-	Status             string                 `json:"status,omitempty"`
-	IndexTemplate      string                 `json:"template,omitempty"`
-	IlmPolicy          string                 `json:"ilm_policy,omitempty"`
-	Meta               map[string]interface{} `json:"_meta,omitempty"`
-	Hidden             bool                   `json:"hidden,omitempty"`
-	System             bool                   `json:"system,omitempty"`
-	AllowCustomRouting bool                   `json:"allow_custom_routing,omitempty"`
-	Replicated         bool                   `json:"replicated,omitempty"`
+	Name               string                           `json:"name,omitempty"`
+	TimestampField     *IndicesDataStreamTimestampField `json:"timestamp_field,omitempty"`
+	Indices            []string                         `json:"indices,omitempty"`
+	Generation         int64                            `json:"generation,omitempty"`
+	Status             string                           `json:"status,omitempty"`
+	IndexTemplate      string                           `json:"template,omitempty"`
+	IlmPolicy          string                           `json:"ilm_policy,omitempty"`
+	Meta               map[string]interface{}           `json:"_meta,omitempty"`
+	Hidden             bool                             `json:"hidden,omitempty"`
+	System             bool                             `json:"system,omitempty"`
+	AllowCustomRouting bool                             `json:"allow_custom_routing,omitempty"`
+	Replicated         bool                             `json:"replicated,omitempty"`
+}
+
+type IndicesDataStreamTimestampField struct {
+	Name string `json:"name,omitempty"`
 }
