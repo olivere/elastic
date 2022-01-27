@@ -767,7 +767,8 @@ type SearchHit struct {
 	Version        *int64                         `json:"_version,omitempty"` // version number, when Version is set to true in SearchService
 	SeqNo          *int64                         `json:"_seq_no"`
 	PrimaryTerm    *int64                         `json:"_primary_term"`
-	Sort           []interface{}                  `json:"sort,omitempty"`            // sort information
+	Sort           []interface{}                  `json:"-"`                         // Deprecated, use RawSort instead
+	RawSort        []json.RawMessage              `json:"sort,omitempty"`            // raw sort information, should be keeped as-is
 	Highlight      SearchHitHighlight             `json:"highlight,omitempty"`       // highlighter information
 	Source         json.RawMessage                `json:"_source,omitempty"`         // stored document source
 	Fields         SearchHitFields                `json:"fields,omitempty"`          // returned (stored) fields
@@ -781,6 +782,25 @@ type SearchHit struct {
 	// HighlightFields
 	// SortValues
 	// MatchedFilters
+}
+
+type typeSearchHit SearchHit
+
+// UnmarshalJSON unmarshals sort as []json.RawMessage into RawSort to keep it as is,
+// and as []interface{} into Sort to keep backward compatible
+func (sh *SearchHit) UnmarshalJSON(data []byte) error {
+	if e := json.Unmarshal(data, (*typeSearchHit)(sh)); e != nil {
+		return e
+	}
+	for _, s := range sh.RawSort {
+		var sort interface{}
+		if e := json.Unmarshal(s, &sort); e != nil {
+			return e
+		}
+		sh.Sort = append(sh.Sort, sort)
+	}
+
+	return nil
 }
 
 // SearchHitFields helps to simplify resolving slices of specific types.
