@@ -192,7 +192,7 @@ func (s *DeleteByQueryService) AbortOnVersionConflict() *DeleteByQueryService {
 	return s
 }
 
-// ProceedOnVersionConflict aborts the request on version conflicts.
+// ProceedOnVersionConflict proceeds the request on version conflicts.
 // It is an alias to setting Conflicts("proceed").
 func (s *DeleteByQueryService) ProceedOnVersionConflict() *DeleteByQueryService {
 	s.conflicts = "proceed"
