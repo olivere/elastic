@@ -1,4 +1,4 @@
-# Illustrate Elastic OpenTracing
+# Tracing with OpenTelemetry
 
 Run Jaeger (any other supported tracers work of course):
 
