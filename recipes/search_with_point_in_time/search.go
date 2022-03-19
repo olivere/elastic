@@ -79,7 +79,7 @@ func main() {
 		).
 		Size(*size).
 		PointInTime(
-			elastic.NewPointInTime(pit.Id, "2m"),
+			elastic.NewPointInTimeWithKeepAlive(pit.Id, "2m"),
 		).
 		Do(context.Background())
 	if err != nil {
