@@ -15,7 +15,7 @@ import (
 )
 
 func TestBulkProcessorDefaults(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t, SetSnifferTimeoutStartup(15*time.Second))
+	client := setupTestClientAndCreateIndex(t, SetHealthcheckTimeoutStartup(15*time.Second), SetSnifferTimeoutStartup(15*time.Second))
 
 	p := client.BulkProcessor()
 	if p == nil {
@@ -49,7 +49,7 @@ func TestBulkProcessorDefaults(t *testing.T) {
 
 func TestBulkProcessorCommitOnBulkActions(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
-	client := setupTestClientAndCreateIndex(t, SetSnifferTimeoutStartup(15*time.Second))
+	client := setupTestClientAndCreateIndex(t, SetHealthcheckTimeoutStartup(15*time.Second), SetSnifferTimeoutStartup(15*time.Second))
 
 	testBulkProcessor(t,
 		10000,
@@ -72,7 +72,7 @@ func TestBulkProcessorCommitOnBulkActions(t *testing.T) {
 
 func TestBulkProcessorCommitOnBulkSize(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
-	client := setupTestClientAndCreateIndex(t, SetSnifferTimeoutStartup(15*time.Second))
+	client := setupTestClientAndCreateIndex(t, SetHealthcheckTimeoutStartup(15*time.Second), SetSnifferTimeoutStartup(15*time.Second))
 
 	testBulkProcessor(t,
 		10000,
@@ -95,7 +95,7 @@ func TestBulkProcessorCommitOnBulkSize(t *testing.T) {
 
 func TestBulkProcessorBasedOnFlushInterval(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
-	client := setupTestClientAndCreateIndex(t, SetSnifferTimeoutStartup(15*time.Second))
+	client := setupTestClientAndCreateIndex(t, SetHealthcheckTimeoutStartup(15*time.Second), SetSnifferTimeoutStartup(15*time.Second))
 
 	var beforeRequests int64
 	var befores int64
@@ -180,7 +180,7 @@ func TestBulkProcessorBasedOnFlushInterval(t *testing.T) {
 
 func TestBulkProcessorClose(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
-	client := setupTestClientAndCreateIndex(t, SetSnifferTimeoutStartup(15*time.Second))
+	client := setupTestClientAndCreateIndex(t, SetHealthcheckTimeoutStartup(15*time.Second), SetSnifferTimeoutStartup(15*time.Second))
 
 	var beforeRequests int64
 	var befores int64
@@ -264,7 +264,7 @@ func TestBulkProcessorClose(t *testing.T) {
 
 func TestBulkProcessorFlush(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
-	client := setupTestClientAndCreateIndex(t, SetSnifferTimeoutStartup(15*time.Second))
+	client := setupTestClientAndCreateIndex(t, SetHealthcheckTimeoutStartup(15*time.Second), SetSnifferTimeoutStartup(15*time.Second))
 
 	p, err := client.BulkProcessor().
 		Name("ManualFlush").
