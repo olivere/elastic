@@ -7,7 +7,9 @@ package elastic
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
+	"os"
 	"reflect"
 	"sync/atomic"
 	"testing"
@@ -15,7 +17,7 @@ import (
 )
 
 func TestBulkProcessorDefaults(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t)
+	client := setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	p := client.BulkProcessor()
 	if p == nil {
@@ -43,7 +45,7 @@ func TestBulkProcessorDefaults(t *testing.T) {
 		t.Errorf("expected %v; got: %v", want, got)
 	}
 	if p.backoff == nil {
-		t.Fatalf("expected non-nill backoff; got: %v", p.backoff)
+		t.Fatalf("expected non-nil backoff; got: %v", p.backoff)
 	}
 }
 
