@@ -458,9 +458,16 @@ func (s *SearchService) TypedKeys(enabled bool) *SearchService {
 	return s
 }
 
-// SeqNoPrimaryTerm specifies whether to return sequence number and
-// primary term of the last modification of each hit.
+// SeqNoPrimaryTerm is an alias for SeqNoAndPrimaryTerm.
+//
+// Deprecated: Use SeqNoAndPrimaryTerm.
 func (s *SearchService) SeqNoPrimaryTerm(enabled bool) *SearchService {
+	return s.SeqNoAndPrimaryTerm(enabled)
+}
+
+// SeqNoAndPrimaryTerm specifies whether to return sequence number and
+// primary term of the last modification of each hit.
+func (s *SearchService) SeqNoAndPrimaryTerm(enabled bool) *SearchService {
 	s.seqNoPrimaryTerm = &enabled
 	return s
 }

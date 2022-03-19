@@ -453,9 +453,16 @@ func (s *XPackAsyncSearchSubmit) TypedKeys(enabled bool) *XPackAsyncSearchSubmit
 	return s
 }
 
-// SeqNoPrimaryTerm specifies whether to return sequence number and
-// primary term of the last modification of each hit.
+// SeqNoPrimaryTerm is an alias for SeqNoAndPrimaryTerm.
+//
+// Deprecated: Use SeqNoAndPrimaryTerm instead.
 func (s *XPackAsyncSearchSubmit) SeqNoPrimaryTerm(enabled bool) *XPackAsyncSearchSubmit {
+	return s.SeqNoAndPrimaryTerm(enabled)
+}
+
+// SeqNoAndPrimaryTerm specifies whether to return sequence number and
+// primary term of the last modification of each hit.
+func (s *XPackAsyncSearchSubmit) SeqNoAndPrimaryTerm(enabled bool) *XPackAsyncSearchSubmit {
 	s.seqNoPrimaryTerm = &enabled
 	return s
 }
