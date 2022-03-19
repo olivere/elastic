@@ -18,6 +18,7 @@ type Highlight struct {
 	order                 *string
 	encoder               *string
 	requireFieldMatch     *bool
+	maxAnalyzedOffset     *int
 	boundaryMaxScan       *int
 	boundaryChars         *string
 	boundaryScannerType   *string
@@ -92,6 +93,11 @@ func (hl *Highlight) Order(order string) *Highlight {
 
 func (hl *Highlight) RequireFieldMatch(requireFieldMatch bool) *Highlight {
 	hl.requireFieldMatch = &requireFieldMatch
+	return hl
+}
+
+func (hl *Highlight) MaxAnalyzedOffset(maxAnalyzedOffset int) *Highlight {
+	hl.maxAnalyzedOffset = &maxAnalyzedOffset
 	return hl
 }
 
@@ -183,6 +189,9 @@ func (hl *Highlight) Source() (interface{}, error) {
 	}
 	if hl.requireFieldMatch != nil {
 		source["require_field_match"] = *hl.requireFieldMatch
+	}
+	if hl.maxAnalyzedOffset != nil {
+		source["max_analyzed_offset"] = *hl.maxAnalyzedOffset
 	}
 	if hl.boundaryMaxScan != nil {
 		source["boundary_max_scan"] = *hl.boundaryMaxScan
