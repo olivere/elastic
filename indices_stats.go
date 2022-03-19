@@ -285,6 +285,7 @@ type IndexStatsDetails struct {
 	SeqNo           *IndexStatsSeqNo           `json:"seq_no,omitempty"`
 	RetentionLeases *IndexStatsRetentionLeases `json:"retention_leases,omitempty"`
 	ShardPath       *IndexStatsShardPath       `json:"shard_path,omitempty"`
+	ShardStats      *IndexStatsShardStats      `json:"shard_stats,omitempty"`
 }
 
 type IndexStatsRouting struct {
@@ -300,14 +301,22 @@ type IndexStatsShardPath struct {
 	IsCustomDataPath bool   `json:"is_custom_data_path"`
 }
 
+type IndexStatsShardStats struct {
+	TotalCount int64 `json:"total_count,omitempty"`
+}
+
 type IndexStatsDocs struct {
 	Count   int64 `json:"count,omitempty"`
 	Deleted int64 `json:"deleted,omitempty"`
 }
 
 type IndexStatsStore struct {
-	Size        string `json:"size,omitempty"` // human size, e.g. 119.3mb
-	SizeInBytes int64  `json:"size_in_bytes,omitempty"`
+	Size                    string `json:"size,omitempty"` // human size, e.g. 119.3mb
+	SizeInBytes             int64  `json:"size_in_bytes,omitempty"`
+	TotalDataSetSize        string `json:"total_data_set_size,omitempty"`
+	TotalDataSetSizeInBytes int64  `json:"total_data_set_size_in_bytes,omitempty"`
+	Reserved                string `json:"reserved,omitempty"`
+	ReservedInBytes         int64  `json:"reserved_in_bytes,omitempty"`
 }
 
 type IndexStatsIndexing struct {

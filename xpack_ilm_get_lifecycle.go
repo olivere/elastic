@@ -187,7 +187,17 @@ func (s *XPackIlmGetLifecycleService) Do(ctx context.Context) (map[string]*XPack
 
 // XPackIlmGetLifecycleResponse is the response of XPackIlmGetLifecycleService.Do.
 type XPackIlmGetLifecycleResponse struct {
-	Version      int                    `json:"version,omitempty"`
-	ModifiedDate string                 `json:"modified_date,omitempty"` // e.g. "2019-10-03T17:43:42.720Z"
-	Policy       map[string]interface{} `json:"policy,omitempty"`
+	Version      int                       `json:"version,omitempty"`
+	ModifiedDate string                    `json:"modified_date,omitempty"` // e.g. "2019-10-03T17:43:42.720Z"
+	Policy       map[string]interface{}    `json:"policy,omitempty"`
+	InUseBy      *ClusterMetadataItemUsage `json:"in_use_by,omitempty"`
+}
+
+// ClusterMetadataItemUsage encapsulates the usage of a particular "thing"
+// by something else. In Elasticsearch, this is in the
+// org.elasticsearch.cluster.metadata package.
+type ClusterMetadataItemUsage struct {
+	Indices             []string `json:"indices,omitempty"`
+	DataStreams         []string `json:"data_streams,omitempty"`
+	ComposableTemplates []string `json:"composable_templates,omitempty"`
 }

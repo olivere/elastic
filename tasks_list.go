@@ -263,6 +263,7 @@ type TaskInfo struct {
 	RunningTime        string            `json:"running_time"`
 	RunningTimeInNanos int64             `json:"running_time_in_nanos"`
 	Cancellable        bool              `json:"cancellable"`
+	Cancelled          bool              `json:"cancelled"`
 	ParentTaskId       string            `json:"parent_task_id"` // like "YxJnVYjwSBm_AUbzddTajQ:12356"
 	Headers            map[string]string `json:"headers"`
 }

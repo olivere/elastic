@@ -225,6 +225,14 @@ type ShardOperationFailedException struct {
 	Primary bool `json:"primary,omitempty"`
 }
 
+type BroadcastResponse struct {
+	Shards     *ShardsInfo                      `json:"_shards,omitempty"`
+	Total      int                              `json:"total"`
+	Successful int                              `json:"successful"`
+	Failed     int                              `json:"failed"`
+	Failures   []*ShardOperationFailedException `json:"failures,omitempty"`
+}
+
 // FailedNodeException returns an error on the node level.
 type FailedNodeException struct {
 	*ErrorDetails

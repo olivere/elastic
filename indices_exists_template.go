@@ -17,6 +17,8 @@ import (
 // IndicesExistsTemplateService checks if a given template exists.
 // See http://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-templates.html#indices-templates-exists
 // for documentation.
+//
+// Deprecated: Legacy index templates are deprecated in favor of composable templates.
 type IndicesExistsTemplateService struct {
 	client *Client
 
@@ -143,6 +145,8 @@ func (s *IndicesExistsTemplateService) Validate() error {
 }
 
 // Do executes the operation.
+//
+// Deprecated: Legacy index templates are deprecated in favor of composable templates.
 func (s *IndicesExistsTemplateService) Do(ctx context.Context) (bool, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {

@@ -93,7 +93,7 @@ func TestClusterStateURLs(t *testing.T) {
 }
 
 func TestClusterStateGet(t *testing.T) {
-	client := setupTestClientAndCreateIndex(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	state, err := client.ClusterState().Pretty(true).Do(context.TODO())
 	if err != nil {

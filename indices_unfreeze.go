@@ -19,6 +19,9 @@ import (
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/unfreeze-index-api.html
 // and https://www.elastic.co/blog/creating-frozen-indices-with-the-elasticsearch-freeze-index-api
 // for details.
+//
+// Deprecated: Frozen indices are deprecated because they provide no benefit
+// given improvements in heap memory utilization.
 type IndicesUnfreezeService struct {
 	client *Client
 
@@ -192,6 +195,9 @@ func (s *IndicesUnfreezeService) Validate() error {
 }
 
 // Do executes the service.
+//
+// Deprecated: Frozen indices are deprecated because they provide no benefit
+// given improvements in heap memory utilization.
 func (s *IndicesUnfreezeService) Do(ctx context.Context) (*IndicesUnfreezeResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {

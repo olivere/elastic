@@ -235,17 +235,19 @@ func (s *ClusterStateService) Do(ctx context.Context) (*ClusterStateResponse, er
 
 // ClusterStateResponse is the response of ClusterStateService.Do.
 type ClusterStateResponse struct {
-	ClusterName  string                    `json:"cluster_name"`
-	ClusterUUID  string                    `json:"cluster_uuid"`
-	Version      int64                     `json:"version"`
-	StateUUID    string                    `json:"state_uuid"`
-	MasterNode   string                    `json:"master_node"`
-	Blocks       map[string]*clusterBlocks `json:"blocks"`
-	Nodes        map[string]*discoveryNode `json:"nodes"`
-	Metadata     *clusterStateMetadata     `json:"metadata"`
-	RoutingTable *clusterStateRoutingTable `json:"routing_table"`
-	RoutingNodes *clusterStateRoutingNode  `json:"routing_nodes"`
-	Customs      map[string]interface{}    `json:"customs"`
+	ClusterName       string                    `json:"cluster_name"`
+	ClusterUUID       string                    `json:"cluster_uuid"`
+	Version           int64                     `json:"version"`
+	StateUUID         string                    `json:"state_uuid"`
+	MasterNode        string                    `json:"master_node"`
+	Blocks            map[string]*clusterBlocks `json:"blocks"`
+	Nodes             map[string]*discoveryNode `json:"nodes"`
+	Metadata          *clusterStateMetadata     `json:"metadata"`
+	RoutingTable      *clusterStateRoutingTable `json:"routing_table"`
+	RoutingNodes      *clusterStateRoutingNode  `json:"routing_nodes"`
+	Snapshots         map[string]interface{}    `json:"snapshots"`
+	SnapshotDeletions map[string]interface{}    `json:"snapshot_deletions"`
+	Customs           map[string]interface{}    `json:"customs"`
 }
 
 type clusterBlocks struct {
@@ -273,10 +275,16 @@ type clusterStateMetadata struct {
 		Unassigned []*shardRouting `json:"unassigned"`
 		Nodes      []*shardRouting `json:"nodes"`
 	} `json:"routing_nodes"`
-	Customs        map[string]interface{} `json:"customs"`
-	Ingest         map[string]interface{} `json:"ingest"`
-	StoredScripts  map[string]interface{} `json:"stored_scripts"`
-	IndexGraveyard map[string]interface{} `json:"index-graveyard"`
+	DataStream        map[string]interface{} `json:"data_stream,omitempty"`
+	Customs           map[string]interface{} `json:"customs"`
+	Ingest            map[string]interface{} `json:"ingest"`
+	StoredScripts     map[string]interface{} `json:"stored_scripts"`
+	IndexGraveyard    map[string]interface{} `json:"index-graveyard"`
+	IndexLifecycle    map[string]interface{} `json:"index_lifecycle"`
+	Repositories      map[string]interface{} `json:"repositories"`
+	IndexTemplate     map[string]interface{} `json:"index_template"`
+	PersistentTasks   map[string]interface{} `json:"persistent_tasks"`
+	ComponentTemplate map[string]interface{} `json:"component_template"`
 }
 
 type clusterCoordinationMetaData struct {
@@ -291,6 +299,7 @@ type discoveryNode struct {
 	EphemeralID      string                 `json:"ephemeral_id"`      // e.g. "paHSLpn6QyuVy_n-GM1JAQ"
 	TransportAddress string                 `json:"transport_address"` // e.g. inet[/1.2.3.4:9300]
 	Attributes       map[string]interface{} `json:"attributes"`        // e.g. { "data": true, "master": true }
+	Roles            []string               `json:"roles,omitempty"`   // e.g. ["data","data_cold","master",...]
 }
 
 type clusterStateRoutingTable struct {
@@ -306,8 +315,10 @@ type clusterStateRoutingNode struct {
 type indexTemplateMetaData struct {
 	IndexPatterns []string               `json:"index_patterns"` // e.g. ["store-*"]
 	Order         int                    `json:"order"`
+	Version       int                    `json:"version"`
 	Settings      map[string]interface{} `json:"settings"` // index settings
 	Mappings      map[string]interface{} `json:"mappings"` // type name -> mapping
+	Aliases       map[string]interface{} `json:"aliases"`
 }
 
 type indexMetaData struct {
@@ -317,6 +328,15 @@ type indexMetaData struct {
 	Aliases           []string               `json:"aliases"` // e.g. [ "alias1", "alias2" ]
 	PrimaryTerms      map[string]interface{} `json:"primary_terms"`
 	InSyncAllocations map[string]interface{} `json:"in_sync_allocations"`
+	Version           int                    `json:"version"`
+	MappingVersion    int                    `json:"mapping_version"`
+	SettingsVersion   int                    `json:"settings_version"`
+	AliasesVersion    int                    `json:"aliases_version"`
+	RoutingNumShards  int                    `json:"routing_num_shards"`
+	RolloverInfo      interface{}            `json:"rollover_info,omitempty"`
+	System            interface{}            `json:"system,omitempty"`
+	TimestampRange    interface{}            `json:"timestamp_range,omitempty"`
+	ILM               map[string]interface{} `json:"ilm,omitempty"`
 }
 
 type indexRoutingTable struct {

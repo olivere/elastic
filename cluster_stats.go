@@ -193,6 +193,72 @@ type ClusterStatsIndices struct {
 	QueryCache *ClusterStatsIndicesQueryCache `json:"query_cache"`
 	Completion *ClusterStatsIndicesCompletion `json:"completion"`
 	Segments   *IndexStatsSegments            `json:"segments"`
+	Analysis   *ClusterStatsAnalysisStats     `json:"analysis"`
+	Mappings   *ClusterStatsMappingStats      `json:"mappings"`
+	Versions   []*ClusterStatsVersionStats    `json:"versions"`
+}
+
+type ClusterStatsAnalysisStats struct {
+	CharFilterTypes    []IndexFeatureStats `json:"char_filter_types,omitempty"`
+	TokenizerTypes     []IndexFeatureStats `json:"tokenizer_types,omitempty"`
+	FilterTypes        []IndexFeatureStats `json:"filter_types,omitempty"`
+	AnalyzerTypes      []IndexFeatureStats `json:"analyzer_types,omitempty"`
+	BuiltInCharFilters []IndexFeatureStats `json:"built_in_char_filters,omitempty"`
+	BuiltInTokenizers  []IndexFeatureStats `json:"built_in_tokenizers,omitempty"`
+	BuiltInFilters     []IndexFeatureStats `json:"built_in_filters,omitempty"`
+	BuiltInAnalyzers   []IndexFeatureStats `json:"built_in_analyzers,omitempty"`
+}
+
+type ClusterStatsMappingStats struct {
+	FieldTypes        []IndexFeatureStats `json:"field_types"`
+	RuntimeFieldTypes []RuntimeFieldStats `json:"runtime_field_types"`
+}
+
+type IndexFeatureStats struct {
+	Name       string `json:"name"`
+	Count      int    `json:"count"`
+	IndexCount int    `json:"index_count"`
+
+	ScriptCount int `json:"script_count"`
+}
+
+type RuntimeFieldStats struct {
+	Name            string   `json:"name"`
+	Count           int      `json:"count"`
+	IndexCount      int      `json:"index_count"`
+	ScriptlessCount int      `json:"scriptless_count"`
+	ShadowedCount   int      `json:"shadowed_count"`
+	Lang            []string `json:"lang"`
+
+	// FieldScriptStats
+
+	LinesMax    int64 `json:"lines_max"`
+	LinesTotal  int64 `json:"lines_total"`
+	CharsMax    int64 `json:"chars_max"`
+	CharsTotal  int64 `json:"chars_total"`
+	SourceMax   int64 `json:"source_max"`
+	SourceTotal int64 `json:"source_total"`
+	DocMax      int64 `json:"doc_max"`
+	DocTotal    int64 `json:"doc_total"`
+}
+
+type FieldScriptStats struct {
+	LinesMax    int64 `json:"lines_max"`
+	LinesTotal  int64 `json:"lines_total"`
+	CharsMax    int64 `json:"chars_max"`
+	CharsTotal  int64 `json:"chars_total"`
+	SourceMax   int64 `json:"source_max"`
+	SourceTotal int64 `json:"source_total"`
+	DocMax      int64 `json:"doc_max"`
+	DocTotal    int64 `json:"doc_total"`
+}
+
+type ClusterStatsVersionStats struct {
+	Version           string `json:"version"`
+	IndexCount        int    `json:"index_count"`
+	PrimaryShardCount int    `json:"primary_shard_count"`
+	TotalPrimarySize  string `json:"total_primary_size,omitempty"`
+	TotalPrimaryBytes int64  `json:"total_primary_bytes,omitempty"`
 }
 
 type ClusterStatsIndicesShards struct {
@@ -226,8 +292,12 @@ type ClusterStatsIndicesDocs struct {
 }
 
 type ClusterStatsIndicesStore struct {
-	Size        string `json:"size"` // e.g. "5.3gb"
-	SizeInBytes int64  `json:"size_in_bytes"`
+	Size                    string `json:"size"` // e.g. "5.3gb"
+	SizeInBytes             int64  `json:"size_in_bytes"`
+	TotalDataSetSize        string `json:"total_data_set_size,omitempty"`
+	TotalDataSetSizeInBytes int64  `json:"total_data_set_size_in_bytes,omitempty"`
+	Reserved                string `json:"reserved,omitempty"`
+	ReservedInBytes         int64  `json:"reserved_in_bytes,omitempty"`
 }
 
 type ClusterStatsIndicesFieldData struct {
@@ -280,14 +350,25 @@ type ClusterStatsNodes struct {
 	NetworkTypes   *ClusterStatsNodesNetworkTypes   `json:"network_types"`
 	DiscoveryTypes *ClusterStatsNodesDiscoveryTypes `json:"discovery_types"`
 	PackagingTypes *ClusterStatsNodesPackagingTypes `json:"packaging_types"`
+
+	Ingest *ClusterStatsNodesIngest `json:"ingest"`
 }
 
 type ClusterStatsNodesCount struct {
-	Total            int `json:"total"`
-	Data             int `json:"data"`
-	CoordinatingOnly int `json:"coordinating_only"`
-	Master           int `json:"master"`
-	Ingest           int `json:"ingest"`
+	Total               int `json:"total"`
+	Data                int `json:"data"`
+	DataCold            int `json:"data_cold"`
+	DataContent         int `json:"data_content"`
+	DataFrozen          int `json:"data_frozen"`
+	DataHot             int `json:"data_hot"`
+	DataWarm            int `json:"data_warm"`
+	CoordinatingOnly    int `json:"coordinating_only"`
+	Master              int `json:"master"`
+	Ingest              int `json:"ingest"`
+	ML                  int `json:"ml"`
+	RemoteClusterClient int `json:"remote_cluster_client"`
+	Transform           int `json:"transform"`
+	VotingOnly          int `json:"voting_only"`
 }
 
 type ClusterStatsNodesOsStats struct {
@@ -301,7 +382,11 @@ type ClusterStatsNodesOsStats struct {
 		PrettyName string `json:"pretty_name"`
 		Value      int    `json:"count"`
 	} `json:"pretty_names"`
-	Mem *ClusterStatsNodesOsStatsMem `json:"mem"`
+	Mem           *ClusterStatsNodesOsStatsMem `json:"mem"`
+	Architectures []struct {
+		Arch  string `json:"arch"`
+		Count int    `json:"count"`
+	} `json:"architectures"`
 	// CPU []*ClusterStatsNodesOsStatsCPU `json:"cpu"`
 }
 
@@ -413,4 +498,9 @@ type ClusterStatsNodesPackagingType struct {
 	Flavor string `json:"flavor"` // e.g. "oss"
 	Type   string `json:"type"`   // e.g. "docker"
 	Count  int    `json:"count"`  // e.g. 1
+}
+
+type ClusterStatsNodesIngest struct {
+	NumberOfPipelines int                    `json:"number_of_pipelines"`
+	ProcessorStats    map[string]interface{} `json:"processor_stats"`
 }

@@ -208,7 +208,7 @@ func TestSearchResultTotalHits(t *testing.T) {
 }
 
 func TestSearchResultWithProfiling(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t)
+	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	all := NewMatchAllQuery()
 	searchResult, err := client.Search().Index(testIndexName).Query(all).Profile(true).Do(context.TODO())

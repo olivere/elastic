@@ -22,6 +22,8 @@ import (
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-get-template-v1.html
 // for more details.
+//
+// Deprecated: Legacy index templates are deprecated in favor of composable templates.
 type IndicesGetTemplateService struct {
 	client *Client
 
@@ -148,6 +150,8 @@ func (s *IndicesGetTemplateService) Validate() error {
 }
 
 // Do executes the operation.
+//
+// Deprecated: Legacy index templates are deprecated in favor of composable templates.
 func (s *IndicesGetTemplateService) Do(ctx context.Context) (map[string]*IndicesGetTemplateResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
