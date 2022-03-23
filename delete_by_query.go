@@ -787,6 +787,6 @@ type bulkIndexByScrollResponseFailure struct {
 	Status int    `json:"status,omitempty"`
 	Shard  int    `json:"shard,omitempty"`
 	Node   int    `json:"node,omitempty"`
-	// TOOD "cause" contains exception details
-	// TOOD "reason" contains exception details
+	// TODO "cause" contains exception details
+	// TODO "reason" contains exception details
 }

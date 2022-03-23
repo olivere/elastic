@@ -69,7 +69,7 @@ var (
 		"Paris",
 		"Stockholm",
 		"Rome",
-		"Valetta",
+		"Valletta",
 		"Vienna",
 	}
 )
