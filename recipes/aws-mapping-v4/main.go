@@ -17,14 +17,13 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/olivere/env"
+	"github.com/aws/aws-sdk-go/aws/session"
+	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 
 	"github.com/olivere/elastic/v7"
-	aws "github.com/olivere/elastic/v7/aws/v4"
+	elasticawsv4 "github.com/olivere/elastic/v7/aws/v4"
 )
 
 const (
@@ -35,23 +34,21 @@ const (
 			"number_of_replicas":0
 		},
 		"mappings":{
-			"_doc":{
-				"properties":{
-					"user":{
-						"type":"keyword"
-					},
-					"message":{
-						"type":"text"
-					},
-					"retweets":{
-						"type":"integer"
-					},
-					"created":{
-						"type":"date"
-					},
-					"attributes":{
-						"type":"object"
-					}
+			"properties":{
+				"user":{
+					"type":"keyword"
+				},
+				"message":{
+					"type":"text"
+				},
+				"retweets":{
+					"type":"integer"
+				},
+				"created":{
+					"type":"date"
+				},
+				"attributes":{
+					"type":"object"
 				}
 			}
 		}
@@ -70,113 +67,156 @@ type Tweet struct {
 
 func main() {
 	var (
-		accessKey = flag.String("access-key", env.String("", "AWS_ACCESS_KEY", "AWS_ACCESS_KEY_ID"), "Access Key ID")
-		secretKey = flag.String("secret-key", env.String("", "AWS_SECRET_KEY", "AWS_SECRET_ACCESS_KEY"), "Secret access key")
-		url       = flag.String("url", "", "Elasticsearch URL")
-		sniff     = flag.Bool("sniff", false, "Enable or disable sniffing")
-		trace     = flag.Bool("trace", false, "Enable or disable tracing")
-		index     = flag.String("index", "", "Index name")
-		region    = flag.String("region", "eu-west-1", "AWS Region name")
+		url   = flag.String("url", "", "AWS ES Endpoint URL")
+		index = flag.String("index", "", "Elasticsearch index name")
+		loop  = flag.Bool("loop", false, "Run in an endless loop")
 	)
 	flag.Parse()
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetFlags(0)
 
 	if *url == "" {
-		log.Fatal("please specify a URL with -url")
+		log.Fatal("please specify an AWS ES Endpoint URL with -url")
 	}
 	if *index == "" {
 		log.Fatal("please specify an index name with -index")
 	}
-	if *region == "" {
-		log.Fatal("please specify an AWS region with -region")
-	}
 
-	// Create an Elasticsearch client
-	signingClient := aws.NewV4SigningClient(credentials.NewStaticCredentials(
-		*accessKey,
-		*secretKey,
-		"",
-	), *region)
-
-	// Create an Elasticsearch client
-	opts := []elastic.ClientOptionFunc{
-		elastic.SetURL(*url),
-		elastic.SetSniff(*sniff),
-		elastic.SetHealthcheck(*sniff),
-		elastic.SetHttpClient(signingClient),
-	}
-	if *trace {
-		opts = append(opts, elastic.SetTraceLog(log.New(os.Stdout, "", 0)))
-	}
-	client, err := elastic.NewClient(opts...)
+	// Create a pre-configured client to connect to AWS by the given endpoint
+	client, err := ConnectToAWS(context.Background(), *url)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Check if index already exists. We'll drop it then.
-	// Next, we create a fresh index/mapping.
-	ctx := context.Background()
-	exists, err := client.IndexExists(*index).Pretty(true).Do(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if exists {
-		_, err := client.DeleteIndex(*index).Pretty(true).Do(ctx)
+	for {
+		// Check if index already exists. We'll drop it then.
+		// Next, we create a fresh index/mapping.
+		ctx := context.Background()
+		exists, err := client.IndexExists(*index).Pretty(true).Do(ctx)
 		if err != nil {
-			log.Fatal(err)
+			if !*loop {
+				log.Fatal(err)
+			}
+			log.Print(err)
+			continue
+		}
+		if exists {
+			_, err := client.DeleteIndex(*index).Pretty(true).Do(ctx)
+			if err != nil {
+				if !*loop {
+					log.Fatal(err)
+				}
+				log.Print(err)
+				continue
+			}
+		}
+		_, err = client.CreateIndex(*index).Body(mapping).Pretty(true).Do(ctx)
+		if err != nil {
+			if !*loop {
+				log.Fatal(err)
+			}
+			log.Print(err)
+			continue
+		}
+
+		// Add a tweet
+		{
+			tweet := Tweet{
+				User:     "olivere",
+				Message:  "Welcome to Go and Elasticsearch.",
+				Retweets: 0,
+				Created:  time.Now(),
+				Attrs: map[string]interface{}{
+					"views": 17,
+					"vip":   true,
+				},
+			}
+			_, err := client.Index().
+				Index(*index).
+				Id("1").
+				BodyJson(&tweet).
+				Refresh("true").
+				Pretty(true).
+				Do(context.TODO())
+			if err != nil {
+				if !*loop {
+					log.Fatal(err)
+				}
+				log.Print(err)
+				continue
+			}
+		}
+
+		// Read the tweet
+		{
+			doc, err := client.Get().
+				Index(*index).
+				Id("1").
+				Pretty(true).
+				Do(context.TODO())
+			if err != nil {
+				if !*loop {
+					log.Fatal(err)
+				}
+				log.Print(err)
+				continue
+			}
+			var tweet Tweet
+			if err = json.Unmarshal(doc.Source, &tweet); err != nil {
+				if !*loop {
+					log.Fatal(err)
+				}
+				log.Print(err)
+			}
+			fmt.Printf("%s at %s: %s (%d retweets)\n",
+				tweet.User,
+				tweet.Created,
+				tweet.Message,
+				tweet.Retweets,
+			)
+			fmt.Printf("  %v\n", tweet.Attrs)
+		}
+
+		if !*loop {
+			break
 		}
 	}
-	_, err = client.CreateIndex(*index).Body(mapping).Pretty(true).Do(ctx)
+}
+
+// ConnectToAWS creates an elastic.Client that connects to the ES cluster
+// specified by given URL endpoint.
+//
+// ConnectToAWS ensures we configure all settings to properly use AWS ES with
+// this client, e.g.:
+// * Disable sniffing
+// * Disable health checks
+// * Close idle connections when a dead node is found
+// * Use a HTTP transport to automatically sign HTTP requests
+func ConnectToAWS(ctx context.Context, url string) (*elastic.Client, error) {
+	sess, err := session.NewSession()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	// Add a tweet
-	{
-		tweet := Tweet{
-			User:     "olivere",
-			Message:  "Welcome to Go and Elasticsearch.",
-			Retweets: 0,
-			Created:  time.Now(),
-			Attrs: map[string]interface{}{
-				"views": 17,
-				"vip":   true,
-			},
-		}
-		_, err := client.Index().
-			Index(*index).
-			Type("_doc").
-			Id("1").
-			BodyJson(&tweet).
-			Refresh("true").
-			Pretty(true).
-			Do(context.TODO())
-		if err != nil {
-			log.Fatal(err)
-		}
+	// We need to sign HTTP requests with AWS
+	httpClient := elasticawsv4.NewV4SigningClientWithOptions(
+		elasticawsv4.WithCredentials(sess.Config.Credentials),
+		elasticawsv4.WithSigner(v4.NewSigner(sess.Config.Credentials, func(s *v4.Signer) {
+			s.DisableURIPathEscaping = true
+		})),
+		elasticawsv4.WithRegion(*sess.Config.Region), // use the AWS region from the session
+	)
+	options := []elastic.ClientOptionFunc{
+		elastic.SetSniff(false),               // do not sniff with AWS ES
+		elastic.SetHealthcheck(false),         // do not perform healthchecks with AWS ES
+		elastic.SetCloseIdleConnections(true), // close idle connections when dead nodes are found
+		elastic.SetURL(url),
+		elastic.SetHttpClient(httpClient), // use a HTTP client that does the signing
 	}
 
-	// Read the tweet
-	{
-		doc, err := client.Get().
-			Index(*index).
-			Type("_doc").
-			Id("1").
-			Pretty(true).
-			Do(context.TODO())
-		if err != nil {
-			log.Fatal(err)
-		}
-		var tweet Tweet
-		if err = json.Unmarshal(doc.Source, &tweet); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%s at %s: %s (%d retweets)\n",
-			tweet.User,
-			tweet.Created,
-			tweet.Message,
-			tweet.Retweets,
-		)
-		fmt.Printf("  %v\n", tweet.Attrs)
+	// Create a client configured for using with AWS ES
+	client, err := elastic.NewClient(options...)
+	if err != nil {
+		return nil, err
 	}
+	return client, nil
 }
