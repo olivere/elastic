@@ -23,7 +23,7 @@ func TestBoostingQuery(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"boosting":{"negative":{"range":{"age":{"from":10,"include_lower":true,"include_upper":true,"to":20}}},"negative_boost":0.2,"positive":{"term":{"tag":"wow"}}}}`
+	expected := `{"boosting":{"negative":{"range":{"age":{"gte":10,"lte":20}}},"negative_boost":0.2,"positive":{"term":{"tag":"wow"}}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
