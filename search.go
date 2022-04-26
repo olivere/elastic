@@ -257,7 +257,7 @@ func (s *SearchService) Suggester(suggester Suggester) *SearchService {
 	return s
 }
 
-// Aggregation adds an aggreation to perform as part of the search.
+// Aggregation adds an aggregation to perform as part of the search.
 func (s *SearchService) Aggregation(name string, aggregation Aggregation) *SearchService {
 	s.searchSource = s.searchSource.Aggregation(name, aggregation)
 	return s
@@ -887,7 +887,7 @@ type SearchProfileShardResult struct {
 }
 
 // QueryProfileShardResult is a container class to hold the profile results
-// for a single shard in the request. It comtains a list of query profiles,
+// for a single shard in the request. It contains a list of query profiles,
 // a collector tree and a total rewrite tree.
 type QueryProfileShardResult struct {
 	Query       []ProfileResult `json:"query,omitempty"`

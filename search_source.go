@@ -195,7 +195,7 @@ func (s *SearchSource) SearchAfter(sortValues ...interface{}) *SearchSource {
 	return s
 }
 
-// Aggregation adds an aggreation to perform as part of the search.
+// Aggregation adds an aggregation to perform as part of the search.
 func (s *SearchSource) Aggregation(name string, aggregation Aggregation) *SearchSource {
 	s.aggregations[name] = aggregation
 	return s

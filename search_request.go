@@ -370,7 +370,7 @@ func (r *SearchRequest) TrackTotalHits(trackTotalHits interface{}) *SearchReques
 	return r
 }
 
-// Aggregation adds an aggreation to perform as part of the search.
+// Aggregation adds an aggregation to perform as part of the search.
 func (r *SearchRequest) Aggregation(name string, aggregation Aggregation) *SearchRequest {
 	r.searchSource = r.searchSource.Aggregation(name, aggregation)
 	return r

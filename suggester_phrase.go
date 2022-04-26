@@ -370,14 +370,14 @@ func (sm *LaplaceSmoothingModel) Source() (interface{}, error) {
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters-phrase.html#_smoothing_models
 // for details about smoothing models.
 type LinearInterpolationSmoothingModel struct {
-	trigramLamda  float64
+	trigramLambda float64
 	bigramLambda  float64
 	unigramLambda float64
 }
 
-func NewLinearInterpolationSmoothingModel(trigramLamda, bigramLambda, unigramLambda float64) *LinearInterpolationSmoothingModel {
+func NewLinearInterpolationSmoothingModel(trigramLambda, bigramLambda, unigramLambda float64) *LinearInterpolationSmoothingModel {
 	return &LinearInterpolationSmoothingModel{
-		trigramLamda:  trigramLamda,
+		trigramLambda: trigramLambda,
 		bigramLambda:  bigramLambda,
 		unigramLambda: unigramLambda,
 	}
@@ -389,7 +389,7 @@ func (sm *LinearInterpolationSmoothingModel) Type() string {
 
 func (sm *LinearInterpolationSmoothingModel) Source() (interface{}, error) {
 	source := make(map[string]interface{})
-	source["trigram_lambda"] = sm.trigramLamda
+	source["trigram_lambda"] = sm.trigramLambda
 	source["bigram_lambda"] = sm.bigramLambda
 	source["unigram_lambda"] = sm.unigramLambda
 	return source, nil
