@@ -1756,7 +1756,7 @@ func (c *Client) Flush(indices ...string) *IndicesFlushService {
 // SyncedFlush performs a synced flush.
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-synced-flush.html
-// for more details on synched flushes and how they differ from a normal
+// for more details on synced flushes and how they differ from a normal
 // Flush.
 func (c *Client) SyncedFlush(indices ...string) *IndicesSyncedFlushService {
 	return NewIndicesSyncedFlushService(c).Index(indices...)

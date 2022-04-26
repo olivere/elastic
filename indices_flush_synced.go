@@ -195,7 +195,7 @@ func (s *IndicesSyncedFlushService) Do(ctx context.Context) (*IndicesSyncedFlush
 
 // -- Result of a flush request.
 
-// IndicesSyncedFlushResponse is the outcome of a synched flush call.
+// IndicesSyncedFlushResponse is the outcome of a synced flush call.
 type IndicesSyncedFlushResponse struct {
 	Shards *ShardsInfo                                `json:"_shards"`
 	Index  map[string]*IndicesShardsSyncedFlushResult `json:"-"`

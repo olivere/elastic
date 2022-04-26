@@ -252,7 +252,7 @@ func (s *XPackAsyncSearchSubmit) Suggester(suggester Suggester) *XPackAsyncSearc
 	return s
 }
 
-// Aggregation adds an aggreation to perform as part of the search.
+// Aggregation adds an aggregation to perform as part of the search.
 func (s *XPackAsyncSearchSubmit) Aggregation(name string, aggregation Aggregation) *XPackAsyncSearchSubmit {
 	s.searchSource = s.searchSource.Aggregation(name, aggregation)
 	return s

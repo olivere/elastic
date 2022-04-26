@@ -15,7 +15,7 @@ import (
 	"github.com/olivere/elastic/v7/uritemplates"
 )
 
-// SnapshotVerifyRepositoryService verifies a snapshop repository.
+// SnapshotVerifyRepositoryService verifies a snapshot repository.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-snapshots.html
 // for details.
 type SnapshotVerifyRepositoryService struct {

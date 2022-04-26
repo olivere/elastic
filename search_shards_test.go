@@ -24,7 +24,7 @@ func TestSearchShards(t *testing.T) {
 		t.Fatal("expected to return an shards information")
 	}
 	if len(shardsInfo.Shards) < 1 {
-		t.Fatal("expected to return minimun one shard information")
+		t.Fatal("expected to return minimum one shard information")
 	}
 	if shardsInfo.Shards[0][0].Index != testIndexName {
 		t.Fatal("expected to return shard info concerning requested index")

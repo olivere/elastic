@@ -80,7 +80,7 @@ func (s *CatSnapshotsService) Headers(headers http.Header) *CatSnapshotsService 
 	return s
 }
 
-// Repository specifies the napshot repository used to limit the request.
+// Repository specifies the snapshot repository used to limit the request.
 func (s *CatSnapshotsService) Repository(repository string) *CatSnapshotsService {
 	s.repository = repository
 	return s
@@ -208,7 +208,7 @@ func (s *CatSnapshotsService) Do(ctx context.Context) (CatSnapshotsResponse, err
 // CatSnapshotsResponse is the outcome of CatSnapshotsService.Do.
 type CatSnapshotsResponse []CatSnapshotsResponseRow
 
-// CatSnapshotssResponseRow specifies the data returned for one index
+// CatSnapshotsResponseRow specifies the data returned for one index
 // of a CatSnapshotsResponse. Notice that not all of these fields might
 // be filled; that depends on the number of columns chose in the
 // request (see CatSnapshotsService.Columns).
