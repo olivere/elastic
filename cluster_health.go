@@ -34,6 +34,7 @@ type ClusterHealthService struct {
 	timeout                   string
 	waitForActiveShards       *int
 	waitForNodes              string
+	waitForNoInitializingShards *bool
 	waitForNoRelocatingShards *bool
 	waitForStatus             string
 }
@@ -131,6 +132,12 @@ func (s *ClusterHealthService) WaitForNodes(waitForNodes string) *ClusterHealthS
 }
 
 // WaitForNoRelocatingShards can be used to wait until all shard relocations are finished.
+func (s *ClusterHealthService) WaitForNoInitializingShards(waitForNoInitializingShards bool) *ClusterHealthService {
+	s.waitForNoInitializingShards = &waitForNoInitializingShards
+	return s
+}
+
+// WaitForNoRelocatingShards can be used to wait until all shard relocations are finished.
 func (s *ClusterHealthService) WaitForNoRelocatingShards(waitForNoRelocatingShards bool) *ClusterHealthService {
 	s.waitForNoRelocatingShards = &waitForNoRelocatingShards
 	return s
@@ -200,6 +207,9 @@ func (s *ClusterHealthService) buildURL() (string, url.Values, error) {
 	}
 	if s.waitForNodes != "" {
 		params.Set("wait_for_nodes", s.waitForNodes)
+	}
+	if s.waitForNoInitializingShards != nil {
+		params.Set("wait_for_no_initializing_shards", fmt.Sprintf("%v", *s.waitForNoInitializingShards))
 	}
 	if s.waitForNoRelocatingShards != nil {
 		params.Set("wait_for_no_relocating_shards", fmt.Sprintf("%v", *s.waitForNoRelocatingShards))
