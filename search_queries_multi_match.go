@@ -14,25 +14,26 @@ import (
 // For more details, see
 // https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-multi-match-query.html
 type MultiMatchQuery struct {
-	text               interface{}
-	fields             []string
-	fieldBoosts        map[string]*float64
-	typ                string // best_fields, boolean, most_fields, cross_fields, phrase, phrase_prefix
-	operator           string // AND or OR
-	analyzer           string
-	boost              *float64
-	slop               *int
-	fuzziness          string
-	prefixLength       *int
-	maxExpansions      *int
-	minimumShouldMatch string
-	rewrite            string
-	fuzzyRewrite       string
-	tieBreaker         *float64
-	lenient            *bool
-	cutoffFrequency    *float64
-	zeroTermsQuery     string
-	queryName          string
+	text                            interface{}
+	fields                          []string
+	fieldBoosts                     map[string]*float64
+	typ                             string // best_fields, boolean, most_fields, cross_fields, phrase, phrase_prefix
+	operator                        string // AND or OR
+	analyzer                        string
+	boost                           *float64
+	slop                            *int
+	fuzziness                       string
+	prefixLength                    *int
+	maxExpansions                   *int
+	minimumShouldMatch              string
+	rewrite                         string
+	fuzzyRewrite                    string
+	tieBreaker                      *float64
+	lenient                         *bool
+	cutoffFrequency                 *float64
+	zeroTermsQuery                  string
+	queryName                       string
+	autoGenerateSynonymsPhraseQuery *bool
 }
 
 // MultiMatchQuery creates and initializes a new MultiMatchQuery.
@@ -182,6 +183,13 @@ func (q *MultiMatchQuery) QueryName(queryName string) *MultiMatchQuery {
 	return q
 }
 
+// AutoGenerateSynonymsPhraseQuery indicates whether match phrase queries
+// will be automatically created for multi-term synonyms.
+func (q *MultiMatchQuery) AutoGenerateSynonymsPhraseQuery(autoGenerateSynonymsPhraseQuery bool) *MultiMatchQuery {
+	q.autoGenerateSynonymsPhraseQuery = &autoGenerateSynonymsPhraseQuery
+	return q
+}
+
 // Source returns JSON for the query.
 func (q *MultiMatchQuery) Source() (interface{}, error) {
 	//
@@ -265,6 +273,9 @@ func (q *MultiMatchQuery) Source() (interface{}, error) {
 	}
 	if q.queryName != "" {
 		multiMatch["_name"] = q.queryName
+	}
+	if q.autoGenerateSynonymsPhraseQuery != nil {
+		multiMatch["auto_generate_synonyms_phrase_query"] = *q.autoGenerateSynonymsPhraseQuery
 	}
 	return source, nil
 }
