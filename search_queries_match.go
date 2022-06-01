@@ -14,21 +14,22 @@ package elastic
 // For more details, see
 // https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-match-query.html
 type MatchQuery struct {
-	name                string
-	text                interface{}
-	operator            string // or / and
-	analyzer            string
-	boost               *float64
-	fuzziness           string
-	prefixLength        *int
-	maxExpansions       *int
-	minimumShouldMatch  string
-	fuzzyRewrite        string
-	lenient             *bool
-	fuzzyTranspositions *bool
-	zeroTermsQuery      string
-	cutoffFrequency     *float64
-	queryName           string
+	name                            string
+	text                            interface{}
+	operator                        string // or / and
+	analyzer                        string
+	boost                           *float64
+	fuzziness                       string
+	prefixLength                    *int
+	maxExpansions                   *int
+	minimumShouldMatch              string
+	fuzzyRewrite                    string
+	lenient                         *bool
+	fuzzyTranspositions             *bool
+	zeroTermsQuery                  string
+	cutoffFrequency                 *float64
+	queryName                       string
+	autoGenerateSynonymsPhraseQuery *bool
 }
 
 // NewMatchQuery creates and initializes a new MatchQuery.
@@ -132,6 +133,13 @@ func (q *MatchQuery) QueryName(queryName string) *MatchQuery {
 	return q
 }
 
+// AutoGenerateSynonymsPhraseQuery indicates whether match phrase queries
+// will be automatically created for multi-term synonyms.
+func (q *MatchQuery) AutoGenerateSynonymsPhraseQuery(autoGenerateSynonymsPhraseQuery bool) *MatchQuery {
+	q.autoGenerateSynonymsPhraseQuery = &autoGenerateSynonymsPhraseQuery
+	return q
+}
+
 // Source returns JSON for the function score query.
 func (q *MatchQuery) Source() (interface{}, error) {
 	// {"match":{"name":{"query":"value","type":"boolean/phrase"}}}
@@ -183,6 +191,9 @@ func (q *MatchQuery) Source() (interface{}, error) {
 	}
 	if q.queryName != "" {
 		query["_name"] = q.queryName
+	}
+	if q.autoGenerateSynonymsPhraseQuery != nil {
+		query["auto_generate_synonyms_phrase_query"] = *q.autoGenerateSynonymsPhraseQuery
 	}
 
 	return source, nil
