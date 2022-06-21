@@ -363,6 +363,21 @@ func (s *SearchService) StoredFields(fields ...string) *SearchService {
 	return s
 }
 
+// Field adds a single field to load and return as
+// part of the post search request. If none are specified, the source of the
+// document will be returned.
+func (s *SearchService) Field(fieldName string) *SearchService {
+	s.searchSource = s.searchSource.Field(fieldName)
+	return s
+}
+
+// Fields	sets the fields to load and return as part of the search post request.
+// If none are specified, the source of the document will be returned.
+func (s *SearchService) Fields(fields ...string) *SearchService {
+	s.searchSource = s.searchSource.Fields(fields...)
+	return s
+}
+
 // TrackScores is applied when sorting and controls if scores will be
 // tracked as well. Defaults to false.
 func (s *SearchService) TrackScores(trackScores bool) *SearchService {
