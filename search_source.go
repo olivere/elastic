@@ -28,6 +28,7 @@ type SearchSource struct {
 	timeout                  string                 // timeout
 	terminateAfter           *int                   // terminate_after
 	storedFieldNames         []string               // stored_fields
+	fields                   []string               // fields
 	docvalueFields           DocvalueFields         // docvalue_fields
 	scriptFields             []*ScriptField         // script_fields
 	fetchSourceContext       *FetchSourceContext    // _source
@@ -297,6 +298,21 @@ func (s *SearchSource) StoredFields(storedFieldNames ...string) *SearchSource {
 	return s
 }
 
+// Field adds a single field to load and return as
+// part of the post search request. If none are specified, the source of the
+// document will be returned (need _source set false) .
+func (s *SearchSource) Field(FieldName string) *SearchSource {
+	s.storedFieldNames = append(s.fields, FieldName)
+	return s
+}
+
+// Fields	sets the fields to load and return as part of the search post request.
+// If none are specified, the source of the document will be returned (need _source set false).
+func (s *SearchSource) Fields(FieldNames ...string) *SearchSource {
+	s.fields = append(s.fields, FieldNames...)
+	return s
+}
+
 // DocvalueField adds a single field to load from the field data cache
 // and return as part of the search request.
 func (s *SearchSource) DocvalueField(fieldDataField string) *SearchSource {
@@ -438,6 +454,14 @@ func (s *SearchSource) Source() (interface{}, error) {
 			source["stored_fields"] = s.storedFieldNames[0]
 		default:
 			source["stored_fields"] = s.storedFieldNames
+		}
+	}
+	if s.fields != nil {
+		switch len(s.fields) {
+		case 1:
+			source["fields"] = s.fields[0]
+		default:
+			source["fields"] = s.fields
 		}
 	}
 	if len(s.docvalueFields) > 0 {
