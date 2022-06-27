@@ -29,7 +29,7 @@ func NewRangeQuery(name string) *RangeQuery {
 // From indicates the from part of the RangeQuery.
 // Use nil to indicate an unbounded from part.
 func (q *RangeQuery) From(from interface{}) *RangeQuery {
-	q.from = from
+	q.gt = from
 	return q
 }
 
@@ -130,8 +130,17 @@ func (q *RangeQuery) Source() (interface{}, error) {
 	params := make(map[string]interface{})
 	rangeQ[q.name] = params
 
-	params["from"] = q.from
-	params["to"] = q.to
+	if q.includeLower {
+		params["gte"] = q.from
+	} else {
+		params["gt"] = q.from
+	}
+
+	if q.includeUpper {
+		params["lte"] = q.to
+	} else {
+		params["lt"] = q.to
+	}
 	if q.timeZone != "" {
 		params["time_zone"] = q.timeZone
 	}
@@ -144,8 +153,6 @@ func (q *RangeQuery) Source() (interface{}, error) {
 	if q.boost != nil {
 		params["boost"] = *q.boost
 	}
-	params["include_lower"] = q.includeLower
-	params["include_upper"] = q.includeUpper
 
 	if q.queryName != "" {
 		rangeQ["_name"] = q.queryName
