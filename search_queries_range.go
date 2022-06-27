@@ -29,7 +29,7 @@ func NewRangeQuery(name string) *RangeQuery {
 // From indicates the from part of the RangeQuery.
 // Use nil to indicate an unbounded from part.
 func (q *RangeQuery) From(from interface{}) *RangeQuery {
-	q.gt = from
+	q.from = from
 	return q
 }
 
