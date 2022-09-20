@@ -10,18 +10,47 @@ import (
 )
 
 func TestRangeQuery(t *testing.T) {
-	q := NewRangeQuery("postDate").From("2010-03-01").To("2010-04-01").Boost(3).Relation("within")
-	q = q.QueryName("my_query")
-	src, err := q.Source()
-	if err != nil {
-		t.Fatal(err)
+	q := NewRangeQuery("postDate").
+		Gte("2010-03-01")
+
+	got := asJsonString(t, q)
+	expected := `{"range":{"postDate":{"gte":"2010-03-01"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
-	data, err := json.Marshal(src)
-	if err != nil {
-		t.Fatalf("marshaling to JSON failed: %v", err)
+}
+
+func TestRangeQueryWithBoost(t *testing.T) {
+	q := NewRangeQuery("postDate").
+		Gte("2010-03-01").
+		Boost(3)
+
+	got := asJsonString(t, q)
+	expected := `{"range":{"postDate":{"boost":3,"gte":"2010-03-01"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
-	got := string(data)
-	expected := `{"range":{"_name":"my_query","postDate":{"boost":3,"from":"2010-03-01","include_lower":true,"include_upper":true,"relation":"within","to":"2010-04-01"}}}`
+}
+
+func TestRangeQueryWithRelation(t *testing.T) {
+	q := NewRangeQuery("postDate").
+		Gte("2010-03-01").
+		Relation(RelationWithin)
+
+	got := asJsonString(t, q)
+	expected := `{"range":{"postDate":{"gte":"2010-03-01","relation":"WITHIN"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestRangeQueryWithQueryName(t *testing.T) {
+	q := NewRangeQuery("postDate").
+		Gte("2010-03-01").
+		QueryName("queryName")
+
+	got := asJsonString(t, q)
+	expected := `{"range":{"_name":"queryName","postDate":{"gte":"2010-03-01"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -32,16 +61,9 @@ func TestRangeQueryWithTimeZone(t *testing.T) {
 		Gte("2012-01-01").
 		Lte("now").
 		TimeZone("+1:00")
-	src, err := q.Source()
-	if err != nil {
-		t.Fatal(err)
-	}
-	data, err := json.Marshal(src)
-	if err != nil {
-		t.Fatalf("marshaling to JSON failed: %v", err)
-	}
-	got := string(data)
-	expected := `{"range":{"born":{"from":"2012-01-01","include_lower":true,"include_upper":true,"time_zone":"+1:00","to":"now"}}}`
+
+	got := asJsonString(t, q)
+	expected := `{"range":{"born":{"gte":"2012-01-01","lte":"now","time_zone":"+1:00"}}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
@@ -52,6 +74,43 @@ func TestRangeQueryWithFormat(t *testing.T) {
 		Gte("2012/01/01").
 		Lte("now").
 		Format("yyyy/MM/dd")
+
+	got := asJsonString(t, q)
+	expected := `{"range":{"born":{"format":"yyyy/MM/dd","gte":"2012/01/01","lte":"now"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestDeprecatedRangeQueryTransformedIntoGtLt(t *testing.T) {
+	q := NewRangeQuery("born").
+		From("2012/01/01").
+		To("now").
+		IncludeLower(false).
+		IncludeUpper(false)
+
+	got := asJsonString(t, q)
+	expected := `{"range":{"born":{"gt":"2012/01/01","lt":"now"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func TestDeprecatedRangeQueryTransformedIntoGteLte(t *testing.T) {
+	q := NewRangeQuery("postDate").
+		From("2012/01/01").
+		To("now").
+		IncludeLower(true).
+		IncludeUpper(true)
+
+	got := asJsonString(t, q)
+	expected := `{"range":{"postDate":{"gte":"2012/01/01","lte":"now"}}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
+func asJsonString(t *testing.T, q *RangeQuery) string {
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -60,9 +119,5 @@ func TestRangeQueryWithFormat(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
-	got := string(data)
-	expected := `{"range":{"born":{"format":"yyyy/MM/dd","from":"2012/01/01","include_lower":true,"include_upper":true,"to":"now"}}}`
-	if got != expected {
-		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
-	}
+	return string(data)
 }
