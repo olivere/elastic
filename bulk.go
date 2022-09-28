@@ -208,7 +208,7 @@ func (s *BulkService) NumberOfActions() int {
 	return len(s.requests)
 }
 
-func (s *BulkService) bodyAsString() (string, error) {
+func (s *BulkService) BodyAsString() (string, error) {
 	// Pre-allocate to reduce allocs
 	var buf strings.Builder
 	buf.Grow(int(s.EstimatedSizeInBytes()))
@@ -237,7 +237,7 @@ func (s *BulkService) Do(ctx context.Context) (*BulkResponse, error) {
 	}
 
 	// Get body
-	body, err := s.bodyAsString()
+	body, err := s.BodyAsString()
 	if err != nil {
 		return nil, err
 	}
