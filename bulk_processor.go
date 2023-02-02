@@ -580,6 +580,14 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 	err := RetryNotify(commitFunc, w.p.backoff, notifyFunc)
 	w.updateStats(res)
 	if err != nil {
+		// After all retry attempts clear the requests for the next round. This is
+		// important when backoff is disabled or limited to a number of rounds, and
+		// the aftermath is a failure., because the commitFunc (and consequently the
+		// underlying BulkService.Do call) will not clear the requests from the
+		// worker. Without this the same requests will be used on the next round of
+		// execution of the worker.
+		w.service.Reset()
+
 		w.p.c.errorf("elastic: bulk processor %q failed: %v", w.p.name, err)
 	}
 
