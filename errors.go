@@ -130,9 +130,6 @@ func IsContextErr(err error) bool {
 	}
 	// This happens e.g. on redirect errors, see https://golang.org/src/net/http/client_test.go#L329
 	if ue, ok := err.(*url.Error); ok {
-		if ue.Temporary() {
-			return true
-		}
 		// Use of an AWS Signing Transport can result in a wrapped url.Error
 		return IsContextErr(ue.Err)
 	}
