@@ -160,9 +160,9 @@ type Client struct {
 //
 // Example:
 //
-//   client, err := elastic.NewClient(
-//     elastic.SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"),
-//     elastic.SetBasicAuth("user", "secret"))
+//	client, err := elastic.NewClient(
+//	  elastic.SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"),
+//	  elastic.SetBasicAuth("user", "secret"))
 //
 // If no URL is configured, Elastic uses DefaultURL by default.
 //
@@ -1419,7 +1419,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		if err != nil {
 			n++
 			wait, ok, rerr := retrier.Retry(ctx, n, (*http.Request)(req), res, err)
-			if rerr != nil {
+			if rerr != nil && !ok {
 				c.errorf("elastic: %s is dead", conn.URL())
 				conn.MarkAsDead()
 				return nil, rerr
@@ -1429,6 +1429,12 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 				conn.MarkAsDead()
 				return nil, err
 			}
+			if ok && rerr != nil {
+				c.errorf("elastic: %s is dead", conn.URL())
+				conn.MarkAsDead()
+				// We still want to retry the request, even if an error is returned.
+			}
+
 			retried = true
 			time.Sleep(wait)
 			continue // try again
@@ -1436,10 +1442,15 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		if retry(res.StatusCode) {
 			n++
 			wait, ok, rerr := retrier.Retry(ctx, n, (*http.Request)(req), res, err)
-			if rerr != nil {
+			if rerr != nil && !ok {
 				c.errorf("elastic: %s is dead", conn.URL())
 				conn.MarkAsDead()
 				return nil, rerr
+			}
+			if ok && rerr != nil {
+				c.errorf("elastic: %s is dead", conn.URL())
+				conn.MarkAsDead()
+				// We still want to retry the request, even if an error is returned.
 			}
 			if ok {
 				// retry
