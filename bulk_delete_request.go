@@ -25,7 +25,7 @@ type BulkDeleteRequest struct {
 	id            string
 	parent        string
 	routing       string
-	version       int64  // default is MATCH_ANY
+	version       *int64 // default is MATCH_ANY
 	versionType   string // default is "internal"
 	ifSeqNo       *int64
 	ifPrimaryTerm *int64
@@ -45,7 +45,7 @@ type bulkDeleteRequestCommandOp struct {
 	Id            string `json:"_id,omitempty"`
 	Parent        string `json:"parent,omitempty"`
 	Routing       string `json:"routing,omitempty"`
-	Version       int64  `json:"version,omitempty"`
+	Version       *int64 `json:"version,omitempty"`
 	VersionType   string `json:"version_type,omitempty"`
 	IfSeqNo       *int64 `json:"if_seq_no,omitempty"`
 	IfPrimaryTerm *int64 `json:"if_primary_term,omitempty"`
@@ -107,7 +107,8 @@ func (r *BulkDeleteRequest) Routing(routing string) *BulkDeleteRequest {
 // Version indicates the version to be deleted as part of an optimistic
 // concurrency model.
 func (r *BulkDeleteRequest) Version(version int64) *BulkDeleteRequest {
-	r.version = version
+	v := version
+	r.version = &v
 	r.source = nil
 	return r
 }

@@ -34,6 +34,13 @@ func TestBulkDeleteRequestSerialization(t *testing.T) {
 				`{"delete":{"_index":"index1","_id":"1","routing":"3"}}`,
 			},
 		},
+		// #3
+		{
+			Request: NewBulkDeleteRequest().Index("index1").Id("1").Version(0),
+			Expected: []string{
+				`{"delete":{"_index":"index1","_id":"1","version":"0"}}`,
+			},
+		},
 	}
 
 	for i, test := range tests {
