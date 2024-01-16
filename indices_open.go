@@ -16,7 +16,7 @@ import (
 
 // IndicesOpenService opens an index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-open-close.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-open-close.html
 // for details.
 type IndicesOpenService struct {
 	client *Client
@@ -41,7 +41,7 @@ func NewIndicesOpenService(client *Client) *IndicesOpenService {
 	return &IndicesOpenService{client: client}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesOpenService) Pretty(pretty bool) *IndicesOpenService {
 	s.pretty = &pretty
 	return s

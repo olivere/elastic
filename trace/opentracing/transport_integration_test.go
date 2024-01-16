@@ -31,7 +31,7 @@ func TestTransportIntegration(t *testing.T) {
 		opensearch.SetURL("http://127.0.0.1:9210"),
 		opensearch.SetHealthcheck(false),
 		opensearch.SetSniff(false),
-		opensearch.SetBasicAuth("elastic", "elastic"),
+		opensearch.SetBasicAuth("opensearch", "opensearch"),
 		opensearch.SetHttpClient(httpClient),
 	)
 	if err != nil {
@@ -62,7 +62,7 @@ func TestTransportIntegration(t *testing.T) {
 	if want, have := "http://127.0.0.1:9210/_all/_search", httpURL; want != have {
 		t.Fatalf("want http.url tag=%q, have %q", want, have)
 	}
-	if strings.Contains(httpURL, "elastic") {
+	if strings.Contains(httpURL, "opensearch") {
 		t.Fatalf("want http.url tag %q to not contain username and/or password: %s", "URL", span.Tag("http.url"))
 	}
 	if want, have := "POST", span.Tag("http.method"); want != have {

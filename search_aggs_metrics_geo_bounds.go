@@ -6,7 +6,7 @@ package opensearch
 
 // GeoBoundsAggregation is a metric aggregation that computes the
 // bounding box containing all geo_point values for a field.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-metrics-geobounds-aggregation.html
+// See: https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-metrics-geobounds-aggregation.html
 type GeoBoundsAggregation struct {
 	field           string
 	script          *Script

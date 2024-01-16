@@ -139,7 +139,7 @@ func TestHighlightWithBoundarySettings(t *testing.T) {
 func TestHighlightWithTermQuery(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun to do."}
 
@@ -202,7 +202,7 @@ func TestHighlightWithTermQuery(t *testing.T) {
 		if len(hl) != 1 {
 			t.Fatalf("expected to have one highlight for field \"message\"; got %d", len(hl))
 		}
-		expected := "Welcome to <em>Golang</em> and Elasticsearch."
+		expected := "Welcome to <em>Golang</em> and Opensearch."
 		if hl[0] != expected {
 			t.Errorf("expected to have highlight \"%s\"; got \"%s\"", expected, hl[0])
 		}

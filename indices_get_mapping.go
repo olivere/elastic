@@ -17,7 +17,7 @@ import (
 // IndicesGetMappingService retrieves the mapping definitions for an index or
 // index/type.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-get-mapping.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-get-mapping.html
 // for details.
 type IndicesGetMappingService struct {
 	client *Client
@@ -51,7 +51,7 @@ func NewIndicesGetMappingService(client *Client) *IndicesGetMappingService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesGetMappingService) Pretty(pretty bool) *IndicesGetMappingService {
 	s.pretty = &pretty
 	return s

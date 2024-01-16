@@ -14,9 +14,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// PutScriptService adds or updates a stored script in Elasticsearch.
+// PutScriptService adds or updates a stored script in Opensearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-scripting.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/modules-scripting.html
 // for details.
 type PutScriptService struct {
 	client *Client
@@ -42,7 +42,7 @@ func NewPutScriptService(client *Client) *PutScriptService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *PutScriptService) Pretty(pretty bool) *PutScriptService {
 	s.pretty = &pretty
 	return s
@@ -220,7 +220,7 @@ func (s *PutScriptService) Do(ctx context.Context) (*PutScriptResponse, error) {
 }
 
 // PutScriptResponse is the result of saving a stored script
-// in Elasticsearch.
+// in Opensearch.
 type PutScriptResponse struct {
 	AcknowledgedResponse
 }

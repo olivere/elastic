@@ -13,7 +13,7 @@ type GeoTileGridAggregation struct {
 }
 
 // NewGeoTileGridAggregation Create new bucket aggregation of Geotile grid type
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-geotilegrid-aggregation.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-geotilegrid-aggregation.html
 func NewGeoTileGridAggregation() *GeoTileGridAggregation {
 	return &GeoTileGridAggregation{
 		precision:       -1,
@@ -72,7 +72,7 @@ func (a *GeoTileGridAggregation) Source() (interface{}, error) {
 	source["geotile_grid"] = opts
 
 	if a.field == "" {
-		return nil, errors.New("elastic: 'field' is a mandatory parameter")
+		return nil, errors.New("opensearch: 'field' is a mandatory parameter")
 	}
 	opts["field"] = a.field
 

@@ -99,7 +99,7 @@ func TestClusterStateGet(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want, have := "elasticsearch", state.ClusterName; want != have {
+	if want, have := "opensearchsearch", state.ClusterName; want != have {
 		t.Fatalf("ClusterName: want %q, have %q", want, have)
 	}
 }

@@ -7,19 +7,19 @@ package opensearch_test
 import (
 	"context"
 
-	elastic "github.com/disaster37/opensearch/v2"
+	opensearch "github.com/disaster37/opensearch/v2"
 )
 
 func ExamplePrefixQuery() {
-	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	// Get a client to the local Opensearch instance.
+	client, err := opensearch.NewClient()
 	if err != nil {
 		// Handle error
 		panic(err)
 	}
 
 	// Define wildcard query
-	q := elastic.NewPrefixQuery("user", "oli")
+	q := opensearch.NewPrefixQuery("user", "oli")
 	q = q.QueryName("my_query_name")
 
 	searchResult, err := client.Search().

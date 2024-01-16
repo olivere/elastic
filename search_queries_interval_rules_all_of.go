@@ -6,7 +6,7 @@ var (
 
 // IntervalQueryRuleAllOf is an implementation of IntervalQueryRule.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.5/query-dsl-intervals-query.html#intervals-all_of
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.5/query-dsl-intervals-query.html#intervals-all_of
 // for details.
 type IntervalQueryRuleAllOf struct {
 	intervals []IntervalQueryRule

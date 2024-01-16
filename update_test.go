@@ -255,7 +255,7 @@ func TestUpdateAndFetchSource(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"user":"sandrae","message":"Welcome to Golang and Elasticsearch.","retweets":108,"created":"0001-01-01T00:00:00Z","tags":["golang","elasticsearch"]}`
+	expected := `{"user":"sandrae","message":"Welcome to Golang and Opensearch.","retweets":108,"created":"0001-01-01T00:00:00Z","tags":["golang","opensearchsearch"]}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}
@@ -313,7 +313,7 @@ func TestUpdateOptimistic(t *testing.T) {
 		t.Fatalf("expected to marshal body as JSON, got: %v", err)
 	}
 	got := string(data)
-	expected := `{"user":"sandrae","message":"Welcome to Golang and Elasticsearch.","retweets":108,"created":"0001-01-01T00:00:00Z","tags":["golang","elasticsearch"]}`
+	expected := `{"user":"sandrae","message":"Welcome to Golang and Opensearch.","retweets":108,"created":"0001-01-01T00:00:00Z","tags":["golang","opensearchsearch"]}`
 	if got != expected {
 		t.Errorf("expected\n%s\ngot:\n%s", expected, got)
 	}

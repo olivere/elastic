@@ -17,7 +17,7 @@ import (
 // CatAliasesService shows information about currently configured aliases
 // to indices including filter and routing infos.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cat-aliases.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cat-aliases.html
 // for details.
 type CatAliasesService struct {
 	client *Client
@@ -42,7 +42,7 @@ func NewCatAliasesService(client *Client) *CatAliasesService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *CatAliasesService) Pretty(pretty bool) *CatAliasesService {
 	s.pretty = &pretty
 	return s

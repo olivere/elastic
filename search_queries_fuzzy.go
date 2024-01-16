@@ -8,7 +8,7 @@ package opensearch
 // string fields, and a +/- margin on numeric and date fields.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-fuzzy-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-fuzzy-query.html
 type FuzzyQuery struct {
 	name           string
 	value          interface{}

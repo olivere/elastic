@@ -9,7 +9,7 @@
 //	./completion -url=http://127.0.0.1:9200 -index=cities
 //
 // For more details and experimentation, take a look at the official
-// documentation at https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters-completion.html.
+// documentation at https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-suggesters-completion.html.
 package main
 
 import (
@@ -22,7 +22,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/disaster37/opensearch/v2"
+	"github.com/olivere/opensearch"
 )
 
 const (
@@ -48,8 +48,8 @@ const (
 
 // City is used in this example as an index document for suggestions.
 type City struct {
-	Name        string                `json:"name,omitempty"`
-	NameSuggest *elastic.SuggestField `json:"name_suggest,omitempty"`
+	Name        string                   `json:"name,omitempty"`
+	NameSuggest *opensearch.SuggestField `json:"name_suggest,omitempty"`
 }
 
 var (
@@ -75,7 +75,7 @@ var (
 
 func main() {
 	var (
-		url   = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
+		url   = flag.String("url", "http://localhost:9200", "Opensearch URL")
 		sniff = flag.Bool("sniff", true, "Enable or disable sniffing")
 		index = flag.String("index", "", "Index name")
 	)
@@ -89,11 +89,11 @@ func main() {
 		log.Fatal("please specify an index name -index")
 	}
 
-	// Create an Elasticsearch client
-	client, err := elastic.NewClient(
-		elastic.SetURL(*url),
-		elastic.SetSniff(*sniff),
-		// elastic.SetTraceLog(log.New(os.Stdout, "", 0)), // uncomment to see the wire protocol
+	// Create an Opensearch client
+	client, err := opensearch.NewClient(
+		opensearch.SetURL(*url),
+		opensearch.SetSniff(*sniff),
+		// opensearch.SetTraceLog(log.New(os.Stdout, "", 0)), // uncomment to see the wire protocol
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -125,7 +125,7 @@ func main() {
 			Index(*index).
 			BodyJson(&City{
 				Name:        name,
-				NameSuggest: elastic.NewSuggestField(name),
+				NameSuggest: opensearch.NewSuggestField(name),
 			}).
 			Refresh("true").
 			Do(context.Background())
@@ -147,7 +147,7 @@ func main() {
 		res, err := client.Search().
 			Index(*index).
 			Suggester(
-				elastic.NewCompletionSuggester("name_suggestion").
+				opensearch.NewCompletionSuggester("name_suggestion").
 					Field("name_suggest").
 					Text(name),
 			).

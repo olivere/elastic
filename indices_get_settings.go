@@ -17,7 +17,7 @@ import (
 // IndicesGetSettingsService allows to retrieve settings of one
 // or more indices.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-get-settings.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-get-settings.html
 // for more details.
 type IndicesGetSettingsService struct {
 	client *Client
@@ -46,7 +46,7 @@ func NewIndicesGetSettingsService(client *Client) *IndicesGetSettingsService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesGetSettingsService) Pretty(pretty bool) *IndicesGetSettingsService {
 	s.pretty = &pretty
 	return s

@@ -9,44 +9,43 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/disaster37/opensearch/v2/config"
 )
 
 const (
-	// Version is the current version of Elastic.
-	Version = "7.0.32"
+	// Version is the current version of Opensearch.
+	Version = "2.11.1"
 
-	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
+	// DefaultURL is the default endpoint of Opensearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
 	DefaultURL = "http://127.0.0.1:9200"
 
 	// DefaultScheme is the default protocol scheme to use when sniffing
-	// the Elasticsearch cluster.
+	// the Opensearch cluster.
 	DefaultScheme = "http"
 
 	// DefaultHealthcheckEnabled specifies if healthchecks are enabled by default.
 	DefaultHealthcheckEnabled = true
 
 	// DefaultHealthcheckTimeoutStartup is the time the healthcheck waits
-	// for a response from Elasticsearch on startup, i.e. when creating a
+	// for a response from Opensearch on startup, i.e. when creating a
 	// client. After the client is started, a shorter timeout is commonly used
 	// (its default is specified in DefaultHealthcheckTimeout).
 	DefaultHealthcheckTimeoutStartup = 5 * time.Second
 
 	// DefaultHealthcheckTimeout specifies the time a running client waits for
-	// a response from Elasticsearch. Notice that the healthcheck timeout
+	// a response from Opensearch. Notice that the healthcheck timeout
 	// when a client is created is larger by default (see DefaultHealthcheckTimeoutStartup).
 	DefaultHealthcheckTimeout = 1 * time.Second
 
@@ -72,7 +71,7 @@ const (
 	// process, DefaultSnifferTimeoutStartup is used.
 	DefaultSnifferTimeout = 2 * time.Second
 
-	// DefaultSendGetBodyAs is the HTTP method to use when elastic is sending
+	// DefaultSendGetBodyAs is the HTTP method to use when opensearch is sending
 	// a GET request with a body.
 	DefaultSendGetBodyAs = "GET"
 
@@ -87,8 +86,8 @@ var (
 	// nilByte is used in JSON marshal/unmarshal
 	nilByte = []byte("null")
 
-	// ErrNoClient is raised when no Elasticsearch node is available.
-	ErrNoClient = errors.New("no Elasticsearch node available")
+	// ErrNoClient is raised when no Opensearch node is available.
+	ErrNoClient = errors.New("no Opensearch node available")
 
 	// ErrRetry is raised when a request cannot be executed after the configured
 	// number of retries.
@@ -115,7 +114,7 @@ type Doer interface {
 // It is used in NewClient.
 type ClientOptionFunc func(*Client) error
 
-// Client is an Elasticsearch client. Create one by calling NewClient.
+// Client is an Opensearch client. Create one by calling NewClient.
 type Client struct {
 	c Doer // e.g. a net/*http.Client to use for requests
 
@@ -126,14 +125,12 @@ type Client struct {
 	mu                        sync.RWMutex // guards the next block
 	urls                      []string     // set of URLs passed initially to the client
 	running                   bool         // true if the client's background processes are running
-	errorlog                  Logger       // error log for critical messages
-	infolog                   Logger       // information log for e.g. response times
-	tracelog                  Logger       // trace log for debugging
+	log                       *logrus.Logger
 	deprecationlog            func(*http.Request, *http.Response)
 	scheme                    string          // http or https
 	healthcheckEnabled        bool            // healthchecks enabled or disabled
-	healthcheckTimeoutStartup time.Duration   // time the healthcheck waits for a response from Elasticsearch on startup
-	healthcheckTimeout        time.Duration   // time the healthcheck waits for a response from Elasticsearch
+	healthcheckTimeoutStartup time.Duration   // time the healthcheck waits for a response from Opensearch on startup
+	healthcheckTimeout        time.Duration   // time the healthcheck waits for a response from Opensearch
 	healthcheckInterval       time.Duration   // interval between healthchecks
 	healthcheckStop           chan bool       // notify healthchecker to stop, and notify back
 	snifferEnabled            bool            // sniffer enabled or disabled
@@ -142,7 +139,7 @@ type Client struct {
 	snifferInterval           time.Duration   // interval between sniffing
 	snifferCallback           SnifferCallback // callback to modify the sniffing decision
 	snifferStop               chan bool       // notify sniffer to stop, and notify back
-	decoder                   Decoder         // used to decode data sent from Elasticsearch
+	decoder                   Decoder         // used to decode data sent from Opensearch
 	basicAuthUsername         string          // username for HTTP Basic Auth
 	basicAuthPassword         string          // password for HTTP Basic Auth
 	sendGetBodyAs             string          // override for when sending a GET with a body
@@ -153,7 +150,7 @@ type Client struct {
 	headers                   http.Header     // a list of default headers to add to each request
 }
 
-// NewClient creates a new client to work with Elasticsearch.
+// NewClient creates a new client to work with Opensearch.
 //
 // NewClient, by default, is meant to be long-lived and shared across
 // your application. If you need a short-lived client, e.g. for request-scope,
@@ -172,7 +169,7 @@ type Client struct {
 //
 // If the sniffer is enabled (the default), the new client then sniffes
 // the cluster via the Nodes Info API
-// (see https://www.opensearch.co/guide/en/elasticsearch/reference/7.0/cluster-nodes-info.html#cluster-nodes-info).
+// (see https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cluster-nodes-info.html#cluster-nodes-info).
 // It uses the URLs specified by the caller. The caller is responsible
 // to only pass a list of URLs of nodes that belong to the same cluster.
 // This sniffing process is run on startup and periodically.
@@ -182,7 +179,7 @@ type Client struct {
 // 15 minutes. Disable the sniffer by passing SetSniff(false) to NewClient.
 //
 // The list of nodes found in the sniffing process will be used to make
-// connections to the REST API of Elasticsearch. These nodes are also
+// connections to the REST API of Opensearch. These nodes are also
 // periodically checked in a shorter time frame. This process is called
 // a health check. By default, a health check is done every 60 seconds.
 // You can set a shorter or longer interval by SetHealthcheckInterval.
@@ -190,7 +187,7 @@ type Client struct {
 // SetHealthcheck(false).
 //
 // Connections are automatically marked as dead or healthy while
-// making requests to Elasticsearch. When a request fails, Elastic will
+// making requests to Opensearch. When a request fails, Elastic will
 // call into the Retry strategy which can be specified with SetRetry.
 // The Retry strategy is also responsible for handling backoff i.e. the time
 // to wait before starting the next request. There are various standard
@@ -297,7 +294,7 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 			return nil, err
 		}
 		if !found {
-			return nil, fmt.Errorf("elastic: plugin %s not found", plugin)
+			return nil, fmt.Errorf("opensearch: plugin %s not found", plugin)
 		}
 	}
 
@@ -313,7 +310,7 @@ func Dial(options ...ClientOptionFunc) (*Client, error) {
 	return DialContext(context.Background(), options...)
 }
 
-// DialContext will connect to Elasticsearch, just like NewClient does.
+// DialContext will connect to Opensearch, just like NewClient does.
 //
 // The context is honoured in terms of e.g. cancellation.
 func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, error) {
@@ -402,7 +399,7 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 			return nil, err
 		}
 		if !found {
-			return nil, fmt.Errorf("elastic: plugin %s not found", plugin)
+			return nil, fmt.Errorf("opensearch: plugin %s not found", plugin)
 		}
 	}
 
@@ -421,7 +418,7 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 }
 
 // DialWithConfig will use the configuration settings parsed from config package
-// to connect to Elasticsearch.
+// to connect to Opensearch.
 //
 // The context is honoured in terms of e.g. cancellation.
 func DialWithConfig(ctx context.Context, cfg *config.Config) (*Client, error) {
@@ -438,30 +435,6 @@ func configToOptions(cfg *config.Config) ([]ClientOptionFunc, error) {
 		if cfg.URL != "" {
 			options = append(options, SetURL(cfg.URL))
 		}
-		if cfg.Errorlog != "" {
-			f, err := os.OpenFile(cfg.Errorlog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			if err != nil {
-				return nil, errors.Wrap(err, "unable to initialize error log")
-			}
-			l := log.New(f, "", 0)
-			options = append(options, SetErrorLog(l))
-		}
-		if cfg.Tracelog != "" {
-			f, err := os.OpenFile(cfg.Tracelog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			if err != nil {
-				return nil, errors.Wrap(err, "unable to initialize trace log")
-			}
-			l := log.New(f, "", 0)
-			options = append(options, SetTraceLog(l))
-		}
-		if cfg.Infolog != "" {
-			f, err := os.OpenFile(cfg.Infolog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			if err != nil {
-				return nil, errors.Wrap(err, "unable to initialize info log")
-			}
-			l := log.New(f, "", 0)
-			options = append(options, SetInfoLog(l))
-		}
 		if cfg.Username != "" || cfg.Password != "" {
 			options = append(options, SetBasicAuth(cfg.Username, cfg.Password))
 		}
@@ -471,12 +444,44 @@ func configToOptions(cfg *config.Config) ([]ClientOptionFunc, error) {
 		if cfg.Healthcheck != nil {
 			options = append(options, SetHealthcheck(*cfg.Healthcheck))
 		}
+
+		if cfg.Logger != nil {
+			options = append(options, SetLogger(cfg.Logger))
+		}
+
+		if cfg.Transport != nil {
+			options = append(options, SetTransport(cfg.Transport))
+		}
+
 	}
 	return options, nil
 }
 
+func SetTransport(transport http.RoundTripper) ClientOptionFunc {
+	return func(c *Client) error {
+		if transport != nil {
+			client := http.DefaultClient
+			client.Transport = transport
+			c.c = client
+		}
+		return nil
+	}
+}
+
+// SetLogger can be used to specify logrus.Logger to use. Default to logrus.StandardLogger
+func SetLogger(log *logrus.Logger) ClientOptionFunc {
+	return func(c *Client) error {
+		if log != nil {
+			c.log = log
+		} else {
+			c.log = logrus.StandardLogger()
+		}
+		return nil
+	}
+}
+
 // SetHttpClient can be used to specify the http.Client to use when making
-// HTTP requests to Elasticsearch.
+// HTTP requests to Opensearch.
 func SetHttpClient(httpClient Doer) ClientOptionFunc {
 	return func(c *Client) error {
 		if httpClient != nil {
@@ -489,7 +494,7 @@ func SetHttpClient(httpClient Doer) ClientOptionFunc {
 }
 
 // SetBasicAuth can be used to specify the HTTP Basic Auth credentials to
-// use when making HTTP requests to Elasticsearch.
+// use when making HTTP requests to Opensearch.
 func SetBasicAuth(username, password string) ClientOptionFunc {
 	return func(c *Client) error {
 		c.basicAuthUsername = username
@@ -498,7 +503,7 @@ func SetBasicAuth(username, password string) ClientOptionFunc {
 	}
 }
 
-// SetURL defines the URL endpoints of the Elasticsearch nodes. Notice that
+// SetURL defines the URL endpoints of the Opensearch nodes. Notice that
 // when sniffing is enabled, these URLs are used to initially sniff the
 // cluster on startup.
 func SetURL(urls ...string) ClientOptionFunc {
@@ -629,7 +634,7 @@ func SetHealthcheckInterval(interval time.Duration) ClientOptionFunc {
 }
 
 // SetMaxRetries sets the maximum number of retries before giving up when
-// performing a HTTP request to Elasticsearch.
+// performing a HTTP request to Opensearch.
 //
 // Deprecated: Replace with a Retry implementation.
 func SetMaxRetries(maxRetries int) ClientOptionFunc {
@@ -660,7 +665,7 @@ func SetGzip(enabled bool) ClientOptionFunc {
 	}
 }
 
-// SetDecoder sets the Decoder to use when decoding data from Elasticsearch.
+// SetDecoder sets the Decoder to use when decoding data from Opensearch.
 // DefaultDecoder is used by default.
 func SetDecoder(decoder Decoder) ClientOptionFunc {
 	return func(c *Client) error {
@@ -685,33 +690,6 @@ func SetRequiredPlugins(plugins ...string) ClientOptionFunc {
 	}
 }
 
-// SetErrorLog sets the logger for critical messages like nodes joining
-// or leaving the cluster or failing requests. It is nil by default.
-func SetErrorLog(logger Logger) ClientOptionFunc {
-	return func(c *Client) error {
-		c.errorlog = logger
-		return nil
-	}
-}
-
-// SetInfoLog sets the logger for informational messages, e.g. requests
-// and their response times. It is nil by default.
-func SetInfoLog(logger Logger) ClientOptionFunc {
-	return func(c *Client) error {
-		c.infolog = logger
-		return nil
-	}
-}
-
-// SetTraceLog specifies the log.Logger to use for output of HTTP requests
-// and responses which is helpful during debugging. It is nil by default.
-func SetTraceLog(logger Logger) ClientOptionFunc {
-	return func(c *Client) error {
-		c.tracelog = logger
-		return nil
-	}
-}
-
 // SetSendGetBodyAs specifies the HTTP method to use when sending a GET request
 // with a body. It is GET by default.
 func SetSendGetBodyAs(httpMethod string) ClientOptionFunc {
@@ -722,7 +700,7 @@ func SetSendGetBodyAs(httpMethod string) ClientOptionFunc {
 }
 
 // SetRetrier specifies the retry strategy that handles errors during
-// HTTP request/response with Elasticsearch.
+// HTTP request/response with Opensearch.
 func SetRetrier(retrier Retrier) ClientOptionFunc {
 	return func(c *Client) error {
 		if retrier == nil {
@@ -801,7 +779,7 @@ func (c *Client) Start() {
 	c.running = true
 	c.mu.Unlock()
 
-	c.infof("elastic: client started")
+	c.infof("opensearch: client started")
 }
 
 // Stop stops the background processes that the client is running,
@@ -831,33 +809,27 @@ func (c *Client) Stop() {
 	c.running = false
 	c.mu.Unlock()
 
-	c.infof("elastic: client stopped")
+	c.infof("opensearch: client stopped")
 }
 
 // errorf logs to the error log.
 func (c *Client) errorf(format string, args ...interface{}) {
-	if c.errorlog != nil {
-		c.errorlog.Printf(format, args...)
-	}
+	c.log.Errorf(format, args...)
 }
 
 // infof logs informational messages.
 func (c *Client) infof(format string, args ...interface{}) {
-	if c.infolog != nil {
-		c.infolog.Printf(format, args...)
-	}
+	c.log.Infof(format, args...)
 }
 
 // tracef logs to the trace log.
 func (c *Client) tracef(format string, args ...interface{}) {
-	if c.tracelog != nil {
-		c.tracelog.Printf(format, args...)
-	}
+	c.log.Tracef(format, args...)
 }
 
 // dumpRequest dumps the given HTTP request to the trace log.
 func (c *Client) dumpRequest(r *http.Request) {
-	if c.tracelog != nil {
+	if logrus.IsLevelEnabled(logrus.TraceLevel) {
 		out, err := httputil.DumpRequestOut(r, true)
 		if err == nil {
 			c.tracef("%s\n", string(out))
@@ -867,7 +839,7 @@ func (c *Client) dumpRequest(r *http.Request) {
 
 // dumpResponse dumps the given HTTP response to the trace log.
 func (c *Client) dumpResponse(resp *http.Response) {
-	if c.tracelog != nil {
+	if logrus.IsLevelEnabled(logrus.TraceLevel) {
 		out, err := httputil.DumpResponse(resp, true)
 		if err == nil {
 			c.tracef("%s\n", string(out))
@@ -988,7 +960,7 @@ func (c *Client) sniffNode(ctx context.Context, url string) []*conn {
 	c.mu.RUnlock()
 
 	if req.Header.Get("User-Agent") == "" {
-		req.Header.Add("User-Agent", "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
+		req.Header.Add("User-Agent", "opensearch/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 	}
 
 	res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
@@ -1058,7 +1030,7 @@ func (c *Client) updateConns(conns []*conn) {
 		}
 		if !found {
 			// New connection didn't exist, so add it to our list of new conns.
-			c.infof("elastic: %s joined the cluster", conn.URL())
+			c.infof("opensearch: %s joined the cluster", conn.URL())
 			newConns = append(newConns, conn)
 		}
 	}
@@ -1093,7 +1065,7 @@ func (c *Client) healthchecker() {
 // healthcheck does a health check on all nodes in the cluster. Depending on
 // the node state, it marks connections as dead, sets them alive etc.
 // If healthchecks are disabled and force is false, this is a no-op.
-// The timeout specifies how long to wait for a response from Elasticsearch.
+// The timeout specifies how long to wait for a response from Opensearch.
 func (c *Client) healthcheck(parentCtx context.Context, timeout time.Duration, force bool) {
 	c.mu.RLock()
 	if !c.healthcheckEnabled && !force {
@@ -1135,7 +1107,7 @@ func (c *Client) healthcheck(parentCtx context.Context, timeout time.Duration, f
 				}
 			}
 			if req.Header.Get("User-Agent") == "" {
-				req.Header.Add("User-Agent", "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
+				req.Header.Add("User-Agent", "opensearch/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 			}
 			res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
 			if res != nil {
@@ -1150,11 +1122,11 @@ func (c *Client) healthcheck(parentCtx context.Context, timeout time.Duration, f
 		// Wait for the Goroutine (or its timeout)
 		select {
 		case <-ctx.Done(): // timeout
-			c.errorf("elastic: %s is dead", conn.URL())
+			c.errorf("opensearch: %s is dead", conn.URL())
 			conn.MarkAsDead()
 		case err := <-errc:
 			if err != nil {
-				c.errorf("elastic: %s is dead", conn.URL())
+				c.errorf("opensearch: %s is dead", conn.URL())
 				conn.MarkAsDead()
 				break
 			}
@@ -1162,7 +1134,7 @@ func (c *Client) healthcheck(parentCtx context.Context, timeout time.Duration, f
 				conn.MarkAsAlive()
 			} else {
 				conn.MarkAsDead()
-				c.errorf("elastic: %s is dead [status=%d]", conn.URL(), status)
+				c.errorf("opensearch: %s is dead [status=%d]", conn.URL(), status)
 			}
 		}
 	}
@@ -1259,7 +1231,7 @@ func (c *Client) next() (*conn, error) {
 	// So we are marking them as alive--if sniffing is disabled.
 	// They'll then be picked up in the next call to PerformRequest.
 	if !c.snifferEnabled {
-		c.errorf("elastic: all %d nodes marked as dead; resurrecting them to prevent deadlock", len(c.conns))
+		c.errorf("opensearch: all %d nodes marked as dead; resurrecting them to prevent deadlock", len(c.conns))
 		for _, conn := range c.conns {
 			conn.MarkAsAlive()
 		}
@@ -1300,7 +1272,7 @@ type PerformRequestOptions struct {
 	Stream           bool
 }
 
-// PerformRequest does a HTTP request to Elasticsearch.
+// PerformRequest does a HTTP request to Opensearch.
 // It returns a response (which might be nil) and an error on failure.
 //
 // Optionally, a list of HTTP error codes to ignore can be passed.
@@ -1383,13 +1355,13 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			continue // try again
 		}
 		if err != nil {
-			c.errorf("elastic: cannot get connection from pool")
+			c.errorf("opensearch: cannot get connection from pool")
 			return nil, err
 		}
 
 		req, err = NewRequest(opt.Method, conn.URL()+pathWithParams)
 		if err != nil {
-			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(opt.Method), conn.URL()+pathWithParams, err)
+			c.errorf("opensearch: cannot create request for %s %s: %v", strings.ToUpper(opt.Method), conn.URL()+pathWithParams, err)
 			return nil, err
 		}
 		if basicAuth {
@@ -1411,14 +1383,14 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			}
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
+			req.Header.Set("User-Agent", "opensearch/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 		}
 
 		// Set body
 		if opt.Body != nil {
 			err = req.SetBody(opt.Body, gzipEnabled)
 			if err != nil {
-				c.errorf("elastic: couldn't set body %+v for request: %v", opt.Body, err)
+				c.errorf("opensearch: couldn't set body %+v for request: %v", opt.Body, err)
 				return nil, err
 			}
 		}
@@ -1436,12 +1408,12 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			n++
 			wait, ok, rerr := retrier.Retry(ctx, n, (*http.Request)(req), res, err)
 			if rerr != nil {
-				c.errorf("elastic: %s is dead", conn.URL())
+				c.errorf("opensearch: %s is dead", conn.URL())
 				conn.MarkAsDead()
 				return nil, rerr
 			}
 			if !ok {
-				c.errorf("elastic: %s is dead", conn.URL())
+				c.errorf("opensearch: %s is dead", conn.URL())
 				conn.MarkAsDead()
 				return nil, err
 			}
@@ -1453,7 +1425,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			n++
 			wait, ok, rerr := retrier.Retry(ctx, n, (*http.Request)(req), res, err)
 			if rerr != nil {
-				c.errorf("elastic: %s is dead", conn.URL())
+				c.errorf("opensearch: %s is dead", conn.URL())
 				conn.MarkAsDead()
 				return nil, rerr
 			}
@@ -1563,7 +1535,7 @@ func (c *Client) BulkProcessor() *BulkProcessorService {
 
 // Reindex copies data from a source index into a destination index.
 //
-// See https://www.opensearch.co/guide/en/elasticsearch/reference/7.0/docs-reindex.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-reindex.html
 // for details on the Reindex API.
 func (c *Client) Reindex() *ReindexService {
 	return NewReindexService(c)
@@ -1710,7 +1682,7 @@ func (c *Client) UnfreezeIndex(name string) *IndicesUnfreezeService {
 }
 
 // IndexGet retrieves information about one or more indices.
-// IndexGet is only available for Elasticsearch 1.4 or later.
+// IndexGet is only available for Opensearch 1.4 or later.
 func (c *Client) IndexGet(indices ...string) *IndicesGetService {
 	return NewIndicesGetService(c).Index(indices...)
 }
@@ -1742,12 +1714,12 @@ func (c *Client) Forcemerge(indices ...string) *IndicesForcemergeService {
 	return NewIndicesForcemergeService(c).Index(indices...)
 }
 
-// Refresh asks Elasticsearch to refresh one or more indices.
+// Refresh asks Opensearch to refresh one or more indices.
 func (c *Client) Refresh(indices ...string) *RefreshService {
 	return NewRefreshService(c).Index(indices...)
 }
 
-// Flush asks Elasticsearch to free memory from the index and
+// Flush asks Opensearch to free memory from the index and
 // flush data to disk.
 func (c *Client) Flush(indices ...string) *IndicesFlushService {
 	return NewIndicesFlushService(c).Index(indices...)
@@ -1755,7 +1727,7 @@ func (c *Client) Flush(indices ...string) *IndicesFlushService {
 
 // SyncedFlush performs a synced flush.
 //
-// See https://www.opensearch.co/guide/en/elasticsearch/reference/7.0/indices-synced-flush.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-synced-flush.html
 // for more details on synched flushes and how they differ from a normal
 // Flush.
 func (c *Client) SyncedFlush(indices ...string) *IndicesSyncedFlushService {
@@ -1782,7 +1754,7 @@ func (c *Client) Aliases() *AliasesService {
 // IndexGetTemplate gets an index template (v1/legacy version before 7.8).
 //
 // This service implements the legacy version of index templates as described
-// in https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+// in https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/indices-templates-v1.html.
 //
 // See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 //
@@ -1794,7 +1766,7 @@ func (c *Client) IndexGetTemplate(names ...string) *IndicesGetTemplateService {
 // IndexTemplateExists gets check if an index template exists (v1/legacy version before 7.8).
 //
 // This service implements the legacy version of index templates as described
-// in https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+// in https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/indices-templates-v1.html.
 //
 // See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 //
@@ -1806,7 +1778,7 @@ func (c *Client) IndexTemplateExists(name string) *IndicesExistsTemplateService 
 // IndexPutTemplate creates or updates an index template (v1/legacy version before 7.8).
 //
 // This service implements the legacy version of index templates as described
-// in https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+// in https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/indices-templates-v1.html.
 //
 // See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 //
@@ -1818,7 +1790,7 @@ func (c *Client) IndexPutTemplate(name string) *IndicesPutTemplateService {
 // IndexDeleteTemplate deletes an index template (v1/legacy version before 7.8).
 //
 // This service implements the legacy version of index templates as described
-// in https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+// in https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/indices-templates-v1.html.
 //
 // See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 //
@@ -1832,7 +1804,7 @@ func (c *Client) IndexDeleteTemplate(name string) *IndicesDeleteTemplateService 
 // IndexPutIndexTemplate creates or updates an index template (new version after 7.8).
 //
 // This service implements the new version of index templates as described
-// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-put-template.html.
+// on https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/indices-put-template.html.
 //
 // See e.g. IndexPutTemplate for the v1/legacy version.
 func (c *Client) IndexPutIndexTemplate(name string) *IndicesPutIndexTemplateService {
@@ -1842,7 +1814,7 @@ func (c *Client) IndexPutIndexTemplate(name string) *IndicesPutIndexTemplateServ
 // IndexGetIndexTemplate returns an index template (new version after 7.8).
 //
 // This service implements the new version of index templates as described
-// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-get-template.html.
+// on https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/indices-get-template.html.
 //
 // See e.g. IndexPutTemplate for the v1/legacy version.
 func (c *Client) IndexGetIndexTemplate(name string) *IndicesGetIndexTemplateService {
@@ -1852,7 +1824,7 @@ func (c *Client) IndexGetIndexTemplate(name string) *IndicesGetIndexTemplateServ
 // IndexDeleteIndexTemplate deletes an index template (new version after 7.8).
 //
 // This service implements the new version of index templates as described
-// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-delete-template.html.
+// on https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/indices-delete-template.html.
 //
 // See e.g. IndexPutTemplate for the v1/legacy version.
 func (c *Client) IndexDeleteIndexTemplate(name string) *IndicesDeleteIndexTemplateService {
@@ -1864,7 +1836,7 @@ func (c *Client) IndexDeleteIndexTemplate(name string) *IndicesDeleteIndexTempla
 // IndexPutComponentTemplate creates or updates a component template (available since 7.8).
 //
 // This service implements the component templates as described
-// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.10/indices-component-template.html.
+// on https://www.opensearch.co/guide/en/opensearchsearch/reference/7.10/indices-component-template.html.
 func (c *Client) IndexPutComponentTemplate(name string) *IndicesPutComponentTemplateService {
 	return NewIndicesPutComponentTemplateService(c).Name(name)
 }
@@ -1872,7 +1844,7 @@ func (c *Client) IndexPutComponentTemplate(name string) *IndicesPutComponentTemp
 // IndexGetComponentTemplate returns a component template (available since 7.8).
 //
 // This service implements the component templates as described
-// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.10/getting-component-templates.html.
+// on https://www.opensearch.co/guide/en/opensearchsearch/reference/7.10/getting-component-templates.html.
 func (c *Client) IndexGetComponentTemplate(name string) *IndicesGetComponentTemplateService {
 	return NewIndicesGetComponentTemplateService(c).Name(name)
 }
@@ -1880,7 +1852,7 @@ func (c *Client) IndexGetComponentTemplate(name string) *IndicesGetComponentTemp
 // IndexDeleteComponentTemplate deletes a component template (available since 7.8).
 //
 // This service implements the component templates as described
-// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.10/indices-delete-component-template.html.
+// on https://www.opensearch.co/guide/en/opensearchsearch/reference/7.10/indices-delete-component-template.html.
 func (c *Client) IndexDeleteComponentTemplate(name string) *IndicesDeleteComponentTemplateService {
 	return NewIndicesDeleteComponentTemplateService(c).Name(name)
 }
@@ -2082,27 +2054,27 @@ func (c *Client) SnapshotRestore(repository string, snapshot string) *SnapshotRe
 
 // -- Scripting APIs --
 
-// GetScript reads a stored script in Elasticsearch.
+// GetScript reads a stored script in Opensearch.
 // Use PutScript for storing a script.
 func (c *Client) GetScript() *GetScriptService {
 	return NewGetScriptService(c)
 }
 
-// PutScript allows saving a stored script in Elasticsearch.
+// PutScript allows saving a stored script in Opensearch.
 func (c *Client) PutScript() *PutScriptService {
 	return NewPutScriptService(c)
 }
 
-// DeleteScript allows removing a stored script from Elasticsearch.
+// DeleteScript allows removing a stored script from Opensearch.
 func (c *Client) DeleteScript() *DeleteScriptService {
 	return NewDeleteScriptService(c)
 }
 
 // -- Helpers and shortcuts --
 
-// ElasticsearchVersion returns the version number of Elasticsearch
+// OpensearchVersion returns the version number of Opensearch
 // running on the given URL.
-func (c *Client) ElasticsearchVersion(url string) (string, error) {
+func (c *Client) OpensearchVersion(url string) (string, error) {
 	res, _, err := c.Ping(url).Do(context.Background())
 	if err != nil {
 		return "", err
@@ -2124,8 +2096,8 @@ func (c *Client) IndexNames() ([]string, error) {
 }
 
 // Ping checks if a given node in a cluster exists and (optionally)
-// returns some basic information about the Elasticsearch server,
-// e.g. the Elasticsearch version number.
+// returns some basic information about the Opensearch server,
+// e.g. the Opensearch version number.
 //
 // Notice that you need to specify a URL here explicitly.
 func (c *Client) Ping(url string) *PingService {

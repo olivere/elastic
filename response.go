@@ -14,10 +14,10 @@ import (
 
 var (
 	// ErrResponseSize is raised if a response body exceeds the given max body size.
-	ErrResponseSize = errors.New("elastic: response size too large")
+	ErrResponseSize = errors.New("opensearch: response size too large")
 )
 
-// Response represents a response from Elasticsearch.
+// Response represents a response from Opensearch.
 type Response struct {
 	// StatusCode is the HTTP status code, e.g. 200.
 	StatusCode int
@@ -27,7 +27,7 @@ type Response struct {
 	// Body is the deserialized response body. Only available if streaming is disabled.
 	Body json.RawMessage
 	// DeprecationWarnings lists all deprecation warnings returned from
-	// Elasticsearch.
+	// Opensearch.
 	DeprecationWarnings []string
 	// BodyReader is the body as a reader. Only available if streaming is enabled.
 	BodyReader io.ReadCloser

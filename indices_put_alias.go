@@ -239,7 +239,7 @@ func (a *AliasRemoveIndexAction) Source() (interface{}, error) {
 // -- Service --
 
 // AliasService enables users to add or remove an alias.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-aliases.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-aliases.html
 // for details.
 type AliasService struct {
 	client *Client
@@ -261,7 +261,7 @@ func NewAliasService(client *Client) *AliasService {
 	return builder
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *AliasService) Pretty(pretty bool) *AliasService {
 	s.pretty = &pretty
 	return s

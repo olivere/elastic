@@ -18,7 +18,7 @@ import (
 // IngestPutPipelineService adds pipelines and updates existing pipelines in
 // the cluster.
 //
-// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/7.0/put-pipeline-api.html.
+// It is documented at https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/put-pipeline-api.html.
 type IngestPutPipelineService struct {
 	client *Client
 
@@ -42,7 +42,7 @@ func NewIngestPutPipelineService(client *Client) *IngestPutPipelineService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IngestPutPipelineService) Pretty(pretty bool) *IngestPutPipelineService {
 	s.pretty = &pretty
 	return s

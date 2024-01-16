@@ -22,13 +22,13 @@ import (
 )
 
 type Tweet struct {
-	User     string                `json:"user"`
-	Message  string                `json:"message"`
-	Retweets int                   `json:"retweets"`
-	Image    string                `json:"image,omitempty"`
-	Created  time.Time             `json:"created,omitempty"`
-	Tags     []string              `json:"tags,omitempty"`
-	Location string                `json:"location,omitempty"`
+	User     string                   `json:"user"`
+	Message  string                   `json:"message"`
+	Retweets int                      `json:"retweets"`
+	Image    string                   `json:"image,omitempty"`
+	Created  time.Time                `json:"created,omitempty"`
+	Tags     []string                 `json:"tags,omitempty"`
+	Location string                   `json:"location,omitempty"`
 	Suggest  *opensearch.SuggestField `json:"suggest_field,omitempty"`
 }
 
@@ -311,12 +311,12 @@ func (t *TestCase) search() {
 
 		// Search with a term query
 		searchResult, err := t.client.Search().
-			Index(t.index).                                 // search in index t.index
+			Index(t.index).                                    // search in index t.index
 			Query(opensearch.NewTermQuery("user", "olivere")). // specify the query
-			Sort("user", true).                             // sort by "user" field, ascending
-			From(0).Size(10).                               // take documents 0-9
-			Pretty(true).                                   // pretty print request and response JSON
-			Do(ctx)                                         // execute
+			Sort("user", true).                                // sort by "user" field, ascending
+			From(0).Size(10).                                  // take documents 0-9
+			Pretty(true).                                      // pretty print request and response JSON
+			Do(ctx)                                            // execute
 		if err != nil {
 			//failf("Search failed: %v\n", err)
 			t.runCh <- RunInfo{Success: false}
@@ -324,7 +324,7 @@ func (t *TestCase) search() {
 		}
 
 		// searchResult is of type SearchResult and returns hits, suggestions,
-		// and all kinds of other information from Elasticsearch.
+		// and all kinds of other information from Opensearch.
 		//fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
 		// Number of hits

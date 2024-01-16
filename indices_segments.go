@@ -21,7 +21,7 @@ import (
 // optimization information, data "wasted" on deletes, and so on.
 //
 // Find further documentation at
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-segments.html.
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-segments.html.
 type IndicesSegmentsService struct {
 	client *Client
 
@@ -46,7 +46,7 @@ func NewIndicesSegmentsService(client *Client) *IndicesSegmentsService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesSegmentsService) Pretty(pretty bool) *IndicesSegmentsService {
 	s.pretty = &pretty
 	return s
@@ -115,7 +115,7 @@ func (s *IndicesSegmentsService) IgnoreUnavailable(ignoreUnavailable bool) *Indi
 	return s
 }
 
-// OperationThreading is undocumented in Elasticsearch as of now.
+// OperationThreading is undocumented in Opensearch as of now.
 func (s *IndicesSegmentsService) OperationThreading(operationThreading interface{}) *IndicesSegmentsService {
 	s.operationThreading = operationThreading
 	return s

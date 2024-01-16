@@ -14,7 +14,7 @@ import (
 
 // ClearScrollService clears one or more scroll contexts by their ids.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-scroll.html#_clear_scroll_api
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-scroll.html#_clear_scroll_api
 // for details.
 type ClearScrollService struct {
 	client *Client
@@ -36,7 +36,7 @@ func NewClearScrollService(client *Client) *ClearScrollService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ClearScrollService) Pretty(pretty bool) *ClearScrollService {
 	s.pretty = &pretty
 	return s

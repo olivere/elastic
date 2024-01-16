@@ -12,7 +12,7 @@ package opensearch
 // will be evaluated as false and all other values will evaluate to true.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-pipeline-bucket-selector-aggregation.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-pipeline-bucket-selector-aggregation.html
 type BucketSelectorAggregation struct {
 	format    string
 	gapPolicy string

@@ -17,8 +17,8 @@ func TestMultiSearch(t *testing.T) {
 
 	tweet1 := tweet{
 		User:    "olivere",
-		Message: "Welcome to Golang and Elasticsearch.",
-		Tags:    []string{"golang", "elasticsearch"},
+		Message: "Welcome to Golang and Opensearch.",
+		Tags:    []string{"golang", "opensearchsearch"},
 	}
 	tweet2 := tweet{
 		User:    "olivere",
@@ -124,8 +124,8 @@ func TestMultiSearchWithStrings(t *testing.T) {
 
 	tweet1 := tweet{
 		User:    "olivere",
-		Message: "Welcome to Golang and Elasticsearch.",
-		Tags:    []string{"golang", "elasticsearch"},
+		Message: "Welcome to Golang and Opensearch.",
+		Tags:    []string{"golang", "opensearchsearch"},
 	}
 	tweet2 := tweet{
 		User:    "olivere",
@@ -226,8 +226,8 @@ func TestMultiSearchWithOneRequest(t *testing.T) {
 
 	tweet1 := tweet{
 		User:    "olivere",
-		Message: "Welcome to Golang and Elasticsearch.",
-		Tags:    []string{"golang", "elasticsearch"},
+		Message: "Welcome to Golang and Opensearch.",
+		Tags:    []string{"golang", "opensearchsearch"},
 	}
 	tweet2 := tweet{
 		User:    "olivere",

@@ -16,7 +16,7 @@ import (
 )
 
 // NodesStatsService returns node statistics.
-// See http://www.elastic.co/guide/en/elasticsearch/reference/7.0/cluster-nodes-stats.html
+// See http://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cluster-nodes-stats.html
 // for details.
 type NodesStatsService struct {
 	client *Client
@@ -46,7 +46,7 @@ func NewNodesStatsService(client *Client) *NodesStatsService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *NodesStatsService) Pretty(pretty bool) *NodesStatsService {
 	s.pretty = &pretty
 	return s
@@ -380,7 +380,7 @@ type NodesStatsIndexingStats struct {
 	DeleteCurrent         int64  `json:"delete_current"`
 	NoopUpdateTotal       int64  `json:"noop_update_total"`
 	IsThrottled           bool   `json:"is_throttled"`
-	ThrottledTime         string `json:"throttle_time"` // no typo, see https://github.com/elastic/elasticsearch/blob/ff99bc1d3f8a7ea72718872d214ec2097dfca276/server/src/main/java/org/elasticsearch/index/shard/IndexingStats.java#L244
+	ThrottledTime         string `json:"throttle_time"` // no typo, see https://github.com/opensearch/opensearchsearch/blob/ff99bc1d3f8a7ea72718872d214ec2097dfca276/server/src/main/java/org/opensearchsearch/index/shard/IndexingStats.java#L244
 	ThrottledTimeInMillis int64  `json:"throttle_time_in_millis"`
 
 	Types map[string]*NodesStatsIndexingStats `json:"types"` // stats for individual types

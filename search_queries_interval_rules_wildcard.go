@@ -6,7 +6,7 @@ var (
 
 // IntervalQueryRuleWildcard is an implementation of IntervalQueryRule.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.5/query-dsl-intervals-query.html#intervals-wildcard
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.5/query-dsl-intervals-query.html#intervals-wildcard
 // for details.
 type IntervalQueryRuleWildcard struct {
 	pattern  string

@@ -16,7 +16,7 @@ import (
 )
 
 // IngestGetPipelineService returns pipelines based on ID.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/get-pipeline-api.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/get-pipeline-api.html
 // for documentation.
 type IngestGetPipelineService struct {
 	client *Client
@@ -38,7 +38,7 @@ func NewIngestGetPipelineService(client *Client) *IngestGetPipelineService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IngestGetPipelineService) Pretty(pretty bool) *IngestGetPipelineService {
 	s.pretty = &pretty
 	return s

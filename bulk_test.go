@@ -17,7 +17,7 @@ import (
 func TestBulk(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
 	index1Req := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet1)
@@ -159,7 +159,7 @@ func TestBulk(t *testing.T) {
 func TestBulkWithIndexSetOnClient(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
 	index1Req := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet1).Routing("1")
@@ -206,7 +206,7 @@ func TestBulkIndexDeleteUpdate(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 	//client := setupTestClientAndCreateIndexAndLog(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
 	index1Req := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet1)
@@ -231,7 +231,7 @@ func TestBulkIndexDeleteUpdate(t *testing.T) {
 	}
 
 	expected := `{"index":{"_index":"` + testIndexName + `","_id":"1"}}
-{"user":"olivere","message":"Welcome to Golang and Elasticsearch.","retweets":0,"created":"0001-01-01T00:00:00Z"}
+{"user":"olivere","message":"Welcome to Golang and Opensearch.","retweets":0,"created":"0001-01-01T00:00:00Z"}
 {"create":{"_index":"` + testIndexName + `","_id":"2"}}
 {"user":"sandrae","message":"Dancing all night long. Yeah.","retweets":0,"created":"0001-01-01T00:00:00Z"}
 {"delete":{"_index":"` + testIndexName + `","_id":"1"}}
@@ -409,7 +409,7 @@ func TestBulkOnReadOnlyIndex(t *testing.T) {
 	}
 
 	// Index something
-	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	bulk := client.Bulk().Add(
 		NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet),
 	)
@@ -437,7 +437,7 @@ func TestFailedBulkRequests(t *testing.T) {
   "errors" : true,
   "items" : [ {
     "index" : {
-      "_index" : "elastic-test",
+      "_index" : "opensearch-test",
       "_type" : "_doc",
       "_id" : "1",
       "_version" : 1,
@@ -445,19 +445,19 @@ func TestFailedBulkRequests(t *testing.T) {
     }
   }, {
     "create" : {
-      "_index" : "elastic-test",
+      "_index" : "opensearch-test",
       "_type" : "_doc",
       "_id" : "2",
       "_version" : 1,
       "status" : 423,
       "error" : {
       	"type":"routing_missing_exception",
-      	"reason":"routing is required for [elastic-test2]/[comment]/[1]"
+      	"reason":"routing is required for [opensearch-test2]/[comment]/[1]"
       }
     }
   }, {
     "delete" : {
-      "_index" : "elastic-test",
+      "_index" : "opensearch-test",
       "_type" : "_doc",
       "_id" : "1",
       "_version" : 2,
@@ -466,7 +466,7 @@ func TestFailedBulkRequests(t *testing.T) {
     }
   }, {
     "update" : {
-      "_index" : "elastic-test",
+      "_index" : "opensearch-test",
       "_type" : "_doc",
       "_id" : "2",
       "_version" : 2,
@@ -489,7 +489,7 @@ func TestFailedBulkRequests(t *testing.T) {
 func TestBulkEstimatedSizeInBytes(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
 	index1Req := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet1)
@@ -554,7 +554,7 @@ func TestBulkContentType(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	indexReq := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."})
+	indexReq := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."})
 	if _, err := client.Bulk().Add(indexReq).Do(context.Background()); err != nil {
 		t.Fatal(err)
 	}

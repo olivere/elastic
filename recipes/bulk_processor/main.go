@@ -22,15 +22,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/disaster37/opensearch/v2"
 	"github.com/google/uuid"
+	"github.com/olivere/opensearch"
 
 	"github.com/disaster37/opensearch/v2/config"
 )
 
 func main() {
 	var (
-		url           = flag.String("url", "http://localhost:9200/bulk-processor-test", "Elasticsearch URL")
+		url           = flag.String("url", "http://localhost:9200/bulk-processor-test", "Opensearch URL")
 		numWorkers    = flag.Int("num-workers", 4, "Number of workers")
 		n             = flag.Int64("n", -1, "Number of documents to process (-1 for unlimited)")
 		flushInterval = flag.Duration("flush-interval", 1*time.Second, "Flush interval")
@@ -48,8 +48,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Create an Elasticsearch client from the parsed config
-	client, err := elastic.NewClientFromConfig(cfg)
+	// Create an Opensearch client from the parsed config
+	client, err := opensearch.NewClientFromConfig(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,10 +67,10 @@ func main() {
 	}
 
 	// Create processor
-	bulkp := elastic.NewBulkProcessorService(client).
+	bulkp := opensearch.NewBulkProcessorService(client).
 		Name("bulk-test-processor").
 		Stats(true).
-		Backoff(elastic.StopBackoff{}).
+		Backoff(opensearch.StopBackoff{}).
 		FlushInterval(*flushInterval).
 		Workers(*numWorkers)
 	if *bulkActions > 0 {
@@ -110,7 +110,7 @@ func main() {
 				errc <- nil
 				return
 			}
-			r := elastic.NewBulkIndexRequest().
+			r := opensearch.NewBulkIndexRequest().
 				Index(cfg.Index).
 				Id(uuid.New().String()).
 				Doc(Doc{Timestamp: time.Now()})

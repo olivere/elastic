@@ -11,7 +11,7 @@ package opensearch
 //
 // The stats that are returned consist of: min, max, sum, count and avg.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-metrics-stats-aggregation.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-metrics-stats-aggregation.html
 // for details.
 type MatrixStatsAggregation struct {
 	fields          []string

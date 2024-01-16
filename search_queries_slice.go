@@ -5,8 +5,8 @@
 package opensearch
 
 // SliceQuery allows to partition the documents into several slices.
-// It is used e.g. to slice scroll operations in Elasticsearch 5.0 or later.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-scroll.html#sliced-scroll
+// It is used e.g. to slice scroll operations in Opensearch 5.0 or later.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-scroll.html#sliced-scroll
 // for details.
 type SliceQuery struct {
 	field string

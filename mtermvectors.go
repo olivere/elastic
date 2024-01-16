@@ -19,7 +19,7 @@ import (
 // fields of a particular document. The document could be stored in the
 // index or artificially provided by the user.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-multi-termvectors.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-multi-termvectors.html
 // for documentation.
 type MultiTermvectorService struct {
 	client *Client
@@ -57,7 +57,7 @@ func NewMultiTermvectorService(client *Client) *MultiTermvectorService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *MultiTermvectorService) Pretty(pretty bool) *MultiTermvectorService {
 	s.pretty = &pretty
 	return s
@@ -472,7 +472,7 @@ func (s *MultiTermvectorItem) TermStatistics(termStatistics bool) *MultiTermvect
 	return s
 }
 
-// Source returns the serialized JSON to be sent to Elasticsearch as
+// Source returns the serialized JSON to be sent to Opensearch as
 // part of a MultiTermvector.
 func (s *MultiTermvectorItem) Source() interface{} {
 	source := make(map[string]interface{})

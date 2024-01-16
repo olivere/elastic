@@ -15,7 +15,7 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// SnapshotCreateService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-snapshots.html.
+// SnapshotCreateService is documented at https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/modules-snapshots.html.
 type SnapshotCreateService struct {
 	client *Client
 
@@ -40,7 +40,7 @@ func NewSnapshotCreateService(client *Client) *SnapshotCreateService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *SnapshotCreateService) Pretty(pretty bool) *SnapshotCreateService {
 	s.pretty = &pretty
 	return s
@@ -218,7 +218,7 @@ type SnapshotShardFailure struct {
 
 // SnapshotCreateResponse is the response of SnapshotCreateService.Do.
 type SnapshotCreateResponse struct {
-	// Accepted indicates whether the request was accepted by elasticsearch.
+	// Accepted indicates whether the request was accepted by opensearchsearch.
 	// It's available when waitForCompletion is false.
 	Accepted *bool `json:"accepted"`
 

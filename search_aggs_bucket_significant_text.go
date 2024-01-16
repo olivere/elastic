@@ -6,7 +6,7 @@ package opensearch
 
 // SignificantTextAggregation returns interesting or unusual occurrences
 // of free-text terms in a set.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-significanttext-aggregation.html
+// See: https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-significanttext-aggregation.html
 type SignificantTextAggregation struct {
 	field           string
 	subAggregations map[string]Aggregation

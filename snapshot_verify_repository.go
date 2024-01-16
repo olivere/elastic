@@ -16,7 +16,7 @@ import (
 )
 
 // SnapshotVerifyRepositoryService verifies a snapshop repository.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-snapshots.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/modules-snapshots.html
 // for details.
 type SnapshotVerifyRepositoryService struct {
 	client *Client
@@ -39,7 +39,7 @@ func NewSnapshotVerifyRepositoryService(client *Client) *SnapshotVerifyRepositor
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *SnapshotVerifyRepositoryService) Pretty(pretty bool) *SnapshotVerifyRepositoryService {
 	s.pretty = &pretty
 	return s

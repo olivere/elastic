@@ -10,18 +10,18 @@ package opensearch
 //
 // You must pass a script to process the values. There are a number of predefined
 // script functions you can use as described here:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-pipeline-movfn-aggregation.html#_pre_built_functions.
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-pipeline-movfn-aggregation.html#_pre_built_functions.
 //
 // Example:
 //
-//	agg := elastic.NewMovFnAggregation(
+//	agg := opensearch.NewMovFnAggregation(
 //	  "the_sum", // bucket path
-//	  elastic.NewScript("MovingFunctions.stdDev(values, MovingFunctions.unweightedAvg(values))"),
+//	  opensearch.NewScript("MovingFunctions.stdDev(values, MovingFunctions.unweightedAvg(values))"),
 //	  10,        // window size
 //	)
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-pipeline-movfn-aggregation.html.
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-pipeline-movfn-aggregation.html.
 type MovFnAggregation struct {
 	script    *Script
 	format    string

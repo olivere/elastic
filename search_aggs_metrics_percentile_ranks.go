@@ -5,7 +5,7 @@
 package opensearch
 
 // PercentileRanksAggregation
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-metrics-percentile-rank-aggregation.html
+// See: https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-metrics-percentile-rank-aggregation.html
 type PercentileRanksAggregation struct {
 	field           string
 	script          *Script

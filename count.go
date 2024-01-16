@@ -55,7 +55,7 @@ func NewCountService(client *Client) *CountService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *CountService) Pretty(pretty bool) *CountService {
 	s.pretty = &pretty
 	return s

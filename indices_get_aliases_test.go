@@ -83,7 +83,7 @@ func TestAliases(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	// Some tweets
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Cycling is fun."}
 	tweet3 := tweet{User: "olivere", Message: "Another unrelated topic."}
 

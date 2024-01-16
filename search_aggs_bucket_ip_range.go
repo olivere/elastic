@@ -7,7 +7,7 @@ package opensearch
 // IPRangeAggregation is a range aggregation that is dedicated for
 // IP addresses.
 //
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-iprange-aggregation.html
+// See: https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-iprange-aggregation.html
 type IPRangeAggregation struct {
 	field           string
 	subAggregations map[string]Aggregation

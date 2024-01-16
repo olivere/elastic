@@ -16,11 +16,11 @@ import (
 
 // IndicesPutTemplateService creates or updates templates.
 //
-// Index templates have changed during in 7.8 update of Elasticsearch.
+// Index templates have changed during in 7.8 update of Opensearch.
 // This service implements the legacy version (7.7 or lower). If you want
 // the new version, please use the IndicesPutIndexTemplateService.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/indices-templates-v1.html
 // for more details.
 //
 // Deprecated: Legacy index templates are deprecated in favor of composable templates.
@@ -53,7 +53,7 @@ func NewIndicesPutTemplateService(client *Client) *IndicesPutTemplateService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesPutTemplateService) Pretty(pretty bool) *IndicesPutTemplateService {
 	s.pretty = &pretty
 	return s

@@ -7,7 +7,7 @@ package opensearch
 // SpanFirstQuery spans near the beginning of a field.
 // The span first query maps to Lucene SpanFirstQuery
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.7/query-dsl-span-first-query.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.7/query-dsl-span-first-query.html
 // for details.
 type SpanFirstQuery struct {
 	match     Query

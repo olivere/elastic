@@ -12,7 +12,7 @@ import "errors"
 // expensive and you only need to calculate the score of a filtered set of documents.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.4/query-dsl-script-score-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.4/query-dsl-script-score-query.html
 type ScriptScoreQuery struct {
 	query     Query
 	script    *Script
@@ -64,7 +64,7 @@ func (q *ScriptScoreQuery) Source() (interface{}, error) {
 	// {
 	//   "script_score" : {
 	//     "query" : {
-	//       "match" : { "message": "elasticsearch" }
+	//       "match" : { "message": "opensearchsearch" }
 	//     },
 	//     "script" : {
 	//       "source" : "doc['likes'].value / 10"

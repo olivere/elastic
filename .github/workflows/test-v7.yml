@@ -49,7 +49,7 @@ jobs:
         go get -u github.com/fortytw2/leaktest
         go get . ./aws/... ./config/... ./trace/... ./uritemplates/...
 
-    - name: Wait for Elasticsearch
+    - name: Wait for Opensearch
       run: |
         while ! nc -z localhost 9200; do sleep 1; done
         while ! nc -z localhost 9210; do sleep 1; done

@@ -16,7 +16,7 @@ import (
 
 // IndicesDeleteComponentTemplateService deletes component templates.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.10/indices-delete-component-template.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.10/indices-delete-component-template.html
 // for more details.
 type IndicesDeleteComponentTemplateService struct {
 	client *Client
@@ -39,7 +39,7 @@ func NewIndicesDeleteComponentTemplateService(client *Client) *IndicesDeleteComp
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesDeleteComponentTemplateService) Pretty(pretty bool) *IndicesDeleteComponentTemplateService {
 	s.pretty = &pretty
 	return s

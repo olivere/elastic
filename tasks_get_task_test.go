@@ -68,7 +68,7 @@ func TestTasksGetTask(t *testing.T) {
 	if res.Task == nil {
 		t.Fatal("task is nil")
 	}
-	// Elasticsearch <= 6.4.1 doesn't return the X-Opaque-Id in the body,
+	// Opensearch <= 6.4.1 doesn't return the X-Opaque-Id in the body,
 	// only in response header.
 	/*
 		have, found := res.Task.Headers["X-Opaque-Id"]

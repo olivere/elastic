@@ -17,7 +17,7 @@ import (
 
 // IndicesCreateService creates a new index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-create-index.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-create-index.html
 // for details.
 type IndicesCreateService struct {
 	client *Client
@@ -41,7 +41,7 @@ func NewIndicesCreateService(client *Client) *IndicesCreateService {
 	return &IndicesCreateService{client: client}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesCreateService) Pretty(pretty bool) *IndicesCreateService {
 	s.pretty = &pretty
 	return s

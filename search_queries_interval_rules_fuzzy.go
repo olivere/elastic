@@ -6,7 +6,7 @@ var (
 
 // IntervalQueryRuleFuzzy is an implementation of IntervalQueryRule.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.16/query-dsl-intervals-query.html#intervals-fuzzy
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.16/query-dsl-intervals-query.html#intervals-fuzzy
 // for details.
 type IntervalQueryRuleFuzzy struct {
 	term           string

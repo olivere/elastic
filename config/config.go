@@ -6,12 +6,15 @@ package config
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
-// Config represents an Elasticsearch configuration.
+// Config represents an Opensearch configuration.
 type Config struct {
 	URL         string
 	Index       string
@@ -21,30 +24,29 @@ type Config struct {
 	Replicas    int
 	Sniff       *bool
 	Healthcheck *bool
-	Infolog     string
-	Errorlog    string
-	Tracelog    string
+	Transport   http.RoundTripper
+	Logger      *logrus.Logger
 }
 
-// Parse returns the Elasticsearch configuration by extracting it
+// Parse returns the Opensearch configuration by extracting it
 // from the URL, its path, and its query string.
 //
 // Example:
 //
-//	http://127.0.0.1:9200/store-blobs?shards=1&replicas=0&sniff=false&tracelog=elastic.trace.log
+//	http://127.0.0.1:9200/store-blobs?shards=1&replicas=0&sniff=false&tracelog=opensearch.trace.log
 //
 // The code above will return a URL of http://127.0.0.1:9200, an index name
 // of store-blobs, and the related settings from the query string.
-func Parse(elasticURL string) (*Config, error) {
+func Parse(opensearchURL string) (*Config, error) {
 	cfg := &Config{
 		Shards:   1,
 		Replicas: 0,
 		Sniff:    nil,
 	}
 
-	uri, err := url.Parse(elasticURL)
+	uri, err := url.Parse(opensearchURL)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing elastic parameter %q: %v", elasticURL, err)
+		return nil, fmt.Errorf("error parsing opensearch parameter %q: %v", opensearchURL, err)
 	}
 	index := strings.TrimSuffix(strings.TrimPrefix(uri.Path, "/"), "/")
 	if uri.User != nil {
@@ -68,15 +70,6 @@ func Parse(elasticURL string) (*Config, error) {
 		if b, err := strconv.ParseBool(s); err == nil {
 			cfg.Healthcheck = &b
 		}
-	}
-	if s := uri.Query().Get("infolog"); s != "" {
-		cfg.Infolog = s
-	}
-	if s := uri.Query().Get("errorlog"); s != "" {
-		cfg.Errorlog = s
-	}
-	if s := uri.Query().Get("tracelog"); s != "" {
-		cfg.Tracelog = s
 	}
 
 	uri.Path = ""

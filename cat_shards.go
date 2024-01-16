@@ -17,7 +17,7 @@ import (
 // CatShardsService returns the list of shards plus some additional
 // information about them.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-shards.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.6/cat-shards.html
 // for details.
 type CatShardsService struct {
 	client *Client
@@ -44,7 +44,7 @@ func NewCatShardsService(client *Client) *CatShardsService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *CatShardsService) Pretty(pretty bool) *CatShardsService {
 	s.pretty = &pretty
 	return s
@@ -324,7 +324,7 @@ type CatShardsResponseRow struct {
 // catShardsResponseRowAliasesMap holds the global map for columns aliases
 // the map is used by CatShardsService.buildURL.
 // For backwards compatibility some fields are able to have the same aliases
-// that means that one alias can be translated to different columns (from different elastic versions)
+// that means that one alias can be translated to different columns (from different opensearch versions)
 // example for understanding: rto -> RefreshTotal, RefreshExternalTotal
 var catShardsResponseRowAliasesMap = map[string]string{
 	"sync_id": "sync_id",

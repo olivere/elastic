@@ -27,7 +27,7 @@ func TestDecoder(t *testing.T) {
 	dec := &decoder{}
 	client := setupTestClientAndCreateIndex(t, SetDecoder(dec), SetMaxRetries(0))
 
-	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 
 	// Add a document
 	indexResult, err := client.Index().

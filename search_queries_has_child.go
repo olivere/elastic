@@ -8,7 +8,7 @@ package opensearch
 // in parent documents that have child docs matching the query.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-has-child-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-has-child-query.html
 type HasChildQuery struct {
 	query              Query
 	childType          string

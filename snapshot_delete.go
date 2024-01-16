@@ -16,7 +16,7 @@ import (
 
 // SnapshotDeleteService deletes a snapshot from a snapshot repository.
 // It is documented at
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-snapshots.html.
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/modules-snapshots.html.
 type SnapshotDeleteService struct {
 	client *Client
 
@@ -37,7 +37,7 @@ func NewSnapshotDeleteService(client *Client) *SnapshotDeleteService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *SnapshotDeleteService) Pretty(pretty bool) *SnapshotDeleteService {
 	s.pretty = &pretty
 	return s

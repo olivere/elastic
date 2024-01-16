@@ -8,7 +8,7 @@ package opensearch
 // with a specified prefix (not analyzed).
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-prefix-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-prefix-query.html
 type PrefixQuery struct {
 	name            string
 	prefix          string

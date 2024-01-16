@@ -22,13 +22,13 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/disaster37/opensearch/v2"
+	"github.com/olivere/opensearch/v7"
 )
 
 func main() {
 	var (
-		url   = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
-		index = flag.String("index", "", "Elasticsearch index name")
+		url   = flag.String("url", "http://localhost:9200", "Opensearch URL")
+		index = flag.String("index", "", "Opensearch index name")
 		size  = flag.Int("size", 10, "Slice of documents to get per scroll")
 		sniff = flag.Bool("sniff", true, "Enable or disable sniffing")
 	)
@@ -45,8 +45,8 @@ func main() {
 		log.Fatal("size must be greater than zero")
 	}
 
-	// Create an Elasticsearch client
-	client, err := elastic.NewClient(elastic.SetURL(*url), elastic.SetSniff(*sniff))
+	// Create an Opensearch client
+	client, err := opensearch.NewClient(opensearch.SetURL(*url), opensearch.SetSniff(*sniff))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,11 +74,11 @@ func main() {
 	res, err := client.Search().
 		Query(
 			// Return random results
-			elastic.NewFunctionScoreQuery().AddScoreFunc(elastic.NewRandomFunction()),
+			opensearch.NewFunctionScoreQuery().AddScoreFunc(opensearch.NewRandomFunction()),
 		).
 		Size(*size).
 		PointInTime(
-			elastic.NewPointInTimeWithKeepAlive(pit.Id, "2m"),
+			opensearch.NewPointInTimeWithKeepAlive(pit.Id, "2m"),
 		).
 		Do(context.Background())
 	if err != nil {
@@ -94,13 +94,13 @@ func main() {
 }
 
 // populate will fill an example index.
-func populate(client *elastic.Client, indexName string) error {
+func populate(client *opensearch.Client, indexName string) error {
 	bulk := client.Bulk().Index(indexName)
 	for i := 0; i < 10000; i++ {
 		doc := map[string]interface{}{
 			"name": fmt.Sprintf("Product %d", i+1),
 		}
-		bulk = bulk.Add(elastic.NewBulkIndexRequest().
+		bulk = bulk.Add(opensearch.NewBulkIndexRequest().
 			Id(fmt.Sprint(i)).
 			Doc(doc),
 		)

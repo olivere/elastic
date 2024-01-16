@@ -16,11 +16,11 @@ import (
 
 // IndicesDeleteTemplateService deletes templates.
 //
-// Index templates have changed during in 7.8 update of Elasticsearch.
+// Index templates have changed during in 7.8 update of Opensearch.
 // This service implements the legacy version (7.7 or lower). If you want
 // the new version, please use the IndicesDeleteIndexTemplateService.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-delete-template-v1.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/indices-delete-template-v1.html
 // for more details.
 //
 // Deprecated: Legacy index templates are deprecated in favor of composable templates.
@@ -45,7 +45,7 @@ func NewIndicesDeleteTemplateService(client *Client) *IndicesDeleteTemplateServi
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesDeleteTemplateService) Pretty(pretty bool) *IndicesDeleteTemplateService {
 	s.pretty = &pretty
 	return s

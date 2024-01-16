@@ -17,7 +17,7 @@ import (
 // OpenPointInTimeService opens a point in time that can be used in subsequent
 // searches.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/point-in-time-api.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.x/point-in-time-api.html
 // for details.
 type OpenPointInTimeService struct {
 	client *Client
@@ -45,7 +45,7 @@ func NewOpenPointInTimeService(client *Client) *OpenPointInTimeService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *OpenPointInTimeService) Pretty(pretty bool) *OpenPointInTimeService {
 	s.pretty = &pretty
 	return s

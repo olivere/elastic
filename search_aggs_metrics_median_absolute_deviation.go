@@ -9,7 +9,7 @@ package opensearch
 // that may have outliers, or may not be normally distributed.
 // For such data it can be more descriptive than standard deviation.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-aggregations-metrics-median-absolute-deviation-aggregation.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.6/search-aggregations-metrics-median-absolute-deviation-aggregation.html
 // for details.
 type MedianAbsoluteDeviationAggregation struct {
 	field           string

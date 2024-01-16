@@ -8,7 +8,7 @@ package opensearch
 // Each term except the last is used in a term query. The last term is used in a prefix query.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-match-bool-prefix-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-match-bool-prefix-query.html
 type MatchBoolPrefixQuery struct {
 	name                string
 	queryText           interface{}

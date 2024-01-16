@@ -15,9 +15,9 @@ import (
 )
 
 // TasksCancelService can cancel long-running tasks.
-// It is supported as of Elasticsearch 2.3.0.
+// It is supported as of Opensearch 2.3.0.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/tasks.html#task-cancellation
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/tasks.html#task-cancellation
 // for details.
 type TasksCancelService struct {
 	client *Client
@@ -41,7 +41,7 @@ func NewTasksCancelService(client *Client) *TasksCancelService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *TasksCancelService) Pretty(pretty bool) *TasksCancelService {
 	s.pretty = &pretty
 	return s

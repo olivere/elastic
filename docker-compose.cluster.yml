@@ -1,15 +1,15 @@
 services:
   es1:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.14.0}
+    image: docker.opensearch.co/opensearchsearch/opensearchsearch:${VERSION:-7.14.0}
     hostname: es1
     environment:
       - bootstrap.memory_lock=true
-      - cluster.name=elasticsearch
+      - cluster.name=opensearchsearch
       - cluster.initial_master_nodes=es1
       - discovery.seed_hosts=es1
       - cluster.routing.allocation.disk.threshold_enabled=false
       - node.name=es1
-      - logger.org.elasticsearch=warn
+      - logger.org.opensearchsearch=warn
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
     ulimits:
@@ -21,21 +21,21 @@ services:
         soft: -1
         hard: -1
     # volumes:
-    #   - ./data/elasticsearch:/usr/share/elasticsearch/data
+    #   - ./data/opensearchsearch:/usr/share/opensearchsearch/data
     ports:
       - 9200:9200
 
   es2:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.14.0}
+    image: docker.opensearch.co/opensearchsearch/opensearchsearch:${VERSION:-7.14.0}
     hostname: es2
     environment:
       - bootstrap.memory_lock=true
-      - cluster.name=elasticsearch
+      - cluster.name=opensearchsearch
       - cluster.initial_master_nodes=es1
       - discovery.seed_hosts=es1
       - cluster.routing.allocation.disk.threshold_enabled=false
       - node.name=es2
-      - logger.org.elasticsearch=warn
+      - logger.org.opensearchsearch=warn
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
     ulimits:
@@ -47,21 +47,21 @@ services:
         soft: -1
         hard: -1
     # volumes:
-    #   - ./data/elasticsearch:/usr/share/elasticsearch/data
+    #   - ./data/opensearchsearch:/usr/share/opensearchsearch/data
     ports:
       - 9201:9200
 
   es3:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-7.14.0}
+    image: docker.opensearch.co/opensearchsearch/opensearchsearch:${VERSION:-7.14.0}
     hostname: es3
     environment:
       - bootstrap.memory_lock=true
-      - cluster.name=elasticsearch
+      - cluster.name=opensearchsearch
       - cluster.initial_master_nodes=es1
       - discovery.seed_hosts=es1
       - cluster.routing.allocation.disk.threshold_enabled=false
       - node.name=es3
-      - logger.org.elasticsearch=warn
+      - logger.org.opensearchsearch=warn
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
     ulimits:
@@ -73,6 +73,6 @@ services:
         soft: -1
         hard: -1
     # volumes:
-    #   - ./data/elasticsearch:/usr/share/elasticsearch/data
+    #   - ./data/opensearchsearch:/usr/share/opensearchsearch/data
     ports:
       - 9202:9200

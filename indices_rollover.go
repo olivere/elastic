@@ -19,7 +19,7 @@ import (
 // existing index is considered to be too large or too old.
 //
 // It is documented at
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-rollover-index.html.
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-rollover-index.html.
 type IndicesRolloverService struct {
 	client *Client
 
@@ -52,7 +52,7 @@ func NewIndicesRolloverService(client *Client) *IndicesRolloverService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesRolloverService) Pretty(pretty bool) *IndicesRolloverService {
 	s.pretty = &pretty
 	return s

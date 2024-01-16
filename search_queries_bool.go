@@ -9,7 +9,7 @@ import "fmt"
 // A bool query matches documents matching boolean
 // combinations of other queries.
 // For more details, see:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-bool-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-bool-query.html
 type BoolQuery struct {
 	Query
 	mustClauses        []Query
@@ -97,7 +97,7 @@ func (q *BoolQuery) Source() (interface{}, error) {
 	//				"term" : { "tag" : "wow" }
 	//			},
 	//			{
-	//				"term" : { "tag" : "elasticsearch" }
+	//				"term" : { "tag" : "opensearchsearch" }
 	//			}
 	//		],
 	//		"minimum_should_match" : 1,

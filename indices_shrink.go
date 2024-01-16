@@ -19,7 +19,7 @@ import (
 // new index with fewer primary shards.
 //
 // For further details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-shrink-index.html.
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-shrink-index.html.
 type IndicesShrinkService struct {
 	client *Client
 
@@ -45,7 +45,7 @@ func NewIndicesShrinkService(client *Client) *IndicesShrinkService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesShrinkService) Pretty(pretty bool) *IndicesShrinkService {
 	s.pretty = &pretty
 	return s

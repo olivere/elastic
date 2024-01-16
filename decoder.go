@@ -9,8 +9,8 @@ import (
 	"encoding/json"
 )
 
-// Decoder is used to decode responses from Elasticsearch.
-// Users of elastic can implement their own marshaler for advanced purposes
+// Decoder is used to decode responses from Opensearch.
+// Users of opensearch can implement their own marshaler for advanced purposes
 // and set them per Client (see SetDecoder). If none is specified,
 // DefaultDecoder is used.
 type Decoder interface {

@@ -12,7 +12,7 @@ type PointInTime struct {
 	// OpenPointInTime API.
 	Id string `json:"id,omitempty"`
 	// KeepAlive is the time for which this specific PointInTime will be
-	// kept alive by Elasticsearch.
+	// kept alive by Opensearch.
 	KeepAlive string `json:"keep_alive,omitempty"`
 }
 

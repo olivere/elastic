@@ -10,21 +10,22 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
-	testIndexName      = "elastic-test"
-	testIndexName2     = "elastic-test2"
-	testIndexName3     = "elastic-test3"
-	testIndexName4     = "elastic-test4"
-	testIndexName5     = "elastic-test5"
-	testIndexNameEmpty = "elastic-test-empty"
+	testIndexName      = "opensearch-test"
+	testIndexName2     = "opensearch-test2"
+	testIndexName3     = "opensearch-test3"
+	testIndexName4     = "opensearch-test4"
+	testIndexName5     = "opensearch-test5"
+	testIndexNameEmpty = "opensearch-test-empty"
 	testMapping        = `
 {
 	"settings":{
@@ -90,7 +91,7 @@ const (
 }
 `
 
-	testNoSourceIndexName = "elastic-nosource-test"
+	testNoSourceIndexName = "opensearch-nosource-test"
 	testNoSourceMapping   = `
 {
 	"settings":{
@@ -130,7 +131,7 @@ const (
 }
 `
 
-	testJoinIndex   = "elastic-joins"
+	testJoinIndex   = "opensearch-joins"
 	testJoinMapping = `
 	{
 		"settings":{
@@ -153,7 +154,7 @@ const (
 	}
 `
 
-	testOrderIndex   = "elastic-orders"
+	testOrderIndex   = "opensearch-orders"
 	testOrderMapping = `
 {
 	"settings":{
@@ -181,7 +182,7 @@ const (
 `
 
 	/*
-		   	testDoctypeIndex   = "elastic-doctypes"
+		   	testDoctypeIndex   = "opensearch-doctypes"
 		   	testDoctypeMapping = `
 		   {
 		   	"settings":{
@@ -201,7 +202,7 @@ const (
 		   `
 	*/
 
-	testQueryIndex   = "elastic-queries"
+	testQueryIndex   = "opensearch-queries"
 	testQueryMapping = `
 {
 	"settings":{
@@ -407,7 +408,9 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 }
 
 func setupTestClientAndCreateIndexAndLog(t logger, options ...ClientOptionFunc) *Client {
-	return setupTestClientAndCreateIndex(t, SetTraceLog(log.New(os.Stdout, "", 0)))
+	log := logrus.New()
+	log.SetLevel(logrus.TraceLevel)
+	return setupTestClientAndCreateIndex(t, SetLogger(log))
 }
 
 var _ = setupTestClientAndCreateIndexAndLog // remove unused warning in staticcheck
@@ -416,7 +419,7 @@ func setupTestClientAndCreateIndexAndAddDocs(t logger, options ...ClientOptionFu
 	client := setupTestClientAndCreateIndex(t, options...)
 
 	// Add tweets
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch.", Retweets: 108, Tags: []string{"golang", "elasticsearch"}}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch.", Retweets: 108, Tags: []string{"golang", "opensearchsearch"}}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic.", Retweets: 0, Tags: []string{"golang"}}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun.", Retweets: 12, Tags: []string{"sports", "cycling"}}
 
@@ -463,7 +466,7 @@ func setupTestClientAndCreateIndexAndAddDocsNoSource(t logger, options ...Client
 	client := setupTestClientAndCreateIndex(t, options...)
 
 	// Add tweets
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 
 	_, err := client.Index().Index(testNoSourceIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
@@ -486,7 +489,7 @@ func setupTestClientAndCreateIndexAndAddDocsNoSource(t logger, options ...Client
 func setupTestClientForXpackSecurity(t logger) (client *Client) {
 	var err error
 	// Set URL and Auth to use the platinum ES cluster
-	options := []ClientOptionFunc{SetURL("http://127.0.0.1:9210"), SetBasicAuth("elastic", "elastic")}
+	options := []ClientOptionFunc{SetURL("http://127.0.0.1:9210"), SetBasicAuth("opensearch", "opensearch")}
 
 	client, err = NewClient(options...)
 	if err != nil {

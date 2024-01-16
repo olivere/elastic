@@ -16,7 +16,7 @@ import (
 
 // IndicesExistsService checks if an index or indices exist or not.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-exists.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-exists.html
 // for details.
 type IndicesExistsService struct {
 	client *Client
@@ -42,7 +42,7 @@ func NewIndicesExistsService(client *Client) *IndicesExistsService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesExistsService) Pretty(pretty bool) *IndicesExistsService {
 	s.pretty = &pretty
 	return s
@@ -199,6 +199,6 @@ func (s *IndicesExistsService) Do(ctx context.Context) (bool, error) {
 	case http.StatusNotFound:
 		return false, nil
 	default:
-		return false, fmt.Errorf("elastic: got HTTP code %d when it should have been either 200 or 404", res.StatusCode)
+		return false, fmt.Errorf("opensearch: got HTTP code %d when it should have been either 200 or 404", res.StatusCode)
 	}
 }

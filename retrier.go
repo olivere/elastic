@@ -20,7 +20,7 @@ func (f RetrierFunc) Retry(ctx context.Context, retry int, req *http.Request, re
 	return f(ctx, retry, req, resp, err)
 }
 
-// Retrier decides whether to retry a failed HTTP request with Elasticsearch.
+// Retrier decides whether to retry a failed HTTP request with Opensearch.
 type Retrier interface {
 	// Retry is called when a request has failed. It decides whether to retry
 	// the call, how long to wait for the next call, or whether to return an

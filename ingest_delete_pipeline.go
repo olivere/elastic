@@ -16,7 +16,7 @@ import (
 )
 
 // IngestDeletePipelineService deletes pipelines by ID.
-// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/7.0/delete-pipeline-api.html.
+// It is documented at https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/delete-pipeline-api.html.
 type IngestDeletePipelineService struct {
 	client *Client
 
@@ -38,7 +38,7 @@ func NewIngestDeletePipelineService(client *Client) *IngestDeletePipelineService
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IngestDeletePipelineService) Pretty(pretty bool) *IngestDeletePipelineService {
 	s.pretty = &pretty
 	return s

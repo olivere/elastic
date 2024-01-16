@@ -17,7 +17,7 @@ import (
 // IndicesAnalyzeService performs the analysis process on a text and returns
 // the tokens breakdown of the text.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-analyze.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-analyze.html
 // for detail.
 type IndicesAnalyzeService struct {
 	client *Client
@@ -44,7 +44,7 @@ func NewIndicesAnalyzeService(client *Client) *IndicesAnalyzeService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesAnalyzeService) Pretty(pretty bool) *IndicesAnalyzeService {
 	s.pretty = &pretty
 	return s
@@ -236,7 +236,7 @@ func (s *IndicesAnalyzeService) Do(ctx context.Context) (*IndicesAnalyzeResponse
 	} else {
 		// Request parameters are deprecated in 5.1.1, and we must use a JSON
 		// structure in the body to pass the parameters.
-		// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-analyze.html
+		// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-analyze.html
 		body = s.request
 	}
 
@@ -301,7 +301,7 @@ type AnalyzeToken struct {
 	EndOffset      int    `json:"end_offset"`
 	Bytes          string `json:"bytes"` // e.g. "[67 75 79]"
 	Position       int    `json:"position"`
-	PositionLength int    `json:"positionLength"` // seems to be wrong in 7.2+ (no snake_case), see https://github.com/elastic/elasticsearch/blob/7.2/server/src/main/java/org/elasticsearch/action/admin/indices/analyze/AnalyzeResponse.java
+	PositionLength int    `json:"positionLength"` // seems to be wrong in 7.2+ (no snake_case), see https://github.com/opensearch/opensearchsearch/blob/7.2/server/src/main/java/org/opensearchsearch/action/admin/indices/analyze/AnalyzeResponse.java
 	TermFrequency  int    `json:"termFrequency"`
 	Keyword        bool   `json:"keyword"`
 }

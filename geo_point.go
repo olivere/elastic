@@ -17,7 +17,7 @@ type GeoPoint struct {
 	Lon float64 `json:"lon"`
 }
 
-// Source returns the object to be serialized in Elasticsearch DSL.
+// Source returns the object to be serialized in Opensearch DSL.
 func (pt *GeoPoint) Source() map[string]float64 {
 	return map[string]float64{
 		"lat": pt.Lat,
@@ -40,7 +40,7 @@ func GeoPointFromLatLon(lat, lon float64) *GeoPoint {
 func GeoPointFromString(latLon string) (*GeoPoint, error) {
 	latlon := strings.SplitN(latLon, ",", 2)
 	if len(latlon) != 2 {
-		return nil, fmt.Errorf("elastic: %s is not a valid geo point string", latLon)
+		return nil, fmt.Errorf("opensearch: %s is not a valid geo point string", latLon)
 	}
 	lat, err := strconv.ParseFloat(latlon[0], 64)
 	if err != nil {

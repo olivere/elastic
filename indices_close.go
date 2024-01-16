@@ -16,7 +16,7 @@ import (
 
 // IndicesCloseService closes an index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-open-close.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-open-close.html
 // for details.
 type IndicesCloseService struct {
 	client *Client
@@ -40,7 +40,7 @@ func NewIndicesCloseService(client *Client) *IndicesCloseService {
 	return &IndicesCloseService{client: client}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesCloseService) Pretty(pretty bool) *IndicesCloseService {
 	s.pretty = &pretty
 	return s

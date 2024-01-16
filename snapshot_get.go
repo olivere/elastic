@@ -17,7 +17,7 @@ import (
 )
 
 // SnapshotGetService lists the snapshots on a repository
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-snapshots.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/modules-snapshots.html
 // for details.
 type SnapshotGetService struct {
 	client *Client
@@ -42,7 +42,7 @@ func NewSnapshotGetService(client *Client) *SnapshotGetService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *SnapshotGetService) Pretty(pretty bool) *SnapshotGetService {
 	s.pretty = &pretty
 	return s

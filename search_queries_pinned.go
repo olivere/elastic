@@ -7,7 +7,7 @@ package opensearch
 // PinnedQuery is a query that promotes selected documents to rank higher than those matching a given query.
 //
 // For more details, see:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.8/query-dsl-pinned-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.8/query-dsl-pinned-query.html
 type PinnedQuery struct {
 	ids     []string
 	organic Query

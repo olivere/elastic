@@ -16,7 +16,7 @@ import (
 
 // ValidateService allows a user to validate a potentially
 // expensive query without executing it.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-validate.html.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-validate.html.
 type ValidateService struct {
 	client *Client
 
@@ -51,7 +51,7 @@ func NewValidateService(client *Client) *ValidateService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ValidateService) Pretty(pretty bool) *ValidateService {
 	s.pretty = &pretty
 	return s

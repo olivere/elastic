@@ -8,7 +8,7 @@ package opensearch
 // Note, this query uses the _uid field.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.6/query-dsl-ids-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.6/query-dsl-ids-query.html
 type IdsQuery struct {
 	types     []string
 	values    []string

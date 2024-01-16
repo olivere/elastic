@@ -63,12 +63,12 @@ func TestTasksCancelBuildURL(t *testing.T) {
 /*
 func TestTasksCancel(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t)
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	esversion, err := client.OpensearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if esversion < "2.3.0" {
-		t.Skipf("Elasticsearch %v does not support Tasks Management API yet", esversion)
+		t.Skipf("Opensearch %v does not support Tasks Management API yet", esversion)
 	}
 	res, err := client.TasksCancel("1").Do(context.TODO())
 	if err != nil {

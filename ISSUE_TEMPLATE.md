@@ -3,11 +3,11 @@ your issue/question without further inquiry. Thank you.
 
 ### Which version of Elastic are you using?
 
-[ ] elastic.v7 (for Elasticsearch 7.x)
-[ ] elastic.v6 (for Elasticsearch 6.x)
-[ ] elastic.v5 (for Elasticsearch 5.x)
-[ ] elastic.v3 (for Elasticsearch 2.x)
-[ ] elastic.v2 (for Elasticsearch 1.x)
+[ ] opensearch.v7 (for Opensearch 7.x)
+[ ] opensearch.v6 (for Opensearch 6.x)
+[ ] opensearch.v5 (for Opensearch 5.x)
+[ ] opensearch.v3 (for Opensearch 2.x)
+[ ] opensearch.v2 (for Opensearch 1.x)
 
 ### Please describe the expected behavior
 

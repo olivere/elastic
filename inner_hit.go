@@ -5,9 +5,9 @@
 package opensearch
 
 // InnerHit implements a simple join for parent/child, nested, and even
-// top-level documents in Elasticsearch.
-// It is an experimental feature for Elasticsearch versions 1.5 (or greater).
-// See http://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-inner-hits.html
+// top-level documents in Opensearch.
+// It is an experimental feature for Opensearch versions 1.5 (or greater).
+// See http://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-inner-hits.html
 // for documentation.
 //
 // See the tests for SearchSource, HasChildFilter, HasChildQuery,

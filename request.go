@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-// Elasticsearch-specific HTTP request
+// Opensearch-specific HTTP request
 type Request http.Request
 
 // NewRequest is a http.Request and adds features such as encoding the body.

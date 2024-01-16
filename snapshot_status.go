@@ -17,7 +17,7 @@ import (
 
 // SnapshotStatusService returns information about the status of a snapshot.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.5/modules-snapshots.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.5/modules-snapshots.html
 // for details.
 type SnapshotStatusService struct {
 	client *Client
@@ -41,7 +41,7 @@ func NewSnapshotStatusService(client *Client) *SnapshotStatusService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *SnapshotStatusService) Pretty(pretty bool) *SnapshotStatusService {
 	s.pretty = &pretty
 	return s

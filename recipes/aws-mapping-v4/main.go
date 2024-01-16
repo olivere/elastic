@@ -19,8 +19,8 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/disaster37/opensearch/v2"
 	"github.com/olivere/env"
+	"github.com/olivere/opensearch"
 
 	aws "github.com/disaster37/opensearch/v2/aws/v4"
 )
@@ -70,7 +70,7 @@ func main() {
 	var (
 		accessKey = flag.String("access-key", env.String("", "AWS_ACCESS_KEY", "AWS_ACCESS_KEY_ID"), "Access Key ID")
 		secretKey = flag.String("secret-key", env.String("", "AWS_SECRET_KEY", "AWS_SECRET_ACCESS_KEY"), "Secret access key")
-		url       = flag.String("url", "", "Elasticsearch URL")
+		url       = flag.String("url", "", "Opensearch URL")
 		sniff     = flag.Bool("sniff", false, "Enable or disable sniffing")
 		trace     = flag.Bool("trace", false, "Enable or disable tracing")
 		index     = flag.String("index", "", "Index name")
@@ -89,24 +89,24 @@ func main() {
 		log.Fatal("please specify an AWS region with -region")
 	}
 
-	// Create an Elasticsearch client
+	// Create an Opensearch client
 	signingClient := aws.NewV4SigningClient(credentials.NewStaticCredentials(
 		*accessKey,
 		*secretKey,
 		"",
 	), *region)
 
-	// Create an Elasticsearch client
-	opts := []elastic.ClientOptionFunc{
-		elastic.SetURL(*url),
-		elastic.SetSniff(*sniff),
-		elastic.SetHealthcheck(*sniff),
-		elastic.SetHttpClient(signingClient),
+	// Create an Opensearch client
+	opts := []opensearch.ClientOptionFunc{
+		opensearch.SetURL(*url),
+		opensearch.SetSniff(*sniff),
+		opensearch.SetHealthcheck(*sniff),
+		opensearch.SetHttpClient(signingClient),
 	}
 	if *trace {
-		opts = append(opts, elastic.SetTraceLog(log.New(os.Stdout, "", 0)))
+		opts = append(opts, opensearch.SetTraceLog(log.New(os.Stdout, "", 0)))
 	}
-	client, err := elastic.NewClient(opts...)
+	client, err := opensearch.NewClient(opts...)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -133,7 +133,7 @@ func main() {
 	{
 		tweet := Tweet{
 			User:     "olivere",
-			Message:  "Welcome to Go and Elasticsearch.",
+			Message:  "Welcome to Go and Opensearch.",
 			Retweets: 0,
 			Created:  time.Now(),
 			Attrs: map[string]interface{}{

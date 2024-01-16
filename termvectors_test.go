@@ -63,7 +63,7 @@ func TestTermVectorsBuildURL(t *testing.T) {
 func TestTermVectorsWithId(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 
 	// Add a document
 	indexResult, err := client.Index().

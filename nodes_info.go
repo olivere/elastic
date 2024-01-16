@@ -17,7 +17,7 @@ import (
 
 // NodesInfoService allows to retrieve one or more or all of the
 // cluster nodes information.
-// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cluster-nodes-info.html.
+// It is documented at https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cluster-nodes-info.html.
 type NodesInfoService struct {
 	client *Client
 
@@ -39,7 +39,7 @@ func NewNodesInfoService(client *Client) *NodesInfoService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *NodesInfoService) Pretty(pretty bool) *NodesInfoService {
 	s.pretty = &pretty
 	return s
@@ -199,9 +199,9 @@ type NodesInfoNode struct {
 	Host string `json:"host"`
 	// IP is the IP address, e.g. "192.168.1.2"
 	IP string `json:"ip"`
-	// Version is the Elasticsearch version running on the node, e.g. "1.4.3"
+	// Version is the Opensearch version running on the node, e.g. "1.4.3"
 	Version string `json:"version"`
-	// BuildHash is the Elasticsearch build bash, e.g. "36a29a7"
+	// BuildHash is the Opensearch build bash, e.g. "36a29a7"
 	BuildHash string `json:"build_hash"`
 
 	// TotalIndexingBuffer represents the total heap allowed to be used to
@@ -321,7 +321,7 @@ type NodesInfoNodeJVM struct {
 
 	// UsingCompressedOrdinaryObjectPointers should be a bool, but is a
 	// string in 6.2.3. We use an interface{} for now so that it won't break
-	// when this will be fixed in later versions of Elasticsearch.
+	// when this will be fixed in later versions of Opensearch.
 	UsingCompressedOrdinaryObjectPointers interface{} `json:"using_compressed_ordinary_object_pointers"`
 
 	InputArguments []string `json:"input_arguments"` // e.g. ["-Xms1g", "-Xmx1g" ...]
@@ -384,28 +384,28 @@ type NodesInfoNodeHTTP struct {
 
 // NodesInfoNodePlugin represents information about a plugin.
 type NodesInfoNodePlugin struct {
-	Name                 string   `json:"name"`    // e.g. "ingest-geoip"
-	Version              string   `json:"version"` // e.g. "6.2.3"
-	ElasticsearchVersion string   `json:"elasticsearch_version"`
-	JavaVersion          string   `json:"java_version"`
-	Description          string   `json:"description"` // e.g. "Ingest processor ..."
-	Classname            string   `json:"classname"`   // e.g. "org.elasticsearch.ingest.geoip.IngestGeoIpPlugin"
-	ExtendedPlugins      []string `json:"extended_plugins"`
-	HasNativeController  bool     `json:"has_native_controller"`
-	RequiresKeystore     bool     `json:"requires_keystore"`
+	Name                string   `json:"name"`    // e.g. "ingest-geoip"
+	Version             string   `json:"version"` // e.g. "6.2.3"
+	OpensearchVersion   string   `json:"opensearchsearch_version"`
+	JavaVersion         string   `json:"java_version"`
+	Description         string   `json:"description"` // e.g. "Ingest processor ..."
+	Classname           string   `json:"classname"`   // e.g. "org.opensearchsearch.ingest.geoip.IngestGeoIpPlugin"
+	ExtendedPlugins     []string `json:"extended_plugins"`
+	HasNativeController bool     `json:"has_native_controller"`
+	RequiresKeystore    bool     `json:"requires_keystore"`
 }
 
 // NodesInfoNodeModule represents information about a module.
 type NodesInfoNodeModule struct {
-	Name                 string   `json:"name"`    // e.g. "ingest-geoip"
-	Version              string   `json:"version"` // e.g. "6.2.3"
-	ElasticsearchVersion string   `json:"elasticsearch_version"`
-	JavaVersion          string   `json:"java_version"`
-	Description          string   `json:"description"` // e.g. "Ingest processor ..."
-	Classname            string   `json:"classname"`   // e.g. "org.elasticsearch.ingest.geoip.IngestGeoIpPlugin"
-	ExtendedPlugins      []string `json:"extended_plugins"`
-	HasNativeController  bool     `json:"has_native_controller"`
-	RequiresKeystore     bool     `json:"requires_keystore"`
+	Name                string   `json:"name"`    // e.g. "ingest-geoip"
+	Version             string   `json:"version"` // e.g. "6.2.3"
+	OpensearchVersion   string   `json:"opensearchsearch_version"`
+	JavaVersion         string   `json:"java_version"`
+	Description         string   `json:"description"` // e.g. "Ingest processor ..."
+	Classname           string   `json:"classname"`   // e.g. "org.opensearchsearch.ingest.geoip.IngestGeoIpPlugin"
+	ExtendedPlugins     []string `json:"extended_plugins"`
+	HasNativeController bool     `json:"has_native_controller"`
+	RequiresKeystore    bool     `json:"requires_keystore"`
 }
 
 // NodesInfoNodeIngest represents information about the ingester.

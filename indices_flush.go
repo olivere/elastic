@@ -18,7 +18,7 @@ import (
 // basically frees memory from the index by flushing data to the index
 // storage and clearing the internal transaction log.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-flush.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-flush.html
 // for details.
 type IndicesFlushService struct {
 	client *Client
@@ -45,7 +45,7 @@ func NewIndicesFlushService(client *Client) *IndicesFlushService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesFlushService) Pretty(pretty bool) *IndicesFlushService {
 	s.pretty = &pretty
 	return s

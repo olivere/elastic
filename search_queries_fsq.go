@@ -10,7 +10,7 @@ package opensearch
 // to compute the score on a filtered set of documents.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-function-score-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-function-score-query.html
 type FunctionScoreQuery struct {
 	query      Query
 	filter     Query

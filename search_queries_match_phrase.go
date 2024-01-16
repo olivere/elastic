@@ -8,7 +8,7 @@ package opensearch
 // the analyzed text.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-match-query-phrase.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-match-query-phrase.html
 type MatchPhraseQuery struct {
 	name           string
 	value          interface{}

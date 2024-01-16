@@ -8,7 +8,7 @@ package opensearch
 // in the current document set context that match a specified filter.
 // Often this will be used to narrow down the current aggregation context
 // to a specific set of documents.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-filter-aggregation.html
+// See: https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-filter-aggregation.html
 type FilterAggregation struct {
 	filter          Query
 	subAggregations map[string]Aggregation

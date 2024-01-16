@@ -13,7 +13,7 @@ import "errors"
 // how the terms should be selected and how the query is formed.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-mlt-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-mlt-query.html
 type MoreLikeThisQuery struct {
 	fields                 []string
 	docs                   []*MoreLikeThisQueryItem
@@ -110,7 +110,7 @@ func (q *MoreLikeThisQuery) Include(include bool) *MoreLikeThisQuery {
 // query expressed in the common syntax for minimum should match.
 // The default value is "30%".
 //
-// This used to be "PercentTermsToMatch" in Elasticsearch versions before 2.0.
+// This used to be "PercentTermsToMatch" in Opensearch versions before 2.0.
 func (q *MoreLikeThisQuery) MinimumShouldMatch(minimumShouldMatch string) *MoreLikeThisQuery {
 	q.minimumShouldMatch = minimumShouldMatch
 	return q

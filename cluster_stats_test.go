@@ -264,7 +264,7 @@ var clusterStatsErrorResponseTests = []struct {
 			  "successful" : 3,
 			  "failed" : 0
 			},
-			"cluster_name" : "elasticsearch",
+			"cluster_name" : "opensearchsearch",
 			"cluster_uuid" : "8TTeQMxRSZmffmYcTjP21w",
 			"timestamp" : 1625645280402,
 			"status" : "green",
@@ -469,7 +469,7 @@ var clusterStatsErrorResponseTests = []struct {
 				}
 			  ]
 			},
-			"cluster_name" : "elasticsearch",
+			"cluster_name" : "opensearchsearch",
 			"cluster_uuid" : "8TTeQMxRSZmffmYcTjP21w",
 			"timestamp" : 1625645352594,
 			"indices" : {
@@ -662,7 +662,7 @@ var clusterStatsErrorResponseTests = []struct {
 			  "successful" : 3,
 			  "failed" : 0
 			},
-			"cluster_name" : "elasticsearch",
+			"cluster_name" : "opensearchsearch",
 			"cluster_uuid" : "XmKLDCnmRqqK3Ve01uJU0Q",
 			"timestamp" : 1625645497836,
 			"status" : "green",
@@ -874,7 +874,7 @@ var clusterStatsErrorResponseTests = []struct {
 				}
 			  ]
 			},
-			"cluster_name" : "elasticsearch",
+			"cluster_name" : "opensearchsearch",
 			"cluster_uuid" : "XmKLDCnmRqqK3Ve01uJU0Q",
 			"timestamp" : 1625645535819,
 			"indices" : {
@@ -1065,7 +1065,7 @@ var clusterStatsErrorResponseTests = []struct {
 			  "successful" : 3,
 			  "failed" : 0
 			},
-			"cluster_name" : "elasticsearch",
+			"cluster_name" : "opensearchsearch",
 			"cluster_uuid" : "XvRExZcTTqiiYa8Qa0E6LA",
 			"timestamp" : 1625645743243,
 			"status" : "green",
@@ -1269,7 +1269,7 @@ var clusterStatsErrorResponseTests = []struct {
 				}
 			  ]
 			},
-			"cluster_name" : "elasticsearch",
+			"cluster_name" : "opensearchsearch",
 			"cluster_uuid" : "XvRExZcTTqiiYa8Qa0E6LA",
 			"timestamp" : 1625645771492,
 			"indices" : {

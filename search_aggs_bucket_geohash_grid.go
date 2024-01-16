@@ -23,8 +23,8 @@ func (a *GeoHashGridAggregation) Field(field string) *GeoHashGridAggregation {
 }
 
 // Precision accepts the level as int value between 1 and 12 or Distance Units like "2km", "5mi" as described at
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/common-options.html#distance-units and
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-geohashgrid-aggregation.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/common-options.html#distance-units and
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-geohashgrid-aggregation.html
 func (a *GeoHashGridAggregation) Precision(precision interface{}) *GeoHashGridAggregation {
 	a.precision = precision
 	return a

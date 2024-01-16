@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-// Connect simply connects to Elasticsearch.
+// Connect simply connects to Opensearch.
 //
 // # Example
 //
@@ -15,8 +15,8 @@ import (
 	"log"
 	"runtime"
 
-	"github.com/disaster37/opensearch/v2"
 	"github.com/disaster37/opensearch/v2/config"
+	"github.com/olivere/opensearch"
 )
 
 func main() {
@@ -34,22 +34,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Create an Elasticsearch client
-	client, err := elastic.NewClientFromConfig(cfg)
+	// Create an Opensearch client
+	client, err := opensearch.NewClientFromConfig(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Get ES version
-	esversion, err := client.ElasticsearchVersion(cfg.URL)
+	esversion, err := client.OpensearchVersion(cfg.URL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Just a status message
-	fmt.Printf("Connection succeeded with %v, Elastic %v and Elasticsearch %s\n",
+	fmt.Printf("Connection succeeded with %v, Elastic %v and Opensearch %s\n",
 		runtime.Version(),
-		elastic.Version,
+		opensearch.Version,
 		esversion,
 	)
 }

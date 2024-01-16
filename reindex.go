@@ -14,7 +14,7 @@ import (
 )
 
 // ReindexService is a method to copy documents from one index to another.
-// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-reindex.html.
+// It is documented at https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-reindex.html.
 type ReindexService struct {
 	client *Client
 
@@ -45,7 +45,7 @@ func NewReindexService(client *Client) *ReindexService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ReindexService) Pretty(pretty bool) *ReindexService {
 	s.pretty = &pretty
 	return s
@@ -104,17 +104,17 @@ func (s *ReindexService) RequestsPerSecond(requestsPerSecond int) *ReindexServic
 // Slices specifies the number of slices this task should be divided into. Defaults to 1.
 // It used to  be a number, but can be set to "auto" as of 6.7.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-reindex.html#docs-reindex-slice
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-reindex.html#docs-reindex-slice
 // for details.
 func (s *ReindexService) Slices(slices interface{}) *ReindexService {
 	s.slices = slices
 	return s
 }
 
-// Refresh indicates whether Elasticsearch should refresh the effected indexes
+// Refresh indicates whether Opensearch should refresh the effected indexes
 // immediately.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-refresh.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-refresh.html
 // for details.
 func (s *ReindexService) Refresh(refresh string) *ReindexService {
 	s.refresh = refresh
@@ -128,7 +128,7 @@ func (s *ReindexService) Timeout(timeout string) *ReindexService {
 	return s
 }
 
-// WaitForCompletion indicates whether Elasticsearch should block until the
+// WaitForCompletion indicates whether Opensearch should block until the
 // reindex is complete.
 func (s *ReindexService) WaitForCompletion(waitForCompletion bool) *ReindexService {
 	s.waitForCompletion = &waitForCompletion
@@ -210,7 +210,7 @@ func (s *ReindexService) Script(script *Script) *ReindexService {
 	return s
 }
 
-// Body specifies the body of the request to send to Elasticsearch.
+// Body specifies the body of the request to send to Opensearch.
 // It overrides settings specified with other setters, e.g. Query.
 func (s *ReindexService) Body(body interface{}) *ReindexService {
 	s.body = body
@@ -628,7 +628,7 @@ func (ri *ReindexRemoteInfo) Source() (interface{}, error) {
 // ReindexDestination is the destination of a Reindex API call.
 // It is basically the meta data of a BulkIndexRequest.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-reindex.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-reindex.html
 // for details.
 type ReindexDestination struct {
 	index       string
@@ -646,14 +646,14 @@ func NewReindexDestination() *ReindexDestination {
 	return &ReindexDestination{}
 }
 
-// Index specifies name of the Elasticsearch index to use as the destination
+// Index specifies name of the Opensearch index to use as the destination
 // of a reindexing process.
 func (r *ReindexDestination) Index(index string) *ReindexDestination {
 	r.index = index
 	return r
 }
 
-// Type specifies the Elasticsearch type to use for reindexing.
+// Type specifies the Opensearch type to use for reindexing.
 func (r *ReindexDestination) Type(typ string) *ReindexDestination {
 	r.typ = typ
 	return r
@@ -688,7 +688,7 @@ func (r *ReindexDestination) Parent(parent string) *ReindexDestination {
 
 // OpType specifies if this request should follow create-only or upsert
 // behavior. This follows the OpType of the standard document index API.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-index_.html#operation-type
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-index_.html#operation-type
 // for details.
 func (r *ReindexDestination) OpType(opType string) *ReindexDestination {
 	r.opType = opType

@@ -16,7 +16,7 @@ import (
 
 // AliasesService returns the aliases associated with one or more indices, or the
 // indices associated with one or more aliases, or a combination of those filters.
-// See http://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-aliases.html.
+// See http://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-aliases.html.
 type AliasesService struct {
 	client *Client
 
@@ -38,7 +38,7 @@ func NewAliasesService(client *Client) *AliasesService {
 	return builder
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *AliasesService) Pretty(pretty bool) *AliasesService {
 	s.pretty = &pretty
 	return s

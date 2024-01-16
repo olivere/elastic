@@ -11,7 +11,7 @@ package opensearch
 // so its relevance scores are added to other scores from the BoolQuery.
 //
 // For more details, see:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.14/query-dsl-rank-feature-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.14/query-dsl-rank-feature-query.html
 type RankFeatureQuery struct {
 	field     string
 	scoreFunc RankFeatureScoreFunction
@@ -98,7 +98,7 @@ type RankFeatureScoreFunction interface {
 // RankFeatureQuery.
 //
 // See here for details:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.14/query-dsl-rank-feature-query.html#rank-feature-query-logarithm
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.14/query-dsl-rank-feature-query.html#rank-feature-query-logarithm
 type RankFeatureLogScoreFunction struct {
 	scalingFactor float64
 }
@@ -127,7 +127,7 @@ func (f *RankFeatureLogScoreFunction) Source() (interface{}, error) {
 // RankFeatureQuery.
 //
 // See here for details:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.14/query-dsl-rank-feature-query.html#rank-feature-query-saturation
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.14/query-dsl-rank-feature-query.html#rank-feature-query-saturation
 type RankFeatureSaturationScoreFunction struct {
 	pivot *float64
 }
@@ -162,7 +162,7 @@ func (f *RankFeatureSaturationScoreFunction) Source() (interface{}, error) {
 // RankFeatureQuery.
 //
 // See here for details:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.14/query-dsl-rank-feature-query.html#rank-feature-query-sigmoid
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.14/query-dsl-rank-feature-query.html#rank-feature-query-sigmoid
 type RankFeatureSigmoidScoreFunction struct {
 	pivot    float64
 	exponent float64
@@ -194,7 +194,7 @@ func (f *RankFeatureSigmoidScoreFunction) Source() (interface{}, error) {
 // RankFeatureQuery.
 //
 // See here for details:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.14/query-dsl-rank-feature-query.html#rank-feature-query-linear
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.14/query-dsl-rank-feature-query.html#rank-feature-query-linear
 type RankFeatureLinearScoreFunction struct {
 }
 

@@ -6,7 +6,7 @@ package opensearch
 
 // Highlight allows highlighting search results on one or more fields.
 // For details, see:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-highlighting.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-highlighting.html
 type Highlight struct {
 	fields                []*HighlighterField
 	tagsSchema            *string

@@ -81,5 +81,5 @@ func TestMappingLifecycle(t *testing.T) {
 		t.Fatalf("expected JSON root to be of type map[string]interface{}; got: %#v", props)
 	}
 
-	// NOTE There is no Delete Mapping API in Elasticsearch 2.0
+	// NOTE There is no Delete Mapping API in Opensearch 2.0
 }

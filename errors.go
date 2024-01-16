@@ -16,15 +16,15 @@ import (
 )
 
 // checkResponse will return an error if the request/response indicates
-// an error returned from Elasticsearch.
+// an error returned from Opensearch.
 //
 // HTTP status codes between in the range [200..299] are considered successful.
 // All other errors are considered errors except they are specified in
 // ignoreErrors. This is necessary because for some services, HTTP status 404
-// is a valid response from Elasticsearch (e.g. the Exists service).
+// is a valid response from Opensearch (e.g. the Exists service).
 //
-// The func tries to parse error details as returned from Elasticsearch
-// and encapsulates them in type elastic.Error.
+// The func tries to parse error details as returned from Opensearch
+// and encapsulates them in type opensearch.Error.
 func checkResponse(req *http.Request, res *http.Response, ignoreErrors ...int) error {
 	// 200-299 are valid status codes
 	if res.StatusCode >= 200 && res.StatusCode <= 299 {
@@ -40,7 +40,7 @@ func checkResponse(req *http.Request, res *http.Response, ignoreErrors ...int) e
 }
 
 // createResponseError creates an Error structure from the HTTP response,
-// its status code and the error information sent by Elasticsearch.
+// its status code and the error information sent by Opensearch.
 func createResponseError(res *http.Response) error {
 	if res.Body == nil {
 		return &Error{Status: res.StatusCode}
@@ -63,14 +63,14 @@ func createResponseError(res *http.Response) error {
 	return &Error{Status: res.StatusCode}
 }
 
-// Error encapsulates error details as returned from Elasticsearch.
+// Error encapsulates error details as returned from Opensearch.
 type Error struct {
 	Status  int           `json:"status"`
 	Details *ErrorDetails `json:"error,omitempty"`
 }
 
-// ErrorDetails encapsulate error details from Elasticsearch.
-// It is used in e.g. elastic.Error and elastic.BulkResponseItem.
+// ErrorDetails encapsulate error details from Opensearch.
+// It is used in e.g. opensearch.Error and opensearch.BulkResponseItem.
 type ErrorDetails struct {
 	Type         string                   `json:"type"`
 	Reason       string                   `json:"reason"`
@@ -104,12 +104,12 @@ type ScriptErrorPosition struct {
 // Error returns a string representation of the error.
 func (e *Error) Error() string {
 	if e.Details != nil && e.Details.Reason != "" {
-		return fmt.Sprintf("elastic: Error %d (%s): %s [type=%s]", e.Status, http.StatusText(e.Status), e.Details.Reason, e.Details.Type)
+		return fmt.Sprintf("opensearch: Error %d (%s): %s [type=%s]", e.Status, http.StatusText(e.Status), e.Details.Reason, e.Details.Type)
 	}
-	return fmt.Sprintf("elastic: Error %d (%s)", e.Status, http.StatusText(e.Status))
+	return fmt.Sprintf("opensearch: Error %d (%s)", e.Status, http.StatusText(e.Status))
 }
 
-// ErrorReason returns the reason of an error that Elasticsearch reported,
+// ErrorReason returns the reason of an error that Opensearch reported,
 // if err is of kind Error and has ErrorDetails with a Reason. Any other
 // value of err will return an empty string.
 func ErrorReason(err error) string {
@@ -140,52 +140,52 @@ func IsContextErr(err error) bool {
 }
 
 // IsConnErr returns true if the error indicates that Elastic could not
-// find an Elasticsearch host to connect to.
+// find an Opensearch host to connect to.
 func IsConnErr(err error) bool {
 	return err == ErrNoClient || errors.Cause(err) == ErrNoClient
 }
 
-// IsNotFound returns true if the given error indicates that Elasticsearch
-// returned HTTP status 404. The err parameter can be of type *elastic.Error,
-// elastic.Error, *http.Response or int (indicating the HTTP status code).
+// IsNotFound returns true if the given error indicates that Opensearch
+// returned HTTP status 404. The err parameter can be of type *opensearch.Error,
+// opensearch.Error, *http.Response or int (indicating the HTTP status code).
 func IsNotFound(err interface{}) bool {
 	return IsStatusCode(err, http.StatusNotFound)
 }
 
-// IsTimeout returns true if the given error indicates that Elasticsearch
-// returned HTTP status 408. The err parameter can be of type *elastic.Error,
-// elastic.Error, *http.Response or int (indicating the HTTP status code).
+// IsTimeout returns true if the given error indicates that Opensearch
+// returned HTTP status 408. The err parameter can be of type *opensearch.Error,
+// opensearch.Error, *http.Response or int (indicating the HTTP status code).
 func IsTimeout(err interface{}) bool {
 	return IsStatusCode(err, http.StatusRequestTimeout)
 }
 
-// IsConflict returns true if the given error indicates that the Elasticsearch
+// IsConflict returns true if the given error indicates that the Opensearch
 // operation resulted in a version conflict. This can occur in operations like
 // `update` or `index` with `op_type=create`. The err parameter can be of
-// type *elastic.Error, elastic.Error, *http.Response or int (indicating the
+// type *opensearch.Error, opensearch.Error, *http.Response or int (indicating the
 // HTTP status code).
 func IsConflict(err interface{}) bool {
 	return IsStatusCode(err, http.StatusConflict)
 }
 
 // IsUnauthorized returns true if the given error indicates that
-// Elasticsearch returned HTTP status 401. This happens e.g. when the
+// Opensearch returned HTTP status 401. This happens e.g. when the
 // cluster is configured to require HTTP Basic Auth.
-// The err parameter can be of type *elastic.Error, elastic.Error,
+// The err parameter can be of type *opensearch.Error, opensearch.Error,
 // *http.Response or int (indicating the HTTP status code).
 func IsUnauthorized(err interface{}) bool {
 	return IsStatusCode(err, http.StatusUnauthorized)
 }
 
-// IsForbidden returns true if the given error indicates that Elasticsearch
+// IsForbidden returns true if the given error indicates that Opensearch
 // returned HTTP status 403. This happens e.g. due to a missing license.
-// The err parameter can be of type *elastic.Error, elastic.Error,
+// The err parameter can be of type *opensearch.Error, opensearch.Error,
 // *http.Response or int (indicating the HTTP status code).
 func IsForbidden(err interface{}) bool {
 	return IsStatusCode(err, http.StatusForbidden)
 }
 
-// IsStatusCode returns true if the given error indicates that the Elasticsearch
+// IsStatusCode returns true if the given error indicates that the Opensearch
 // operation returned the specified HTTP status code. The err parameter can be of
 // type *http.Response, *Error, Error, or int (indicating the HTTP status code).
 func IsStatusCode(err interface{}, code int) bool {

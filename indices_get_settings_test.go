@@ -53,7 +53,7 @@ func TestIndexGetSettingsURL(t *testing.T) {
 func TestIndexGetSettingsService(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	esversion, err := client.OpensearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
 	}

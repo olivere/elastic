@@ -16,11 +16,11 @@ import (
 
 // IndicesGetIndexTemplateService returns an index template.
 //
-// Index templates have changed during in 7.8 update of Elasticsearch.
+// Index templates have changed during in 7.8 update of Opensearch.
 // This service implements the new version (7.8 or later). If you want
 // the old version, please use the IndicesGetTemplateService.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-get-template.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/indices-get-template.html
 // for more details.
 type IndicesGetIndexTemplateService struct {
 	client *Client
@@ -45,7 +45,7 @@ func NewIndicesGetIndexTemplateService(client *Client) *IndicesGetIndexTemplateS
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesGetIndexTemplateService) Pretty(pretty bool) *IndicesGetIndexTemplateService {
 	s.pretty = &pretty
 	return s

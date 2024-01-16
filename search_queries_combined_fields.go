@@ -10,7 +10,7 @@ import "fmt"
 // contents had been indexed into one combined field.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.13/query-dsl-combined-fields-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.13/query-dsl-combined-fields-query.html
 type CombinedFieldsQuery struct {
 	text                            interface{}
 	fields                          []string

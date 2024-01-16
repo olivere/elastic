@@ -11,7 +11,7 @@ package opensearch
 // parameters from and size may be set in order to truncate the result buckets.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-pipeline-bucket-sort-aggregation.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-pipeline-bucket-sort-aggregation.html
 type BucketSortAggregation struct {
 	sorters   []Sorter
 	from      int
@@ -72,7 +72,7 @@ func (a *BucketSortAggregation) GapSkip() *BucketSortAggregation {
 }
 
 // Meta sets the meta data in the aggregation.
-// Although metadata is supported for this aggregation by Elasticsearch, it's important to
+// Although metadata is supported for this aggregation by Opensearch, it's important to
 // note that there's no use to it because this aggregation does not include new data in the
 // response. It merely reorders parent buckets.
 func (a *BucketSortAggregation) Meta(meta map[string]interface{}) *BucketSortAggregation {

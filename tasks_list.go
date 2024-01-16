@@ -16,9 +16,9 @@ import (
 
 // TasksListService retrieves the list of currently executing tasks
 // on one ore more nodes in the cluster. It is part of the Task Management API
-// documented at https://www.elastic.co/guide/en/elasticsearch/reference/7.0/tasks.html.
+// documented at https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/tasks.html.
 //
-// It is supported as of Elasticsearch 2.3.0.
+// It is supported as of Opensearch 2.3.0.
 type TasksListService struct {
 	client *Client
 
@@ -44,7 +44,7 @@ func NewTasksListService(client *Client) *TasksListService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *TasksListService) Pretty(pretty bool) *TasksListService {
 	s.pretty = &pretty
 	return s

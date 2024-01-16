@@ -21,7 +21,7 @@ const (
 	DefaultScrollKeepAlive = "5m"
 )
 
-// ScrollService iterates over pages of search results from Elasticsearch.
+// ScrollService iterates over pages of search results from Opensearch.
 type ScrollService struct {
 	client  *Client
 	retrier Retrier
@@ -61,7 +61,7 @@ func NewScrollService(client *Client) *ScrollService {
 	return builder
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ScrollService) Pretty(pretty bool) *ScrollService {
 	s.pretty = &pretty
 	return s
@@ -143,7 +143,7 @@ func (s *ScrollService) KeepAlive(keepAlive string) *ScrollService {
 	return s
 }
 
-// Size specifies the number of documents Elasticsearch should return
+// Size specifies the number of documents Opensearch should return
 // from each shard, per page.
 func (s *ScrollService) Size(size int) *ScrollService {
 	s.size = &size
@@ -156,7 +156,7 @@ func (s *ScrollService) Highlight(highlight *Highlight) *ScrollService {
 	return s
 }
 
-// Body sets the raw body to send to Elasticsearch. This can be e.g. a string,
+// Body sets the raw body to send to Opensearch. This can be e.g. a string,
 // a map[string]interface{} or anything that can be serialized into JSON.
 // Notice that setting the body disables the use of SearchSource and many
 // other properties of the ScanService.
@@ -184,7 +184,7 @@ func (s *ScrollService) Query(query Query) *ScrollService {
 
 // PostFilter is executed as the last filter. It only affects the
 // search hits but not facets. See
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-post-filter.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-post-filter.html
 // for details.
 func (s *ScrollService) PostFilter(postFilter Query) *ScrollService {
 	s.ss = s.ss.PostFilter(postFilter)
@@ -192,8 +192,8 @@ func (s *ScrollService) PostFilter(postFilter Query) *ScrollService {
 }
 
 // Slice allows slicing the scroll request into several batches.
-// This is supported in Elasticsearch 5.0 or later.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-scroll.html#sliced-scroll
+// This is supported in Opensearch 5.0 or later.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-scroll.html#sliced-scroll
 // for details.
 func (s *ScrollService) Slice(sliceQuery Query) *ScrollService {
 	s.ss = s.ss.Slice(sliceQuery)
@@ -214,14 +214,14 @@ func (s *ScrollService) FetchSourceContext(fetchSourceContext *FetchSourceContex
 }
 
 // Version can be set to true to return a version for each search hit.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-version.html.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-version.html.
 func (s *ScrollService) Version(version bool) *ScrollService {
 	s.ss = s.ss.Version(version)
 	return s
 }
 
 // Sort adds a sort order. This can have negative effects on the performance
-// of the scroll operation as Elasticsearch needs to sort first.
+// of the scroll operation as Opensearch needs to sort first.
 func (s *ScrollService) Sort(field string, ascending bool) *ScrollService {
 	s.ss = s.ss.Sort(field, ascending)
 	return s
@@ -243,7 +243,7 @@ func (s *ScrollService) SortBy(sorter ...Sorter) *ScrollService {
 
 // TrackTotalHits controls if the total hit count for the query should be tracked.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.1/search-request-track-total-hits.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.1/search-request-track-total-hits.html
 // for details.
 func (s *ScrollService) TrackTotalHits(trackTotalHits interface{}) *ScrollService {
 	s.ss = s.ss.TrackTotalHits(trackTotalHits)
@@ -353,7 +353,7 @@ func (s *ScrollService) Do(ctx context.Context) (*SearchResult, error) {
 }
 
 // Clear cancels the current scroll operation. If you don't do this manually,
-// the scroll will be expired automatically by Elasticsearch. You can control
+// the scroll will be expired automatically by Opensearch. You can control
 // how long a scroll cursor is kept alive with the KeepAlive func.
 func (s *ScrollService) Clear(ctx context.Context) error {
 	s.mu.RLock()

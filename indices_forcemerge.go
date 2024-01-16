@@ -19,7 +19,7 @@ import (
 // within each shard. The force merge operation allows to reduce the number
 // of segments by merging them.
 //
-// See http://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-forcemerge.html
+// See http://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-forcemerge.html
 // for more information.
 type IndicesForcemergeService struct {
 	client *Client
@@ -47,7 +47,7 @@ func NewIndicesForcemergeService(client *Client) *IndicesForcemergeService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesForcemergeService) Pretty(pretty bool) *IndicesForcemergeService {
 	s.pretty = &pretty
 	return s

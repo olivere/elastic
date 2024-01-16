@@ -8,7 +8,7 @@ package opensearch
 // the maximum number of intervening unmatched positions, as well as whether
 // matches are required to be in-order. The span near query maps to Lucene SpanNearQuery.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.7/query-dsl-span-near-query.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.7/query-dsl-span-near-query.html
 // for details.
 type SpanNearQuery struct {
 	clauses   []Query

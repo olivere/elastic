@@ -16,7 +16,7 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// Search for documents in Elasticsearch.
+// Search for documents in Opensearch.
 type SearchService struct {
 	client *Client
 
@@ -52,7 +52,7 @@ type SearchService struct {
 
 }
 
-// NewSearchService creates a new service for searching in Elasticsearch.
+// NewSearchService creates a new service for searching in Opensearch.
 func NewSearchService(client *Client) *SearchService {
 	builder := &SearchService{
 		client:       client,
@@ -61,7 +61,7 @@ func NewSearchService(client *Client) *SearchService {
 	return builder
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *SearchService) Pretty(pretty bool) *SearchService {
 	s.pretty = &pretty
 	return s
@@ -180,7 +180,7 @@ func (s *SearchService) TerminateAfter(terminateAfter int) *SearchService {
 
 // SearchType sets the search operation type. Valid values are:
 // "dfs_query_then_fetch" and "query_then_fetch".
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-search-type.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-search-type.html
 // for details.
 func (s *SearchService) SearchType(searchType string) *SearchService {
 	s.searchType = searchType
@@ -372,7 +372,7 @@ func (s *SearchService) TrackScores(trackScores bool) *SearchService {
 
 // TrackTotalHits controls if the total hit count for the query should be tracked.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.1/search-request-track-total-hits.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.1/search-request-track-total-hits.html
 // for details.
 func (s *SearchService) TrackTotalHits(trackTotalHits interface{}) *SearchService {
 	s.searchSource = s.searchSource.TrackTotalHits(trackTotalHits)
@@ -382,7 +382,7 @@ func (s *SearchService) TrackTotalHits(trackTotalHits interface{}) *SearchServic
 // SearchAfter allows a different form of pagination by using a live cursor,
 // using the results of the previous page to help the retrieval of the next.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-search-after.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-search-after.html
 func (s *SearchService) SearchAfter(sortValues ...interface{}) *SearchService {
 	s.searchSource = s.searchSource.SearchAfter(sortValues...)
 	return s
@@ -659,7 +659,7 @@ func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 	return ret, nil
 }
 
-// SearchResult is the result of a search in Elasticsearch.
+// SearchResult is the result of a search in Opensearch.
 type SearchResult struct {
 	Header          http.Header          `json:"-"`
 	TookInMillis    int64                `json:"took,omitempty"`             // search time in milliseconds
@@ -833,7 +833,7 @@ type SearchHitInnerHits struct {
 }
 
 // SearchExplanation explains how the score for a hit was computed.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-explain.html.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-explain.html.
 type SearchExplanation struct {
 	Value       float64             `json:"value"`             // e.g. 1.0
 	Description string              `json:"description"`       // e.g. "boost" or "ConstantScore(*:*), product of:"
@@ -843,11 +843,11 @@ type SearchExplanation struct {
 // Suggest
 
 // SearchSuggest is a map of suggestions.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters.html.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-suggesters.html.
 type SearchSuggest map[string][]SearchSuggestion
 
 // SearchSuggestion is a single search suggestion.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters.html.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-suggesters.html.
 type SearchSuggestion struct {
 	Text    string                   `json:"text"`
 	Offset  int                      `json:"offset"`
@@ -856,7 +856,7 @@ type SearchSuggestion struct {
 }
 
 // SearchSuggestionOption is an option of a SearchSuggestion.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters.html.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-suggesters.html.
 type SearchSuggestionOption struct {
 	Text            string              `json:"text"`
 	Index           string              `json:"_index"`
@@ -923,6 +923,6 @@ type ProfileResult struct {
 // Highlighting
 
 // SearchHitHighlight is the highlight information of a search hit.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-highlighting.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-request-highlighting.html
 // for a general discussion of highlighting.
 type SearchHitHighlight map[string][]string

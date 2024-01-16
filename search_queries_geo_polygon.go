@@ -7,7 +7,7 @@ package opensearch
 // GeoPolygonQuery allows to include hits that only fall within a polygon of points.
 //
 // For more details, see:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-geo-polygon-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-geo-polygon-query.html
 type GeoPolygonQuery struct {
 	name      string
 	points    []*GeoPoint

@@ -11,7 +11,7 @@ package opensearch
 // which allows nesting other aggregations that aren’t part of
 // the nested object in a nested aggregation.
 //
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-reverse-nested-aggregation.html
+// See: https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-reverse-nested-aggregation.html
 type ReverseNestedAggregation struct {
 	path            string
 	subAggregations map[string]Aggregation

@@ -15,7 +15,7 @@ import (
 )
 
 // IndicesExistsTemplateService checks if a given template exists.
-// See http://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-templates.html#indices-templates-exists
+// See http://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-templates.html#indices-templates-exists
 // for documentation.
 //
 // Deprecated: Legacy index templates are deprecated in favor of composable templates.
@@ -40,7 +40,7 @@ func NewIndicesExistsTemplateService(client *Client) *IndicesExistsTemplateServi
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesExistsTemplateService) Pretty(pretty bool) *IndicesExistsTemplateService {
 	s.pretty = &pretty
 	return s
@@ -178,6 +178,6 @@ func (s *IndicesExistsTemplateService) Do(ctx context.Context) (bool, error) {
 	case http.StatusNotFound:
 		return false, nil
 	default:
-		return false, fmt.Errorf("elastic: got HTTP code %d when it should have been either 200 or 404", res.StatusCode)
+		return false, fmt.Errorf("opensearch: got HTTP code %d when it should have been either 200 or 404", res.StatusCode)
 	}
 }

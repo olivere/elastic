@@ -6,7 +6,7 @@ package opensearch
 
 // RuntimeMappings specify fields that are evaluated at query time.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.14/runtime.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.14/runtime.html
 // for details.
 type RuntimeMappings map[string]interface{}
 

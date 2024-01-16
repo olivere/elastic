@@ -15,13 +15,13 @@ func TestNodesStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// TODO(oe) Remove this hack after a fix for https://github.com/elastic/elasticsearch/issues/78311 is released
-	version, err := client.ElasticsearchVersion(DefaultURL)
+	// TODO(oe) Remove this hack after a fix for https://github.com/opensearch/opensearchsearch/issues/78311 is released
+	version, err := client.OpensearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if version == "7.15.0" || version == "7.15.1" {
-		t.Skipf("skipping NodesStats test for %s because of https://github.com/elastic/elasticsearch/issues/78311", version)
+		t.Skipf("skipping NodesStats test for %s because of https://github.com/opensearch/opensearchsearch/issues/78311", version)
 		return
 	}
 

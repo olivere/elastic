@@ -15,7 +15,7 @@ import "errors"
 // use both named and unnamed filters.
 //
 // For details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-filters-aggregation.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-filters-aggregation.html
 type FiltersAggregation struct {
 	unnamedFilters  []Query
 	namedFilters    map[string]Query
@@ -107,7 +107,7 @@ func (a *FiltersAggregation) Source() (interface{}, error) {
 	source["filters"] = filters
 
 	if len(a.unnamedFilters) > 0 && len(a.namedFilters) > 0 {
-		return nil, errors.New("elastic: use either named or unnamed filters with FiltersAggregation but not both")
+		return nil, errors.New("opensearch: use either named or unnamed filters with FiltersAggregation but not both")
 	}
 
 	if len(a.unnamedFilters) > 0 {

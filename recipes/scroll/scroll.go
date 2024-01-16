@@ -21,14 +21,14 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/disaster37/opensearch/v2"
+	"github.com/olivere/opensearch"
 	"golang.org/x/sync/errgroup"
 )
 
 func main() {
 	var (
-		url   = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
-		index = flag.String("index", "", "Elasticsearch index name")
+		url   = flag.String("url", "http://localhost:9200", "Opensearch URL")
+		index = flag.String("index", "", "Opensearch index name")
 		size  = flag.Int("size", 100, "Slice of documents to get per scroll")
 		sniff = flag.Bool("sniff", true, "Enable or disable sniffing")
 	)
@@ -45,8 +45,8 @@ func main() {
 		log.Fatal("size must be greater than zero")
 	}
 
-	// Create an Elasticsearch client
-	client, err := elastic.NewClient(elastic.SetURL(*url), elastic.SetSniff(*sniff))
+	// Create an Opensearch client
+	client, err := opensearch.NewClient(opensearch.SetURL(*url), opensearch.SetSniff(*sniff))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,7 +57,7 @@ func main() {
 	// Hits channel will be sent to from the first set of goroutines and consumed by the second
 	type hit struct {
 		Slice int
-		Hit   elastic.SearchHit
+		Hit   opensearch.SearchHit
 	}
 	hitsc := make(chan hit)
 
@@ -68,8 +68,8 @@ func main() {
 		defer close(hitsc)
 
 		// Prepare the query
-		var query elastic.Query
-		query = elastic.NewMatchAllQuery()
+		var query opensearch.Query
+		query = opensearch.NewMatchAllQuery()
 		svc := client.Scroll(*index).Query(query)
 		for {
 			res, err := svc.Do(ctx)

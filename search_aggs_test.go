@@ -20,9 +20,9 @@ func TestAggs(t *testing.T) {
 	tweet1 := tweet{
 		User:     "olivere",
 		Retweets: 108,
-		Message:  "Welcome to Golang and Elasticsearch.",
+		Message:  "Welcome to Golang and Opensearch.",
 		Image:    "http://golang.org/doc/gopher/gophercolor.png",
-		Tags:     []string{"golang", "elasticsearch"},
+		Tags:     []string{"golang", "opensearchsearch"},
 		Location: "48.1333,11.5667", // lat,lon
 		Created:  time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
@@ -1125,8 +1125,8 @@ func TestAggs(t *testing.T) {
 		if err := json.Unmarshal(hit.Source, &tw); err != nil {
 			t.Fatalf("expected no error; got: %v", err)
 		}
-		if tw.Message != "Welcome to Golang and Elasticsearch." {
-			t.Errorf("expected %q; got: %q", "Welcome to Golang and Elasticsearch.", tw.Message)
+		if tw.Message != "Welcome to Golang and Opensearch." {
+			t.Errorf("expected %q; got: %q", "Welcome to Golang and Opensearch.", tw.Message)
 		}
 		if topTags.Buckets[1].DocCount != 1 {
 			t.Errorf("expected %d; got: %d", 1, topTags.Buckets[1].DocCount)
@@ -1153,8 +1153,8 @@ func TestAggs(t *testing.T) {
 		if topTags.Buckets[2].DocCount != 1 {
 			t.Errorf("expected %d; got: %d", 1, topTags.Buckets[2].DocCount)
 		}
-		if topTags.Buckets[2].Key != "elasticsearch" {
-			t.Errorf("expected %v; got: %v", "elasticsearch", topTags.Buckets[2].Key)
+		if topTags.Buckets[2].Key != "opensearchsearch" {
+			t.Errorf("expected %v; got: %v", "opensearchsearch", topTags.Buckets[2].Key)
 		}
 		topHits, found = topTags.Buckets[2].TopHits("top_tag_hits")
 		if !found {
@@ -1442,9 +1442,9 @@ func TestAggsCompositeIntegration(t *testing.T) {
 	tweet1 := tweet{
 		User:     "olivere",
 		Retweets: 108,
-		Message:  "Welcome to Golang and Elasticsearch.",
+		Message:  "Welcome to Golang and Opensearch.",
 		Image:    "http://golang.org/doc/gopher/gophercolor.png",
-		Tags:     []string{"golang", "elasticsearch"},
+		Tags:     []string{"golang", "opensearchsearch"},
 		Location: "48.1333,11.5667", // lat,lon
 		Created:  time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
@@ -1655,7 +1655,7 @@ func TestAggsCompositeIntegration(t *testing.T) {
 }
 
 // TestAggsMarshal ensures that marshaling aggregations back into a string
-// does not yield base64 encoded data. See https://github.com/olivere/elastic/issues/51
+// does not yield base64 encoded data. See https://github.com/olivere/opensearch/issues/51
 // and https://groups.google.com/forum/#!topic/Golang-Nuts/38ShOlhxAYY for details.
 func TestAggsMarshal(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
@@ -1663,9 +1663,9 @@ func TestAggsMarshal(t *testing.T) {
 	tweet1 := tweet{
 		User:     "olivere",
 		Retweets: 108,
-		Message:  "Welcome to Golang and Elasticsearch.",
+		Message:  "Welcome to Golang and Opensearch.",
 		Image:    "http://golang.org/doc/gopher/gophercolor.png",
-		Tags:     []string{"golang", "elasticsearch"},
+		Tags:     []string{"golang", "opensearchsearch"},
 		Location: "48.1333,11.5667", // lat,lon
 		Created:  time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}

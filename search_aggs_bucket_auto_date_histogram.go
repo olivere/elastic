@@ -6,7 +6,7 @@ package opensearch
 
 // AutoDateHistogramAggregation is a multi-bucket aggregation similar to the
 // histogram except it can only be applied on date values, and the buckets num can bin pointed.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.3/search-aggregations-bucket-autodatehistogram-aggregation.html
+// See: https://www.opensearch.co/guide/en/opensearchsearch/reference/7.3/search-aggregations-bucket-autodatehistogram-aggregation.html
 type AutoDateHistogramAggregation struct {
 	field           string
 	script          *Script

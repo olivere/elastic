@@ -11,7 +11,7 @@ import (
 )
 
 // TasksGetTaskService retrieves the state of a task in the cluster. It is part of the Task Management API
-// documented at https://www.elastic.co/guide/en/elasticsearch/reference/7.0/tasks.html#_current_tasks_information.
+// documented at https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/tasks.html#_current_tasks_information.
 type TasksGetTaskService struct {
 	client *Client
 
@@ -32,7 +32,7 @@ func NewTasksGetTaskService(client *Client) *TasksGetTaskService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *TasksGetTaskService) Pretty(pretty bool) *TasksGetTaskService {
 	s.pretty = &pretty
 	return s

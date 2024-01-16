@@ -15,7 +15,7 @@ import (
 // CatHealthService returns a terse representation of the same information
 // as /_cluster/health.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cat-health.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cat-health.html
 // for details.
 type CatHealthService struct {
 	client *Client
@@ -40,7 +40,7 @@ func NewCatHealthService(client *Client) *CatHealthService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *CatHealthService) Pretty(pretty bool) *CatHealthService {
 	s.pretty = &pretty
 	return s
@@ -197,7 +197,7 @@ type CatHealthResponse []CatHealthResponseRow
 type CatHealthResponseRow struct {
 	Epoch               int64  `json:"epoch,string"`          // e.g. 1527077996
 	Timestamp           string `json:"timestamp"`             // e.g. "12:19:56"
-	Cluster             string `json:"cluster"`               // cluster name, e.g. "elasticsearch"
+	Cluster             string `json:"cluster"`               // cluster name, e.g. "opensearchsearch"
 	Status              string `json:"status"`                // health status, e.g. "green", "yellow", or "red"
 	NodeTotal           int    `json:"node.total,string"`     // total number of nodes
 	NodeData            int    `json:"node.data,string"`      // number of nodes that can store data

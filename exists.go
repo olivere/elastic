@@ -16,7 +16,7 @@ import (
 
 // ExistsService checks for the existence of a document using HEAD.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-get.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-get.html
 // for details.
 type ExistsService struct {
 	client *Client
@@ -45,7 +45,7 @@ func NewExistsService(client *Client) *ExistsService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ExistsService) Pretty(pretty bool) *ExistsService {
 	s.pretty = &pretty
 	return s
@@ -118,7 +118,7 @@ func (s *ExistsService) Realtime(realtime bool) *ExistsService {
 
 // Refresh the shard containing the document before performing the operation.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-refresh.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-refresh.html
 // for details.
 func (s *ExistsService) Refresh(refresh string) *ExistsService {
 	s.refresh = refresh
@@ -231,6 +231,6 @@ func (s *ExistsService) Do(ctx context.Context) (bool, error) {
 	case http.StatusNotFound:
 		return false, nil
 	default:
-		return false, fmt.Errorf("elastic: got HTTP code %d when it should have been either 200 or 404", res.StatusCode)
+		return false, fmt.Errorf("opensearch: got HTTP code %d when it should have been either 200 or 404", res.StatusCode)
 	}
 }

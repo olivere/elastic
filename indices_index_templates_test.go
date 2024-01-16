@@ -22,7 +22,7 @@ func TestIndexTemplatesLifecycle(t *testing.T) {
 	// Create an index template
 	{
 		resp, err := client.IndexPutIndexTemplate(templateName).Pretty(true).BodyString(`{
-			"index_patterns": ["elastic-index-templates-*"],
+			"index_patterns": ["opensearch-index-templates-*"],
 			"priority": 1,
 			"template": {
 				"settings": {

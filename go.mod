@@ -8,6 +8,7 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
+	github.com/sirupsen/logrus v1.9.3
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/otel v1.21.0
 )
@@ -19,4 +20,5 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	go.opentelemetry.io/otel/metric v1.21.0 // indirect
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 )

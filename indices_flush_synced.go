@@ -18,7 +18,7 @@ import (
 // IndicesSyncedFlushService performs a normal flush, then adds a generated
 // unique marked (sync_id) to all shards.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-synced-flush.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-synced-flush.html
 // for details.
 type IndicesSyncedFlushService struct {
 	client *Client
@@ -42,7 +42,7 @@ func NewIndicesSyncedFlushService(client *Client) *IndicesSyncedFlushService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesSyncedFlushService) Pretty(pretty bool) *IndicesSyncedFlushService {
 	s.pretty = &pretty
 	return s
@@ -208,22 +208,22 @@ type IndicesSyncedFlushResponse struct {
 	// 	  "successful" : 4,
 	// 	  "failed" : 0
 	// 	},
-	// 	"elastic-test" : {
+	// 	"opensearch-test" : {
 	// 	  "total" : 1,
 	// 	  "successful" : 1,
 	// 	  "failed" : 0
 	// 	},
-	// 	"elastic-test2" : {
+	// 	"opensearch-test2" : {
 	// 	  "total" : 1,
 	// 	  "successful" : 1,
 	// 	  "failed" : 0
 	// 	},
-	// 	"elastic-orders" : {
+	// 	"opensearch-orders" : {
 	// 	  "total" : 1,
 	// 	  "successful" : 1,
 	// 	  "failed" : 0
 	// 	},
-	// 	"elastic-nosource-test" : {
+	// 	"opensearch-nosource-test" : {
 	// 	  "total" : 1,
 	// 	  "successful" : 1,
 	// 	  "failed" : 0

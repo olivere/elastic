@@ -16,7 +16,7 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"github.com/disaster37/opensearch/v2"
+	"github.com/olivere/opensearch"
 )
 
 // CountingTransport will count requests.
@@ -36,7 +36,7 @@ func (tr *CountingTransport) RoundTrip(r *http.Request) (*http.Response, error) 
 
 func main() {
 	var (
-		url   = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
+		url   = flag.String("url", "http://localhost:9200", "Opensearch URL")
 		sniff = flag.Bool("sniff", true, "Enable or disable sniffing")
 	)
 	flag.Parse()
@@ -48,11 +48,11 @@ func main() {
 
 	tr := &CountingTransport{}
 
-	// Create an Elasticsearch client
-	client, err := elastic.NewClient(
-		elastic.SetURL(*url),
-		elastic.SetSniff(*sniff),
-		elastic.SetHttpClient(&http.Client{
+	// Create an Opensearch client
+	client, err := opensearch.NewClient(
+		opensearch.SetURL(*url),
+		opensearch.SetSniff(*sniff),
+		opensearch.SetHttpClient(&http.Client{
 			Transport: tr,
 		}),
 	)

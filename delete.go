@@ -17,7 +17,7 @@ import (
 // DeleteService allows to delete a typed JSON document from a specified
 // index based on its id.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-delete.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-delete.html
 // for details.
 type DeleteService struct {
 	client *Client
@@ -50,7 +50,7 @@ func NewDeleteService(client *Client) *DeleteService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *DeleteService) Pretty(pretty bool) *DeleteService {
 	s.pretty = &pretty
 	return s
@@ -152,7 +152,7 @@ func (s *DeleteService) Parent(parent string) *DeleteService {
 
 // Refresh the index after performing the operation.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-refresh.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-refresh.html
 // for details.
 func (s *DeleteService) Refresh(refresh string) *DeleteService {
 	s.refresh = refresh
@@ -247,7 +247,7 @@ func (s *DeleteService) Validate() error {
 	return nil
 }
 
-// Do executes the operation. If the document is not found (404), Elasticsearch will
+// Do executes the operation. If the document is not found (404), Opensearch will
 // still return a response. This response is serialized and returned as well. In other
 // words, for HTTP status code 404, both an error and a response might be returned.
 func (s *DeleteService) Do(ctx context.Context) (*DeleteResponse, error) {

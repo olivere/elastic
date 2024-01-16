@@ -25,7 +25,7 @@ func TestCatSnapshotsIntegration(t *testing.T) {
 			Type("fs").
 			Settings(map[string]interface{}{
 				// Notice the path is configured as path.repo in docker-compose.yml
-				"location": "/usr/share/elasticsearch/backup",
+				"location": "/usr/share/opensearchsearch/backup",
 			}).
 			Do(ctx)
 		if err != nil {

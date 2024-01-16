@@ -12,9 +12,9 @@ import (
 	"strings"
 )
 
-// BulkCreateRequest is a request to add a new document to Elasticsearch.
+// BulkCreateRequest is a request to add a new document to Opensearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-bulk.html
 // for details.
 type BulkCreateRequest struct {
 	BulkableRequest
@@ -74,7 +74,7 @@ func (r *BulkCreateRequest) UseEasyJSON(enable bool) *BulkCreateRequest {
 	return r
 }
 
-// Index specifies the Elasticsearch index to use for this create request.
+// Index specifies the Opensearch index to use for this create request.
 // If unspecified, the index set on the BulkService will be used.
 func (r *BulkCreateRequest) Index(index string) *BulkCreateRequest {
 	r.index = index
@@ -82,7 +82,7 @@ func (r *BulkCreateRequest) Index(index string) *BulkCreateRequest {
 	return r
 }
 
-// Type specifies the Elasticsearch type to use for this create request.
+// Type specifies the Opensearch type to use for this create request.
 // If unspecified, the type set on the BulkService will be used.
 func (r *BulkCreateRequest) Type(typ string) *BulkCreateRequest {
 	r.typ = typ
@@ -123,7 +123,7 @@ func (r *BulkCreateRequest) Version(version int64) *BulkCreateRequest {
 // VersionType specifies how versions are created. It can be e.g. internal,
 // external, external_gte, or force.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-index_.html#index-versioning
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-index_.html#index-versioning
 // for details.
 func (r *BulkCreateRequest) VersionType(versionType string) *BulkCreateRequest {
 	r.versionType = versionType
@@ -178,7 +178,7 @@ func (r *BulkCreateRequest) String() string {
 
 // Source returns the on-wire representation of the create request,
 // split into an action-and-meta-data line and an (optional) source line.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-bulk.html
 // for details.
 func (r *BulkCreateRequest) Source() ([]string, error) {
 	// { "create" : { "_index" : "test", "_type" : "type1", "_id" : "1" } }

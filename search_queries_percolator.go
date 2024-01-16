@@ -9,7 +9,7 @@ import "errors"
 // PercolatorQuery can be used to match queries stored in an index.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-percolate-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-percolate-query.html
 type PercolatorQuery struct {
 	field                     string
 	name                      string
@@ -84,7 +84,7 @@ func (q *PercolatorQuery) IndexedDocumentVersion(version int64) *PercolatorQuery
 // Source returns JSON for the percolate query.
 func (q *PercolatorQuery) Source() (interface{}, error) {
 	if len(q.field) == 0 {
-		return nil, errors.New("elastic: Field is required in PercolatorQuery")
+		return nil, errors.New("opensearch: Field is required in PercolatorQuery")
 	}
 
 	// {

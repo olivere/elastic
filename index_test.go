@@ -14,7 +14,7 @@ import (
 func TestIndexLifecycle(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 
 	// Add a document
 	indexResult, err := client.Index().
@@ -94,7 +94,7 @@ func TestIndexLifecycle(t *testing.T) {
 func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 
 	// Add a document
 	indexResult, err := client.Index().
@@ -177,7 +177,7 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 func TestIndexValidate(t *testing.T) {
 	client := setupTestClient(t)
 
-	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 
 	// No index name -> fail with error
 	res, err := NewIndexService(client).Id("1").BodyJson(&tweet).Do(context.TODO())
@@ -192,7 +192,7 @@ func TestIndexValidate(t *testing.T) {
 func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
 	// TODO: Find out how to make these test robust
 	t.Skip("test fails regularly with 409 (Conflict): " +
-		"IndexPrimaryShardNotAllocatedException[[elastic-test] " +
+		"IndexPrimaryShardNotAllocatedException[[opensearch-test] " +
 		"primary not allocated post api... skipping")
 
 	client := setupTestClient(t)
@@ -270,7 +270,7 @@ func TestIndexCreateExistsOpenCloseDelete(t *testing.T) {
 func TestIndexOptimistic(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	tw := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tw := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 
 	// Add a document
 	doc, err := client.Index().
@@ -338,7 +338,7 @@ func TestIndexOnReadOnlyIndex(t *testing.T) {
 	}
 
 	// Index something
-	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	resp, err := client.Index().
 		Index(testIndexName).Id("1").
 		BodyJson(tweet).
@@ -347,11 +347,11 @@ func TestIndexOnReadOnlyIndex(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected an error")
 	}
-	elasticErr, ok := err.(*Error)
+	opensearchErr, ok := err.(*Error)
 	if !ok {
 		t.Fatalf("expected an Error type, got %T", err)
 	}
-	if want, have := http.StatusTooManyRequests, elasticErr.Status; want != have {
+	if want, have := http.StatusTooManyRequests, opensearchErr.Status; want != have {
 		t.Fatalf("expected HTTP status code %d, got %d", want, have)
 	}
 	if resp != nil {

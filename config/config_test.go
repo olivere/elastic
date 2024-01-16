@@ -7,12 +7,12 @@ package config
 import "testing"
 
 func TestParse(t *testing.T) {
-	urls := "http://user:pwd@elastic:19220/store-blobs?shards=5&replicas=2&sniff=true&healthcheck=false&errorlog=elastic.error.log&infolog=elastic.info.log&tracelog=elastic.trace.log"
+	urls := "http://user:pwd@opensearch:19220/store-blobs?shards=5&replicas=2&sniff=true&healthcheck=false&errorlog=opensearch.error.log&infolog=opensearch.info.log&tracelog=opensearch.trace.log"
 	cfg, err := Parse(urls)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want, got := "http://elastic:19220", cfg.URL; want != got {
+	if want, got := "http://opensearch:19220", cfg.URL; want != got {
 		t.Fatalf("expected URL = %q, got %q", want, got)
 	}
 	if want, got := "store-blobs", cfg.Index; want != got {
@@ -36,24 +36,15 @@ func TestParse(t *testing.T) {
 	if want, got := false, *cfg.Healthcheck; want != got {
 		t.Fatalf("expected Healthcheck = %v, got %v", want, got)
 	}
-	if want, got := "elastic.error.log", cfg.Errorlog; want != got {
-		t.Fatalf("expected Errorlog = %q, got %q", want, got)
-	}
-	if want, got := "elastic.info.log", cfg.Infolog; want != got {
-		t.Fatalf("expected Infolog = %q, got %q", want, got)
-	}
-	if want, got := "elastic.trace.log", cfg.Tracelog; want != got {
-		t.Fatalf("expected Tracelog = %q, got %q", want, got)
-	}
 }
 
 func TestParseDoesNotFailWithoutIndexName(t *testing.T) {
-	urls := "http://user:pwd@elastic:19220/?shards=5&replicas=2&sniff=true&errorlog=elastic.error.log&infolog=elastic.info.log&tracelog=elastic.trace.log"
+	urls := "http://user:pwd@opensearch:19220/?shards=5&replicas=2&sniff=true&errorlog=opensearch.error.log&infolog=opensearch.info.log&tracelog=opensearch.trace.log"
 	cfg, err := Parse(urls)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want, got := "http://elastic:19220", cfg.URL; want != got {
+	if want, got := "http://opensearch:19220", cfg.URL; want != got {
 		t.Fatalf("expected URL = %q, got %q", want, got)
 	}
 	if want, got := "", cfg.Index; want != got {
@@ -62,12 +53,12 @@ func TestParseDoesNotFailWithoutIndexName(t *testing.T) {
 }
 
 func TestParseTrimsIndexName(t *testing.T) {
-	urls := "http://user:pwd@elastic:19220/store-blobs/?sniff=true"
+	urls := "http://user:pwd@opensearch:19220/store-blobs/?sniff=true"
 	cfg, err := Parse(urls)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want, got := "http://elastic:19220", cfg.URL; want != got {
+	if want, got := "http://opensearch:19220", cfg.URL; want != got {
 		t.Fatalf("expected URL = %q, got %q", want, got)
 	}
 	if want, got := "store-blobs", cfg.Index; want != got {

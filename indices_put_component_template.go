@@ -16,7 +16,7 @@ import (
 
 // IndicesPutComponentTemplateService creates or updates component templates.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.10/indices-component-template.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.10/indices-component-template.html
 // for more details on this API.
 type IndicesPutComponentTemplateService struct {
 	client *Client
@@ -43,7 +43,7 @@ func NewIndicesPutComponentTemplateService(client *Client) *IndicesPutComponentT
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesPutComponentTemplateService) Pretty(pretty bool) *IndicesPutComponentTemplateService {
 	s.pretty = &pretty
 	return s

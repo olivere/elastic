@@ -15,7 +15,7 @@ import (
 )
 
 // RefreshService explicitly refreshes one or more indices.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-refresh.html.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-refresh.html.
 type RefreshService struct {
 	client *Client
 
@@ -36,7 +36,7 @@ func NewRefreshService(client *Client) *RefreshService {
 	return builder
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *RefreshService) Pretty(pretty bool) *RefreshService {
 	s.pretty = &pretty
 	return s

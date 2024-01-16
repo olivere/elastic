@@ -13,7 +13,7 @@ package opensearch
 // The wildcard query maps to Lucene WildcardQuery.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.x/query-dsl-wildcard-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.x/query-dsl-wildcard-query.html
 type WildcardQuery struct {
 	name            string
 	wildcard        string

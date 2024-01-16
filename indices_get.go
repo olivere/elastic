@@ -16,7 +16,7 @@ import (
 
 // IndicesGetService retrieves information about one or more indices.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-get-index.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-get-index.html
 // for more details.
 type IndicesGetService struct {
 	client *Client
@@ -45,7 +45,7 @@ func NewIndicesGetService(client *Client) *IndicesGetService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesGetService) Pretty(pretty bool) *IndicesGetService {
 	s.pretty = &pretty
 	return s

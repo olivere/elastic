@@ -5,12 +5,10 @@
 package opensearch
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -202,15 +200,15 @@ func TestClientWithBasicAuthDuringHealthcheck(t *testing.T) {
 }
 
 func TestClientWithXpackSecurity(t *testing.T) {
-	// Connect to ES Platinum with X-Pack Security enabled and L: elastic, P: elastic
-	client, err := NewClient(SetURL("http://elastic:elastic@127.0.0.1:9210"))
+	// Connect to ES Platinum with X-Pack Security enabled and L: opensearch, P: opensearch
+	client, err := NewClient(SetURL("http://opensearch:opensearch@127.0.0.1:9210"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := client.basicAuthUsername, "elastic"; got != want {
+	if got, want := client.basicAuthUsername, "opensearch"; got != want {
 		t.Errorf("expected basic auth username %q; got: %q", want, got)
 	}
-	if got, want := client.basicAuthPassword, "elastic"; got != want {
+	if got, want := client.basicAuthPassword, "opensearch"; got != want {
 		t.Errorf("expected basic auth password %q; got: %q", want, got)
 	}
 }
@@ -446,7 +444,7 @@ func TestClientWithRequiredPlugins(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error when creating client")
 	}
-	if got, want := err.Error(), "elastic: plugin no-such-plugin not found"; got != want {
+	if got, want := err.Error(), "opensearch: plugin no-such-plugin not found"; got != want {
 		t.Fatalf("expected error %q; got: %q", want, got)
 	}
 }
@@ -559,10 +557,10 @@ func TestClientSniffUpdatingNodeURL(t *testing.T) {
 			return
 		}
 		fmt.Fprintf(w, `{
-			"cluster_name": "elasticsearch",
+			"cluster_name": "opensearchsearch",
 			"nodes": {
 				%q: {
-					"name": "elasticsearch",
+					"name": "opensearchsearch",
 					"http": {
 						"publish_address": %q
 					}
@@ -1096,14 +1094,14 @@ func TestClientSelectConnAllDead(t *testing.T) {
 	}
 }
 
-// -- ElasticsearchVersion --
+// -- OpensearchVersion --
 
-func TestElasticsearchVersion(t *testing.T) {
+func TestOpensearchVersion(t *testing.T) {
 	client, err := NewClient()
 	if err != nil {
 		t.Fatal(err)
 	}
-	version, err := client.ElasticsearchVersion(DefaultURL)
+	version, err := client.OpensearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1216,152 +1214,6 @@ func TestPerformRequestWithSimpleClient(t *testing.T) {
 	}
 	if ret.ClusterName == "" {
 		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
-	}
-}
-
-func TestPerformRequestWithLogger(t *testing.T) {
-	var w bytes.Buffer
-	out := log.New(&w, "LOGGER ", log.LstdFlags)
-
-	client, err := NewClient(SetInfoLog(out), SetSniff(false))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
-		Method: "GET",
-		Path:   "/",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if res == nil {
-		t.Fatal("expected response to be != nil")
-	}
-
-	ret := new(PingResult)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
-		t.Fatalf("expected no error on decode; got: %v", err)
-	}
-	if ret.ClusterName == "" {
-		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
-	}
-
-	got := w.String()
-	pattern := `^LOGGER \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} GET http://.*/ \[status:200, request:\d+\.\d{3}s\]\n`
-	matched, err := regexp.MatchString(pattern, got)
-	if err != nil {
-		t.Fatalf("expected log line to match %q; got: %v", pattern, err)
-	}
-	if !matched {
-		t.Errorf("expected log line to match %q; got: %v", pattern, got)
-	}
-}
-
-func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
-	var lw bytes.Buffer
-	lout := log.New(&lw, "LOGGER ", log.LstdFlags)
-
-	var tw bytes.Buffer
-	tout := log.New(&tw, "TRACER ", log.LstdFlags)
-
-	client, err := NewClient(SetInfoLog(lout), SetTraceLog(tout), SetSniff(false))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
-		Method: "GET",
-		Path:   "/",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if res == nil {
-		t.Fatal("expected response to be != nil")
-	}
-
-	ret := new(PingResult)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
-		t.Fatalf("expected no error on decode; got: %v", err)
-	}
-	if ret.ClusterName == "" {
-		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
-	}
-
-	lgot := lw.String()
-	if lgot == "" {
-		t.Errorf("expected logger output; got: %q", lgot)
-	}
-
-	tgot := tw.String()
-	if tgot == "" {
-		t.Errorf("expected tracer output; got: %q", tgot)
-	}
-}
-func TestPerformRequestWithTracerOnError(t *testing.T) {
-	var tw bytes.Buffer
-	tout := log.New(&tw, "TRACER ", log.LstdFlags)
-
-	client, err := NewClient(SetTraceLog(tout), SetSniff(false))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	client.PerformRequest(context.TODO(), PerformRequestOptions{
-		Method: "GET",
-		Path:   "/no-such-index",
-	})
-
-	tgot := tw.String()
-	if tgot == "" {
-		t.Errorf("expected tracer output; got: %q", tgot)
-	}
-}
-
-type customLogger struct {
-	out bytes.Buffer
-}
-
-func (l *customLogger) Printf(format string, v ...interface{}) {
-	l.out.WriteString(fmt.Sprintf(format, v...) + "\n")
-}
-
-func TestPerformRequestWithCustomLogger(t *testing.T) {
-	logger := &customLogger{}
-
-	client, err := NewClient(SetInfoLog(logger), SetSniff(false))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
-		Method: "GET",
-		Path:   "/",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if res == nil {
-		t.Fatal("expected response to be != nil")
-	}
-
-	ret := new(PingResult)
-	if err := json.Unmarshal(res.Body, ret); err != nil {
-		t.Fatalf("expected no error on decode; got: %v", err)
-	}
-	if ret.ClusterName == "" {
-		t.Errorf("expected cluster name; got: %q", ret.ClusterName)
-	}
-
-	got := logger.out.String()
-	pattern := `^GET http://.*/ \[status:200, request:\d+\.\d{3}s\]\n`
-	matched, err := regexp.MatchString(pattern, got)
-	if err != nil {
-		t.Fatalf("expected log line to match %q; got: %v", pattern, err)
-	}
-	if !matched {
-		t.Errorf("expected log line to match %q; got: %v", pattern, got)
 	}
 }
 
@@ -1749,7 +1601,7 @@ func TestPerformRequestSetsDefaultUserAgent(t *testing.T) {
 		t.Fatal("expected response to be != nil")
 	}
 	// Have a default for User-Agent
-	if want, have := "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")", req.Header.Get("User-Agent"); want != have {
+	if want, have := "opensearch/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")", req.Header.Get("User-Agent"); want != have {
 		t.Fatalf("want User-Agent=%q, have %q", want, have)
 	}
 }

@@ -17,7 +17,7 @@ import (
 // IndicesPutMappingService allows to register specific mapping definition
 // for a specific type.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-put-mapping.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-put-mapping.html
 // for details.
 type IndicesPutMappingService struct {
 	client *Client
@@ -54,7 +54,7 @@ func NewIndicesPutMappingService(client *Client) *IndicesPutMappingService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesPutMappingService) Pretty(pretty bool) *IndicesPutMappingService {
 	s.pretty = &pretty
 	return s

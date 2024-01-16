@@ -16,7 +16,7 @@ import (
 
 // IndicesDeleteService allows to delete existing indices.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-delete-index.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-delete-index.html
 // for details.
 type IndicesDeleteService struct {
 	client *Client
@@ -43,7 +43,7 @@ func NewIndicesDeleteService(client *Client) *IndicesDeleteService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesDeleteService) Pretty(pretty bool) *IndicesDeleteService {
 	s.pretty = &pretty
 	return s

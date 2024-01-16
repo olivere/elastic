@@ -34,15 +34,15 @@ import (
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 
-	"github.com/disaster37/opensearch/v2"
 	"github.com/disaster37/opensearch/v2/trace/opentelemetry"
+	"github.com/olivere/opensearch"
 )
 
 func main() {
 	var (
-		url      = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
-		index    = flag.String("index", "", "Elasticsearch index name")
-		typ      = flag.String("type", "", "Elasticsearch type name")
+		url      = flag.String("url", "http://localhost:9200", "Opensearch URL")
+		index    = flag.String("index", "", "Opensearch index name")
+		typ      = flag.String("type", "", "Opensearch type name")
 		sniff    = flag.Bool("sniff", true, "Enable or disable sniffing")
 		n        = flag.Int("n", 0, "Number of documents to bulk insert")
 		bulkSize = flag.Int("bulk-size", 0, "Number of documents to collect before committing")
@@ -67,9 +67,9 @@ func main() {
 		log.Fatal("bulk-size must be a positive number")
 	}
 
-	opts := []elastic.ClientOptionFunc{
-		elastic.SetURL(*url),
-		elastic.SetSniff(*sniff),
+	opts := []opensearch.ClientOptionFunc{
+		opensearch.SetURL(*url),
+		opensearch.SetSniff(*sniff),
 	}
 
 	// Initialize Jaeger tracing
@@ -80,7 +80,7 @@ func main() {
 	tp := tracesdk.NewTraceProvider(
 		tracesdk.WithBatcher(exp),
 		tracesdk.WithResource(resource.NewWithAttributes(
-			semconv.ServiceNameKey.String("elastic-tracing"),
+			semconv.ServiceNameKey.String("opensearch-tracing"),
 		)),
 	)
 	defer func() {
@@ -95,10 +95,10 @@ func main() {
 	httpClient := &http.Client{
 		Transport: opentelemetry.NewTransport(),
 	}
-	opts = append(opts, elastic.SetHttpClient(httpClient))
+	opts = append(opts, opensearch.SetHttpClient(httpClient))
 
-	// Create an Elasticsearch client
-	client, err := elastic.NewClient(opts...)
+	// Create an Opensearch client
+	client, err := opensearch.NewClient(opts...)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -159,7 +159,7 @@ func main() {
 			fmt.Printf("%10d | %6d req/s | %02d:%02d\r", current, pps, sec/60, sec%60)
 
 			// Enqueue the document
-			bulk.Add(elastic.NewBulkIndexRequest().Id(d.ID).Doc(d))
+			bulk.Add(opensearch.NewBulkIndexRequest().Id(d.ID).Doc(d))
 			if bulk.NumberOfActions() >= *bulkSize {
 				// Commit
 				res, err := bulk.Do(ctx)

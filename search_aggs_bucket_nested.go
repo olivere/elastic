@@ -6,7 +6,7 @@ package opensearch
 
 // NestedAggregation is a special single bucket aggregation that enables
 // aggregating nested documents.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-nested-aggregation.html
+// See: https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-nested-aggregation.html
 type NestedAggregation struct {
 	path            string
 	subAggregations map[string]Aggregation

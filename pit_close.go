@@ -14,7 +14,7 @@ import (
 
 // ClosePointInTimeService removes a point in time.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.x/point-in-time-api.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.x/point-in-time-api.html
 // for details.
 type ClosePointInTimeService struct {
 	client *Client
@@ -37,7 +37,7 @@ func NewClosePointInTimeService(client *Client) *ClosePointInTimeService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ClosePointInTimeService) Pretty(pretty bool) *ClosePointInTimeService {
 	s.pretty = &pretty
 	return s

@@ -16,7 +16,7 @@ import (
 )
 
 // SearchShardsService returns the indices and shards that a search request would be executed against.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-shards.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-shards.html
 type SearchShardsService struct {
 	client *Client
 
@@ -42,7 +42,7 @@ func NewSearchShardsService(client *Client) *SearchShardsService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *SearchShardsService) Pretty(pretty bool) *SearchShardsService {
 	s.pretty = &pretty
 	return s

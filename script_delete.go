@@ -14,9 +14,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// DeleteScriptService removes a stored script in Elasticsearch.
+// DeleteScriptService removes a stored script in Opensearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-scripting.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/modules-scripting.html
 // for details.
 type DeleteScriptService struct {
 	client *Client
@@ -39,7 +39,7 @@ func NewDeleteScriptService(client *Client) *DeleteScriptService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *DeleteScriptService) Pretty(pretty bool) *DeleteScriptService {
 	s.pretty = &pretty
 	return s
@@ -180,7 +180,7 @@ func (s *DeleteScriptService) Do(ctx context.Context) (*DeleteScriptResponse, er
 }
 
 // DeleteScriptResponse is the result of deleting a stored script
-// in Elasticsearch.
+// in Opensearch.
 type DeleteScriptResponse struct {
 	AcknowledgedResponse
 }

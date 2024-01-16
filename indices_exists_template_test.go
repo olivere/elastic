@@ -13,7 +13,7 @@ func TestIndexExistsTemplate(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tmpl := `{
-	"index_patterns":["elastic-test*"],
+	"index_patterns":["opensearch-test*"],
 	"settings":{
 		"number_of_shards":1,
 		"number_of_replicas":0
@@ -32,7 +32,7 @@ func TestIndexExistsTemplate(t *testing.T) {
 		}
 	}
 }`
-	putres, err := client.IndexPutTemplate("elastic-template").BodyString(tmpl).Do(context.TODO())
+	putres, err := client.IndexPutTemplate("opensearch-template").BodyString(tmpl).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}
@@ -44,23 +44,23 @@ func TestIndexExistsTemplate(t *testing.T) {
 	}
 
 	// Always delete template
-	defer client.IndexDeleteTemplate("elastic-template").Do(context.TODO())
+	defer client.IndexDeleteTemplate("opensearch-template").Do(context.TODO())
 
 	// Check if template exists
-	exists, err := client.IndexTemplateExists("elastic-template").Do(context.TODO())
+	exists, err := client.IndexTemplateExists("opensearch-template").Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}
 	if !exists {
-		t.Fatalf("expected index template %q to exist; got: %v", "elastic-template", exists)
+		t.Fatalf("expected index template %q to exist; got: %v", "opensearch-template", exists)
 	}
 
 	// Get template
-	getres, err := client.IndexGetTemplate("elastic-template").Do(context.TODO())
+	getres, err := client.IndexGetTemplate("opensearch-template").Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}
 	if getres == nil {
-		t.Fatalf("expected to get index template %q; got: %v", "elastic-template", getres)
+		t.Fatalf("expected to get index template %q; got: %v", "opensearch-template", getres)
 	}
 }

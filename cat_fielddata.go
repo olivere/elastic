@@ -17,7 +17,7 @@ import (
 // CatFielddataService Returns the amount of heap memory currently used by
 // the field data cache on every data node in the cluster.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.12/cat-fielddata.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.12/cat-fielddata.html
 // for details.
 type CatFielddataService struct {
 	client *Client
@@ -41,7 +41,7 @@ func NewCatFielddataService(client *Client) *CatFielddataService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *CatFielddataService) Pretty(pretty bool) *CatFielddataService {
 	s.pretty = &pretty
 	return s

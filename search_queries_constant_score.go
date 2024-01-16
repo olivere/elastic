@@ -8,7 +8,7 @@ package opensearch
 // a constant score equal to the query boost for every document in the filter.
 //
 // For more details, see:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-constant-score-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-constant-score-query.html
 type ConstantScoreQuery struct {
 	filter Query
 	boost  *float64

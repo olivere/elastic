@@ -9,7 +9,7 @@ import "fmt"
 // TermsAggregation is a multi-bucket value source based aggregation
 // where buckets are dynamically built - one per unique value.
 //
-// See: http://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-terms-aggregation.html
+// See: http://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-terms-aggregation.html
 type TermsAggregation struct {
 	field           string
 	script          *Script

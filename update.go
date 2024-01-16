@@ -14,8 +14,8 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// UpdateService updates a document in Elasticsearch.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-update.html
+// UpdateService updates a document in Opensearch.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-update.html
 // for details.
 type UpdateService struct {
 	client *Client
@@ -49,7 +49,7 @@ type UpdateService struct {
 	ifPrimaryTerm       *int64
 }
 
-// NewUpdateService creates the service to update documents in Elasticsearch.
+// NewUpdateService creates the service to update documents in Opensearch.
 func NewUpdateService(client *Client) *UpdateService {
 	return &UpdateService{
 		client: client,
@@ -58,7 +58,7 @@ func NewUpdateService(client *Client) *UpdateService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *UpdateService) Pretty(pretty bool) *UpdateService {
 	s.pretty = &pretty
 	return s
@@ -98,7 +98,7 @@ func (s *UpdateService) Headers(headers http.Header) *UpdateService {
 	return s
 }
 
-// Index is the name of the Elasticsearch index (required).
+// Index is the name of the Opensearch index (required).
 func (s *UpdateService) Index(name string) *UpdateService {
 	s.index = name
 	return s
@@ -164,7 +164,7 @@ func (s *UpdateService) VersionType(versionType string) *UpdateService {
 
 // Refresh the index after performing the update.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-refresh.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-refresh.html
 // for details.
 func (s *UpdateService) Refresh(refresh string) *UpdateService {
 	s.refresh = refresh
@@ -199,7 +199,7 @@ func (s *UpdateService) DocAsUpsert(docAsUpsert bool) *UpdateService {
 	return s
 }
 
-// DetectNoop will instruct Elasticsearch to check if changes will occur
+// DetectNoop will instruct Opensearch to check if changes will occur
 // when updating via Doc. It there aren't any changes, the request will
 // turn into a no-op.
 func (s *UpdateService) DetectNoop(detectNoop bool) *UpdateService {
@@ -235,7 +235,7 @@ func (s *UpdateService) IfPrimaryTerm(primaryTerm int64) *UpdateService {
 	return s
 }
 
-// FetchSource asks Elasticsearch to return the updated _source in the response.
+// FetchSource asks Opensearch to return the updated _source in the response.
 func (s *UpdateService) FetchSource(fetchSource bool) *UpdateService {
 	if s.fsc == nil {
 		s.fsc = NewFetchSourceContext(fetchSource)
@@ -396,7 +396,7 @@ func (s *UpdateService) Do(ctx context.Context) (*UpdateResponse, error) {
 	return ret, nil
 }
 
-// UpdateResponse is the result of updating a document in Elasticsearch.
+// UpdateResponse is the result of updating a document in Opensearch.
 type UpdateResponse struct {
 	Index         string      `json:"_index,omitempty"`
 	Type          string      `json:"_type,omitempty"`

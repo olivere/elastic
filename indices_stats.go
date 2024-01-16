@@ -15,7 +15,7 @@ import (
 )
 
 // IndicesStatsService provides stats on various metrics of one or more
-// indices. See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-stats.html.
+// indices. See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-stats.html.
 type IndicesStatsService struct {
 	client *Client
 
@@ -49,7 +49,7 @@ func NewIndicesStatsService(client *Client) *IndicesStatsService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesStatsService) Pretty(pretty bool) *IndicesStatsService {
 	s.pretty = &pretty
 	return s
@@ -296,8 +296,8 @@ type IndexStatsRouting struct {
 }
 
 type IndexStatsShardPath struct {
-	StatePath        string `json:"state_path"` // e.g. "/usr/share/elasticsearch/data/nodes/0"
-	DataPath         string `json:"data_path"`  // e.g. "/usr/share/elasticsearch/data/nodes/0"
+	StatePath        string `json:"state_path"` // e.g. "/usr/share/opensearchsearch/data/nodes/0"
+	DataPath         string `json:"data_path"`  // e.g. "/usr/share/opensearchsearch/data/nodes/0"
 	IsCustomDataPath bool   `json:"is_custom_data_path"`
 }
 

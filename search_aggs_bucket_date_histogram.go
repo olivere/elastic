@@ -6,7 +6,7 @@ package opensearch
 
 // DateHistogramAggregation is a multi-bucket aggregation similar to the
 // histogram except it can only be applied on date values.
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-datehistogram-aggregation.html
+// See: https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-datehistogram-aggregation.html
 type DateHistogramAggregation struct {
 	field           string
 	script          *Script
@@ -67,7 +67,7 @@ func (a *DateHistogramAggregation) Meta(metaData map[string]interface{}) *DateHi
 // will be replaced by the two FixedInterval and CalendarInterval
 // fields (see below).
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.4/search-aggregations-bucket-datehistogram-aggregation.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.4/search-aggregations-bucket-datehistogram-aggregation.html
 //
 // Deprecated: This field will be removed in the future.
 func (a *DateHistogramAggregation) Interval(interval string) *DateHistogramAggregation {
@@ -84,7 +84,7 @@ func (a *DateHistogramAggregation) Interval(interval string) *DateHistogramAggre
 // These units are not calendar-aware and are simply multiples of
 // fixed, SI units. This is mutually exclusive with CalendarInterval.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.4/search-aggregations-bucket-datehistogram-aggregation.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.4/search-aggregations-bucket-datehistogram-aggregation.html
 func (a *DateHistogramAggregation) FixedInterval(fixedInterval string) *DateHistogramAggregation {
 	a.fixedInterval = fixedInterval
 	return a
@@ -99,7 +99,7 @@ func (a *DateHistogramAggregation) FixedInterval(fixedInterval string) *DateHist
 // additions, variable days per month etc. This is mutually
 // exclusive with FixedInterval.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.4/search-aggregations-bucket-datehistogram-aggregation.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.4/search-aggregations-bucket-datehistogram-aggregation.html
 func (a *DateHistogramAggregation) CalendarInterval(calendarInterval string) *DateHistogramAggregation {
 	a.calendarInterval = calendarInterval
 	return a
@@ -234,7 +234,7 @@ func (a *DateHistogramAggregation) ExtendedBoundsMax(max interface{}) *DateHisto
 
 // Keyed specifies whether to return the results with a keyed response (or not).
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-bucket-datehistogram-aggregation.html#_keyed_response_3.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-bucket-datehistogram-aggregation.html#_keyed_response_3.
 func (a *DateHistogramAggregation) Keyed(keyed bool) *DateHistogramAggregation {
 	a.keyed = &keyed
 	return a

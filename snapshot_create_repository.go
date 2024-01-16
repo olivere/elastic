@@ -16,7 +16,7 @@ import (
 )
 
 // SnapshotCreateRepositoryService creates a snapshot repository.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-snapshots.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/modules-snapshots.html
 // for details.
 type SnapshotCreateRepositoryService struct {
 	client *Client
@@ -44,7 +44,7 @@ func NewSnapshotCreateRepositoryService(client *Client) *SnapshotCreateRepositor
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *SnapshotCreateRepositoryService) Pretty(pretty bool) *SnapshotCreateRepositoryService {
 	s.pretty = &pretty
 	return s

@@ -18,7 +18,7 @@ import (
 // SnapshotRestoreService restores a snapshot from a snapshot repository.
 //
 // It is documented at
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.1/modules-snapshots.html#_restore.
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.1/modules-snapshots.html#_restore.
 type SnapshotRestoreService struct {
 	client *Client
 
@@ -50,7 +50,7 @@ func NewSnapshotRestoreService(client *Client) *SnapshotRestoreService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *SnapshotRestoreService) Pretty(pretty bool) *SnapshotRestoreService {
 	s.pretty = &pretty
 	return s
@@ -283,7 +283,7 @@ func (s *SnapshotRestoreService) buildBody() interface{} {
 
 // SnapshotRestoreResponse represents the response for SnapshotRestoreService.Do
 type SnapshotRestoreResponse struct {
-	// Accepted indicates whether the request was accepted by Elasticsearch.
+	// Accepted indicates whether the request was accepted by Opensearch.
 	Accepted *bool `json:"accepted"`
 
 	// Snapshot information.

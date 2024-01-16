@@ -12,7 +12,7 @@ package opensearch
 // minimum should match script.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-terms-set-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-terms-set-query.html
 type TermsSetQuery struct {
 	name                     string
 	values                   []interface{}

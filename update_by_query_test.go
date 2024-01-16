@@ -121,12 +121,12 @@ func TestUpdateByQueryBodyWithQueryAndScript(t *testing.T) {
 
 func TestUpdateByQuery(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	esversion, err := client.OpensearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if esversion < "2.3.0" {
-		t.Skipf("Elasticsearch %v does not support update-by-query yet", esversion)
+		t.Skipf("Opensearch %v does not support update-by-query yet", esversion)
 	}
 
 	sourceCount, err := client.Count(testIndexName).Do(context.TODO())
@@ -151,12 +151,12 @@ func TestUpdateByQuery(t *testing.T) {
 
 func TestUpdateByQueryAsync(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
-	esversion, err := client.ElasticsearchVersion(DefaultURL)
+	esversion, err := client.OpensearchVersion(DefaultURL)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if esversion < "2.3.0" {
-		t.Skipf("Elasticsearch %v does not support update-by-query yet", esversion)
+		t.Skipf("Opensearch %v does not support update-by-query yet", esversion)
 	}
 
 	sourceCount, err := client.Count(testIndexName).Do(context.TODO())

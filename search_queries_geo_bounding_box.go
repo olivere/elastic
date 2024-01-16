@@ -8,7 +8,7 @@ package opensearch
 // a bounding box.
 //
 // For more details, see:
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/query-dsl-geo-bounding-box-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/query-dsl-geo-bounding-box-query.html
 type GeoBoundingBoxQuery struct {
 	name             string
 	topLeft          interface{} // can be a GeoPoint, a GeoHash (string), or a lat/lon pair as float64

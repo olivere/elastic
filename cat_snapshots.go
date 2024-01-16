@@ -16,7 +16,7 @@ import (
 
 // CatSnapshotsService returns the list of snapshots.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.13/cat-snapshots.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.13/cat-snapshots.html
 // for details.
 type CatSnapshotsService struct {
 	client *Client
@@ -40,7 +40,7 @@ func NewCatSnapshotsService(client *Client) *CatSnapshotsService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *CatSnapshotsService) Pretty(pretty bool) *CatSnapshotsService {
 	s.pretty = &pretty
 	return s
@@ -232,7 +232,7 @@ type CatSnapshotsResponseRow struct {
 // catSnapshotsResponseRowAliasesMap holds the global map for columns aliases
 // the map is used by CatSnapshotsService.buildURL.
 // For backwards compatibility some fields are able to have the same aliases
-// that means that one alias can be translated to different columns (from different elastic versions)
+// that means that one alias can be translated to different columns (from different opensearch versions)
 // example for understanding: rto -> RefreshTotal, RefreshExternalTotal
 var catSnapshotsResponseRowAliasesMap = map[string]string{
 	"snapshot": "id",

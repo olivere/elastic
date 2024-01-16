@@ -18,7 +18,7 @@ import (
 //
 //	or index/type.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-get-field-mapping.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/indices-get-field-mapping.html
 // for details.
 type IndicesGetFieldMappingService struct {
 	client *Client
@@ -51,7 +51,7 @@ func NewIndicesGetFieldMappingService(client *Client) *IndicesGetFieldMappingSer
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesGetFieldMappingService) Pretty(pretty bool) *IndicesGetFieldMappingService {
 	s.pretty = &pretty
 	return s

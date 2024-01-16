@@ -2,17 +2,17 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-// BulkInsert illustrates how to bulk insert documents into Elasticsearch.
+// BulkInsert illustrates how to bulk insert documents into Opensearch.
 //
 // It uses two goroutines to do so. The first creates a simple document
 // and sends it to the second via a channel. The second goroutine collects
 // those documents, creates a bulk request that is added to a Bulk service
-// and committed to Elasticsearch after reaching a number of documents.
+// and committed to Opensearch after reaching a number of documents.
 // The number of documents after which a commit happens can be specified
 // via the "bulk-size" flag.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html
-// for details on the Bulk API in Elasticsearch.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-bulk.html
+// for details on the Bulk API in Opensearch.
 //
 // # Example
 //
@@ -33,15 +33,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/disaster37/opensearch/v2"
+	"github.com/olivere/opensearch"
 	"golang.org/x/sync/errgroup"
 )
 
 func main() {
 	var (
-		url      = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
-		index    = flag.String("index", "", "Elasticsearch index name")
-		typ      = flag.String("type", "", "Elasticsearch type name")
+		url      = flag.String("url", "http://localhost:9200", "Opensearch URL")
+		index    = flag.String("index", "", "Opensearch index name")
+		typ      = flag.String("type", "", "Opensearch type name")
 		sniff    = flag.Bool("sniff", true, "Enable or disable sniffing")
 		n        = flag.Int("n", 0, "Number of documents to bulk insert")
 		bulkSize = flag.Int("bulk-size", 0, "Number of documents to collect before committing")
@@ -66,8 +66,8 @@ func main() {
 		log.Fatal("bulk-size must be a positive number")
 	}
 
-	// Create an Elasticsearch client
-	client, err := elastic.NewClient(elastic.SetURL(*url), elastic.SetSniff(*sniff))
+	// Create an Opensearch client
+	client, err := opensearch.NewClient(opensearch.SetURL(*url), opensearch.SetSniff(*sniff))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -128,7 +128,7 @@ func main() {
 			fmt.Printf("%10d | %6d req/s | %02d:%02d\r", current, pps, sec/60, sec%60)
 
 			// Enqueue the document
-			bulk.Add(elastic.NewBulkIndexRequest().Id(d.ID).Doc(d))
+			bulk.Add(opensearch.NewBulkIndexRequest().Id(d.ID).Doc(d))
 			if bulk.NumberOfActions() >= *bulkSize {
 				// Commit
 				res, err := bulk.Do(ctx)

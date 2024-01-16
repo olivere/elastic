@@ -109,7 +109,7 @@ func TestTransport(t *testing.T) {
 	}
 	span := spans[0]
 
-	if want, have := "elastic:PerformRequest", span.Name; want != have {
+	if want, have := "opensearch:PerformRequest", span.Name; want != have {
 		t.Fatalf("want Span.Name=%q, have %q", want, have)
 	}
 	if attr, ok := span.Attributes["Component"].(string); !ok {

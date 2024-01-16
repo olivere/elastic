@@ -9,19 +9,19 @@ import (
 	"encoding/json"
 	"testing"
 
-	elastic "github.com/disaster37/opensearch/v2"
+	opensearch "github.com/disaster37/opensearch/v2"
 )
 
 func ExampleWildcardQuery() {
-	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	// Get a client to the local Opensearch instance.
+	client, err := opensearch.NewClient()
 	if err != nil {
 		// Handle error
 		panic(err)
 	}
 
 	// Define wildcard query
-	q := elastic.NewWildcardQuery("user", "oli*er?").Boost(1.2)
+	q := opensearch.NewWildcardQuery("user", "oli*er?").Boost(1.2)
 	searchResult, err := client.Search().
 		Index("twitter").  // search in index "twitter"
 		Query(q).          // use wildcard query defined above
@@ -34,7 +34,7 @@ func ExampleWildcardQuery() {
 }
 
 func TestWildcardQuery(t *testing.T) {
-	q := elastic.NewWildcardQuery("user", "ki*y??")
+	q := opensearch.NewWildcardQuery("user", "ki*y??")
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -51,7 +51,7 @@ func TestWildcardQuery(t *testing.T) {
 }
 
 func TestWildcardQueryWithBoost(t *testing.T) {
-	q := elastic.NewWildcardQuery("user", "ki*y??").Boost(1.2)
+	q := opensearch.NewWildcardQuery("user", "ki*y??").Boost(1.2)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)
@@ -68,7 +68,7 @@ func TestWildcardQueryWithBoost(t *testing.T) {
 }
 
 func TestWildcardQueryWithCaseInsensitive(t *testing.T) {
-	q := elastic.NewWildcardQuery("user", "ki*y??").CaseInsensitive(true)
+	q := opensearch.NewWildcardQuery("user", "ki*y??").CaseInsensitive(true)
 	src, err := q.Source()
 	if err != nil {
 		t.Fatal(err)

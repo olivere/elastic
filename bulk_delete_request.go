@@ -14,9 +14,9 @@ import (
 
 // -- Bulk delete request --
 
-// BulkDeleteRequest is a request to remove a document from Elasticsearch.
+// BulkDeleteRequest is a request to remove a document from Opensearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-bulk.html
 // for details.
 type BulkDeleteRequest struct {
 	BulkableRequest
@@ -66,7 +66,7 @@ func (r *BulkDeleteRequest) UseEasyJSON(enable bool) *BulkDeleteRequest {
 	return r
 }
 
-// Index specifies the Elasticsearch index to use for this delete request.
+// Index specifies the Opensearch index to use for this delete request.
 // If unspecified, the index set on the BulkService will be used.
 func (r *BulkDeleteRequest) Index(index string) *BulkDeleteRequest {
 	r.index = index
@@ -74,7 +74,7 @@ func (r *BulkDeleteRequest) Index(index string) *BulkDeleteRequest {
 	return r
 }
 
-// Type specifies the Elasticsearch type to use for this delete request.
+// Type specifies the Opensearch type to use for this delete request.
 // If unspecified, the type set on the BulkService will be used.
 func (r *BulkDeleteRequest) Type(typ string) *BulkDeleteRequest {
 	r.typ = typ
@@ -146,7 +146,7 @@ func (r *BulkDeleteRequest) String() string {
 
 // Source returns the on-wire representation of the delete request,
 // split into an action-and-meta-data line and an (optional) source line.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-bulk.html
 // for details.
 func (r *BulkDeleteRequest) Source() ([]string, error) {
 	if r.source != nil {

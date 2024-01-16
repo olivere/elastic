@@ -6,7 +6,7 @@ package opensearch
 
 // SpanTermQuery matches spans containing a term. The span term query maps to Lucene SpanTermQuery.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.7/query-dsl-span-term-query.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.7/query-dsl-span-term-query.html
 // for details.
 type SpanTermQuery struct {
 	field     string

@@ -15,7 +15,7 @@ import (
 // CatMasterService shows information about the master node,
 // including the ID, bound IP address, and name.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.12/cat-master.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.12/cat-master.html
 // for details.
 type CatMasterService struct {
 	client *Client
@@ -39,7 +39,7 @@ func NewCatMasterService(client *Client) *CatMasterService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *CatMasterService) Pretty(pretty bool) *CatMasterService {
 	s.pretty = &pretty
 	return s

@@ -14,7 +14,7 @@ import (
 // expensive and you only need to calculate the score of a filtered set of documents.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.4/query-dsl-distance-feature-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.4/query-dsl-distance-feature-query.html
 type DistanceFeatureQuery struct {
 	field     string
 	pivot     string

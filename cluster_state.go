@@ -16,7 +16,7 @@ import (
 
 // ClusterStateService allows to get a comprehensive state information of the whole cluster.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cluster-state.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cluster-state.html
 // for details.
 type ClusterStateService struct {
 	client *Client
@@ -46,7 +46,7 @@ func NewClusterStateService(client *Client) *ClusterStateService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ClusterStateService) Pretty(pretty bool) *ClusterStateService {
 	s.pretty = &pretty
 	return s

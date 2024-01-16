@@ -13,7 +13,7 @@ type SuggesterContextQuery interface {
 }
 
 // ContextSuggester is a fast suggester for e.g. type-ahead completion that supports filtering and boosting based on contexts.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/suggester-context.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/suggester-context.html
 // for more details.
 type ContextSuggester struct {
 	Suggester
@@ -62,7 +62,7 @@ func (q *ContextSuggester) ContextQueries(queries ...SuggesterContextQuery) *Con
 }
 
 // contextSuggesterRequest is necessary because the order in which
-// the JSON elements are routed to Elasticsearch is relevant.
+// the JSON elements are routed to Opensearch is relevant.
 // We got into trouble when using plain maps because the text element
 // needs to go before the completion element.
 type contextSuggesterRequest struct {
@@ -105,7 +105,7 @@ func (q *ContextSuggester) Source(includeName bool) (interface{}, error) {
 			// Merge the dictionary into ctxq
 			m, ok := src.(map[string]interface{})
 			if !ok {
-				return nil, errors.New("elastic: context query is not a map")
+				return nil, errors.New("opensearch: context query is not a map")
 			}
 			for k, v := range m {
 				ctxq[k] = v

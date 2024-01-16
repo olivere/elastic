@@ -19,7 +19,7 @@ import (
 // documents provided in the body of the request.
 //
 // The API is documented at
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/simulate-pipeline-api.html.
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/simulate-pipeline-api.html.
 type IngestSimulatePipelineService struct {
 	client *Client
 
@@ -42,7 +42,7 @@ func NewIngestSimulatePipelineService(client *Client) *IngestSimulatePipelineSer
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IngestSimulatePipelineService) Pretty(pretty bool) *IngestSimulatePipelineService {
 	s.pretty = &pretty
 	return s

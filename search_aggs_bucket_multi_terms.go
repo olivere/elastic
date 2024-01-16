@@ -12,7 +12,7 @@ package opensearch
 // used, it would be more efficient to index a combined key for this fields
 // as a separate field and use the terms aggregation on this field.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.13/search-aggregations-bucket-multi-terms-aggregation.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.13/search-aggregations-bucket-multi-terms-aggregation.html
 type MultiTermsAggregation struct {
 	multiTerms      []MultiTerm
 	subAggregations map[string]Aggregation

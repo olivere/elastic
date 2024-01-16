@@ -17,7 +17,7 @@ func TestSpanNearQueryIntegration(t *testing.T) {
 		Query(
 			NewSpanNearQuery(
 				NewSpanTermQuery("message", "Golang"),
-				NewSpanTermQuery("message", "Elasticsearch"),
+				NewSpanTermQuery("message", "Opensearch"),
 			).Boost(2),
 		).
 		Pretty(true).

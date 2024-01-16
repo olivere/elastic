@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-// Connect simply connects to Elasticsearch.
+// Connect simply connects to Opensearch.
 //
 // # Example
 //
@@ -14,12 +14,12 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/disaster37/opensearch/v2"
+	"github.com/olivere/opensearch"
 )
 
 func main() {
 	var (
-		url   = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
+		url   = flag.String("url", "http://localhost:9200", "Opensearch URL")
 		sniff = flag.Bool("sniff", true, "Enable or disable sniffing")
 	)
 	flag.Parse()
@@ -29,8 +29,8 @@ func main() {
 		*url = "http://127.0.0.1:9200"
 	}
 
-	// Create an Elasticsearch client
-	client, err := elastic.NewClient(elastic.SetURL(*url), elastic.SetSniff(*sniff))
+	// Create an Opensearch client
+	client, err := opensearch.NewClient(opensearch.SetURL(*url), opensearch.SetSniff(*sniff))
 	if err != nil {
 		log.Fatal(err)
 	}

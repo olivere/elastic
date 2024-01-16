@@ -9,51 +9,53 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"reflect"
 	"time"
 
-	elastic "github.com/disaster37/opensearch/v2"
+	opensearch "github.com/disaster37/opensearch/v2"
+	"github.com/sirupsen/logrus"
 )
 
 type Tweet struct {
-	User     string                `json:"user"`
-	Message  string                `json:"message"`
-	Retweets int                   `json:"retweets"`
-	Image    string                `json:"image,omitempty"`
-	Created  time.Time             `json:"created,omitempty"`
-	Tags     []string              `json:"tags,omitempty"`
-	Location string                `json:"location,omitempty"`
-	Suggest  *elastic.SuggestField `json:"suggest_field,omitempty"`
+	User     string                   `json:"user"`
+	Message  string                   `json:"message"`
+	Retweets int                      `json:"retweets"`
+	Image    string                   `json:"image,omitempty"`
+	Created  time.Time                `json:"created,omitempty"`
+	Tags     []string                 `json:"tags,omitempty"`
+	Location string                   `json:"location,omitempty"`
+	Suggest  *opensearch.SuggestField `json:"suggest_field,omitempty"`
 }
 
 func Example() {
-	errorlog := log.New(os.Stdout, "APP ", log.LstdFlags)
+
+	log := logrus.New()
+	log.SetLevel(logrus.ErrorLevel)
 
 	// Obtain a client. You can also provide your own HTTP client here.
-	client, err := elastic.NewClient(elastic.SetErrorLog(errorlog))
+	client, err := opensearch.NewClient(opensearch.SetLogger(log))
 	// Trace request and response details like this
-	// client, err := elastic.NewClient(elastic.SetTraceLog(log.New(os.Stdout, "", 0)))
+	// client, err := opensearch.NewClient(opensearch.SetTraceLog(log.New(os.Stdout, "", 0)))
 	if err != nil {
 		// Handle error
 		panic(err)
 	}
 
-	// Ping the Elasticsearch server to get e.g. the version number
+	// Ping the Opensearch server to get e.g. the version number
 	info, code, err := client.Ping("http://127.0.0.1:9200").Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
 	}
-	fmt.Printf("Elasticsearch returned with code %d and version %s\n", code, info.Version.Number)
+	fmt.Printf("Opensearch returned with code %d and version %s\n", code, info.Version.Number)
 
 	// Getting the ES version number is quite common, so there's a shortcut
-	esversion, err := client.ElasticsearchVersion("http://127.0.0.1:9200")
+	esversion, err := client.OpensearchVersion("http://127.0.0.1:9200")
 	if err != nil {
 		// Handle error
 		panic(err)
 	}
-	fmt.Printf("Elasticsearch version %s\n", esversion)
+	fmt.Printf("Opensearch version %s\n", esversion)
 
 	// Use the IndexExists service to check if a specified index exists.
 	exists, err := client.IndexExists("twitter").Do(context.Background())
@@ -140,11 +142,11 @@ func Example() {
 		Do(context.Background())
 	if err != nil {
 		switch {
-		case elastic.IsNotFound(err):
+		case opensearch.IsNotFound(err):
 			panic(fmt.Sprintf("Document not found: %v", err))
-		case elastic.IsTimeout(err):
+		case opensearch.IsTimeout(err):
 			panic(fmt.Sprintf("Timeout retrieving document: %v", err))
-		case elastic.IsConnErr(err):
+		case opensearch.IsConnErr(err):
 			panic(fmt.Sprintf("Connection problem: %v", err))
 		default:
 			// Some other kind of error
@@ -160,7 +162,7 @@ func Example() {
 	}
 
 	// Search with a term query
-	termQuery := elastic.NewTermQuery("user", "olivere")
+	termQuery := opensearch.NewTermQuery("user", "olivere")
 	searchResult, err := client.Search().
 		Index("twitter").        // search in index "twitter"
 		Query(termQuery).        // specify the query
@@ -174,7 +176,7 @@ func Example() {
 	}
 
 	// searchResult is of type SearchResult and returns hits, suggestions,
-	// and all kinds of other information from Elasticsearch.
+	// and all kinds of other information from Opensearch.
 	fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
 	// Each is a convenience function that iterates over hits in a search result.
@@ -212,9 +214,9 @@ func Example() {
 		fmt.Print("Found no tweets\n")
 	}
 
-	// Update a tweet by the update API of Elasticsearch.
+	// Update a tweet by the update API of Opensearch.
 	// We just increment the number of retweets.
-	script := elastic.NewScript("ctx._source.retweets += params.num").Param("num", 1)
+	script := opensearch.NewScript("ctx._source.retweets += params.num").Param("num", 1)
 	update, err := client.Update().Index("twitter").Id("1").
 		Script(script).
 		Upsert(map[string]interface{}{"retweets": 0}).
@@ -239,8 +241,8 @@ func Example() {
 }
 
 func ExampleNewClient_default() {
-	// Obtain a client to the Elasticsearch instance on http://127.0.0.1:9200.
-	client, err := elastic.NewClient()
+	// Obtain a client to the Opensearch instance on http://127.0.0.1:9200.
+	client, err := opensearch.NewClient()
 	if err != nil {
 		// Handle error
 		fmt.Printf("connection failed: %v\n", err)
@@ -253,9 +255,9 @@ func ExampleNewClient_default() {
 }
 
 func ExampleNewClient_cluster() {
-	// Obtain a client for an Elasticsearch cluster of two nodes,
+	// Obtain a client for an Opensearch cluster of two nodes,
 	// running on 10.0.1.1 and 10.0.1.2.
-	client, err := elastic.NewClient(elastic.SetURL("http://10.0.1.1:9200", "http://10.0.1.2:9200"))
+	client, err := opensearch.NewClient(opensearch.SetURL("http://10.0.1.1:9200", "http://10.0.1.2:9200"))
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -264,18 +266,20 @@ func ExampleNewClient_cluster() {
 }
 
 func ExampleNewClient_manyOptions() {
-	// Obtain a client for an Elasticsearch cluster of two nodes,
+	// Obtain a client for an Opensearch cluster of two nodes,
 	// running on 10.0.1.1 and 10.0.1.2. Do not run the sniffer.
 	// Set the healthcheck interval to 10s. When requests fail,
 	// retry 5 times. Print error messages to os.Stderr and informational
 	// messages to os.Stdout.
-	client, err := elastic.NewClient(
-		elastic.SetURL("http://10.0.1.1:9200", "http://10.0.1.2:9200"),
-		elastic.SetSniff(false),
-		elastic.SetHealthcheckInterval(10*time.Second),
-		elastic.SetMaxRetries(5),
-		elastic.SetErrorLog(log.New(os.Stderr, "ELASTIC ", log.LstdFlags)),
-		elastic.SetInfoLog(log.New(os.Stdout, "", log.LstdFlags)))
+	log := logrus.New()
+	log.SetLevel(logrus.ErrorLevel)
+
+	client, err := opensearch.NewClient(
+		opensearch.SetURL("http://10.0.1.1:9200", "http://10.0.1.2:9200"),
+		opensearch.SetSniff(false),
+		opensearch.SetHealthcheckInterval(10*time.Second),
+		opensearch.SetMaxRetries(5),
+		opensearch.SetLogger(log))
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -284,8 +288,8 @@ func ExampleNewClient_manyOptions() {
 }
 
 func ExampleIndicesExistsService() {
-	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	// Get a client to the local Opensearch instance.
+	client, err := opensearch.NewClient()
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -302,8 +306,8 @@ func ExampleIndicesExistsService() {
 }
 
 func ExampleIndicesCreateService() {
-	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	// Get a client to the local Opensearch instance.
+	client, err := opensearch.NewClient()
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -320,8 +324,8 @@ func ExampleIndicesCreateService() {
 }
 
 func ExampleIndicesDeleteService() {
-	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	// Get a client to the local Opensearch instance.
+	client, err := opensearch.NewClient()
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -338,15 +342,15 @@ func ExampleIndicesDeleteService() {
 }
 
 func ExampleSearchService() {
-	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	// Get a client to the local Opensearch instance.
+	client, err := opensearch.NewClient()
 	if err != nil {
 		// Handle error
 		panic(err)
 	}
 
 	// Search with a term query
-	termQuery := elastic.NewTermQuery("user", "olivere")
+	termQuery := opensearch.NewTermQuery("user", "olivere")
 	searchResult, err := client.Search().
 		Index("twitter").        // search in index "twitter"
 		Query(termQuery).        // specify the query
@@ -360,7 +364,7 @@ func ExampleSearchService() {
 	}
 
 	// searchResult is of type SearchResult and returns hits, suggestions,
-	// and all kinds of other information from Elasticsearch.
+	// and all kinds of other information from Opensearch.
 	fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
 	// Number of hits
@@ -388,26 +392,26 @@ func ExampleSearchService() {
 }
 
 func ExampleAggregations() {
-	// Get a client to the local Elasticsearch instance.
-	client, err := elastic.NewClient()
+	// Get a client to the local Opensearch instance.
+	client, err := opensearch.NewClient()
 	if err != nil {
 		// Handle error
 		panic(err)
 	}
 
 	// Create an aggregation for users and a sub-aggregation for a date histogram of tweets (per year).
-	timeline := elastic.NewTermsAggregation().Field("user").Size(10).OrderByCountDesc()
-	histogram := elastic.NewDateHistogramAggregation().Field("created").CalendarInterval("year")
+	timeline := opensearch.NewTermsAggregation().Field("user").Size(10).OrderByCountDesc()
+	histogram := opensearch.NewDateHistogramAggregation().Field("created").CalendarInterval("year")
 	timeline = timeline.SubAggregation("history", histogram)
 
 	// Search with a term query
 	searchResult, err := client.Search().
-		Index("twitter").                  // search in index "twitter"
-		Query(elastic.NewMatchAllQuery()). // return all results, but ...
-		SearchType("count").               // ... do not return hits, just the count
-		Aggregation("timeline", timeline). // add our aggregation to the query
-		Pretty(true).                      // pretty print request and response JSON
-		Do(context.Background())           // execute
+		Index("twitter").                     // search in index "twitter"
+		Query(opensearch.NewMatchAllQuery()). // return all results, but ...
+		SearchType("count").                  // ... do not return hits, just the count
+		Aggregation("timeline", timeline).    // add our aggregation to the query
+		Pretty(true).                         // pretty print request and response JSON
+		Do(context.Background())              // execute
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -437,19 +441,19 @@ func ExampleAggregations() {
 }
 
 func ExampleSearchResult() {
-	client, err := elastic.NewClient()
+	client, err := opensearch.NewClient()
 	if err != nil {
 		panic(err)
 	}
 
 	// Do a search
-	searchResult, err := client.Search().Index("twitter").Query(elastic.NewMatchAllQuery()).Do(context.Background())
+	searchResult, err := client.Search().Index("twitter").Query(opensearch.NewMatchAllQuery()).Do(context.Background())
 	if err != nil {
 		panic(err)
 	}
 
 	// searchResult is of type SearchResult and returns hits, suggestions,
-	// and all kinds of other information from Elasticsearch.
+	// and all kinds of other information from Opensearch.
 	fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 
 	// Each is a utility function that iterates over hits in a search result.
@@ -488,7 +492,7 @@ func ExampleSearchResult() {
 }
 
 func ExampleClusterHealthService() {
-	client, err := elastic.NewClient()
+	client, err := opensearch.NewClient()
 	if err != nil {
 		panic(err)
 	}
@@ -505,7 +509,7 @@ func ExampleClusterHealthService() {
 }
 
 func ExampleClusterHealthService_WaitForStatus() {
-	client, err := elastic.NewClient()
+	client, err := opensearch.NewClient()
 	if err != nil {
 		panic(err)
 	}
@@ -523,7 +527,7 @@ func ExampleClusterHealthService_WaitForStatus() {
 }
 
 func ExampleClusterStateService() {
-	client, err := elastic.NewClient()
+	client, err := opensearch.NewClient()
 	if err != nil {
 		panic(err)
 	}

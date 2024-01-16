@@ -332,7 +332,7 @@ func TestSearchSorting(t *testing.T) {
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
-		Message: "Welcome to Golang and Elasticsearch.",
+		Message: "Welcome to Golang and Opensearch.",
 		Created: time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{
@@ -405,7 +405,7 @@ func TestSearchSortingBySorters(t *testing.T) {
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
-		Message: "Welcome to Golang and Elasticsearch.",
+		Message: "Welcome to Golang and Opensearch.",
 		Created: time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{
@@ -477,7 +477,7 @@ func TestSearchSpecificFields(t *testing.T) {
 	// client := setupTestClientAndCreateIndexAndLog(t, SetTraceLog(log.New(os.Stdout, "", 0)))
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Retweets: 1, Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Retweets: 1, Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "olivere", Retweets: 2, Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Retweets: 3, Message: "Cycling is fun."}
 	tweets := []tweet{
@@ -602,7 +602,7 @@ func TestSearchExplain(t *testing.T) {
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
-		Message: "Welcome to Golang and Elasticsearch.",
+		Message: "Welcome to Golang and Opensearch.",
 		Created: time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{
@@ -680,7 +680,7 @@ func TestSearchSource(t *testing.T) {
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
-		Message: "Welcome to Golang and Elasticsearch.",
+		Message: "Welcome to Golang and Opensearch.",
 		Created: time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{
@@ -742,7 +742,7 @@ func TestSearchSourceWithString(t *testing.T) {
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
-		Message: "Welcome to Golang and Elasticsearch.",
+		Message: "Welcome to Golang and Opensearch.",
 		Created: time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{
@@ -798,7 +798,7 @@ func TestSearchRawString(t *testing.T) {
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
-		Message: "Welcome to Golang and Elasticsearch.",
+		Message: "Welcome to Golang and Opensearch.",
 		Created: time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{
@@ -854,7 +854,7 @@ func TestSearchSearchSource(t *testing.T) {
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
-		Message: "Welcome to Golang and Elasticsearch.",
+		Message: "Welcome to Golang and Opensearch.",
 		Created: time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{
@@ -933,7 +933,7 @@ func TestSearchInnerHitsOnHasChild(t *testing.T) {
 	}
 
 	// Add documents
-	// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/parent-join.html for example code.
+	// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/parent-join.html for example code.
 	doc1 := joinDoc{
 		Message:   "This is a question",
 		JoinField: &joinField{Name: "question"},
@@ -1046,7 +1046,7 @@ func TestSearchInnerHitsOnHasParent(t *testing.T) {
 	}
 
 	// Add documents
-	// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/parent-join.html for example code.
+	// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/parent-join.html for example code.
 	doc1 := joinDoc{
 		Message:   "This is a question",
 		JoinField: &joinField{Name: "question"},
@@ -1192,7 +1192,7 @@ func TestSearchInnerHitsOnNested(t *testing.T) {
 	}
 
 	// Add documents
-	// See https://www.elastic.co/guide/en/elasticsearch/reference/7.9/inner-hits.html#nested-inner-hits for example code.
+	// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/inner-hits.html#nested-inner-hits for example code.
 	type comment struct {
 		Author string `json:"author"`
 		Number int    `json:"number"`
@@ -1291,7 +1291,7 @@ func TestSearchInnerHitsOnNestedHierarchy(t *testing.T) {
 	}
 
 	// Add documents
-	// See https://www.elastic.co/guide/en/elasticsearch/reference/7.9/inner-hits.html#hierarchical-nested-inner-hits for example code.
+	// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.9/inner-hits.html#hierarchical-nested-inner-hits for example code.
 	type vote struct {
 		Voter string `json:"voter"`
 		Value int    `json:"value"`
@@ -1485,7 +1485,7 @@ func TestSearchAfter(t *testing.T) {
 
 	tweet1 := tweet{
 		User: "olivere", Retweets: 108,
-		Message: "Welcome to Golang and Elasticsearch.",
+		Message: "Welcome to Golang and Opensearch.",
 		Created: time.Date(2012, 12, 12, 17, 38, 34, 0, time.UTC),
 	}
 	tweet2 := tweet{
@@ -1658,7 +1658,7 @@ func TestSearchScriptQuery(t *testing.T) {
 	//	String username = doc['user'].value;
 	//	return username == 'olivere'
 	//`)
-	// See https://www.elastic.co/guide/en/elasticsearch/painless/6.7/painless-examples.html
+	// See https://www.opensearch.co/guide/en/opensearchsearch/painless/6.7/painless-examples.html
 	script := NewScript("doc['user'].value == 'olivere'")
 	query := NewScriptQuery(script)
 
@@ -1727,9 +1727,9 @@ func TestSearchWithDateMathIndices(t *testing.T) {
 
 	ctx := context.Background()
 	now := time.Now().UTC()
-	indexNameToday := fmt.Sprintf("elastic-trail-%s", now.Format("2006.01.02"))
-	indexNameYesterday := fmt.Sprintf("elastic-trail-%s", now.AddDate(0, 0, -1).Format("2006.01.02"))
-	indexNameTomorrow := fmt.Sprintf("elastic-trail-%s", now.AddDate(0, 0, +1).Format("2006.01.02"))
+	indexNameToday := fmt.Sprintf("opensearch-trail-%s", now.Format("2006.01.02"))
+	indexNameYesterday := fmt.Sprintf("opensearch-trail-%s", now.AddDate(0, 0, -1).Format("2006.01.02"))
+	indexNameTomorrow := fmt.Sprintf("opensearch-trail-%s", now.AddDate(0, 0, +1).Format("2006.01.02"))
 
 	const mapping = `{
 	"settings":{
@@ -1769,7 +1769,7 @@ func TestSearchWithDateMathIndices(t *testing.T) {
 
 	// Match all should return all documents
 	res, err := client.Search().
-		Index("<elastic-trail-{now/d}>", "<elastic-trail-{now-1d/d}>").
+		Index("<opensearch-trail-{now/d}>", "<opensearch-trail-{now-1d/d}>").
 		Query(NewMatchAllQuery()).
 		Pretty(true).
 		Do(ctx)

@@ -4,7 +4,7 @@ This directory contains a program you can use to test a cluster.
 
 Here's how:
 
-First, install a cluster of Elasticsearch nodes. You can install them on
+First, install a cluster of Opensearch nodes. You can install them on
 different computers, or start several nodes on a single machine.
 
 Build cluster-test by `go build cluster-test.go` (or build with `make`).
@@ -54,7 +54,7 @@ chaos monkey script like this and run it on the nodes of your cluster:
 while true
 do
 	echo "Starting ES node"
-	elasticsearch -d -Xmx4g -Xms1g -Des.config=elasticsearch.yml -p es.pid
+	opensearchsearch -d -Xmx4g -Xms1g -Des.config=opensearchsearch.yml -p es.pid
 	sleep `jot -r 1 10 300` # wait for 10-300s
 	echo "Stopping ES node"
 	kill -TERM `cat es.pid`

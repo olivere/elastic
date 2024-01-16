@@ -12,9 +12,9 @@ import (
 	"strings"
 )
 
-// BulkIndexRequest is a request to add or replace a document to Elasticsearch.
+// BulkIndexRequest is a request to add or replace a document to Opensearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-bulk.html
 // for details.
 type BulkIndexRequest struct {
 	BulkableRequest
@@ -74,7 +74,7 @@ func (r *BulkIndexRequest) UseEasyJSON(enable bool) *BulkIndexRequest {
 	return r
 }
 
-// Index specifies the Elasticsearch index to use for this index request.
+// Index specifies the Opensearch index to use for this index request.
 // If unspecified, the index set on the BulkService will be used.
 func (r *BulkIndexRequest) Index(index string) *BulkIndexRequest {
 	r.index = index
@@ -82,7 +82,7 @@ func (r *BulkIndexRequest) Index(index string) *BulkIndexRequest {
 	return r
 }
 
-// Type specifies the Elasticsearch type to use for this index request.
+// Type specifies the Opensearch type to use for this index request.
 // If unspecified, the type set on the BulkService will be used.
 func (r *BulkIndexRequest) Type(typ string) *BulkIndexRequest {
 	r.typ = typ
@@ -99,7 +99,7 @@ func (r *BulkIndexRequest) Id(id string) *BulkIndexRequest {
 
 // OpType specifies if this request should follow create-only or upsert
 // behavior. This follows the OpType of the standard document index API.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-index_.html#operation-type
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-index_.html#operation-type
 // for details.
 func (r *BulkIndexRequest) OpType(opType string) *BulkIndexRequest {
 	r.opType = opType
@@ -133,7 +133,7 @@ func (r *BulkIndexRequest) Version(version int64) *BulkIndexRequest {
 // VersionType specifies how versions are created. It can be e.g. internal,
 // external, external_gte, or force.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-index_.html#index-versioning
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-index_.html#index-versioning
 // for details.
 func (r *BulkIndexRequest) VersionType(versionType string) *BulkIndexRequest {
 	r.versionType = versionType
@@ -188,7 +188,7 @@ func (r *BulkIndexRequest) String() string {
 
 // Source returns the on-wire representation of the index request,
 // split into an action-and-meta-data line and an (optional) source line.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-bulk.html
 // for details.
 func (r *BulkIndexRequest) Source() ([]string, error) {
 	// { "index" : { "_index" : "test", "_type" : "type1", "_id" : "1" } }

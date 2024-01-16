@@ -19,7 +19,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/disaster37/opensearch/v2"
+	"github.com/olivere/opensearch"
 )
 
 const (
@@ -57,7 +57,7 @@ type Doc struct {
 
 func main() {
 	var (
-		url   = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
+		url   = flag.String("url", "http://localhost:9200", "Opensearch URL")
 		sniff = flag.Bool("sniff", true, "Enable or disable sniffing")
 		index = flag.String("index", "", "Index name")
 		trace = flag.Bool("trace", false, "Enable or disable trace output")
@@ -72,17 +72,17 @@ func main() {
 		log.Fatal("please specify an index name -index")
 	}
 
-	// Create an Elasticsearch client
-	options := []elastic.ClientOptionFunc{
-		elastic.SetURL(*url),
-		elastic.SetSniff(*sniff),
+	// Create an Opensearch client
+	options := []opensearch.ClientOptionFunc{
+		opensearch.SetURL(*url),
+		opensearch.SetSniff(*sniff),
 	}
 	if *trace {
-		options = append(options, elastic.SetTraceLog(
+		options = append(options, opensearch.SetTraceLog(
 			log.New(os.Stdout, "", 0),
 		))
 	}
-	client, err := elastic.NewClient(options...)
+	client, err := opensearch.NewClient(options...)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -112,7 +112,7 @@ func main() {
 			{
 				ID:    "one",
 				User:  "olivere",
-				Title: "Go and Elasticsearch.",
+				Title: "Go and Opensearch.",
 			},
 			{
 				ID:    "two",
@@ -164,7 +164,7 @@ func main() {
 	{
 		resp, err := client.Search().
 			Index(*index).
-			Query(elastic.NewTermQuery("user", "salt")).
+			Query(opensearch.NewTermQuery("user", "salt")).
 			Do(context.TODO())
 		if err != nil {
 			log.Fatal(err)
@@ -189,7 +189,7 @@ func main() {
 	{
 		resp, err := client.Search().
 			Index(*index).
-			Query(elastic.NewMatchQuery("title", "Amsterdam")).
+			Query(opensearch.NewMatchQuery("title", "Amsterdam")).
 			Do(context.TODO())
 		if err != nil {
 			log.Fatal(err)
@@ -213,7 +213,7 @@ func main() {
 	{
 		resp, err := client.Search().
 			Index(*index).
-			Query(elastic.NewTermQuery("title", "Amsterdam")).
+			Query(opensearch.NewTermQuery("title", "Amsterdam")).
 			Do(context.TODO())
 		if err != nil {
 			log.Fatal(err)
@@ -233,7 +233,7 @@ func main() {
 	{
 		resp, err := client.Search().
 			Index(*index).
-			Query(elastic.NewMatchQuery("title.keyword", "Amsterdam is nice.")).
+			Query(opensearch.NewMatchQuery("title.keyword", "Amsterdam is nice.")).
 			Do(context.TODO())
 		if err != nil {
 			log.Fatal(err)

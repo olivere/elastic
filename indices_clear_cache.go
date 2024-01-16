@@ -17,7 +17,7 @@ import (
 // IndicesClearCacheService allows to clear either all caches or specific cached associated
 // with one or more indices.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-clearcache.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.6/indices-clearcache.html
 // for details.
 type IndicesClearCacheService struct {
 	client *Client
@@ -44,7 +44,7 @@ func NewIndicesClearCacheService(client *Client) *IndicesClearCacheService {
 	return &IndicesClearCacheService{client: client}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesClearCacheService) Pretty(pretty bool) *IndicesClearCacheService {
 	s.pretty = &pretty
 	return s

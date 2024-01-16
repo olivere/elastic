@@ -9,7 +9,7 @@ package opensearch
 // IntervalQuery. An extra method is added just to shield its
 // implementations (*Rule objects) from other query objects.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.5/query-dsl-intervals-query.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.5/query-dsl-intervals-query.html
 // for details.
 type IntervalQueryRule interface {
 	Query
@@ -22,7 +22,7 @@ type IntervalQueryRule interface {
 // IntervalQuery returns documents based on the order and proximity of matching terms.
 //
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.5/query-dsl-intervals-query.html
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.5/query-dsl-intervals-query.html
 type IntervalQuery struct {
 	field string
 	rule  IntervalQueryRule

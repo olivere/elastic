@@ -16,8 +16,8 @@ import (
 
 // IndicesUnfreezeService unfreezes an index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/unfreeze-index-api.html
-// and https://www.elastic.co/blog/creating-frozen-indices-with-the-elasticsearch-freeze-index-api
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/unfreeze-index-api.html
+// and https://www.opensearch.co/blog/creating-frozen-indices-with-the-opensearchsearch-freeze-index-api
 // for details.
 //
 // Deprecated: Frozen indices are deprecated because they provide no benefit
@@ -47,7 +47,7 @@ func NewIndicesUnfreezeService(client *Client) *IndicesUnfreezeService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesUnfreezeService) Pretty(pretty bool) *IndicesUnfreezeService {
 	s.pretty = &pretty
 	return s

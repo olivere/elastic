@@ -7,7 +7,7 @@ var (
 // IntervalQueryFilter specifies filters used in some
 // IntervalQueryRule implementations, e.g. IntervalQueryRuleAllOf.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.5/query-dsl-intervals-query.html#interval_filter
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.5/query-dsl-intervals-query.html#interval_filter
 // for details.
 type IntervalQueryFilter struct {
 	after          IntervalQueryRule

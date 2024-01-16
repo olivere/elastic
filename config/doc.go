@@ -3,7 +3,7 @@
 // See http://olivere.mit-license.org/license.txt for details.
 
 /*
-Package config allows parsing a configuration for Elasticsearch
+Package config allows parsing a configuration for Opensearch
 from a URL.
 */
 package config

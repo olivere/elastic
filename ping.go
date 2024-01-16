@@ -14,9 +14,9 @@ import (
 	"strings"
 )
 
-// PingService checks if an Elasticsearch server on a given URL is alive.
+// PingService checks if an Opensearch server on a given URL is alive.
 // When asked for, it can also return various information about the
-// Elasticsearch server, e.g. the Elasticsearch version number.
+// Opensearch server, e.g. the Opensearch version number.
 //
 // Ping simply starts a HTTP GET request to the URL of the server.
 // If the server responds with HTTP Status code 200 OK, the server is alive.
@@ -34,7 +34,7 @@ type PingService struct {
 	httpHeadOnly bool
 }
 
-// PingResult is the result returned from querying the Elasticsearch server.
+// PingResult is the result returned from querying the Opensearch server.
 type PingResult struct {
 	Name        string `json:"name"`
 	ClusterName string `json:"cluster_name"`
@@ -60,7 +60,7 @@ func NewPingService(client *Client) *PingService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *PingService) Pretty(pretty bool) *PingService {
 	s.pretty = &pretty
 	return s
@@ -117,7 +117,7 @@ func (s *PingService) HttpHeadOnly(httpHeadOnly bool) *PingService {
 	return s
 }
 
-// Do returns the PingResult, the HTTP status code of the Elasticsearch
+// Do returns the PingResult, the HTTP status code of the Opensearch
 // server, and an error.
 func (s *PingService) Do(ctx context.Context) (*PingResult, int, error) {
 	s.client.mu.RLock()
@@ -179,7 +179,7 @@ func (s *PingService) Do(ctx context.Context) (*PingResult, int, error) {
 	}
 
 	if req.Header.Get("User-Agent") == "" {
-		req.Header.Add("User-Agent", "elastic/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
+		req.Header.Add("User-Agent", "opensearch/"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 	}
 
 	res, err := s.client.c.Do((*http.Request)(req).WithContext(ctx))

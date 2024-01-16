@@ -17,7 +17,7 @@ import (
 // CatIndicesService returns the list of indices plus some additional
 // information about them.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cat-indices.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cat-indices.html
 // for details.
 type CatIndicesService struct {
 	client *Client
@@ -45,7 +45,7 @@ func NewCatIndicesService(client *Client) *CatIndicesService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *CatIndicesService) Pretty(pretty bool) *CatIndicesService {
 	s.pretty = &pretty
 	return s
@@ -393,7 +393,7 @@ type CatIndicesResponseRow struct {
 // catIndicesResponseRowAliasesMap holds the global map for columns aliases
 // the map is used by CatIndicesService.buildURL
 // for backwards compatibility some fields are able to have the same aliases
-// that means that one alias can be translated to different columns (from different elastic versions)
+// that means that one alias can be translated to different columns (from different opensearch versions)
 // example for understanding: rto -> RefreshTotal, RefreshExternalTotal
 var catIndicesResponseRowAliasesMap = map[string]string{
 	"qce":                       "query_cache.evictions",

@@ -97,7 +97,7 @@ func testClusterRerouteWithCommands(client *Client, t *testing.T) {
 	}
 	e, ok := err.(*Error)
 	if !ok {
-		t.Fatalf("expected an error of type *elastic.Error, got %T", err)
+		t.Fatalf("expected an error of type *opensearch.Error, got %T", err)
 	}
 	if want, have := 400, e.Status; want != have {
 		t.Fatalf("expected Status=%d, have %d", want, have)

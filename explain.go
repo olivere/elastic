@@ -16,7 +16,7 @@ import (
 
 // ExplainService computes a score explanation for a query and
 // a specific document.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-explain.html.
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-explain.html.
 type ExplainService struct {
 	client *Client
 
@@ -60,7 +60,7 @@ func NewExplainService(client *Client) *ExplainService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ExplainService) Pretty(pretty bool) *ExplainService {
 	s.pretty = &pretty
 	return s

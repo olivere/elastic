@@ -9,7 +9,7 @@ package opensearch
 // and are not frequent. Conceptually, this is like a terms aggregation that
 // is sorted by _count ascending.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-rare-terms-aggregation.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/current/search-aggregations-bucket-rare-terms-aggregation.html
 // for details.
 type RareTermsAggregation struct {
 	field           string

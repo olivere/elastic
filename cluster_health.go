@@ -16,7 +16,7 @@ import (
 
 // ClusterHealthService allows to get a very simple status on the health of the cluster.
 //
-// See http://www.elastic.co/guide/en/elasticsearch/reference/7.0/cluster-health.html
+// See http://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cluster-health.html
 // for details.
 type ClusterHealthService struct {
 	client *Client
@@ -46,7 +46,7 @@ func NewClusterHealthService(client *Client) *ClusterHealthService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ClusterHealthService) Pretty(pretty bool) *ClusterHealthService {
 	s.pretty = &pretty
 	return s

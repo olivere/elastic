@@ -36,7 +36,7 @@ func NewMultiSearchService(client *Client) *MultiSearchService {
 	return builder
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *MultiSearchService) Pretty(pretty bool) *MultiSearchService {
 	s.pretty = &pretty
 	return s

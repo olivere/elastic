@@ -6,7 +6,7 @@ package opensearch
 
 // TermSuggester suggests terms based on edit distance.
 // For more details, see
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters-term.html.
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-suggesters-term.html.
 type TermSuggester struct {
 	Suggester
 	name           string
@@ -127,7 +127,7 @@ func (q *TermSuggester) MinDocFreq(minDocFreq float64) *TermSuggester {
 }
 
 // termSuggesterRequest is necessary because the order in which
-// the JSON elements are routed to Elasticsearch is relevant.
+// the JSON elements are routed to Opensearch is relevant.
 // We got into trouble when using plain maps because the text element
 // needs to go before the term element.
 type termSuggesterRequest struct {

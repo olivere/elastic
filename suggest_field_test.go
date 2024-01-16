@@ -11,7 +11,7 @@ import (
 
 func TestSuggestField(t *testing.T) {
 	field := NewSuggestField().
-		Input("Welcome to Golang and Elasticsearch.", "Golang and Elasticsearch").
+		Input("Welcome to Golang and Opensearch.", "Golang and Opensearch").
 		Weight(1).
 		ContextQuery(
 			NewSuggesterCategoryMapping("color").FieldName("color_field").DefaultValues("red", "green", "blue"),
@@ -22,7 +22,7 @@ func TestSuggestField(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"contexts":{"color":{"default":["red","green","blue"],"path":"color_field","type":"category"},"location":{"default":{"lat":52.516275,"lon":13.377704},"neighbors":true,"precision":["5m"],"type":"geo"}},"input":["Welcome to Golang and Elasticsearch.","Golang and Elasticsearch"],"weight":1}`
+	expected := `{"contexts":{"color":{"default":["red","green","blue"],"path":"color_field","type":"category"},"location":{"default":{"lat":52.516275,"lon":13.377704},"neighbors":true,"precision":["5m"],"type":"geo"}},"input":["Welcome to Golang and Opensearch.","Golang and Opensearch"],"weight":1}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

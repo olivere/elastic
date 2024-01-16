@@ -12,9 +12,9 @@ import (
 	"strings"
 )
 
-// BulkUpdateRequest is a request to update a document in Elasticsearch.
+// BulkUpdateRequest is a request to update a document in Opensearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-bulk.html
 // for details.
 type BulkUpdateRequest struct {
 	BulkableRequest
@@ -86,7 +86,7 @@ func (r *BulkUpdateRequest) UseEasyJSON(enable bool) *BulkUpdateRequest {
 	return r
 }
 
-// Index specifies the Elasticsearch index to use for this update request.
+// Index specifies the Opensearch index to use for this update request.
 // If unspecified, the index set on the BulkService will be used.
 func (r *BulkUpdateRequest) Index(index string) *BulkUpdateRequest {
 	r.index = index
@@ -94,7 +94,7 @@ func (r *BulkUpdateRequest) Index(index string) *BulkUpdateRequest {
 	return r
 }
 
-// Type specifies the Elasticsearch type to use for this update request.
+// Type specifies the Opensearch type to use for this update request.
 // If unspecified, the type set on the BulkService will be used.
 func (r *BulkUpdateRequest) Type(typ string) *BulkUpdateRequest {
 	r.typ = typ
@@ -124,8 +124,8 @@ func (r *BulkUpdateRequest) Parent(parent string) *BulkUpdateRequest {
 }
 
 // Script specifies an update script.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html#bulk-update
-// and https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-scripting.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-bulk.html#bulk-update
+// and https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/modules-scripting.html
 // for details.
 func (r *BulkUpdateRequest) Script(script *Script) *BulkUpdateRequest {
 	r.script = script
@@ -136,7 +136,7 @@ func (r *BulkUpdateRequest) Script(script *Script) *BulkUpdateRequest {
 // ScripedUpsert specifies if your script will run regardless of
 // whether the document exists or not.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-update.html#_literal_scripted_upsert_literal
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-update.html#_literal_scripted_upsert_literal
 func (r *BulkUpdateRequest) ScriptedUpsert(upsert bool) *BulkUpdateRequest {
 	r.scriptedUpsert = &upsert
 	r.source = nil
@@ -190,7 +190,7 @@ func (r *BulkUpdateRequest) Doc(doc interface{}) *BulkUpdateRequest {
 // DocAsUpsert indicates whether the contents of Doc should be used as
 // the Upsert value.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-update.html#_literal_doc_as_upsert_literal
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-update.html#_literal_doc_as_upsert_literal
 // for details.
 func (r *BulkUpdateRequest) DocAsUpsert(docAsUpsert bool) *BulkUpdateRequest {
 	r.docAsUpsert = &docAsUpsert
@@ -200,7 +200,7 @@ func (r *BulkUpdateRequest) DocAsUpsert(docAsUpsert bool) *BulkUpdateRequest {
 
 // DetectNoop specifies whether changes that don't affect the document
 // should be ignored (true) or unignored (false). This is enabled by default
-// in Elasticsearch.
+// in Opensearch.
 func (r *BulkUpdateRequest) DetectNoop(detectNoop bool) *BulkUpdateRequest {
 	r.detectNoop = &detectNoop
 	r.source = nil
@@ -215,7 +215,7 @@ func (r *BulkUpdateRequest) Upsert(doc interface{}) *BulkUpdateRequest {
 	return r
 }
 
-// ReturnSource specifies whether Elasticsearch should return the source
+// ReturnSource specifies whether Opensearch should return the source
 // after the update. In the request, this responds to the `_source` field.
 // It is false by default.
 func (r *BulkUpdateRequest) ReturnSource(source bool) *BulkUpdateRequest {
@@ -236,7 +236,7 @@ func (r *BulkUpdateRequest) String() string {
 
 // Source returns the on-wire representation of the update request,
 // split into an action-and-meta-data line and an (optional) source line.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-bulk.html
 // for details.
 func (r *BulkUpdateRequest) Source() ([]string, error) {
 	// { "update" : { "_index" : "test", "_type" : "type1", "_id" : "1", ... } }

@@ -53,7 +53,7 @@ func NewTransport(opts ...Option) *Transport {
 // RoundTrip captures the request and starts an OpenTracing span
 // for Elastic PerformRequest operation.
 func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	_, span := trace.StartSpan(req.Context(), "elastic:PerformRequest")
+	_, span := trace.StartSpan(req.Context(), "opensearch:PerformRequest")
 	attrs := append([]trace.Attribute(nil), t.defaultAttributes...)
 	attrs = append(attrs,
 		trace.StringAttribute("Component", "github.com/disaster37/opensearch/v2"),
@@ -109,14 +109,14 @@ func setSpanStatus(span *trace.Span, err error) {
 	span.SetStatus(status)
 }
 
-// Copied from elastic to prevent cyclic dependencies.
-type elasticError struct {
+// Copied from opensearch to prevent cyclic dependencies.
+type opensearchError struct {
 	Status  int           `json:"status"`
 	Details *errorDetails `json:"error,omitempty"`
 }
 
-// errorDetails encapsulate error details from Elasticsearch.
-// It is used in e.g. elastic.Error and elastic.BulkResponseItem.
+// errorDetails encapsulate error details from Opensearch.
+// It is used in e.g. opensearch.Error and opensearch.BulkResponseItem.
 type errorDetails struct {
 	Type         string                   `json:"type"`
 	Reason       string                   `json:"reason"`
@@ -131,11 +131,11 @@ type errorDetails struct {
 }
 
 // Error returns a string representation of the error.
-func (e *elasticError) Error() string {
+func (e *opensearchError) Error() string {
 	if e.Details != nil && e.Details.Reason != "" {
-		return fmt.Sprintf("elastic: Error %d (%s): %s [type=%s]", e.Status, http.StatusText(e.Status), e.Details.Reason, e.Details.Type)
+		return fmt.Sprintf("opensearch: Error %d (%s): %s [type=%s]", e.Status, http.StatusText(e.Status), e.Details.Reason, e.Details.Type)
 	}
-	return fmt.Sprintf("elastic: Error %d (%s)", e.Status, http.StatusText(e.Status))
+	return fmt.Sprintf("opensearch: Error %d (%s)", e.Status, http.StatusText(e.Status))
 }
 
 // isContextErr returns true if the error is from a context that was canceled or deadline exceeded
@@ -155,65 +155,65 @@ func isContextErr(err error) bool {
 }
 
 // isConnErr returns true if the error indicates that Elastic could not
-// find an Elasticsearch host to connect to.
+// find an Opensearch host to connect to.
 func isConnErr(err error) bool {
 	if err == nil {
 		return false
 	}
-	if err.Error() == "no Elasticsearch node available" {
+	if err.Error() == "no Opensearch node available" {
 		return true
 	}
 	innerErr := errors.Cause(err)
 	if innerErr == nil {
 		return false
 	}
-	if innerErr.Error() == "no Elasticsearch node available" {
+	if innerErr.Error() == "no Opensearch node available" {
 		return true
 	}
 	return false
 }
 
-// isNotFound returns true if the given error indicates that Elasticsearch
-// returned HTTP status 404. The err parameter can be of type *elastic.Error,
-// elastic.Error, *http.Response or int (indicating the HTTP status code).
+// isNotFound returns true if the given error indicates that Opensearch
+// returned HTTP status 404. The err parameter can be of type *opensearch.Error,
+// opensearch.Error, *http.Response or int (indicating the HTTP status code).
 func isNotFound(err interface{}) bool {
 	return isStatusCode(err, http.StatusNotFound)
 }
 
-// isTimeout returns true if the given error indicates that Elasticsearch
-// returned HTTP status 408. The err parameter can be of type *elastic.Error,
-// elastic.Error, *http.Response or int (indicating the HTTP status code).
+// isTimeout returns true if the given error indicates that Opensearch
+// returned HTTP status 408. The err parameter can be of type *opensearch.Error,
+// opensearch.Error, *http.Response or int (indicating the HTTP status code).
 func isTimeout(err interface{}) bool {
 	return isStatusCode(err, http.StatusRequestTimeout)
 }
 
-// isConflict returns true if the given error indicates that the Elasticsearch
+// isConflict returns true if the given error indicates that the Opensearch
 // operation resulted in a version conflict. This can occur in operations like
 // `update` or `index` with `op_type=create`. The err parameter can be of
-// type *elastic.Error, elastic.Error, *http.Response or int (indicating the
+// type *opensearch.Error, opensearch.Error, *http.Response or int (indicating the
 // HTTP status code).
 func isConflict(err interface{}) bool {
 	return isStatusCode(err, http.StatusConflict)
 }
 
-// isForbidden returns true if the given error indicates that Elasticsearch
+// isForbidden returns true if the given error indicates that Opensearch
 // returned HTTP status 403. This happens e.g. due to a missing license.
-// The err parameter can be of type *elastic.Error, elastic.Error,
+// The err parameter can be of type *opensearch.Error, opensearch.Error,
 // *http.Response or int (indicating the HTTP status code).
 func isForbidden(err interface{}) bool {
 	return isStatusCode(err, http.StatusForbidden)
 }
 
-// isStatusCode returns true if the given error indicates that the Elasticsearch
+// isStatusCode returns true if the given error indicates that the Opensearch
 // operation returned the specified HTTP status code. The err parameter can be of
 // type *http.Response, *Error, Error, or int (indicating the HTTP status code).
 func isStatusCode(err interface{}, code int) bool {
 	switch e := err.(type) {
 	case *http.Response:
 		return e.StatusCode == code
-	case *elasticError:
+	case *opensearchError:
 		return e.Status == code
-	case elasticError:
+	case opensearchError:
 		return e.Status == code
 	case int:
 		return e == code

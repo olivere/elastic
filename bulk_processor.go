@@ -16,7 +16,7 @@ import (
 var (
 	// ErrBulkItemRetry is returned in BulkProcessor from a worker when
 	// a response item needs to be retried.
-	ErrBulkItemRetry = errors.New("elastic: uncommitted bulk response items")
+	ErrBulkItemRetry = errors.New("opensearch: uncommitted bulk response items")
 
 	defaultRetryItemStatusCodes = []int{408, 429, 503, 507}
 )
@@ -38,8 +38,8 @@ var (
 // bulk request added to BulkProcessorService.
 //
 // BulkProcessorService takes ideas from the BulkProcessor of the
-// Elasticsearch Java API as documented in
-// https://www.elastic.co/guide/en/elasticsearch/client/java-api/current/java-docs-bulk-processor.html.
+// Opensearch Java API as documented in
+// https://www.opensearch.co/guide/en/opensearchsearch/client/java-api/current/java-docs-bulk-processor.html.
 type BulkProcessorService struct {
 	c                    *Client
 	beforeFn             BulkBeforeFunc
@@ -70,22 +70,22 @@ func NewBulkProcessorService(client *Client) *BulkProcessorService {
 }
 
 // BulkBeforeFunc defines the signature of callbacks that are executed
-// before a commit to Elasticsearch.
+// before a commit to Opensearch.
 type BulkBeforeFunc func(executionId int64, requests []BulkableRequest)
 
 // BulkAfterFunc defines the signature of callbacks that are executed
-// after a commit to Elasticsearch. The err parameter signals an error.
+// after a commit to Opensearch. The err parameter signals an error.
 type BulkAfterFunc func(executionId int64, requests []BulkableRequest, response *BulkResponse, err error)
 
 // Before specifies a function to be executed before bulk requests get committed
-// to Elasticsearch.
+// to Opensearch.
 func (s *BulkProcessorService) Before(fn BulkBeforeFunc) *BulkProcessorService {
 	s.beforeFn = fn
 	return s
 }
 
 // After specifies a function to be executed when bulk requests have been
-// committed to Elasticsearch. The After callback executes both when the
+// committed to Opensearch. The After callback executes both when the
 // commit was successful as well as on failures.
 func (s *BulkProcessorService) After(fn BulkAfterFunc) *BulkProcessorService {
 	s.afterFn = fn
@@ -150,7 +150,7 @@ func (s *BulkProcessorService) RetryItemStatusCodes(retryItemStatusCodes ...int)
 
 // Do creates a new BulkProcessor and starts it.
 // Consider the BulkProcessor as a running instance that accepts bulk requests
-// and commits them to Elasticsearch, spreading the work across one or more
+// and commits them to Opensearch, spreading the work across one or more
 // workers.
 //
 // You can interoperate with the BulkProcessor returned by Do, e.g. Start and
@@ -250,7 +250,7 @@ func (st *BulkProcessorWorkerStats) dup() *BulkProcessorWorkerStats {
 // -- Bulk Processor --
 
 // BulkProcessor encapsulates a task that accepts bulk requests and
-// orchestrates committing them to Elasticsearch via one or more workers.
+// orchestrates committing them to Opensearch via one or more workers.
 //
 // BulkProcessor is returned by setting up a BulkProcessorService and
 // calling the Do method.
@@ -440,7 +440,7 @@ func (p *BulkProcessor) flusher(interval time.Duration) {
 // -- Bulk Worker --
 
 // bulkWorker encapsulates a single worker, running in a goroutine,
-// receiving bulk requests and eventually committing them to Elasticsearch.
+// receiving bulk requests and eventually committing them to Opensearch.
 // It is strongly bound to a BulkProcessor.
 type bulkWorker struct {
 	p           *BulkProcessor
@@ -503,7 +503,7 @@ func (w *bulkWorker) work(ctx context.Context) {
 			w.flushAckC <- struct{}{}
 		}
 		if err != nil {
-			w.p.c.errorf("elastic: bulk processor %q was unable to perform work: %v", w.p.name, err)
+			w.p.c.errorf("opensearch: bulk processor %q was unable to perform work: %v", w.p.name, err)
 			if !stop {
 				waitForActive := func() {
 					// Add back pressure to prevent Add calls from filling up the request queue
@@ -556,7 +556,7 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 	}
 	// notifyFunc will be called if retry fails
 	notifyFunc := func(err error) {
-		w.p.c.errorf("elastic: bulk processor %q failed but may retry: %v", w.p.name, err)
+		w.p.c.errorf("opensearch: bulk processor %q failed but may retry: %v", w.p.name, err)
 	}
 
 	id := atomic.AddInt64(&w.p.executionId, 1)
@@ -580,7 +580,7 @@ func (w *bulkWorker) commit(ctx context.Context) error {
 	err := RetryNotify(commitFunc, w.p.backoff, notifyFunc)
 	w.updateStats(res)
 	if err != nil {
-		w.p.c.errorf("elastic: bulk processor %q failed: %v", w.p.name, err)
+		w.p.c.errorf("opensearch: bulk processor %q failed: %v", w.p.name, err)
 	}
 
 	// Invoke after callback
@@ -599,14 +599,14 @@ func (w *bulkWorker) waitForActiveConnection(ready chan<- struct{}) {
 
 	client := w.p.c
 	stopReconnC := w.p.stopReconnC
-	w.p.c.errorf("elastic: bulk processor %q is waiting for an active connection", w.p.name)
+	w.p.c.errorf("opensearch: bulk processor %q is waiting for an active connection", w.p.name)
 
 	// loop until a health check finds at least 1 active connection or the reconnection channel is closed
 	for {
 		select {
 		case _, ok := <-stopReconnC:
 			if !ok {
-				w.p.c.errorf("elastic: bulk processor %q active connection check interrupted", w.p.name)
+				w.p.c.errorf("opensearch: bulk processor %q active connection check interrupted", w.p.name)
 				return
 			}
 		case <-t.C:

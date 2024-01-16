@@ -19,7 +19,7 @@ func TestScroll(t *testing.T) {
 	// client := setupTestClientAndCreateIndexAndLog(t)
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
@@ -112,7 +112,7 @@ func TestScrollWithQueryAndSort(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 	// client := setupTestClientAndCreateIndexAndAddDocs(t, SetTraceLog(log.New(os.Stdout, "", log.LstdFlags)))
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
@@ -200,7 +200,7 @@ func TestScrollWithBody(t *testing.T) {
 	// client := setupTestClientAndCreateIndexAndLog(t)
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch.", Retweets: 4}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch.", Retweets: 4}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic.", Retweets: 10}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun.", Retweets: 3}
 
@@ -395,7 +395,7 @@ func TestScrollWithMaxResponseSize(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
 	tweet1 := tweet{User: "sandrae", Message: "Cycling is fun.", Retweets: 3}
-	tweet2 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch.", Retweets: 4}
+	tweet2 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch.", Retweets: 4}
 
 	// Add all documents
 	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
@@ -438,7 +438,7 @@ func TestScrollWithFilterPath(t *testing.T) {
 	// client := setupTestClientAndCreateIndexAndLog(t)
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
@@ -545,7 +545,7 @@ func TestScrollWithFilterPathKeepingContext(t *testing.T) {
 	// client := setupTestClientAndCreateIndexAndLog(t)
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
@@ -639,7 +639,7 @@ func TestScrollTotalHits(t *testing.T) {
 	//client := setupTestClientAndCreateIndexAndLog(t)
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
@@ -747,7 +747,7 @@ func TestScrollBuilder(t *testing.T) {
 				).
 				FetchSourceContext(NewFetchSourceContext(false).Include("foo")).
 				Size(600),
-			ExpectedPath: "/elastic-test/_search",
+			ExpectedPath: "/opensearch-test/_search",
 			ExpectedParams: url.Values{
 				"scroll": []string{"5m"},
 				"size":   []string{"600"},
@@ -764,7 +764,7 @@ func TestScrollBuilder(t *testing.T) {
 						FetchSourceContext(NewFetchSourceContext(false).Include("foo")),
 				).
 				Size(600),
-			ExpectedPath: "/elastic-test/_search",
+			ExpectedPath: "/opensearch-test/_search",
 			ExpectedParams: url.Values{
 				"scroll": []string{"5m"},
 				"size":   []string{"600"},

@@ -8,7 +8,7 @@ import "errors"
 
 // CompletionSuggester is a fast suggester for e.g. type-ahead completion.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters-completion.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-suggesters-completion.html
 // for more details.
 type CompletionSuggester struct {
 	Suggester
@@ -125,7 +125,7 @@ func (q *CompletionSuggester) ContextQueries(queries ...SuggesterContextQuery) *
 }
 
 // completionSuggesterRequest is necessary because the order in which
-// the JSON elements are routed to Elasticsearch is relevant.
+// the JSON elements are routed to Opensearch is relevant.
 // We got into trouble when using plain maps because the text element
 // needs to go before the completion element.
 type completionSuggesterRequest struct {
@@ -182,7 +182,7 @@ func (q *CompletionSuggester) Source(includeName bool) (interface{}, error) {
 			// Merge the dictionary into ctxq
 			m, ok := src.(map[string]interface{})
 			if !ok {
-				return nil, errors.New("elastic: context query is not a map")
+				return nil, errors.New("opensearch: context query is not a map")
 			}
 			for k, v := range m {
 				ctxq[k] = v
@@ -244,7 +244,7 @@ func NewFuzzyCompletionSuggesterOptions() *FuzzyCompletionSuggesterOptions {
 // EditDistance specifies the maximum number of edits, e.g. a number like "1" or "2"
 // or a string like "0..2" or ">5".
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/common-options.html#fuzziness
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/common-options.html#fuzziness
 // for details.
 func (o *FuzzyCompletionSuggesterOptions) EditDistance(editDistance interface{}) *FuzzyCompletionSuggesterOptions {
 	o.editDistance = editDistance
@@ -278,7 +278,7 @@ func (o *FuzzyCompletionSuggesterOptions) UnicodeAware(unicodeAware bool) *Fuzzy
 	return o
 }
 
-// MaxDeterminizedStates is currently undocumented in Elasticsearch. It represents
+// MaxDeterminizedStates is currently undocumented in Opensearch. It represents
 // the maximum automaton states allowed for fuzzy expansion.
 func (o *FuzzyCompletionSuggesterOptions) MaxDeterminizedStates(max int) *FuzzyCompletionSuggesterOptions {
 	o.maxDeterminizedStates = &max
@@ -327,7 +327,7 @@ func NewRegexCompletionSuggesterOptions() *RegexCompletionSuggesterOptions {
 // Flags represents internal regex flags.
 // Possible flags are ALL (default), ANYSTRING, COMPLEMENT, EMPTY, INTERSECTION, INTERVAL, or NONE.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters-completion.html#regex
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-suggesters-completion.html#regex
 // for details.
 func (o *RegexCompletionSuggesterOptions) Flags(flags interface{}) *RegexCompletionSuggesterOptions {
 	o.flags = flags
@@ -336,7 +336,7 @@ func (o *RegexCompletionSuggesterOptions) Flags(flags interface{}) *RegexComplet
 
 // MaxDeterminizedStates represents the maximum automaton states allowed for regex expansion.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters-completion.html#regex
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-suggesters-completion.html#regex
 // for details.
 func (o *RegexCompletionSuggesterOptions) MaxDeterminizedStates(max int) *RegexCompletionSuggesterOptions {
 	o.maxDeterminizedStates = &max

@@ -13,7 +13,7 @@ import (
 func TestGet(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -47,7 +47,7 @@ func TestGet(t *testing.T) {
 func TestGetWithSourceFiltering(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -93,7 +93,7 @@ func TestGetWithSourceFiltering(t *testing.T) {
 func TestGetWithFields(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
@@ -120,7 +120,7 @@ func TestGetWithFields(t *testing.T) {
 		t.Fatalf("expected field %q in document", "message")
 	}
 
-	// Depending on the version of elasticsearch the message field will be returned
+	// Depending on the version of opensearchsearch the message field will be returned
 	// as a string or a slice of strings. This test works in both cases.
 
 	messageString, ok := messageField.(string)
@@ -142,7 +142,7 @@ func TestGetWithFields(t *testing.T) {
 }
 
 func TestGetValidate(t *testing.T) {
-	// Mitigate against http://stackoverflow.com/questions/27491738/elasticsearch-go-index-failures-no-feature-for-name
+	// Mitigate against http://stackoverflow.com/questions/27491738/opensearchsearch-go-index-failures-no-feature-for-name
 	client := setupTestClientAndCreateIndex(t)
 
 	if _, err := client.Get().Do(context.TODO()); err == nil {

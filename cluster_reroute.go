@@ -18,7 +18,7 @@ import (
 // one node to another explicitly, an allocation can be cancelled, and
 // an unassigned shard can be explicitly allocated to a specific node.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cluster-reroute.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cluster-reroute.html
 // for details.
 type ClusterRerouteService struct {
 	client *Client
@@ -46,7 +46,7 @@ func NewClusterRerouteService(client *Client) *ClusterRerouteService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ClusterRerouteService) Pretty(pretty bool) *ClusterRerouteService {
 	s.pretty = &pretty
 	return s

@@ -17,7 +17,7 @@ import (
 // CatCountService provides quick access to the document count of the entire cluster,
 // or individual indices.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cat-count.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cat-count.html
 // for details.
 type CatCountService struct {
 	client *Client
@@ -42,7 +42,7 @@ func NewCatCountService(client *Client) *CatCountService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *CatCountService) Pretty(pretty bool) *CatCountService {
 	s.pretty = &pretty
 	return s

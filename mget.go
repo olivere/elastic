@@ -17,7 +17,7 @@ import (
 // a docs array with all the fetched documents, each element similar
 // in structure to a document provided by the Get API.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-multi-get.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-multi-get.html
 // for details.
 type MgetService struct {
 	client *Client
@@ -44,7 +44,7 @@ func NewMgetService(client *Client) *MgetService {
 	return builder
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *MgetService) Pretty(pretty bool) *MgetService {
 	s.pretty = &pretty
 	return s
@@ -93,7 +93,7 @@ func (s *MgetService) Preference(preference string) *MgetService {
 
 // Refresh the shard containing the document before performing the operation.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-refresh.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/docs-refresh.html
 // for details.
 func (s *MgetService) Refresh(refresh string) *MgetService {
 	s.refresh = refresh
@@ -208,8 +208,8 @@ type MultiGetItem struct {
 	id           string
 	routing      string
 	storedFields []string
-	version      *int64 // see org.elasticsearch.common.lucene.uid.Versions
-	versionType  string // see org.elasticsearch.index.VersionType
+	version      *int64 // see org.opensearchsearch.common.lucene.uid.Versions
+	versionType  string // see org.opensearchsearch.index.VersionType
 	fsc          *FetchSourceContext
 }
 
@@ -249,15 +249,15 @@ func (item *MultiGetItem) StoredFields(storedFields ...string) *MultiGetItem {
 }
 
 // Version can be MatchAny (-3), MatchAnyPre120 (0), NotFound (-1),
-// or NotSet (-2). These are specified in org.elasticsearch.common.lucene.uid.Versions.
-// The default in Elasticsearch is MatchAny (-3).
+// or NotSet (-2). These are specified in org.opensearchsearch.common.lucene.uid.Versions.
+// The default in Opensearch is MatchAny (-3).
 func (item *MultiGetItem) Version(version int64) *MultiGetItem {
 	item.version = &version
 	return item
 }
 
 // VersionType can be "internal", "external", "external_gt", or "external_gte".
-// See org.elasticsearch.index.VersionType in Elasticsearch source.
+// See org.opensearchsearch.index.VersionType in Opensearch source.
 // It is "internal" by default.
 func (item *MultiGetItem) VersionType(versionType string) *MultiGetItem {
 	item.versionType = versionType
@@ -270,7 +270,7 @@ func (item *MultiGetItem) FetchSource(fetchSourceContext *FetchSourceContext) *M
 	return item
 }
 
-// Source returns the serialized JSON to be sent to Elasticsearch as
+// Source returns the serialized JSON to be sent to Opensearch as
 // part of a MultiGet search.
 func (item *MultiGetItem) Source() (interface{}, error) {
 	source := make(map[string]interface{})

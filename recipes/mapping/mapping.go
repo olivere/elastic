@@ -19,7 +19,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/disaster37/opensearch/v2"
+	"github.com/olivere/opensearch"
 )
 
 const (
@@ -63,7 +63,7 @@ type Tweet struct {
 
 func main() {
 	var (
-		url      = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
+		url      = flag.String("url", "http://localhost:9200", "Opensearch URL")
 		sniff    = flag.Bool("sniff", true, "Enable or disable sniffing")
 		index    = flag.String("index", "", "Index name")
 		shards   = flag.Int("shards", 1, "Number of shards")
@@ -79,8 +79,8 @@ func main() {
 		log.Fatal("please specify an index name -index")
 	}
 
-	// Create an Elasticsearch client
-	client, err := elastic.NewClient(elastic.SetURL(*url), elastic.SetSniff(*sniff))
+	// Create an Opensearch client
+	client, err := opensearch.NewClient(opensearch.SetURL(*url), opensearch.SetSniff(*sniff))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -125,7 +125,7 @@ func main() {
 	{
 		tweet := Tweet{
 			User:     "olivere",
-			Message:  "Welcome to Go and Elasticsearch.",
+			Message:  "Welcome to Go and Opensearch.",
 			Retweets: 0,
 			Created:  time.Now(),
 			Attrs: map[string]interface{}{

@@ -15,7 +15,7 @@ import (
 )
 
 // ClusterStatsService is documented at
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cluster-stats.html.
+// https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/cluster-stats.html.
 type ClusterStatsService struct {
 	client *Client
 
@@ -37,7 +37,7 @@ func NewClusterStatsService(client *Client) *ClusterStatsService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *ClusterStatsService) Pretty(pretty bool) *ClusterStatsService {
 	s.pretty = &pretty
 	return s

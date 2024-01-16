@@ -15,9 +15,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// GetScriptService reads a stored script in Elasticsearch.
+// GetScriptService reads a stored script in Opensearch.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/modules-scripting.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/modules-scripting.html
 // for details.
 type GetScriptService struct {
 	client *Client
@@ -38,7 +38,7 @@ func NewGetScriptService(client *Client) *GetScriptService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *GetScriptService) Pretty(pretty bool) *GetScriptService {
 	s.pretty = &pretty
 	return s
@@ -161,7 +161,7 @@ func (s *GetScriptService) Do(ctx context.Context) (*GetScriptResponse, error) {
 }
 
 // GetScriptResponse is the result of getting a stored script
-// in Elasticsearch.
+// in Opensearch.
 type GetScriptResponse struct {
 	Id     string          `json:"_id"`
 	Found  bool            `json:"found"`

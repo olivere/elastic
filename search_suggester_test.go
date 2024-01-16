@@ -12,7 +12,7 @@ import (
 func TestTermSuggester(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) // AndLog(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
@@ -91,7 +91,7 @@ func TestTermSuggester(t *testing.T) {
 func TestPhraseSuggester(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t) // AndLog(t)
 
-	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
+	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 	tweet2 := tweet{User: "olivere", Message: "Another unrelated topic."}
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
@@ -171,8 +171,8 @@ func TestCompletionSuggester(t *testing.T) {
 
 	tweet1 := tweet{
 		User:    "olivere",
-		Message: "Welcome to Golang and Elasticsearch.",
-		Suggest: NewSuggestField("Golang", "Elasticsearch"),
+		Message: "Welcome to Golang and Opensearch.",
+		Suggest: NewSuggestField("Golang", "Opensearch"),
 	}
 	tweet2 := tweet{
 		User:    "olivere",
@@ -264,13 +264,13 @@ func TestContextSuggester(t *testing.T) {
 	tweet1 := `
 	{
 		"user":"olivere",
-		"message":"Welcome to Golang and Elasticsearch.",
+		"message":"Welcome to Golang and Opensearch.",
 		"retweets":0,
 		"created":"0001-01-01T00:00:00Z",
 		"suggest_field":{
 			"input":[
 				"Golang",
-				"Elasticsearch"
+				"Opensearch"
 			],
 			"contexts":{
 				"user_name": ["olivere"]

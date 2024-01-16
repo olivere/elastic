@@ -10,7 +10,7 @@ import "errors"
 // top_metrics is fairly similar to top_hits in spirit but because it is more limited it is able to do
 // its job using less memory and is often faster.
 //
-// See: https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-metrics-top-metrics.html
+// See: https://www.opensearch.co/guide/en/opensearchsearch/reference/7.0/search-aggregations-metrics-top-metrics.html
 type TopMetricsAggregation struct {
 	fields []string
 	sorter Sorter

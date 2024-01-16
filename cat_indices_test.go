@@ -58,7 +58,7 @@ func TestCatIndicesWithAliases(t *testing.T) {
 }
 
 // TestCatIndicesWithAliases makes a test with a double-alias
-// asking `?h=rti` will fill one of the refresh.external_time/refresh.time fields (depending on elasticsearch version)
+// asking `?h=rti` will fill one of the refresh.external_time/refresh.time fields (depending on opensearchsearch version)
 func TestCatIndicesWithAliases_Double(t *testing.T) {
 	client := setupTestClientAndCreateIndexAndAddDocs(t, SetDecoder(&strictDecoder{})) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 	ctx := context.Background()

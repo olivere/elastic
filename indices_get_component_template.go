@@ -16,7 +16,7 @@ import (
 
 // IndicesGetComponentTemplateService returns a component template.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.10/getting-component-templates.html
+// See https://www.opensearch.co/guide/en/opensearchsearch/reference/7.10/getting-component-templates.html
 // for more details.
 type IndicesGetComponentTemplateService struct {
 	client *Client
@@ -41,7 +41,7 @@ func NewIndicesGetComponentTemplateService(client *Client) *IndicesGetComponentT
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *IndicesGetComponentTemplateService) Pretty(pretty bool) *IndicesGetComponentTemplateService {
 	s.pretty = &pretty
 	return s
