@@ -231,6 +231,7 @@ func NewClientFromConfig(cfg *config.Config) (*Client, error) {
 func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 	c := &Client{
 		c:                         http.DefaultClient,
+		log:                       logrus.StandardLogger(),
 		conns:                     make([]*conn, 0),
 		cindex:                    -1,
 		scheme:                    DefaultScheme,
