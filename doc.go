@@ -3,7 +3,7 @@
 // See http://olivere.mit-license.org/license.txt for details.
 
 /*
-Package elastic provides an interface to the Elasticsearch server
+package opensearch provides an interface to the Elasticsearch server
 (https://www.elastic.co/products/elasticsearch).
 
 The first thing you do is to create a Client. If you have Elasticsearch
@@ -18,11 +18,11 @@ installed and running with its default settings
 If your Elasticsearch server is running on a different IP and/or port,
 just provide a URL to NewClient:
 
-  // Create a client and connect to http://192.168.2.10:9201
-  client, err := elastic.NewClient(elastic.SetURL("http://192.168.2.10:9201"))
-  if err != nil {
-    // Handle error
-  }
+	// Create a client and connect to http://192.168.2.10:9201
+	client, err := elastic.NewClient(elastic.SetURL("http://192.168.2.10:9201"))
+	if err != nil {
+	  // Handle error
+	}
 
 You can pass many more configuration parameters to NewClient. Review the
 documentation of NewClient for more information.
@@ -46,6 +46,5 @@ of the IndexExists service that checks if a given index already exists.
 Look up the documentation for Client to get an idea of the services provided
 and what kinds of responses you get when executing the Do function of a service.
 Also see the wiki on Github for more details.
-
 */
-package elastic
+package opensearch

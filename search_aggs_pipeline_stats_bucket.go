@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // StatsBucketAggregation is a sibling pipeline aggregation which calculates
 // a variety of stats across all bucket of a specified metric in a sibling aggregation.

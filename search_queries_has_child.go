@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // HasChildQuery accepts a query and the child type to run against, and results
 // in parent documents that have child docs matching the query.

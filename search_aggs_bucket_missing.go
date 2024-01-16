@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // MissingAggregation is a field data based single bucket aggregation,
 // that creates a bucket of all documents in the current document set context

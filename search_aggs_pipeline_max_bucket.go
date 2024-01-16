@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // MaxBucketAggregation is a sibling pipeline aggregation which identifies
 // the bucket(s) with the maximum value of a specified metric in a sibling

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // FunctionScoreQuery allows you to modify the score of documents that
 // are retrieved by a query. This can be useful if, for example,

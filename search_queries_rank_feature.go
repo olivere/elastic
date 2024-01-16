@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // RankFeatureQuery boosts the relevance score of documents based on the
 // numeric value of a rank_feature or rank_features field.

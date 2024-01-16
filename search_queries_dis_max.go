@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // DisMaxQuery is a query that generates the union of documents produced by
 // its subqueries, and that scores each document with the maximum score

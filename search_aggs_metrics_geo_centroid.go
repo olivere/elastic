@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // GeoCentroidAggregation is a metric aggregation that computes the weighted centroid
 // from all coordinate values for a Geo-point datatype field.

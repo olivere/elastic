@@ -1,4 +1,4 @@
-package elastic
+package opensearch
 
 import "errors"
 

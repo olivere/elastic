@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 import (
 	"context"
@@ -97,7 +97,8 @@ func (s *CatMasterService) MasterTimeout(masterTimeout string) *CatMasterService
 // in your terminal:
 //
 // Example:
-//   curl 'http://localhost:9200/_cat/master?help'
+//
+//	curl 'http://localhost:9200/_cat/master?help'
 //
 // You can use Columns("*") to return all possible columns. That might take
 // a little longer than the default set of columns.

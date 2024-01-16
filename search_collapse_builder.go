@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // CollapseBuilder enables field collapsing on a search request.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-collapse.html

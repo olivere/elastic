@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // SignificantTermsAggregation is an aggregation that returns interesting
 // or unusual occurrences of terms in a set.

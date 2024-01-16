@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // PointInTime is a lightweight view into the state of the data that existed
 // when initiated. It can be created with OpenPointInTime API and be used

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic_test
+package opensearch_test
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/disaster37/opensearch/v2"
+	elastic "github.com/disaster37/opensearch/v2"
 )
 
 type Tweet struct {

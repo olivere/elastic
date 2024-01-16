@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // CompositeAggregation is a multi-bucket values source based aggregation
 // that can be used to calculate unique composite values from source documents.

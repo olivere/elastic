@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // DiversifiedSamplerAggregation Like the ‘sampler` aggregation this is a filtering aggregation used to limit any
 // sub aggregations’ processing to a sample of the top-scoring documents. The diversified_sampler aggregation adds

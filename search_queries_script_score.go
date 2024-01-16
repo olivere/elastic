@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 import "errors"
 
@@ -24,7 +24,7 @@ type ScriptScoreQuery struct {
 // NewScriptScoreQuery creates and initializes a new script_score query.
 func NewScriptScoreQuery(query Query, script *Script) *ScriptScoreQuery {
 	return &ScriptScoreQuery{
-		query: query,
+		query:  query,
 		script: script,
 	}
 }

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // BucketSelectorAggregation is a parent pipeline aggregation which
 // determines whether the current bucket will be retained in the parent

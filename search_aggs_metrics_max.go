@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // MaxAggregation is a single-value metrics aggregation that keeps track and
 // returns the maximum value among the numeric values extracted from

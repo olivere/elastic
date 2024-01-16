@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // HasParentQuery accepts a query and a parent type. The query is executed
 // in the parent document space which is specified by the parent type.

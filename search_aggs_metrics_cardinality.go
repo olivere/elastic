@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // CardinalityAggregation is a single-value metrics aggregation that
 // calculates an approximate count of distinct values.

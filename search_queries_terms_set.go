@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // TermsSetQuery returns any documents that match with at least
 // one or more of the provided terms. The terms are not analyzed

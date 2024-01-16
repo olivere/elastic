@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // SamplerAggregation is a filtering aggregation used to limit any
 // sub aggregations' processing to a sample of the top-scoring documents.

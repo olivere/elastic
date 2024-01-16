@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // ParentIdQuery can be used to find child documents which belong to a
 // particular parent. Given the following mapping definition.

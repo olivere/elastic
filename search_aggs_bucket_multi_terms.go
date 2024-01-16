@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // MultiTermsAggregation is a multi-bucket value source based aggregation
 // where buckets are dynamically built - one per unique set of values.

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // BucketSortAggregation parent pipeline aggregation which sorts the buckets
 // of its parent multi-bucket aggregation. Zero or more sort fields may be

@@ -5,7 +5,7 @@
 // This file is based on code (c) 2014 Cenk Altı and governed by the MIT license.
 // See https://github.com/cenkalti/backoff for original source.
 
-package elastic
+package opensearch
 
 import "time"
 

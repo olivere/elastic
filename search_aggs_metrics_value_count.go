@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // ValueCountAggregation is a single-value metrics aggregation that counts
 // the number of values that are extracted from the aggregated documents.

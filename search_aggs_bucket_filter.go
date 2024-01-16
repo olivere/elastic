@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // FilterAggregation defines a single bucket of all the documents
 // in the current document set context that match a specified filter.

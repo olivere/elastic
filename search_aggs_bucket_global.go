@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // GlobalAggregation defines a single bucket of all the documents within
 // the search execution context. This context is defined by the indices

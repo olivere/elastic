@@ -1,4 +1,4 @@
-package elastic
+package opensearch
 
 var (
 	_ IntervalQueryRule = (*IntervalQueryRuleWildcard)(nil)

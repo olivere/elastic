@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // AvgBucketAggregation is a sibling pipeline aggregation which calculates
 // the (mean) average value of a specified metric in a sibling aggregation.

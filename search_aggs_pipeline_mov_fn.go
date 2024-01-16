@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // MovFnAggregation, given an ordered series of data, will slice a window across
 // the data and allow the user to specify a custom script that is executed for
@@ -13,11 +13,12 @@ package elastic
 // https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-pipeline-movfn-aggregation.html#_pre_built_functions.
 //
 // Example:
-//   agg := elastic.NewMovFnAggregation(
-//     "the_sum", // bucket path
-//     elastic.NewScript("MovingFunctions.stdDev(values, MovingFunctions.unweightedAvg(values))"),
-//     10,        // window size
-//   )
+//
+//	agg := elastic.NewMovFnAggregation(
+//	  "the_sum", // bucket path
+//	  elastic.NewScript("MovingFunctions.stdDev(values, MovingFunctions.unweightedAvg(values))"),
+//	  10,        // window size
+//	)
 //
 // For more details, see
 // https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-aggregations-pipeline-movfn-aggregation.html.

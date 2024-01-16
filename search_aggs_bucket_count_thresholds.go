@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // BucketCountThresholds is used in e.g. terms and significant text aggregations.
 type BucketCountThresholds struct {

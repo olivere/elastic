@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // ChildrenAggregation is a special single bucket aggregation that enables
 // aggregating from buckets on parent document types to buckets on child documents.

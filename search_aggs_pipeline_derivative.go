@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // DerivativeAggregation is a parent pipeline aggregation which calculates
 // the derivative of a specified metric in a parent histogram (or date_histogram)

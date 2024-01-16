@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-license.
 // See http://olivere.mit-license.org/license.txt for details.
 
-package elastic
+package opensearch
 
 // GeoDistanceAggregation is a multi-bucket aggregation that works on geo_point fields
 // and conceptually works very similar to the range aggregation.

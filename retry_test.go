@@ -6,7 +6,7 @@
 // by the MIT license.
 // See https://github.com/cenkalti/backoff for original source.
 
-package elastic
+package opensearch
 
 import (
 	"errors"
