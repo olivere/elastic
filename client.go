@@ -318,6 +318,7 @@ func DialContext(ctx context.Context, options ...ClientOptionFunc) (*Client, err
 	// Set up the client
 	c := &Client{
 		c:                         http.DefaultClient,
+		log:                       logrus.StandardLogger(),
 		conns:                     make([]*conn, 0),
 		cindex:                    -1,
 		scheme:                    DefaultScheme,
