@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v7/uritemplates"
+	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
 // RefreshService explicitly refreshes one or more indices.

@@ -4,11 +4,9 @@
 
 // Connect creates an index with a mapping with different data types.
 //
-// Example
+// # Example
 //
-//
-//     aws-mapping-v4 -url=https://search-xxxxx-yyyyy.eu-central-1.es.amazonaws.com -index=twitter -type=tweet -sniff=false
-//
+//	aws-mapping-v4 -url=https://search-xxxxx-yyyyy.eu-central-1.es.amazonaws.com -index=twitter -type=tweet -sniff=false
 package main
 
 import (
@@ -21,10 +19,10 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/disaster37/opensearch/v2"
 	"github.com/olivere/env"
 
-	"github.com/olivere/elastic/v7"
-	aws "github.com/olivere/elastic/v7/aws/v4"
+	aws "github.com/disaster37/opensearch/v2/aws/v4"
 )
 
 const (

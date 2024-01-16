@@ -21,7 +21,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/olivere/elastic/v7/config"
+	"github.com/disaster37/opensearch/v2/config"
 )
 
 const (
@@ -164,9 +164,9 @@ type Client struct {
 //
 // Example:
 //
-//   client, err := elastic.NewClient(
-//     elastic.SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"),
-//     elastic.SetBasicAuth("user", "secret"))
+//	client, err := elastic.NewClient(
+//	  elastic.SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"),
+//	  elastic.SetBasicAuth("user", "secret"))
 //
 // If no URL is configured, Elastic uses DefaultURL by default.
 //
@@ -2096,192 +2096,6 @@ func (c *Client) PutScript() *PutScriptService {
 // DeleteScript allows removing a stored script from Elasticsearch.
 func (c *Client) DeleteScript() *DeleteScriptService {
 	return NewDeleteScriptService(c)
-}
-
-// -- X-Pack General --
-
-// XPackInfo gets information on the xpack plugins enabled on the cluster
-
-func (c *Client) XPackInfo() *XPackInfoService {
-	return NewXPackInfoService(c)
-}
-
-// -- X-Pack Async Search --
-
-// XPackAsyncSearchSubmit starts an asynchronous search.
-func (c *Client) XPackAsyncSearchSubmit() *XPackAsyncSearchSubmit {
-	return NewXPackAsyncSearchSubmit(c)
-}
-
-// XPackAsyncSearchGet retrieves the outcome of an asynchronous search.
-func (c *Client) XPackAsyncSearchGet() *XPackAsyncSearchGet {
-	return NewXPackAsyncSearchGet(c)
-}
-
-// XPackAsyncSearchDelete deletes an asynchronous search.
-func (c *Client) XPackAsyncSearchDelete() *XPackAsyncSearchDelete {
-	return NewXPackAsyncSearchDelete(c)
-}
-
-// -- X-Pack Index Lifecycle Management --
-
-// XPackIlmPutLifecycle adds or modifies an ilm policy.
-func (c *Client) XPackIlmPutLifecycle() *XPackIlmPutLifecycleService {
-	return NewXPackIlmPutLifecycleService(c)
-}
-
-// XPackIlmGettLifecycle gets an ilm policy.
-func (c *Client) XPackIlmGetLifecycle() *XPackIlmGetLifecycleService {
-	return NewXPackIlmGetLifecycleService(c)
-}
-
-// XPackIlmDeleteLifecycle deletes an ilm policy.
-func (c *Client) XPackIlmDeleteLifecycle() *XPackIlmDeleteLifecycleService {
-	return NewXPackIlmDeleteLifecycleService(c)
-}
-
-// -- X-Pack Security --
-
-// XPackSecurityGetRoleMapping gets a role mapping.
-func (c *Client) XPackSecurityGetRoleMapping(roleMappingName string) *XPackSecurityGetRoleMappingService {
-	return NewXPackSecurityGetRoleMappingService(c).Name(roleMappingName)
-}
-
-// XPackSecurityPutRoleMapping adds a role mapping.
-func (c *Client) XPackSecurityPutRoleMapping(roleMappingName string) *XPackSecurityPutRoleMappingService {
-	return NewXPackSecurityPutRoleMappingService(c).Name(roleMappingName)
-}
-
-// XPackSecurityDeleteRoleMapping deletes a role mapping.
-func (c *Client) XPackSecurityDeleteRoleMapping(roleMappingName string) *XPackSecurityDeleteRoleMappingService {
-	return NewXPackSecurityDeleteRoleMappingService(c).Name(roleMappingName)
-}
-
-// XPackSecurityGetRole gets a role.
-func (c *Client) XPackSecurityGetRole(roleName string) *XPackSecurityGetRoleService {
-	return NewXPackSecurityGetRoleService(c).Name(roleName)
-}
-
-// XPackSecurityPutRole adds a role.
-func (c *Client) XPackSecurityPutRole(roleName string) *XPackSecurityPutRoleService {
-	return NewXPackSecurityPutRoleService(c).Name(roleName)
-}
-
-// XPackSecurityDeleteRole deletes a role.
-func (c *Client) XPackSecurityDeleteRole(roleName string) *XPackSecurityDeleteRoleService {
-	return NewXPackSecurityDeleteRoleService(c).Name(roleName)
-}
-
-// TODO: Clear role cache API
-// https://www.elastic.co/guide/en/elasticsearch/reference/7.0/security-api-clear-role-cache.html
-
-// XPackSecurityChangePassword changes the password of users in the native realm.
-func (c *Client) XPackSecurityChangePassword(username string) *XPackSecurityChangePasswordService {
-	return NewXPackSecurityChangePasswordService(c).Username(username)
-}
-
-// XPackSecurityGetUser gets details about one or more users.
-func (c *Client) XPackSecurityGetUser(usernames ...string) *XPackSecurityGetUserService {
-	return NewXPackSecurityGetUserService(c).Usernames(usernames...)
-}
-
-// XPackSecurityPutUser adds or updates a user.
-func (c *Client) XPackSecurityPutUser(username string) *XPackSecurityPutUserService {
-	return NewXPackSecurityPutUserService(c).Username(username)
-}
-
-// XPackSecurityEnableUser enables a user.
-func (c *Client) XPackSecurityEnableUser(username string) *XPackSecurityEnableUserService {
-	return NewXPackSecurityEnableUserService(c).Username(username)
-}
-
-// XPackSecurityDisableUser disables a user.
-func (c *Client) XPackSecurityDisableUser(username string) *XPackSecurityDisableUserService {
-	return NewXPackSecurityDisableUserService(c).Username(username)
-}
-
-// XPackSecurityDeleteUser deletes a user.
-func (c *Client) XPackSecurityDeleteUser(username string) *XPackSecurityDeleteUserService {
-	return NewXPackSecurityDeleteUserService(c).Username(username)
-}
-
-// -- X-Pack Rollup --
-
-// XPackRollupPut creates or updates a rollup job.
-func (c *Client) XPackRollupPut(jobId string) *XPackRollupPutService {
-	return NewXPackRollupPutService(c).JobId(jobId)
-}
-
-// XPackRollupGet gets a rollup job.
-func (c *Client) XPackRollupGet(jobId string) *XPackRollupGetService {
-	return NewXPackRollupGetService(c).JobId(jobId)
-}
-
-// XPackRollupDelete deletes a rollup job.
-func (c *Client) XPackRollupDelete(jobId string) *XPackRollupDeleteService {
-	return NewXPackRollupDeleteService(c).JobId(jobId)
-}
-
-// XPackRollupStart starts a rollup job.
-func (c *Client) XPackRollupStart(jobId string) *XPackRollupStartService {
-	return NewXPackRollupStartService(c).JobId(jobId)
-}
-
-// XPackRollupStop stops a rollup job.
-func (c *Client) XPackRollupStop(jobId string) *XPackRollupStopService {
-	return NewXPackRollupStopService(c).JobId(jobId)
-}
-
-// -- X-Pack Watcher --
-
-// XPackWatchPut adds a watch.
-func (c *Client) XPackWatchPut(watchId string) *XPackWatcherPutWatchService {
-	return NewXPackWatcherPutWatchService(c).Id(watchId)
-}
-
-// XPackWatchGet gets a watch.
-func (c *Client) XPackWatchGet(watchId string) *XPackWatcherGetWatchService {
-	return NewXPackWatcherGetWatchService(c).Id(watchId)
-}
-
-// XPackWatchDelete deletes a watch.
-func (c *Client) XPackWatchDelete(watchId string) *XPackWatcherDeleteWatchService {
-	return NewXPackWatcherDeleteWatchService(c).Id(watchId)
-}
-
-// XPackWatchExecute executes a watch.
-func (c *Client) XPackWatchExecute() *XPackWatcherExecuteWatchService {
-	return NewXPackWatcherExecuteWatchService(c)
-}
-
-// XPackWatchAck acknowledging a watch.
-func (c *Client) XPackWatchAck(watchId string) *XPackWatcherAckWatchService {
-	return NewXPackWatcherAckWatchService(c).WatchId(watchId)
-}
-
-// XPackWatchActivate activates a watch.
-func (c *Client) XPackWatchActivate(watchId string) *XPackWatcherActivateWatchService {
-	return NewXPackWatcherActivateWatchService(c).WatchId(watchId)
-}
-
-// XPackWatchDeactivate deactivates a watch.
-func (c *Client) XPackWatchDeactivate(watchId string) *XPackWatcherDeactivateWatchService {
-	return NewXPackWatcherDeactivateWatchService(c).WatchId(watchId)
-}
-
-// XPackWatchStats returns the current Watcher metrics.
-func (c *Client) XPackWatchStats() *XPackWatcherStatsService {
-	return NewXPackWatcherStatsService(c)
-}
-
-// XPackWatchStart starts a watch.
-func (c *Client) XPackWatchStart() *XPackWatcherStartService {
-	return NewXPackWatcherStartService(c)
-}
-
-// XPackWatchStop stops a watch.
-func (c *Client) XPackWatchStop() *XPackWatcherStopService {
-	return NewXPackWatcherStopService(c)
 }
 
 // -- Helpers and shortcuts --

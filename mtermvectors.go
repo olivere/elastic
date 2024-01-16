@@ -12,7 +12,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v7/uritemplates"
+	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
 // MultiTermvectorService returns information and statistics on terms in the

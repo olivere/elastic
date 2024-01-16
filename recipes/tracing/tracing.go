@@ -5,14 +5,13 @@
 // Tracing is the same as the bulk_insert recipe, but adds
 // OpenTracing support.
 //
-// Example
+// # Example
 //
 // Bulk index 100.000 documents into the index "warehouse", type "product",
 // committing every set of 1.000 documents.
 //
-//     ./run-tracer.sh
-//     ./tracing -index=warehouse -type=product -n=100000 -bulk-size=1000
-//
+//	./run-tracer.sh
+//	./tracing -index=warehouse -type=product -n=100000 -bulk-size=1000
 package main
 
 import (
@@ -27,13 +26,13 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/disaster37/opensearch/v2"
 	jaegerconfig "github.com/uber/jaeger-client-go/config"
 	jaegerlog "github.com/uber/jaeger-client-go/log"
 	jaegerexpvar "github.com/uber/jaeger-lib/metrics/expvar"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/olivere/elastic/v7"
-	"github.com/olivere/elastic/v7/trace/opentracing"
+	"github.com/disaster37/opensearch/v2/trace/opentracing"
 )
 
 func main() {

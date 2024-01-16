@@ -6,8 +6,7 @@
 //
 // Example
 //
-//     mapping -url=http://127.0.0.1:9200 -index=twitter
-//
+//	mapping -url=http://127.0.0.1:9200 -index=twitter
 package main
 
 import (
@@ -20,7 +19,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/disaster37/opensearch/v2"
 )
 
 const (

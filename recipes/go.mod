@@ -1,11 +1,11 @@
-module github.com/olivere/elastic/v7/recipes
+module github.com/disaster37/opensearch/v2/recipes
 
 go 1.17
 
 require (
 	github.com/aws/aws-sdk-go v1.43.21
 	github.com/google/uuid v1.3.0
-	github.com/olivere/elastic/v7 v7.0.0-00010101000000-000000000000
+	github.com/disaster37/opensearch/v2 v7.0.0-00010101000000-000000000000
 	github.com/olivere/env v1.1.0
 	github.com/smartystreets/go-aws-auth v0.0.0-20180515143844-0c1422d1fdb9
 	github.com/uber/jaeger-client-go v2.25.0+incompatible
@@ -32,4 +32,4 @@ require (
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 )
 
-replace github.com/olivere/elastic/v7 => ../../elastic
+replace github.com/disaster37/opensearch/v2 => ../../elastic

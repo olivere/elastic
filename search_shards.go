@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/olivere/elastic/v7/uritemplates"
+	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
 // SearchShardsService returns the indices and shards that a search request would be executed against.
@@ -88,8 +88,8 @@ func (s *SearchShardsService) Index(index ...string) *SearchShardsService {
 	return s
 }
 
-//A boolean value whether to read the cluster state locally in order to
-//determine where shards are allocated instead of using the Master node’s cluster state.
+// A boolean value whether to read the cluster state locally in order to
+// determine where shards are allocated instead of using the Master node’s cluster state.
 func (s *SearchShardsService) Local(local bool) *SearchShardsService {
 	s.local = &local
 	return s

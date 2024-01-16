@@ -16,13 +16,12 @@
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-scroll.html#sliced-scroll
 // for details on sliced scrolling in Elasticsearch.
 //
-// Example
+// # Example
 //
 // Scroll with 4 parallel slices through an index called "products".
 // Use "_uid" as the default field:
 //
-//     sliced_scroll -index=products -n=4
-//
+//	sliced_scroll -index=products -n=4
 package main
 
 import (
@@ -35,9 +34,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/disaster37/opensearch/v2"
 	"golang.org/x/sync/errgroup"
-
-	"github.com/olivere/elastic/v7"
 )
 
 func main() {

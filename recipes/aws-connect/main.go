@@ -6,8 +6,7 @@
 //
 // Example
 //
-//     aws-connect -url=https://search-xxxxx-yyyyy.eu-central-1.es.amazonaws.com
-//
+//	aws-connect -url=https://search-xxxxx-yyyyy.eu-central-1.es.amazonaws.com
 package main
 
 import (
@@ -15,11 +14,11 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/disaster37/opensearch/v2"
 	"github.com/olivere/env"
 	awsauth "github.com/smartystreets/go-aws-auth"
 
-	"github.com/olivere/elastic/v7"
-	"github.com/olivere/elastic/v7/aws"
+	"github.com/disaster37/opensearch/v2/aws"
 )
 
 func main() {

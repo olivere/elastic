@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v7/uritemplates"
+	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
 // CatAllocationService provides a snapshot of how many shards are allocated
@@ -114,7 +114,8 @@ func (s *CatAllocationService) MasterTimeout(masterTimeout string) *CatAllocatio
 // in your terminal:
 //
 // Example:
-//   curl 'http://localhost:9200/_cat/aliases?help'
+//
+//	curl 'http://localhost:9200/_cat/aliases?help'
 //
 // You can use Columns("*") to return all possible columns. That might take
 // a little longer than the default set of columns.

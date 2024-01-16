@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v7/uritemplates"
+	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
 // CatShardsService returns the list of shards plus some additional
@@ -116,7 +116,8 @@ func (s *CatShardsService) MasterTimeout(masterTimeout string) *CatShardsService
 // in your terminal:
 //
 // Example:
-//   curl 'http://localhost:9200/_cat/shards?help'
+//
+//	curl 'http://localhost:9200/_cat/shards?help'
 //
 // You can use Columns("*") to return all possible columns. That might take
 // a little longer than the default set of columns.

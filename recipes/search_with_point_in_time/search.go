@@ -4,16 +4,15 @@
 
 // Search illustrates how to search using the Point in Time API.
 //
-// Example
+// # Example
 //
 // Scroll through an index called "products".
 //
-//     ./search_with_point_in_time -index=products -size=100
+//	./search_with_point_in_time -index=products -size=100
 //
 // If you don't have an index, use the "populate" command to fill one.
 //
-//     ./search_with_point_in_time -index=products populate
-//
+//	./search_with_point_in_time -index=products populate
 package main
 
 import (
@@ -23,7 +22,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/disaster37/opensearch/v2"
 )
 
 func main() {

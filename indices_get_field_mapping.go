@@ -11,11 +11,12 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v7/uritemplates"
+	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
 // IndicesGetFieldMappingService retrieves the mapping definitions for the fields in an index
-//  or index/type.
+//
+//	or index/type.
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-get-field-mapping.html
 // for details.

@@ -4,11 +4,9 @@
 
 // Connect simply connects to Elasticsearch.
 //
-// Example
+// # Example
 //
-//
-//     connect "http://127.0.0.1:9200/test-index?sniff=false&healthcheck=false"
-//
+//	connect "http://127.0.0.1:9200/test-index?sniff=false&healthcheck=false"
 package main
 
 import (
@@ -17,8 +15,8 @@ import (
 	"log"
 	"runtime"
 
-	"github.com/olivere/elastic/v7"
-	"github.com/olivere/elastic/v7/config"
+	"github.com/disaster37/opensearch/v2"
+	"github.com/disaster37/opensearch/v2/config"
 )
 
 func main() {

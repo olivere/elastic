@@ -12,10 +12,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/disaster37/opensearch/v2"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/mocktracer"
-
-	"github.com/olivere/elastic/v7"
 )
 
 func TestTransport(t *testing.T) {
@@ -96,7 +95,7 @@ func TestTransport(t *testing.T) {
 	if want, have := "PerformRequest", span.OperationName; want != have {
 		t.Fatalf("want Span.OperationName=%q, have %q", want, have)
 	}
-	if want, have := "github.com/olivere/elastic/v7", span.Tag("component"); want != have {
+	if want, have := "github.com/disaster37/opensearch/v2", span.Tag("component"); want != have {
 		t.Fatalf("want component tag=%q, have %q", want, have)
 	}
 	httpURL, ok := span.Tag("http.url").(string)

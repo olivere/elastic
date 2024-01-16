@@ -1,117 +1,66 @@
-# Elastic
+# Operator
 
-**This is a development branch that is actively being worked on. DO NOT USE IN PRODUCTION! If you want to use stable versions of Elastic, please use Go modules for the 7.x release (or later) or a dependency manager like [dep](https://github.com/golang/dep) for earlier releases.**
+**This is a development branch that is actively being worked on. DO NOT USE IN PRODUCTION! If you want to use stable versions of Opensearch, please use Go modules for the 2.x release (or later) or a dependency manager like [dep](https://github.com/golang/dep) for earlier releases.**
 
-Elastic is an [Elasticsearch](http://www.elasticsearch.org/) client for the
+Opensearch is an [Opensearch](http://www.opensearch.org/) client for the
 [Go](http://www.golang.org/) programming language.
 
-[![Build Status](https://github.com/olivere/elastic/workflows/Test/badge.svg)](https://github.com/olivere/elastic/actions)
-[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://pkg.go.dev/github.com/olivere/elastic/v7?tab=doc)
-[![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/olivere/elastic/master/LICENSE)
+[![Build Status](https://github.com/disaster37/opensearch/workflows/Test/badge.svg)](https://github.com/disaster37/opensearch/actions)
+[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://pkg.go.dev/github.com/disaster37/opensearch/v2?tab=doc)
+[![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/disaster37/opensearch/master/LICENSE)
 
-See the [wiki](https://github.com/olivere/elastic/wiki) for additional information about Elastic.
-
-<a href="https://www.buymeacoffee.com/Bjd96U8fm" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
 ## Releases
 
-**The release branches (e.g. [`release-branch.v7`](https://github.com/olivere/elastic/tree/release-branch.v7))
+**The release branches (e.g. [`release-branch.v2`](https://github.com/disaster37/opensearch/tree/release-branch.v2))
 are actively being worked on and can break at any time.
-If you want to use stable versions of Elastic, please use Go modules.**
+If you want to use stable versions of Opensearch, please use Go modules.**
 
 Here's the version matrix:
 
-Elasticsearch version | Elastic version  | Package URL | Remarks |
+Opensearchsearch version | Opensearch version  | Package URL | Remarks |
 ----------------------|------------------|-------------|---------|
-7.x                   | 7.0              | [`github.com/olivere/elastic/v7`](https://github.com/olivere/elastic) ([source](https://github.com/olivere/elastic/tree/release-branch.v7) [doc](http://godoc.org/github.com/olivere/elastic)) | Use Go modules.
-6.x                   | 6.0              | [`github.com/olivere/elastic`](https://github.com/olivere/elastic) ([source](https://github.com/olivere/elastic/tree/release-branch.v6) [doc](http://godoc.org/github.com/olivere/elastic)) | Use a dependency manager (see below).
-5.x                   | 5.0              | [`gopkg.in/olivere/elastic.v5`](https://gopkg.in/olivere/elastic.v5) ([source](https://github.com/olivere/elastic/tree/release-branch.v5) [doc](http://godoc.org/gopkg.in/olivere/elastic.v5)) | Actively maintained.
-2.x                   | 3.0              | [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3) ([source](https://github.com/olivere/elastic/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/olivere/elastic.v3)) | Deprecated. Please update.
-1.x                   | 2.0              | [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2) ([source](https://github.com/olivere/elastic/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/olivere/elastic.v2)) | Deprecated. Please update.
-0.9-1.3               | 1.0              | [`gopkg.in/olivere/elastic.v1`](https://gopkg.in/olivere/elastic.v1) ([source](https://github.com/olivere/elastic/tree/release-branch.v1) [doc](http://godoc.org/gopkg.in/olivere/elastic.v1)) | Deprecated. Please update.
+7.x                   | 7.0              | [`github.com/disaster37/opensearch/v2`](https://github.com/disaster37/opensearch) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v2) [doc](http://godoc.org/github.com/disaster37/opensearch)) | Use Go modules.
+6.x                   | 6.0              | [`github.com/disaster37/opensearch`](https://github.com/disaster37/opensearch) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v6) [doc](http://godoc.org/github.com/disaster37/opensearch)) | Use a dependency manager (see below).
+5.x                   | 5.0              | [`gopkg.in/disaster37/opensearch.v5`](https://gopkg.in/disaster37/opensearch.v5) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v5) [doc](http://godoc.org/gopkg.in/disaster37/opensearch.v5)) | Actively maintained.
+2.x                   | 3.0              | [`gopkg.in/disaster37/opensearch.v3`](https://gopkg.in/disaster37/opensearch.v3) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/disaster37/opensearch.v3)) | Deprecated. Please update.
+1.x                   | 2.0              | [`gopkg.in/disaster37/opensearch.v2`](https://gopkg.in/disaster37/opensearch.v2) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/disaster37/opensearch.v2)) | Deprecated. Please update.
+0.9-1.3               | 1.0              | [`gopkg.in/disaster37/opensearch.v1`](https://gopkg.in/disaster37/opensearch.v1) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v1) [doc](http://godoc.org/gopkg.in/disaster37/opensearch.v1)) | Deprecated. Please update.
 
 **Example:**
 
-You have installed Elasticsearch 7.0.0 and want to use Elastic.
-As listed above, you should use Elastic 7.0 (code is in `release-branch.v7`).
+You have installed Opensearchsearch 7.0.0 and want to use Opensearch.
+As listed above, you should use Opensearch 7.0 (code is in `release-branch.v2`).
 
-To use the required version of Elastic in your application, you
+To use the required version of Opensearch in your application, you
 should use [Go modules](https://github.com/golang/go/wiki/Modules)
-to manage dependencies. Make sure to use a version such as `7.0.0` or later.
+to manage dependencies. Make sure to use a version such as `2.0.0` or later.
 
-To use Elastic, import:
+To use Opensearch, import:
 
 ```go
-import "github.com/olivere/elastic/v7"
+import "github.com/disaster37/opensearch/v2"
 ```
 
-### Elastic 7.0
+### Opensearch 2.0
 
-Elastic 7.0 targets Elasticsearch 7.x which [was released on April 10th 2019](https://www.elastic.co/guide/en/elasticsearch/reference/7.0/release-notes-7.0.0.html).
-
-As always with major version, there are a lot of [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/7.0/release-notes-7.0.0.html#breaking-7.0.0).
-We will use this as an opportunity to [clean up and refactor Elastic](https://github.com/olivere/elastic/blob/release-branch.v7/CHANGELOG-7.0.md),
-as we already did in earlier (major) releases.
-
-### Elastic 6.0
-
-Elastic 6.0 targets Elasticsearch 6.x which was [released on 14th November 2017](https://www.elastic.co/blog/elasticsearch-6-0-0-released).
-
-Notice that there are a lot of [breaking changes in Elasticsearch 6.0](https://www.elastic.co/guide/en/elasticsearch/reference/6.7/breaking-changes-6.0.html)
-and we used this as an opportunity to [clean up and refactor Elastic](https://github.com/olivere/elastic/blob/release-branch.v6/CHANGELOG-6.0.md)
-as we did in the transition from earlier versions of Elastic.
-
-### Elastic 5.0
-
-Elastic 5.0 targets Elasticsearch 5.0.0 and later. Elasticsearch 5.0.0 was
-[released on 26th October 2016](https://www.elastic.co/blog/elasticsearch-5-0-0-released).
-
-Notice that there are will be a lot of [breaking changes in Elasticsearch 5.0](https://www.elastic.co/guide/en/elasticsearch/reference/5.0/breaking-changes-5.0.html)
-and we used this as an opportunity to [clean up and refactor Elastic](https://github.com/olivere/elastic/blob/release-branch.v5/CHANGELOG-5.0.md)
-as we did in the transition from Elastic 2.0 (for Elasticsearch 1.x) to Elastic 3.0 (for Elasticsearch 2.x).
-
-Furthermore, the jump in version numbers will give us a chance to be in sync with the Elastic Stack.
-
-### Elastic 3.0
-
-Elastic 3.0 targets Elasticsearch 2.x and is published via [`gopkg.in/olivere/elastic.v3`](https://gopkg.in/olivere/elastic.v3).
-
-Elastic 3.0 will only get critical bug fixes. You should update to a recent version.
-
-### Elastic 2.0
-
-Elastic 2.0 targets Elasticsearch 1.x and is published via [`gopkg.in/olivere/elastic.v2`](https://gopkg.in/olivere/elastic.v2).
-
-Elastic 2.0 will only get critical bug fixes. You should update to a recent version.
-
-### Elastic 1.0
-
-Elastic 1.0 is deprecated. You should really update Elasticsearch and Elastic
-to a recent version.
-
-However, if you cannot update for some reason, don't worry. Version 1.0 is
-still available. All you need to do is go-get it and change your import path
-as described above.
+Opensearch 2.0 targets Opensearchsearch 2.x.
 
 
 ## Status
 
-We use Elastic in production since 2012. Elastic is stable but the API changes
+We use Opensearch in production since 2024. Opensearch is stable but the API changes
 now and then. We strive for API compatibility.
-However, Elasticsearch sometimes introduces [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/master/breaking-changes.html)
+However, Opensearchsearch sometimes introduces
 and we sometimes have to adapt.
 
 Having said that, there have been no big API changes that required you
 to rewrite your application big time. More often than not it's renaming APIs
-and adding/removing features so that Elastic is in sync with Elasticsearch.
+and adding/removing features so that Opensearch is in sync with Opensearch cluster.
 
-Elastic has been used in production starting with Elasticsearch 0.90 up to recent 7.x
-versions.
-We recently switched to [GitHub Actions for testing](https://github.com/olivere/elastic/actions).
-Before that, we used [Travis CI](https://travis-ci.org/olivere/elastic) successfully for years).
 
-Elasticsearch has quite a few features. Most of them are implemented
-by Elastic. I add features and APIs as required. It's straightforward
+Opensearch has quite a few features. Most of them are implemented
+by Opensearch. I add features and APIs as required. It's straightforward
 to implement missing pieces. I'm accepting pull requests :-)
 
 Having said that, I hope you find the project useful.
@@ -119,26 +68,15 @@ Having said that, I hope you find the project useful.
 
 ## Getting Started
 
-The first thing you do is to create a [Client](https://github.com/olivere/elastic/blob/master/client.go).
-The client connects to Elasticsearch on `http://127.0.0.1:9200` by default.
+The first thing you do is to create a [Client](https://github.com/disaster37/opensearch/blob/master/client.go).
+The client connects to Opensearchsearch on `http://127.0.0.1:9200` by default.
 
 You typically create one client for your app. Here's a complete example of
 creating a client, creating an index, adding a document, executing a search etc.
 
-An example is available [here](https://olivere.github.io/elastic/).
+An example is available [here](https://disaster37.github.io/opensearch/).
 
-Here's a [link to a complete working example for v6](https://gist.github.com/olivere/e4a376b4783c0914e44ea4f745ce2ebf).
-
-Here are a few tips on how to get used to Elastic:
-
-1. Head over to the [Wiki](https://github.com/olivere/elastic/wiki) for detailed information and
-   topics like e.g. [how to add a middleware](https://github.com/olivere/elastic/wiki/HttpTransport)
-   or how to [connect to AWS](https://github.com/olivere/elastic/wiki/Using-with-AWS-Elasticsearch-Service).
-2. If you are unsure how to implement something, read the tests (all `_test.go` files).
-   They not only serve as a guard against changes, but also as a reference.
-3. The [recipes](https://github.com/olivere/elastic/tree/release-branch.v6/recipes)
-   contains small examples on how to implement something, e.g. bulk indexing, scrolling etc.
-
+Here's a [link to a complete working example for v2](@todo).
 
 ## API Status
 
@@ -425,21 +363,21 @@ Here are a few tips on how to get used to Elastic:
 Scrolling is supported via a  `ScrollService`. It supports an iterator-like interface.
 The `ClearScroll` API is implemented as well.
 
-A pattern for [efficiently scrolling in parallel](https://github.com/olivere/elastic/wiki/ScrollParallel)
-is described in the [Wiki](https://github.com/olivere/elastic/wiki).
+A pattern for [efficiently scrolling in parallel](https://github.com/disaster37/opensearch/wiki/ScrollParallel)
+is described in the [Wiki](https://github.com/disaster37/opensearch/wiki).
 
 ## How to contribute
 
-Read [the contribution guidelines](https://github.com/olivere/elastic/blob/master/CONTRIBUTING.md).
+Read [the contribution guidelines](https://github.com/disaster37/opensearch/blob/master/CONTRIBUTING.md).
 
 ## Credits
 
 Thanks a lot for the great folks working hard on
-[Elasticsearch](https://www.elastic.co/products/elasticsearch)
+[Opensearchsearch](https://www.opensearch.co/products/opensearchsearch)
 and
 [Go](https://golang.org/).
 
-Elastic uses portions of the
+Opensearch uses portions of the
 [uritemplates](https://github.com/jtacoma/uritemplates) library
 by Joshua Tacoma,
 [backoff](https://github.com/cenkalti/backoff) by Cenk Altı and

@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v7/uritemplates"
+	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
 // CatSnapshotsService returns the list of snapshots.
@@ -97,7 +97,8 @@ func (s *CatSnapshotsService) MasterTimeout(masterTimeout string) *CatSnapshotsS
 // in your terminal:
 //
 // Example:
-//   curl 'http://localhost:9200/_cat/snapshots/<repository>?help'
+//
+//	curl 'http://localhost:9200/_cat/snapshots/<repository>?help'
 //
 // You can use Columns("*") to return all possible columns. That might take
 // a little longer than the default set of columns.

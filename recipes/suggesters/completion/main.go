@@ -4,10 +4,9 @@
 
 // Connect creates an index with a mapping with different data types.
 //
-// Example
+// # Example
 //
-//
-//     ./completion -url=http://127.0.0.1:9200 -index=cities
+//	./completion -url=http://127.0.0.1:9200 -index=cities
 //
 // For more details and experimentation, take a look at the official
 // documentation at https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters-completion.html.
@@ -23,7 +22,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/disaster37/opensearch/v2"
 )
 
 const (

@@ -7,9 +7,8 @@
 //
 // Example
 //
-//     go run main.go -url=http://127.0.0.1:9200 -index=testindex
-//     go run main.go -url=http://127.0.0.1:9200 -index=test -trace
-//
+//	go run main.go -url=http://127.0.0.1:9200 -index=testindex
+//	go run main.go -url=http://127.0.0.1:9200 -index=test -trace
 package main
 
 import (
@@ -20,7 +19,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/disaster37/opensearch/v2"
 )
 
 const (

@@ -6,8 +6,7 @@
 //
 // Example
 //
-//     middleware "http://127.0.0.1:9200/test-index?sniff=false&healthcheck=false"
-//
+//	middleware "http://127.0.0.1:9200/test-index?sniff=false&healthcheck=false"
 package main
 
 import (
@@ -17,7 +16,7 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/disaster37/opensearch/v2"
 )
 
 // CountingTransport will count requests.

@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v7/uritemplates"
+	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
 // CatFielddataService Returns the amount of heap memory currently used by
@@ -99,7 +99,8 @@ func (s *CatFielddataService) Bytes(bytes string) *CatFielddataService {
 // in your terminal:
 //
 // Example:
-//   curl 'http://localhost:9200/_cat/fielddata?help'
+//
+//	curl 'http://localhost:9200/_cat/fielddata?help'
 //
 // You can use Columns("*") to return all possible columns. That might take
 // a little longer than the default set of columns.
