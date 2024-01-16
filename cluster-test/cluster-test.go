@@ -29,7 +29,7 @@ type Tweet struct {
 	Created  time.Time             `json:"created,omitempty"`
 	Tags     []string              `json:"tags,omitempty"`
 	Location string                `json:"location,omitempty"`
-	Suggest  *elastic.SuggestField `json:"suggest_field,omitempty"`
+	Suggest  *opensearch.SuggestField `json:"suggest_field,omitempty"`
 }
 
 var (
@@ -40,10 +40,10 @@ var (
 	infologfile   = flag.String("infolog", "", "info log file")
 	tracelogfile  = flag.String("tracelog", "", "trace log file")
 	retries       = flag.Int("retries", 0, "number of retries")
-	sniff         = flag.Bool("sniff", elastic.DefaultSnifferEnabled, "enable or disable sniffer")
-	sniffer       = flag.Duration("sniffer", elastic.DefaultSnifferInterval, "sniffer interval")
-	healthcheck   = flag.Bool("healthcheck", elastic.DefaultHealthcheckEnabled, "enable or disable healthchecks")
-	healthchecker = flag.Duration("healthchecker", elastic.DefaultHealthcheckInterval, "healthcheck interval")
+	sniff         = flag.Bool("sniff", opensearch.DefaultSnifferEnabled, "enable or disable sniffer")
+	sniffer       = flag.Duration("sniffer", opensearch.DefaultSnifferInterval, "sniffer interval")
+	healthcheck   = flag.Bool("healthcheck", opensearch.DefaultHealthcheckEnabled, "enable or disable healthchecks")
+	healthchecker = flag.Duration("healthchecker", opensearch.DefaultHealthcheckInterval, "healthcheck interval")
 )
 
 func main() {
@@ -83,7 +83,7 @@ type RunInfo struct {
 
 type TestCase struct {
 	nodes               []string
-	client              *elastic.Client
+	client              *opensearch.Client
 	runs                int64
 	failures            int64
 	runCh               chan RunInfo
@@ -183,7 +183,7 @@ func (t *TestCase) monitor() {
 }
 
 func (t *TestCase) setup() error {
-	var options []elastic.ClientOptionFunc
+	var options []opensearch.ClientOptionFunc
 
 	if t.errorlogfile != "" {
 		f, err := os.OpenFile(t.errorlogfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
@@ -191,7 +191,7 @@ func (t *TestCase) setup() error {
 			return err
 		}
 		logger := log.New(f, "", log.Ltime|log.Lmicroseconds|log.Lshortfile)
-		options = append(options, elastic.SetErrorLog(logger))
+		options = append(options, opensearch.SetErrorLog(logger))
 	}
 
 	if t.infologfile != "" {
@@ -200,7 +200,7 @@ func (t *TestCase) setup() error {
 			return err
 		}
 		logger := log.New(f, "", log.LstdFlags)
-		options = append(options, elastic.SetInfoLog(logger))
+		options = append(options, opensearch.SetInfoLog(logger))
 	}
 
 	// Trace request and response details like this
@@ -210,17 +210,17 @@ func (t *TestCase) setup() error {
 			return err
 		}
 		logger := log.New(f, "", log.LstdFlags)
-		options = append(options, elastic.SetTraceLog(logger))
+		options = append(options, opensearch.SetTraceLog(logger))
 	}
 
-	options = append(options, elastic.SetURL(t.nodes...))
-	options = append(options, elastic.SetMaxRetries(t.maxRetries))
-	options = append(options, elastic.SetSniff(t.sniff))
-	options = append(options, elastic.SetSnifferInterval(t.snifferInterval))
-	options = append(options, elastic.SetHealthcheck(t.healthcheck))
-	options = append(options, elastic.SetHealthcheckInterval(t.healthcheckInterval))
+	options = append(options, opensearch.SetURL(t.nodes...))
+	options = append(options, opensearch.SetMaxRetries(t.maxRetries))
+	options = append(options, opensearch.SetSniff(t.sniff))
+	options = append(options, opensearch.SetSnifferInterval(t.snifferInterval))
+	options = append(options, opensearch.SetHealthcheck(t.healthcheck))
+	options = append(options, opensearch.SetHealthcheckInterval(t.healthcheckInterval))
 
-	client, err := elastic.NewClient(options...)
+	client, err := opensearch.NewClient(options...)
 	if err != nil {
 		// Handle error
 		return err
@@ -302,7 +302,7 @@ func (t *TestCase) search() {
 			t.runCh <- RunInfo{Success: false}
 			continue
 		}
-		if elastic.IsNotFound(err) {
+		if opensearch.IsNotFound(err) {
 			//log.Printf("Document %s not found\n", "1")
 			//fmt.Printf("Got document %s in version %d from index %s, type %s\n", get1.Id, get1.Version, get1.Index, get1.Type)
 			t.runCh <- RunInfo{Success: false}
@@ -312,7 +312,7 @@ func (t *TestCase) search() {
 		// Search with a term query
 		searchResult, err := t.client.Search().
 			Index(t.index).                                 // search in index t.index
-			Query(elastic.NewTermQuery("user", "olivere")). // specify the query
+			Query(opensearch.NewTermQuery("user", "olivere")). // specify the query
 			Sort("user", true).                             // sort by "user" field, ascending
 			From(0).Size(10).                               // take documents 0-9
 			Pretty(true).                                   // pretty print request and response JSON

@@ -64,12 +64,12 @@ func TestTransport(t *testing.T) {
 	}
 
 	// Create a simple Ping request via Elastic
-	client, err := elastic.NewClient(
-		elastic.SetURL(ts.URL),
-		elastic.SetHttpClient(httpClient),
-		elastic.SetHealthcheck(false),
-		elastic.SetSniff(false),
-		elastic.SetBasicAuth("alice", "secret"),
+	client, err := opensearch.NewClient(
+		opensearch.SetURL(ts.URL),
+		opensearch.SetHttpClient(httpClient),
+		opensearch.SetHealthcheck(false),
+		opensearch.SetSniff(false),
+		opensearch.SetBasicAuth("alice", "secret"),
 	)
 	if err != nil {
 		t.Fatal(err)

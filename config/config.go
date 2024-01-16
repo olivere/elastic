@@ -30,7 +30,8 @@ type Config struct {
 // from the URL, its path, and its query string.
 //
 // Example:
-//   http://127.0.0.1:9200/store-blobs?shards=1&replicas=0&sniff=false&tracelog=elastic.trace.log
+//
+//	http://127.0.0.1:9200/store-blobs?shards=1&replicas=0&sniff=false&tracelog=elastic.trace.log
 //
 // The code above will return a URL of http://127.0.0.1:9200, an index name
 // of store-blobs, and the related settings from the query string.

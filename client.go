@@ -164,15 +164,15 @@ type Client struct {
 //
 // Example:
 //
-//	client, err := elastic.NewClient(
-//	  elastic.SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"),
-//	  elastic.SetBasicAuth("user", "secret"))
+//	client, err := opensearch.NewClient(
+//	  opensearch.SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"),
+//	  opensearch.SetBasicAuth("user", "secret"))
 //
 // If no URL is configured, Elastic uses DefaultURL by default.
 //
 // If the sniffer is enabled (the default), the new client then sniffes
 // the cluster via the Nodes Info API
-// (see https://www.elastic.co/guide/en/elasticsearch/reference/7.0/cluster-nodes-info.html#cluster-nodes-info).
+// (see https://www.opensearch.co/guide/en/elasticsearch/reference/7.0/cluster-nodes-info.html#cluster-nodes-info).
 // It uses the URLs specified by the caller. The caller is responsible
 // to only pass a list of URLs of nodes that belong to the same cluster.
 // This sniffing process is run on startup and periodically.
@@ -1563,7 +1563,7 @@ func (c *Client) BulkProcessor() *BulkProcessorService {
 
 // Reindex copies data from a source index into a destination index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-reindex.html
+// See https://www.opensearch.co/guide/en/elasticsearch/reference/7.0/docs-reindex.html
 // for details on the Reindex API.
 func (c *Client) Reindex() *ReindexService {
 	return NewReindexService(c)
@@ -1755,7 +1755,7 @@ func (c *Client) Flush(indices ...string) *IndicesFlushService {
 
 // SyncedFlush performs a synced flush.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-synced-flush.html
+// See https://www.opensearch.co/guide/en/elasticsearch/reference/7.0/indices-synced-flush.html
 // for more details on synched flushes and how they differ from a normal
 // Flush.
 func (c *Client) SyncedFlush(indices ...string) *IndicesSyncedFlushService {
@@ -1782,7 +1782,7 @@ func (c *Client) Aliases() *AliasesService {
 // IndexGetTemplate gets an index template (v1/legacy version before 7.8).
 //
 // This service implements the legacy version of index templates as described
-// in https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+// in https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
 //
 // See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 //
@@ -1794,7 +1794,7 @@ func (c *Client) IndexGetTemplate(names ...string) *IndicesGetTemplateService {
 // IndexTemplateExists gets check if an index template exists (v1/legacy version before 7.8).
 //
 // This service implements the legacy version of index templates as described
-// in https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+// in https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
 //
 // See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 //
@@ -1806,7 +1806,7 @@ func (c *Client) IndexTemplateExists(name string) *IndicesExistsTemplateService 
 // IndexPutTemplate creates or updates an index template (v1/legacy version before 7.8).
 //
 // This service implements the legacy version of index templates as described
-// in https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+// in https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
 //
 // See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 //
@@ -1818,7 +1818,7 @@ func (c *Client) IndexPutTemplate(name string) *IndicesPutTemplateService {
 // IndexDeleteTemplate deletes an index template (v1/legacy version before 7.8).
 //
 // This service implements the legacy version of index templates as described
-// in https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
+// in https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-templates-v1.html.
 //
 // See e.g. IndexPutIndexTemplate and IndexPutComponentTemplate for the new version(s).
 //
@@ -1832,7 +1832,7 @@ func (c *Client) IndexDeleteTemplate(name string) *IndicesDeleteTemplateService 
 // IndexPutIndexTemplate creates or updates an index template (new version after 7.8).
 //
 // This service implements the new version of index templates as described
-// on https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-put-template.html.
+// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-put-template.html.
 //
 // See e.g. IndexPutTemplate for the v1/legacy version.
 func (c *Client) IndexPutIndexTemplate(name string) *IndicesPutIndexTemplateService {
@@ -1842,7 +1842,7 @@ func (c *Client) IndexPutIndexTemplate(name string) *IndicesPutIndexTemplateServ
 // IndexGetIndexTemplate returns an index template (new version after 7.8).
 //
 // This service implements the new version of index templates as described
-// on https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-get-template.html.
+// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-get-template.html.
 //
 // See e.g. IndexPutTemplate for the v1/legacy version.
 func (c *Client) IndexGetIndexTemplate(name string) *IndicesGetIndexTemplateService {
@@ -1852,7 +1852,7 @@ func (c *Client) IndexGetIndexTemplate(name string) *IndicesGetIndexTemplateServ
 // IndexDeleteIndexTemplate deletes an index template (new version after 7.8).
 //
 // This service implements the new version of index templates as described
-// on https://www.elastic.co/guide/en/elasticsearch/reference/7.9/indices-delete-template.html.
+// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.9/indices-delete-template.html.
 //
 // See e.g. IndexPutTemplate for the v1/legacy version.
 func (c *Client) IndexDeleteIndexTemplate(name string) *IndicesDeleteIndexTemplateService {
@@ -1864,7 +1864,7 @@ func (c *Client) IndexDeleteIndexTemplate(name string) *IndicesDeleteIndexTempla
 // IndexPutComponentTemplate creates or updates a component template (available since 7.8).
 //
 // This service implements the component templates as described
-// on https://www.elastic.co/guide/en/elasticsearch/reference/7.10/indices-component-template.html.
+// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.10/indices-component-template.html.
 func (c *Client) IndexPutComponentTemplate(name string) *IndicesPutComponentTemplateService {
 	return NewIndicesPutComponentTemplateService(c).Name(name)
 }
@@ -1872,7 +1872,7 @@ func (c *Client) IndexPutComponentTemplate(name string) *IndicesPutComponentTemp
 // IndexGetComponentTemplate returns a component template (available since 7.8).
 //
 // This service implements the component templates as described
-// on https://www.elastic.co/guide/en/elasticsearch/reference/7.10/getting-component-templates.html.
+// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.10/getting-component-templates.html.
 func (c *Client) IndexGetComponentTemplate(name string) *IndicesGetComponentTemplateService {
 	return NewIndicesGetComponentTemplateService(c).Name(name)
 }
@@ -1880,7 +1880,7 @@ func (c *Client) IndexGetComponentTemplate(name string) *IndicesGetComponentTemp
 // IndexDeleteComponentTemplate deletes a component template (available since 7.8).
 //
 // This service implements the component templates as described
-// on https://www.elastic.co/guide/en/elasticsearch/reference/7.10/indices-delete-component-template.html.
+// on https://www.opensearch.co/guide/en/elasticsearch/reference/7.10/indices-delete-component-template.html.
 func (c *Client) IndexDeleteComponentTemplate(name string) *IndicesDeleteComponentTemplateService {
 	return NewIndicesDeleteComponentTemplateService(c).Name(name)
 }

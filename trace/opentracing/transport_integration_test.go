@@ -27,17 +27,17 @@ func TestTransportIntegration(t *testing.T) {
 	}
 
 	// Create a simple Ping request via Elastic
-	client, err := elastic.NewClient(
-		elastic.SetURL("http://127.0.0.1:9210"),
-		elastic.SetHealthcheck(false),
-		elastic.SetSniff(false),
-		elastic.SetBasicAuth("elastic", "elastic"),
-		elastic.SetHttpClient(httpClient),
+	client, err := opensearch.NewClient(
+		opensearch.SetURL("http://127.0.0.1:9210"),
+		opensearch.SetHealthcheck(false),
+		opensearch.SetSniff(false),
+		opensearch.SetBasicAuth("elastic", "elastic"),
+		opensearch.SetHttpClient(httpClient),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Search("_all").Query(elastic.NewMatchAllQuery()).Do(context.Background())
+	_, err = client.Search("_all").Query(opensearch.NewMatchAllQuery()).Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
