@@ -16,7 +16,7 @@ import (
 
 // Config represents an Opensearch configuration.
 type Config struct {
-	URL         []string
+	URLs        []string
 	Index       string
 	Username    string
 	Password    string
@@ -74,7 +74,7 @@ func Parse(opensearchURL string) (*Config, error) {
 
 	uri.Path = ""
 	uri.RawQuery = ""
-	cfg.URL = []string{uri.String()}
+	cfg.URLs = []string{uri.String()}
 	cfg.Index = index
 
 	return cfg, nil

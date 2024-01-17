@@ -12,7 +12,7 @@ func TestParse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want, got := "http://opensearch:19220", cfg.URL[0]; want != got {
+	if want, got := "http://opensearch:19220", cfg.URLs[0]; want != got {
 		t.Fatalf("expected URL = %q, got %q", want, got)
 	}
 	if want, got := "store-blobs", cfg.Index; want != got {
@@ -44,7 +44,7 @@ func TestParseDoesNotFailWithoutIndexName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want, got := "http://opensearch:19220", cfg.URL[0]; want != got {
+	if want, got := "http://opensearch:19220", cfg.URLs[0]; want != got {
 		t.Fatalf("expected URL = %q, got %q", want, got)
 	}
 	if want, got := "", cfg.Index; want != got {
@@ -58,7 +58,7 @@ func TestParseTrimsIndexName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want, got := "http://opensearch:19220", cfg.URL[0]; want != got {
+	if want, got := "http://opensearch:19220", cfg.URLs[0]; want != got {
 		t.Fatalf("expected URL = %q, got %q", want, got)
 	}
 	if want, got := "store-blobs", cfg.Index; want != got {

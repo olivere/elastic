@@ -434,8 +434,8 @@ func DialWithConfig(ctx context.Context, cfg *config.Config) (*Client, error) {
 func configToOptions(cfg *config.Config) ([]ClientOptionFunc, error) {
 	var options []ClientOptionFunc
 	if cfg != nil {
-		if len(cfg.URL) > 0 {
-			options = append(options, SetURL(cfg.URL...))
+		if len(cfg.URLs) > 0 {
+			options = append(options, SetURL(cfg.URLs...))
 		}
 
 		if cfg.Username != "" || cfg.Password != "" {
