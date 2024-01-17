@@ -12,13 +12,13 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"os"
 	"runtime"
 	"strings"
 	"sync/atomic"
 	"time"
 
 	"github.com/disaster37/opensearch/v2"
+	"github.com/sirupsen/logrus"
 )
 
 type Tweet struct {
@@ -185,33 +185,8 @@ func (t *TestCase) monitor() {
 func (t *TestCase) setup() error {
 	var options []opensearch.ClientOptionFunc
 
-	if t.errorlogfile != "" {
-		f, err := os.OpenFile(t.errorlogfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
-		if err != nil {
-			return err
-		}
-		logger := log.New(f, "", log.Ltime|log.Lmicroseconds|log.Lshortfile)
-		options = append(options, opensearch.SetErrorLog(logger))
-	}
-
-	if t.infologfile != "" {
-		f, err := os.OpenFile(t.infologfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
-		if err != nil {
-			return err
-		}
-		logger := log.New(f, "", log.LstdFlags)
-		options = append(options, opensearch.SetInfoLog(logger))
-	}
-
-	// Trace request and response details like this
-	if t.tracelogfile != "" {
-		f, err := os.OpenFile(t.tracelogfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
-		if err != nil {
-			return err
-		}
-		logger := log.New(f, "", log.LstdFlags)
-		options = append(options, opensearch.SetTraceLog(logger))
-	}
+	logger := logrus.StandardLogger()
+	options = append(options, opensearch.SetLogger(logger))
 
 	options = append(options, opensearch.SetURL(t.nodes...))
 	options = append(options, opensearch.SetMaxRetries(t.maxRetries))
