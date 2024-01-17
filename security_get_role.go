@@ -154,12 +154,12 @@ type SecurityGetRoleResponse map[string]SecurityRole
 
 // SecurityRole is the role object.
 type SecurityRole struct {
-	Reserved           bool                        `json:"reserved"`
-	Hidden             bool                        `json:"hidden"`
-	Static             bool                        `json:"static"`
-	ClusterPermissions []string                    `json:"cluster_permissions"`
-	IndexPermissions   []SecurityIndexPermissions  `json:"index_permissions"`
-	TenantPermissions  []SecurityTenantPermissions `json:"tenant_permissions"`
+	Reserved           bool                        `json:"reserved,omitempty"`
+	Hidden             bool                        `json:"hidden,omitempty"`
+	Static             bool                        `json:"static,omitempty"`
+	ClusterPermissions []string                    `json:"cluster_permissions,omitempty"`
+	IndexPermissions   []SecurityIndexPermissions  `json:"index_permissions,omitempty"`
+	TenantPermissions  []SecurityTenantPermissions `json:"tenant_permissions,omitempty"`
 }
 
 // SecurityTenantPermissions is the tenant permission object
@@ -171,8 +171,8 @@ type SecurityTenantPermissions struct {
 // SecurityIndexPermissions is the index permission object
 type SecurityIndexPermissions struct {
 	IndexPatterns  []string `json:"index_patterns"`
-	MaskedFields   []string `json:"masked_fields"`
-	AllowedActions []string `json:"allowed_actions"`
-	Dsl            string   `json:"dsl"`
-	Fls            []string `json:"fls"`
+	MaskedFields   []string `json:"masked_fields,omitempty"`
+	AllowedActions []string `json:"allowed_actions,omitempty"`
+	Dsl            string   `json:"dsl,omitempty"`
+	Fls            []string `json:"fls,omitempty"`
 }
