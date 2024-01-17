@@ -7,6 +7,7 @@ package opensearch
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -310,6 +311,14 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 		options = append(options, SetHealthcheck(false))
 	}
 
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	options = append(options, SetURL("https://127.0.0.1:9200"), SetBasicAuth("admin", "admin"), SetTransport(transport), SetScheme("https"))
+
 	client, err = NewClient(options...)
 	if err != nil {
 		t.Fatal(err)
@@ -479,19 +488,6 @@ func setupTestClientAndCreateIndexAndAddDocsNoSource(t logger, options ...Client
 	}
 	// Refresh
 	_, err = client.Refresh().Index(testNoSourceIndexName).Do(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return client
-}
-
-func setupTestClientForXpackSecurity(t logger) (client *Client) {
-	var err error
-	// Set URL and Auth to use the platinum ES cluster
-	options := []ClientOptionFunc{SetURL("http://127.0.0.1:9210"), SetBasicAuth("opensearch", "opensearch")}
-
-	client, err = NewClient(options...)
 	if err != nil {
 		t.Fatal(err)
 	}

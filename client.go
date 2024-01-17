@@ -2135,3 +2135,20 @@ func (c *Client) WaitForGreenStatus(timeout string) error {
 func (c *Client) WaitForYellowStatus(timeout string) error {
 	return c.WaitForStatus("yellow", timeout)
 }
+
+// -- Security plugin --
+
+// SecurityDeleteRole deletes a role.
+func (c *Client) SecurityDeleteRole(roleName string) *SecurityDeleteRoleService {
+	return NewSecurityDeleteRoleService(c).Name(roleName)
+}
+
+// SecurityGetRole gets a role.
+func (c *Client) SecurityGetRole(roleName string) *SecurityGetRoleService {
+	return NewSecurityGetRoleService(c).Name(roleName)
+}
+
+// SecurityPutRole adds a role.
+func (c *Client) SecurityPutRole(roleName string) *SecurityPutRoleService {
+	return NewSecurityPutRoleService(c).Name(roleName)
+}

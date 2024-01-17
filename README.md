@@ -358,6 +358,11 @@ Here's a [link to a complete working example for v2](@todo).
 - [x] Sort by script
 - [x] Sort by doc
 
+### Security
+
+- Security plugin
+  - [x] Role
+
 ### Scrolling
 
 Scrolling is supported via a  `ScrollService`. It supports an iterator-like interface.
