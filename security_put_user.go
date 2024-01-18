@@ -167,6 +167,6 @@ type SecurityPutUserResponse struct {
 }
 
 type SecurityPutUser struct {
-	SecurityUser
-	Password string `json:"password,omitempty"`
+	SecurityUser `json:",inline"`
+	Password     string `json:"password,omitempty"`
 }
