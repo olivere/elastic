@@ -2152,3 +2152,33 @@ func (c *Client) SecurityGetRole(roleName string) *SecurityGetRoleService {
 func (c *Client) SecurityPutRole(roleName string) *SecurityPutRoleService {
 	return NewSecurityPutRoleService(c).Name(roleName)
 }
+
+// SecurityDeleteRoleMapping deletes a role mapping.
+func (c *Client) SecurityDeleteRoleMapping(roleName string) *SecurityDeleteRoleMappingService {
+	return NewSecurityDeleteRoleMappingService(c).Name(roleName)
+}
+
+// SecurityGetRoleMapping gets a role mapping.
+func (c *Client) SecurityGetRoleMapping(roleName string) *SecurityGetRoleMappingService {
+	return NewSecurityGetRoleMappingService(c).Name(roleName)
+}
+
+// SecurityPutRoleMapping adds a role mapping.
+func (c *Client) SecurityPutRoleMapping(roleName string) *SecurityPutRoleMappingService {
+	return NewSecurityPutRoleMappingService(c).Name(roleName)
+}
+
+// SecurityDeleteUser deletes a user.
+func (c *Client) SecurityDeleteUser(username string) *SecurityDeleteUserService {
+	return NewSecurityDeleteUserService(c).Name(username)
+}
+
+// SecurityGetUser gets a user.
+func (c *Client) SecurityGetUser(username string) *SecurityGetUserService {
+	return NewSecurityGetUserService(c).Name(username)
+}
+
+// SecurityPutUser adds a user.
+func (c *Client) SecurityPutUser(username string) *SecurityPutUserService {
+	return NewSecurityPutUserService(c).Name(username)
+}

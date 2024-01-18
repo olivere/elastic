@@ -15,9 +15,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// SecurityDeleteRoleService delete a role by its name.
-// See https://opensearch.org/docs/latest/security/access-control/api/#delete-role
-type SecurityDeleteRoleService struct {
+// SecurityDeleteRoleMappingService delete a role mapping by its name.
+// See https://opensearch.org/docs/latest/security/access-control/api/#delete-role-mapping
+type SecurityDeleteRoleMappingService struct {
 	client *Client
 
 	pretty     *bool       // pretty format the returned JSON response
@@ -29,40 +29,40 @@ type SecurityDeleteRoleService struct {
 	name string
 }
 
-// NewSecurityDeleteRoleService creates a new SecurityDeleteRoleService.
-func NewSecurityDeleteRoleService(client *Client) *SecurityDeleteRoleService {
-	return &SecurityDeleteRoleService{
+// NewSecurityDeleteRoleMappingService creates a new SecurityDeleteRoleMappingService.
+func NewSecurityDeleteRoleMappingService(client *Client) *SecurityDeleteRoleMappingService {
+	return &SecurityDeleteRoleMappingService{
 		client: client,
 	}
 }
 
 // Pretty tells Opensearch whether to return a formatted JSON response.
-func (s *SecurityDeleteRoleService) Pretty(pretty bool) *SecurityDeleteRoleService {
+func (s *SecurityDeleteRoleMappingService) Pretty(pretty bool) *SecurityDeleteRoleMappingService {
 	s.pretty = &pretty
 	return s
 }
 
 // Human specifies whether human readable values should be returned in
 // the JSON response, e.g. "7.5mb".
-func (s *SecurityDeleteRoleService) Human(human bool) *SecurityDeleteRoleService {
+func (s *SecurityDeleteRoleMappingService) Human(human bool) *SecurityDeleteRoleMappingService {
 	s.human = &human
 	return s
 }
 
 // ErrorTrace specifies whether to include the stack trace of returned errors.
-func (s *SecurityDeleteRoleService) ErrorTrace(errorTrace bool) *SecurityDeleteRoleService {
+func (s *SecurityDeleteRoleMappingService) ErrorTrace(errorTrace bool) *SecurityDeleteRoleMappingService {
 	s.errorTrace = &errorTrace
 	return s
 }
 
 // FilterPath specifies a list of filters used to reduce the response.
-func (s *SecurityDeleteRoleService) FilterPath(filterPath ...string) *SecurityDeleteRoleService {
+func (s *SecurityDeleteRoleMappingService) FilterPath(filterPath ...string) *SecurityDeleteRoleMappingService {
 	s.filterPath = filterPath
 	return s
 }
 
 // Header adds a header to the request.
-func (s *SecurityDeleteRoleService) Header(name string, value string) *SecurityDeleteRoleService {
+func (s *SecurityDeleteRoleMappingService) Header(name string, value string) *SecurityDeleteRoleMappingService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
@@ -71,21 +71,21 @@ func (s *SecurityDeleteRoleService) Header(name string, value string) *SecurityD
 }
 
 // Headers specifies the headers of the request.
-func (s *SecurityDeleteRoleService) Headers(headers http.Header) *SecurityDeleteRoleService {
+func (s *SecurityDeleteRoleMappingService) Headers(headers http.Header) *SecurityDeleteRoleMappingService {
 	s.headers = headers
 	return s
 }
 
 // Name is name of the role to delete.
-func (s *SecurityDeleteRoleService) Name(name string) *SecurityDeleteRoleService {
+func (s *SecurityDeleteRoleMappingService) Name(name string) *SecurityDeleteRoleMappingService {
 	s.name = name
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *SecurityDeleteRoleService) buildURL() (string, url.Values, error) {
+func (s *SecurityDeleteRoleMappingService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_plugins/_security/api/roles/{name}", map[string]string{
+	path, err := uritemplates.Expand("/_plugins/_security/api/rolesmapping/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {
@@ -110,7 +110,7 @@ func (s *SecurityDeleteRoleService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *SecurityDeleteRoleService) Validate() error {
+func (s *SecurityDeleteRoleMappingService) Validate() error {
 	var invalid []string
 	if s.name == "" {
 		invalid = append(invalid, "Name")
@@ -122,7 +122,7 @@ func (s *SecurityDeleteRoleService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *SecurityDeleteRoleService) Do(ctx context.Context) (*SecurityDeleteRoleResponse, error) {
+func (s *SecurityDeleteRoleMappingService) Do(ctx context.Context) (*SecurityDeleteRoleMappingResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -146,15 +146,15 @@ func (s *SecurityDeleteRoleService) Do(ctx context.Context) (*SecurityDeleteRole
 	}
 
 	// Return operation response
-	ret := new(SecurityDeleteRoleResponse)
+	ret := new(SecurityDeleteRoleMappingResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// SecurityDeleteRoleResponse is the response of SecurityDeleteRoleService.Do.
-type SecurityDeleteRoleResponse struct {
+// SecurityDeleteRoleMappingResponse is the response of SecurityDeleteRoleMappingService.Do.
+type SecurityDeleteRoleMappingResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }

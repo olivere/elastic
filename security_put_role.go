@@ -33,7 +33,7 @@ func NewSecurityPutRoleService(client *Client) *SecurityPutRoleService {
 	}
 }
 
-// Pretty tells Elasticsearch whether to return a formatted JSON response.
+// Pretty tells Opensearch whether to return a formatted JSON response.
 func (s *SecurityPutRoleService) Pretty(pretty bool) *SecurityPutRoleService {
 	s.pretty = &pretty
 	return s

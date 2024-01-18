@@ -1,7 +1,3 @@
-// Copyright 2012-2018 Oliver Eilhard. All rights reserved.
-// Use of this source code is governed by a MIT-license.
-// See http://olivere.mit-license.org/license.txt for details.
-
 package opensearch
 
 import (
@@ -15,9 +11,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// SecurityDeleteRoleService delete a role by its name.
-// See https://opensearch.org/docs/latest/security/access-control/api/#delete-role
-type SecurityDeleteRoleService struct {
+// SecurityPutRoleMappingService retrieves a role by its name.
+// See https://opensearch.org/docs/latest/security/access-control/api/#create-role-mapping
+type SecurityPutRoleMappingService struct {
 	client *Client
 
 	pretty     *bool       // pretty format the returned JSON response
@@ -27,42 +23,43 @@ type SecurityDeleteRoleService struct {
 	headers    http.Header // custom request-level HTTP headers
 
 	name string
+	body interface{}
 }
 
-// NewSecurityDeleteRoleService creates a new SecurityDeleteRoleService.
-func NewSecurityDeleteRoleService(client *Client) *SecurityDeleteRoleService {
-	return &SecurityDeleteRoleService{
+// NewSecurityPutRoleMappingService creates a new SecurityPutRoleMappingService.
+func NewSecurityPutRoleMappingService(client *Client) *SecurityPutRoleMappingService {
+	return &SecurityPutRoleMappingService{
 		client: client,
 	}
 }
 
 // Pretty tells Opensearch whether to return a formatted JSON response.
-func (s *SecurityDeleteRoleService) Pretty(pretty bool) *SecurityDeleteRoleService {
+func (s *SecurityPutRoleMappingService) Pretty(pretty bool) *SecurityPutRoleMappingService {
 	s.pretty = &pretty
 	return s
 }
 
 // Human specifies whether human readable values should be returned in
 // the JSON response, e.g. "7.5mb".
-func (s *SecurityDeleteRoleService) Human(human bool) *SecurityDeleteRoleService {
+func (s *SecurityPutRoleMappingService) Human(human bool) *SecurityPutRoleMappingService {
 	s.human = &human
 	return s
 }
 
 // ErrorTrace specifies whether to include the stack trace of returned errors.
-func (s *SecurityDeleteRoleService) ErrorTrace(errorTrace bool) *SecurityDeleteRoleService {
+func (s *SecurityPutRoleMappingService) ErrorTrace(errorTrace bool) *SecurityPutRoleMappingService {
 	s.errorTrace = &errorTrace
 	return s
 }
 
 // FilterPath specifies a list of filters used to reduce the response.
-func (s *SecurityDeleteRoleService) FilterPath(filterPath ...string) *SecurityDeleteRoleService {
+func (s *SecurityPutRoleMappingService) FilterPath(filterPath ...string) *SecurityPutRoleMappingService {
 	s.filterPath = filterPath
 	return s
 }
 
 // Header adds a header to the request.
-func (s *SecurityDeleteRoleService) Header(name string, value string) *SecurityDeleteRoleService {
+func (s *SecurityPutRoleMappingService) Header(name string, value string) *SecurityPutRoleMappingService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
@@ -71,21 +68,27 @@ func (s *SecurityDeleteRoleService) Header(name string, value string) *SecurityD
 }
 
 // Headers specifies the headers of the request.
-func (s *SecurityDeleteRoleService) Headers(headers http.Header) *SecurityDeleteRoleService {
+func (s *SecurityPutRoleMappingService) Headers(headers http.Header) *SecurityPutRoleMappingService {
 	s.headers = headers
 	return s
 }
 
-// Name is name of the role to delete.
-func (s *SecurityDeleteRoleService) Name(name string) *SecurityDeleteRoleService {
+// Name is name of the role to create.
+func (s *SecurityPutRoleMappingService) Name(name string) *SecurityPutRoleMappingService {
 	s.name = name
 	return s
 }
 
+// Body specifies the role. Use a string or a type that will get serialized as JSON.
+func (s *SecurityPutRoleMappingService) Body(body interface{}) *SecurityPutRoleMappingService {
+	s.body = body
+	return s
+}
+
 // buildURL builds the URL for the operation.
-func (s *SecurityDeleteRoleService) buildURL() (string, url.Values, error) {
+func (s *SecurityPutRoleMappingService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_plugins/_security/api/roles/{name}", map[string]string{
+	path, err := uritemplates.Expand("/_plugins/_security/api/rolesmapping/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {
@@ -110,10 +113,13 @@ func (s *SecurityDeleteRoleService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *SecurityDeleteRoleService) Validate() error {
+func (s *SecurityPutRoleMappingService) Validate() error {
 	var invalid []string
 	if s.name == "" {
 		invalid = append(invalid, "Name")
+	}
+	if s.body == nil {
+		invalid = append(invalid, "Body")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
@@ -122,7 +128,7 @@ func (s *SecurityDeleteRoleService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *SecurityDeleteRoleService) Do(ctx context.Context) (*SecurityDeleteRoleResponse, error) {
+func (s *SecurityPutRoleMappingService) Do(ctx context.Context) (*SecurityPutRoleMappingResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -136,9 +142,10 @@ func (s *SecurityDeleteRoleService) Do(ctx context.Context) (*SecurityDeleteRole
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method:  "DELETE",
+		Method:  "PUT",
 		Path:    path,
 		Params:  params,
+		Body:    s.body,
 		Headers: s.headers,
 	})
 	if err != nil {
@@ -146,15 +153,15 @@ func (s *SecurityDeleteRoleService) Do(ctx context.Context) (*SecurityDeleteRole
 	}
 
 	// Return operation response
-	ret := new(SecurityDeleteRoleResponse)
+	ret := new(SecurityPutRoleMappingResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// SecurityDeleteRoleResponse is the response of SecurityDeleteRoleService.Do.
-type SecurityDeleteRoleResponse struct {
+// SecurityPutRoleMappingResponse is the response of SecurityPutRoleMappingService.Do.
+type SecurityPutRoleMappingResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }

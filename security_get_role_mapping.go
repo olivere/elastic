@@ -11,9 +11,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// SecurityGetRoleService retrieves a role by its name.
-// See https://opensearch.org/docs/latest/security/access-control/api/#get-role
-type SecurityGetRoleService struct {
+// SecurityGetRoleMappingService retrieves a role by its name.
+// See https://opensearch.org/docs/latest/security/access-control/api/#get-role-mapping
+type SecurityGetRoleMappingService struct {
 	client *Client
 
 	pretty     *bool       // pretty format the returned JSON response
@@ -25,40 +25,40 @@ type SecurityGetRoleService struct {
 	name string
 }
 
-// NewSecurityGetRoleService creates a new SecurityGetRoleService.
-func NewSecurityGetRoleService(client *Client) *SecurityGetRoleService {
-	return &SecurityGetRoleService{
+// NewSecurityGetRoleMappingService creates a new SecurityGetRoleMappingService.
+func NewSecurityGetRoleMappingService(client *Client) *SecurityGetRoleMappingService {
+	return &SecurityGetRoleMappingService{
 		client: client,
 	}
 }
 
 // Pretty tells Opensearch whether to return a formatted JSON response.
-func (s *SecurityGetRoleService) Pretty(pretty bool) *SecurityGetRoleService {
+func (s *SecurityGetRoleMappingService) Pretty(pretty bool) *SecurityGetRoleMappingService {
 	s.pretty = &pretty
 	return s
 }
 
 // Human specifies whether human readable values should be returned in
 // the JSON response, e.g. "7.5mb".
-func (s *SecurityGetRoleService) Human(human bool) *SecurityGetRoleService {
+func (s *SecurityGetRoleMappingService) Human(human bool) *SecurityGetRoleMappingService {
 	s.human = &human
 	return s
 }
 
 // ErrorTrace specifies whether to include the stack trace of returned errors.
-func (s *SecurityGetRoleService) ErrorTrace(errorTrace bool) *SecurityGetRoleService {
+func (s *SecurityGetRoleMappingService) ErrorTrace(errorTrace bool) *SecurityGetRoleMappingService {
 	s.errorTrace = &errorTrace
 	return s
 }
 
 // FilterPath specifies a list of filters used to reduce the response.
-func (s *SecurityGetRoleService) FilterPath(filterPath ...string) *SecurityGetRoleService {
+func (s *SecurityGetRoleMappingService) FilterPath(filterPath ...string) *SecurityGetRoleMappingService {
 	s.filterPath = filterPath
 	return s
 }
 
 // Header adds a header to the request.
-func (s *SecurityGetRoleService) Header(name string, value string) *SecurityGetRoleService {
+func (s *SecurityGetRoleMappingService) Header(name string, value string) *SecurityGetRoleMappingService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
@@ -67,21 +67,21 @@ func (s *SecurityGetRoleService) Header(name string, value string) *SecurityGetR
 }
 
 // Headers specifies the headers of the request.
-func (s *SecurityGetRoleService) Headers(headers http.Header) *SecurityGetRoleService {
+func (s *SecurityGetRoleMappingService) Headers(headers http.Header) *SecurityGetRoleMappingService {
 	s.headers = headers
 	return s
 }
 
 // Name is name of the role to retrieve.
-func (s *SecurityGetRoleService) Name(name string) *SecurityGetRoleService {
+func (s *SecurityGetRoleMappingService) Name(name string) *SecurityGetRoleMappingService {
 	s.name = name
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *SecurityGetRoleService) buildURL() (string, url.Values, error) {
+func (s *SecurityGetRoleMappingService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_plugins/_security/api/roles/{name}", map[string]string{
+	path, err := uritemplates.Expand("/_plugins/_security/api/rolesmapping/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {
@@ -106,7 +106,7 @@ func (s *SecurityGetRoleService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *SecurityGetRoleService) Validate() error {
+func (s *SecurityGetRoleMappingService) Validate() error {
 	var invalid []string
 	if s.name == "" {
 		invalid = append(invalid, "Name")
@@ -118,7 +118,7 @@ func (s *SecurityGetRoleService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *SecurityGetRoleService) Do(ctx context.Context) (*SecurityGetRoleResponse, error) {
+func (s *SecurityGetRoleMappingService) Do(ctx context.Context) (*SecurityGetRoleMappingResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -142,37 +142,22 @@ func (s *SecurityGetRoleService) Do(ctx context.Context) (*SecurityGetRoleRespon
 	}
 
 	// Return operation response
-	ret := new(SecurityGetRoleResponse)
+	ret := new(SecurityGetRoleMappingResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// SecurityGetRoleResponse is the response of SecurityGetRoleService.Do.
-type SecurityGetRoleResponse map[string]SecurityRole
+// SecurityGetRoleMappingResponse is the response of SecurityGetRoleMappingService.Do.
+type SecurityGetRoleMappingResponse map[string]SecurityRoleMapping
 
-// SecurityRole is the role object.
-type SecurityRole struct {
-	Reserved           bool                        `json:"reserved,omitempty"`
-	Hidden             bool                        `json:"hidden,omitempty"`
-	Static             bool                        `json:"static,omitempty"`
-	ClusterPermissions []string                    `json:"cluster_permissions,omitempty"`
-	IndexPermissions   []SecurityIndexPermissions  `json:"index_permissions,omitempty"`
-	TenantPermissions  []SecurityTenantPermissions `json:"tenant_permissions,omitempty"`
-}
-
-// SecurityTenantPermissions is the tenant permission object
-type SecurityTenantPermissions struct {
-	TenantPatterns []string `json:"tenant_patterns"`
-	AllowedAction  []string `json:"allowed_action"`
-}
-
-// SecurityIndexPermissions is the index permission object
-type SecurityIndexPermissions struct {
-	IndexPatterns  []string `json:"index_patterns"`
-	MaskedFields   []string `json:"masked_fields,omitempty"`
-	AllowedActions []string `json:"allowed_actions,omitempty"`
-	Dsl            string   `json:"dsl,omitempty"`
-	Fls            []string `json:"fls,omitempty"`
+// SecurityRoleMapping is the role mapping object.
+type SecurityRoleMapping struct {
+	BackendRoles []string `json:"backend_roles,omitempty"`
+	Hosts        []string `json:"hosts,omitempty"`
+	Users        []string `json:"users,omitempty"`
+	Reserved     bool     `json:"reserved,omitempty"`
+	Hidden       bool     `json:"hidden,omitempty"`
+	Static       bool     `json:"static,omitempty"`
 }
