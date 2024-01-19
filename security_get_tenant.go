@@ -11,9 +11,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// SecurityPutRoleService update a role by its name.
-// See https://opensearch.org/docs/latest/security/access-control/api/#create-role
-type SecurityPutRoleService struct {
+// SecurityGetTenantService retrieves a tenant by its name.
+// See https://opensearch.org/docs/latest/security/access-control/api/#get-tenant
+type SecurityGetTenantService struct {
 	client *Client
 
 	pretty     *bool       // pretty format the returned JSON response
@@ -23,43 +23,42 @@ type SecurityPutRoleService struct {
 	headers    http.Header // custom request-level HTTP headers
 
 	name string
-	body interface{}
 }
 
-// NewSecurityPutRoleService creates a new SecurityPutRoleService.
-func NewSecurityPutRoleService(client *Client) *SecurityPutRoleService {
-	return &SecurityPutRoleService{
+// NewSecurityGetTenantService creates a new SecurityGetTenantService.
+func NewSecurityGetTenantService(client *Client) *SecurityGetTenantService {
+	return &SecurityGetTenantService{
 		client: client,
 	}
 }
 
 // Pretty tells Opensearch whether to return a formatted JSON response.
-func (s *SecurityPutRoleService) Pretty(pretty bool) *SecurityPutRoleService {
+func (s *SecurityGetTenantService) Pretty(pretty bool) *SecurityGetTenantService {
 	s.pretty = &pretty
 	return s
 }
 
 // Human specifies whether human readable values should be returned in
 // the JSON response, e.g. "7.5mb".
-func (s *SecurityPutRoleService) Human(human bool) *SecurityPutRoleService {
+func (s *SecurityGetTenantService) Human(human bool) *SecurityGetTenantService {
 	s.human = &human
 	return s
 }
 
 // ErrorTrace specifies whether to include the stack trace of returned errors.
-func (s *SecurityPutRoleService) ErrorTrace(errorTrace bool) *SecurityPutRoleService {
+func (s *SecurityGetTenantService) ErrorTrace(errorTrace bool) *SecurityGetTenantService {
 	s.errorTrace = &errorTrace
 	return s
 }
 
 // FilterPath specifies a list of filters used to reduce the response.
-func (s *SecurityPutRoleService) FilterPath(filterPath ...string) *SecurityPutRoleService {
+func (s *SecurityGetTenantService) FilterPath(filterPath ...string) *SecurityGetTenantService {
 	s.filterPath = filterPath
 	return s
 }
 
 // Header adds a header to the request.
-func (s *SecurityPutRoleService) Header(name string, value string) *SecurityPutRoleService {
+func (s *SecurityGetTenantService) Header(name string, value string) *SecurityGetTenantService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
@@ -68,27 +67,21 @@ func (s *SecurityPutRoleService) Header(name string, value string) *SecurityPutR
 }
 
 // Headers specifies the headers of the request.
-func (s *SecurityPutRoleService) Headers(headers http.Header) *SecurityPutRoleService {
+func (s *SecurityGetTenantService) Headers(headers http.Header) *SecurityGetTenantService {
 	s.headers = headers
 	return s
 }
 
-// Name is name of the role to create.
-func (s *SecurityPutRoleService) Name(name string) *SecurityPutRoleService {
+// Name is name of the tenant to retrieve.
+func (s *SecurityGetTenantService) Name(name string) *SecurityGetTenantService {
 	s.name = name
 	return s
 }
 
-// Body specifies the role. Use a string or a type that will get serialized as JSON.
-func (s *SecurityPutRoleService) Body(body interface{}) *SecurityPutRoleService {
-	s.body = body
-	return s
-}
-
 // buildURL builds the URL for the operation.
-func (s *SecurityPutRoleService) buildURL() (string, url.Values, error) {
+func (s *SecurityGetTenantService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_plugins/_security/api/roles/{name}", map[string]string{
+	path, err := uritemplates.Expand("/_plugins/_security/api/tenants/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {
@@ -113,13 +106,10 @@ func (s *SecurityPutRoleService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *SecurityPutRoleService) Validate() error {
+func (s *SecurityGetTenantService) Validate() error {
 	var invalid []string
 	if s.name == "" {
 		invalid = append(invalid, "Name")
-	}
-	if s.body == nil {
-		invalid = append(invalid, "Body")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
@@ -128,7 +118,7 @@ func (s *SecurityPutRoleService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *SecurityPutRoleService) Do(ctx context.Context) (*SecurityPutRoleResponse, error) {
+func (s *SecurityGetTenantService) Do(ctx context.Context) (*SecurityGetTenantResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -142,10 +132,9 @@ func (s *SecurityPutRoleService) Do(ctx context.Context) (*SecurityPutRoleRespon
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method:  "PUT",
+		Method:  "GET",
 		Path:    path,
 		Params:  params,
-		Body:    s.body,
 		Headers: s.headers,
 	})
 	if err != nil {
@@ -153,15 +142,21 @@ func (s *SecurityPutRoleService) Do(ctx context.Context) (*SecurityPutRoleRespon
 	}
 
 	// Return operation response
-	ret := new(SecurityPutRoleResponse)
+	ret := new(SecurityGetTenantResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// SecurityPutRoleResponse is the response of SecurityPutRoleService.Do.
-type SecurityPutRoleResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
+// SecurityGetTenantResponse is the response of SecurityGetTenantService.Do.
+type SecurityGetTenantResponse map[string]SecurityTenant
+
+// SecurityTenant is the tenant object.
+// Source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/TenantV7.java
+type SecurityTenant struct {
+	Reserved    bool   `json:"reserved,omitempty"`
+	Hidden      bool   `json:"hidden,omitempty"`
+	Static      bool   `json:"static,omitempty"`
+	Description string `json:"description"`
 }

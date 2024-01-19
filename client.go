@@ -2197,3 +2197,18 @@ func (c *Client) SecurityGetActionGroup(actionGroupName string) *SecurityGetActi
 func (c *Client) SecurityPutActionGroup(actionGroupName string) *SecurityPutActionGroupService {
 	return NewSecurityPutActionGroupService(c).Name(actionGroupName)
 }
+
+// SecurityDeleteTenant deletes a tenant.
+func (c *Client) SecurityDeleteTenant(tenantName string) *SecurityDeleteTenantService {
+	return NewSecurityDeleteTenantService(c).Name(tenantName)
+}
+
+// SecurityGetTenant gets a tenant.
+func (c *Client) SecurityGetTenant(tenantName string) *SecurityGetTenantService {
+	return NewSecurityGetTenantService(c).Name(tenantName)
+}
+
+// SecurityPutTenant updates a tenant.
+func (c *Client) SecurityPutTenant(tenantName string) *SecurityPutTenantService {
+	return NewSecurityPutTenantService(c).Name(tenantName)
+}
