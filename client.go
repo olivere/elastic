@@ -2227,3 +2227,8 @@ func (c *Client) SecurityGetDistinguishedName(tenantName string) *SecurityGetDis
 func (c *Client) SecurityPutDistinguishedName(tenantName string) *SecurityPutDistinguishedNameService {
 	return NewSecurityPutDistinguishedNameService(c).Name(tenantName)
 }
+
+// SecurityFlushCache flush the cache
+func (c *Client) SecurityFlushCache() *SecurityFlushCacheService {
+	return NewSecurityFlushCacheService(c)
+}
