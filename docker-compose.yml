@@ -1,5 +1,5 @@
 services:
-  opensearchsearch:
+  opensearch:
     image: public.ecr.aws/opensearchproject/opensearch:${VERSION:-2}
     hostname: opensearchsearch
     environment:
@@ -10,6 +10,8 @@ services:
       - logger.org.opensearchsearch=warn
       - path.repo=/usr/share/opensearchsearch/backup
       - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+      - plugins.security.nodes_dn_dynamic_config_enabled=true
+      - plugins.security.unsupported.restapi.allow_securityconfig_modification=true
     ulimits:
       nproc: 65536
       nofile:

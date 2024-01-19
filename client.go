@@ -2212,3 +2212,18 @@ func (c *Client) SecurityGetTenant(tenantName string) *SecurityGetTenantService 
 func (c *Client) SecurityPutTenant(tenantName string) *SecurityPutTenantService {
 	return NewSecurityPutTenantService(c).Name(tenantName)
 }
+
+// SecurityDeleteDistinguishedName deletes a dn.
+func (c *Client) SecurityDeleteDistinguishedName(tenantName string) *SecurityDeleteDistinguishedNameService {
+	return NewSecurityDeleteDistinguishedNameService(c).Name(tenantName)
+}
+
+// SecurityGetDistinguishedName gets a dn.
+func (c *Client) SecurityGetDistinguishedName(tenantName string) *SecurityGetDistinguishedNameService {
+	return NewSecurityGetDistinguishedNameService(c).Name(tenantName)
+}
+
+// SecurityPutDistinguishedName updates a dn.
+func (c *Client) SecurityPutDistinguishedName(tenantName string) *SecurityPutDistinguishedNameService {
+	return NewSecurityPutDistinguishedNameService(c).Name(tenantName)
+}
