@@ -11,9 +11,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// SecurityPutRoleMappingService update a role mapping by its name.
-// See https://opensearch.org/docs/latest/security/access-control/api/#create-role-mapping
-type SecurityPutRoleMappingService struct {
+// SecurityGetActionGroupService retrieves a action group by its name.
+// https://opensearch.org/docs/latest/security/access-control/api/#get-action-groups
+type SecurityGetActionGroupService struct {
 	client *Client
 
 	pretty     *bool       // pretty format the returned JSON response
@@ -23,43 +23,42 @@ type SecurityPutRoleMappingService struct {
 	headers    http.Header // custom request-level HTTP headers
 
 	name string
-	body interface{}
 }
 
-// NewSecurityPutRoleMappingService creates a new SecurityPutRoleMappingService.
-func NewSecurityPutRoleMappingService(client *Client) *SecurityPutRoleMappingService {
-	return &SecurityPutRoleMappingService{
+// NewSecurityGetActionGroupService creates a new SecurityGetActionGroupService.
+func NewSecurityGetActionGroupService(client *Client) *SecurityGetActionGroupService {
+	return &SecurityGetActionGroupService{
 		client: client,
 	}
 }
 
 // Pretty tells Opensearch whether to return a formatted JSON response.
-func (s *SecurityPutRoleMappingService) Pretty(pretty bool) *SecurityPutRoleMappingService {
+func (s *SecurityGetActionGroupService) Pretty(pretty bool) *SecurityGetActionGroupService {
 	s.pretty = &pretty
 	return s
 }
 
 // Human specifies whether human readable values should be returned in
 // the JSON response, e.g. "7.5mb".
-func (s *SecurityPutRoleMappingService) Human(human bool) *SecurityPutRoleMappingService {
+func (s *SecurityGetActionGroupService) Human(human bool) *SecurityGetActionGroupService {
 	s.human = &human
 	return s
 }
 
 // ErrorTrace specifies whether to include the stack trace of returned errors.
-func (s *SecurityPutRoleMappingService) ErrorTrace(errorTrace bool) *SecurityPutRoleMappingService {
+func (s *SecurityGetActionGroupService) ErrorTrace(errorTrace bool) *SecurityGetActionGroupService {
 	s.errorTrace = &errorTrace
 	return s
 }
 
 // FilterPath specifies a list of filters used to reduce the response.
-func (s *SecurityPutRoleMappingService) FilterPath(filterPath ...string) *SecurityPutRoleMappingService {
+func (s *SecurityGetActionGroupService) FilterPath(filterPath ...string) *SecurityGetActionGroupService {
 	s.filterPath = filterPath
 	return s
 }
 
 // Header adds a header to the request.
-func (s *SecurityPutRoleMappingService) Header(name string, value string) *SecurityPutRoleMappingService {
+func (s *SecurityGetActionGroupService) Header(name string, value string) *SecurityGetActionGroupService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
@@ -68,27 +67,21 @@ func (s *SecurityPutRoleMappingService) Header(name string, value string) *Secur
 }
 
 // Headers specifies the headers of the request.
-func (s *SecurityPutRoleMappingService) Headers(headers http.Header) *SecurityPutRoleMappingService {
+func (s *SecurityGetActionGroupService) Headers(headers http.Header) *SecurityGetActionGroupService {
 	s.headers = headers
 	return s
 }
 
-// Name is name of the role mapping to create.
-func (s *SecurityPutRoleMappingService) Name(name string) *SecurityPutRoleMappingService {
+// Name is name of the action group to retrieve.
+func (s *SecurityGetActionGroupService) Name(name string) *SecurityGetActionGroupService {
 	s.name = name
 	return s
 }
 
-// Body specifies the role mapping. Use a string or a type that will get serialized as JSON.
-func (s *SecurityPutRoleMappingService) Body(body interface{}) *SecurityPutRoleMappingService {
-	s.body = body
-	return s
-}
-
 // buildURL builds the URL for the operation.
-func (s *SecurityPutRoleMappingService) buildURL() (string, url.Values, error) {
+func (s *SecurityGetActionGroupService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_plugins/_security/api/rolesmapping/{name}", map[string]string{
+	path, err := uritemplates.Expand("/_plugins/_security/api/actiongroups/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {
@@ -113,13 +106,10 @@ func (s *SecurityPutRoleMappingService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *SecurityPutRoleMappingService) Validate() error {
+func (s *SecurityGetActionGroupService) Validate() error {
 	var invalid []string
 	if s.name == "" {
 		invalid = append(invalid, "Name")
-	}
-	if s.body == nil {
-		invalid = append(invalid, "Body")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
@@ -128,7 +118,7 @@ func (s *SecurityPutRoleMappingService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *SecurityPutRoleMappingService) Do(ctx context.Context) (*SecurityPutRoleMappingResponse, error) {
+func (s *SecurityGetActionGroupService) Do(ctx context.Context) (*SecurityGetActionGroupResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -142,10 +132,9 @@ func (s *SecurityPutRoleMappingService) Do(ctx context.Context) (*SecurityPutRol
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method:  "PUT",
+		Method:  "GET",
 		Path:    path,
 		Params:  params,
-		Body:    s.body,
 		Headers: s.headers,
 	})
 	if err != nil {
@@ -153,15 +142,23 @@ func (s *SecurityPutRoleMappingService) Do(ctx context.Context) (*SecurityPutRol
 	}
 
 	// Return operation response
-	ret := new(SecurityPutRoleMappingResponse)
+	ret := new(SecurityGetActionGroupResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// SecurityPutRoleMappingResponse is the response of SecurityPutRoleMappingService.Do.
-type SecurityPutRoleMappingResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
+// SecurityGetActionGroupResponse is the response of SecurityGetActionGroupService.Do.
+type SecurityGetActionGroupResponse map[string]SecurityActionGroup
+
+// SecurityActionGroup is the action group object.
+// Source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/ActionGroupsV7.java
+type SecurityActionGroup struct {
+	Reserved       bool     `json:"reserved,omitempty"`
+	Hidden         bool     `json:"hidden,omitempty"`
+	Static         bool     `json:"static,omitempty"`
+	Description    string   `json:"description,omitempty"`
+	Type           string   `json:"type,omitempty"`
+	AllowedActions []string `json:"allowed_actions"`
 }

@@ -1,3 +1,7 @@
+// Copyright 2012-2018 Oliver Eilhard. All rights reserved.
+// Use of this source code is governed by a MIT-license.
+// See http://olivere.mit-license.org/license.txt for details.
+
 package opensearch
 
 import (
@@ -11,9 +15,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// SecurityPutRoleMappingService update a role mapping by its name.
-// See https://opensearch.org/docs/latest/security/access-control/api/#create-role-mapping
-type SecurityPutRoleMappingService struct {
+// SecurityDeleteActionGroupService delete a action group by its name.
+// See https://opensearch.org/docs/latest/security/access-control/api/#delete-action-group
+type SecurityDeleteActionGroupService struct {
 	client *Client
 
 	pretty     *bool       // pretty format the returned JSON response
@@ -23,43 +27,42 @@ type SecurityPutRoleMappingService struct {
 	headers    http.Header // custom request-level HTTP headers
 
 	name string
-	body interface{}
 }
 
-// NewSecurityPutRoleMappingService creates a new SecurityPutRoleMappingService.
-func NewSecurityPutRoleMappingService(client *Client) *SecurityPutRoleMappingService {
-	return &SecurityPutRoleMappingService{
+// NewSecurityDeleteActionGroupService creates a new SecurityDeleteActionGroupService.
+func NewSecurityDeleteActionGroupService(client *Client) *SecurityDeleteActionGroupService {
+	return &SecurityDeleteActionGroupService{
 		client: client,
 	}
 }
 
 // Pretty tells Opensearch whether to return a formatted JSON response.
-func (s *SecurityPutRoleMappingService) Pretty(pretty bool) *SecurityPutRoleMappingService {
+func (s *SecurityDeleteActionGroupService) Pretty(pretty bool) *SecurityDeleteActionGroupService {
 	s.pretty = &pretty
 	return s
 }
 
 // Human specifies whether human readable values should be returned in
 // the JSON response, e.g. "7.5mb".
-func (s *SecurityPutRoleMappingService) Human(human bool) *SecurityPutRoleMappingService {
+func (s *SecurityDeleteActionGroupService) Human(human bool) *SecurityDeleteActionGroupService {
 	s.human = &human
 	return s
 }
 
 // ErrorTrace specifies whether to include the stack trace of returned errors.
-func (s *SecurityPutRoleMappingService) ErrorTrace(errorTrace bool) *SecurityPutRoleMappingService {
+func (s *SecurityDeleteActionGroupService) ErrorTrace(errorTrace bool) *SecurityDeleteActionGroupService {
 	s.errorTrace = &errorTrace
 	return s
 }
 
 // FilterPath specifies a list of filters used to reduce the response.
-func (s *SecurityPutRoleMappingService) FilterPath(filterPath ...string) *SecurityPutRoleMappingService {
+func (s *SecurityDeleteActionGroupService) FilterPath(filterPath ...string) *SecurityDeleteActionGroupService {
 	s.filterPath = filterPath
 	return s
 }
 
 // Header adds a header to the request.
-func (s *SecurityPutRoleMappingService) Header(name string, value string) *SecurityPutRoleMappingService {
+func (s *SecurityDeleteActionGroupService) Header(name string, value string) *SecurityDeleteActionGroupService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
@@ -68,27 +71,21 @@ func (s *SecurityPutRoleMappingService) Header(name string, value string) *Secur
 }
 
 // Headers specifies the headers of the request.
-func (s *SecurityPutRoleMappingService) Headers(headers http.Header) *SecurityPutRoleMappingService {
+func (s *SecurityDeleteActionGroupService) Headers(headers http.Header) *SecurityDeleteActionGroupService {
 	s.headers = headers
 	return s
 }
 
-// Name is name of the role mapping to create.
-func (s *SecurityPutRoleMappingService) Name(name string) *SecurityPutRoleMappingService {
+// Name is name of the action group to delete.
+func (s *SecurityDeleteActionGroupService) Name(name string) *SecurityDeleteActionGroupService {
 	s.name = name
 	return s
 }
 
-// Body specifies the role mapping. Use a string or a type that will get serialized as JSON.
-func (s *SecurityPutRoleMappingService) Body(body interface{}) *SecurityPutRoleMappingService {
-	s.body = body
-	return s
-}
-
 // buildURL builds the URL for the operation.
-func (s *SecurityPutRoleMappingService) buildURL() (string, url.Values, error) {
+func (s *SecurityDeleteActionGroupService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_plugins/_security/api/rolesmapping/{name}", map[string]string{
+	path, err := uritemplates.Expand("/_plugins/_security/api/actiongroups/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {
@@ -113,13 +110,10 @@ func (s *SecurityPutRoleMappingService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *SecurityPutRoleMappingService) Validate() error {
+func (s *SecurityDeleteActionGroupService) Validate() error {
 	var invalid []string
 	if s.name == "" {
 		invalid = append(invalid, "Name")
-	}
-	if s.body == nil {
-		invalid = append(invalid, "Body")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
@@ -128,7 +122,7 @@ func (s *SecurityPutRoleMappingService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *SecurityPutRoleMappingService) Do(ctx context.Context) (*SecurityPutRoleMappingResponse, error) {
+func (s *SecurityDeleteActionGroupService) Do(ctx context.Context) (*SecurityDeleteActionGroupResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -142,10 +136,9 @@ func (s *SecurityPutRoleMappingService) Do(ctx context.Context) (*SecurityPutRol
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method:  "PUT",
+		Method:  "DELETE",
 		Path:    path,
 		Params:  params,
-		Body:    s.body,
 		Headers: s.headers,
 	})
 	if err != nil {
@@ -153,15 +146,15 @@ func (s *SecurityPutRoleMappingService) Do(ctx context.Context) (*SecurityPutRol
 	}
 
 	// Return operation response
-	ret := new(SecurityPutRoleMappingResponse)
+	ret := new(SecurityDeleteActionGroupResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// SecurityPutRoleMappingResponse is the response of SecurityPutRoleMappingService.Do.
-type SecurityPutRoleMappingResponse struct {
+// SecurityDeleteActionGroupResponse the response of SecurityDeleteActionGroupService.Do.
+type SecurityDeleteActionGroupResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }

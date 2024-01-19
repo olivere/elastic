@@ -11,9 +11,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// SecurityPutRoleMappingService update a role mapping by its name.
-// See https://opensearch.org/docs/latest/security/access-control/api/#create-role-mapping
-type SecurityPutRoleMappingService struct {
+// SecurityPutActionGroupService update a action group by its name.
+// See https://opensearch.org/docs/latest/security/access-control/api/#create-action-group
+type SecurityPutActionGroupService struct {
 	client *Client
 
 	pretty     *bool       // pretty format the returned JSON response
@@ -26,40 +26,40 @@ type SecurityPutRoleMappingService struct {
 	body interface{}
 }
 
-// NewSecurityPutRoleMappingService creates a new SecurityPutRoleMappingService.
-func NewSecurityPutRoleMappingService(client *Client) *SecurityPutRoleMappingService {
-	return &SecurityPutRoleMappingService{
+// NewSecurityPutActionGroupService creates a new SecurityPutActionGroupService.
+func NewSecurityPutActionGroupService(client *Client) *SecurityPutActionGroupService {
+	return &SecurityPutActionGroupService{
 		client: client,
 	}
 }
 
 // Pretty tells Opensearch whether to return a formatted JSON response.
-func (s *SecurityPutRoleMappingService) Pretty(pretty bool) *SecurityPutRoleMappingService {
+func (s *SecurityPutActionGroupService) Pretty(pretty bool) *SecurityPutActionGroupService {
 	s.pretty = &pretty
 	return s
 }
 
 // Human specifies whether human readable values should be returned in
 // the JSON response, e.g. "7.5mb".
-func (s *SecurityPutRoleMappingService) Human(human bool) *SecurityPutRoleMappingService {
+func (s *SecurityPutActionGroupService) Human(human bool) *SecurityPutActionGroupService {
 	s.human = &human
 	return s
 }
 
 // ErrorTrace specifies whether to include the stack trace of returned errors.
-func (s *SecurityPutRoleMappingService) ErrorTrace(errorTrace bool) *SecurityPutRoleMappingService {
+func (s *SecurityPutActionGroupService) ErrorTrace(errorTrace bool) *SecurityPutActionGroupService {
 	s.errorTrace = &errorTrace
 	return s
 }
 
 // FilterPath specifies a list of filters used to reduce the response.
-func (s *SecurityPutRoleMappingService) FilterPath(filterPath ...string) *SecurityPutRoleMappingService {
+func (s *SecurityPutActionGroupService) FilterPath(filterPath ...string) *SecurityPutActionGroupService {
 	s.filterPath = filterPath
 	return s
 }
 
 // Header adds a header to the request.
-func (s *SecurityPutRoleMappingService) Header(name string, value string) *SecurityPutRoleMappingService {
+func (s *SecurityPutActionGroupService) Header(name string, value string) *SecurityPutActionGroupService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
@@ -68,27 +68,27 @@ func (s *SecurityPutRoleMappingService) Header(name string, value string) *Secur
 }
 
 // Headers specifies the headers of the request.
-func (s *SecurityPutRoleMappingService) Headers(headers http.Header) *SecurityPutRoleMappingService {
+func (s *SecurityPutActionGroupService) Headers(headers http.Header) *SecurityPutActionGroupService {
 	s.headers = headers
 	return s
 }
 
-// Name is name of the role mapping to create.
-func (s *SecurityPutRoleMappingService) Name(name string) *SecurityPutRoleMappingService {
+// Name is name of the action group to create.
+func (s *SecurityPutActionGroupService) Name(name string) *SecurityPutActionGroupService {
 	s.name = name
 	return s
 }
 
-// Body specifies the role mapping. Use a string or a type that will get serialized as JSON.
-func (s *SecurityPutRoleMappingService) Body(body interface{}) *SecurityPutRoleMappingService {
+// Body specifies the action group. Use a string or a type that will get serialized as JSON.
+func (s *SecurityPutActionGroupService) Body(body interface{}) *SecurityPutActionGroupService {
 	s.body = body
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *SecurityPutRoleMappingService) buildURL() (string, url.Values, error) {
+func (s *SecurityPutActionGroupService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_plugins/_security/api/rolesmapping/{name}", map[string]string{
+	path, err := uritemplates.Expand("/_plugins/_security/api/actiongroups/{name}", map[string]string{
 		"name": s.name,
 	})
 	if err != nil {
@@ -113,7 +113,7 @@ func (s *SecurityPutRoleMappingService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *SecurityPutRoleMappingService) Validate() error {
+func (s *SecurityPutActionGroupService) Validate() error {
 	var invalid []string
 	if s.name == "" {
 		invalid = append(invalid, "Name")
@@ -128,7 +128,7 @@ func (s *SecurityPutRoleMappingService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *SecurityPutRoleMappingService) Do(ctx context.Context) (*SecurityPutRoleMappingResponse, error) {
+func (s *SecurityPutActionGroupService) Do(ctx context.Context) (*SecurityPutActionGroupResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -153,15 +153,15 @@ func (s *SecurityPutRoleMappingService) Do(ctx context.Context) (*SecurityPutRol
 	}
 
 	// Return operation response
-	ret := new(SecurityPutRoleMappingResponse)
+	ret := new(SecurityPutActionGroupResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// SecurityPutRoleMappingResponse is the response of SecurityPutRoleMappingService.Do.
-type SecurityPutRoleMappingResponse struct {
+// SecurityPutActionGroupResponse is the response of SecurityPutActionGroupService.Do.
+type SecurityPutActionGroupResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }

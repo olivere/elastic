@@ -11,7 +11,7 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// SecurityPutUserService retrieves a role by its name.
+// SecurityPutUserService update a user by its name.
 // See https://opensearch.org/docs/latest/security/access-control/api/#create-user
 type SecurityPutUserService struct {
 	client *Client
@@ -73,13 +73,13 @@ func (s *SecurityPutUserService) Headers(headers http.Header) *SecurityPutUserSe
 	return s
 }
 
-// Name is name of the role to create.
+// Name is name of the user to create.
 func (s *SecurityPutUserService) Name(name string) *SecurityPutUserService {
 	s.name = name
 	return s
 }
 
-// Body specifies the role. Use a string or a type that will get serialized as JSON.
+// Body specifies the user. Use a string or a type that will get serialized as JSON.
 func (s *SecurityPutUserService) Body(body interface{}) *SecurityPutUserService {
 	s.body = body
 	return s

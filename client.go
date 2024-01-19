@@ -2182,3 +2182,18 @@ func (c *Client) SecurityGetUser(username string) *SecurityGetUserService {
 func (c *Client) SecurityPutUser(username string) *SecurityPutUserService {
 	return NewSecurityPutUserService(c).Name(username)
 }
+
+// SecurityDeleteActionGroup deletes a action group.
+func (c *Client) SecurityDeleteActionGroup(actionGroupName string) *SecurityDeleteActionGroupService {
+	return NewSecurityDeleteActionGroupService(c).Name(actionGroupName)
+}
+
+// SecurityGetActionGroup gets a action group.
+func (c *Client) SecurityGetActionGroup(actionGroupName string) *SecurityGetActionGroupService {
+	return NewSecurityGetActionGroupService(c).Name(actionGroupName)
+}
+
+// SecurityPutActionGroup update a action group.
+func (c *Client) SecurityPutActionGroup(actionGroupName string) *SecurityPutActionGroupService {
+	return NewSecurityPutActionGroupService(c).Name(actionGroupName)
+}

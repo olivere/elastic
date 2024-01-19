@@ -12,34 +12,44 @@ func TestSecurityRoleMapping(t *testing.T) {
 	var err error
 
 	expectedRoleMapping := &SecurityRoleMapping{
-		BackendRoles: []string{"admin"},
-		Users:        []string{"admin"},
+		BackendRoles:    []string{"admin"},
+		Users:           []string{"admin"},
 		AndBackendRoles: []string{},
-		Hosts: []string{},
+		Hosts:           []string{},
 	}
 
 	// Put role mapping
 	resPut, err := client.SecurityPutRoleMapping("kibana_user").Body(expectedRoleMapping).Do(context.Background())
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	assert.NotNil(t, resPut)
 
 	// Get role mapping
 	resGet, err := client.SecurityGetRoleMapping("kibana_user").Do(context.Background())
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	assert.NotNil(t, resGet)
 	assert.Equal(t, *expectedRoleMapping, (*resGet)["kibana_user"])
 
 	// Update role mapping
 	expectedRoleMapping.AndBackendRoles = []string{"kibanaserver"}
 	_, err = client.SecurityPutRoleMapping("kibana_user").Body(expectedRoleMapping).Do(context.Background())
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	resGet, err = client.SecurityGetRoleMapping("kibana_user").Do(context.Background())
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	assert.Equal(t, *expectedRoleMapping, (*resGet)["kibana_user"])
 
 	// Delete role mapping
 	resDelete, err := client.SecurityDeleteRoleMapping("kibana_user").Do(context.Background())
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	assert.NotNil(t, resDelete)
 	_, err = client.SecurityGetRoleMapping("kibana_user").Do(context.Background())
 	assert.True(t, IsNotFound(err))
