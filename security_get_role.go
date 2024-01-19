@@ -157,6 +157,7 @@ type SecurityRole struct {
 	Reserved           bool                        `json:"reserved,omitempty"`
 	Hidden             bool                        `json:"hidden,omitempty"`
 	Static             bool                        `json:"static,omitempty"`
+	Description        string                      `json:"description,omitempty"`
 	ClusterPermissions []string                    `json:"cluster_permissions,omitempty"`
 	IndexPermissions   []SecurityIndexPermissions  `json:"index_permissions,omitempty"`
 	TenantPermissions  []SecurityTenantPermissions `json:"tenant_permissions,omitempty"`
@@ -165,14 +166,15 @@ type SecurityRole struct {
 // SecurityTenantPermissions is the tenant permission object
 type SecurityTenantPermissions struct {
 	TenantPatterns []string `json:"tenant_patterns"`
-	AllowedAction  []string `json:"allowed_action"`
+	AllowedAction  []string `json:"allowed_actions"`
 }
 
 // SecurityIndexPermissions is the index permission object
+// Source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/RoleV7.java
 type SecurityIndexPermissions struct {
-	IndexPatterns  []string `json:"index_patterns"`
-	MaskedFields   []string `json:"masked_fields,omitempty"`
-	AllowedActions []string `json:"allowed_actions,omitempty"`
-	Dsl            string   `json:"dsl,omitempty"`
-	Fls            []string `json:"fls,omitempty"`
+	IndexPatterns         []string `json:"index_patterns"`
+	MaskedFields          []string `json:"masked_fields"`
+	AllowedActions        []string `json:"allowed_actions"`
+	DocumentLevelSecurity string   `json:"dls"`
+	FieldLevelSecurity    []string `json:"fls,omitempty"`
 }

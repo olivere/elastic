@@ -153,11 +153,12 @@ func (s *SecurityGetRoleMappingService) Do(ctx context.Context) (*SecurityGetRol
 type SecurityGetRoleMappingResponse map[string]SecurityRoleMapping
 
 // SecurityRoleMapping is the role mapping object.
+// Source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/RoleMappingsV7.java
 type SecurityRoleMapping struct {
-	BackendRoles []string `json:"backend_roles,omitempty"`
-	Hosts        []string `json:"hosts,omitempty"`
-	Users        []string `json:"users,omitempty"`
-	Reserved     bool     `json:"reserved,omitempty"`
-	Hidden       bool     `json:"hidden,omitempty"`
-	Static       bool     `json:"static,omitempty"`
+	BackendRoles    []string `json:"backend_roles"`
+	AndBackendRoles []string `json:"and_backend_roles"`
+	Hosts           []string `json:"hosts"`
+	Users           []string `json:"users"`
+	Reserved        bool     `json:"reserved,omitempty"`
+	Hidden          bool     `json:"hidden,omitempty"`
 }
