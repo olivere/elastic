@@ -11,7 +11,7 @@ func TestSecurityRoleMapping(t *testing.T) {
 	client := setupTestClient(t)
 	var err error
 
-	expectedRoleMapping := &SecurityRoleMapping{
+	expectedRoleMapping := &SecurityPutRoleMapping{
 		BackendRoles:    []string{"admin"},
 		Users:           []string{"admin"},
 		AndBackendRoles: []string{},
@@ -31,7 +31,7 @@ func TestSecurityRoleMapping(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.NotNil(t, resGet)
-	assert.Equal(t, *expectedRoleMapping, (*resGet)["kibana_user"])
+	assert.Equal(t, *expectedRoleMapping, (*resGet)["kibana_user"].SecurityPutRoleMapping)
 
 	// Update role mapping
 	expectedRoleMapping.AndBackendRoles = []string{"kibanaserver"}
@@ -43,7 +43,7 @@ func TestSecurityRoleMapping(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, *expectedRoleMapping, (*resGet)["kibana_user"])
+	assert.Equal(t, *expectedRoleMapping, (*resGet)["kibana_user"].SecurityPutRoleMapping)
 
 	// Delete role mapping
 	resDelete, err := client.SecurityDeleteRoleMapping("kibana_user").Do(context.Background())

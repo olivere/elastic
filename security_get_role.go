@@ -155,13 +155,10 @@ type SecurityGetRoleResponse map[string]SecurityRole
 // SecurityRole is the role object.
 // Source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/RoleV7.java
 type SecurityRole struct {
-	Reserved           bool                        `json:"reserved,omitempty"`
-	Hidden             bool                        `json:"hidden,omitempty"`
-	Static             bool                        `json:"static,omitempty"`
-	Description        string                      `json:"description,omitempty"`
-	ClusterPermissions []string                    `json:"cluster_permissions"`
-	IndexPermissions   []SecurityIndexPermissions  `json:"index_permissions"`
-	TenantPermissions  []SecurityTenantPermissions `json:"tenant_permissions"`
+	SecurityPutRole SecurityPutTenant
+	Reserved        *bool `json:"reserved,omitempty"`
+	Hidden          *bool `json:"hidden,omitempty"`
+	Static          *bool `json:"static,omitempty"`
 }
 
 // SecurityTenantPermissions is the tenant permission object
@@ -175,6 +172,6 @@ type SecurityIndexPermissions struct {
 	IndexPatterns         []string `json:"index_patterns"`
 	MaskedFields          []string `json:"masked_fields"`
 	AllowedActions        []string `json:"allowed_actions"`
-	DocumentLevelSecurity string   `json:"dls"`
+	DocumentLevelSecurity *string  `json:"dls,omitempty"`
 	FieldLevelSecurity    []string `json:"fls,omitempty"`
 }

@@ -155,14 +155,18 @@ type SecurityGetUserResponse map[string]SecurityUser
 // SecurityUser is the user object.
 // source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/InternalUserV7.java
 type SecurityUser struct {
+	SecurityUserBase `json:",inline"`
+	Reserved         *bool `json:"reserved,omitempty"`
+	Hidden           *bool `json:"hidden,omitempty"`
+	Static           *bool `json:"static,omitempty"`
+}
+
+type SecurityUserBase struct {
 	Hash          string            `json:"hash,omitempty"`
 	BackendRoles  []string          `json:"backend_roles"`
 	SecurityRoles []string          `json:"opendistro_security_roles"`
 	Attributes    map[string]string `json:"attributes"`
-	Description   string            `json:"description,omitempty"`
-	Reserved      bool              `json:"reserved,omitempty"`
-	Hidden        bool              `json:"hidden,omitempty"`
-	Static        bool              `json:"static,omitempty"`
-	Enabled       bool              `json:"enabled,omitempty"`
-	Service       bool              `json:"service,omitempty"`
+	Description   *string           `json:"description,omitempty"`
+	Enabled       *bool             `json:"enabled,omitempty"`
+	Service       *bool             `json:"service,omitempty"`
 }

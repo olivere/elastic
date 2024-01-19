@@ -2232,3 +2232,13 @@ func (c *Client) SecurityPutDistinguishedName(tenantName string) *SecurityPutDis
 func (c *Client) SecurityFlushCache() *SecurityFlushCacheService {
 	return NewSecurityFlushCacheService(c)
 }
+
+// SecurityGetConfig gets a security config
+func (c *Client) SecurityGetConfig() *SecurityGetConfigService {
+	return NewSecurityGetConfigService(c)
+}
+
+// SecurityPutConfig updates a security config
+func (c *Client) SecurityPutConfig() *SecurityPutConfigService {
+	return NewSecurityPutConfigService(c)
+}

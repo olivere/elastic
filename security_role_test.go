@@ -11,14 +11,14 @@ func TestSecurityRole(t *testing.T) {
 	client := setupTestClient(t)
 	var err error
 
-	expectedRole := &SecurityRole{
+	expectedRole := &SecurityPutRole{
 		ClusterPermissions: []string{"*"},
 		IndexPermissions: []SecurityIndexPermissions{
 			{
-				IndexPatterns:  []string{"*"},
-				AllowedActions: []string{"*"},
-				MaskedFields:   []string{},
-				FieldLevelSecurity:            []string{},
+				IndexPatterns:      []string{"*"},
+				AllowedActions:     []string{"*"},
+				MaskedFields:       []string{},
+				FieldLevelSecurity: []string{},
 			},
 		},
 		TenantPermissions: []SecurityTenantPermissions{
@@ -42,7 +42,7 @@ func TestSecurityRole(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.NotNil(t, resGet)
-	assert.Equal(t, *expectedRole, (*resGet)["superuser"])
+	assert.Equal(t, *expectedRole, (*resGet)["superuser"].SecurityPutRole)
 
 	// Update role
 	expectedRole.ClusterPermissions = []string{"cluster:admin/opendistro/alerting/alerts/get"}
@@ -54,7 +54,7 @@ func TestSecurityRole(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, *expectedRole, (*resGet)["superuser"])
+	assert.Equal(t, *expectedRole, (*resGet)["superuser"].SecurityPutRole)
 
 	// Delete role
 	resDelete, err := client.SecurityDeleteRole("superuser").Do(context.Background())

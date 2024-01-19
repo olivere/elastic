@@ -12,6 +12,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/otel v1.21.0
+	k8s.io/utils v0.0.0-20240102154912-e7106e64919e
 )
 
 require (

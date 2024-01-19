@@ -155,8 +155,8 @@ type SecurityGetTenantResponse map[string]SecurityTenant
 // SecurityTenant is the tenant object.
 // Source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/TenantV7.java
 type SecurityTenant struct {
-	Reserved    bool   `json:"reserved,omitempty"`
-	Hidden      bool   `json:"hidden,omitempty"`
-	Static      bool   `json:"static,omitempty"`
-	Description string `json:"description"`
+	SecurityPutTenant `json:",inline"`
+	Reserved          *bool `json:"reserved,omitempty"`
+	Hidden            *bool `json:"hidden,omitempty"`
+	Static            *bool `json:"static,omitempty"`
 }

@@ -165,3 +165,10 @@ type SecurityPutRoleMappingResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
+
+type SecurityPutRoleMapping struct {
+	BackendRoles    []string `json:"backend_roles"`
+	AndBackendRoles []string `json:"and_backend_roles"`
+	Hosts           []string `json:"hosts"`
+	Users           []string `json:"users"`
+}

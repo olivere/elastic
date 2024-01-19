@@ -165,3 +165,10 @@ type SecurityPutRoleResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
+
+type SecurityPutRole struct {
+	Description        *string                     `json:"description,omitempty"`
+	ClusterPermissions []string                    `json:"cluster_permissions"`
+	IndexPermissions   []SecurityIndexPermissions  `json:"index_permissions"`
+	TenantPermissions  []SecurityTenantPermissions `json:"tenant_permissions"`
+}

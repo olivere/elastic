@@ -11,9 +11,9 @@ import (
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
 
-// SecurityGetActionGroupService retrieves a action group by its name.
-// https://opensearch.org/docs/latest/security/access-control/api/#get-action-groups
-type SecurityGetActionGroupService struct {
+// SecurityPutConfigService update a config by its name.
+// See https://opensearch.org/docs/latest/security/access-control/api/#update-configuration
+type SecurityPutConfigService struct {
 	client *Client
 
 	pretty     *bool       // pretty format the returned JSON response
@@ -22,43 +22,43 @@ type SecurityGetActionGroupService struct {
 	filterPath []string    // list of filters used to reduce the response
 	headers    http.Header // custom request-level HTTP headers
 
-	name string
+	body interface{}
 }
 
-// NewSecurityGetActionGroupService creates a new SecurityGetActionGroupService.
-func NewSecurityGetActionGroupService(client *Client) *SecurityGetActionGroupService {
-	return &SecurityGetActionGroupService{
+// NewSecurityPutConfigService creates a new SecurityPutConfigService.
+func NewSecurityPutConfigService(client *Client) *SecurityPutConfigService {
+	return &SecurityPutConfigService{
 		client: client,
 	}
 }
 
 // Pretty tells Opensearch whether to return a formatted JSON response.
-func (s *SecurityGetActionGroupService) Pretty(pretty bool) *SecurityGetActionGroupService {
+func (s *SecurityPutConfigService) Pretty(pretty bool) *SecurityPutConfigService {
 	s.pretty = &pretty
 	return s
 }
 
 // Human specifies whether human readable values should be returned in
 // the JSON response, e.g. "7.5mb".
-func (s *SecurityGetActionGroupService) Human(human bool) *SecurityGetActionGroupService {
+func (s *SecurityPutConfigService) Human(human bool) *SecurityPutConfigService {
 	s.human = &human
 	return s
 }
 
 // ErrorTrace specifies whether to include the stack trace of returned errors.
-func (s *SecurityGetActionGroupService) ErrorTrace(errorTrace bool) *SecurityGetActionGroupService {
+func (s *SecurityPutConfigService) ErrorTrace(errorTrace bool) *SecurityPutConfigService {
 	s.errorTrace = &errorTrace
 	return s
 }
 
 // FilterPath specifies a list of filters used to reduce the response.
-func (s *SecurityGetActionGroupService) FilterPath(filterPath ...string) *SecurityGetActionGroupService {
+func (s *SecurityPutConfigService) FilterPath(filterPath ...string) *SecurityPutConfigService {
 	s.filterPath = filterPath
 	return s
 }
 
 // Header adds a header to the request.
-func (s *SecurityGetActionGroupService) Header(name string, value string) *SecurityGetActionGroupService {
+func (s *SecurityPutConfigService) Header(name string, value string) *SecurityPutConfigService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
@@ -67,23 +67,21 @@ func (s *SecurityGetActionGroupService) Header(name string, value string) *Secur
 }
 
 // Headers specifies the headers of the request.
-func (s *SecurityGetActionGroupService) Headers(headers http.Header) *SecurityGetActionGroupService {
+func (s *SecurityPutConfigService) Headers(headers http.Header) *SecurityPutConfigService {
 	s.headers = headers
 	return s
 }
 
-// Name is name of the action group to retrieve.
-func (s *SecurityGetActionGroupService) Name(name string) *SecurityGetActionGroupService {
-	s.name = name
+// Body specifies the config. Use a string or a type that will get serialized as JSON.
+func (s *SecurityPutConfigService) Body(body interface{}) *SecurityPutConfigService {
+	s.body = body
 	return s
 }
 
 // buildURL builds the URL for the operation.
-func (s *SecurityGetActionGroupService) buildURL() (string, url.Values, error) {
+func (s *SecurityPutConfigService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_plugins/_security/api/actiongroups/{name}", map[string]string{
-		"name": s.name,
-	})
+	path, err := uritemplates.Expand("/_plugins/_security/api/securityconfig/config", nil)
 	if err != nil {
 		return "", url.Values{}, err
 	}
@@ -106,10 +104,10 @@ func (s *SecurityGetActionGroupService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *SecurityGetActionGroupService) Validate() error {
+func (s *SecurityPutConfigService) Validate() error {
 	var invalid []string
-	if s.name == "" {
-		invalid = append(invalid, "Name")
+	if s.body == nil {
+		invalid = append(invalid, "Body")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
@@ -118,7 +116,7 @@ func (s *SecurityGetActionGroupService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *SecurityGetActionGroupService) Do(ctx context.Context) (*SecurityGetActionGroupResponse, error) {
+func (s *SecurityPutConfigService) Do(ctx context.Context) (*SecurityPutConfigResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -132,9 +130,10 @@ func (s *SecurityGetActionGroupService) Do(ctx context.Context) (*SecurityGetAct
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method:  "GET",
+		Method:  "PUT",
 		Path:    path,
 		Params:  params,
+		Body:    s.body,
 		Headers: s.headers,
 	})
 	if err != nil {
@@ -142,23 +141,15 @@ func (s *SecurityGetActionGroupService) Do(ctx context.Context) (*SecurityGetAct
 	}
 
 	// Return operation response
-	ret := new(SecurityGetActionGroupResponse)
+	ret := new(SecurityPutConfigResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// SecurityGetActionGroupResponse is the response of SecurityGetActionGroupService.Do.
-type SecurityGetActionGroupResponse map[string]SecurityActionGroup
-
-// SecurityActionGroup is the action group object.
-// Source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/ActionGroupsV7.java
-type SecurityActionGroup struct {
-	Reserved       *bool    `json:"reserved,omitempty"`
-	Hidden         *bool    `json:"hidden,omitempty"`
-	Static         *bool    `json:"static,omitempty"`
-	Description    *string  `json:"description,omitempty"`
-	Type           *string  `json:"type,omitempty"`
-	AllowedActions []string `json:"allowed_actions"`
+// SecurityPutConfigResponse is the response of SecurityPutConfigService.Do.
+type SecurityPutConfigResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
 }

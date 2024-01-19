@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"k8s.io/utils/ptr"
 )
 
 func TestSecurityActionGroup(t *testing.T) {
@@ -33,7 +34,7 @@ func TestSecurityActionGroup(t *testing.T) {
 	assert.Equal(t, *expectedActionGroup, (*resGet)["test"])
 
 	// Update action group
-	expectedActionGroup.Description = "test"
+	expectedActionGroup.Description = ptr.To[string]("test")
 	_, err = client.SecurityPutActionGroup("test").Body(expectedActionGroup).Do(context.Background())
 	if err != nil {
 		t.Fatal(err)

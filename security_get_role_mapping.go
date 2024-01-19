@@ -155,10 +155,7 @@ type SecurityGetRoleMappingResponse map[string]SecurityRoleMapping
 // SecurityRoleMapping is the role mapping object.
 // Source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/RoleMappingsV7.java
 type SecurityRoleMapping struct {
-	BackendRoles    []string `json:"backend_roles"`
-	AndBackendRoles []string `json:"and_backend_roles"`
-	Hosts           []string `json:"hosts"`
-	Users           []string `json:"users"`
-	Reserved        bool     `json:"reserved,omitempty"`
-	Hidden          bool     `json:"hidden,omitempty"`
+	SecurityPutRoleMapping `json:",inline"`
+	Reserved               *bool `json:"reserved,omitempty"`
+	Hidden                 *bool `json:"hidden,omitempty"`
 }

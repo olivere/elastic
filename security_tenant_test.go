@@ -11,7 +11,7 @@ func TestSecurityTenant(t *testing.T) {
 	client := setupTestClient(t)
 	var err error
 
-	expectedTenant := &SecurityTenant{
+	expectedTenant := &SecurityPutTenant{
 		Description: "test",
 	}
 
@@ -28,7 +28,7 @@ func TestSecurityTenant(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.NotNil(t, resGet)
-	assert.Equal(t, *expectedTenant, (*resGet)["test"])
+	assert.Equal(t, *expectedTenant, (*resGet)["test"].SecurityPutTenant)
 
 	// Update tenant
 	expectedTenant.Description = "this is a test"
@@ -40,7 +40,7 @@ func TestSecurityTenant(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, *expectedTenant, (*resGet)["test"])
+	assert.Equal(t, *expectedTenant, (*resGet)["test"].SecurityPutTenant)
 
 	// Delete tenant
 	resDelete, err := client.SecurityDeleteTenant("test").Do(context.Background())

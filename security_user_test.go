@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"k8s.io/utils/ptr"
 )
 
 func TestSecurityUser(t *testing.T) {
@@ -12,7 +13,7 @@ func TestSecurityUser(t *testing.T) {
 	var err error
 
 	expecedUser := &SecurityPutUser{
-		SecurityUser: SecurityUser{
+		SecurityUserBase: SecurityUserBase{
 			BackendRoles:  []string{"admin"},
 			SecurityRoles: []string{"all_access"},
 			Attributes:    map[string]string{},
@@ -33,10 +34,10 @@ func TestSecurityUser(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.NotNil(t, resGet)
-	assert.Equal(t, expecedUser.SecurityUser, (*resGet)["test"])
+	assert.Equal(t, expecedUser.SecurityUserBase, (*resGet)["test"].SecurityUserBase)
 
 	// Update user
-	expecedUser.Description = "test"
+	expecedUser.Description = ptr.To[string]("test")
 	_, err = client.SecurityPutUser("test").Body(expecedUser).Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
@@ -45,7 +46,7 @@ func TestSecurityUser(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, expecedUser.SecurityUser, (*resGet)["test"])
+	assert.Equal(t, expecedUser.SecurityUserBase, (*resGet)["test"].SecurityUserBase)
 
 	// Delete user
 	resDelete, err := client.SecurityDeleteUser("test").Do(context.Background())

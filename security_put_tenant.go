@@ -165,3 +165,7 @@ type SecurityPutTenantResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
+
+type SecurityPutTenant struct {
+	Description string `json:"description"`
+}
