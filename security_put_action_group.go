@@ -165,3 +165,9 @@ type SecurityPutActionGroupResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
+
+type SecurityPutActionGroup struct {
+	Description    *string  `json:"description,omitempty"`
+	Type           *string  `json:"type,omitempty"`
+	AllowedActions []string `json:"allowed_actions"`
+}

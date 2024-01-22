@@ -155,10 +155,10 @@ type SecurityGetRoleResponse map[string]SecurityRole
 // SecurityRole is the role object.
 // Source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/RoleV7.java
 type SecurityRole struct {
-	SecurityPutRole SecurityPutTenant
-	Reserved        *bool `json:"reserved,omitempty"`
-	Hidden          *bool `json:"hidden,omitempty"`
-	Static          *bool `json:"static,omitempty"`
+	SecurityPutRole SecurityPutRole `json:",inline"`
+	Reserved        *bool           `json:"reserved,omitempty"`
+	Hidden          *bool           `json:"hidden,omitempty"`
+	Static          *bool           `json:"static,omitempty"`
 }
 
 // SecurityTenantPermissions is the tenant permission object

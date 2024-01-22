@@ -12,7 +12,7 @@ func TestSecurityActionGroup(t *testing.T) {
 	client := setupTestClient(t)
 	var err error
 
-	expectedActionGroup := &SecurityActionGroup{
+	expectedActionGroup := &SecurityPutActionGroup{
 		AllowedActions: []string{
 			"cluster_all",
 		},
@@ -31,7 +31,7 @@ func TestSecurityActionGroup(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.NotNil(t, resGet)
-	assert.Equal(t, *expectedActionGroup, (*resGet)["test"])
+	assert.Equal(t, *expectedActionGroup, (*resGet)["test"].SecurityPutActionGroup)
 
 	// Update action group
 	expectedActionGroup.Description = ptr.To[string]("test")
@@ -43,7 +43,7 @@ func TestSecurityActionGroup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, *expectedActionGroup, (*resGet)["test"])
+	assert.Equal(t, *expectedActionGroup, (*resGet)["test"].SecurityPutActionGroup)
 
 	// Delete action group
 	resDelete, err := client.SecurityDeleteActionGroup("test").Do(context.Background())

@@ -155,10 +155,8 @@ type SecurityGetActionGroupResponse map[string]SecurityActionGroup
 // SecurityActionGroup is the action group object.
 // Source code: https://github.com/opensearch-project/security/blob/main/src/main/java/org/opensearch/security/securityconf/impl/v7/ActionGroupsV7.java
 type SecurityActionGroup struct {
-	Reserved       *bool    `json:"reserved,omitempty"`
-	Hidden         *bool    `json:"hidden,omitempty"`
-	Static         *bool    `json:"static,omitempty"`
-	Description    *string  `json:"description,omitempty"`
-	Type           *string  `json:"type,omitempty"`
-	AllowedActions []string `json:"allowed_actions"`
+	SecurityPutActionGroup `json:",inline"`
+	Reserved               *bool `json:"reserved,omitempty"`
+	Hidden                 *bool `json:"hidden,omitempty"`
+	Static                 *bool `json:"static,omitempty"`
 }
