@@ -161,17 +161,4 @@ type SecurityRole struct {
 	Static          *bool           `json:"static,omitempty"`
 }
 
-// SecurityTenantPermissions is the tenant permission object
-type SecurityTenantPermissions struct {
-	TenantPatterns []string `json:"tenant_patterns"`
-	AllowedAction  []string `json:"allowed_actions"`
-}
 
-// SecurityIndexPermissions is the index permission object
-type SecurityIndexPermissions struct {
-	IndexPatterns         []string `json:"index_patterns"`
-	MaskedFields          []string `json:"masked_fields"`
-	AllowedActions        []string `json:"allowed_actions"`
-	DocumentLevelSecurity *string  `json:"dls,omitempty"`
-	FieldLevelSecurity    []string `json:"fls,omitempty"`
-}

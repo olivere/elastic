@@ -166,9 +166,25 @@ type SecurityPutRoleResponse struct {
 	Message string `json:"message"`
 }
 
+// SecurityPutRole is the role object spec
 type SecurityPutRole struct {
 	Description        *string                     `json:"description,omitempty"`
 	ClusterPermissions []string                    `json:"cluster_permissions"`
 	IndexPermissions   []SecurityIndexPermissions  `json:"index_permissions"`
 	TenantPermissions  []SecurityTenantPermissions `json:"tenant_permissions"`
+}
+
+// SecurityTenantPermissions is the tenant permission object
+type SecurityTenantPermissions struct {
+	TenantPatterns []string `json:"tenant_patterns"`
+	AllowedAction  []string `json:"allowed_actions"`
+}
+
+// SecurityIndexPermissions is the index permission object
+type SecurityIndexPermissions struct {
+	IndexPatterns         []string `json:"index_patterns"`
+	MaskedFields          []string `json:"masked_fields"`
+	AllowedActions        []string `json:"allowed_actions"`
+	DocumentLevelSecurity *string  `json:"dls,omitempty"`
+	FieldLevelSecurity    []string `json:"fls,omitempty"`
 }
