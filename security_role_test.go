@@ -24,7 +24,7 @@ func TestSecurityRole(t *testing.T) {
 		TenantPermissions: []SecurityTenantPermissions{
 			{
 				TenantPatterns: []string{"*"},
-				AllowedAction:  []string{"*"},
+				AllowedActions:  []string{"*"},
 			},
 		},
 	}

@@ -177,7 +177,7 @@ type SecurityPutRole struct {
 // SecurityTenantPermissions is the tenant permission object
 type SecurityTenantPermissions struct {
 	TenantPatterns []string `json:"tenant_patterns"`
-	AllowedAction  []string `json:"allowed_actions"`
+	AllowedActions []string `json:"allowed_actions"`
 }
 
 // SecurityIndexPermissions is the index permission object
