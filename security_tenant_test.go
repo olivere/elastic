@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"k8s.io/utils/ptr"
 )
 
 func TestSecurityTenant(t *testing.T) {
@@ -12,7 +13,7 @@ func TestSecurityTenant(t *testing.T) {
 	var err error
 
 	expectedTenant := &SecurityPutTenant{
-		Description: "test",
+		Description: ptr.To[string]("test"),
 	}
 
 	// Create tenant
@@ -31,7 +32,7 @@ func TestSecurityTenant(t *testing.T) {
 	assert.Equal(t, *expectedTenant, (*resGet)["test"].SecurityPutTenant)
 
 	// Update tenant
-	expectedTenant.Description = "this is a test"
+	expectedTenant.Description = ptr.To[string]("this is a test")
 	_, err = client.SecurityPutTenant("test").Body(expectedTenant).Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
