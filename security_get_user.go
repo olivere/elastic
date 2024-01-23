@@ -163,9 +163,9 @@ type SecurityUser struct {
 
 type SecurityUserBase struct {
 	Hash          *string           `json:"hash,omitempty"`
-	BackendRoles  []string          `json:"backend_roles"`
-	SecurityRoles []string          `json:"opendistro_security_roles"`
-	Attributes    map[string]string `json:"attributes"`
+	BackendRoles  []string          `json:"backend_roles,omitempty"`
+	SecurityRoles []string          `json:"opendistro_security_roles,omitempty"`
+	Attributes    map[string]string `json:"attributes,omitempty"`
 	Description   *string           `json:"description,omitempty"`
 	Enabled       *bool             `json:"enabled,omitempty"`
 	Service       *bool             `json:"service,omitempty"`
