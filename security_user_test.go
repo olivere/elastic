@@ -18,7 +18,7 @@ func TestSecurityUser(t *testing.T) {
 			SecurityRoles: []string{"all_access"},
 			Attributes:    map[string]string{},
 		},
-		Password: "myverystrongpassword",
+		Password: ptr.To[string]("myverystrongpassword"),
 	}
 
 	// Create user
