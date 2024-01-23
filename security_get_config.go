@@ -155,9 +155,9 @@ type SecurityConfigDynamic struct {
 	License                      *string                                       `json:"license,omitempty"`
 	Kibana                       *SecurityConfigKibana                         `json:"kibana,omitempty"`
 	Http                         *SecurityConfigHttp                           `json:"http,omitempty"`
-	Authc                        map[string]SecurityConfigAuthc                `json:"authc"`
-	Authz                        map[string]SecurityConfigAuthz                `json:"authz"`
-	AuthFailureListeners         map[string]SecurityConfigAuthFailureListeners `json:"auth_failure_listeners"`
+	Authc                        map[string]SecurityConfigAuthc                `json:"authc,omitempty"`
+	Authz                        map[string]SecurityConfigAuthz                `json:"authz,omitempty"`
+	AuthFailureListeners         map[string]SecurityConfigAuthFailureListeners `json:"auth_failure_listeners,omitempty"`
 	DoNotFailOnForbidden         *bool                                         `json:"do_not_fail_on_forbidden,omitempty"`
 	MultiRolespanEnabled         *bool                                         `json:"multi_rolespan_enabled,omitempty"`
 	HostsResolverMode            *string                                       `json:"hosts_resolver_mode,omitempty"`
@@ -221,15 +221,15 @@ type SecurityConfigXff struct {
 type SecurityConfigHttpAuthenticator struct {
 	Challenge *bool          `json:"challenge,omitempty"`
 	Type      *string        `json:"type,omitempty"`
-	Config    map[string]any `json:"config"`
+	Config    map[string]any `json:"config,omitempty"`
 }
 
 type SecurityConfigAuthenticationBackend struct {
 	Type   *string        `json:"type,omitempty"`
-	Config map[string]any `json:"config"`
+	Config map[string]any `json:"config,omitempty"`
 }
 
 type SecurityConfigAuthorizationBackend struct {
 	Type   *string        `json:"type,omitempty"`
-	Config map[string]any `json:"config"`
+	Config map[string]any `json:"config,omitempty"`
 }
