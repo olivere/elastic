@@ -181,12 +181,12 @@ type SecurityConfigHttp struct {
 }
 
 type SecurityConfigAuthc struct {
-	HttpEnabled            *bool                                `json:"http_enabled,omitempty"`
-	TransportEnabled       *bool                                `json:"transport_enabled,omitempty"`
-	Order                  *int64                               `json:"order,omitempty"`
-	HttpAuthenticator      *SecurityConfigHttpAuthenticator     `json:"http_authenticator,omitempty"`
-	AuthenticationBackendd *SecurityConfigAuthenticationBackend `json:"authentication_backend,omitempty"`
-	Description            *string                              `json:"description,omitempty"`
+	HttpEnabled           *bool                                `json:"http_enabled,omitempty"`
+	TransportEnabled      *bool                                `json:"transport_enabled,omitempty"`
+	Order                 *int64                               `json:"order,omitempty"`
+	HttpAuthenticator     *SecurityConfigHttpAuthenticator     `json:"http_authenticator,omitempty"`
+	AuthenticationBackend *SecurityConfigAuthenticationBackend `json:"authentication_backend,omitempty"`
+	Description           *string                              `json:"description,omitempty"`
 }
 
 type SecurityConfigAuthz struct {
