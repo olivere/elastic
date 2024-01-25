@@ -150,28 +150,35 @@ func (s *IsmGetPolicyService) Do(ctx context.Context) (*IsmGetPolicyResponse, er
 	return ret, nil
 }
 
+// IsmGetPolicyResponse is the get index state management response object
 // https://opensearch.org/docs/latest/im-plugin/ism/api/#get-policy
 type IsmGetPolicyResponse struct {
-	Id             string    `json:"_id"`
-	Version        int64     `json:"_version"`
-	SequenceNumber int64     `json:"_seq_no"`
-	PrimaryTerm    int64     `json:"_primary_term"`
-	Policy         IsmPolicy `json:"policy"`
+	Id             string       `json:"_id"`
+	Version        int64        `json:"_version"`
+	SequenceNumber int64        `json:"_seq_no"`
+	PrimaryTerm    int64        `json:"_primary_term"`
+	Policy         IsmGetPolicy `json:"policy"`
 }
 
+// IsmPolicyBase is the base ISM policy
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/Policy.kt
-type IsmPolicy struct {
+type IsmPolicyBase struct {
 	ID                *string               `json:"policy_id,omitempty"`
 	Description       *string               `json:"description,omitempty"`
-	SchemaVersion     *int64                `json:"schema_version,omitempty"`
-	LastUpdatedTime   *int64                `json:"last_updated_time,omitempty"`
 	ErrorNotification *IsmErrorNotification `json:"error_notification,omitempty"`
 	DefaultState      *string               `json:"default_state,omitempty"`
 	States            []IsmPolicyState      `json:"states,omitempty"`
 	IsmTemplate       []IsmPolicyTemplate   `json:"ism_template,omitempty"`
-	User              *string               `json:"user,omitempty"`
 }
 
+// IsmGetPolicy is the ISM policy
+type IsmGetPolicy struct {
+	IsmPolicyBase   `json:",inline"`
+	SchemaVersion   *int64 `json:"schema_version,omitempty"`
+	LastUpdatedTime *int64 `json:"last_updated_time,omitempty"`
+}
+
+// IsmErrorNotification is the error notification object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/ErrorNotification.kt
 type IsmErrorNotification struct {
 	Destination     *IsmErrorNotificationDestination     `json:"destination,omitempty"`
@@ -179,6 +186,7 @@ type IsmErrorNotification struct {
 	MessageTemplate *IsmErrorNotificationMessageTemplate `json:"message_template,omitempty"`
 }
 
+// IsmPolicyState is the policy state object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/State.kt
 type IsmPolicyState struct {
 	Name        string                     `json:"name"`
@@ -186,6 +194,7 @@ type IsmPolicyState struct {
 	Transitions []IsmPolicyStateTransition `json:"transitions,omitempty"`
 }
 
+// IsmErrorNotificationDestination is the error notification destination object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/destination/Destination.kt
 type IsmErrorNotificationDestination struct {
 	Type          string
@@ -194,11 +203,13 @@ type IsmErrorNotificationDestination struct {
 	CustomWebhook *IsmErrorNotificationDestinationCustomWebhook `json:"custom_webhook,omitempty"`
 }
 
+// IsmErrorNotificationDestinationChime is the chime notification object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/destination/Chime.kt
 type IsmErrorNotificationDestinationChime struct {
 	Url string `json:"url"`
 }
 
+// IsmErrorNotificationDestinationCustomWebhook is the webhook notification object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/destination/CustomWebhook.kt
 type IsmErrorNotificationDestinationCustomWebhook struct {
 	Url          *string           `json:"url,omitempty"`
@@ -212,16 +223,19 @@ type IsmErrorNotificationDestinationCustomWebhook struct {
 	Password     *string           `json:"password,omitempty"`
 }
 
+// IsmErrorNotificationDestinationSlack is the slack notification object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/destination/Slack.kt
 type IsmErrorNotificationDestinationSlack struct {
 	Url string `json:"url"`
 }
 
+// IsmErrorNotificationChannel is the channel object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/common/model/notification/Channel.kt
 type IsmErrorNotificationChannel struct {
 	ID string `json:"id"`
 }
 
+// IsmErrorNotificationMessageTemplate is the message template object
 // Source: https://github.com/opensearch-project/OpenSearch/blob/main/server/src/main/java/org/opensearch/script/Script.java
 type IsmErrorNotificationMessageTemplate struct {
 	ScriptType string            `json:"type"`
@@ -231,12 +245,14 @@ type IsmErrorNotificationMessageTemplate struct {
 	Params     map[string]string `json:"params,omitempty"`
 }
 
+// IsmPolicyStateTransition is the state transition object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/Transition.kt
 type IsmPolicyStateTransition struct {
 	StateName  string         `json:"state_name"`
 	Conditions map[string]any `json:"conditions,omitempty"`
 }
 
+// IsmPolicyTemplate is the policy template object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/ISMTemplate.kt
 type IsmPolicyTemplate struct {
 	IndexPatterns   []string   `json:"index_patterns,omitempty"`

@@ -361,7 +361,23 @@ Here's a [link to a complete working example for v2](@todo).
 ### Security
 
 - Security plugin
+  - [x] Internal user
   - [x] Role
+  - [x] Role mapping
+  - [x] Action group
+  - [x] Tenant
+  - [x] Distinguished name (DN)
+  - [x] Flush cache
+  - [x] Security config
+
+### Index Management State
+- ISM plugin
+  - [x] Index Management State
+
+### Snapshot Management
+- SM plugin
+  - [x] Snapshot Management
+
 
 ### Scrolling
 
@@ -390,5 +406,4 @@ by Joshua Tacoma,
 
 ## LICENSE
 
-MIT-LICENSE. See [LICENSE](http://olivere.mit-license.org/)
-or the LICENSE file provided in the repository for details.
+MIT-LICENSE.

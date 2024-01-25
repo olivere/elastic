@@ -16,7 +16,7 @@ func TestIsmPolicy(t *testing.T) {
 	logrus.SetLevel(logrus.TraceLevel)
 
 	expecedIsmPolicy := &IsmPutPolicy{
-		Policy: IsmPolicy{
+		Policy: IsmPolicyBase{
 			Description:  ptr.To[string]("ingesting logs"),
 			DefaultState: ptr.To[string]("ingest"),
 			States: []IsmPolicyState{

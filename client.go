@@ -2243,7 +2243,7 @@ func (c *Client) SecurityPutConfig() *SecurityPutConfigService {
 	return NewSecurityPutConfigService(c)
 }
 
-// -- Idex State Management plugin --
+// -- Index State Management plugin --
 
 // IsmDeletePolicy deletes a ISM policy.
 func (c *Client) IsmDeletePolicy(policyName string) *IsmDeletePolicyService {
@@ -2258,4 +2258,26 @@ func (c *Client) IsmGetPolicy(policyName string) *IsmGetPolicyService {
 // IsmPutPolicy adds a policy.
 func (c *Client) IsmPutPolicy(policyName string) *IsmPutPolicyService {
 	return NewIsmPutPolicyService(c).Name(policyName)
+}
+
+// -- Snapshot Management plugin --
+
+// SmDeletePolicy deletes a SM policy.
+func (c *Client) SmDeletePolicy(policyName string) *SmDeletePolicyService {
+	return NewSmDeletePolicyService(c).Name(policyName)
+}
+
+// SmGetPolicy gets a SM policy.
+func (c *Client) SmGetPolicy(policyName string) *SmGetPolicyService {
+	return NewSmGetPolicyService(c).Name(policyName)
+}
+
+// SmPostPolicy create a policy.
+func (c *Client) SmPostPolicy(policyName string) *SmPostPolicyService {
+	return NewSmPostPolicyService(c).Name(policyName)
+}
+
+// SmPutPolicy updates a policy.
+func (c *Client) SmPutPolicy(policyName string) *SmPutPolicyService {
+	return NewSmPutPolicyService(c).Name(policyName)
 }

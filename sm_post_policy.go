@@ -6,16 +6,14 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/disaster37/opensearch/v2/uritemplates"
-	"k8s.io/utils/ptr"
 )
 
-// IsmPutPolicyService update a ISM policy by its name.
-// See https://opensearch.org/docs/latest/im-plugin/ism/api/#create-policy
-type IsmPutPolicyService struct {
+// SmPostPolicyService create a SM policy by its name.
+// See https://opensearch.org/docs/latest/tuning-your-cluster/availability-and-recovery/snapshots/sm-api/#create-or-update-a-policy
+type SmPostPolicyService struct {
 	client *Client
 
 	pretty     *bool       // pretty format the returned JSON response
@@ -24,46 +22,44 @@ type IsmPutPolicyService struct {
 	filterPath []string    // list of filters used to reduce the response
 	headers    http.Header // custom request-level HTTP headers
 
-	name           string
-	body           interface{}
-	sequenceNumber *int64
-	primaryTerm    *int64
+	name string
+	body interface{}
 }
 
-// NewIsmPutPolicyService creates a new IsmPutPolicyService.
-func NewIsmPutPolicyService(client *Client) *IsmPutPolicyService {
-	return &IsmPutPolicyService{
+// NewSmPostPolicyService creates a new SmPostPolicyService.
+func NewSmPostPolicyService(client *Client) *SmPostPolicyService {
+	return &SmPostPolicyService{
 		client: client,
 	}
 }
 
 // Pretty tells Opensearch whether to return a formatted JSON response.
-func (s *IsmPutPolicyService) Pretty(pretty bool) *IsmPutPolicyService {
+func (s *SmPostPolicyService) Pretty(pretty bool) *SmPostPolicyService {
 	s.pretty = &pretty
 	return s
 }
 
 // Human specifies whether human readable values should be returned in
 // the JSON response, e.g. "7.5mb".
-func (s *IsmPutPolicyService) Human(human bool) *IsmPutPolicyService {
+func (s *SmPostPolicyService) Human(human bool) *SmPostPolicyService {
 	s.human = &human
 	return s
 }
 
 // ErrorTrace specifies whether to include the stack trace of returned errors.
-func (s *IsmPutPolicyService) ErrorTrace(errorTrace bool) *IsmPutPolicyService {
+func (s *SmPostPolicyService) ErrorTrace(errorTrace bool) *SmPostPolicyService {
 	s.errorTrace = &errorTrace
 	return s
 }
 
 // FilterPath specifies a list of filters used to reduce the response.
-func (s *IsmPutPolicyService) FilterPath(filterPath ...string) *IsmPutPolicyService {
+func (s *SmPostPolicyService) FilterPath(filterPath ...string) *SmPostPolicyService {
 	s.filterPath = filterPath
 	return s
 }
 
 // Header adds a header to the request.
-func (s *IsmPutPolicyService) Header(name string, value string) *IsmPutPolicyService {
+func (s *SmPostPolicyService) Header(name string, value string) *SmPostPolicyService {
 	if s.headers == nil {
 		s.headers = http.Header{}
 	}
@@ -72,55 +68,29 @@ func (s *IsmPutPolicyService) Header(name string, value string) *IsmPutPolicySer
 }
 
 // Headers specifies the headers of the request.
-func (s *IsmPutPolicyService) Headers(headers http.Header) *IsmPutPolicyService {
+func (s *SmPostPolicyService) Headers(headers http.Header) *SmPostPolicyService {
 	s.headers = headers
 	return s
 }
 
 // Name is name of the policy to create.
-func (s *IsmPutPolicyService) Name(name string) *IsmPutPolicyService {
+func (s *SmPostPolicyService) Name(name string) *SmPostPolicyService {
 	s.name = name
 	return s
 }
 
 // Body specifies the policy. Use a string or a type that will get serialized as JSON.
-func (s *IsmPutPolicyService) Body(body interface{}) *IsmPutPolicyService {
+func (s *SmPostPolicyService) Body(body interface{}) *SmPostPolicyService {
 	s.body = body
 	return s
 }
 
-// SequenceNumber specifies the sequence number to update.
-func (s *IsmPutPolicyService) SequenceNumber(seqNum int64) *IsmPutPolicyService {
-	s.sequenceNumber = ptr.To[int64](seqNum)
-	return s
-}
-
-// PrimaryTerm specifies the primary term to update.
-func (s *IsmPutPolicyService) PrimaryTerm(primaryTerm int64) *IsmPutPolicyService {
-	s.primaryTerm = ptr.To[int64](primaryTerm)
-	return s
-}
-
 // buildURL builds the URL for the operation.
-func (s *IsmPutPolicyService) buildURL() (string, url.Values, error) {
-	var (
-		path string
-		err  error
-	)
+func (s *SmPostPolicyService) buildURL() (string, url.Values, error) {
 
-	// Build URL
-	if s.primaryTerm != nil && s.sequenceNumber != nil {
-		path, err = uritemplates.Expand("/_plugins/_ism/policies/{name}?if_seq_no={seqNum}&if_primary_term={priTerm}", map[string]string{
-			"name":    s.name,
-			"seqNum":  strconv.FormatInt(*s.sequenceNumber, 10),
-			"priTerm": strconv.FormatInt(*s.primaryTerm, 10),
-		})
-	} else {
-		path, err = uritemplates.Expand("/_plugins/_ism/policies/{name}", map[string]string{
-			"name": s.name,
-		})
-	}
-
+	path, err := uritemplates.Expand("/_plugins/_sm/policies/{name}", map[string]string{
+		"name": s.name,
+	})
 	if err != nil {
 		return "", url.Values{}, err
 	}
@@ -143,7 +113,7 @@ func (s *IsmPutPolicyService) buildURL() (string, url.Values, error) {
 }
 
 // Validate checks if the operation is valid.
-func (s *IsmPutPolicyService) Validate() error {
+func (s *SmPostPolicyService) Validate() error {
 	var invalid []string
 	if s.name == "" {
 		invalid = append(invalid, "Name")
@@ -158,7 +128,7 @@ func (s *IsmPutPolicyService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *IsmPutPolicyService) Do(ctx context.Context) (*IsmGetPolicyResponse, error) {
+func (s *SmPostPolicyService) Do(ctx context.Context) (*SmGetPolicyResponse, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -172,7 +142,7 @@ func (s *IsmPutPolicyService) Do(ctx context.Context) (*IsmGetPolicyResponse, er
 
 	// Get HTTP response
 	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
-		Method:  "PUT",
+		Method:  "POST",
 		Path:    path,
 		Params:  params,
 		Body:    s.body,
@@ -183,14 +153,9 @@ func (s *IsmPutPolicyService) Do(ctx context.Context) (*IsmGetPolicyResponse, er
 	}
 
 	// Return operation response
-	ret := new(IsmGetPolicyResponse)
+	ret := new(SmGetPolicyResponse)
 	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
-}
-
-// IsmPutPolicy is the policy object to create or update
-type IsmPutPolicy struct {
-	Policy IsmPolicyBase `json:"policy"`
 }
