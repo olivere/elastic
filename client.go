@@ -2242,3 +2242,20 @@ func (c *Client) SecurityGetConfig() *SecurityGetConfigService {
 func (c *Client) SecurityPutConfig() *SecurityPutConfigService {
 	return NewSecurityPutConfigService(c)
 }
+
+// -- Idex State Management plugin --
+
+// IsmDeletePolicy deletes a ISM policy.
+func (c *Client) IsmDeletePolicy(policyName string) *IsmDeletePolicyService {
+	return NewIsmDeletePolicyService(c).Name(policyName)
+}
+
+// IsmGetPolicy gets a ISM policy.
+func (c *Client) IsmGetPolicy(policyName string) *IsmGetPolicyService {
+	return NewIsmGetPolicyService(c).Name(policyName)
+}
+
+// IsmPutPolicy adds a policy.
+func (c *Client) IsmPutPolicy(policyName string) *IsmPutPolicyService {
+	return NewIsmPutPolicyService(c).Name(policyName)
+}
