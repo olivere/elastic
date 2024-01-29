@@ -169,9 +169,9 @@ type SecurityPutRoleResponse struct {
 // SecurityPutRole is the role object spec
 type SecurityPutRole struct {
 	Description        *string                     `json:"description,omitempty"`
-	ClusterPermissions []string                    `json:"cluster_permissions"`
-	IndexPermissions   []SecurityIndexPermissions  `json:"index_permissions"`
-	TenantPermissions  []SecurityTenantPermissions `json:"tenant_permissions"`
+	ClusterPermissions []string                    `json:"cluster_permissions,omitempty"`
+	IndexPermissions   []SecurityIndexPermissions  `json:"index_permissions,omitempty"`
+	TenantPermissions  []SecurityTenantPermissions `json:"tenant_permissions,omitempty"`
 }
 
 // SecurityTenantPermissions is the tenant permission object
@@ -183,7 +183,7 @@ type SecurityTenantPermissions struct {
 // SecurityIndexPermissions is the index permission object
 type SecurityIndexPermissions struct {
 	IndexPatterns         []string `json:"index_patterns"`
-	MaskedFields          []string `json:"masked_fields"`
+	MaskedFields          []string `json:"masked_fields,omitempty"`
 	AllowedActions        []string `json:"allowed_actions"`
 	DocumentLevelSecurity *string  `json:"dls,omitempty"`
 	FieldLevelSecurity    []string `json:"fls,omitempty"`
