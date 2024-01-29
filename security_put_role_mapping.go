@@ -167,8 +167,8 @@ type SecurityPutRoleMappingResponse struct {
 }
 
 type SecurityPutRoleMapping struct {
-	BackendRoles    []string `json:"backend_roles"`
-	AndBackendRoles []string `json:"and_backend_roles"`
-	Hosts           []string `json:"hosts"`
-	Users           []string `json:"users"`
+	BackendRoles    []string `json:"backend_roles,omitempty"`
+	AndBackendRoles []string `json:"and_backend_roles,omitempty"`
+	Hosts           []string `json:"hosts,omitempty"`
+	Users           []string `json:"users,omitempty"`
 }
