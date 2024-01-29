@@ -197,7 +197,7 @@ type IsmPolicyState struct {
 // IsmErrorNotificationDestination is the error notification destination object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/destination/Destination.kt
 type IsmErrorNotificationDestination struct {
-	Type          string
+	Type          string                                        `json:"type"`
 	Chime         *IsmErrorNotificationDestinationChime         `json:"chime,omitempty"`
 	Slack         *IsmErrorNotificationDestinationSlack         `json:"slack,omitempty"`
 	CustomWebhook *IsmErrorNotificationDestinationCustomWebhook `json:"custom_webhook,omitempty"`

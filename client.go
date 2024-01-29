@@ -832,7 +832,7 @@ func (c *Client) tracef(format string, args ...interface{}) {
 
 // dumpRequest dumps the given HTTP request to the trace log.
 func (c *Client) dumpRequest(r *http.Request) {
-	if logrus.IsLevelEnabled(logrus.TraceLevel) {
+	if c.log.IsLevelEnabled(logrus.TraceLevel) {
 		out, err := httputil.DumpRequestOut(r, true)
 		if err == nil {
 			c.tracef("%s\n", string(out))
@@ -842,7 +842,7 @@ func (c *Client) dumpRequest(r *http.Request) {
 
 // dumpResponse dumps the given HTTP response to the trace log.
 func (c *Client) dumpResponse(resp *http.Response) {
-	if logrus.IsLevelEnabled(logrus.TraceLevel) {
+	if c.log.IsLevelEnabled(logrus.TraceLevel) {
 		out, err := httputil.DumpResponse(resp, true)
 		if err == nil {
 			c.tracef("%s\n", string(out))
