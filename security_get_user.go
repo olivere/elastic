@@ -167,6 +167,5 @@ type SecurityUserBase struct {
 	SecurityRoles []string          `json:"opendistro_security_roles,omitempty"`
 	Attributes    map[string]string `json:"attributes,omitempty"`
 	Description   *string           `json:"description,omitempty"`
-	Enabled       *bool             `json:"enabled,omitempty"`
 	Service       *bool             `json:"service,omitempty"`
 }
