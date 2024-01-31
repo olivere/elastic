@@ -2243,6 +2243,16 @@ func (c *Client) SecurityPutConfig() *SecurityPutConfigService {
 	return NewSecurityPutConfigService(c)
 }
 
+// SecurityGetAudit gets a security audit
+func (c *Client) SecurityGetAudit() *SecurityGetAuditService {
+	return NewSecurityGetAuditService(c)
+}
+
+// SecurityPutAudit updates a security audit
+func (c *Client) SecurityPutAudit() *SecurityPutAuditService {
+	return NewSecurityPutAuditService(c)
+}
+
 // -- Index State Management plugin --
 
 // IsmDeletePolicy deletes a ISM policy.

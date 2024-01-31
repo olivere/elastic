@@ -369,6 +369,7 @@ Here's a [link to a complete working example for v2](@todo).
   - [x] Distinguished name (DN)
   - [x] Flush cache
   - [x] Security config
+  - [x] Security audit
 
 ### Index Management State
 - ISM plugin
