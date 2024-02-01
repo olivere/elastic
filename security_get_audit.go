@@ -165,14 +165,14 @@ type SecurityAuditSpec struct {
 
 // SecurityAuditCompliance is the compliance spec
 type SecurityAuditCompliance struct {
-	Enabled             *bool          `json:"enabled,omitempty"`
-	WriteLogDiffs       *bool          `json:"write_log_diffs,omitempty"`
-	ReadWatchedFields   map[string]any `json:"read_watched_fields,omitempty"`
-	ReadIgnoreUsers     []string       `json:"read_ignore_users,omitempty"`
-	WriteWatchedIndices []string       `json:"write_watched_indices,omitempty"`
-	WriteIgnoreUsers    []string       `json:"write_ignore_users,omitempty"`
-	ReadMetadataOnly    *bool          `json:"read_metadata_only,omitempty"`
-	WriteMetadataOnly   *bool          `json:"write_metadata_only,omitempty"`
-	ExternalConfig      *bool          `json:"external_config,omitempty"`
-	InternalConfig      *bool          `json:"internal_config,omitempty"`
+	Enabled             *bool               `json:"enabled,omitempty"`
+	WriteLogDiffs       *bool               `json:"write_log_diffs,omitempty"`
+	ReadWatchedFields   map[string][]string `json:"read_watched_fields,omitempty"`
+	ReadIgnoreUsers     []string            `json:"read_ignore_users,omitempty"`
+	WriteWatchedIndices []string            `json:"write_watched_indices,omitempty"`
+	WriteIgnoreUsers    []string            `json:"write_ignore_users,omitempty"`
+	ReadMetadataOnly    *bool               `json:"read_metadata_only,omitempty"`
+	WriteMetadataOnly   *bool               `json:"write_metadata_only,omitempty"`
+	ExternalConfig      *bool               `json:"external_config,omitempty"`
+	InternalConfig      *bool               `json:"internal_config,omitempty"`
 }
