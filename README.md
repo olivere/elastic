@@ -379,6 +379,10 @@ Here's a [link to a complete working example for v2](@todo).
 - SM plugin
   - [x] Snapshot Management
 
+### Alerting Management
+- Alerting plugin
+  - [x] Monitor
+
 
 ### Scrolling
 

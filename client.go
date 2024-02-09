@@ -2291,3 +2291,25 @@ func (c *Client) SmPostPolicy(policyName string) *SmPostPolicyService {
 func (c *Client) SmPutPolicy(policyName string) *SmPutPolicyService {
 	return NewSmPutPolicyService(c).Name(policyName)
 }
+
+// -- Alerting plugin --
+
+// AlertingDeleteMonitor delete a monitor.
+func (c *Client) AlertingDeleteMonitor(monitorName string) *AlertingDeleteMonitorService {
+	return NewAlertingDeleteMonitorService(c).Name(monitorName)
+}
+
+// AlertingGetMonitor get a monitor.
+func (c *Client) AlertingGetMonitor(monitorName string) *AlertingGetMonitorService {
+	return NewAlertingGetMonitorService(c).Name(monitorName)
+}
+
+// AlertingPostMonitor create a monitor.
+func (c *Client) AlertingPostMonitor() *AlertingPostMonitorService {
+	return NewAlertingPostMonitorService(c)
+}
+
+// AlertingPutMonitor update a monitor.
+func (c *Client) AlertingPutMonitor(monitorName string) *AlertingPutMonitorService {
+	return NewAlertingPutMonitorService(c).Name(monitorName)
+}
