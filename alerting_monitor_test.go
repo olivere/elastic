@@ -84,6 +84,14 @@ func TestAlertingMonitor(t *testing.T) {
 	assert.NotNil(t, resGet)
 	assert.NotNil(t, resGet.Monitor)
 
+	// Search monitor
+	resSearch, err := client.AlertingSearchMonitor().SearchByName("test").Do(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.NotEmpty(t, resSearch)
+	assert.Equal(t, "test", resSearch[0].Name)
+
 	// Update monitor
 	expecedAlertingMonitor.Name = "test2"
 	_, err = client.AlertingPutMonitor(resPost.Id).Body(expecedAlertingMonitor).SequenceNumber(resGet.SequenceNumber).PrimaryTerm(resGet.PrimaryTerm).Do(context.Background())

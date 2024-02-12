@@ -2300,8 +2300,13 @@ func (c *Client) AlertingDeleteMonitor(monitorName string) *AlertingDeleteMonito
 }
 
 // AlertingGetMonitor get a monitor.
-func (c *Client) AlertingGetMonitor(monitorName string) *AlertingGetMonitorService {
-	return NewAlertingGetMonitorService(c).Name(monitorName)
+func (c *Client) AlertingGetMonitor(monitorId string) *AlertingGetMonitorService {
+	return NewAlertingGetMonitorService(c).Id(monitorId)
+}
+
+// AlertingSearchMonitor search a monitor.
+func (c *Client) AlertingSearchMonitor() *AlertingSearchMonitorService {
+	return NewAlertingSearchMonitorService(c)
 }
 
 // AlertingPostMonitor create a monitor.
