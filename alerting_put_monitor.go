@@ -24,7 +24,7 @@ type AlertingPutMonitorService struct {
 	filterPath []string    // list of filters used to reduce the response
 	headers    http.Header // custom request-level HTTP headers
 
-	name           string
+	id             string
 	body           interface{}
 	sequenceNumber *int64
 	primaryTerm    *int64
@@ -77,9 +77,9 @@ func (s *AlertingPutMonitorService) Headers(headers http.Header) *AlertingPutMon
 	return s
 }
 
-// Name is name of the monitor to update.
-func (s *AlertingPutMonitorService) Name(name string) *AlertingPutMonitorService {
-	s.name = name
+// Id is id of the monitor to update.
+func (s *AlertingPutMonitorService) Id(id string) *AlertingPutMonitorService {
+	s.id = id
 	return s
 }
 
@@ -110,14 +110,14 @@ func (s *AlertingPutMonitorService) buildURL() (string, url.Values, error) {
 
 	// Build URL
 	if s.primaryTerm != nil && s.sequenceNumber != nil {
-		path, err = uritemplates.Expand("/_plugins/_alerting/monitors/{name}?if_seq_no={seqNum}&if_primary_term={priTerm}", map[string]string{
-			"name":    s.name,
+		path, err = uritemplates.Expand("/_plugins/_alerting/monitors/{id}?if_seq_no={seqNum}&if_primary_term={priTerm}", map[string]string{
+			"id":      s.id,
 			"seqNum":  strconv.FormatInt(*s.sequenceNumber, 10),
 			"priTerm": strconv.FormatInt(*s.primaryTerm, 10),
 		})
 	} else {
-		path, err = uritemplates.Expand("/_plugins/_alerting/monitors/{name}", map[string]string{
-			"name": s.name,
+		path, err = uritemplates.Expand("/_plugins/_alerting/monitors/{id}", map[string]string{
+			"id": s.id,
 		})
 	}
 
@@ -145,8 +145,8 @@ func (s *AlertingPutMonitorService) buildURL() (string, url.Values, error) {
 // Validate checks if the operation is valid.
 func (s *AlertingPutMonitorService) Validate() error {
 	var invalid []string
-	if s.name == "" {
-		invalid = append(invalid, "Name")
+	if s.id == "" {
+		invalid = append(invalid, "Id")
 	}
 	if s.body == nil {
 		invalid = append(invalid, "Body")

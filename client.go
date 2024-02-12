@@ -2295,8 +2295,8 @@ func (c *Client) SmPutPolicy(policyName string) *SmPutPolicyService {
 // -- Alerting plugin --
 
 // AlertingDeleteMonitor delete a monitor.
-func (c *Client) AlertingDeleteMonitor(monitorName string) *AlertingDeleteMonitorService {
-	return NewAlertingDeleteMonitorService(c).Name(monitorName)
+func (c *Client) AlertingDeleteMonitor(monitorId string) *AlertingDeleteMonitorService {
+	return NewAlertingDeleteMonitorService(c).Id(monitorId)
 }
 
 // AlertingGetMonitor get a monitor.
@@ -2315,6 +2315,6 @@ func (c *Client) AlertingPostMonitor() *AlertingPostMonitorService {
 }
 
 // AlertingPutMonitor update a monitor.
-func (c *Client) AlertingPutMonitor(monitorName string) *AlertingPutMonitorService {
-	return NewAlertingPutMonitorService(c).Name(monitorName)
+func (c *Client) AlertingPutMonitor(monitorId string) *AlertingPutMonitorService {
+	return NewAlertingPutMonitorService(c).Id(monitorId)
 }

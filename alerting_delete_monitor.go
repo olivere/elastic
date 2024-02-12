@@ -22,7 +22,7 @@ type AlertingDeleteMonitorService struct {
 	filterPath []string    // list of filters used to reduce the response
 	headers    http.Header // custom request-level HTTP headers
 
-	name string
+	id string
 }
 
 // NewAlertingDeleteMonitorService creates a new AlertingDeleteMonitorService.
@@ -72,17 +72,17 @@ func (s *AlertingDeleteMonitorService) Headers(headers http.Header) *AlertingDel
 	return s
 }
 
-// Name is name of the monitor to delete.
-func (s *AlertingDeleteMonitorService) Name(name string) *AlertingDeleteMonitorService {
-	s.name = name
+// Id is id of the monitor to delete.
+func (s *AlertingDeleteMonitorService) Id(id string) *AlertingDeleteMonitorService {
+	s.id = id
 	return s
 }
 
 // buildURL builds the URL for the operation.
 func (s *AlertingDeleteMonitorService) buildURL() (string, url.Values, error) {
 	// Build URL
-	path, err := uritemplates.Expand("/_plugins/_alerting/monitors/{name}", map[string]string{
-		"name": s.name,
+	path, err := uritemplates.Expand("/_plugins/_alerting/monitors/{id}", map[string]string{
+		"id": s.id,
 	})
 	if err != nil {
 		return "", url.Values{}, err
@@ -108,8 +108,8 @@ func (s *AlertingDeleteMonitorService) buildURL() (string, url.Values, error) {
 // Validate checks if the operation is valid.
 func (s *AlertingDeleteMonitorService) Validate() error {
 	var invalid []string
-	if s.name == "" {
-		invalid = append(invalid, "Name")
+	if s.id == "" {
+		invalid = append(invalid, "Id")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
