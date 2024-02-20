@@ -133,7 +133,7 @@ func (s *AlertingSearchMonitorService) Validate() error {
 }
 
 // Do executes the operation.
-func (s *AlertingSearchMonitorService) Do(ctx context.Context) ([]AlertingGetMonitor, error) {
+func (s *AlertingSearchMonitorService) Do(ctx context.Context) ([]AlertingSearchMonitor, error) {
 	// Check pre-conditions
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -158,20 +158,12 @@ func (s *AlertingSearchMonitorService) Do(ctx context.Context) ([]AlertingGetMon
 	}
 
 	// Return operation response
-	asmr := new(AlertingSearchMonitorResponse)
-	if err := json.Unmarshal(res.Body, asmr); err != nil {
+	ret := new(AlertingSearchMonitorResponse)
+	if err := json.Unmarshal(res.Body, ret); err != nil {
 		return nil, err
 	}
-	ret := make([]AlertingGetMonitor, 0, len(asmr.Hits.Hits))
-	var agm *AlertingGetMonitor
-	for _, hit := range asmr.Hits.Hits {
-		agm = new(AlertingGetMonitor)
-		if err := json.Unmarshal(hit.Monitor, agm); err != nil {
-			return nil, err
-		}
-		ret = append(ret, *agm)
-	}
-	return ret, nil
+
+	return ret.Hits.Hits, nil
 }
 
 type AlertingSearchMonitorResponse struct {
@@ -179,9 +171,10 @@ type AlertingSearchMonitorResponse struct {
 }
 
 type AlertingSearchMonitorHit struct {
-	Hits []AlertingSearchMonitorHitHit `json:"hits"`
+	Hits []AlertingSearchMonitor `json:"hits"`
 }
 
-type AlertingSearchMonitorHitHit struct {
-	Monitor json.RawMessage `json:"_source"`
+type AlertingSearchMonitor struct {
+	Id      string             `json:"_id"`
+	Monitor AlertingGetMonitor `json:"_source"`
 }

@@ -90,7 +90,8 @@ func TestAlertingMonitor(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.NotEmpty(t, resSearch)
-	assert.Equal(t, "test", resSearch[0].Name)
+	assert.Equal(t, "test", resSearch[0].Monitor.Name)
+	assert.NotEmpty(t, resSearch[0].Id)
 
 	// Update monitor
 	expecedAlertingMonitor.Name = "test2"
