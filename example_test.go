@@ -161,7 +161,7 @@ func Example() {
 			panic(err)
 		}
 	}
-	fmt.Printf("Got document %s in version %d from index %s, type %s\n", get1.Id, get1.Version, get1.Index, get1.Type)
+	fmt.Printf("Got document %s in version %d from index %s\n", get1.Id, get1.Version, get1.Index)
 
 	// Refresh to make sure the documents are searchable.
 	_, err = client.Refresh().Index("twitter").Do(context.Background())

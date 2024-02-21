@@ -300,7 +300,6 @@ func (s *GetService) Do(ctx context.Context) (*GetResult, error) {
 // GetResult is the outcome of GetService.Do.
 type GetResult struct {
 	Index       string                 `json:"_index"`   // index meta field
-	Type        string                 `json:"_type"`    // type meta field
 	Id          string                 `json:"_id"`      // id meta field
 	Uid         string                 `json:"_uid"`     // uid meta field (see MapperService.java for all meta fields)
 	Routing     string                 `json:"_routing"` // routing meta field

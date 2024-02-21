@@ -9,10 +9,14 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
+
+	"github.com/sirupsen/logrus"
 )
 
 func TestIndexLifecycle(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
+
+	logrus.SetLevel(logrus.TraceLevel)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 
@@ -48,9 +52,6 @@ func TestIndexLifecycle(t *testing.T) {
 	}
 	if getResult.Index != testIndexName {
 		t.Errorf("expected GetResult.Index %q; got %q", testIndexName, getResult.Index)
-	}
-	if getResult.Type != "_doc" {
-		t.Errorf("expected GetResult.Type %q; got %q", "_doc", getResult.Type)
 	}
 	if getResult.Id != "1" {
 		t.Errorf("expected GetResult.Id %q; got %q", "1", getResult.Id)
@@ -131,9 +132,6 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 	}
 	if getResult.Index != testIndexName {
 		t.Errorf("expected GetResult.Index %q; got %q", testIndexName, getResult.Index)
-	}
-	if getResult.Type != "_doc" {
-		t.Errorf("expected GetResult.Type %q; got %q", "_doc", getResult.Type)
 	}
 	if getResult.Id != id {
 		t.Errorf("expected GetResult.Id %q; got %q", id, getResult.Id)
