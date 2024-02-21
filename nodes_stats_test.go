@@ -10,10 +10,7 @@ import (
 )
 
 func TestNodesStats(t *testing.T) {
-	client, err := NewClient() // SetTraceLog(log.New(os.Stdout, "", 0)))
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := setupTestClient(t)
 
 	// TODO(oe) Remove this hack after a fix for https://github.com/opensearch/opensearchsearch/issues/78311 is released
 	version, err := client.OpensearchVersion(DefaultURL)
@@ -130,10 +127,7 @@ func TestNodesStatsBuildURL(t *testing.T) {
 		},
 	}
 
-	client, err := NewClient()
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := setupTestClient(t)
 	for i, tt := range tests {
 		svc := client.NodesStats().NodeId(tt.NodeIds...).Metric(tt.Metrics...).IndexMetric(tt.IndexMetrics...)
 		path, _, err := svc.buildURL()

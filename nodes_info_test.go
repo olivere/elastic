@@ -55,10 +55,7 @@ func TestNodesInfoBuildURL(t *testing.T) {
 	}
 }
 func TestNodesInfo(t *testing.T) {
-	client, err := NewClient()
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := setupTestClient(t)
 
 	info, err := client.NodesInfo().Do(context.TODO())
 	if err != nil {
