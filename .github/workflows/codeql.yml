@@ -25,16 +25,16 @@ jobs:
         sudo sysctl -w vm.max_map_count=262144
 
     - name: Setup Go ${{ matrix.go }}
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: ${{ matrix.go }}
 
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 2
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v4
       with:
         path: |
           ~/.cache/go-build
