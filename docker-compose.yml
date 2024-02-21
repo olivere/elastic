@@ -8,7 +8,7 @@ services:
       - discovery.type=single-node
       - network.publish_host=127.0.0.1
       - logger.org.opensearchsearch=warn
-      - path.repo=/usr/share/opensearchsearch/backup
+      - path.repo=/usr/share/opensearch/backup
       - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
       - plugins.security.nodes_dn_dynamic_config_enabled=true
       - plugins.security.unsupported.restapi.allow_securityconfig_modification=true

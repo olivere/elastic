@@ -246,79 +246,87 @@ type CatShardsResponse []CatShardsResponseRow
 // be filled; that depends on the number of columns chose in the
 // request (see CatShardsService.Columns).
 type CatShardsResponseRow struct {
-	Index                     string `json:"index"`        // index name
-	UUID                      string `json:"uuid"`         // index uuid
-	Shard                     int    `json:"shard,string"` // shard number, e.g. 1
-	Prirep                    string `json:"prirep"`       // "r" for replica, "p" for primary
-	State                     string `json:"state"`        // STARTED, INITIALIZING, RELOCATING, or UNASSIGNED
-	Docs                      int64  `json:"docs,string"`  // number of documents, e.g. 142847
-	Store                     string `json:"store"`        // size, e.g. "40mb"
-	IP                        string `json:"ip"`           // IP address
-	ID                        string `json:"id"`
-	Node                      string `json:"node"` // Node name
-	SyncID                    string `json:"sync_id"`
-	UnassignedReason          string `json:"unassigned.reason"`
-	UnassignedAt              string `json:"unassigned.at"`
-	UnassignedFor             string `json:"unassigned.for"`
-	UnassignedDetails         string `json:"unassigned.details"`
-	RecoverysourceType        string `json:"recoverysource.type"`
-	CompletionSize            string `json:"completion.size"`                // size of completion on primaries & replicas
-	FielddataMemorySize       string `json:"fielddata.memory_size"`          // used fielddata cache on primaries & replicas
-	FielddataEvictions        int    `json:"fielddata.evictions,string"`     // fielddata evictions on primaries & replicas
-	QueryCacheMemorySize      string `json:"query_cache.memory_size"`        // used query cache on primaries & replicas
-	QueryCacheEvictions       int    `json:"query_cache.evictions,string"`   // query cache evictions on primaries & replicas
-	FlushTotal                int    `json:"flush.total,string"`             // number of flushes on primaries & replicas
-	FlushTotalTime            string `json:"flush.total_time"`               // time spent in flush on primaries & replicas
-	GetCurrent                int    `json:"get.current,string"`             // number of current get ops on primaries & replicas
-	GetTime                   string `json:"get.time"`                       // time spent in get on primaries & replicas
-	GetTotal                  int    `json:"get.total,string"`               // number of get ops on primaries & replicas
-	GetExistsTime             string `json:"get.exists_time"`                // time spent in successful gets on primaries & replicas
-	GetExistsTotal            int    `json:"get.exists_total,string"`        // number of successful gets on primaries & replicas
-	GetMissingTime            string `json:"get.missing_time"`               // time spent in failed gets on primaries & replicas
-	GetMissingTotal           int    `json:"get.missing_total,string"`       // number of failed gets on primaries & replicas
-	IndexingDeleteCurrent     int    `json:"indexing.delete_current,string"` // number of current deletions on primaries & replicas
-	IndexingDeleteTime        string `json:"indexing.delete_time"`           // time spent in deletions on primaries & replicas
-	IndexingDeleteTotal       int    `json:"indexing.delete_total,string"`   // number of delete ops on primaries & replicas
-	IndexingIndexCurrent      int    `json:"indexing.index_current,string"`  // number of current indexing on primaries & replicas
-	IndexingIndexTime         string `json:"indexing.index_time"`            // time spent in indexing on primaries & replicas
-	IndexingIndexTotal        int    `json:"indexing.index_total,string"`    // number of index ops on primaries & replicas
-	IndexingIndexFailed       int    `json:"indexing.index_failed,string"`   // number of failed indexing ops on primaries & replicas
-	MergesCurrent             int    `json:"merges.current,string"`          // number of current merges on primaries & replicas
-	MergesCurrentDocs         int    `json:"merges.current_docs,string"`     // number of current merging docs on primaries & replicas
-	MergesCurrentSize         string `json:"merges.current_size"`            // size of current merges on primaries & replicas
-	MergesTotal               int    `json:"merges.total,string"`            // number of completed merge ops on primaries & replicas
-	MergesTotalDocs           int    `json:"merges.total_docs,string"`       // docs merged on primaries & replicas
-	MergesTotalSize           string `json:"merges.total_size"`              // size merged on primaries & replicas
-	MergesTotalTime           string `json:"merges.total_time"`              // time spent in merges on primaries & replicas
-	RefreshTotal              int    `json:"refresh.total,string"`           // total refreshes on primaries & replicas
-	RefreshExternalTotal      int    `json:"refresh.external_total,string"`  // total external refreshes on primaries & replicas
-	RefreshTime               string `json:"refresh.time"`                   // time spent in refreshes on primaries & replicas
-	RefreshExternalTime       string `json:"refresh.external_time"`          // external time spent in refreshes on primaries & replicas
-	RefreshListeners          int    `json:"refresh.listeners,string"`       // number of pending refresh listeners on primaries & replicas
-	SearchFetchCurrent        int    `json:"search.fetch_current,string"`    // current fetch phase ops on primaries & replicas
-	SearchFetchTime           string `json:"search.fetch_time"`              // time spent in fetch phase on primaries & replicas
-	SearchFetchTotal          int    `json:"search.fetch_total,string"`      // total fetch ops on primaries & replicas
-	SearchOpenContexts        int    `json:"search.open_contexts,string"`    // open search contexts on primaries & replicas
-	SearchQueryCurrent        int    `json:"search.query_current,string"`    // current query phase ops on primaries & replicas
-	SearchQueryTime           string `json:"search.query_time"`              // time spent in query phase on primaries & replicas, e.g. "0s"
-	SearchQueryTotal          int    `json:"search.query_total,string"`      // total query phase ops on primaries & replicas
-	SearchScrollCurrent       int    `json:"search.scroll_current,string"`   // open scroll contexts on primaries & replicas
-	SearchScrollTime          string `json:"search.scroll_time"`             // time scroll contexts held open on primaries & replicas, e.g. "0s"
-	SearchScrollTotal         int    `json:"search.scroll_total,string"`     // completed scroll contexts on primaries & replicas
-	SearchThrottled           bool   `json:"search.throttled,string"`        // indicates if the index is search throttled
-	SegmentsCount             int    `json:"segments.count,string"`          // number of segments on primaries & replicas
-	SegmentsMemory            string `json:"segments.memory"`                // memory used by segments on primaries & replicas, e.g. "1.3kb"
-	SegmentsIndexWriterMemory string `json:"segments.index_writer_memory"`   // memory used by index writer on primaries & replicas, e.g. "0b"
-	SegmentsVersionMapMemory  string `json:"segments.version_map_memory"`    // memory used by version map on primaries & replicas, e.g. "0b"
-	SegmentsFixedBitsetMemory string `json:"segments.fixed_bitset_memory"`   // memory used by fixed bit sets for nested object field types and type filters for types referred in _parent fields on primaries & replicas, e.g. "0b"
-	SeqNoMax                  int    `json:"seq_no.max,string"`
-	SeqNoLocalCheckpoint      int    `json:"seq_no.local_checkpoint,string"`
-	SeqNoGlobalCheckpoint     int    `json:"seq_no.global_checkpoint,string"`
-	WarmerCurrent             int    `json:"warmer.current,string"` // current warmer ops on primaries & replicas
-	WarmerTotal               int    `json:"warmer.total,string"`   // total warmer ops on primaries & replicas
-	WarmerTotalTime           string `json:"warmer.total_time"`     // time spent in warmers on primaries & replicas, e.g. "47s"
-	PathData                  string `json:"path.data"`
-	PathState                 string `json:"path.state"`
+	Index                         string `json:"index"`        // index name
+	UUID                          string `json:"uuid"`         // index uuid
+	Shard                         int    `json:"shard,string"` // shard number, e.g. 1
+	Prirep                        string `json:"prirep"`       // "r" for replica, "p" for primary
+	State                         string `json:"state"`        // STARTED, INITIALIZING, RELOCATING, or UNASSIGNED
+	Docs                          int64  `json:"docs,string"`  // number of documents, e.g. 142847
+	Store                         string `json:"store"`        // size, e.g. "40mb"
+	IP                            string `json:"ip"`           // IP address
+	ID                            string `json:"id"`
+	Node                          string `json:"node"` // Node name
+	SyncID                        string `json:"sync_id"`
+	UnassignedReason              string `json:"unassigned.reason"`
+	UnassignedAt                  string `json:"unassigned.at"`
+	UnassignedFor                 string `json:"unassigned.for"`
+	UnassignedDetails             string `json:"unassigned.details"`
+	RecoverysourceType            string `json:"recoverysource.type"`
+	CompletionSize                string `json:"completion.size"`                // size of completion on primaries & replicas
+	FielddataMemorySize           string `json:"fielddata.memory_size"`          // used fielddata cache on primaries & replicas
+	FielddataEvictions            int    `json:"fielddata.evictions,string"`     // fielddata evictions on primaries & replicas
+	QueryCacheMemorySize          string `json:"query_cache.memory_size"`        // used query cache on primaries & replicas
+	QueryCacheEvictions           int    `json:"query_cache.evictions,string"`   // query cache evictions on primaries & replicas
+	FlushTotal                    int    `json:"flush.total,string"`             // number of flushes on primaries & replicas
+	FlushTotalTime                string `json:"flush.total_time"`               // time spent in flush on primaries & replicas
+	GetCurrent                    int    `json:"get.current,string"`             // number of current get ops on primaries & replicas
+	GetTime                       string `json:"get.time"`                       // time spent in get on primaries & replicas
+	GetTotal                      int    `json:"get.total,string"`               // number of get ops on primaries & replicas
+	GetExistsTime                 string `json:"get.exists_time"`                // time spent in successful gets on primaries & replicas
+	GetExistsTotal                int    `json:"get.exists_total,string"`        // number of successful gets on primaries & replicas
+	GetMissingTime                string `json:"get.missing_time"`               // time spent in failed gets on primaries & replicas
+	GetMissingTotal               int    `json:"get.missing_total,string"`       // number of failed gets on primaries & replicas
+	IndexingDeleteCurrent         int    `json:"indexing.delete_current,string"` // number of current deletions on primaries & replicas
+	IndexingDeleteTime            string `json:"indexing.delete_time"`           // time spent in deletions on primaries & replicas
+	IndexingDeleteTotal           int    `json:"indexing.delete_total,string"`   // number of delete ops on primaries & replicas
+	IndexingIndexCurrent          int    `json:"indexing.index_current,string"`  // number of current indexing on primaries & replicas
+	IndexingIndexTime             string `json:"indexing.index_time"`            // time spent in indexing on primaries & replicas
+	IndexingIndexTotal            int    `json:"indexing.index_total,string"`    // number of index ops on primaries & replicas
+	IndexingIndexFailed           int    `json:"indexing.index_failed,string"`   // number of failed indexing ops on primaries & replicas
+	MergesCurrent                 int    `json:"merges.current,string"`          // number of current merges on primaries & replicas
+	MergesCurrentDocs             int    `json:"merges.current_docs,string"`     // number of current merging docs on primaries & replicas
+	MergesCurrentSize             string `json:"merges.current_size"`            // size of current merges on primaries & replicas
+	MergesTotal                   int    `json:"merges.total,string"`            // number of completed merge ops on primaries & replicas
+	MergesTotalDocs               int    `json:"merges.total_docs,string"`       // docs merged on primaries & replicas
+	MergesTotalSize               string `json:"merges.total_size"`              // size merged on primaries & replicas
+	MergesTotalTime               string `json:"merges.total_time"`              // time spent in merges on primaries & replicas
+	RefreshTotal                  int    `json:"refresh.total,string"`           // total refreshes on primaries & replicas
+	RefreshExternalTotal          int    `json:"refresh.external_total,string"`  // total external refreshes on primaries & replicas
+	RefreshTime                   string `json:"refresh.time"`                   // time spent in refreshes on primaries & replicas
+	RefreshExternalTime           string `json:"refresh.external_time"`          // external time spent in refreshes on primaries & replicas
+	RefreshListeners              int    `json:"refresh.listeners,string"`       // number of pending refresh listeners on primaries & replicas
+	SearchFetchCurrent            int    `json:"search.fetch_current,string"`    // current fetch phase ops on primaries & replicas
+	SearchFetchTime               string `json:"search.fetch_time"`              // time spent in fetch phase on primaries & replicas
+	SearchFetchTotal              int    `json:"search.fetch_total,string"`      // total fetch ops on primaries & replicas
+	SearchOpenContexts            int    `json:"search.open_contexts,string"`    // open search contexts on primaries & replicas
+	SearchQueryCurrent            int    `json:"search.query_current,string"`    // current query phase ops on primaries & replicas
+	SearchQueryTime               string `json:"search.query_time"`              // time spent in query phase on primaries & replicas, e.g. "0s"
+	SearchQueryTotal              int    `json:"search.query_total,string"`      // total query phase ops on primaries & replicas
+	SearchScrollCurrent           int    `json:"search.scroll_current,string"`   // open scroll contexts on primaries & replicas
+	SearchScrollTime              string `json:"search.scroll_time"`             // time scroll contexts held open on primaries & replicas, e.g. "0s"
+	SearchScrollTotal             int    `json:"search.scroll_total,string"`     // completed scroll contexts on primaries & replicas
+	SearchThrottled               bool   `json:"search.throttled,string"`        // indicates if the index is search throttled
+	SegmentsCount                 int    `json:"segments.count,string"`          // number of segments on primaries & replicas
+	SegmentsMemory                string `json:"segments.memory"`                // memory used by segments on primaries & replicas, e.g. "1.3kb"
+	SegmentsIndexWriterMemory     string `json:"segments.index_writer_memory"`   // memory used by index writer on primaries & replicas, e.g. "0b"
+	SegmentsVersionMapMemory      string `json:"segments.version_map_memory"`    // memory used by version map on primaries & replicas, e.g. "0b"
+	SegmentsFixedBitsetMemory     string `json:"segments.fixed_bitset_memory"`   // memory used by fixed bit sets for nested object field types and type filters for types referred in _parent fields on primaries & replicas, e.g. "0b"
+	SeqNoMax                      int    `json:"seq_no.max,string"`
+	SeqNoLocalCheckpoint          int    `json:"seq_no.local_checkpoint,string"`
+	SeqNoGlobalCheckpoint         int    `json:"seq_no.global_checkpoint,string"`
+	WarmerCurrent                 int    `json:"warmer.current,string"` // current warmer ops on primaries & replicas
+	WarmerTotal                   int    `json:"warmer.total,string"`   // total warmer ops on primaries & replicas
+	WarmerTotalTime               string `json:"warmer.total_time"`     // time spent in warmers on primaries & replicas, e.g. "47s"
+	PathData                      string `json:"path.data"`
+	PathState                     string `json:"path.state"`
+	SearchConcurrentQueryCurrent  string `json:"search.concurrent_query_current"`
+	SearchConcurrentQueryTime     string `json:"search.concurrent_query_time"`
+	SearchConcurrentQueryTotal    string `json:"search.concurrent_query_total"`
+	SearchConcurrentAvgSliceCount string `json:"search.concurrent_avg_slice_count"`
+	SearchPointInTimeCurrent      string `json:"search.point_in_time_current"`
+	SearchPointInTimeTime         string `json:"search.point_in_time_time"`
+	SearchPointInTimeTotal        string `json:"search.point_in_time_total"`
+	DocsDeleted                   string `json:"docs.deleted"`
 }
 
 // catShardsResponseRowAliasesMap holds the global map for columns aliases

@@ -195,18 +195,19 @@ type CatHealthResponse []CatHealthResponseRow
 // Notice that not all of these fields might be filled; that depends
 // on the number of columns chose in the request (see CatHealthService.Columns).
 type CatHealthResponseRow struct {
-	Epoch               int64  `json:"epoch,string"`          // e.g. 1527077996
-	Timestamp           string `json:"timestamp"`             // e.g. "12:19:56"
-	Cluster             string `json:"cluster"`               // cluster name, e.g. "opensearchsearch"
-	Status              string `json:"status"`                // health status, e.g. "green", "yellow", or "red"
-	NodeTotal           int    `json:"node.total,string"`     // total number of nodes
-	NodeData            int    `json:"node.data,string"`      // number of nodes that can store data
-	Shards              int    `json:"shards,string"`         // total number of shards
-	Pri                 int    `json:"pri,string"`            // number of primary shards
-	Relo                int    `json:"relo,string"`           // number of relocating nodes
-	Init                int    `json:"init,string"`           // number of initializing nodes
-	Unassign            int    `json:"unassign,string"`       // number of unassigned shards
-	PendingTasks        int    `json:"pending_tasks,string"`  // number of pending tasks
-	MaxTaskWaitTime     string `json:"max_task_wait_time"`    // wait time of longest task pending, e.g. "-" or time in millis
-	ActiveShardsPercent string `json:"active_shards_percent"` // active number of shards in percent, e.g. "100%"
+	Epoch                    int64  `json:"epoch,string"`          // e.g. 1527077996
+	Timestamp                string `json:"timestamp"`             // e.g. "12:19:56"
+	Cluster                  string `json:"cluster"`               // cluster name, e.g. "opensearchsearch"
+	Status                   string `json:"status"`                // health status, e.g. "green", "yellow", or "red"
+	NodeTotal                int    `json:"node.total,string"`     // total number of nodes
+	NodeData                 int    `json:"node.data,string"`      // number of nodes that can store data
+	Shards                   int    `json:"shards,string"`         // total number of shards
+	Pri                      int    `json:"pri,string"`            // number of primary shards
+	Relo                     int    `json:"relo,string"`           // number of relocating nodes
+	Init                     int    `json:"init,string"`           // number of initializing nodes
+	Unassign                 int    `json:"unassign,string"`       // number of unassigned shards
+	PendingTasks             int    `json:"pending_tasks,string"`  // number of pending tasks
+	MaxTaskWaitTime          string `json:"max_task_wait_time"`    // wait time of longest task pending, e.g. "-" or time in millis
+	ActiveShardsPercent      string `json:"active_shards_percent"` // active number of shards in percent, e.g. "100%"
+	DiscoveredClusterManager string `json:"discovered_cluster_manager"`
 }

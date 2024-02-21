@@ -6,9 +6,11 @@ package opensearch_test
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"time"
 
@@ -32,8 +34,14 @@ func Example() {
 	log := logrus.New()
 	log.SetLevel(logrus.ErrorLevel)
 
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
 	// Obtain a client. You can also provide your own HTTP client here.
-	client, err := opensearch.NewClient(opensearch.SetLogger(log))
+	client, err := opensearch.NewClient(opensearch.SetLogger(log), opensearch.SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), opensearch.SetTransport(transport))
 	// Trace request and response details like this
 	// client, err := opensearch.NewClient(opensearch.SetTraceLog(log.New(os.Stdout, "", 0)))
 	if err != nil {
@@ -42,7 +50,7 @@ func Example() {
 	}
 
 	// Ping the Opensearch server to get e.g. the version number
-	info, code, err := client.Ping("http://127.0.0.1:9200").Do(context.Background())
+	info, code, err := client.Ping("https://127.0.0.1:9200").Do(context.Background())
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -50,7 +58,7 @@ func Example() {
 	fmt.Printf("Opensearch returned with code %d and version %s\n", code, info.Version.Number)
 
 	// Getting the ES version number is quite common, so there's a shortcut
-	esversion, err := client.OpensearchVersion("http://127.0.0.1:9200")
+	esversion, err := client.OpensearchVersion("https://127.0.0.1:9200")
 	if err != nil {
 		// Handle error
 		panic(err)
@@ -241,8 +249,14 @@ func Example() {
 }
 
 func ExampleNewClient_default() {
-	// Obtain a client to the Opensearch instance on http://127.0.0.1:9200.
-	client, err := opensearch.NewClient()
+	// Obtain a client to the Opensearch instance on https://127.0.0.1:9200.
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	client, err := opensearch.NewClient(opensearch.SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), opensearch.SetTransport(transport))
 	if err != nil {
 		// Handle error
 		fmt.Printf("connection failed: %v\n", err)
