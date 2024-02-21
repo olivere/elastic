@@ -28,14 +28,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    #- uses: actions/cache@v4
-    #  with:
-    #    path: |
-    #      ~/.cache/go-build
-    #      ~/go/pkg/mod
-    #    key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-    #    restore-keys: |
-    #      ${{ runner.os }}-go-
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
     - name: Run Docker containers
       run: docker-compose up -d
@@ -46,10 +46,7 @@ jobs:
     - name: Get dependencies
       run: |
         go mod tidy
-    #    go get -u github.com/google/go-cmp/cmp
-    #    go get -u github.com/fortytw2/leaktest
         
-
     - name: Wait for Opensearch
       run: |
         while ! nc -z localhost 9200; do sleep 1; done
@@ -57,7 +54,7 @@ jobs:
 
     - name: Run the tests
       run: |
-        go test -p 1 -count 1 -covermode=atomic -coverprofile cover.out -deprecations -strict-decoder -v . ./config/... ./trace/... ./uritemplates/...
+        go test -covermode=atomic -coverprofile cover.out -deprecations -strict-decoder -v . ./config/... ./trace/... ./uritemplates/...
 
     - uses: codecov/codecov-action@v3
       with:

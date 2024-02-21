@@ -201,7 +201,7 @@ func TestClientWithBasicAuthInUserInfo(t *testing.T) {
 }
 
 func TestClientWithBasicAuthDuringHealthcheck(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "HEAD" || r.URL.String() != "/" {
 			t.Fatalf("expected HEAD / request, got %s %s", r.Method, r.URL)
 			http.Error(w, fmt.Sprintf("expected HEAD / request, got %s %s", r.Method, r.URL), http.StatusBadRequest)
@@ -238,7 +238,7 @@ func TestClientWithBasicAuthDuringHealthcheck(t *testing.T) {
 }
 
 func TestClientWithoutBasicAuthButAuthEnabledInElasticDuringHealthcheck(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "HEAD" || r.URL.String() != "/" {
 			t.Fatalf("expected HEAD / request, got %s %s", r.Method, r.URL)
 			http.Error(w, fmt.Sprintf("expected HEAD / request, got %s %s", r.Method, r.URL), http.StatusBadRequest)
@@ -649,7 +649,7 @@ func TestClientSniffUpdatingNodeURL(t *testing.T) {
 		}`, nodeID, u.Host)
 		fmt.Fprintln(w)
 	})
-	ts := httptest.NewServer(h)
+	ts := httptest.NewTLSServer(h)
 	defer ts.Close()
 
 	nodeURL = ts.URL
@@ -675,8 +675,6 @@ func TestClientSniffUpdatingNodeURL(t *testing.T) {
 		t.Fatalf("expected URL=%q; got %q", want, have)
 	}
 
-	panic(nodeURL)
-
 	err = client.sniff(context.Background(), 2*time.Second)
 	if err != nil {
 		t.Fatal(err)
@@ -690,7 +688,7 @@ func TestClientSniffUpdatingNodeURL(t *testing.T) {
 	if want, have := nodeID, client.conns[0].NodeID(); want != have {
 		t.Fatalf("expected NodeID=%q; got %q", want, have)
 	}
-	panic(nodeURL)
+
 	if want, have := nodeURL, client.conns[0].URL(); want != have {
 		t.Fatalf("expected URL=%q; got %q", want, have)
 	}

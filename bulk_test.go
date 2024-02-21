@@ -544,7 +544,7 @@ func TestBulkEstimateSizeInBytesLength(t *testing.T) {
 
 func TestBulkContentType(t *testing.T) {
 	var header http.Header
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		header = r.Header
 		fmt.Fprintln(w, `{}`)
 	}))

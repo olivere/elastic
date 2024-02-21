@@ -31,7 +31,7 @@ func (t *testExporter) ExportSpan(s *trace.SpanData) {
 }
 
 func TestTransport(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		username, password, ok := r.BasicAuth()
 		if !ok || username != "alice" || password != "secret" {
 			w.WriteHeader(http.StatusForbidden)
