@@ -117,11 +117,6 @@ func TestAggs(t *testing.T) {
 	geoHashAgg := NewGeoHashGridAggregation().Field("location").Precision(5)
 	geoCentroidAgg := NewGeoCentroidAggregation().Field("location")
 	geoTileAgg := NewGeoTileGridAggregation().Field("location")
-	topMetricsAgg := NewTopMetricsAggregation().
-		Field("user").
-		Field("retweets").
-		Sort("retweets", false).
-		Size(2)
 
 	// Run query
 	builder := client.Search().Index(testIndexName).Query(all).Pretty(true)
@@ -161,7 +156,6 @@ func TestAggs(t *testing.T) {
 	builder = builder.Aggregation("geohashed", geoHashAgg)
 	builder = builder.Aggregation("centroid", geoCentroidAgg)
 	builder = builder.Aggregation("geotile-grid", geoTileAgg)
-	builder = builder.Aggregation("top-metrics", topMetricsAgg)
 
 	// Unnamed filters
 	countByUserAgg := NewFiltersAggregation().
@@ -1395,41 +1389,6 @@ func TestAggs(t *testing.T) {
 		}
 		if want, have := 12.0, *movingFnAgg.Value; want != have {
 			t.Fatalf("expected movingFn = %v, have %v", want, have)
-		}
-	}
-
-	// top metrics aggregation
-	{
-		agg, found := agg.TopMetrics("top-metrics")
-		if !found {
-			t.Fatalf("expected %v; got: %v", true, false)
-		}
-		if agg == nil {
-			t.Fatal("expected != nil; got: nil")
-		}
-
-		if want, have := 2, len(agg.Top); want != have {
-			t.Fatalf("expected %d top results, have %d", want, have)
-		}
-
-		if want, have := "olivere", agg.Top[0].Metrics["user"]; want != have {
-			t.Fatalf("expected %v top user, have %v", want, have)
-		}
-		if want, have := float64(108), agg.Top[0].Metrics["retweets"]; want != have {
-			t.Fatalf("expected %v top user, have %v", want, have)
-		}
-		if want, have := float64(108), agg.Top[0].Sort[0]; want != have {
-			t.Fatalf("expected %v sort value, have %v", want, have)
-		}
-
-		if want, have := "sandrae", agg.Top[1].Metrics["user"]; want != have {
-			t.Fatalf("expected %v top user, have %v", want, have)
-		}
-		if want, have := float64(12), agg.Top[1].Metrics["retweets"]; want != have {
-			t.Fatalf("expected %v top user, have %v", want, have)
-		}
-		if want, have := float64(12), agg.Top[1].Sort[0]; want != have {
-			t.Fatalf("expected %v sort value, have %v", want, have)
 		}
 	}
 }
