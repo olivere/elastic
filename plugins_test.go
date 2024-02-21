@@ -7,21 +7,15 @@ package opensearch
 import "testing"
 
 func TestClientPlugins(t *testing.T) {
-	client, err := NewClient()
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = client.Plugins()
+	client := setupTestClient(t)
+	_, err := client.Plugins()
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestClientHasPlugin(t *testing.T) {
-	client, err := NewClient()
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := setupTestClient(t)
 	found, err := client.HasPlugin("no-such-plugin")
 	if err != nil {
 		t.Fatal(err)
