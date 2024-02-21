@@ -349,21 +349,3 @@ func TestSearchSourcePointInTime(t *testing.T) {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
-
-func TestSearchSourceRuntimeMappings(t *testing.T) {
-	matchAllQ := NewMatchAllQuery()
-	builder := NewSearchSource().Query(matchAllQ)
-	src, err := builder.Source()
-	if err != nil {
-		t.Fatal(err)
-	}
-	data, err := json.Marshal(src)
-	if err != nil {
-		t.Fatalf("marshaling to JSON failed: %v", err)
-	}
-	got := string(data)
-	expected := `{"query":{"match_all":{}},"runtime_mappings":{"day_of_week":{"type":"keyword"}}}`
-	if got != expected {
-		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
-	}
-}

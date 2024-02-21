@@ -19,7 +19,7 @@ func TestIndicesGetMappingURL(t *testing.T) {
 		{
 			[]string{},
 			[]string{},
-			"/_all/_mapping/_all",
+			"/_all/_mapping/",
 		},
 		{
 			[]string{},

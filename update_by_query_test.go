@@ -236,7 +236,7 @@ func TestUpdateByQueryConflict(t *testing.T) {
 	// retries correctly.
 	tr := &failingTransport{path: "/example/_update_by_query", fail: fail}
 	httpClient := &http.Client{Transport: tr}
-	client, err := NewClient(SetHttpClient(httpClient), SetHealthcheck(false))
+	client, err := NewClient(SetHttpClient(httpClient), SetHealthcheck(false), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"))
 	if err != nil {
 		t.Fatal(err)
 	}

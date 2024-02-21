@@ -6,6 +6,7 @@ package opencensus
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -70,10 +71,16 @@ func TestTransport(t *testing.T) {
 	trace.RegisterExporter(&te)
 
 	// Setup a simple transport
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
 	tr := NewTransport(
 		WithDefaultAttributes(
 			trace.StringAttribute("Opaque-Id", "12345"),
 		),
+		WithRoundTripper(transport),
 	)
 	httpClient := &http.Client{
 		Transport: tr,

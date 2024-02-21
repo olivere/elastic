@@ -6,6 +6,7 @@ package opentracing
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -58,7 +59,14 @@ func TestTransport(t *testing.T) {
 	opentracing.InitGlobalTracer(tracer)
 
 	// Setup a simple transport
-	tr := NewTransport()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	tr := NewTransport(
+		WithRoundTripper(transport),
+	)
 	httpClient := &http.Client{
 		Transport: tr,
 	}

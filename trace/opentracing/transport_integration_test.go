@@ -6,6 +6,7 @@ package opentracing
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 	"strings"
 	"testing"
@@ -21,17 +22,24 @@ func TestTransportIntegration(t *testing.T) {
 	opentracing.InitGlobalTracer(tracer)
 
 	// Setup a simple transport
-	tr := NewTransport()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	tr := NewTransport(
+		WithRoundTripper(transport),
+	)
 	httpClient := &http.Client{
 		Transport: tr,
 	}
 
 	// Create a simple Ping request via Elastic
 	client, err := opensearch.NewClient(
-		opensearch.SetURL("http://127.0.0.1:9210"),
+		opensearch.SetURL("https://127.0.0.1:9200"),
 		opensearch.SetHealthcheck(false),
 		opensearch.SetSniff(false),
-		opensearch.SetBasicAuth("opensearch", "opensearch"),
+		opensearch.SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"),
 		opensearch.SetHttpClient(httpClient),
 	)
 	if err != nil {
@@ -59,7 +67,7 @@ func TestTransportIntegration(t *testing.T) {
 	if !ok || httpURL == "" {
 		t.Fatalf("want http.url tag=%q to be a non-empty string (found type %T)", "http.url", span.Tag("http.url"))
 	}
-	if want, have := "http://127.0.0.1:9210/_all/_search", httpURL; want != have {
+	if want, have := "https://127.0.0.1:9200/_all/_search", httpURL; want != have {
 		t.Fatalf("want http.url tag=%q, have %q", want, have)
 	}
 	if strings.Contains(httpURL, "opensearch") {
