@@ -57,6 +57,7 @@ func TestRetrier(t *testing.T) {
 	}
 
 	client, err := NewClient(
+		SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"),
 		SetHttpClient(httpClient),
 		SetMaxRetries(5),
 		SetHealthcheck(false),
