@@ -9,14 +9,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
-
-	"github.com/sirupsen/logrus"
 )
 
 func TestIndexLifecycle(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
-
-	logrus.SetLevel(logrus.TraceLevel)
 
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Opensearch."}
 

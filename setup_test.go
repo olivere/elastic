@@ -418,7 +418,6 @@ func setupTestClientAndCreateIndex(t logger, options ...ClientOptionFunc) *Clien
 
 func setupTestClientAndCreateIndexAndLog(t logger, options ...ClientOptionFunc) *Client {
 	log := logrus.New()
-	log.SetLevel(logrus.TraceLevel)
 	return setupTestClientAndCreateIndex(t, SetLogger(log))
 }
 

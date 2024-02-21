@@ -7,8 +7,6 @@ package opensearch
 import (
 	"context"
 	"testing"
-
-	"github.com/sirupsen/logrus"
 )
 
 func TestPutMappingURL(t *testing.T) {
@@ -40,8 +38,6 @@ func TestPutMappingURL(t *testing.T) {
 }
 
 func TestMappingLifecycle(t *testing.T) {
-
-	logrus.SetLevel(logrus.TraceLevel)
 
 	client := setupTestClientAndCreateIndex(t)
 	//client := setupTestClientAndCreateIndexAndLog(t)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/utils/ptr"
 )
@@ -12,8 +11,6 @@ import (
 func TestAlertingMonitor(t *testing.T) {
 	client := setupTestClient(t)
 	var err error
-
-	logrus.SetLevel(logrus.TraceLevel)
 
 	expecedAlertingMonitor := &AlertingMonitor{
 		Type:        "monitor",
