@@ -675,6 +675,8 @@ func TestClientSniffUpdatingNodeURL(t *testing.T) {
 		t.Fatalf("expected URL=%q; got %q", want, have)
 	}
 
+	panic(nodeURL)
+
 	err = client.sniff(context.Background(), 2*time.Second)
 	if err != nil {
 		t.Fatal(err)
