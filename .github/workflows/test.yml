@@ -58,6 +58,6 @@ jobs:
 
     - uses: codecov/codecov-action@v3
       with:
-        files: coverage.txt
+        files: cover.out
         flags: unittests
         fail_ci_if_error: true
