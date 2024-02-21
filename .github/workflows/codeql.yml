@@ -44,7 +44,7 @@ jobs:
           ${{ runner.os }}-go-
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
+      uses: github/codeql-action/init@v3
       with:
         languages: go
 
