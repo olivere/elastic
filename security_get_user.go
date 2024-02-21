@@ -162,7 +162,7 @@ type SecurityUser struct {
 }
 
 type SecurityUserBase struct {
-	Hash          *string           `json:"hash,omitempty"`
+	Hash          string           `json:"hash,omitempty"`
 	BackendRoles  []string          `json:"backend_roles,omitempty"`
 	SecurityRoles []string          `json:"opendistro_security_roles,omitempty"`
 	Attributes    map[string]string `json:"attributes,omitempty"`

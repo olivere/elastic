@@ -8,6 +8,7 @@ import (
 )
 
 func TestSecurityAudit(t *testing.T) {
+
 	client := setupTestClient(t)
 	var err error
 
