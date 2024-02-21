@@ -352,11 +352,7 @@ func TestSearchSourcePointInTime(t *testing.T) {
 
 func TestSearchSourceRuntimeMappings(t *testing.T) {
 	matchAllQ := NewMatchAllQuery()
-	builder := NewSearchSource().Query(matchAllQ).RuntimeMappings(RuntimeMappings{
-		"day_of_week": map[string]interface{}{
-			"type": "keyword",
-		},
-	})
+	builder := NewSearchSource().Query(matchAllQ)
 	src, err := builder.Source()
 	if err != nil {
 		t.Fatal(err)

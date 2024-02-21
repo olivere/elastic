@@ -106,7 +106,8 @@ func TestRetrierWithError(t *testing.T) {
 		SetHttpClient(httpClient),
 		SetMaxRetries(5),
 		SetHealthcheck(false),
-		SetRetrier(retrier))
+		SetRetrier(retrier),
+		SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,6 +150,7 @@ func TestRetrierOnPerformRequest(t *testing.T) {
 
 	client, err := NewClient(
 		SetHttpClient(httpClient),
+		SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"),
 		SetHealthcheck(false),
 		SetRetrier(defaultRetrier))
 	if err != nil {

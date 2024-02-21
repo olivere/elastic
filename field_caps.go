@@ -241,9 +241,8 @@ func (s *FieldCapsService) Do(ctx context.Context) (*FieldCapsResponse, error) {
 // FieldCapsRequest can be used to set up the body to be used in the
 // Field Capabilities API.
 type FieldCapsRequest struct {
-	Fields          []string        `json:"fields"` // list of fields to retrieve
-	IndexFilter     Query           `json:"index_filter,omitempty"`
-	RuntimeMappings RuntimeMappings `json:"runtime_mappings,omitempty"`
+	Fields      []string `json:"fields"` // list of fields to retrieve
+	IndexFilter Query    `json:"index_filter,omitempty"`
 }
 
 // -- Response --

@@ -159,12 +159,6 @@ func (s *SearchService) PointInTime(pointInTime *PointInTime) *SearchService {
 	return s
 }
 
-// RuntimeMappings specifies optional runtime mappings.
-func (s *SearchService) RuntimeMappings(runtimeMappings RuntimeMappings) *SearchService {
-	s.searchSource = s.searchSource.RuntimeMappings(runtimeMappings)
-	return s
-}
-
 // TimeoutInMillis sets the timeout in milliseconds.
 func (s *SearchService) TimeoutInMillis(timeoutInMillis int) *SearchService {
 	s.searchSource = s.searchSource.TimeoutInMillis(timeoutInMillis)
