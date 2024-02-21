@@ -1,16 +1,16 @@
 on:
   push:
     branches:
-      - '*.v7'
+      - '*.v2'
   pull_request:
     branches:
-      - '*.v7'
-name: Test v7
+      - '*.v2'
+name: Test
 jobs:
   test:
     strategy:
       matrix:
-        go: [1.17.x, 1.18.x]
+        go: [1.20.x]
         os: [ubuntu-latest]
     name: Run ${{ matrix.go }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -47,13 +47,18 @@ jobs:
       run: |
         go get -u github.com/google/go-cmp/cmp
         go get -u github.com/fortytw2/leaktest
-        go get . ./aws/... ./config/... ./trace/... ./uritemplates/...
+        go get . ./config/... ./trace/... ./uritemplates/...
 
     - name: Wait for Opensearch
       run: |
         while ! nc -z localhost 9200; do sleep 1; done
-        while ! nc -z localhost 9210; do sleep 1; done
 
     - name: Run the tests
       run: |
-        go test -race -deprecations -strict-decoder -v . ./aws/... ./config/... ./trace/... ./uritemplates/...
+        go test -covermode=atomic -coverprofile cover.out -deprecations -strict-decoder -v . ./config/... ./trace/... ./uritemplates/...
+
+    - uses: codecov/codecov-action@v3
+      with:
+        files: coverage.txt
+        flags: unittests
+        fail_ci_if_error: true

@@ -3,10 +3,10 @@ name: "Code scanning - action"
 on:
   push:
     branches:
-      - '*.v7'
+      - '*.v2'
   pull_request:
     branches:
-      - '*.v7'
+      - '*.v2'
   schedule:
     - cron: '0 19 * * 3'
 
@@ -14,7 +14,7 @@ jobs:
   codeql:
     strategy:
       matrix:
-        go: [1.16.x, 1.17.x]
+        go: [1.20.x]
         os: [ubuntu-latest]
     name: Run ${{ matrix.go }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -58,16 +58,15 @@ jobs:
       run: |
         go get -u github.com/google/go-cmp/cmp
         go get -u github.com/fortytw2/leaktest
-        go get . ./aws/... ./config/... ./trace/... ./uritemplates/...
+        go get . ./config/... ./trace/... ./uritemplates/...
 
     - name: Wait for Opensearch
       run: |
         while ! nc -z localhost 9200; do sleep 1; done
-        while ! nc -z localhost 9210; do sleep 1; done
         sleep 5
 
     - name: Run the tests
       run: |
-        go test -race -deprecations -strict-decoder -v . ./aws/... ./config/... ./trace/... ./uritemplates/...
+        go test -deprecations -strict-decoder -v . ./config/... ./trace/... ./uritemplates/...
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
