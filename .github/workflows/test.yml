@@ -52,6 +52,7 @@ jobs:
     - name: Wait for Opensearch
       run: |
         while ! nc -z localhost 9200; do sleep 1; done
+        sleep 60
 
     - name: Run the tests
       run: |
