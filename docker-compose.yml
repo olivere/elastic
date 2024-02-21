@@ -12,6 +12,7 @@ services:
       - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
       - plugins.security.nodes_dn_dynamic_config_enabled=true
       - plugins.security.unsupported.restapi.allow_securityconfig_modification=true
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=vLPeJYa8.3RqtZCcAK6jNz
     ulimits:
       nproc: 65536
       nofile:

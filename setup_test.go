@@ -317,7 +317,7 @@ func setupTestClient(t logger, options ...ClientOptionFunc) (client *Client) {
 		},
 	}
 
-	options = append(options, SetURL("https://127.0.0.1:9200"), SetBasicAuth("admin", "admin"), SetTransport(transport), SetScheme("https"))
+	options = append(options, SetURL("https://127.0.0.1:9200"), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport), SetScheme("https"))
 
 	client, err = NewClient(options...)
 	if err != nil {

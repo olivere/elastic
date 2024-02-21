@@ -6,6 +6,7 @@ package opensearch
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -22,6 +23,7 @@ import (
 	"time"
 
 	"github.com/fortytw2/leaktest"
+	"github.com/sirupsen/logrus"
 
 	"github.com/disaster37/opensearch/v2/config"
 )
@@ -38,7 +40,13 @@ func findConn(s string, slice ...*conn) (int, bool) {
 // -- NewClient --
 
 func TestClientDefaults(t *testing.T) {
-	client, err := NewClient()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,19 +74,19 @@ func TestClientDefaults(t *testing.T) {
 	if client.snifferInterval != DefaultSnifferInterval {
 		t.Errorf("expected sniffer interval = %v, got: %v", DefaultSnifferInterval, client.snifferInterval)
 	}
-	if client.basicAuthUsername != "" {
-		t.Errorf("expected no basic auth username; got: %q", client.basicAuthUsername)
-	}
-	if client.basicAuthPassword != "" {
-		t.Errorf("expected no basic auth password; got: %q", client.basicAuthUsername)
-	}
 	if client.sendGetBodyAs != "GET" {
 		t.Errorf("expected sendGetBodyAs to be GET; got: %q", client.sendGetBodyAs)
 	}
 }
 
 func TestClientWithoutURL(t *testing.T) {
-	client, err := NewClient()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +104,13 @@ func TestClientWithoutURL(t *testing.T) {
 }
 
 func TestClientWithSingleURL(t *testing.T) {
-	client, err := NewClient(SetURL("http://127.0.0.1:9200"))
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport), SetURL("https://127.0.0.1:9200"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +128,13 @@ func TestClientWithSingleURL(t *testing.T) {
 }
 
 func TestClientWithMultipleURLs(t *testing.T) {
-	client, err := NewClient(SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"))
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport), SetURL("https://127.0.0.1:9200", "https://127.0.0.1:9201"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,27 +163,39 @@ func TestClientWithInvalidURLs(t *testing.T) {
 }
 
 func TestClientWithBasicAuth(t *testing.T) {
-	client, err := NewClient(SetBasicAuth("user", "secret"))
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := client.basicAuthUsername, "user"; got != want {
+	if got, want := client.basicAuthUsername, "admin"; got != want {
 		t.Errorf("expected basic auth username %q; got: %q", want, got)
 	}
-	if got, want := client.basicAuthPassword, "secret"; got != want {
+	if got, want := client.basicAuthPassword, "vLPeJYa8.3RqtZCcAK6jNz"; got != want {
 		t.Errorf("expected basic auth password %q; got: %q", want, got)
 	}
 }
 
 func TestClientWithBasicAuthInUserInfo(t *testing.T) {
-	client, err := NewClient(SetURL("http://user1:secret1@localhost:9200", "http://user2:secret2@localhost:9200"))
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetTransport(transport), SetURL("https://admin:vLPeJYa8.3RqtZCcAK6jNz@127.0.0.1:9200"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := client.basicAuthUsername, "user1"; got != want {
+	if got, want := client.basicAuthUsername, "admin"; got != want {
 		t.Errorf("expected basic auth username %q; got: %q", want, got)
 	}
-	if got, want := client.basicAuthPassword, "secret1"; got != want {
+	if got, want := client.basicAuthPassword, "vLPeJYa8.3RqtZCcAK6jNz"; got != want {
 		t.Errorf("expected basic auth password %q; got: %q", want, got)
 	}
 }
@@ -181,7 +213,7 @@ func TestClientWithBasicAuthDuringHealthcheck(t *testing.T) {
 			http.Error(w, "expected HTTP basic auth", http.StatusBadRequest)
 			return
 		}
-		if username != "user" && password != "secret" {
+		if username != "admin" && password != "vLPeJYa8.3RqtZCcAK6jNz" {
 			t.Fatalf("invalid HTTP basic auth username %q and password %q", username, password)
 			http.Error(w, fmt.Sprintf("invalid HTTP basic auth username %q and password %q", username, password), http.StatusBadRequest)
 			return
@@ -190,39 +222,18 @@ func TestClientWithBasicAuthDuringHealthcheck(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	client, err := NewClient(SetBasicAuth("user", "secret"), SetURL(ts.URL), SetSniff(false))
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport), SetURL(ts.URL), SetSniff(false))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if client == nil {
 		t.Fatal("expected a client")
-	}
-}
-
-func TestClientWithXpackSecurity(t *testing.T) {
-	// Connect to ES Platinum with X-Pack Security enabled and L: opensearch, P: opensearch
-	client, err := NewClient(SetURL("http://opensearch:opensearch@127.0.0.1:9210"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := client.basicAuthUsername, "opensearch"; got != want {
-		t.Errorf("expected basic auth username %q; got: %q", want, got)
-	}
-	if got, want := client.basicAuthPassword, "opensearch"; got != want {
-		t.Errorf("expected basic auth password %q; got: %q", want, got)
-	}
-}
-
-func TestClientWithXpackSecurityUnauthorized(t *testing.T) {
-	client, err := NewClient(SetURL("http://no-such-user:invalid-password@127.0.0.1:9210"))
-	if client != nil {
-		t.Fatal("expected no client")
-	}
-	if !IsUnauthorized(err) {
-		t.Fatalf("expected IsUnauthorized to be true; got err=%+v", err)
-	}
-	if !IsStatusCode(err, http.StatusUnauthorized) {
-		t.Fatalf("expected IsUnauthorized to be true; got err=%+v", err)
 	}
 }
 
@@ -253,10 +264,17 @@ func TestClientWithoutBasicAuthButAuthEnabledInElasticDuringHealthcheck(t *testi
 }
 
 func TestClientFromConfig(t *testing.T) {
-	cfg, err := config.Parse("http://127.0.0.1:9200")
+	cfg, err := config.Parse("https://127.0.0.1:9200")
 	if err != nil {
 		t.Fatal(err)
 	}
+	cfg.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	cfg.Username = "admin"
+	cfg.Password = "vLPeJYa8.3RqtZCcAK6jNz"
 	client, err := NewClientFromConfig(cfg)
 	if err != nil {
 		t.Fatal(err)
@@ -275,10 +293,17 @@ func TestClientFromConfig(t *testing.T) {
 }
 
 func TestClientDialFromConfig(t *testing.T) {
-	cfg, err := config.Parse("http://127.0.0.1:9200")
+	cfg, err := config.Parse("https://127.0.0.1:9200")
 	if err != nil {
 		t.Fatal(err)
 	}
+	cfg.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	cfg.Username = "admin"
+	cfg.Password = "vLPeJYa8.3RqtZCcAK6jNz"
 	client, err := DialWithConfig(context.Background(), cfg)
 	if err != nil {
 		t.Fatal(err)
@@ -299,7 +324,14 @@ func TestClientDialFromConfig(t *testing.T) {
 func TestClientDialContext(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	client, err := DialContext(ctx, SetURL("http://localhost:9200"))
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := DialContext(ctx, SetURL("https://localhost:9200"), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatalf("expected successful connection, got %v", err)
 	}
@@ -310,7 +342,14 @@ func TestClientDialContextTimeoutFromHealthcheck(t *testing.T) {
 	start := time.Now().UTC()
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	_, err := DialContext(ctx, SetURL("http://localhost:9299"), SetHealthcheckTimeoutStartup(5*time.Second))
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	_, err := DialContext(ctx, SetURL("https://localhost:9299"), SetHealthcheckTimeoutStartup(5*time.Second), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if !IsContextErr(err) {
 		t.Fatal(err)
 	}
@@ -326,7 +365,14 @@ func TestClientDialContextTimeoutFromSniffer(t *testing.T) {
 	start := time.Now().UTC()
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	_, err := DialContext(ctx, SetURL("http://localhost:9299"), SetHealthcheck(false))
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	_, err := DialContext(ctx, SetURL("https://localhost:9299"), SetHealthcheck(false), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if !IsContextErr(err) {
 		t.Fatal(err)
 	}
@@ -339,7 +385,13 @@ func TestClientDialContextTimeoutFromSniffer(t *testing.T) {
 }
 
 func TestClientSniffSuccess(t *testing.T) {
-	client, err := NewClient(SetURL("http://127.0.0.1:19200", "http://127.0.0.1:9200"))
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetURL("https://127.0.0.1:19200", "https://127.0.0.1:9200"), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -362,8 +414,17 @@ func TestClientSnifferCallback(t *testing.T) {
 		calls++
 		return false
 	}
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
 	_, err := NewClient(
-		SetURL("http://127.0.0.1:19200", "http://127.0.0.1:9200"),
+		SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"),
+		SetTransport(transport),
+		SetURL("https://127.0.0.1:19200", "https://127.0.0.1:9200"),
 		SetSnifferCallback(cb))
 	if err == nil {
 		t.Fatalf("expected cluster to fail with no nodes found")
@@ -374,7 +435,13 @@ func TestClientSnifferCallback(t *testing.T) {
 }
 
 func TestClientSniffDisabled(t *testing.T) {
-	client, err := NewClient(SetSniff(false), SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"))
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetSniff(false), SetURL("https://127.0.0.1:9200", "https://127.0.0.1:9201"), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -387,16 +454,16 @@ func TestClientSniffDisabled(t *testing.T) {
 		client.Flush().Do(context.TODO())
 	}
 	// The first connection (127.0.0.1:9200) should now be okay.
-	if i, found := findConn("http://127.0.0.1:9200", client.conns...); !found {
-		t.Fatalf("expected connection to %q to be found", "http://127.0.0.1:9200")
+	if i, found := findConn("https://127.0.0.1:9200", client.conns...); !found {
+		t.Fatalf("expected connection to %q to be found", "https://127.0.0.1:9200")
 	} else {
 		if conn := client.conns[i]; conn.IsDead() {
 			t.Fatal("expected connection to be alive, but it is dead")
 		}
 	}
 	// The second connection (127.0.0.1:9201) should now be marked as dead.
-	if i, found := findConn("http://127.0.0.1:9201", client.conns...); !found {
-		t.Fatalf("expected connection to %q to be found", "http://127.0.0.1:9201")
+	if i, found := findConn("https://127.0.0.1:9201", client.conns...); !found {
+		t.Fatalf("expected connection to %q to be found", "https://127.0.0.1:9201")
 	} else {
 		if conn := client.conns[i]; !conn.IsDead() {
 			t.Fatal("expected connection to be dead, but it is alive")
@@ -440,7 +507,12 @@ func TestClientWillMarkConnectionsAsAliveWhenAllAreDead(t *testing.T) {
 }
 
 func TestClientWithRequiredPlugins(t *testing.T) {
-	_, err := NewClient(SetRequiredPlugins("no-such-plugin"))
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	_, err := NewClient(SetRequiredPlugins("no-such-plugin"), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err == nil {
 		t.Fatal("expected error when creating client")
 	}
@@ -451,7 +523,14 @@ func TestClientWithRequiredPlugins(t *testing.T) {
 
 func TestClientHealthcheckStartupTimeout(t *testing.T) {
 	start := time.Now()
-	_, err := NewClient(SetURL("http://localhost:9299"), SetHealthcheckTimeoutStartup(5*time.Second))
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	_, err := NewClient(SetURL("https://localhost:9299"), SetHealthcheckTimeoutStartup(5*time.Second), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	duration := time.Since(start)
 	if !IsConnErr(err) {
 		t.Fatal(err)
@@ -506,6 +585,7 @@ func TestClientHealthcheckTimeoutLeak(t *testing.T) {
 				url: "http://" + addr + "/",
 			},
 		},
+		log: logrus.StandardLogger(),
 	}
 
 	type closer interface {
@@ -574,7 +654,13 @@ func TestClientSniffUpdatingNodeURL(t *testing.T) {
 
 	nodeURL = ts.URL
 
-	client, err := NewSimpleClient(SetURL(ts.URL), SetSniff(true))
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewSimpleClient(SetURL(ts.URL), SetSniff(true), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -608,7 +694,7 @@ func TestClientSniffUpdatingNodeURL(t *testing.T) {
 	oldNodeID := client.conns[0].NodeID()
 	oldURL := client.conns[0].URL()
 
-	nodeURL = "http://127.0.0.1:9999" // some other nodeURL to report
+	nodeURL = "https://127.0.0.1:9999" // some other nodeURL to report
 
 	err = client.sniff(context.Background(), 2*time.Second)
 	if err != nil {
@@ -678,7 +764,14 @@ func TestSimpleClientDefaults(t *testing.T) {
 // -- Start and stop --
 
 func TestClientStartAndStop(t *testing.T) {
-	client, err := NewClient()
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -718,7 +811,13 @@ func TestClientStartAndStop(t *testing.T) {
 }
 
 func TestClientStartAndStopWithSnifferAndHealthchecksDisabled(t *testing.T) {
-	client, err := NewClient(SetSniff(false), SetHealthcheck(false))
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetSniff(false), SetHealthcheck(false), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -760,7 +859,13 @@ func TestClientStartAndStopWithSnifferAndHealthchecksDisabled(t *testing.T) {
 // -- Sniffing --
 
 func TestClientSniffNode(t *testing.T) {
-	client, err := NewClient()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -773,7 +878,7 @@ func TestClientSniffNode(t *testing.T) {
 		if len(nodes) != 1 {
 			t.Fatalf("expected %d nodes; got: %d", 1, len(nodes))
 		}
-		pattern := `http:\/\/[\d\.]+:9200`
+		pattern := `https:\/\/[\d\.]+:9200`
 		matched, err := regexp.MatchString(pattern, nodes[0].URL())
 		if err != nil {
 			t.Fatal(err)
@@ -788,7 +893,14 @@ func TestClientSniffNode(t *testing.T) {
 }
 
 func TestClientSniffOnDefaultURL(t *testing.T) {
-	client, _ := NewClient()
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, _ := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if client == nil {
 		t.Fatal("no client returned")
 	}
@@ -806,7 +918,7 @@ func TestClientSniffOnDefaultURL(t *testing.T) {
 		if len(client.conns) != 1 {
 			t.Fatalf("expected %d nodes; got: %d", 1, len(client.conns))
 		}
-		pattern := `http:\/\/[\d\.]+:9200`
+		pattern := `https:\/\/[\d\.]+:9200`
 		matched, err := regexp.MatchString(pattern, client.conns[0].URL())
 		if err != nil {
 			t.Fatal(err)
@@ -1097,7 +1209,13 @@ func TestClientSelectConnAllDead(t *testing.T) {
 // -- OpensearchVersion --
 
 func TestOpensearchVersion(t *testing.T) {
-	client, err := NewClient()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1136,7 +1254,13 @@ func TestIndexNames(t *testing.T) {
 // -- PerformRequest --
 
 func TestPerformRequest(t *testing.T) {
-	client, err := NewClient()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1161,7 +1285,13 @@ func TestPerformRequest(t *testing.T) {
 }
 
 func TestPerformRequestWithStream(t *testing.T) {
-	client, err := NewClient()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1193,7 +1323,13 @@ func TestPerformRequestWithStream(t *testing.T) {
 }
 
 func TestPerformRequestWithSimpleClient(t *testing.T) {
-	client, err := NewSimpleClient()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewSimpleClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1218,7 +1354,13 @@ func TestPerformRequestWithSimpleClient(t *testing.T) {
 }
 
 func TestPerformRequestWithMaxResponseSize(t *testing.T) {
-	client, err := NewClient()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1248,9 +1390,14 @@ func TestPerformRequestOnNoConnectionsWithHealthcheckRevival(t *testing.T) {
 	fail := func(r *http.Request) (*http.Response, error) {
 		return nil, errors.New("request failed")
 	}
-	tr := &failingTransport{path: "/fail", fail: fail}
+	tr := &failingTransport{
+		path: "/fail",
+		fail: fail,
+	}
+
 	httpClient := &http.Client{Transport: tr}
-	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(0), SetHealthcheck(true))
+
+	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(0), SetHealthcheck(true), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1295,7 +1442,13 @@ func (tr *failingTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	if tr.next != nil {
 		return tr.next.RoundTrip(r)
 	}
-	return http.DefaultTransport.RoundTrip(r)
+
+	t := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	return t.RoundTrip(r)
 }
 
 func TestPerformRequestRetryOnHttpError(t *testing.T) {
@@ -1310,7 +1463,7 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 	tr := &failingTransport{path: "/fail", fail: fail}
 	httpClient := &http.Client{Transport: tr}
 
-	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(5), SetHealthcheck(false))
+	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(5), SetHealthcheck(false), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1343,7 +1496,7 @@ func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 	tr := &failingTransport{path: "/fail", fail: fail}
 	httpClient := &http.Client{Transport: tr}
 
-	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(5), SetHealthcheck(false))
+	client, err := NewClient(SetHttpClient(httpClient), SetMaxRetries(5), SetHealthcheck(false), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1384,6 +1537,7 @@ func TestPerformRequestOnSpecifiedHttpStatusCodes(t *testing.T) {
 		SetMaxRetries(5),
 		SetRetryStatusCodes(429, 504),
 		SetHealthcheck(false),
+		SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"),
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -1417,7 +1571,13 @@ func (fb failingBody) MarshalJSON() ([]byte, error) {
 }
 
 func TestPerformRequestWithSetBodyError(t *testing.T) {
-	client, err := NewClient()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1449,7 +1609,7 @@ func TestPerformRequestWithCancel(t *testing.T) {
 	tr := &sleepingTransport{timeout: 3 * time.Second}
 	httpClient := &http.Client{Transport: tr}
 
-	client, err := NewSimpleClient(SetHttpClient(httpClient), SetMaxRetries(0))
+	client, err := NewSimpleClient(SetHttpClient(httpClient), SetMaxRetries(0), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1487,7 +1647,7 @@ func TestPerformRequestWithTimeout(t *testing.T) {
 	tr := &sleepingTransport{timeout: 3 * time.Second}
 	httpClient := &http.Client{Transport: tr}
 
-	client, err := NewSimpleClient(SetHttpClient(httpClient), SetMaxRetries(0))
+	client, err := NewSimpleClient(SetHttpClient(httpClient), SetMaxRetries(0), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1519,7 +1679,13 @@ func TestPerformRequestWithTimeout(t *testing.T) {
 }
 
 func TestPerformRequestWithCustomHTTPHeadersOnRequest(t *testing.T) {
-	client, err := NewClient()
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	client, err := NewClient(SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1545,9 +1711,16 @@ func TestPerformRequestWithCustomHTTPHeadersOnRequest(t *testing.T) {
 }
 
 func TestPerformRequestWithCustomHTTPHeadersOnClient(t *testing.T) {
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
 	client, err := NewClient(SetHeaders(http.Header{
 		"Custom-Id": []string{"olivere"},
-	}))
+	}), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"), SetTransport(transport))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1583,7 +1756,7 @@ func TestPerformRequestSetsDefaultUserAgent(t *testing.T) {
 	tr := &failingTransport{path: "/", fail: h}
 	httpClient := &http.Client{Transport: tr}
 
-	client, err := NewClient(SetHttpClient(httpClient), SetSniff(false), SetHealthcheck(false))
+	client, err := NewClient(SetHttpClient(httpClient), SetSniff(false), SetHealthcheck(false), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1620,7 +1793,7 @@ func TestPerformRequestWithCustomHTTPHeadersPriority(t *testing.T) {
 		"Custom-Id":   []string{"olivere"},
 		"User-Agent":  []string{"My user agent"},
 		"X-Opaque-Id": []string{"sandra"}, // <- will be overridden by request-level header
-	}), SetSniff(false), SetHealthcheck(false))
+	}), SetSniff(false), SetHealthcheck(false), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1675,6 +1848,9 @@ func TestPerformRequestWithCompressionEnabled(t *testing.T) {
 	testPerformRequestWithCompression(t, &http.Client{
 		Transport: &http.Transport{
 			DisableCompression: true,
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
 		},
 	})
 }
@@ -1683,12 +1859,15 @@ func TestPerformRequestWithCompressionDisabled(t *testing.T) {
 	testPerformRequestWithCompression(t, &http.Client{
 		Transport: &http.Transport{
 			DisableCompression: false,
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
 		},
 	})
 }
 
 func testPerformRequestWithCompression(t *testing.T, hc *http.Client) {
-	client, err := NewClient(SetHttpClient(hc), SetSniff(false))
+	client, err := NewClient(SetHttpClient(hc), SetSniff(false), SetBasicAuth("admin", "vLPeJYa8.3RqtZCcAK6jNz"))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -29,11 +29,11 @@ const (
 
 	// DefaultURL is the default endpoint of Opensearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
-	DefaultURL = "http://127.0.0.1:9200"
+	DefaultURL = "https://127.0.0.1:9200"
 
 	// DefaultScheme is the default protocol scheme to use when sniffing
 	// the Opensearch cluster.
-	DefaultScheme = "http"
+	DefaultScheme = "https"
 
 	// DefaultHealthcheckEnabled specifies if healthchecks are enabled by default.
 	DefaultHealthcheckEnabled = true
