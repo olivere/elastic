@@ -145,7 +145,7 @@ func (s *IndicesGetMappingService) buildURL() (string, url.Values, error) {
 	if len(s.typ) > 0 {
 		typ = s.typ
 	} else {
-		typ = []string{"_all"}
+		typ = []string{""}
 	}
 
 	// Build URL
