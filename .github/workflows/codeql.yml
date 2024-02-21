@@ -69,4 +69,4 @@ jobs:
       run: |
         go test -deprecations -strict-decoder -v . ./config/... ./trace/... ./uritemplates/...
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
+      uses: github/codeql-action/analyze@v3
