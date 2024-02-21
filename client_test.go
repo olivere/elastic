@@ -688,6 +688,7 @@ func TestClientSniffUpdatingNodeURL(t *testing.T) {
 	if want, have := nodeID, client.conns[0].NodeID(); want != have {
 		t.Fatalf("expected NodeID=%q; got %q", want, have)
 	}
+	panic(nodeURL)
 	if want, have := nodeURL, client.conns[0].URL(); want != have {
 		t.Fatalf("expected URL=%q; got %q", want, have)
 	}
