@@ -1,6 +1,6 @@
 services:
   opensearch:
-    image: public.ecr.aws/opensearchproject/opensearch:${VERSION:-2.12.0}
+    image: opensearchproject/opensearch:${VERSION:-2.12.0}
     hostname: opensearchsearch
     environment:
       - cluster.name=opensearchsearch
