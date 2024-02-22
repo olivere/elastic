@@ -1,15 +1,16 @@
-# Operator
-
-**This is a development branch that is actively being worked on. DO NOT USE IN PRODUCTION! If you want to use stable versions of Opensearch, please use Go modules for the 2.x release (or later) or a dependency manager like [dep](https://github.com/golang/dep) for earlier releases.**
-
-Opensearch is an [Opensearch](http://www.opensearch.org/) client for the
-[Go](http://www.golang.org/) programming language.
 [![Go Report Card](https://goreportcard.com/badge/github.com/disaster37/opensearch/v2)](https://goreportcard.com/report/github.com/disaster37/opensearch/v2)
 [![Build Status](https://github.com/disaster37/opensearch/workflows/Test/badge.svg)](https://github.com/disaster37/opensearch/actions)
 https://goreportcard.com/badge/github.com/disaster37/opensearch/v2
 [![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://pkg.go.dev/github.com/disaster37/opensearch?tab=doc)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/disaster37/opensearch/master/LICENSE)
 [![codecov](https://codecov.io/gh/disaster37/opensearch/graph/badge.svg?token=4MNPOU84EK)](https://codecov.io/gh/disaster37/opensearch)
+
+# Opensearch
+
+**This is a development branch that is actively being worked on. DO NOT USE IN PRODUCTION! If you want to use stable versions of Opensearch, please use Go modules for the 2.x release (or later) or a dependency manager like [dep](https://github.com/golang/dep) for earlier releases.**
+
+Opensearch is an [Opensearch](http://www.opensearch.org/) client for the
+[Go](http://www.golang.org/) programming language.
 
 
 ## Releases
