@@ -6,7 +6,7 @@ Opensearch is an [Opensearch](http://www.opensearch.org/) client for the
 [Go](http://www.golang.org/) programming language.
 
 [![Build Status](https://github.com/disaster37/opensearch/workflows/Test/badge.svg)](https://github.com/disaster37/opensearch/actions)
-[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://pkg.go.dev/github.com/disaster37/opensearch/release-branch.v2?tab=doc)
+[![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://pkg.go.dev/github.com/disaster37/opensearch?tab=doc)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/disaster37/opensearch/master/LICENSE)
 [![codecov](https://codecov.io/gh/disaster37/opensearch/graph/badge.svg?token=4MNPOU84EK)](https://codecov.io/gh/disaster37/opensearch)
 
