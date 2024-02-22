@@ -4,8 +4,9 @@
 
 Opensearch is an [Opensearch](http://www.opensearch.org/) client for the
 [Go](http://www.golang.org/) programming language.
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/disaster37/opensearch/v2)](https://goreportcard.com/report/github.com/disaster37/opensearch/v2)
 [![Build Status](https://github.com/disaster37/opensearch/workflows/Test/badge.svg)](https://github.com/disaster37/opensearch/actions)
+https://goreportcard.com/badge/github.com/disaster37/opensearch/v2
 [![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://pkg.go.dev/github.com/disaster37/opensearch?tab=doc)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/disaster37/opensearch/master/LICENSE)
 [![codecov](https://codecov.io/gh/disaster37/opensearch/graph/badge.svg?token=4MNPOU84EK)](https://codecov.io/gh/disaster37/opensearch)
@@ -19,19 +20,14 @@ If you want to use stable versions of Opensearch, please use Go modules.**
 
 Here's the version matrix:
 
-Opensearchsearch version | Opensearch version  | Package URL | Remarks |
+Opensearch version | Opensearch version  | Package URL | Remarks |
 ----------------------|------------------|-------------|---------|
-7.x                   | 7.0              | [`github.com/disaster37/opensearch/v2`](https://github.com/disaster37/opensearch) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v2) [doc](http://godoc.org/github.com/disaster37/opensearch)) | Use Go modules.
-6.x                   | 6.0              | [`github.com/disaster37/opensearch`](https://github.com/disaster37/opensearch) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v6) [doc](http://godoc.org/github.com/disaster37/opensearch)) | Use a dependency manager (see below).
-5.x                   | 5.0              | [`gopkg.in/disaster37/opensearch.v5`](https://gopkg.in/disaster37/opensearch.v5) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v5) [doc](http://godoc.org/gopkg.in/disaster37/opensearch.v5)) | Actively maintained.
-2.x                   | 3.0              | [`gopkg.in/disaster37/opensearch.v3`](https://gopkg.in/disaster37/opensearch.v3) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v3) [doc](http://godoc.org/gopkg.in/disaster37/opensearch.v3)) | Deprecated. Please update.
-1.x                   | 2.0              | [`gopkg.in/disaster37/opensearch.v2`](https://gopkg.in/disaster37/opensearch.v2) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/disaster37/opensearch.v2)) | Deprecated. Please update.
-0.9-1.3               | 1.0              | [`gopkg.in/disaster37/opensearch.v1`](https://gopkg.in/disaster37/opensearch.v1) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v1) [doc](http://godoc.org/gopkg.in/disaster37/opensearch.v1)) | Deprecated. Please update.
+2.x                   | 2.12.0              | [`gopkg.in/disaster37/opensearch.v2`](https://gopkg.in/disaster37/opensearch.v2) ([source](https://github.com/disaster37/opensearch/tree/release-branch.v2) [doc](http://godoc.org/gopkg.in/disaster37/opensearch.v2)) | Last version
 
 **Example:**
 
-You have installed Opensearchsearch 7.0.0 and want to use Opensearch.
-As listed above, you should use Opensearch 7.0 (code is in `release-branch.v2`).
+You have installed Opensearchsearch 2.12.0 and want to use Opensearch.
+As listed above, you should use Opensearch v2 (code is in `release-branch.v2`).
 
 To use the required version of Opensearch in your application, you
 should use [Go modules](https://github.com/golang/go/wiki/Modules)
@@ -45,7 +41,7 @@ import "github.com/disaster37/opensearch/v2"
 
 ### Opensearch 2.0
 
-Opensearch 2.0 targets Opensearchsearch 2.x.
+Opensearch 2.0 targets Opensearch 2.x.
 
 
 ## Status
@@ -117,7 +113,6 @@ Here's a [link to a complete working example for v2](@todo).
 
 - Metrics Aggregations
   - [x] Avg
-  - [ ] Boxplot (X-pack)
   - [x] Cardinality
   - [x] Extended Stats
   - [x] Geo Bounds
@@ -128,14 +123,10 @@ Here's a [link to a complete working example for v2](@todo).
   - [x] Min
   - [x] Percentile Ranks
   - [x] Percentiles
-  - [ ] Rate (X-pack)
   - [ ] Scripted Metric
   - [x] Stats
-  - [ ] String stats (X-pack)
   - [x] Sum
-  - [ ] T-test (X-pack)
   - [x] Top Hits
-  - [x] Top metrics (X-pack)
   - [x] Value Count
   - [x] Weighted avg
 - Bucket Aggregations
@@ -170,17 +161,13 @@ Here's a [link to a complete working example for v2](@todo).
   - [x] Bucket Script
   - [x] Bucket Selector
   - [x] Bucket Sort
-  - [ ] Cumulative cardinality (X-pack)
   - [x] Cumulative Sum
   - [x] Derivative
   - [ ] Extended Stats Bucket
-  - [ ] Inference bucket (X-pack)
   - [x] Max Bucket
   - [x] Min Bucket
   - [x] Moving Average
   - [x] Moving function
-  - [ ] Moving percentiles (X-pack)
-  - [ ] Normalize (X-pack)
   - [x] Percentiles Bucket
   - [x] Serial Differencing
   - [x] Stats Bucket
@@ -215,19 +202,6 @@ Here's a [link to a complete working example for v2](@todo).
   - [x] Synced Flush
 - [x] Refresh
 - [x] Force Merge
-
-### Index Lifecycle Management APIs
-
-- [x] Create Policy
-- [x] Get Policy
-- [x] Delete Policy
-- [ ] Move to Step
-- [ ] Remove Policy
-- [ ] Retry Policy
-- [ ] Get Ilm Status
-- [ ] Explain Lifecycle
-- [ ] Start Ilm
-- [ ] Stop Ilm
 
 ### cat APIs
 
@@ -400,7 +374,7 @@ Read [the contribution guidelines](https://github.com/disaster37/opensearch/blob
 ## Credits
 
 Thanks a lot for the great folks working hard on
-[Opensearchsearch](https://www.opensearch.co/products/opensearchsearch)
+[Opensearch](https://www.opensearch.co/products/opensearch)
 and
 [Go](https://golang.org/).
 
