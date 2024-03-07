@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/disaster37/opensearch/v2/uritemplates"
 )
@@ -255,7 +254,7 @@ type IsmPolicyStateTransition struct {
 // IsmPolicyTemplate is the policy template object
 // Source: https://github.com/opensearch-project/index-management/blob/main/src/main/kotlin/org/opensearch/indexmanagement/indexstatemanagement/model/ISMTemplate.kt
 type IsmPolicyTemplate struct {
-	IndexPatterns   []string   `json:"index_patterns,omitempty"`
-	Priority        *int64     `json:"priority,omitempty"`
-	LastUpdatedTime *time.Time `json:"last_updated_time,omitempty"`
+	IndexPatterns   []string `json:"index_patterns,omitempty"`
+	Priority        *int64   `json:"priority,omitempty"`
+	LastUpdatedTime *int64   `json:"last_updated_time,omitempty"`
 }
