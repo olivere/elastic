@@ -1203,6 +1203,9 @@ func (c *Client) startupHealthcheck(parentCtx context.Context, timeout time.Dura
 			defer cancel()
 			req = req.WithContext(ctx)
 			res, err := c.c.Do(req)
+			if res != nil && res.Body != nil {
+				res.Body.Close()
+			}
 			if err != nil {
 				lastErr = err
 			} else if res.StatusCode >= 200 && res.StatusCode < 300 {
