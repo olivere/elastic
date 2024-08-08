@@ -65,7 +65,7 @@ func (q *GeoBoundingBoxQuery) BottomRightFromGeoHash(bottomRight string) *GeoBou
 
 // BottomLeft position from longitude (left) and latitude (bottom).
 func (q *GeoBoundingBoxQuery) BottomLeft(bottom, left float64) *GeoBoundingBoxQuery {
-	q.bottomLeft = []float64{bottom, left}
+	q.bottomLeft = []float64{left, bottom}
 	return q
 }
 

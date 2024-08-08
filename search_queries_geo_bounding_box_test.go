@@ -29,6 +29,26 @@ func TestGeoBoundingBoxQuery(t *testing.T) {
 	}
 }
 
+func TestGeoBoundingBoxQueryInverted(t *testing.T) {
+	q := NewGeoBoundingBoxQuery("pin.location")
+	q = q.TopRight(40.73, -74.1)
+	q = q.BottomLeft(40.01, -71.12)
+	q = q.Type("memory")
+	src, err := q.Source()
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(src)
+	if err != nil {
+		t.Fatalf("marshaling to JSON failed: %v", err)
+	}
+	got := string(data)
+	expected := `{"geo_bounding_box":{"pin.location":{"bottom_left":[-71.12,40.01],"top_right":[-74.1,40.73]},"type":"memory"}}`
+	if got != expected {
+		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
+	}
+}
+
 func TestGeoBoundingBoxQueryWithGeoPoint(t *testing.T) {
 	q := NewGeoBoundingBoxQuery("pin.location")
 	q = q.TopLeftFromGeoPoint(GeoPointFromLatLon(40.73, -74.1))
