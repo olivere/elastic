@@ -137,7 +137,7 @@ func (s *MultiSearchService) Do(ctx context.Context) (*MultiSearchResult, error)
 		if err != nil {
 			return nil, err
 		}
-		lines = append(lines, string(header))
+		lines = append(lines, unsafeBytesToString(header))
 		lines = append(lines, body)
 	}
 	body := strings.Join(lines, "\n") + "\n" // add trailing \n

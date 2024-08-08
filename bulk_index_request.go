@@ -231,7 +231,7 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 		return nil, err
 	}
 
-	lines[0] = string(body)
+	lines[0] = unsafeBytesToString(body)
 
 	// "field1" ...
 	if r.doc != nil {
@@ -241,7 +241,7 @@ func (r *BulkIndexRequest) Source() ([]string, error) {
 			if err != nil {
 				return nil, err
 			}
-			lines[1] = string(body)
+			lines[1] = unsafeBytesToString(body)
 		case json.RawMessage:
 			lines[1] = string(t)
 		case *json.RawMessage:
