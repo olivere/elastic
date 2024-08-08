@@ -34,6 +34,7 @@ type IndicesGetMappingService struct {
 	ignoreUnavailable *bool
 	allowNoIndices    *bool
 	expandWildcards   string
+	includeTypeName   *bool
 }
 
 // NewGetMappingService is an alias for NewIndicesGetMappingService.
@@ -118,6 +119,13 @@ func (s *IndicesGetMappingService) ExpandWildcards(expandWildcards string) *Indi
 	return s
 }
 
+// IncludeTypeName indicates whether to expect a mapping type.
+// If true, a mapping type is expected in the body of mappings. Defaults to false.
+func (s *IndicesGetMappingService) IncludeTypeName(includeTypeName bool) *IndicesGetMappingService {
+	s.includeTypeName = &includeTypeName
+	return s
+}
+
 // Local indicates whether to return local information, do not retrieve
 // the state from master node (default: false).
 func (s *IndicesGetMappingService) Local(local bool) *IndicesGetMappingService {
@@ -182,6 +190,9 @@ func (s *IndicesGetMappingService) buildURL() (string, url.Values, error) {
 	}
 	if s.local != nil {
 		params.Set("local", fmt.Sprintf("%v", *s.local))
+	}
+	if s.includeTypeName != nil {
+		params.Set("include_type_name", fmt.Sprintf("%v", *s.includeTypeName))
 	}
 	return path, params, nil
 }
