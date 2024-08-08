@@ -28,9 +28,9 @@ import (
 )
 
 var (
-	unreserved = regexp.MustCompile("[^A-Za-z0-9\\-._~]")
-	reserved   = regexp.MustCompile("[^A-Za-z0-9\\-._~:/?#[\\]@!$&'()*+,;=]")
-	validname  = regexp.MustCompile("^([A-Za-z0-9_\\.]|%[0-9A-Fa-f][0-9A-Fa-f])+$")
+	unreserved = regexp.MustCompile(`[^A-Za-z0-9\-._~]`)
+	reserved   = regexp.MustCompile(`[^A-Za-z0-9\-._~:/?#[\]@!$&'()*+,;=]`)
+	validName  = regexp.MustCompile(`^([A-Za-z0-9_\.]|%[0-9A-Fa-f][0-9A-Fa-f])+$`)
 	hex        = []byte("0123456789ABCDEF")
 )
 
@@ -61,10 +61,10 @@ type UriTemplate struct {
 }
 
 // Parse parses a URI template string into a UriTemplate object.
-func Parse(rawtemplate string) (template *UriTemplate, err error) {
+func Parse(rawTemplate string) (template *UriTemplate, err error) {
 	template = new(UriTemplate)
-	template.raw = rawtemplate
-	split := strings.Split(rawtemplate, "{")
+	template.raw = rawTemplate
+	split := strings.Split(rawTemplate, "{")
 	template.parts = make([]templatePart, len(split)*2-1)
 	for i, s := range split {
 		if i == 0 {
@@ -74,17 +74,17 @@ func Parse(rawtemplate string) (template *UriTemplate, err error) {
 			}
 			template.parts[i].raw = s
 		} else {
-			subsplit := strings.Split(s, "}")
-			if len(subsplit) != 2 {
+			subSplit := strings.Split(s, "}")
+			if len(subSplit) != 2 {
 				err = errors.New("malformed template")
 				break
 			}
-			expression := subsplit[0]
+			expression := subSplit[0]
 			template.parts[i*2-1], err = parseExpression(expression)
 			if err != nil {
 				break
 			}
-			template.parts[i*2].raw = subsplit[1]
+			template.parts[i*2].raw = subSplit[1]
 		}
 	}
 	if err != nil {
@@ -148,9 +148,9 @@ func parseExpression(expression string) (result templatePart, err error) {
 	default:
 		result.sep = ","
 	}
-	rawterms := strings.Split(expression, ",")
-	result.terms = make([]templateTerm, len(rawterms))
-	for i, raw := range rawterms {
+	rawTerms := strings.Split(expression, ",")
+	result.terms = make([]templateTerm, len(rawTerms))
+	for i, raw := range rawTerms {
 		result.terms[i], err = parseTerm(raw)
 		if err != nil {
 			break
@@ -175,7 +175,7 @@ func parseTerm(term string) (result templateTerm, err error) {
 	} else {
 		err = errors.New("multiple colons in same term")
 	}
-	if !validname.MatchString(result.name) {
+	if !validName.MatchString(result.name) {
 		err = errors.New("not a valid name: " + result.name)
 	}
 	if result.explode && result.truncate > 0 {
