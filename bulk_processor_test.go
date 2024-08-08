@@ -8,6 +8,8 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"sync/atomic"
 	"testing"
@@ -335,6 +337,60 @@ func TestBulkProcessorFlush(t *testing.T) {
 	}
 }
 
+func TestBulkWorker_commit_clearFailedRequests(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	defer server.Close()
+
+	client, err := NewClient(
+		SetURL(server.URL),
+		SetSniff(false),
+		SetHealthcheck(false),
+		SetHttpClient(tooManyHTTPClient{}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var calls int
+
+	bulkProcessor, err := NewBulkProcessorService(client).
+		BulkActions(-1).
+		BulkSize(-1).
+		FlushInterval(0).
+		RetryItemStatusCodes().
+		Backoff(StopBackoff{}).
+		After(BulkAfterFunc(func(executionId int64, requests []BulkableRequest, response *BulkResponse, err error) {
+			calls++
+			if calls == 1 {
+				if len(requests) != 10 {
+					t.Errorf("expected 10 requests; got: %d", len(requests))
+				}
+			} else if len(requests) > 0 {
+				t.Errorf("expected 0 requests; got: %d", len(requests))
+			}
+		})).Do(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for i := 0; i < 10; i++ {
+		bulkProcessor.Add(NewBulkIndexRequest())
+	}
+
+	// first flush should process 10 items
+	if err := bulkProcessor.Flush(); err != nil {
+		t.Fatal(err)
+	}
+	// second flush should process none (even if the first flush failed)
+	if err := bulkProcessor.Flush(); err != nil {
+		t.Fatal(err)
+	}
+	if err := bulkProcessor.Close(); err != nil {
+		t.Fatal(err)
+	}
+}
+
 // -- Helper --
 
 func testBulkProcessor(t *testing.T, numDocs int, svc *BulkProcessorService) {
@@ -426,4 +482,13 @@ func testBulkProcessor(t *testing.T, numDocs int, svc *BulkProcessorService) {
 	if count != int64(numDocs) {
 		t.Fatalf("expected %d documents; got: %d", numDocs, count)
 	}
+}
+
+type tooManyHTTPClient struct {
+}
+
+func (t tooManyHTTPClient) Do(r *http.Request) (*http.Response, error) {
+	recorder := httptest.NewRecorder()
+	recorder.WriteHeader(http.StatusTooManyRequests)
+	return recorder.Result(), nil
 }
