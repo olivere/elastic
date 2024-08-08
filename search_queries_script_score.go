@@ -24,7 +24,7 @@ type ScriptScoreQuery struct {
 // NewScriptScoreQuery creates and initializes a new script_score query.
 func NewScriptScoreQuery(query Query, script *Script) *ScriptScoreQuery {
 	return &ScriptScoreQuery{
-		query: query,
+		query:  query,
 		script: script,
 	}
 }
