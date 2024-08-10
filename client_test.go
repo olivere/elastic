@@ -173,18 +173,18 @@ func TestClientWithBasicAuthInUserInfo(t *testing.T) {
 func TestClientWithBasicAuthDuringHealthcheck(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "HEAD" || r.URL.String() != "/" {
-			t.Fatalf("expected HEAD / request, got %s %s", r.Method, r.URL)
+			t.Errorf("expected HEAD / request, got %s %s", r.Method, r.URL)
 			http.Error(w, fmt.Sprintf("expected HEAD / request, got %s %s", r.Method, r.URL), http.StatusBadRequest)
 			return
 		}
 		username, password, ok := r.BasicAuth()
 		if !ok {
-			t.Fatal("expected HEAD basic auth")
+			t.Errorf("expected HEAD basic auth")
 			http.Error(w, "expected HTTP basic auth", http.StatusBadRequest)
 			return
 		}
-		if username != "user" && password != "secret" {
-			t.Fatalf("invalid HTTP basic auth username %q and password %q", username, password)
+		if username != "user" || password != "secret" {
+			t.Errorf("invalid HTTP basic auth username %q and password %q", username, password)
 			http.Error(w, fmt.Sprintf("invalid HTTP basic auth username %q and password %q", username, password), http.StatusBadRequest)
 			return
 		}
