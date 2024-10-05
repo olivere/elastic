@@ -70,28 +70,26 @@ func Example() {
 		"number_of_replicas":0
 	},
 	"mappings":{
-		"doc":{
-			"properties":{
-				"user":{
-					"type":"keyword"
-				},
-				"message":{
-					"type":"text",
-					"store": true,
-					"fielddata": true
-				},
-                "retweets":{
-                    "type":"long"
-                },
-				"tags":{
-					"type":"keyword"
-				},
-				"location":{
-					"type":"geo_point"
-				},
-				"suggest_field":{
-					"type":"completion"
-				}
+		"properties":{
+			"user":{
+				"type":"keyword"
+			},
+			"message":{
+				"type":"text",
+				"store": true,
+				"fielddata": true
+			},
+			"retweets":{
+				"type":"long"
+			},
+			"tags":{
+				"type":"keyword"
+			},
+			"location":{
+				"type":"geo_point"
+			},
+			"suggest_field":{
+				"type":"completion"
 			}
 		}
 	}
