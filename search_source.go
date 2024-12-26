@@ -191,7 +191,13 @@ func (s *SearchSource) TrackTotalHits(trackTotalHits interface{}) *SearchSource 
 //
 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-request-search-after.html
 func (s *SearchSource) SearchAfter(sortValues ...interface{}) *SearchSource {
-	s.searchAfterSortValues = append(s.searchAfterSortValues, sortValues...)
+	for _, v := range sortValues {
+		// To search after a null date , we need to convert it to the java Long.MIN_VALUE
+		if num, ok := v.(float64); ok && num == -9223372036854776000 {
+			v = -9223372036854775808
+		}
+		s.searchAfterSortValues = append(s.searchAfterSortValues, v)
+	}
 	return s
 }
 
