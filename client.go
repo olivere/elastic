@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -1017,22 +1018,17 @@ func (c *Client) sniffNode(ctx context.Context, url string) []*conn {
 
 // extractHostname returns the URL from the http.publish_address setting.
 func (c *Client) extractHostname(scheme, address string) string {
-	var (
-		host string
-		port string
-
-		addrs = strings.Split(address, "/")
-		ports = strings.Split(address, ":")
-	)
-
-	if len(addrs) > 1 {
-		host = addrs[0]
-	} else {
-		host = strings.Split(addrs[0], ":")[0]
+	// Elasticsearch can publish either IP:port or hostname/IP:port.
+	parts := strings.SplitN(address, "/", 2)
+	host, port, err := net.SplitHostPort(parts[len(parts)-1])
+	if err != nil || host == "" || port == "" {
+		return ""
 	}
-	port = ports[len(ports)-1]
-
-	return fmt.Sprintf("%s://%s:%s", scheme, host, port)
+	if len(parts) == 2 {
+		host = parts[0]
+	}
+	u := url.URL{Scheme: scheme, Host: net.JoinHostPort(host, port)}
+	return u.String()
 }
 
 // updateConns updates the clients' connections with new information

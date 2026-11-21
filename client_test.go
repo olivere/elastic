@@ -789,6 +789,32 @@ func TestClientSniffNode(t *testing.T) {
 	}
 }
 
+func TestClientSniffNodeIPv6(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/_nodes/http" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintln(w, `{"nodes":{"ipv6":{"http":{"publish_address":"[2001:db8::1]:9200"}}}}`)
+	}))
+	defer ts.Close()
+
+	client, err := NewSimpleClient(SetURL(ts.URL), SetSniff(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := client.sniff(context.Background(), 2*time.Second); err != nil {
+		t.Fatal(err)
+	}
+	if len(client.conns) != 1 {
+		t.Fatalf("expected 1 connection; got: %d", len(client.conns))
+	}
+	if got := client.conns[0].URL(); got != "http://[2001:db8::1]:9200" {
+		t.Fatalf("expected IPv6 node URL; got: %q", got)
+	}
+}
+
 func TestClientSniffOnDefaultURL(t *testing.T) {
 	client, _ := NewClient()
 	if client == nil {
@@ -923,6 +949,26 @@ func TestClientExtractHostname(t *testing.T) {
 			Address: "myelk.local/10.1.0.24:9200",
 			Output:  "http://myelk.local:9200",
 		},
+		{
+			Scheme:  "http",
+			Address: "[::1]:9200",
+			Output:  "http://[::1]:9200",
+		},
+		{
+			Scheme:  "https",
+			Address: "[2001:db8::1]:19200",
+			Output:  "https://[2001:db8::1]:19200",
+		},
+		{
+			Scheme:  "https",
+			Address: "myelk.local/[2001:db8::1]:19200",
+			Output:  "https://myelk.local:19200",
+		},
+		{
+			Scheme:  "http",
+			Address: "[2001:db8::1]",
+			Output:  "",
+		},
 	}
 
 	client, err := NewClient(SetSniff(false), SetHealthcheck(false))
@@ -932,7 +978,7 @@ func TestClientExtractHostname(t *testing.T) {
 	for _, test := range tests {
 		got := client.extractHostname(test.Scheme, test.Address)
 		if want := test.Output; want != got {
-			t.Errorf("expected %q; got: %q", want, got)
+			t.Errorf("%s %q: expected %q; got: %q", test.Scheme, test.Address, want, got)
 		}
 	}
 }
